@@ -14,13 +14,9 @@ void main(void){
 void primes(void){
 	unsigned int n, i, s, count, divides;
 
-	print("entered 1");
-
 	n = 2;
 	while(n < top){
-	print("entered 2");
 		s = sqrt(n);
-	print("entered 3");
 		divides = 0;
 
 		i = 2;
