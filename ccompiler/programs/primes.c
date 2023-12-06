@@ -4,14 +4,23 @@
 unsigned int top;
 
 void main(void){
-	print("Max: ");
-	top = scann();
-	primes();
+	unsigned int N, i;
 
-	return;
+	printf("Enter a number to find all prime numbers up to it: ");
+	N = scann();
+
+	print("Prime numbers are: \n");
+	for (i = 2; i <= N; i++) {
+			if (isPrime(i)) {
+					printu(i);
+					print("\n");
+			}
+	}
+
+	return 0;
 }
 
-void primes(void){
+void primes1(void){
 	unsigned int n, i, s, count, divides;
 
 	n = 2;
@@ -26,7 +35,7 @@ void primes(void){
 				break;
 			}
 			i = i + 1;
-			if(i == n) break;
+			if(i >= s) break;
 		}
 		
 		if(divides == 0){
@@ -38,4 +47,15 @@ void primes(void){
 	}
 	return;
 }
+
+char isPrime(unsigned int num) {
+	unsigned int i;
+
+	if (num <= 1) return 0;
+	for (i = 2; i * i <= num; i++) {
+			if (num % i == 0) return 0;
+	}
+	return 1;
+}
+
 
