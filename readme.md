@@ -50,7 +50,6 @@ It is published here for educational purposes only (See licensing terms at end o
 
 ### Licensing Terms
 CC BY-NC-SA 4.0 DEED
-
 Attribution-NonCommercial-ShareAlike 4.0 International
 
 You are free to:
