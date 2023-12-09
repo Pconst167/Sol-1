@@ -1,7 +1,7 @@
 # Sol-1 Homebrew Minicomputer
 
 Sol-1 is a homebrew CPU and Minicomputer built from 74HC logic.
-It is published here for educational purposes only (See licensing terms at end of this document).
+It is published here for educational purposes.
 
 ## Features
 ### Hardware
