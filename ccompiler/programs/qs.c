@@ -1,4 +1,4 @@
-#include "stdio.h"
+#include <stdio.h>
 
 char mystring[256];
 
@@ -7,7 +7,6 @@ void main(){
   printf("Enter a string(256 max): ");
 	gets(mystring);
 	quick(mystring, strlen(mystring));
-
 
   printf("\n");
   printf("Sorted string: ");

@@ -1,4 +1,4 @@
-#include "stdio.h"
+#include <stdio.h>
 
 char *str = "\033[38;2;8;202;40m";
 char *strWhite = "\033[38;2;255;255;255m";
