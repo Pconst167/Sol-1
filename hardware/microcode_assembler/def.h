@@ -420,6 +420,9 @@ char *prog_before_error;
 int defines_tos;
 char includes_file[PROG_SIZE]; // Used to store an included file for processing
 
+int total_nbr_instructions;
+int total_nbr_micro_instructions;
+
 unsigned int current_instr;
 unsigned int current_cycle;
 // Array to keep final microcode output binary

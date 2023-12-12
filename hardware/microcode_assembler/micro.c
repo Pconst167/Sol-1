@@ -117,6 +117,13 @@ int main(int argc, char *argv[]){
   if(switch_verbose){
     printf("Assembly of '%s' is complete.\n", argv[1]);
   }
+
+
+  printf("\n\n*** Statistics ***\n");
+  printf("Total number of instructions: %d\n", total_nbr_instructions);
+  printf("Total number of micro-instructions: %d\n", total_nbr_micro_instructions);
+  printf("Average number of micro-instructions per instruction: %.3f\n", (float)total_nbr_micro_instructions / (float)total_nbr_instructions);
+
   return 0;
 }
 
@@ -182,6 +189,7 @@ void parse_file(){
     if(tok_type != INTEGER_CONST && tok != CLOSING_BRACE) error("Instruction opcode expected.");
     back();
     parse_instruction();
+    total_nbr_instructions++;
   } while(tok_type != END);
 }
 
@@ -199,6 +207,7 @@ void parse_instruction(void){
     just_get(); if(tok == CLOSING_BRACE) break;
     back();
     parse_cycle();
+    total_nbr_micro_instructions++;
   } while(tok_type != END);
 }
 
