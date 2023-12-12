@@ -5,9 +5,7 @@ int main(){
 
   int i;
 
-  i = sqrt(100);
-
-  printu(i);
+  printf("Hello: %s", "John");
 
   return 0;
 

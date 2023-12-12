@@ -14,16 +14,9 @@ primes:
 	je bad_args
 	mov d, tokstr
 	call _strtoint
-	mov [min], a
-	call get_token
-	mov al, [tok]
-	cmp al, TOK_END
-	je bad_args
-	mov d, tokstr
-	call _strtoint
 	mov [max], a
 	
-	mov a, [min]
+	mov a, 2
 primes_L1:
 	mov c, 2	
 primes_L2:
@@ -73,10 +66,9 @@ bad_args:
 .include "lib/token.asm"
 .include "lib/ctype.asm"
 
-s_usage:	.db "Usage: primes [min] [max]\n", 0
+s_usage:	.db "Usage: primes <max>\n", 0
 total:		.dw 0
 max:		.dw 1000
-min:		.dw 5
 
 s_max:		.db "\rUpper bound: ", 0
 s_total:	.db ", Total primes: ", 0

@@ -16,6 +16,14 @@ char is_alpha(char c){
   return(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_');
 }
 
+char toupper(char ch) {
+    if (ch >= 'a' && ch <= 'z') {
+        return ch - 'a' + 'A';
+    } else {
+        return ch;
+    }
+}
+
 char is_delimiter(char c){
   if(
     c == '@' ||
