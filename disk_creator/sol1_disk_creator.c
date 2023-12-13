@@ -61,6 +61,8 @@ uint16_t main(void){
   __uint16_t  boot_id;
   __uint16_t  etc_id;
   __uint16_t  asm_id;
+  __uint16_t  games_id;
+  __uint16_t  bin_id;
 
   __uint16_t  kernel_lba;
   uint16_t file_size;
@@ -75,14 +77,14 @@ uint16_t main(void){
   bin0_id = create_dir("bin0", usr_id);
   bin1_id = create_dir("bin1", usr_id);
   create_dir("share", usr_id);
-  create_dir("games", usr_id);
+  games_id = create_dir("games", usr_id);
   
   etc_id = create_dir("etc", root_id);
   boot_id = create_dir("boot", root_id);
   create_dir("cc", root_id);
   asm_id = create_dir("asm", root_id);
   create_dir("tmp", root_id);
-  create_dir("bin", root_id);
+  bin_id = create_dir("bin", root_id);
   sbin_id = create_dir("sbin", root_id);
   create_dir("home", root_id);
   create_dir("dev", root_id);
@@ -110,9 +112,23 @@ uint16_t main(void){
   file_size = loadfile("../solarium/etc/.shellrc", temp_buffer);
   create_file(".shellrc", etc_id, temp_buffer, file_size, 0x03);
 
-  // /asm
+  // asm
   file_size = loadfile("../ccompiler/out/obj/asm.obj", temp_buffer);
   create_file("asm", asm_id, temp_buffer, file_size, 0x03);
+
+  // bin
+  file_size = loadfile("../ccompiler/out/obj/ansitest.obj", temp_buffer);
+  create_file("ansitest", bin_id, temp_buffer, file_size, 0x07);
+  file_size = loadfile("../ccompiler/out/obj/base64.obj", temp_buffer);
+  create_file("base64", bin_id, temp_buffer, file_size, 0x07);
+  file_size = loadfile("../ccompiler/out/obj/life.obj", temp_buffer);
+  create_file("life", bin_id, temp_buffer, file_size, 0x07);
+  file_size = loadfile("../ccompiler/out/obj/qs.obj", temp_buffer);
+  create_file("qs", bin_id, temp_buffer, file_size, 0x07);
+  file_size = loadfile("../software/obj/cowsay.obj", temp_buffer);
+  create_file("cowsay", bin_id, temp_buffer, file_size, 0x07);
+  file_size = loadfile("../software/obj/sieve.obj", temp_buffer);
+  create_file("sieve", bin_id, temp_buffer, file_size, 0x07);
 
   // /bin0
   file_size = loadfile("../ccompiler/out/obj/shell.obj", temp_buffer);
@@ -159,6 +175,14 @@ uint16_t main(void){
   file_size = loadfile("../software/obj/ed.obj", temp_buffer);
   create_file("ed", bin1_id, temp_buffer, file_size, 0x07);
 
+
+  // games
+  file_size = loadfile("../software/obj/automaton.obj", temp_buffer);
+  create_file("automaton", games_id, temp_buffer, file_size, 0x07);
+  file_size = loadfile("../software/obj/advent.obj", temp_buffer);
+  create_file("adventure", games_id, temp_buffer, file_size, 0x07);
+  file_size = loadfile("../ccompiler/out/obj/wumpus.obj", temp_buffer);
+  create_file("wumpus", games_id, temp_buffer, file_size, 0x07);
 
   loadfile("../software/obj/boot.obj", disk_image);
   install_bootloader(kernel_lba);

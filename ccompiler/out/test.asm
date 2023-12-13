@@ -8,16 +8,30 @@ main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
 ; $i 
+  mov a, $0
+  mov [bp + -1], a
   sub sp, 2
-;; printf("Hello: %s", "John"); 
-  mov b, __s0 ; "Hello: %s"
+;; i++; 
+  lea d, [bp + -1] ; $i
+  mov b, [d]
+  mov g, b
+  inc b
+  lea d, [bp + -1] ; $i
+  mov [d], b
+  mov b, g
+;; ++i; 
+  lea d, [bp + -1] ; $i
+  mov b, [d]
+  inc b
+  lea d, [bp + -1] ; $i
+  mov [d], b
+;; printu(i); 
+  lea d, [bp + -1] ; $i
+  mov b, [d]
   swp b
   push b
-  mov b, __s1 ; "John"
-  swp b
-  push b
-  call printf
-  add sp, 4
+  call printu
+  add sp, 2
 ;; return 0; 
   mov b, $0
   leave
@@ -396,7 +410,7 @@ _if6_true:
   jmp _if6_exit
 _if6_else:
 ;; print("Unknown type size in va_arg() call. Size needs to be either 1 or 2."); 
-  mov b, __s2 ; "Unknown type size in va_arg() call. Size needs to be either 1 or 2."
+  mov b, __s0 ; "Unknown type size in va_arg() call. Size needs to be either 1 or 2."
   swp b
   push b
   call print
@@ -657,7 +671,7 @@ _switch10_case5:
   jmp _switch10_exit ; case break
 _switch10_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s3 ; "Error: Unknown argument type.\n"
+  mov b, __s1 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -1815,7 +1829,57 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s4 ; "\033[2J\033[H"
+  mov b, __s2 ; "\033[2J\033[H"
+  swp b
+  push b
+  call print
+  add sp, 2
+  leave
+  ret
+
+printun:
+  enter 0 ; (push bp; mov bp, sp)
+;; print(prompt); 
+  lea d, [bp + 7] ; $prompt
+  mov b, [d]
+  swp b
+  push b
+  call print
+  add sp, 2
+;; printu(n); 
+  lea d, [bp + 5] ; $n
+  mov b, [d]
+  swp b
+  push b
+  call printu
+  add sp, 2
+;; print("\n"); 
+  mov b, __s3 ; "\n"
+  swp b
+  push b
+  call print
+  add sp, 2
+  leave
+  ret
+
+printsn:
+  enter 0 ; (push bp; mov bp, sp)
+;; print(prompt); 
+  lea d, [bp + 7] ; $prompt
+  mov b, [d]
+  swp b
+  push b
+  call print
+  add sp, 2
+;; prints(n); 
+  lea d, [bp + 5] ; $n
+  mov b, [d]
+  swp b
+  push b
+  call prints
+  add sp, 2
+;; print("\n"); 
+  mov b, __s3 ; "\n"
   swp b
   push b
   call print
@@ -2028,11 +2092,10 @@ _for27_exit:
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
-__s0: .db "Hello: %s", 0
-__s1: .db "John", 0
-__s2: .db "Unknown type size in va_arg() call. Size needs to be either 1 or 2.", 0
-__s3: .db "Error: Unknown argument type.\n", 0
-__s4: .db "\033[2J\033[H", 0
+__s0: .db "Unknown type size in va_arg() call. Size needs to be either 1 or 2.", 0
+__s1: .db "Error: Unknown argument type.\n", 0
+__s2: .db "\033[2J\033[H", 0
+__s3: .db "\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

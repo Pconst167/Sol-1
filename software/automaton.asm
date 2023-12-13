@@ -6,7 +6,7 @@ WIDTH:	.equ	110		; must be even
 
 menu:
 	enter 512	
-__get_math_choice:
+__get_menu_choice:
 	mov d, s_menu
 	call _puts
 	lea d, [bp +- 511]
@@ -14,22 +14,22 @@ __get_math_choice:
 	mov al, [d]
 	sub al, 30h
 	cmp al, 2
-	je _math_quit
-	jgu __get_math_choice				; check bounds
+	je _menu_quit
+	jgu __get_menu_choice				; check bounds
 	shl al, 1
 	mov ah, 0
-	call [a + __math_menu_jump_table]
+	call [a + __menu_menu_jump_table]
 
 	call printnl
-	jmp __get_math_choice
-_math_quit:
+	jmp __get_menu_choice
+_menu_quit:
 	leave
 	syscall sys_terminate_proc
 
 ; ***********************************************************************************
 ; MATHS JUMP TABLE
 ; ***********************************************************************************
-__math_menu_jump_table:
+__menu_menu_jump_table:
 	.dw automaton
 	.dw chg_rules
 	

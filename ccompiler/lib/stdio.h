@@ -373,6 +373,18 @@ void clear(){
   print("\033[2J\033[H");
 }
 
+void printun(char *prompt, int n){
+  print(prompt);
+  printu(n);
+  print("\n");
+}
+
+void printsn(char *prompt, int n){
+  print(prompt);
+  prints(n);
+  print("\n");
+}
+
 void include_stdio_asm(){
   asm{
     .include "lib/stdio.asm"

@@ -3,9 +3,10 @@
 
 int main(){
 
-  int i;
-
-  printf("Hello: %s", "John");
+  int i=0;
+  i++;
+  ++i;
+  printu(i);
 
   return 0;
 

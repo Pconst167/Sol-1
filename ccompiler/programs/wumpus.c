@@ -17,6 +17,8 @@
 
 int arrows;
 int debug = 0;	
+int rand_val = 29;
+int rand_inc=1;
 
 #define YOU	    0
 #define WUMPUS	1
@@ -141,8 +143,8 @@ void show_room() {
     print("YOU ARE IN ROOM "); printu(loc[YOU]+1); print("\n");
 
     print("TUNNELS LEAD TO "); 
-    printu(cave[loc[YOU]][0]+1);
-    printu(cave[loc[YOU]][1]+1); 
+    printu(cave[loc[YOU]][0]+1); print(", ");
+    printu(cave[loc[YOU]][1]+1); print(", ");
     printu(cave[loc[YOU]][2]+1);
     print("\n\n");
 }
@@ -161,7 +163,7 @@ int move_or_shoot() {
 
 void move_wumpus() {
   int k;
-    k = rand() % 4;
+    k = rand2() % 4;
 
     if (k < 3) {
        loc[WUMPUS] = cave[loc[WUMPUS]][k];
@@ -209,7 +211,7 @@ void shoot() {
 
             scratchloc = path[k];
         } else {
-            scratchloc = cave[scratchloc][rand()%3];
+            scratchloc = cave[scratchloc][rand2()%3];
         }
 
         if (scratchloc == loc[WUMPUS]) {
@@ -267,7 +269,7 @@ void move() {
 
     while ((scratchloc == loc[BATS1]) || (scratchloc == loc[BATS2])) {
         print("ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n");
-        scratchloc = loc[YOU] = rand()%20;
+        scratchloc = loc[YOU] = rand2()%20;
     }
 
     if (scratchloc == loc[WUMPUS]) {
@@ -281,17 +283,22 @@ void move() {
     }
 }
 
+int rand2(){
+    rand_val=rand_val+rand_inc;
+    rand_inc++;
+    return rand_val;
+}
 
 void game_setup() {
   int j, k;
+    int v;
 
     for (j = 0; j < LOCS; j++) {
-
         loc[j] = -1;
         while (loc[j] < 0) {
-
-            loc[j] = rand()%20;
-
+            v = rand2();
+            loc[j] = v % 20;
+            
             for (k=0; k<j-1; k++) {
                 if (loc[j] == loc[k]) {
                     loc[j] = -1;
@@ -346,19 +353,16 @@ void game_play() {
 
 
 
-int main(int argc, char* argv[]) {
-
-    rand();
-    
+int main() {
     int c;
-    c = getlet("INSTRUCTIONS (Y-N)");
+
+    c = getlet("INSTRUCTIONS (Y-N): ");
 
     if (c == 'Y') {
 	   print_instructions();
     }
 
     do { 
-
         game_setup();
         game_play();
 
