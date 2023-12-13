@@ -985,7 +985,7 @@ file_system_jmptbl:
   .dw fs_mkdir                  ; 2
   .dw fs_cd                     ; 3
   .dw fs_ls                     ; 4
-  .dw 0                  ; 5
+  .dw fs_mktxt                  ; 5
   .dw fs_mkbin                  ; 6
   .dw fs_pwd                    ; 7
   .dw fs_cat                    ; 8
@@ -1028,7 +1028,7 @@ fs_mkfs:
   
 fs_cd_root:
   mov a, root_id
-  mov [current_dirID], a      ; set current directory LBA to ROOT
+  mov [current_dir_id], a      ; set current directory LBA to ROOT
   sysret  
 
 ; filename in D (userspace data)
@@ -1039,7 +1039,7 @@ fs_chmod:
   mov di, user_data
   mov c, 128
   load                        ; load filename from user-space
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   inc a                       ; metadata sector
   mov b, a
   mov c, 0                    ; upper LBA = 0
@@ -1103,7 +1103,7 @@ fs_mkdir_found_null:
   mov si, user_data
   mov di, transient_area
   rep movsb                   ; copy dirname from user_data to transient_area
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   mov [transient_area + 64], a    ; store parent directory LBA
   mov al, 0
   mov di, transient_area + 512
@@ -1115,7 +1115,7 @@ fs_mkdir_found_null:
   mov ah, $02                     ; disk write, 2 sectors
   call ide_write_sect             ; write sector
 ; now we need to add the new directory to the list, insIDE the current directory
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   add a, 1
   mov b, a                        ; metadata sector
   mov c, 0
@@ -1193,7 +1193,7 @@ fs_mkdir_found_null3:
   mov al, %00001011             ; directory, no execute, write, read, 
   mov [d], al      
   inc d
-  mov b, [current_dirID]        ; retrieve the parent directorys LBA
+  mov b, [current_dir_id]        ; retrieve the parent directorys LBA
   mov [d], b                    ; save LBA
 ; set file creation date  
   add d, 4
@@ -1292,7 +1292,7 @@ fs_dir_id_to_path:
   mov d, filename
   mov al, 0
   mov [d], al                     ; initialize path string 
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   call fs_dir_id_to_path_E0
   mov d, filename
   call _strrev
@@ -1379,7 +1379,7 @@ get_dirID_from_path:
   mov bl, [tok]
   cmp bl, TOK_FSLASH
   je get_dirID_from_path_abs 
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   call _putback
   jmp get_dirID_from_path_E0
 get_dirID_from_path_abs:
@@ -1450,7 +1450,7 @@ file_exists_by_path:
   mov bl, [tok]
   cmp bl, TOK_FSLASH
   je  file_exists_by_path_abs
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   call _putback
   jmp file_exists_by_path_E0
 file_exists_by_path_abs:
@@ -1527,7 +1527,7 @@ loadfile_from_path:
   mov bl, [tok]
   cmp bl, TOK_FSLASH
   je loadfile_from_path_abs 
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   call _putback
   jmp loadfile_from_path_E0
 loadfile_from_path_abs:
@@ -1586,7 +1586,7 @@ loadfile_from_path_end:
 ; ID returned in B
 ;------------------------------------------------------------------------------------------------------;
 fs_get_curr_dirID:
-  mov b, [current_dirID]
+  mov b, [current_dir_id]
   sysret
 
 ;------------------------------------------------------------------------------------------------------;
@@ -1594,7 +1594,7 @@ fs_get_curr_dirID:
 ;------------------------------------------------------------------------------------------------------;
 ; new dirID in B
 fs_cd:
-  mov [current_dirID], b
+  mov [current_dir_id], b
   sysret  
 
 ;------------------------------------------------------------------------------------------------------;
@@ -1725,7 +1725,7 @@ fs_starcom:
 	call ide_write_sect			; write sectors
 ; now we add the file to the current directory!
 fs_starcom_add_to_dir:	
-	mov a, [current_dirID]
+	mov a, [current_dir_id]
 	inc a
 	mov b, a					; metadata sector
 	mov c, 0
@@ -1794,6 +1794,118 @@ fs_find_empty_block_L1:
 fs_find_empty_block_found_null:
   ret
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; CREATE NEW TEXTFILE
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; search for first null block
+fs_mktxt:
+	mov si, d
+	mov di, user_data
+	mov c, 256
+	load					; load data from user-space
+	
+	mov b, FS_LBA_START		; raw files starting block
+	mov c, 0						; reset LBA to 0
+fs_mktxt_L1:	
+	mov a, $0102			; disk read
+	mov d, transient_area
+	syscall sys_ide ; read sector
+	mov al, [d]
+	cmp al, 0			; check for NULL
+	je fs_mktxt_found_null
+	add b, FS_SECTORS_PER_FILE
+	jmp fs_mktxt_L1
+fs_mktxt_found_null:
+	push b				; save LBA
+;create header file by grabbing file name from parameter	
+	mov d, s_dataentry
+	call _puts
+	mov d, transient_area + 512			; pointer to file contents
+	call _gets
+	call _strlen						; get length of file
+	push c							; save length
+	mov al, 1
+	mov [transient_area], al					; mark sectors as USED (not NULL)
+	mov a, 0
+	mov [index], a
+	mov d, transient_area
+	mov a, d
+	mov [buffer_addr], a
+fs_mktxt_L2:
+	mov c, 0
+	mov a, $0103			; disk write, 1 sector
+	syscall sys_ide		; write sector
+	mov a, [index]
+	inc a
+	mov [index], a
+	cmp a, FS_SECTORS_PER_FILE
+	je fs_mktxt_add_to_dir
+	inc b
+	mov a, [buffer_addr]
+	add a, 512
+	mov [buffer_addr], a
+	mov d, a
+	jmp fs_mktxt_L2
+; now we add the file to the current directory!
+fs_mktxt_add_to_dir:	
+	mov a, [current_dir_id]
+	inc a
+	mov b, a					; metadata sector
+	mov c, 0
+	mov g, b					; save LBA
+	mov d, transient_area
+	mov a, $0102			; disk read
+	syscall sys_ide		; read metadata sector
+fs_mktxt_add_to_dir_L2:
+	mov al, [d]
+	cmp al, 0
+	je fs_mktxt_add_to_dir_null
+	add d, FST_ENTRY_SIZE
+	jmp fs_mktxt_add_to_dir_L2					; we look for a NULL entry here but dont check for limits. CARE NEEDED WHEN ADDING TOO MANY FILES TO A DIRECTORY
+fs_mktxt_add_to_dir_null:
+	mov si, user_data
+	mov di, d
+	call _strcpy			; copy file name
+	add d, 24			; skip name
+	mov al, %00000110		; no execute, write, read, not directory
+	mov [d], al			
+	add d, 3
+	pop a
+	mov [d], a
+	sub d, 2
+	pop b				; get file LBA
+	mov [d], b			; save LBA	
+	
+	; set file creation date	
+	add d, 4
+	mov al, 4
+	syscall sys_rtc
+	mov al, ah
+	mov [d], al			; set day
+	
+	inc d
+	mov al, 5
+	syscall sys_rtc
+	mov al, ah
+	mov [d], al			; set month
+	
+	inc d
+	mov al, 6
+	syscall sys_rtc
+	mov al, ah
+	mov [d], al			; set year
+	
+; write sector into disk for new directory entry
+	mov b, g
+	mov c, 0
+	mov d, transient_area
+	mov a, $0103			; disk write, 1 sector
+	syscall sys_ide		; write sector
+	call printnl
+	sysret
+
+
+
 ;------------------------------------------------------------------------------------------------------;
 ; CREATE NEW BINARY FILE
 ;------------------------------------------------------------------------------------------------------;
@@ -1845,7 +1957,7 @@ fs_mkbin_L2:
   jmp fs_mkbin_L2
 ; now we add the file to the current directory!
 fs_mkbin_add_to_dir:  
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   inc a
   mov b, a                      ; metadata sector
   mov c, 0
@@ -1904,7 +2016,7 @@ fs_pwd:
   mov d, filename
   mov al, 0
   mov [d], al                   ; initialize path string 
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   call fs_dir_id_to_path_E0
   mov d, filename
   call _strrev
@@ -1917,7 +2029,7 @@ fs_pwd:
 ; A: returned LBA
 ;------------------------------------------------------------------------------------------------------;
 cmd_get_curr_dir_LBA:
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   sysret
 
 ;------------------------------------------------------------------------------------------------------;
@@ -1931,7 +2043,7 @@ fs_cat:
   mov di, user_data
   mov c, 512
   load                                ; copy filename from user-space
-  mov b, [current_dirID]
+  mov b, [current_dir_id]
   inc b                               ; metadata sector
   mov c, 0                            ; upper LBA = 0
   mov ah, $01                  ; 1 sector
@@ -2034,7 +2146,7 @@ fs_rm:
   mov di, user_data
   mov c, 512
   load                          ; load data from user-space
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   inc a                         ; metadata sector
   mov b, a
   mov c, 0                      ; upper LBA = 0
@@ -2060,7 +2172,7 @@ fs_rm_found_entry:
   mov g, b                      ; save LBA
   mov al, 0
   mov [d], al                   ; make file entry NULL
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   inc a                         ; metadata sector
   mov b, a
   mov c, 0                      ; upper LBA = 0
@@ -2085,7 +2197,7 @@ fs_mv:
   mov di, user_data
   mov c, 512
   load                          ; load data from user-space
-  mov a, [current_dirID]
+  mov a, [current_dir_id]
   inc a                         ; metadata sector
   mov b, a  
   mov c, 0                      ; upper LBA = 0
@@ -2438,9 +2550,10 @@ fifo_in:            .dw fifo
 fifo_out:           .dw fifo
 
 ; file system variables
-current_dirID:      .dw 0     ; keep dirID of current directory
+current_dir_id:     .dw 0     ; keep dirID of current directory
 s_init_path:        .db "/sbin/init", 0
 
+s_dataentry:        .db "> ", 0
 s_parent_dir:       .db "..", 0
 s_current_dir:      .db ".", 0
 s_fslash:           .db "/", 0

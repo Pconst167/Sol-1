@@ -1,5 +1,9 @@
+.include "lib/kernel.exp"
+
+.org text_org			; origin at 1024
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; ed - the original Unix text editor!
+; ed - the original Unix text editor.
 ;
 ; 1,$p
 ; 1,2p
@@ -10,10 +14,6 @@
 ; 2a
 ; 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.include "lib/kernel.exp"
-
-.org text_org			; origin at 1024
-
 ed_main:
 	mov sp, $FFFF
 	mov bp, $FFFF
