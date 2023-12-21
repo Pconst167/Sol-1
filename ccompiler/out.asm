@@ -2593,20 +2593,14 @@ print_instructions:
   push b
   call print
   add sp, 2
-;; print("HAS 3 TUNNELS LEADING TO OTHER ROOMS. (LOOK AT A\n"); 
-  mov b, __s8 ; "HAS 3 TUNNELS LEADING TO OTHER ROOMS. (LOOK AT A\n"
+;; print("HAS 3 TUNNELS LEADING TO OTHER ROOMS.\n");  
+  mov b, __s8 ; "HAS 3 TUNNELS LEADING TO OTHER ROOMS.\n"
   swp b
   push b
   call print
   add sp, 2
-;; print("DODECAHEDRON TO SEE HOW THIS WORKS-IF YOU DON'T KNOW\n"); 
-  mov b, __s9 ; "DODECAHEDRON TO SEE HOW THIS WORKS-IF YOU DON'T KNOW\n"
-  swp b
-  push b
-  call print
-  add sp, 2
-;; print("WHAT A DODECAHEDRON IS, ASK SOMEONE)\n"); 
-  mov b, __s10 ; "WHAT A DODECAHEDRON IS, ASK SOMEONE)\n"
+;; print("LOOK AT A DODECAHEDRON TO SEE HOW THIS WORKS.\n"); 
+  mov b, __s9 ; "LOOK AT A DODECAHEDRON TO SEE HOW THIS WORKS.\n"
   swp b
   push b
   call print
@@ -2618,85 +2612,85 @@ print_instructions:
   call print
   add sp, 2
 ;; print(" HAZARDS:\n"); 
-  mov b, __s11 ; " HAZARDS:\n"
+  mov b, __s10 ; " HAZARDS:\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n"); 
-  mov b, __s12 ; " BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n"
+  mov b, __s11 ; " BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n"); 
-  mov b, __s13 ; " IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n"
+  mov b, __s12 ; " IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n"); 
-  mov b, __s14 ; " SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n"
+  mov b, __s13 ; " SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n"); 
-  mov b, __s15 ; " GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n"
+  mov b, __s14 ; " GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n"
   swp b
   push b
   call print
   add sp, 2
-;; print(" ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n"); 
-  mov b, __s16 ; " ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n"
+;; print(" ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n\n"); 
+  mov b, __s15 ; " ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" WUMPUS:\n"); 
-  mov b, __s17 ; " WUMPUS:\n"
+  mov b, __s16 ; " WUMPUS:\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n"); 
-  mov b, __s18 ; " THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n"
+  mov b, __s17 ; " THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n"); 
-  mov b, __s19 ; " FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n"
+  mov b, __s18 ; " FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n"); 
-  mov b, __s20 ; " HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n"
+  mov b, __s19 ; " HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" ARROW OR YOU ENTERING HIS ROOM.\n"); 
-  mov b, __s21 ; " ARROW OR YOU ENTERING HIS ROOM.\n"
+  mov b, __s20 ; " ARROW OR YOU ENTERING HIS ROOM.\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n"); 
-  mov b, __s22 ; " IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n"
+  mov b, __s21 ; " IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n"); 
-  mov b, __s23 ; " OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n"
+  mov b, __s22 ; " OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" ARE, HE EATS YOU UP AND YOU LOSE!\n"); 
-  mov b, __s24 ; " ARE, HE EATS YOU UP AND YOU LOSE!\n"
+  mov b, __s23 ; " ARE, HE EATS YOU UP AND YOU LOSE!\n"
   swp b
   push b
   call print
@@ -2708,97 +2702,97 @@ print_instructions:
   call print
   add sp, 2
 ;; print(" YOU:\n"); 
-  mov b, __s25 ; " YOU:\n"
+  mov b, __s24 ; " YOU:\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n"); 
-  mov b, __s26 ; " EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n"
+  mov b, __s25 ; " EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n"); 
-  mov b, __s27 ; " MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n"
+  mov b, __s26 ; " MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n"); 
-  mov b, __s28 ; " ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n"
+  mov b, __s27 ; " ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n"); 
-  mov b, __s29 ; " EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n"
+  mov b, __s28 ; " EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print("   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n"); 
-  mov b, __s30 ; "   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n"
+  mov b, __s29 ; "   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print("   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n"); 
-  mov b, __s31 ; "   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n"
+  mov b, __s30 ; "   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print("   AT RANDOM TO THE NEXT ROOM.\n"); 
-  mov b, __s32 ; "   AT RANDOM TO THE NEXT ROOM.\n"
+  mov b, __s31 ; "   AT RANDOM TO THE NEXT ROOM.\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print("     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n"); 
-  mov b, __s33 ; "     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n"
+  mov b, __s32 ; "     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print("     IF THE ARROW HITS YOU, YOU LOSE.\n"); 
-  mov b, __s34 ; "     IF THE ARROW HITS YOU, YOU LOSE.\n"
+  mov b, __s33 ; "     IF THE ARROW HITS YOU, YOU LOSE.\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" WARNINGS:\n"); 
-  mov b, __s35 ; " WARNINGS:\n"
+  mov b, __s34 ; " WARNINGS:\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n"); 
-  mov b, __s36 ; " WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n"
+  mov b, __s35 ; " WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" THE COMPUTER SAYS:\n"); 
-  mov b, __s37 ; " THE COMPUTER SAYS:\n"
+  mov b, __s36 ; " THE COMPUTER SAYS:\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" WUMPUS:  'I SMELL A WUMPUS'\n"); 
-  mov b, __s38 ; " WUMPUS:  'I SMELL A WUMPUS'\n"
+  mov b, __s37 ; " WUMPUS:  'I SMELL A WUMPUS'\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" BAT   :  'BATS NEARBY'\n"); 
-  mov b, __s39 ; " BAT   :  'BATS NEARBY'\n"
+  mov b, __s38 ; " BAT   :  'BATS NEARBY'\n"
   swp b
   push b
   call print
   add sp, 2
 ;; print(" PIT   :  'I FEEL A DRAFT'\n"); 
-  mov b, __s40 ; " PIT   :  'I FEEL A DRAFT'\n"
+  mov b, __s39 ; " PIT   :  'I FEEL A DRAFT'\n"
   swp b
   push b
   call print
@@ -2892,7 +2886,7 @@ _if31_cond:
   je _if31_else
 _if31_true:
 ;; print("I SMELL A WUMPUS!\n"); 
-  mov b, __s41 ; "I SMELL A WUMPUS!\n"
+  mov b, __s40 ; "I SMELL A WUMPUS!\n"
   swp b
   push b
   call print
@@ -2943,7 +2937,7 @@ _if32_cond:
   je _if32_else
 _if32_true:
 ;; print("I FEEL A DRAFT\n"); 
-  mov b, __s42 ; "I FEEL A DRAFT\n"
+  mov b, __s41 ; "I FEEL A DRAFT\n"
   swp b
   push b
   call print
@@ -2994,7 +2988,7 @@ _if33_cond:
   je _if33_exit
 _if33_true:
 ;; print("BATS NEARBY!\n"); 
-  mov b, __s43 ; "BATS NEARBY!\n"
+  mov b, __s42 ; "BATS NEARBY!\n"
   swp b
   push b
   call print
@@ -3014,7 +3008,7 @@ _for30_update:
   jmp _for30_cond
 _for30_exit:
 ;; print("YOU ARE IN ROOM "); printu(loc[ 0  ]+1); print("\n"); 
-  mov b, __s44 ; "YOU ARE IN ROOM "
+  mov b, __s43 ; "YOU ARE IN ROOM "
   swp b
   push b
   call print
@@ -3047,7 +3041,7 @@ _for30_exit:
   call print
   add sp, 2
 ;; print("TUNNELS LEAD TO ");  
-  mov b, __s45 ; "TUNNELS LEAD TO "
+  mov b, __s44 ; "TUNNELS LEAD TO "
   swp b
   push b
   call print
@@ -3085,7 +3079,7 @@ _for30_exit:
   call printu
   add sp, 2
 ;; print(", "); 
-  mov b, __s46 ; ", "
+  mov b, __s45 ; ", "
   swp b
   push b
   call print
@@ -3123,7 +3117,7 @@ _for30_exit:
   call printu
   add sp, 2
 ;; print(", "); 
-  mov b, __s46 ; ", "
+  mov b, __s45 ; ", "
   swp b
   push b
   call print
@@ -3161,7 +3155,7 @@ _for30_exit:
   call printu
   add sp, 2
 ;; print("\n\n"); 
-  mov b, __s47 ; "\n\n"
+  mov b, __s46 ; "\n\n"
   swp b
   push b
   call print
@@ -3207,7 +3201,7 @@ _while34_block:
 ;; c = getlet("SHOOT OR MOVE (S-M): "); 
   lea d, [bp + -1] ; $c
   push d
-  mov b, __s48 ; "SHOOT OR MOVE (S-M): "
+  mov b, __s47 ; "SHOOT OR MOVE (S-M): "
   swp b
   push b
   call getlet
@@ -3335,7 +3329,7 @@ _if37_cond:
   je _if37_exit
 _if37_true:
 ;; print("TSK TSK TSK - WUMPUS GOT YOU!\n"); 
-  mov b, __s49 ; "TSK TSK TSK - WUMPUS GOT YOU!\n"
+  mov b, __s48 ; "TSK TSK TSK - WUMPUS GOT YOU!\n"
   swp b
   push b
   call print
@@ -3405,7 +3399,7 @@ _while38_block:
 ;; len = getnum("\nNUMBER OF ROOMS (1-5): "); 
   lea d, [bp + -13] ; $len
   push d
-  mov b, __s50 ; "\nNUMBER OF ROOMS (1-5): "
+  mov b, __s49 ; "\nNUMBER OF ROOMS (1-5): "
   swp b
   push b
   call getnum
@@ -3446,7 +3440,7 @@ _while39_block:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
-  mov b, __s51 ; "ROOM #"
+  mov b, __s50 ; "ROOM #"
   swp b
   push b
   call getnum
@@ -3514,7 +3508,7 @@ _if40_cond:
   je _if40_exit
 _if40_true:
 ;; print("ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n"); 
-  mov b, __s52 ; "ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n"
+  mov b, __s51 ; "ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n"
   swp b
   push b
   call print
@@ -3733,7 +3727,7 @@ _if43_cond:
   je _if43_else
 _if43_true:
 ;; print("AHA! YOU GOT THE WUMPUS!\n"); 
-  mov b, __s53 ; "AHA! YOU GOT THE WUMPUS!\n"
+  mov b, __s52 ; "AHA! YOU GOT THE WUMPUS!\n"
   swp b
   push b
   call print
@@ -3769,7 +3763,7 @@ _if44_cond:
   je _if44_exit
 _if44_true:
 ;; print("OUCH! ARROW GOT YOU!\n"); 
-  mov b, __s54 ; "OUCH! ARROW GOT YOU!\n"
+  mov b, __s53 ; "OUCH! ARROW GOT YOU!\n"
   swp b
   push b
   call print
@@ -3814,7 +3808,7 @@ _for41_update:
   jmp _for41_cond
 _for41_exit:
 ;; print("MISSED\n"); 
-  mov b, __s55 ; "MISSED\n"
+  mov b, __s54 ; "MISSED\n"
   swp b
   push b
   call print
@@ -3880,7 +3874,7 @@ _while47_block:
 ;; scratchloc = getnum("\nWHERE TO: ")-1; 
   lea d, [bp + -1] ; $scratchloc
   push d
-  mov b, __s56 ; "\nWHERE TO: "
+  mov b, __s55 ; "\nWHERE TO: "
   swp b
   push b
   call getnum
@@ -4049,7 +4043,7 @@ _if49_cond:
   je _if49_exit
 _if49_true:
 ;; print("NOT POSSIBLE\n"); 
-  mov b, __s57 ; "NOT POSSIBLE\n"
+  mov b, __s56 ; "NOT POSSIBLE\n"
   swp b
   push b
   call print
@@ -4124,7 +4118,7 @@ _while50_cond:
   je _while50_exit
 _while50_block:
 ;; print("ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n"); 
-  mov b, __s58 ; "ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n"
+  mov b, __s57 ; "ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n"
   swp b
   push b
   call print
@@ -4179,7 +4173,7 @@ _if51_cond:
   je _if51_exit
 _if51_true:
 ;; print("... OOPS! BUMPED A WUMPUS!\n"); 
-  mov b, __s59 ; "... OOPS! BUMPED A WUMPUS!\n"
+  mov b, __s58 ; "... OOPS! BUMPED A WUMPUS!\n"
   swp b
   push b
   call print
@@ -4232,7 +4226,7 @@ _if52_cond:
   je _if52_exit
 _if52_true:
 ;; print("YYYYIIIIEEEE . . . FELL IN PIT\n"); 
-  mov b, __s60 ; "YYYYIIIIEEEE . . . FELL IN PIT\n"
+  mov b, __s59 ; "YYYYIIIIEEEE . . . FELL IN PIT\n"
   swp b
   push b
   call print
@@ -4484,7 +4478,7 @@ game_play:
   pop d
   mov [d], b
 ;; print("HUNT THE WUMPUS\n"); 
-  mov b, __s61 ; "HUNT THE WUMPUS\n"
+  mov b, __s60 ; "HUNT THE WUMPUS\n"
   swp b
   push b
   call print
@@ -4497,7 +4491,7 @@ _if57_cond:
   je _if57_exit
 _if57_true:
 ;; print("Wumpus is at "); printu(loc[ 1     ]+1); 
-  mov b, __s62 ; "Wumpus is at "
+  mov b, __s61 ; "Wumpus is at "
   swp b
   push b
   call print
@@ -4524,7 +4518,7 @@ _if57_true:
   call printu
   add sp, 2
 ;; print(", pits at "); printu(loc[ 2   ]+1); 
-  mov b, __s63 ; ", pits at "
+  mov b, __s62 ; ", pits at "
   swp b
   push b
   call print
@@ -4551,7 +4545,7 @@ _if57_true:
   call printu
   add sp, 2
 ;; print(" & "); printu(loc[ 3   ]+1); 
-  mov b, __s64 ; " & "
+  mov b, __s63 ; " & "
   swp b
   push b
   call print
@@ -4578,7 +4572,7 @@ _if57_true:
   call printu
   add sp, 2
 ;; print(", bats at "); printu(loc[ 4    ]+1); 
-  mov b, __s65 ; ", bats at "
+  mov b, __s64 ; ", bats at "
   swp b
   push b
   call print
@@ -4605,7 +4599,7 @@ _if57_true:
   call printu
   add sp, 2
 ;; print(" & "); printu(loc[ 5    ]+1); 
-  mov b, __s64 ; " & "
+  mov b, __s63 ; " & "
   swp b
   push b
   call print
@@ -4687,7 +4681,7 @@ _if60_cond:
   je _if60_exit
 _if60_true:
 ;; print("HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n"); 
-  mov b, __s66 ; "HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n"
+  mov b, __s65 ; "HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n"
   swp b
   push b
   call print
@@ -4710,7 +4704,7 @@ _if61_cond:
   je _if61_exit
 _if61_true:
 ;; print("HA HA HA - YOU LOSE!\n"); 
-  mov b, __s67 ; "HA HA HA - YOU LOSE!\n"
+  mov b, __s66 ; "HA HA HA - YOU LOSE!\n"
   swp b
   push b
   call print
@@ -4773,66 +4767,65 @@ __s4: .db "\033[2J\033[H", 0
 __s5: .db "\n", 0
 __s6: .db "WELCOME TO 'HUNT THE WUMPUS'\n", 0
 __s7: .db "THE WUMPUS LIVES IN A CAVE OF 20 ROOMS. EACH ROOM\n", 0
-__s8: .db "HAS 3 TUNNELS LEADING TO OTHER ROOMS. (LOOK AT A\n", 0
-__s9: .db "DODECAHEDRON TO SEE HOW THIS WORKS-IF YOU DON'T KNOW\n", 0
-__s10: .db "WHAT A DODECAHEDRON IS, ASK SOMEONE)\n", 0
-__s11: .db " HAZARDS:\n", 0
-__s12: .db " BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n", 0
-__s13: .db " IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n", 0
-__s14: .db " SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n", 0
-__s15: .db " GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n", 0
-__s16: .db " ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n", 0
-__s17: .db " WUMPUS:\n", 0
-__s18: .db " THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n", 0
-__s19: .db " FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n", 0
-__s20: .db " HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n", 0
-__s21: .db " ARROW OR YOU ENTERING HIS ROOM.\n", 0
-__s22: .db " IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n", 0
-__s23: .db " OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n", 0
-__s24: .db " ARE, HE EATS YOU UP AND YOU LOSE!\n", 0
-__s25: .db " YOU:\n", 0
-__s26: .db " EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n", 0
-__s27: .db " MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n", 0
-__s28: .db " ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n", 0
-__s29: .db " EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n", 0
-__s30: .db "   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n", 0
-__s31: .db "   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n", 0
-__s32: .db "   AT RANDOM TO THE NEXT ROOM.\n", 0
-__s33: .db "     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n", 0
-__s34: .db "     IF THE ARROW HITS YOU, YOU LOSE.\n", 0
-__s35: .db " WARNINGS:\n", 0
-__s36: .db " WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n", 0
-__s37: .db " THE COMPUTER SAYS:\n", 0
-__s38: .db " WUMPUS:  'I SMELL A WUMPUS'\n", 0
-__s39: .db " BAT   :  'BATS NEARBY'\n", 0
-__s40: .db " PIT   :  'I FEEL A DRAFT'\n", 0
-__s41: .db "I SMELL A WUMPUS!\n", 0
-__s42: .db "I FEEL A DRAFT\n", 0
-__s43: .db "BATS NEARBY!\n", 0
-__s44: .db "YOU ARE IN ROOM ", 0
-__s45: .db "TUNNELS LEAD TO ", 0
-__s46: .db ", ", 0
-__s47: .db "\n\n", 0
-__s48: .db "SHOOT OR MOVE (S-M): ", 0
-__s49: .db "TSK TSK TSK - WUMPUS GOT YOU!\n", 0
-__s50: .db "\nNUMBER OF ROOMS (1-5): ", 0
-__s51: .db "ROOM #", 0
-__s52: .db "ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n", 0
-__s53: .db "AHA! YOU GOT THE WUMPUS!\n", 0
-__s54: .db "OUCH! ARROW GOT YOU!\n", 0
-__s55: .db "MISSED\n", 0
-__s56: .db "\nWHERE TO: ", 0
-__s57: .db "NOT POSSIBLE\n", 0
-__s58: .db "ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n", 0
-__s59: .db "... OOPS! BUMPED A WUMPUS!\n", 0
-__s60: .db "YYYYIIIIEEEE . . . FELL IN PIT\n", 0
-__s61: .db "HUNT THE WUMPUS\n", 0
-__s62: .db "Wumpus is at ", 0
-__s63: .db ", pits at ", 0
-__s64: .db " & ", 0
-__s65: .db ", bats at ", 0
-__s66: .db "HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n", 0
-__s67: .db "HA HA HA - YOU LOSE!\n", 0
+__s8: .db "HAS 3 TUNNELS LEADING TO OTHER ROOMS.\n", 0
+__s9: .db "LOOK AT A DODECAHEDRON TO SEE HOW THIS WORKS.\n", 0
+__s10: .db " HAZARDS:\n", 0
+__s11: .db " BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n", 0
+__s12: .db " IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n", 0
+__s13: .db " SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n", 0
+__s14: .db " GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n", 0
+__s15: .db " ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n\n", 0
+__s16: .db " WUMPUS:\n", 0
+__s17: .db " THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n", 0
+__s18: .db " FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n", 0
+__s19: .db " HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n", 0
+__s20: .db " ARROW OR YOU ENTERING HIS ROOM.\n", 0
+__s21: .db " IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n", 0
+__s22: .db " OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n", 0
+__s23: .db " ARE, HE EATS YOU UP AND YOU LOSE!\n", 0
+__s24: .db " YOU:\n", 0
+__s25: .db " EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n", 0
+__s26: .db " MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n", 0
+__s27: .db " ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n", 0
+__s28: .db " EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n", 0
+__s29: .db "   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n", 0
+__s30: .db "   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n", 0
+__s31: .db "   AT RANDOM TO THE NEXT ROOM.\n", 0
+__s32: .db "     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n", 0
+__s33: .db "     IF THE ARROW HITS YOU, YOU LOSE.\n", 0
+__s34: .db " WARNINGS:\n", 0
+__s35: .db " WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n", 0
+__s36: .db " THE COMPUTER SAYS:\n", 0
+__s37: .db " WUMPUS:  'I SMELL A WUMPUS'\n", 0
+__s38: .db " BAT   :  'BATS NEARBY'\n", 0
+__s39: .db " PIT   :  'I FEEL A DRAFT'\n", 0
+__s40: .db "I SMELL A WUMPUS!\n", 0
+__s41: .db "I FEEL A DRAFT\n", 0
+__s42: .db "BATS NEARBY!\n", 0
+__s43: .db "YOU ARE IN ROOM ", 0
+__s44: .db "TUNNELS LEAD TO ", 0
+__s45: .db ", ", 0
+__s46: .db "\n\n", 0
+__s47: .db "SHOOT OR MOVE (S-M): ", 0
+__s48: .db "TSK TSK TSK - WUMPUS GOT YOU!\n", 0
+__s49: .db "\nNUMBER OF ROOMS (1-5): ", 0
+__s50: .db "ROOM #", 0
+__s51: .db "ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n", 0
+__s52: .db "AHA! YOU GOT THE WUMPUS!\n", 0
+__s53: .db "OUCH! ARROW GOT YOU!\n", 0
+__s54: .db "MISSED\n", 0
+__s55: .db "\nWHERE TO: ", 0
+__s56: .db "NOT POSSIBLE\n", 0
+__s57: .db "ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n", 0
+__s58: .db "... OOPS! BUMPED A WUMPUS!\n", 0
+__s59: .db "YYYYIIIIEEEE . . . FELL IN PIT\n", 0
+__s60: .db "HUNT THE WUMPUS\n", 0
+__s61: .db "Wumpus is at ", 0
+__s62: .db ", pits at ", 0
+__s63: .db " & ", 0
+__s64: .db ", bats at ", 0
+__s65: .db "HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n", 0
+__s66: .db "HA HA HA - YOU LOSE!\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0
