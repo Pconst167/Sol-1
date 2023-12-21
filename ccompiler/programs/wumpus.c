@@ -154,7 +154,7 @@ int move_or_shoot() {
     int c = -1;
 
     while ((c != 'S') && (c != 'M')) {
-        c = getlet("SHOOT OR MOVE (S-M)");
+        c = getlet("SHOOT OR MOVE (S-M): ");
     }
 
     return (c == 'S') ? 1 : 0;
@@ -186,7 +186,7 @@ void shoot() {
 
     len = -1;
     while (len < 1 || len > 5) {
-        len = getnum("NO. OF ROOMS (1-5)");
+        len = getnum("\nNUMBER OF ROOMS (1-5): ");
     }
 
     k = 0;
@@ -246,7 +246,7 @@ void move() {
     scratchloc = -1;
     while (scratchloc == -1) {
 
-        scratchloc = getnum("WHERE TO")-1;
+        scratchloc = getnum("\nWHERE TO: ")-1;
 
         if (scratchloc < 0 || scratchloc > 19) {
             scratchloc = -1;
@@ -343,7 +343,7 @@ void game_play() {
     }
 
     int c;
-    c = getlet("NEW GAME (Y-N)");
+    c = getlet("NEW GAME (Y-N): ");
 
     if (c == 'N') {
         exit();
@@ -366,7 +366,7 @@ int main() {
         game_setup();
         game_play();
 
-    } while (getlet("NEW GAME (Y-N)") != 'N');
+    } while (getlet("NEW GAME (Y-N): ") != 'N');
 
     return 0;
 }

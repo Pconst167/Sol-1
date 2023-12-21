@@ -64,9 +64,9 @@
 0044   0437 07 5D 20      call game_setup
 0045   043A             ;; game_play(); 
 0046   043A 07 77 21      call game_play
-0047   043D             ;; } while (getlet("NEW GAME (Y-N)") != 'N'); 
+0047   043D             ;; } while (getlet("NEW GAME (Y-N): ") != 'N'); 
 0048   043D             _do2_cond:
-0049   043D 26 D0 23      mov b, __s1 ; "NEW GAME (Y-N)"
+0049   043D 26 D0 23      mov b, __s1 ; "NEW GAME (Y-N): "
 0050   0440 FD AB         swp b
 0051   0442 D8            push b
 0052   0443 07 85 15      call getlet
@@ -460,7 +460,7 @@
 0440   067C 0A 8B 06      jmp _if8_exit
 0441   067F             _if8_else:
 0442   067F             ;; print("Unknown type size in va_arg() call. Size needs to be either 1 or 2."); 
-0443   067F 26 DF 23      mov b, __s2 ; "Unknown type size in va_arg() call. Size needs to be either 1 or 2."
+0443   067F 26 E1 23      mov b, __s2 ; "Unknown type size in va_arg() call. Size needs to be either 1 or 2."
 0444   0682 FD AB         swp b
 0445   0684 D8            push b
 0446   0685 07 ED 0C      call print
@@ -721,7 +721,7 @@
 0701   07F0 0A FF 07      jmp _switch12_exit ; case break
 0702   07F3             _switch12_default:
 0703   07F3             ;; print("Error: Unknown argument type.\n"); 
-0704   07F3 26 23 24      mov b, __s3 ; "Error: Unknown argument type.\n"
+0704   07F3 26 25 24      mov b, __s3 ; "Error: Unknown argument type.\n"
 0705   07F6 FD AB         swp b
 0706   07F8 D8            push b
 0707   07F9 07 ED 0C      call print
@@ -1737,9 +1737,9 @@
 1717   0D28             alloc:
 1718   0D28 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 1719   0D2B             ;; heap_top = heap_top + bytes; 
-1720   0D2B 3B 1D 2C      mov d, _heap_top ; $heap_top
+1720   0D2B 3B 2A 2C      mov d, _heap_top ; $heap_top
 1721   0D2E DA            push d
-1722   0D2F 3B 1D 2C      mov d, _heap_top ; $heap_top
+1722   0D2F 3B 2A 2C      mov d, _heap_top ; $heap_top
 1723   0D32 2A            mov b, [d]
 1724   0D33             ; START TERMS
 1725   0D33 D7            push a
@@ -1753,7 +1753,7 @@
 1733   0D3C E7            pop d
 1734   0D3D FD 43         mov [d], b
 1735   0D3F             ;; return heap_top - bytes; 
-1736   0D3F 3B 1D 2C      mov d, _heap_top ; $heap_top
+1736   0D3F 3B 2A 2C      mov d, _heap_top ; $heap_top
 1737   0D42 2A            mov b, [d]
 1738   0D43             ; START TERMS
 1739   0D43 D7            push a
@@ -1770,9 +1770,9 @@
 1750   0D4E             free:
 1751   0D4E F8 00 00      enter 0 ; (push bp; mov bp, sp)
 1752   0D51             ;; return heap_top = heap_top - bytes; 
-1753   0D51 3B 1D 2C      mov d, _heap_top ; $heap_top
+1753   0D51 3B 2A 2C      mov d, _heap_top ; $heap_top
 1754   0D54 DA            push d
-1755   0D55 3B 1D 2C      mov d, _heap_top ; $heap_top
+1755   0D55 3B 2A 2C      mov d, _heap_top ; $heap_top
 1756   0D58 2A            mov b, [d]
 1757   0D59             ; START TERMS
 1758   0D59 D7            push a
@@ -1879,7 +1879,7 @@
 1859   0DD0             clear:
 1860   0DD0 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 1861   0DD3             ;; print("\033[2J\033[H"); 
-1862   0DD3 26 42 24      mov b, __s4 ; "\033[2J\033[H"
+1862   0DD3 26 44 24      mov b, __s4 ; "\033[2J\033[H"
 1863   0DD6 FD AB         swp b
 1864   0DD8 D8            push b
 1865   0DD9 07 ED 0C      call print
@@ -1904,7 +1904,7 @@
 1884   0DF8 07 B9 0B      call printu
 1885   0DFB 51 02 00      add sp, 2
 1886   0DFE             ;; print("\n"); 
-1887   0DFE 26 4A 24      mov b, __s5 ; "\n"
+1887   0DFE 26 4C 24      mov b, __s5 ; "\n"
 1888   0E01 FD AB         swp b
 1889   0E03 D8            push b
 1890   0E04 07 ED 0C      call print
@@ -1929,7 +1929,7 @@
 1909   0E23 07 C4 0A      call prints
 1910   0E26 51 02 00      add sp, 2
 1911   0E29             ;; print("\n"); 
-1912   0E29 26 4A 24      mov b, __s5 ; "\n"
+1912   0E29 26 4C 24      mov b, __s5 ; "\n"
 1913   0E2C FD AB         swp b
 1914   0E2E D8            push b
 1915   0E2F 07 ED 0C      call print
@@ -3551,229 +3551,229 @@
 2582   15CE             print_instructions:
 2583   15CE F8 00 00      enter 0 ; (push bp; mov bp, sp)
 2584   15D1             ;; print("WELCOME TO 'HUNT THE WUMPUS'\n"); 
-2585   15D1 26 4C 24      mov b, __s6 ; "WELCOME TO 'HUNT THE WUMPUS'\n"
+2585   15D1 26 4E 24      mov b, __s6 ; "WELCOME TO 'HUNT THE WUMPUS'\n"
 2586   15D4 FD AB         swp b
 2587   15D6 D8            push b
 2588   15D7 07 ED 0C      call print
 2589   15DA 51 02 00      add sp, 2
 2590   15DD             ;; print("THE WUMPUS LIVES IN A CAVE OF 20 ROOMS. EACH ROOM\n"); 
-2591   15DD 26 6A 24      mov b, __s7 ; "THE WUMPUS LIVES IN A CAVE OF 20 ROOMS. EACH ROOM\n"
+2591   15DD 26 6C 24      mov b, __s7 ; "THE WUMPUS LIVES IN A CAVE OF 20 ROOMS. EACH ROOM\n"
 2592   15E0 FD AB         swp b
 2593   15E2 D8            push b
 2594   15E3 07 ED 0C      call print
 2595   15E6 51 02 00      add sp, 2
 2596   15E9             ;; print("HAS 3 TUNNELS LEADING TO OTHER ROOMS. (LOOK AT A\n"); 
-2597   15E9 26 9D 24      mov b, __s8 ; "HAS 3 TUNNELS LEADING TO OTHER ROOMS. (LOOK AT A\n"
+2597   15E9 26 9F 24      mov b, __s8 ; "HAS 3 TUNNELS LEADING TO OTHER ROOMS. (LOOK AT A\n"
 2598   15EC FD AB         swp b
 2599   15EE D8            push b
 2600   15EF 07 ED 0C      call print
 2601   15F2 51 02 00      add sp, 2
 2602   15F5             ;; print("DODECAHEDRON TO SEE HOW THIS WORKS-IF YOU DON'T KNOW\n"); 
-2603   15F5 26 CF 24      mov b, __s9 ; "DODECAHEDRON TO SEE HOW THIS WORKS-IF YOU DON'T KNOW\n"
+2603   15F5 26 D1 24      mov b, __s9 ; "DODECAHEDRON TO SEE HOW THIS WORKS-IF YOU DON'T KNOW\n"
 2604   15F8 FD AB         swp b
 2605   15FA D8            push b
 2606   15FB 07 ED 0C      call print
 2607   15FE 51 02 00      add sp, 2
 2608   1601             ;; print("WHAT A DODECAHEDRON IS, ASK SOMEONE)\n"); 
-2609   1601 26 04 25      mov b, __s10 ; "WHAT A DODECAHEDRON IS, ASK SOMEONE)\n"
+2609   1601 26 06 25      mov b, __s10 ; "WHAT A DODECAHEDRON IS, ASK SOMEONE)\n"
 2610   1604 FD AB         swp b
 2611   1606 D8            push b
 2612   1607 07 ED 0C      call print
 2613   160A 51 02 00      add sp, 2
 2614   160D             ;; print("\n"); 
-2615   160D 26 4A 24      mov b, __s5 ; "\n"
+2615   160D 26 4C 24      mov b, __s5 ; "\n"
 2616   1610 FD AB         swp b
 2617   1612 D8            push b
 2618   1613 07 ED 0C      call print
 2619   1616 51 02 00      add sp, 2
 2620   1619             ;; print(" HAZARDS:\n"); 
-2621   1619 26 2A 25      mov b, __s11 ; " HAZARDS:\n"
+2621   1619 26 2C 25      mov b, __s11 ; " HAZARDS:\n"
 2622   161C FD AB         swp b
 2623   161E D8            push b
 2624   161F 07 ED 0C      call print
 2625   1622 51 02 00      add sp, 2
 2626   1625             ;; print(" BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n"); 
-2627   1625 26 35 25      mov b, __s12 ; " BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n"
+2627   1625 26 37 25      mov b, __s12 ; " BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n"
 2628   1628 FD AB         swp b
 2629   162A D8            push b
 2630   162B 07 ED 0C      call print
 2631   162E 51 02 00      add sp, 2
 2632   1631             ;; print(" IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n"); 
-2633   1631 26 6F 25      mov b, __s13 ; " IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n"
+2633   1631 26 71 25      mov b, __s13 ; " IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n"
 2634   1634 FD AB         swp b
 2635   1636 D8            push b
 2636   1637 07 ED 0C      call print
 2637   163A 51 02 00      add sp, 2
 2638   163D             ;; print(" SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n"); 
-2639   163D 26 A2 25      mov b, __s14 ; " SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n"
+2639   163D 26 A4 25      mov b, __s14 ; " SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n"
 2640   1640 FD AB         swp b
 2641   1642 D8            push b
 2642   1643 07 ED 0C      call print
 2643   1646 51 02 00      add sp, 2
 2644   1649             ;; print(" GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n"); 
-2645   1649 26 DD 25      mov b, __s15 ; " GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n"
+2645   1649 26 DF 25      mov b, __s15 ; " GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n"
 2646   164C FD AB         swp b
 2647   164E D8            push b
 2648   164F 07 ED 0C      call print
 2649   1652 51 02 00      add sp, 2
 2650   1655             ;; print(" ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n"); 
-2651   1655 26 15 26      mov b, __s16 ; " ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n"
+2651   1655 26 17 26      mov b, __s16 ; " ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n"
 2652   1658 FD AB         swp b
 2653   165A D8            push b
 2654   165B 07 ED 0C      call print
 2655   165E 51 02 00      add sp, 2
 2656   1661             ;; print(" WUMPUS:\n"); 
-2657   1661 26 42 26      mov b, __s17 ; " WUMPUS:\n"
+2657   1661 26 44 26      mov b, __s17 ; " WUMPUS:\n"
 2658   1664 FD AB         swp b
 2659   1666 D8            push b
 2660   1667 07 ED 0C      call print
 2661   166A 51 02 00      add sp, 2
 2662   166D             ;; print(" THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n"); 
-2663   166D 26 4C 26      mov b, __s18 ; " THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n"
+2663   166D 26 4E 26      mov b, __s18 ; " THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n"
 2664   1670 FD AB         swp b
 2665   1672 D8            push b
 2666   1673 07 ED 0C      call print
 2667   1676 51 02 00      add sp, 2
 2668   1679             ;; print(" FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n"); 
-2669   1679 26 83 26      mov b, __s19 ; " FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n"
+2669   1679 26 85 26      mov b, __s19 ; " FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n"
 2670   167C FD AB         swp b
 2671   167E D8            push b
 2672   167F 07 ED 0C      call print
 2673   1682 51 02 00      add sp, 2
 2674   1685             ;; print(" HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n"); 
-2675   1685 26 B6 26      mov b, __s20 ; " HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n"
+2675   1685 26 B8 26      mov b, __s20 ; " HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n"
 2676   1688 FD AB         swp b
 2677   168A D8            push b
 2678   168B 07 ED 0C      call print
 2679   168E 51 02 00      add sp, 2
 2680   1691             ;; print(" ARROW OR YOU ENTERING HIS ROOM.\n"); 
-2681   1691 26 EF 26      mov b, __s21 ; " ARROW OR YOU ENTERING HIS ROOM.\n"
+2681   1691 26 F1 26      mov b, __s21 ; " ARROW OR YOU ENTERING HIS ROOM.\n"
 2682   1694 FD AB         swp b
 2683   1696 D8            push b
 2684   1697 07 ED 0C      call print
 2685   169A 51 02 00      add sp, 2
 2686   169D             ;; print(" IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n"); 
-2687   169D 26 11 27      mov b, __s22 ; " IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n"
+2687   169D 26 13 27      mov b, __s22 ; " IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n"
 2688   16A0 FD AB         swp b
 2689   16A2 D8            push b
 2690   16A3 07 ED 0C      call print
 2691   16A6 51 02 00      add sp, 2
 2692   16A9             ;; print(" OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n"); 
-2693   16A9 26 41 27      mov b, __s23 ; " OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n"
+2693   16A9 26 43 27      mov b, __s23 ; " OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n"
 2694   16AC FD AB         swp b
 2695   16AE D8            push b
 2696   16AF 07 ED 0C      call print
 2697   16B2 51 02 00      add sp, 2
 2698   16B5             ;; print(" ARE, HE EATS YOU UP AND YOU LOSE!\n"); 
-2699   16B5 26 7B 27      mov b, __s24 ; " ARE, HE EATS YOU UP AND YOU LOSE!\n"
+2699   16B5 26 7D 27      mov b, __s24 ; " ARE, HE EATS YOU UP AND YOU LOSE!\n"
 2700   16B8 FD AB         swp b
 2701   16BA D8            push b
 2702   16BB 07 ED 0C      call print
 2703   16BE 51 02 00      add sp, 2
 2704   16C1             ;; print("\n"); 
-2705   16C1 26 4A 24      mov b, __s5 ; "\n"
+2705   16C1 26 4C 24      mov b, __s5 ; "\n"
 2706   16C4 FD AB         swp b
 2707   16C6 D8            push b
 2708   16C7 07 ED 0C      call print
 2709   16CA 51 02 00      add sp, 2
 2710   16CD             ;; print(" YOU:\n"); 
-2711   16CD 26 9F 27      mov b, __s25 ; " YOU:\n"
+2711   16CD 26 A1 27      mov b, __s25 ; " YOU:\n"
 2712   16D0 FD AB         swp b
 2713   16D2 D8            push b
 2714   16D3 07 ED 0C      call print
 2715   16D6 51 02 00      add sp, 2
 2716   16D9             ;; print(" EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n"); 
-2717   16D9 26 A6 27      mov b, __s26 ; " EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n"
+2717   16D9 26 A8 27      mov b, __s26 ; " EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n"
 2718   16DC FD AB         swp b
 2719   16DE D8            push b
 2720   16DF 07 ED 0C      call print
 2721   16E2 51 02 00      add sp, 2
 2722   16E5             ;; print(" MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n"); 
-2723   16E5 26 D8 27      mov b, __s27 ; " MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n"
+2723   16E5 26 DA 27      mov b, __s27 ; " MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n"
 2724   16E8 FD AB         swp b
 2725   16EA D8            push b
 2726   16EB 07 ED 0C      call print
 2727   16EE 51 02 00      add sp, 2
 2728   16F1             ;; print(" ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n"); 
-2729   16F1 26 0B 28      mov b, __s28 ; " ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n"
+2729   16F1 26 0D 28      mov b, __s28 ; " ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n"
 2730   16F4 FD AB         swp b
 2731   16F6 D8            push b
 2732   16F7 07 ED 0C      call print
 2733   16FA 51 02 00      add sp, 2
 2734   16FD             ;; print(" EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n"); 
-2735   16FD 26 44 28      mov b, __s29 ; " EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n"
+2735   16FD 26 46 28      mov b, __s29 ; " EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n"
 2736   1700 FD AB         swp b
 2737   1702 D8            push b
 2738   1703 07 ED 0C      call print
 2739   1706 51 02 00      add sp, 2
 2740   1709             ;; print("   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n"); 
-2741   1709 26 7E 28      mov b, __s30 ; "   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n"
+2741   1709 26 80 28      mov b, __s30 ; "   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n"
 2742   170C FD AB         swp b
 2743   170E D8            push b
 2744   170F 07 ED 0C      call print
 2745   1712 51 02 00      add sp, 2
 2746   1715             ;; print("   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n"); 
-2747   1715 26 B7 28      mov b, __s31 ; "   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n"
+2747   1715 26 B9 28      mov b, __s31 ; "   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n"
 2748   1718 FD AB         swp b
 2749   171A D8            push b
 2750   171B 07 ED 0C      call print
 2751   171E 51 02 00      add sp, 2
 2752   1721             ;; print("   AT RANDOM TO THE NEXT ROOM.\n"); 
-2753   1721 26 F1 28      mov b, __s32 ; "   AT RANDOM TO THE NEXT ROOM.\n"
+2753   1721 26 F3 28      mov b, __s32 ; "   AT RANDOM TO THE NEXT ROOM.\n"
 2754   1724 FD AB         swp b
 2755   1726 D8            push b
 2756   1727 07 ED 0C      call print
 2757   172A 51 02 00      add sp, 2
 2758   172D             ;; print("     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n"); 
-2759   172D 26 11 29      mov b, __s33 ; "     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n"
+2759   172D 26 13 29      mov b, __s33 ; "     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n"
 2760   1730 FD AB         swp b
 2761   1732 D8            push b
 2762   1733 07 ED 0C      call print
 2763   1736 51 02 00      add sp, 2
 2764   1739             ;; print("     IF THE ARROW HITS YOU, YOU LOSE.\n"); 
-2765   1739 26 3E 29      mov b, __s34 ; "     IF THE ARROW HITS YOU, YOU LOSE.\n"
+2765   1739 26 40 29      mov b, __s34 ; "     IF THE ARROW HITS YOU, YOU LOSE.\n"
 2766   173C FD AB         swp b
 2767   173E D8            push b
 2768   173F 07 ED 0C      call print
 2769   1742 51 02 00      add sp, 2
 2770   1745             ;; print(" WARNINGS:\n"); 
-2771   1745 26 65 29      mov b, __s35 ; " WARNINGS:\n"
+2771   1745 26 67 29      mov b, __s35 ; " WARNINGS:\n"
 2772   1748 FD AB         swp b
 2773   174A D8            push b
 2774   174B 07 ED 0C      call print
 2775   174E 51 02 00      add sp, 2
 2776   1751             ;; print(" WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n"); 
-2777   1751 26 71 29      mov b, __s36 ; " WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n"
+2777   1751 26 73 29      mov b, __s36 ; " WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n"
 2778   1754 FD AB         swp b
 2779   1756 D8            push b
 2780   1757 07 ED 0C      call print
 2781   175A 51 02 00      add sp, 2
 2782   175D             ;; print(" THE COMPUTER SAYS:\n"); 
-2783   175D 26 A7 29      mov b, __s37 ; " THE COMPUTER SAYS:\n"
+2783   175D 26 A9 29      mov b, __s37 ; " THE COMPUTER SAYS:\n"
 2784   1760 FD AB         swp b
 2785   1762 D8            push b
 2786   1763 07 ED 0C      call print
 2787   1766 51 02 00      add sp, 2
 2788   1769             ;; print(" WUMPUS:  'I SMELL A WUMPUS'\n"); 
-2789   1769 26 BC 29      mov b, __s38 ; " WUMPUS:  'I SMELL A WUMPUS'\n"
+2789   1769 26 BE 29      mov b, __s38 ; " WUMPUS:  'I SMELL A WUMPUS'\n"
 2790   176C FD AB         swp b
 2791   176E D8            push b
 2792   176F 07 ED 0C      call print
 2793   1772 51 02 00      add sp, 2
 2794   1775             ;; print(" BAT   :  'BATS NEARBY'\n"); 
-2795   1775 26 DA 29      mov b, __s39 ; " BAT   :  'BATS NEARBY'\n"
+2795   1775 26 DC 29      mov b, __s39 ; " BAT   :  'BATS NEARBY'\n"
 2796   1778 FD AB         swp b
 2797   177A D8            push b
 2798   177B 07 ED 0C      call print
 2799   177E 51 02 00      add sp, 2
 2800   1781             ;; print(" PIT   :  'I FEEL A DRAFT'\n"); 
-2801   1781 26 F3 29      mov b, __s40 ; " PIT   :  'I FEEL A DRAFT'\n"
+2801   1781 26 F5 29      mov b, __s40 ; " PIT   :  'I FEEL A DRAFT'\n"
 2802   1784 FD AB         swp b
 2803   1786 D8            push b
 2804   1787 07 ED 0C      call print
 2805   178A 51 02 00      add sp, 2
 2806   178D             ;; print("\n"); 
-2807   178D 26 4A 24      mov b, __s5 ; "\n"
+2807   178D 26 4C 24      mov b, __s5 ; "\n"
 2808   1790 FD AB         swp b
 2809   1792 D8            push b
 2810   1793 07 ED 0C      call print
@@ -3787,7 +3787,7 @@
 2818   179E             ; $k 
 2819   179E 52 04 00      sub sp, 4
 2820   17A1             ;; print("\n"); 
-2821   17A1 26 4A 24      mov b, __s5 ; "\n"
+2821   17A1 26 4C 24      mov b, __s5 ; "\n"
 2822   17A4 FD AB         swp b
 2823   17A6 D8            push b
 2824   17A7 07 ED 0C      call print
@@ -3861,7 +3861,7 @@
 2892   1812 C6 24 18      je _if31_else
 2893   1815             _if31_true:
 2894   1815             ;; print("I SMELL A WUMPUS!\n"); 
-2895   1815 26 0F 2A      mov b, __s41 ; "I SMELL A WUMPUS!\n"
+2895   1815 26 11 2A      mov b, __s41 ; "I SMELL A WUMPUS!\n"
 2896   1818 FD AB         swp b
 2897   181A D8            push b
 2898   181B 07 ED 0C      call print
@@ -3912,7 +3912,7 @@
 2943   185E C6 70 18      je _if32_else
 2944   1861             _if32_true:
 2945   1861             ;; print("I FEEL A DRAFT\n"); 
-2946   1861 26 22 2A      mov b, __s42 ; "I FEEL A DRAFT\n"
+2946   1861 26 24 2A      mov b, __s42 ; "I FEEL A DRAFT\n"
 2947   1864 FD AB         swp b
 2948   1866 D8            push b
 2949   1867 07 ED 0C      call print
@@ -3963,7 +3963,7 @@
 2994   18AA C6 BC 18      je _if33_exit
 2995   18AD             _if33_true:
 2996   18AD             ;; print("BATS NEARBY!\n"); 
-2997   18AD 26 32 2A      mov b, __s43 ; "BATS NEARBY!\n"
+2997   18AD 26 34 2A      mov b, __s43 ; "BATS NEARBY!\n"
 2998   18B0 FD AB         swp b
 2999   18B2 D8            push b
 3000   18B3 07 ED 0C      call print
@@ -3983,7 +3983,7 @@
 3014   18CB 0A B7 17      jmp _for30_cond
 3015   18CE             _for30_exit:
 3016   18CE             ;; print("YOU ARE IN ROOM "); printu(loc[ 0  ]+1); print("\n"); 
-3017   18CE 26 40 2A      mov b, __s44 ; "YOU ARE IN ROOM "
+3017   18CE 26 42 2A      mov b, __s44 ; "YOU ARE IN ROOM "
 3018   18D1 FD AB         swp b
 3019   18D3 D8            push b
 3020   18D4 07 ED 0C      call print
@@ -4010,13 +4010,13 @@
 3041   18F4 07 B9 0B      call printu
 3042   18F7 51 02 00      add sp, 2
 3043   18FA             ;; print("\n"); 
-3044   18FA 26 4A 24      mov b, __s5 ; "\n"
+3044   18FA 26 4C 24      mov b, __s5 ; "\n"
 3045   18FD FD AB         swp b
 3046   18FF D8            push b
 3047   1900 07 ED 0C      call print
 3048   1903 51 02 00      add sp, 2
 3049   1906             ;; print("TUNNELS LEAD TO ");  
-3050   1906 26 51 2A      mov b, __s45 ; "TUNNELS LEAD TO "
+3050   1906 26 53 2A      mov b, __s45 ; "TUNNELS LEAD TO "
 3051   1909 FD AB         swp b
 3052   190B D8            push b
 3053   190C 07 ED 0C      call print
@@ -4054,7 +4054,7 @@
 3085   1941 07 B9 0B      call printu
 3086   1944 51 02 00      add sp, 2
 3087   1947             ;; print(", "); 
-3088   1947 26 62 2A      mov b, __s46 ; ", "
+3088   1947 26 64 2A      mov b, __s46 ; ", "
 3089   194A FD AB         swp b
 3090   194C D8            push b
 3091   194D 07 ED 0C      call print
@@ -4092,7 +4092,7 @@
 3123   1982 07 B9 0B      call printu
 3124   1985 51 02 00      add sp, 2
 3125   1988             ;; print(", "); 
-3126   1988 26 62 2A      mov b, __s46 ; ", "
+3126   1988 26 64 2A      mov b, __s46 ; ", "
 3127   198B FD AB         swp b
 3128   198D D8            push b
 3129   198E 07 ED 0C      call print
@@ -4130,7 +4130,7 @@
 3161   19C3 07 B9 0B      call printu
 3162   19C6 51 02 00      add sp, 2
 3163   19C9             ;; print("\n\n"); 
-3164   19C9 26 65 2A      mov b, __s47 ; "\n\n"
+3164   19C9 26 67 2A      mov b, __s47 ; "\n\n"
 3165   19CC FD AB         swp b
 3166   19CE D8            push b
 3167   19CF 07 ED 0C      call print
@@ -4173,10 +4173,10 @@
 3204   1A02 C0 00 00      cmp b, 0
 3205   1A05 C6 1E 1A      je _while34_exit
 3206   1A08             _while34_block:
-3207   1A08             ;; c = getlet("SHOOT OR MOVE (S-M)"); 
+3207   1A08             ;; c = getlet("SHOOT OR MOVE (S-M): "); 
 3208   1A08 FA FF FF      lea d, [bp + -1] ; $c
 3209   1A0B DA            push d
-3210   1A0C 26 68 2A      mov b, __s48 ; "SHOOT OR MOVE (S-M)"
+3210   1A0C 26 6A 2A      mov b, __s48 ; "SHOOT OR MOVE (S-M): "
 3211   1A0F FD AB         swp b
 3212   1A11 D8            push b
 3213   1A12 07 85 15      call getlet
@@ -4304,7 +4304,7 @@
 3335   1AC9 C6 E5 1A      je _if37_exit
 3336   1ACC             _if37_true:
 3337   1ACC             ;; print("TSK TSK TSK - WUMPUS GOT YOU!\n"); 
-3338   1ACC 26 7C 2A      mov b, __s49 ; "TSK TSK TSK - WUMPUS GOT YOU!\n"
+3338   1ACC 26 80 2A      mov b, __s49 ; "TSK TSK TSK - WUMPUS GOT YOU!\n"
 3339   1ACF FD AB         swp b
 3340   1AD1 D8            push b
 3341   1AD2 07 ED 0C      call print
@@ -4371,10 +4371,10 @@
 3402   1B28 C0 00 00      cmp b, 0
 3403   1B2B C6 44 1B      je _while38_exit
 3404   1B2E             _while38_block:
-3405   1B2E             ;; len = getnum("NO. OF ROOMS (1-5)"); 
+3405   1B2E             ;; len = getnum("\nNUMBER OF ROOMS (1-5): "); 
 3406   1B2E FA F3 FF      lea d, [bp + -13] ; $len
 3407   1B31 DA            push d
-3408   1B32 26 9B 2A      mov b, __s50 ; "NO. OF ROOMS (1-5)"
+3408   1B32 26 9F 2A      mov b, __s50 ; "\nNUMBER OF ROOMS (1-5): "
 3409   1B35 FD AB         swp b
 3410   1B37 D8            push b
 3411   1B38 07 62 15      call getnum
@@ -4415,7 +4415,7 @@
 3446   1B6C FD 13 02 00   mma 2 ; mov a, 2; mul a, b; add d, b
 3447   1B70 E4            pop a
 3448   1B71 DA            push d
-3449   1B72 26 AE 2A      mov b, __s51 ; "ROOM #"
+3449   1B72 26 B8 2A      mov b, __s51 ; "ROOM #"
 3450   1B75 FD AB         swp b
 3451   1B77 D8            push b
 3452   1B78 07 62 15      call getnum
@@ -4483,7 +4483,7 @@
 3514   1BCC C6 E1 1B      je _if40_exit
 3515   1BCF             _if40_true:
 3516   1BCF             ;; print("ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n"); 
-3517   1BCF 26 B5 2A      mov b, __s52 ; "ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n"
+3517   1BCF 26 BF 2A      mov b, __s52 ; "ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n"
 3518   1BD2 FD AB         swp b
 3519   1BD4 D8            push b
 3520   1BD5 07 ED 0C      call print
@@ -4702,7 +4702,7 @@
 3733   1D21 C6 3D 1D      je _if43_else
 3734   1D24             _if43_true:
 3735   1D24             ;; print("AHA! YOU GOT THE WUMPUS!\n"); 
-3736   1D24 26 E3 2A      mov b, __s53 ; "AHA! YOU GOT THE WUMPUS!\n"
+3736   1D24 26 ED 2A      mov b, __s53 ; "AHA! YOU GOT THE WUMPUS!\n"
 3737   1D27 FD AB         swp b
 3738   1D29 D8            push b
 3739   1D2A 07 ED 0C      call print
@@ -4738,7 +4738,7 @@
 3769   1D59 C6 75 1D      je _if44_exit
 3770   1D5C             _if44_true:
 3771   1D5C             ;; print("OUCH! ARROW GOT YOU!\n"); 
-3772   1D5C 26 FD 2A      mov b, __s54 ; "OUCH! ARROW GOT YOU!\n"
+3772   1D5C 26 07 2B      mov b, __s54 ; "OUCH! ARROW GOT YOU!\n"
 3773   1D5F FD AB         swp b
 3774   1D61 D8            push b
 3775   1D62 07 ED 0C      call print
@@ -4783,7 +4783,7 @@
 3814   1D9C 0A 13 1C      jmp _for41_cond
 3815   1D9F             _for41_exit:
 3816   1D9F             ;; print("MISSED\n"); 
-3817   1D9F 26 13 2B      mov b, __s55 ; "MISSED\n"
+3817   1D9F 26 1D 2B      mov b, __s55 ; "MISSED\n"
 3818   1DA2 FD AB         swp b
 3819   1DA4 D8            push b
 3820   1DA5 07 ED 0C      call print
@@ -4846,10 +4846,10 @@
 3877   1DF8 C0 00 00      cmp b, 0
 3878   1DFB C6 21 1F      je _while47_exit
 3879   1DFE             _while47_block:
-3880   1DFE             ;; scratchloc = getnum("WHERE TO")-1; 
+3880   1DFE             ;; scratchloc = getnum("\nWHERE TO: ")-1; 
 3881   1DFE FA FF FF      lea d, [bp + -1] ; $scratchloc
 3882   1E01 DA            push d
-3883   1E02 26 1B 2B      mov b, __s56 ; "WHERE TO"
+3883   1E02 26 25 2B      mov b, __s56 ; "\nWHERE TO: "
 3884   1E05 FD AB         swp b
 3885   1E07 D8            push b
 3886   1E08 07 62 15      call getnum
@@ -5018,7 +5018,7 @@
 4049   1EFD C6 1E 1F      je _if49_exit
 4050   1F00             _if49_true:
 4051   1F00             ;; print("NOT POSSIBLE\n"); 
-4052   1F00 26 24 2B      mov b, __s57 ; "NOT POSSIBLE\n"
+4052   1F00 26 31 2B      mov b, __s57 ; "NOT POSSIBLE\n"
 4053   1F03 FD AB         swp b
 4054   1F05 D8            push b
 4055   1F06 07 ED 0C      call print
@@ -5093,7 +5093,7 @@
 4124   1F71 C6 A8 1F      je _while50_exit
 4125   1F74             _while50_block:
 4126   1F74             ;; print("ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n"); 
-4127   1F74 26 32 2B      mov b, __s58 ; "ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n"
+4127   1F74 26 3F 2B      mov b, __s58 ; "ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n"
 4128   1F77 FD AB         swp b
 4129   1F79 D8            push b
 4130   1F7A 07 ED 0C      call print
@@ -5148,7 +5148,7 @@
 4179   1FC4 C6 D9 1F      je _if51_exit
 4180   1FC7             _if51_true:
 4181   1FC7             ;; print("... OOPS! BUMPED A WUMPUS!\n"); 
-4182   1FC7 26 62 2B      mov b, __s59 ; "... OOPS! BUMPED A WUMPUS!\n"
+4182   1FC7 26 6F 2B      mov b, __s59 ; "... OOPS! BUMPED A WUMPUS!\n"
 4183   1FCA FD AB         swp b
 4184   1FCC D8            push b
 4185   1FCD 07 ED 0C      call print
@@ -5201,7 +5201,7 @@
 4232   2013 C6 2F 20      je _if52_exit
 4233   2016             _if52_true:
 4234   2016             ;; print("YYYYIIIIEEEE . . . FELL IN PIT\n"); 
-4235   2016 26 7E 2B      mov b, __s60 ; "YYYYIIIIEEEE . . . FELL IN PIT\n"
+4235   2016 26 8B 2B      mov b, __s60 ; "YYYYIIIIEEEE . . . FELL IN PIT\n"
 4236   2019 FD AB         swp b
 4237   201B D8            push b
 4238   201C 07 ED 0C      call print
@@ -5453,7 +5453,7 @@
 4484   2184 E7            pop d
 4485   2185 FD 43         mov [d], b
 4486   2187             ;; print("HUNT THE WUMPUS\n"); 
-4487   2187 26 9E 2B      mov b, __s61 ; "HUNT THE WUMPUS\n"
+4487   2187 26 AB 2B      mov b, __s61 ; "HUNT THE WUMPUS\n"
 4488   218A FD AB         swp b
 4489   218C D8            push b
 4490   218D 07 ED 0C      call print
@@ -5466,7 +5466,7 @@
 4497   219A C6 7C 22      je _if57_exit
 4498   219D             _if57_true:
 4499   219D             ;; print("Wumpus is at "); printu(loc[ 1     ]+1); 
-4500   219D 26 AF 2B      mov b, __s62 ; "Wumpus is at "
+4500   219D 26 BC 2B      mov b, __s62 ; "Wumpus is at "
 4501   21A0 FD AB         swp b
 4502   21A2 D8            push b
 4503   21A3 07 ED 0C      call print
@@ -5493,7 +5493,7 @@
 4524   21C3 07 B9 0B      call printu
 4525   21C6 51 02 00      add sp, 2
 4526   21C9             ;; print(", pits at "); printu(loc[ 2   ]+1); 
-4527   21C9 26 BD 2B      mov b, __s63 ; ", pits at "
+4527   21C9 26 CA 2B      mov b, __s63 ; ", pits at "
 4528   21CC FD AB         swp b
 4529   21CE D8            push b
 4530   21CF 07 ED 0C      call print
@@ -5520,7 +5520,7 @@
 4551   21EF 07 B9 0B      call printu
 4552   21F2 51 02 00      add sp, 2
 4553   21F5             ;; print(" & "); printu(loc[ 3   ]+1); 
-4554   21F5 26 C8 2B      mov b, __s64 ; " & "
+4554   21F5 26 D5 2B      mov b, __s64 ; " & "
 4555   21F8 FD AB         swp b
 4556   21FA D8            push b
 4557   21FB 07 ED 0C      call print
@@ -5547,7 +5547,7 @@
 4578   221B 07 B9 0B      call printu
 4579   221E 51 02 00      add sp, 2
 4580   2221             ;; print(", bats at "); printu(loc[ 4    ]+1); 
-4581   2221 26 CC 2B      mov b, __s65 ; ", bats at "
+4581   2221 26 D9 2B      mov b, __s65 ; ", bats at "
 4582   2224 FD AB         swp b
 4583   2226 D8            push b
 4584   2227 07 ED 0C      call print
@@ -5574,7 +5574,7 @@
 4605   2247 07 B9 0B      call printu
 4606   224A 51 02 00      add sp, 2
 4607   224D             ;; print(" & "); printu(loc[ 5    ]+1); 
-4608   224D 26 C8 2B      mov b, __s64 ; " & "
+4608   224D 26 D5 2B      mov b, __s64 ; " & "
 4609   2250 FD AB         swp b
 4610   2252 D8            push b
 4611   2253 07 ED 0C      call print
@@ -5656,7 +5656,7 @@
 4687   22C1 C6 D3 22      je _if60_exit
 4688   22C4             _if60_true:
 4689   22C4             ;; print("HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n"); 
-4690   22C4 26 D7 2B      mov b, __s66 ; "HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n"
+4690   22C4 26 E4 2B      mov b, __s66 ; "HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n"
 4691   22C7 FD AB         swp b
 4692   22C9 D8            push b
 4693   22CA 07 ED 0C      call print
@@ -5679,17 +5679,17 @@
 4710   22E3 C6 F5 22      je _if61_exit
 4711   22E6             _if61_true:
 4712   22E6             ;; print("HA HA HA - YOU LOSE!\n"); 
-4713   22E6 26 07 2C      mov b, __s67 ; "HA HA HA - YOU LOSE!\n"
+4713   22E6 26 14 2C      mov b, __s67 ; "HA HA HA - YOU LOSE!\n"
 4714   22E9 FD AB         swp b
 4715   22EB D8            push b
 4716   22EC 07 ED 0C      call print
 4717   22EF 51 02 00      add sp, 2
 4718   22F2 0A F5 22      jmp _if61_exit
 4719   22F5             _if61_exit:
-4720   22F5             ;; c = getlet("NEW GAME (Y-N)"); 
+4720   22F5             ;; c = getlet("NEW GAME (Y-N): "); 
 4721   22F5 FA FF FF      lea d, [bp + -1] ; $c
 4722   22F8 DA            push d
-4723   22F9 26 D0 23      mov b, __s1 ; "NEW GAME (Y-N)"
+4723   22F9 26 D0 23      mov b, __s1 ; "NEW GAME (Y-N): "
 4724   22FC FD AB         swp b
 4725   22FE D8            push b
 4726   22FF 07 85 15      call getlet
@@ -5770,565 +5770,569 @@
 4768   23C7 20 28 59 2D 
 4768   23CB 4E 29 3A 20 
 4768   23CF 00 
-4769   23D0 4E 45 57 20 __s1: .db "NEW GAME (Y-N)", 0
+4769   23D0 4E 45 57 20 __s1: .db "NEW GAME (Y-N): ", 0
 4769   23D4 47 41 4D 45 
 4769   23D8 20 28 59 2D 
-4769   23DC 4E 29 00 
-4770   23DF 55 6E 6B 6E __s2: .db "Unknown type size in va_arg() call. Size needs to be either 1 or 2.", 0
-4770   23E3 6F 77 6E 20 
-4770   23E7 74 79 70 65 
-4770   23EB 20 73 69 7A 
-4770   23EF 65 20 69 6E 
-4770   23F3 20 76 61 5F 
-4770   23F7 61 72 67 28 
-4770   23FB 29 20 63 61 
-4770   23FF 6C 6C 2E 20 
-4770   2403 53 69 7A 65 
-4770   2407 20 6E 65 65 
-4770   240B 64 73 20 74 
-4770   240F 6F 20 62 65 
-4770   2413 20 65 69 74 
-4770   2417 68 65 72 20 
-4770   241B 31 20 6F 72 
-4770   241F 20 32 2E 00 
-4771   2423 45 72 72 6F __s3: .db "Error: Unknown argument type.\n", 0
-4771   2427 72 3A 20 55 
-4771   242B 6E 6B 6E 6F 
-4771   242F 77 6E 20 61 
-4771   2433 72 67 75 6D 
-4771   2437 65 6E 74 20 
-4771   243B 74 79 70 65 
-4771   243F 2E 0A 00 
-4772   2442 1B 5B 32 4A __s4: .db "\033[2J\033[H", 0
-4772   2446 1B 5B 48 00 
-4773   244A 0A 00       __s5: .db "\n", 0
-4774   244C 57 45 4C 43 __s6: .db "WELCOME TO 'HUNT THE WUMPUS'\n", 0
-4774   2450 4F 4D 45 20 
-4774   2454 54 4F 20 27 
-4774   2458 48 55 4E 54 
-4774   245C 20 54 48 45 
-4774   2460 20 57 55 4D 
-4774   2464 50 55 53 27 
-4774   2468 0A 00 
-4775   246A 54 48 45 20 __s7: .db "THE WUMPUS LIVES IN A CAVE OF 20 ROOMS. EACH ROOM\n", 0
-4775   246E 57 55 4D 50 
-4775   2472 55 53 20 4C 
-4775   2476 49 56 45 53 
-4775   247A 20 49 4E 20 
-4775   247E 41 20 43 41 
-4775   2482 56 45 20 4F 
-4775   2486 46 20 32 30 
-4775   248A 20 52 4F 4F 
-4775   248E 4D 53 2E 20 
-4775   2492 45 41 43 48 
-4775   2496 20 52 4F 4F 
-4775   249A 4D 0A 00 
-4776   249D 48 41 53 20 __s8: .db "HAS 3 TUNNELS LEADING TO OTHER ROOMS. (LOOK AT A\n", 0
-4776   24A1 33 20 54 55 
-4776   24A5 4E 4E 45 4C 
-4776   24A9 53 20 4C 45 
-4776   24AD 41 44 49 4E 
-4776   24B1 47 20 54 4F 
-4776   24B5 20 4F 54 48 
-4776   24B9 45 52 20 52 
-4776   24BD 4F 4F 4D 53 
-4776   24C1 2E 20 28 4C 
-4776   24C5 4F 4F 4B 20 
-4776   24C9 41 54 20 41 
-4776   24CD 0A 00 
-4777   24CF 44 4F 44 45 __s9: .db "DODECAHEDRON TO SEE HOW THIS WORKS-IF YOU DON'T KNOW\n", 0
-4777   24D3 43 41 48 45 
-4777   24D7 44 52 4F 4E 
-4777   24DB 20 54 4F 20 
-4777   24DF 53 45 45 20 
-4777   24E3 48 4F 57 20 
-4777   24E7 54 48 49 53 
-4777   24EB 20 57 4F 52 
-4777   24EF 4B 53 2D 49 
-4777   24F3 46 20 59 4F 
-4777   24F7 55 20 44 4F 
-4777   24FB 4E 27 54 20 
-4777   24FF 4B 4E 4F 57 
-4777   2503 0A 
-4778   2504 57 48 41 54 __s10: .db "WHAT A DODECAHEDRON IS, ASK SOMEONE)\n", 0
-4778   2508 20 41 20 44 
-4778   250C 4F 44 45 43 
-4778   2510 41 48 45 44 
-4778   2514 52 4F 4E 20 
-4778   2518 49 53 2C 20 
-4778   251C 41 53 4B 20 
-4778   2520 53 4F 4D 45 
-4778   2524 4F 4E 45 29 
-4778   2528 0A 00 
-4779   252A 20 48 41 5A __s11: .db " HAZARDS:\n", 0
-4779   252E 41 52 44 53 
-4779   2532 3A 0A 00 
-4780   2535 20 42 4F 54 __s12: .db " BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n", 0
-4780   2539 54 4F 4D 4C 
-4780   253D 45 53 53 20 
-4780   2541 50 49 54 53 
-4780   2545 3A 20 54 57 
-4780   2549 4F 20 52 4F 
-4780   254D 4F 4D 53 20 
-4780   2551 48 41 56 45 
-4780   2555 20 42 4F 54 
-4780   2559 54 4F 4D 4C 
-4780   255D 45 53 53 20 
-4780   2561 50 49 54 53 
-4780   2565 20 49 4E 20 
-4780   2569 54 48 45 4D 
-4780   256D 0A 00 
-4781   256F 20 49 46 20 __s13: .db " IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n", 0
-4781   2573 59 4F 55 20 
-4781   2577 47 4F 20 54 
-4781   257B 48 45 52 45 
-4781   257F 2C 20 59 4F 
-4781   2583 55 20 46 41 
-4781   2587 4C 4C 20 49 
-4781   258B 4E 54 4F 20 
-4781   258F 54 48 45 20 
-4781   2593 50 49 54 20 
-4781   2597 28 26 20 4C 
-4781   259B 4F 53 45 21 
-4781   259F 29 0A 00 
-4782   25A2 20 53 55 50 __s14: .db " SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n", 0
-4782   25A6 45 52 20 42 
-4782   25AA 41 54 53 20 
-4782   25AE 20 20 20 20 
-4782   25B2 3A 20 54 57 
-4782   25B6 4F 20 4F 54 
-4782   25BA 48 45 52 20 
-4782   25BE 52 4F 4F 4D 
-4782   25C2 53 20 48 41 
-4782   25C6 56 45 20 53 
-4782   25CA 55 50 45 52 
-4782   25CE 20 42 41 54 
-4782   25D2 53 2E 20 49 
-4782   25D6 46 20 59 4F 
-4782   25DA 55 0A 00 
-4783   25DD 20 47 4F 20 __s15: .db " GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n", 0
-4783   25E1 54 48 45 52 
-4783   25E5 45 2C 20 41 
-4783   25E9 20 42 41 54 
-4783   25ED 20 47 52 41 
-4783   25F1 42 53 20 59 
-4783   25F5 4F 55 20 41 
-4783   25F9 4E 44 20 54 
-4783   25FD 41 4B 45 53 
-4783   2601 20 59 4F 55 
-4783   2605 20 54 4F 20 
-4783   2609 53 4F 4D 45 
-4783   260D 20 4F 54 48 
-4783   2611 45 52 0A 00 
-4784   2615 20 52 4F 4F __s16: .db " ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n", 0
-4784   2619 4D 20 41 54 
-4784   261D 20 52 41 4E 
-4784   2621 44 4F 4D 2E 
-4784   2625 20 28 57 48 
-4784   2629 49 43 48 20 
-4784   262D 4D 41 59 20 
-4784   2631 42 45 20 54 
-4784   2635 52 4F 55 42 
-4784   2639 4C 45 53 4F 
-4784   263D 4D 45 29 0A 
-4784   2641 00 
-4785   2642 20 57 55 4D __s17: .db " WUMPUS:\n", 0
-4785   2646 50 55 53 3A 
-4785   264A 0A 00 
-4786   264C 20 54 48 45 __s18: .db " THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n", 0
-4786   2650 20 57 55 4D 
-4786   2654 50 55 53 20 
-4786   2658 49 53 20 4E 
-4786   265C 4F 54 20 42 
-4786   2660 4F 54 48 45 
-4786   2664 52 45 44 20 
-4786   2668 42 59 20 48 
-4786   266C 41 5A 41 52 
-4786   2670 44 53 20 28 
-4786   2674 48 45 20 48 
-4786   2678 41 53 20 53 
-4786   267C 55 43 4B 45 
-4786   2680 52 0A 00 
-4787   2683 20 46 45 45 __s19: .db " FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n", 0
-4787   2687 54 20 41 4E 
-4787   268B 44 20 49 53 
-4787   268F 20 54 4F 4F 
-4787   2693 20 42 49 47 
-4787   2697 20 46 4F 52 
-4787   269B 20 41 20 42 
-4787   269F 41 54 20 54 
-4787   26A3 4F 20 4C 49 
-4787   26A7 46 54 29 2E 
-4787   26AB 20 20 55 53 
-4787   26AF 55 41 4C 4C 
-4787   26B3 59 0A 00 
-4788   26B6 20 48 45 20 __s20: .db " HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n", 0
-4788   26BA 49 53 20 41 
-4788   26BE 53 4C 45 45 
-4788   26C2 50 2E 20 20 
-4788   26C6 54 57 4F 20 
-4788   26CA 54 48 49 4E 
-4788   26CE 47 53 20 57 
-4788   26D2 41 4B 45 20 
-4788   26D6 48 49 4D 20 
-4788   26DA 55 50 3A 20 
-4788   26DE 59 4F 55 20 
-4788   26E2 53 48 4F 4F 
-4788   26E6 54 49 4E 47 
-4788   26EA 20 41 4E 0A 
-4788   26EE 00 
-4789   26EF 20 41 52 52 __s21: .db " ARROW OR YOU ENTERING HIS ROOM.\n", 0
-4789   26F3 4F 57 20 4F 
-4789   26F7 52 20 59 4F 
-4789   26FB 55 20 45 4E 
-4789   26FF 54 45 52 49 
-4789   2703 4E 47 20 48 
-4789   2707 49 53 20 52 
-4789   270B 4F 4F 4D 2E 
-4789   270F 0A 00 
-4790   2711 20 49 46 20 __s22: .db " IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n", 0
-4790   2715 54 48 45 20 
-4790   2719 57 55 4D 50 
-4790   271D 55 53 20 57 
-4790   2721 41 4B 45 53 
-4790   2725 20 48 45 20 
-4790   2729 4D 4F 56 45 
-4790   272D 53 20 28 50 
-4790   2731 3D 2E 37 35 
-4790   2735 29 20 4F 4E 
-4790   2739 45 20 52 4F 
-4790   273D 4F 4D 0A 00 
-4791   2741 20 4F 52 20 __s23: .db " OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n", 0
-4791   2745 53 54 41 59 
-4791   2749 53 20 53 54 
-4791   274D 49 4C 4C 20 
-4791   2751 28 50 3D 2E 
-4791   2755 32 35 29 2E 
-4791   2759 20 20 41 46 
-4791   275D 54 45 52 20 
-4791   2761 54 48 41 54 
-4791   2765 2C 20 49 46 
-4791   2769 20 48 45 20 
-4791   276D 49 53 20 57 
-4791   2771 48 45 52 45 
-4791   2775 20 59 4F 55 
-4791   2779 0A 00 
-4792   277B 20 41 52 45 __s24: .db " ARE, HE EATS YOU UP AND YOU LOSE!\n", 0
-4792   277F 2C 20 48 45 
-4792   2783 20 45 41 54 
-4792   2787 53 20 59 4F 
-4792   278B 55 20 55 50 
-4792   278F 20 41 4E 44 
-4792   2793 20 59 4F 55 
-4792   2797 20 4C 4F 53 
-4792   279B 45 21 0A 00 
-4793   279F 20 59 4F 55 __s25: .db " YOU:\n", 0
-4793   27A3 3A 0A 00 
-4794   27A6 20 45 41 43 __s26: .db " EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n", 0
-4794   27AA 48 20 54 55 
-4794   27AE 52 4E 20 59 
-4794   27B2 4F 55 20 4D 
-4794   27B6 41 59 20 4D 
-4794   27BA 4F 56 45 20 
-4794   27BE 4F 52 20 53 
-4794   27C2 48 4F 4F 54 
-4794   27C6 20 41 20 43 
-4794   27CA 52 4F 4F 4B 
-4794   27CE 45 44 20 41 
-4794   27D2 52 52 4F 57 
-4794   27D6 0A 00 
-4795   27D8 20 4D 4F 56 __s27: .db " MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n", 0
-4795   27DC 49 4E 47 3A 
-4795   27E0 20 20 59 4F 
-4795   27E4 55 20 43 41 
-4795   27E8 4E 20 4D 4F 
-4795   27EC 56 45 20 4F 
-4795   27F0 4E 45 20 52 
-4795   27F4 4F 4F 4D 20 
-4795   27F8 28 54 48 52 
-4795   27FC 55 20 4F 4E 
-4795   2800 45 20 54 55 
-4795   2804 4E 4E 45 4C 
-4795   2808 29 0A 00 
-4796   280B 20 41 52 52 __s28: .db " ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n", 0
-4796   280F 4F 57 53 3A 
-4796   2813 20 20 59 4F 
-4796   2817 55 20 48 41 
-4796   281B 56 45 20 35 
-4796   281F 20 41 52 52 
-4796   2823 4F 57 53 2E 
-4796   2827 20 20 59 4F 
-4796   282B 55 20 4C 4F 
-4796   282F 53 45 20 57 
-4796   2833 48 45 4E 20 
-4796   2837 59 4F 55 20 
-4796   283B 52 55 4E 20 
-4796   283F 4F 55 54 0A 
-4796   2843 00 
-4797   2844 20 45 41 43 __s29: .db " EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n", 0
-4797   2848 48 20 41 52 
-4797   284C 52 4F 57 20 
-4797   2850 43 41 4E 20 
-4797   2854 47 4F 20 46 
-4797   2858 52 4F 4D 20 
-4797   285C 31 20 54 4F 
-4797   2860 20 35 20 52 
-4797   2864 4F 4F 4D 53 
-4797   2868 2E 20 59 4F 
-4797   286C 55 20 41 49 
-4797   2870 4D 20 42 59 
-4797   2874 20 54 45 4C 
-4797   2878 4C 49 4E 47 
-4797   287C 0A 00 
-4798   287E 20 20 20 54 __s30: .db "   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n", 0
-4798   2882 48 45 20 43 
-4798   2886 4F 4D 50 55 
-4798   288A 54 45 52 20 
-4798   288E 54 48 45 20 
-4798   2892 52 4F 4F 4D 
-4798   2896 23 53 20 59 
-4798   289A 4F 55 20 57 
-4798   289E 41 4E 54 20 
-4798   28A2 54 48 45 20 
-4798   28A6 41 52 52 4F 
-4798   28AA 57 20 54 4F 
-4798   28AE 20 47 4F 20 
-4798   28B2 54 4F 2E 0A 
-4798   28B6 00 
-4799   28B7 20 20 20 49 __s31: .db "   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n", 0
-4799   28BB 46 20 54 48 
-4799   28BF 45 20 41 52 
-4799   28C3 52 4F 57 20 
-4799   28C7 43 41 4E 27 
-4799   28CB 54 20 47 4F 
-4799   28CF 20 54 48 41 
-4799   28D3 54 20 57 41 
-4799   28D7 59 20 28 49 
-4799   28DB 46 20 4E 4F 
-4799   28DF 20 54 55 4E 
-4799   28E3 4E 45 4C 29 
-4799   28E7 20 49 54 20 
-4799   28EB 4D 4F 56 45 
-4799   28EF 53 0A 
-4800   28F1 20 20 20 41 __s32: .db "   AT RANDOM TO THE NEXT ROOM.\n", 0
-4800   28F5 54 20 52 41 
-4800   28F9 4E 44 4F 4D 
-4800   28FD 20 54 4F 20 
-4800   2901 54 48 45 20 
-4800   2905 4E 45 58 54 
-4800   2909 20 52 4F 4F 
-4800   290D 4D 2E 0A 00 
-4801   2911 20 20 20 20 __s33: .db "     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n", 0
-4801   2915 20 49 46 20 
-4801   2919 54 48 45 20 
-4801   291D 41 52 52 4F 
-4801   2921 57 20 48 49 
-4801   2925 54 53 20 54 
-4801   2929 48 45 20 57 
-4801   292D 55 4D 50 55 
-4801   2931 53 2C 20 59 
-4801   2935 4F 55 20 57 
-4801   2939 49 4E 2E 0A 
-4801   293D 00 
-4802   293E 20 20 20 20 __s34: .db "     IF THE ARROW HITS YOU, YOU LOSE.\n", 0
-4802   2942 20 49 46 20 
-4802   2946 54 48 45 20 
-4802   294A 41 52 52 4F 
-4802   294E 57 20 48 49 
-4802   2952 54 53 20 59 
-4802   2956 4F 55 2C 20 
-4802   295A 59 4F 55 20 
-4802   295E 4C 4F 53 45 
-4802   2962 2E 0A 00 
-4803   2965 20 57 41 52 __s35: .db " WARNINGS:\n", 0
-4803   2969 4E 49 4E 47 
-4803   296D 53 3A 0A 00 
-4804   2971 20 57 48 45 __s36: .db " WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n", 0
-4804   2975 4E 20 59 4F 
-4804   2979 55 20 41 52 
-4804   297D 45 20 4F 4E 
-4804   2981 45 20 52 4F 
-4804   2985 4F 4D 20 41 
-4804   2989 57 41 59 20 
-4804   298D 46 52 4F 4D 
-4804   2991 20 41 20 57 
-4804   2995 55 4D 50 55 
-4804   2999 53 20 4F 52 
-4804   299D 20 48 41 5A 
-4804   29A1 41 52 44 2C 
-4804   29A5 0A 00 
-4805   29A7 20 54 48 45 __s37: .db " THE COMPUTER SAYS:\n", 0
-4805   29AB 20 43 4F 4D 
-4805   29AF 50 55 54 45 
-4805   29B3 52 20 53 41 
-4805   29B7 59 53 3A 0A 
-4805   29BB 00 
-4806   29BC 20 57 55 4D __s38: .db " WUMPUS:  'I SMELL A WUMPUS'\n", 0
-4806   29C0 50 55 53 3A 
-4806   29C4 20 20 27 49 
-4806   29C8 20 53 4D 45 
-4806   29CC 4C 4C 20 41 
-4806   29D0 20 57 55 4D 
-4806   29D4 50 55 53 27 
-4806   29D8 0A 00 
-4807   29DA 20 42 41 54 __s39: .db " BAT   :  'BATS NEARBY'\n", 0
-4807   29DE 20 20 20 3A 
-4807   29E2 20 20 27 42 
-4807   29E6 41 54 53 20 
-4807   29EA 4E 45 41 52 
-4807   29EE 42 59 27 0A 
-4807   29F2 00 
-4808   29F3 20 50 49 54 __s40: .db " PIT   :  'I FEEL A DRAFT'\n", 0
-4808   29F7 20 20 20 3A 
-4808   29FB 20 20 27 49 
-4808   29FF 20 46 45 45 
-4808   2A03 4C 20 41 20 
-4808   2A07 44 52 41 46 
-4808   2A0B 54 27 0A 00 
-4809   2A0F 49 20 53 4D __s41: .db "I SMELL A WUMPUS!\n", 0
-4809   2A13 45 4C 4C 20 
-4809   2A17 41 20 57 55 
-4809   2A1B 4D 50 55 53 
-4809   2A1F 21 0A 00 
-4810   2A22 49 20 46 45 __s42: .db "I FEEL A DRAFT\n", 0
-4810   2A26 45 4C 20 41 
-4810   2A2A 20 44 52 41 
-4810   2A2E 46 54 0A 00 
-4811   2A32 42 41 54 53 __s43: .db "BATS NEARBY!\n", 0
-4811   2A36 20 4E 45 41 
-4811   2A3A 52 42 59 21 
-4811   2A3E 0A 00 
-4812   2A40 59 4F 55 20 __s44: .db "YOU ARE IN ROOM ", 0
-4812   2A44 41 52 45 20 
-4812   2A48 49 4E 20 52 
-4812   2A4C 4F 4F 4D 20 
-4812   2A50 00 
-4813   2A51 54 55 4E 4E __s45: .db "TUNNELS LEAD TO ", 0
-4813   2A55 45 4C 53 20 
-4813   2A59 4C 45 41 44 
-4813   2A5D 20 54 4F 20 
-4813   2A61 00 
-4814   2A62 2C 20 00    __s46: .db ", ", 0
-4815   2A65 0A 0A 00    __s47: .db "\n\n", 0
-4816   2A68 53 48 4F 4F __s48: .db "SHOOT OR MOVE (S-M)", 0
-4816   2A6C 54 20 4F 52 
-4816   2A70 20 4D 4F 56 
-4816   2A74 45 20 28 53 
-4816   2A78 2D 4D 29 00 
-4817   2A7C 54 53 4B 20 __s49: .db "TSK TSK TSK - WUMPUS GOT YOU!\n", 0
-4817   2A80 54 53 4B 20 
+4769   23DC 4E 29 3A 20 
+4769   23E0 00 
+4770   23E1 55 6E 6B 6E __s2: .db "Unknown type size in va_arg() call. Size needs to be either 1 or 2.", 0
+4770   23E5 6F 77 6E 20 
+4770   23E9 74 79 70 65 
+4770   23ED 20 73 69 7A 
+4770   23F1 65 20 69 6E 
+4770   23F5 20 76 61 5F 
+4770   23F9 61 72 67 28 
+4770   23FD 29 20 63 61 
+4770   2401 6C 6C 2E 20 
+4770   2405 53 69 7A 65 
+4770   2409 20 6E 65 65 
+4770   240D 64 73 20 74 
+4770   2411 6F 20 62 65 
+4770   2415 20 65 69 74 
+4770   2419 68 65 72 20 
+4770   241D 31 20 6F 72 
+4770   2421 20 32 2E 00 
+4771   2425 45 72 72 6F __s3: .db "Error: Unknown argument type.\n", 0
+4771   2429 72 3A 20 55 
+4771   242D 6E 6B 6E 6F 
+4771   2431 77 6E 20 61 
+4771   2435 72 67 75 6D 
+4771   2439 65 6E 74 20 
+4771   243D 74 79 70 65 
+4771   2441 2E 0A 00 
+4772   2444 1B 5B 32 4A __s4: .db "\033[2J\033[H", 0
+4772   2448 1B 5B 48 00 
+4773   244C 0A 00       __s5: .db "\n", 0
+4774   244E 57 45 4C 43 __s6: .db "WELCOME TO 'HUNT THE WUMPUS'\n", 0
+4774   2452 4F 4D 45 20 
+4774   2456 54 4F 20 27 
+4774   245A 48 55 4E 54 
+4774   245E 20 54 48 45 
+4774   2462 20 57 55 4D 
+4774   2466 50 55 53 27 
+4774   246A 0A 00 
+4775   246C 54 48 45 20 __s7: .db "THE WUMPUS LIVES IN A CAVE OF 20 ROOMS. EACH ROOM\n", 0
+4775   2470 57 55 4D 50 
+4775   2474 55 53 20 4C 
+4775   2478 49 56 45 53 
+4775   247C 20 49 4E 20 
+4775   2480 41 20 43 41 
+4775   2484 56 45 20 4F 
+4775   2488 46 20 32 30 
+4775   248C 20 52 4F 4F 
+4775   2490 4D 53 2E 20 
+4775   2494 45 41 43 48 
+4775   2498 20 52 4F 4F 
+4775   249C 4D 0A 00 
+4776   249F 48 41 53 20 __s8: .db "HAS 3 TUNNELS LEADING TO OTHER ROOMS. (LOOK AT A\n", 0
+4776   24A3 33 20 54 55 
+4776   24A7 4E 4E 45 4C 
+4776   24AB 53 20 4C 45 
+4776   24AF 41 44 49 4E 
+4776   24B3 47 20 54 4F 
+4776   24B7 20 4F 54 48 
+4776   24BB 45 52 20 52 
+4776   24BF 4F 4F 4D 53 
+4776   24C3 2E 20 28 4C 
+4776   24C7 4F 4F 4B 20 
+4776   24CB 41 54 20 41 
+4776   24CF 0A 00 
+4777   24D1 44 4F 44 45 __s9: .db "DODECAHEDRON TO SEE HOW THIS WORKS-IF YOU DON'T KNOW\n", 0
+4777   24D5 43 41 48 45 
+4777   24D9 44 52 4F 4E 
+4777   24DD 20 54 4F 20 
+4777   24E1 53 45 45 20 
+4777   24E5 48 4F 57 20 
+4777   24E9 54 48 49 53 
+4777   24ED 20 57 4F 52 
+4777   24F1 4B 53 2D 49 
+4777   24F5 46 20 59 4F 
+4777   24F9 55 20 44 4F 
+4777   24FD 4E 27 54 20 
+4777   2501 4B 4E 4F 57 
+4777   2505 0A 
+4778   2506 57 48 41 54 __s10: .db "WHAT A DODECAHEDRON IS, ASK SOMEONE)\n", 0
+4778   250A 20 41 20 44 
+4778   250E 4F 44 45 43 
+4778   2512 41 48 45 44 
+4778   2516 52 4F 4E 20 
+4778   251A 49 53 2C 20 
+4778   251E 41 53 4B 20 
+4778   2522 53 4F 4D 45 
+4778   2526 4F 4E 45 29 
+4778   252A 0A 00 
+4779   252C 20 48 41 5A __s11: .db " HAZARDS:\n", 0
+4779   2530 41 52 44 53 
+4779   2534 3A 0A 00 
+4780   2537 20 42 4F 54 __s12: .db " BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n", 0
+4780   253B 54 4F 4D 4C 
+4780   253F 45 53 53 20 
+4780   2543 50 49 54 53 
+4780   2547 3A 20 54 57 
+4780   254B 4F 20 52 4F 
+4780   254F 4F 4D 53 20 
+4780   2553 48 41 56 45 
+4780   2557 20 42 4F 54 
+4780   255B 54 4F 4D 4C 
+4780   255F 45 53 53 20 
+4780   2563 50 49 54 53 
+4780   2567 20 49 4E 20 
+4780   256B 54 48 45 4D 
+4780   256F 0A 00 
+4781   2571 20 49 46 20 __s13: .db " IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n", 0
+4781   2575 59 4F 55 20 
+4781   2579 47 4F 20 54 
+4781   257D 48 45 52 45 
+4781   2581 2C 20 59 4F 
+4781   2585 55 20 46 41 
+4781   2589 4C 4C 20 49 
+4781   258D 4E 54 4F 20 
+4781   2591 54 48 45 20 
+4781   2595 50 49 54 20 
+4781   2599 28 26 20 4C 
+4781   259D 4F 53 45 21 
+4781   25A1 29 0A 00 
+4782   25A4 20 53 55 50 __s14: .db " SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n", 0
+4782   25A8 45 52 20 42 
+4782   25AC 41 54 53 20 
+4782   25B0 20 20 20 20 
+4782   25B4 3A 20 54 57 
+4782   25B8 4F 20 4F 54 
+4782   25BC 48 45 52 20 
+4782   25C0 52 4F 4F 4D 
+4782   25C4 53 20 48 41 
+4782   25C8 56 45 20 53 
+4782   25CC 55 50 45 52 
+4782   25D0 20 42 41 54 
+4782   25D4 53 2E 20 49 
+4782   25D8 46 20 59 4F 
+4782   25DC 55 0A 00 
+4783   25DF 20 47 4F 20 __s15: .db " GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n", 0
+4783   25E3 54 48 45 52 
+4783   25E7 45 2C 20 41 
+4783   25EB 20 42 41 54 
+4783   25EF 20 47 52 41 
+4783   25F3 42 53 20 59 
+4783   25F7 4F 55 20 41 
+4783   25FB 4E 44 20 54 
+4783   25FF 41 4B 45 53 
+4783   2603 20 59 4F 55 
+4783   2607 20 54 4F 20 
+4783   260B 53 4F 4D 45 
+4783   260F 20 4F 54 48 
+4783   2613 45 52 0A 00 
+4784   2617 20 52 4F 4F __s16: .db " ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n", 0
+4784   261B 4D 20 41 54 
+4784   261F 20 52 41 4E 
+4784   2623 44 4F 4D 2E 
+4784   2627 20 28 57 48 
+4784   262B 49 43 48 20 
+4784   262F 4D 41 59 20 
+4784   2633 42 45 20 54 
+4784   2637 52 4F 55 42 
+4784   263B 4C 45 53 4F 
+4784   263F 4D 45 29 0A 
+4784   2643 00 
+4785   2644 20 57 55 4D __s17: .db " WUMPUS:\n", 0
+4785   2648 50 55 53 3A 
+4785   264C 0A 00 
+4786   264E 20 54 48 45 __s18: .db " THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n", 0
+4786   2652 20 57 55 4D 
+4786   2656 50 55 53 20 
+4786   265A 49 53 20 4E 
+4786   265E 4F 54 20 42 
+4786   2662 4F 54 48 45 
+4786   2666 52 45 44 20 
+4786   266A 42 59 20 48 
+4786   266E 41 5A 41 52 
+4786   2672 44 53 20 28 
+4786   2676 48 45 20 48 
+4786   267A 41 53 20 53 
+4786   267E 55 43 4B 45 
+4786   2682 52 0A 00 
+4787   2685 20 46 45 45 __s19: .db " FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n", 0
+4787   2689 54 20 41 4E 
+4787   268D 44 20 49 53 
+4787   2691 20 54 4F 4F 
+4787   2695 20 42 49 47 
+4787   2699 20 46 4F 52 
+4787   269D 20 41 20 42 
+4787   26A1 41 54 20 54 
+4787   26A5 4F 20 4C 49 
+4787   26A9 46 54 29 2E 
+4787   26AD 20 20 55 53 
+4787   26B1 55 41 4C 4C 
+4787   26B5 59 0A 00 
+4788   26B8 20 48 45 20 __s20: .db " HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n", 0
+4788   26BC 49 53 20 41 
+4788   26C0 53 4C 45 45 
+4788   26C4 50 2E 20 20 
+4788   26C8 54 57 4F 20 
+4788   26CC 54 48 49 4E 
+4788   26D0 47 53 20 57 
+4788   26D4 41 4B 45 20 
+4788   26D8 48 49 4D 20 
+4788   26DC 55 50 3A 20 
+4788   26E0 59 4F 55 20 
+4788   26E4 53 48 4F 4F 
+4788   26E8 54 49 4E 47 
+4788   26EC 20 41 4E 0A 
+4788   26F0 00 
+4789   26F1 20 41 52 52 __s21: .db " ARROW OR YOU ENTERING HIS ROOM.\n", 0
+4789   26F5 4F 57 20 4F 
+4789   26F9 52 20 59 4F 
+4789   26FD 55 20 45 4E 
+4789   2701 54 45 52 49 
+4789   2705 4E 47 20 48 
+4789   2709 49 53 20 52 
+4789   270D 4F 4F 4D 2E 
+4789   2711 0A 00 
+4790   2713 20 49 46 20 __s22: .db " IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n", 0
+4790   2717 54 48 45 20 
+4790   271B 57 55 4D 50 
+4790   271F 55 53 20 57 
+4790   2723 41 4B 45 53 
+4790   2727 20 48 45 20 
+4790   272B 4D 4F 56 45 
+4790   272F 53 20 28 50 
+4790   2733 3D 2E 37 35 
+4790   2737 29 20 4F 4E 
+4790   273B 45 20 52 4F 
+4790   273F 4F 4D 0A 00 
+4791   2743 20 4F 52 20 __s23: .db " OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n", 0
+4791   2747 53 54 41 59 
+4791   274B 53 20 53 54 
+4791   274F 49 4C 4C 20 
+4791   2753 28 50 3D 2E 
+4791   2757 32 35 29 2E 
+4791   275B 20 20 41 46 
+4791   275F 54 45 52 20 
+4791   2763 54 48 41 54 
+4791   2767 2C 20 49 46 
+4791   276B 20 48 45 20 
+4791   276F 49 53 20 57 
+4791   2773 48 45 52 45 
+4791   2777 20 59 4F 55 
+4791   277B 0A 00 
+4792   277D 20 41 52 45 __s24: .db " ARE, HE EATS YOU UP AND YOU LOSE!\n", 0
+4792   2781 2C 20 48 45 
+4792   2785 20 45 41 54 
+4792   2789 53 20 59 4F 
+4792   278D 55 20 55 50 
+4792   2791 20 41 4E 44 
+4792   2795 20 59 4F 55 
+4792   2799 20 4C 4F 53 
+4792   279D 45 21 0A 00 
+4793   27A1 20 59 4F 55 __s25: .db " YOU:\n", 0
+4793   27A5 3A 0A 00 
+4794   27A8 20 45 41 43 __s26: .db " EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n", 0
+4794   27AC 48 20 54 55 
+4794   27B0 52 4E 20 59 
+4794   27B4 4F 55 20 4D 
+4794   27B8 41 59 20 4D 
+4794   27BC 4F 56 45 20 
+4794   27C0 4F 52 20 53 
+4794   27C4 48 4F 4F 54 
+4794   27C8 20 41 20 43 
+4794   27CC 52 4F 4F 4B 
+4794   27D0 45 44 20 41 
+4794   27D4 52 52 4F 57 
+4794   27D8 0A 00 
+4795   27DA 20 4D 4F 56 __s27: .db " MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n", 0
+4795   27DE 49 4E 47 3A 
+4795   27E2 20 20 59 4F 
+4795   27E6 55 20 43 41 
+4795   27EA 4E 20 4D 4F 
+4795   27EE 56 45 20 4F 
+4795   27F2 4E 45 20 52 
+4795   27F6 4F 4F 4D 20 
+4795   27FA 28 54 48 52 
+4795   27FE 55 20 4F 4E 
+4795   2802 45 20 54 55 
+4795   2806 4E 4E 45 4C 
+4795   280A 29 0A 00 
+4796   280D 20 41 52 52 __s28: .db " ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n", 0
+4796   2811 4F 57 53 3A 
+4796   2815 20 20 59 4F 
+4796   2819 55 20 48 41 
+4796   281D 56 45 20 35 
+4796   2821 20 41 52 52 
+4796   2825 4F 57 53 2E 
+4796   2829 20 20 59 4F 
+4796   282D 55 20 4C 4F 
+4796   2831 53 45 20 57 
+4796   2835 48 45 4E 20 
+4796   2839 59 4F 55 20 
+4796   283D 52 55 4E 20 
+4796   2841 4F 55 54 0A 
+4796   2845 00 
+4797   2846 20 45 41 43 __s29: .db " EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n", 0
+4797   284A 48 20 41 52 
+4797   284E 52 4F 57 20 
+4797   2852 43 41 4E 20 
+4797   2856 47 4F 20 46 
+4797   285A 52 4F 4D 20 
+4797   285E 31 20 54 4F 
+4797   2862 20 35 20 52 
+4797   2866 4F 4F 4D 53 
+4797   286A 2E 20 59 4F 
+4797   286E 55 20 41 49 
+4797   2872 4D 20 42 59 
+4797   2876 20 54 45 4C 
+4797   287A 4C 49 4E 47 
+4797   287E 0A 00 
+4798   2880 20 20 20 54 __s30: .db "   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n", 0
+4798   2884 48 45 20 43 
+4798   2888 4F 4D 50 55 
+4798   288C 54 45 52 20 
+4798   2890 54 48 45 20 
+4798   2894 52 4F 4F 4D 
+4798   2898 23 53 20 59 
+4798   289C 4F 55 20 57 
+4798   28A0 41 4E 54 20 
+4798   28A4 54 48 45 20 
+4798   28A8 41 52 52 4F 
+4798   28AC 57 20 54 4F 
+4798   28B0 20 47 4F 20 
+4798   28B4 54 4F 2E 0A 
+4798   28B8 00 
+4799   28B9 20 20 20 49 __s31: .db "   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n", 0
+4799   28BD 46 20 54 48 
+4799   28C1 45 20 41 52 
+4799   28C5 52 4F 57 20 
+4799   28C9 43 41 4E 27 
+4799   28CD 54 20 47 4F 
+4799   28D1 20 54 48 41 
+4799   28D5 54 20 57 41 
+4799   28D9 59 20 28 49 
+4799   28DD 46 20 4E 4F 
+4799   28E1 20 54 55 4E 
+4799   28E5 4E 45 4C 29 
+4799   28E9 20 49 54 20 
+4799   28ED 4D 4F 56 45 
+4799   28F1 53 0A 
+4800   28F3 20 20 20 41 __s32: .db "   AT RANDOM TO THE NEXT ROOM.\n", 0
+4800   28F7 54 20 52 41 
+4800   28FB 4E 44 4F 4D 
+4800   28FF 20 54 4F 20 
+4800   2903 54 48 45 20 
+4800   2907 4E 45 58 54 
+4800   290B 20 52 4F 4F 
+4800   290F 4D 2E 0A 00 
+4801   2913 20 20 20 20 __s33: .db "     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n", 0
+4801   2917 20 49 46 20 
+4801   291B 54 48 45 20 
+4801   291F 41 52 52 4F 
+4801   2923 57 20 48 49 
+4801   2927 54 53 20 54 
+4801   292B 48 45 20 57 
+4801   292F 55 4D 50 55 
+4801   2933 53 2C 20 59 
+4801   2937 4F 55 20 57 
+4801   293B 49 4E 2E 0A 
+4801   293F 00 
+4802   2940 20 20 20 20 __s34: .db "     IF THE ARROW HITS YOU, YOU LOSE.\n", 0
+4802   2944 20 49 46 20 
+4802   2948 54 48 45 20 
+4802   294C 41 52 52 4F 
+4802   2950 57 20 48 49 
+4802   2954 54 53 20 59 
+4802   2958 4F 55 2C 20 
+4802   295C 59 4F 55 20 
+4802   2960 4C 4F 53 45 
+4802   2964 2E 0A 00 
+4803   2967 20 57 41 52 __s35: .db " WARNINGS:\n", 0
+4803   296B 4E 49 4E 47 
+4803   296F 53 3A 0A 00 
+4804   2973 20 57 48 45 __s36: .db " WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n", 0
+4804   2977 4E 20 59 4F 
+4804   297B 55 20 41 52 
+4804   297F 45 20 4F 4E 
+4804   2983 45 20 52 4F 
+4804   2987 4F 4D 20 41 
+4804   298B 57 41 59 20 
+4804   298F 46 52 4F 4D 
+4804   2993 20 41 20 57 
+4804   2997 55 4D 50 55 
+4804   299B 53 20 4F 52 
+4804   299F 20 48 41 5A 
+4804   29A3 41 52 44 2C 
+4804   29A7 0A 00 
+4805   29A9 20 54 48 45 __s37: .db " THE COMPUTER SAYS:\n", 0
+4805   29AD 20 43 4F 4D 
+4805   29B1 50 55 54 45 
+4805   29B5 52 20 53 41 
+4805   29B9 59 53 3A 0A 
+4805   29BD 00 
+4806   29BE 20 57 55 4D __s38: .db " WUMPUS:  'I SMELL A WUMPUS'\n", 0
+4806   29C2 50 55 53 3A 
+4806   29C6 20 20 27 49 
+4806   29CA 20 53 4D 45 
+4806   29CE 4C 4C 20 41 
+4806   29D2 20 57 55 4D 
+4806   29D6 50 55 53 27 
+4806   29DA 0A 00 
+4807   29DC 20 42 41 54 __s39: .db " BAT   :  'BATS NEARBY'\n", 0
+4807   29E0 20 20 20 3A 
+4807   29E4 20 20 27 42 
+4807   29E8 41 54 53 20 
+4807   29EC 4E 45 41 52 
+4807   29F0 42 59 27 0A 
+4807   29F4 00 
+4808   29F5 20 50 49 54 __s40: .db " PIT   :  'I FEEL A DRAFT'\n", 0
+4808   29F9 20 20 20 3A 
+4808   29FD 20 20 27 49 
+4808   2A01 20 46 45 45 
+4808   2A05 4C 20 41 20 
+4808   2A09 44 52 41 46 
+4808   2A0D 54 27 0A 00 
+4809   2A11 49 20 53 4D __s41: .db "I SMELL A WUMPUS!\n", 0
+4809   2A15 45 4C 4C 20 
+4809   2A19 41 20 57 55 
+4809   2A1D 4D 50 55 53 
+4809   2A21 21 0A 00 
+4810   2A24 49 20 46 45 __s42: .db "I FEEL A DRAFT\n", 0
+4810   2A28 45 4C 20 41 
+4810   2A2C 20 44 52 41 
+4810   2A30 46 54 0A 00 
+4811   2A34 42 41 54 53 __s43: .db "BATS NEARBY!\n", 0
+4811   2A38 20 4E 45 41 
+4811   2A3C 52 42 59 21 
+4811   2A40 0A 00 
+4812   2A42 59 4F 55 20 __s44: .db "YOU ARE IN ROOM ", 0
+4812   2A46 41 52 45 20 
+4812   2A4A 49 4E 20 52 
+4812   2A4E 4F 4F 4D 20 
+4812   2A52 00 
+4813   2A53 54 55 4E 4E __s45: .db "TUNNELS LEAD TO ", 0
+4813   2A57 45 4C 53 20 
+4813   2A5B 4C 45 41 44 
+4813   2A5F 20 54 4F 20 
+4813   2A63 00 
+4814   2A64 2C 20 00    __s46: .db ", ", 0
+4815   2A67 0A 0A 00    __s47: .db "\n\n", 0
+4816   2A6A 53 48 4F 4F __s48: .db "SHOOT OR MOVE (S-M): ", 0
+4816   2A6E 54 20 4F 52 
+4816   2A72 20 4D 4F 56 
+4816   2A76 45 20 28 53 
+4816   2A7A 2D 4D 29 3A 
+4816   2A7E 20 00 
+4817   2A80 54 53 4B 20 __s49: .db "TSK TSK TSK - WUMPUS GOT YOU!\n", 0
 4817   2A84 54 53 4B 20 
-4817   2A88 2D 20 57 55 
-4817   2A8C 4D 50 55 53 
-4817   2A90 20 47 4F 54 
-4817   2A94 20 59 4F 55 
-4817   2A98 21 0A 00 
-4818   2A9B 4E 4F 2E 20 __s50: .db "NO. OF ROOMS (1-5)", 0
-4818   2A9F 4F 46 20 52 
-4818   2AA3 4F 4F 4D 53 
-4818   2AA7 20 28 31 2D 
-4818   2AAB 35 29 00 
-4819   2AAE 52 4F 4F 4D __s51: .db "ROOM #", 0
-4819   2AB2 20 23 00 
-4820   2AB5 41 52 52 4F __s52: .db "ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n", 0
-4820   2AB9 57 53 20 41 
-4820   2ABD 52 45 4E 27 
-4820   2AC1 54 20 54 48 
-4820   2AC5 41 54 20 43 
-4820   2AC9 52 4F 4F 4B 
-4820   2ACD 45 44 20 2D 
-4820   2AD1 20 54 52 59 
-4820   2AD5 20 41 4E 4F 
-4820   2AD9 54 48 45 52 
-4820   2ADD 20 52 4F 4F 
-4820   2AE1 4D 0A 
-4821   2AE3 41 48 41 21 __s53: .db "AHA! YOU GOT THE WUMPUS!\n", 0
-4821   2AE7 20 59 4F 55 
-4821   2AEB 20 47 4F 54 
-4821   2AEF 20 54 48 45 
-4821   2AF3 20 57 55 4D 
-4821   2AF7 50 55 53 21 
-4821   2AFB 0A 00 
-4822   2AFD 4F 55 43 48 __s54: .db "OUCH! ARROW GOT YOU!\n", 0
-4822   2B01 21 20 41 52 
-4822   2B05 52 4F 57 20 
-4822   2B09 47 4F 54 20 
-4822   2B0D 59 4F 55 21 
-4822   2B11 0A 00 
-4823   2B13 4D 49 53 53 __s55: .db "MISSED\n", 0
-4823   2B17 45 44 0A 00 
-4824   2B1B 57 48 45 52 __s56: .db "WHERE TO", 0
-4824   2B1F 45 20 54 4F 
-4824   2B23 00 
-4825   2B24 4E 4F 54 20 __s57: .db "NOT POSSIBLE\n", 0
-4825   2B28 50 4F 53 53 
-4825   2B2C 49 42 4C 45 
-4825   2B30 0A 00 
-4826   2B32 5A 41 50 2D __s58: .db "ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n", 0
-4826   2B36 2D 53 55 50 
-4826   2B3A 45 52 20 42 
-4826   2B3E 41 54 20 53 
-4826   2B42 4E 41 54 43 
-4826   2B46 48 21 20 45 
-4826   2B4A 4C 53 45 57 
-4826   2B4E 48 45 52 45 
-4826   2B52 56 49 4C 4C 
-4826   2B56 45 20 46 4F 
-4826   2B5A 52 20 59 4F 
-4826   2B5E 55 21 0A 00 
-4827   2B62 2E 2E 2E 20 __s59: .db "... OOPS! BUMPED A WUMPUS!\n", 0
-4827   2B66 4F 4F 50 53 
-4827   2B6A 21 20 42 55 
-4827   2B6E 4D 50 45 44 
-4827   2B72 20 41 20 57 
-4827   2B76 55 4D 50 55 
-4827   2B7A 53 21 0A 00 
-4828   2B7E 59 59 59 59 __s60: .db "YYYYIIIIEEEE . . . FELL IN PIT\n", 0
-4828   2B82 49 49 49 49 
-4828   2B86 45 45 45 45 
-4828   2B8A 20 2E 20 2E 
-4828   2B8E 20 2E 20 46 
-4828   2B92 45 4C 4C 20 
-4828   2B96 49 4E 20 50 
-4828   2B9A 49 54 0A 00 
-4829   2B9E 48 55 4E 54 __s61: .db "HUNT THE WUMPUS\n", 0
-4829   2BA2 20 54 48 45 
-4829   2BA6 20 57 55 4D 
-4829   2BAA 50 55 53 0A 
-4829   2BAE 00 
-4830   2BAF 57 75 6D 70 __s62: .db "Wumpus is at ", 0
-4830   2BB3 75 73 20 69 
-4830   2BB7 73 20 61 74 
-4830   2BBB 20 00 
-4831   2BBD 2C 20 70 69 __s63: .db ", pits at ", 0
-4831   2BC1 74 73 20 61 
-4831   2BC5 74 20 00 
-4832   2BC8 20 26 20 00 __s64: .db " & ", 0
-4833   2BCC 2C 20 62 61 __s65: .db ", bats at ", 0
-4833   2BD0 74 73 20 61 
-4833   2BD4 74 20 00 
-4834   2BD7 48 45 45 20 __s66: .db "HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n", 0
-4834   2BDB 48 45 45 20 
-4834   2BDF 48 45 45 20 
-4834   2BE3 2D 20 54 48 
-4834   2BE7 45 20 57 55 
-4834   2BEB 4D 50 55 53 
-4834   2BEF 27 4C 4C 20 
-4834   2BF3 47 45 54 20 
-4834   2BF7 59 4F 55 20 
-4834   2BFB 4E 45 58 54 
-4834   2BFF 20 54 49 4D 
-4834   2C03 45 21 21 0A 
-4835   2C07 48 41 20 48 __s67: .db "HA HA HA - YOU LOSE!\n", 0
-4835   2C0B 41 20 48 41 
-4835   2C0F 20 2D 20 59 
-4835   2C13 4F 55 20 4C 
-4835   2C17 4F 53 45 21 
-4835   2C1B 0A 00 
-4836   2C1D             
-4837   2C1D 1F 2C       _heap_top: .dw _heap
-4838   2C1F 00          _heap: .db 0
-4839   2C20             ; --- END DATA BLOCK
-4840   2C20             
-4841   2C20             .end
+4817   2A88 54 53 4B 20 
+4817   2A8C 2D 20 57 55 
+4817   2A90 4D 50 55 53 
+4817   2A94 20 47 4F 54 
+4817   2A98 20 59 4F 55 
+4817   2A9C 21 0A 00 
+4818   2A9F 0A 4E 55 4D __s50: .db "\nNUMBER OF ROOMS (1-5): ", 0
+4818   2AA3 42 45 52 20 
+4818   2AA7 4F 46 20 52 
+4818   2AAB 4F 4F 4D 53 
+4818   2AAF 20 28 31 2D 
+4818   2AB3 35 29 3A 20 
+4818   2AB7 00 
+4819   2AB8 52 4F 4F 4D __s51: .db "ROOM #", 0
+4819   2ABC 20 23 00 
+4820   2ABF 41 52 52 4F __s52: .db "ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n", 0
+4820   2AC3 57 53 20 41 
+4820   2AC7 52 45 4E 27 
+4820   2ACB 54 20 54 48 
+4820   2ACF 41 54 20 43 
+4820   2AD3 52 4F 4F 4B 
+4820   2AD7 45 44 20 2D 
+4820   2ADB 20 54 52 59 
+4820   2ADF 20 41 4E 4F 
+4820   2AE3 54 48 45 52 
+4820   2AE7 20 52 4F 4F 
+4820   2AEB 4D 0A 
+4821   2AED 41 48 41 21 __s53: .db "AHA! YOU GOT THE WUMPUS!\n", 0
+4821   2AF1 20 59 4F 55 
+4821   2AF5 20 47 4F 54 
+4821   2AF9 20 54 48 45 
+4821   2AFD 20 57 55 4D 
+4821   2B01 50 55 53 21 
+4821   2B05 0A 00 
+4822   2B07 4F 55 43 48 __s54: .db "OUCH! ARROW GOT YOU!\n", 0
+4822   2B0B 21 20 41 52 
+4822   2B0F 52 4F 57 20 
+4822   2B13 47 4F 54 20 
+4822   2B17 59 4F 55 21 
+4822   2B1B 0A 00 
+4823   2B1D 4D 49 53 53 __s55: .db "MISSED\n", 0
+4823   2B21 45 44 0A 00 
+4824   2B25 0A 57 48 45 __s56: .db "\nWHERE TO: ", 0
+4824   2B29 52 45 20 54 
+4824   2B2D 4F 3A 20 00 
+4825   2B31 4E 4F 54 20 __s57: .db "NOT POSSIBLE\n", 0
+4825   2B35 50 4F 53 53 
+4825   2B39 49 42 4C 45 
+4825   2B3D 0A 00 
+4826   2B3F 5A 41 50 2D __s58: .db "ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n", 0
+4826   2B43 2D 53 55 50 
+4826   2B47 45 52 20 42 
+4826   2B4B 41 54 20 53 
+4826   2B4F 4E 41 54 43 
+4826   2B53 48 21 20 45 
+4826   2B57 4C 53 45 57 
+4826   2B5B 48 45 52 45 
+4826   2B5F 56 49 4C 4C 
+4826   2B63 45 20 46 4F 
+4826   2B67 52 20 59 4F 
+4826   2B6B 55 21 0A 00 
+4827   2B6F 2E 2E 2E 20 __s59: .db "... OOPS! BUMPED A WUMPUS!\n", 0
+4827   2B73 4F 4F 50 53 
+4827   2B77 21 20 42 55 
+4827   2B7B 4D 50 45 44 
+4827   2B7F 20 41 20 57 
+4827   2B83 55 4D 50 55 
+4827   2B87 53 21 0A 00 
+4828   2B8B 59 59 59 59 __s60: .db "YYYYIIIIEEEE . . . FELL IN PIT\n", 0
+4828   2B8F 49 49 49 49 
+4828   2B93 45 45 45 45 
+4828   2B97 20 2E 20 2E 
+4828   2B9B 20 2E 20 46 
+4828   2B9F 45 4C 4C 20 
+4828   2BA3 49 4E 20 50 
+4828   2BA7 49 54 0A 00 
+4829   2BAB 48 55 4E 54 __s61: .db "HUNT THE WUMPUS\n", 0
+4829   2BAF 20 54 48 45 
+4829   2BB3 20 57 55 4D 
+4829   2BB7 50 55 53 0A 
+4829   2BBB 00 
+4830   2BBC 57 75 6D 70 __s62: .db "Wumpus is at ", 0
+4830   2BC0 75 73 20 69 
+4830   2BC4 73 20 61 74 
+4830   2BC8 20 00 
+4831   2BCA 2C 20 70 69 __s63: .db ", pits at ", 0
+4831   2BCE 74 73 20 61 
+4831   2BD2 74 20 00 
+4832   2BD5 20 26 20 00 __s64: .db " & ", 0
+4833   2BD9 2C 20 62 61 __s65: .db ", bats at ", 0
+4833   2BDD 74 73 20 61 
+4833   2BE1 74 20 00 
+4834   2BE4 48 45 45 20 __s66: .db "HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n", 0
+4834   2BE8 48 45 45 20 
+4834   2BEC 48 45 45 20 
+4834   2BF0 2D 20 54 48 
+4834   2BF4 45 20 57 55 
+4834   2BF8 4D 50 55 53 
+4834   2BFC 27 4C 4C 20 
+4834   2C00 47 45 54 20 
+4834   2C04 59 4F 55 20 
+4834   2C08 4E 45 58 54 
+4834   2C0C 20 54 49 4D 
+4834   2C10 45 21 21 0A 
+4835   2C14 48 41 20 48 __s67: .db "HA HA HA - YOU LOSE!\n", 0
+4835   2C18 41 20 48 41 
+4835   2C1C 20 2D 20 59 
+4835   2C20 4F 55 20 4C 
+4835   2C24 4F 53 45 21 
+4835   2C28 0A 00 
+4836   2C2A             
+4837   2C2A 2C 2C       _heap_top: .dw _heap
+4838   2C2C 00          _heap: .db 0
+4839   2C2D             ; --- END DATA BLOCK
+4840   2C2D             
+4841   2C2D             .end
 tasm: Number of errors = 0

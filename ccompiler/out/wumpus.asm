@@ -44,9 +44,9 @@ _do2_block:
   call game_setup
 ;; game_play(); 
   call game_play
-;; } while (getlet("NEW GAME (Y-N)") != 'N'); 
+;; } while (getlet("NEW GAME (Y-N): ") != 'N'); 
 _do2_cond:
-  mov b, __s1 ; "NEW GAME (Y-N)"
+  mov b, __s1 ; "NEW GAME (Y-N): "
   swp b
   push b
   call getlet
@@ -3204,10 +3204,10 @@ _while34_cond:
   cmp b, 0
   je _while34_exit
 _while34_block:
-;; c = getlet("SHOOT OR MOVE (S-M)"); 
+;; c = getlet("SHOOT OR MOVE (S-M): "); 
   lea d, [bp + -1] ; $c
   push d
-  mov b, __s48 ; "SHOOT OR MOVE (S-M)"
+  mov b, __s48 ; "SHOOT OR MOVE (S-M): "
   swp b
   push b
   call getlet
@@ -3402,10 +3402,10 @@ _while38_cond:
   cmp b, 0
   je _while38_exit
 _while38_block:
-;; len = getnum("NO. OF ROOMS (1-5)"); 
+;; len = getnum("\nNUMBER OF ROOMS (1-5): "); 
   lea d, [bp + -13] ; $len
   push d
-  mov b, __s50 ; "NO. OF ROOMS (1-5)"
+  mov b, __s50 ; "\nNUMBER OF ROOMS (1-5): "
   swp b
   push b
   call getnum
@@ -3877,10 +3877,10 @@ _while47_cond:
   cmp b, 0
   je _while47_exit
 _while47_block:
-;; scratchloc = getnum("WHERE TO")-1; 
+;; scratchloc = getnum("\nWHERE TO: ")-1; 
   lea d, [bp + -1] ; $scratchloc
   push d
-  mov b, __s56 ; "WHERE TO"
+  mov b, __s56 ; "\nWHERE TO: "
   swp b
   push b
   call getnum
@@ -4717,10 +4717,10 @@ _if61_true:
   add sp, 2
   jmp _if61_exit
 _if61_exit:
-;; c = getlet("NEW GAME (Y-N)"); 
+;; c = getlet("NEW GAME (Y-N): "); 
   lea d, [bp + -1] ; $c
   push d
-  mov b, __s1 ; "NEW GAME (Y-N)"
+  mov b, __s1 ; "NEW GAME (Y-N): "
   swp b
   push b
   call getlet
@@ -4766,7 +4766,7 @@ _cave_data:
 .dw 
 .dw 
 __s0: .db "INSTRUCTIONS (Y-N): ", 0
-__s1: .db "NEW GAME (Y-N)", 0
+__s1: .db "NEW GAME (Y-N): ", 0
 __s2: .db "Unknown type size in va_arg() call. Size needs to be either 1 or 2.", 0
 __s3: .db "Error: Unknown argument type.\n", 0
 __s4: .db "\033[2J\033[H", 0
@@ -4813,15 +4813,15 @@ __s44: .db "YOU ARE IN ROOM ", 0
 __s45: .db "TUNNELS LEAD TO ", 0
 __s46: .db ", ", 0
 __s47: .db "\n\n", 0
-__s48: .db "SHOOT OR MOVE (S-M)", 0
+__s48: .db "SHOOT OR MOVE (S-M): ", 0
 __s49: .db "TSK TSK TSK - WUMPUS GOT YOU!\n", 0
-__s50: .db "NO. OF ROOMS (1-5)", 0
+__s50: .db "\nNUMBER OF ROOMS (1-5): ", 0
 __s51: .db "ROOM #", 0
 __s52: .db "ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n", 0
 __s53: .db "AHA! YOU GOT THE WUMPUS!\n", 0
 __s54: .db "OUCH! ARROW GOT YOU!\n", 0
 __s55: .db "MISSED\n", 0
-__s56: .db "WHERE TO", 0
+__s56: .db "\nWHERE TO: ", 0
 __s57: .db "NOT POSSIBLE\n", 0
 __s58: .db "ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n", 0
 __s59: .db "... OOPS! BUMPED A WUMPUS!\n", 0

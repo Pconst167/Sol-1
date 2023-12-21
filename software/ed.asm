@@ -51,11 +51,13 @@ ed_main:
 	call printnl
 
 no_filename_given:
+	mov d, ss
+	call _puts
 main_L0:
 	mov byte [tokstr], 0			; clear tokstr (so that enter doesnt repeat last shell command)
 	call command_parser
 	jmp main_L0
-
+ss:.db "\nHello World\n",0
 ; ,p
 ; 1,3p
 ; 2p
