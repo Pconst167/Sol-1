@@ -83,14 +83,14 @@ int getlet(char* prompt) {
 
 void print_instructions() {
 
-  print("WELCOME TO 'HUNT THE WUMPUS'\n");
-  print("THE WUMPUS LIVES IN A CAVE OF 20 ROOMS. EACH ROOM\n");
-  print("HAS 3 TUNNELS LEADING TO OTHER ROOMS.\n"); 
-  print("LOOK AT A DODECAHEDRON TO SEE HOW THIS WORKS.\n");
+  print("Welcome to 'hunt the wumpus'\n");
+  print("The wumpus lives in a cave of 20 rooms. Each room\n");
+  print("has 3 tunnels leading to other rooms.\n"); 
+  print("Look at a dodecahedron to see how this works.\n");
   print("\n");
-  print(" HAZARDS:\n");
-  print(" BOTTOMLESS PITS: TWO ROOMS HAVE BOTTOMLESS PITS IN THEM\n");
-  print(" IF YOU GO THERE, YOU FALL INTO THE PIT (& LOSE!)\n");
+  print(" Hazards:\n");
+  print(" Bottomless pits: Two rooms have bottomless pits in them\n");
+  print(" If you go there, you fall into the pit (& lose!)\n");
   print(" SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n");
   print(" GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n");
   print(" ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n\n");
