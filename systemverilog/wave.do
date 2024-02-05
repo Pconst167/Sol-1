@@ -1,5 +1,4 @@
 onerror {resume}
-quietly virtual function -install /sol1_top/u_cpu_top/u_microcode_sequencer -env /sol1_top/#INITIAL#38(#ublk#178839128#38) { &{/sol1_top/u_cpu_top/u_microcode_sequencer/u_address[5], /sol1_top/u_cpu_top/u_microcode_sequencer/u_address[4], /sol1_top/u_cpu_top/u_microcode_sequencer/u_address[3], /sol1_top/u_cpu_top/u_microcode_sequencer/u_address[2], /sol1_top/u_cpu_top/u_microcode_sequencer/u_address[1], /sol1_top/u_cpu_top/u_microcode_sequencer/u_address[0] }} u_cycle
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /sol1_top/arst
 add wave -noupdate /sol1_top/stop_clk_req
@@ -27,7 +26,7 @@ add wave -noupdate /sol1_top/u_ide/LBA
 add wave -noupdate /sol1_top/u_ide/mem
 add wave -noupdate /sol1_top/u_ide/oe_n
 add wave -noupdate /sol1_top/u_ide/registers
-add wave -noupdate -radix unsigned -childformat {{{/sol1_top/u_ide/status[7]} -radix unsigned} {{/sol1_top/u_ide/status[6]} -radix unsigned} {{/sol1_top/u_ide/status[5]} -radix unsigned} {{/sol1_top/u_ide/status[4]} -radix unsigned} {{/sol1_top/u_ide/status[3]} -radix unsigned} {{/sol1_top/u_ide/status[2]} -radix unsigned} {{/sol1_top/u_ide/status[1]} -radix unsigned} {{/sol1_top/u_ide/status[0]} -radix unsigned}} -subitemconfig {{/sol1_top/u_ide/status[7]} {-radix unsigned} {/sol1_top/u_ide/status[6]} {-radix unsigned} {/sol1_top/u_ide/status[5]} {-radix unsigned} {/sol1_top/u_ide/status[4]} {-radix unsigned} {/sol1_top/u_ide/status[3]} {-radix unsigned} {/sol1_top/u_ide/status[2]} {-radix unsigned} {/sol1_top/u_ide/status[1]} {-radix unsigned} {/sol1_top/u_ide/status[0]} {-radix unsigned}} /sol1_top/u_ide/status
+add wave -noupdate -radix unsigned -childformat {{{/sol1_top/u_ide/status[7]} -radix unsigned} {{/sol1_top/u_ide/status[6]} -radix unsigned} {{/sol1_top/u_ide/status[5]} -radix unsigned} {{/sol1_top/u_ide/status[4]} -radix unsigned} {{/sol1_top/u_ide/status[3]} -radix unsigned} {{/sol1_top/u_ide/status[2]} -radix unsigned} {{/sol1_top/u_ide/status[1]} -radix unsigned} {{/sol1_top/u_ide/status[0]} -radix unsigned}} -subitemconfig {{/sol1_top/u_ide/status[7]} {-height 14 -radix unsigned} {/sol1_top/u_ide/status[6]} {-height 14 -radix unsigned} {/sol1_top/u_ide/status[5]} {-height 14 -radix unsigned} {/sol1_top/u_ide/status[4]} {-height 14 -radix unsigned} {/sol1_top/u_ide/status[3]} {-height 14 -radix unsigned} {/sol1_top/u_ide/status[2]} {-height 14 -radix unsigned} {/sol1_top/u_ide/status[1]} {-height 14 -radix unsigned} {/sol1_top/u_ide/status[0]} {-height 14 -radix unsigned}} /sol1_top/u_ide/status
 add wave -noupdate /sol1_top/u_ide/we_n
 add wave -noupdate -divider {== CS ==}
 add wave -noupdate /sol1_top/bios_config_cs
@@ -45,7 +44,6 @@ add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_flag_src
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_invert
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_sel
 add wave -noupdate /sol1_top/u_cpu_top/u_microcode_sequencer/ir
-add wave -noupdate /sol1_top/u_cpu_top/u_microcode_sequencer/u_cycle
 add wave -noupdate /sol1_top/u_cpu_top/u_microcode_sequencer/u_address
 add wave -noupdate /sol1_top/u_cpu_top/u_microcode_sequencer/u_flags
 add wave -noupdate /sol1_top/u_cpu_top/u_microcode_sequencer/any_interruption
@@ -128,7 +126,7 @@ add wave -noupdate /sol1_top/u_cpu_top/ctrl_cl_wrt
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_clear_all_ints
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_flag_src
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_invert
-add wave -noupdate -expand /sol1_top/u_cpu_top/ctrl_cond_sel
+add wave -noupdate -expand -subitemconfig {{/sol1_top/u_cpu_top/ctrl_cond_sel[3]} {-height 14} {/sol1_top/u_cpu_top/ctrl_cond_sel[2]} {-height 14} {/sol1_top/u_cpu_top/ctrl_cond_sel[1]} {-height 14} {/sol1_top/u_cpu_top/ctrl_cond_sel[0]} {-height 14}} /sol1_top/u_cpu_top/ctrl_cond_sel
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_dh_wrt
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_di_h_wrt
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_di_l_wrt
@@ -177,7 +175,7 @@ add wave -noupdate /sol1_top/u_cpu_top/ctrl_wr
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_zbus_src
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_zf_in_src
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {30026345726 ps} 0}
+WaveRestoreCursors {{Cursor 1} {76409582 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 190
 configure wave -valuecolwidth 100
@@ -185,15 +183,15 @@ configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10
 configure wave -datasetprefix 0
-configure wave -rowmargin 4
+configure wave -rowmargin 6
 configure wave -childrowmargin 2
 configure wave -gridoffset 0
 configure wave -gridperiod 1
 configure wave -griddelta 40
 configure wave -timeline 0
-configure wave -timelineunits ns
+configure wave -timelineunits us
 update
-WaveRestoreZoom {29985329935 ps} {30190408881 ps}
+WaveRestoreZoom {76409298 ns} {76412336 ns}
 bookmark add wave bookmark0 {{8339320171 ps} {8349290586 ps}} 16
 bookmark add wave bookmark1 {{8307101692 ps} {8389800233 ps}} 0
 bookmark add wave bookmark2 {{27041948331 ps} {27046366383 ps}} 24
