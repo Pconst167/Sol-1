@@ -26,7 +26,7 @@ module ide(
 
   logic [7:0] LBA [2:0];
   logic [9:0] byteCounter;
-  logic [7:0] mem [672 * KB];
+  logic [7:0] mem [1024 * KB];
   logic [7:0] registers [7:0];
   logic [7:0] command;
   logic [7:0] status;
