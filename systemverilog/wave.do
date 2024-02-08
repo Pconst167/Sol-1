@@ -15,8 +15,6 @@ add wave -noupdate /sol1_top/data_bus
 add wave -noupdate -divider {Page Table}
 add wave -noupdate /sol1_top/u_cpu_top/u_pagetable_high/data_in
 add wave -noupdate /sol1_top/u_cpu_top/u_pagetable_high/data_out
-add wave -noupdate /sol1_top/u_cpu_top/u_pagetable_low/data_in
-add wave -noupdate /sol1_top/u_cpu_top/u_pagetable_low/data_out
 add wave -noupdate -divider {== IDE ==}
 add wave -noupdate /sol1_top/u_ide/address
 add wave -noupdate /sol1_top/u_ide/arst
@@ -45,6 +43,7 @@ add wave -noupdate /sol1_top/timer_cs
 add wave -noupdate /sol1_top/uart0_cs
 add wave -noupdate /sol1_top/uart1_cs
 add wave -noupdate -divider {== MICROCODE ==}
+add wave -noupdate /sol1_top/clk
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_flag_src
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_invert
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_sel
@@ -119,6 +118,7 @@ add wave -noupdate /sol1_top/u_cpu_top/irq_vector
 add wave -noupdate /sol1_top/u_cpu_top/mdr_to_pagetable_data
 add wave -noupdate /sol1_top/u_cpu_top/pagetable_addr_source
 add wave -noupdate -divider {== CONTROL ==}
+add wave -noupdate /sol1_top/clk
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_ah_wrt
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_al_wrt
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_bh_wrt
@@ -131,7 +131,7 @@ add wave -noupdate /sol1_top/u_cpu_top/ctrl_cl_wrt
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_clear_all_ints
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_flag_src
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_invert
-add wave -noupdate -subitemconfig {{/sol1_top/u_cpu_top/ctrl_cond_sel[3]} {-height 15} {/sol1_top/u_cpu_top/ctrl_cond_sel[2]} {-height 15} {/sol1_top/u_cpu_top/ctrl_cond_sel[1]} {-height 15} {/sol1_top/u_cpu_top/ctrl_cond_sel[0]} {-height 15}} /sol1_top/u_cpu_top/ctrl_cond_sel
+add wave -noupdate /sol1_top/u_cpu_top/ctrl_cond_sel
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_dh_wrt
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_di_h_wrt
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_di_l_wrt
@@ -180,7 +180,7 @@ add wave -noupdate /sol1_top/u_cpu_top/ctrl_wr
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_zbus_src
 add wave -noupdate /sol1_top/u_cpu_top/ctrl_zf_in_src
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {76400656 ns} 0}
+WaveRestoreCursors {{Cursor 1} {76404800 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 190
 configure wave -valuecolwidth 100
@@ -196,7 +196,7 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {76398171 ns} {76421156 ns}
+WaveRestoreZoom {76404256 ns} {76406612 ns}
 bookmark add wave bookmark0 {{8339320171 ps} {8349290586 ps}} 16
 bookmark add wave bookmark1 {{8307101692 ps} {8389800233 ps}} 0
 bookmark add wave bookmark2 {{27041948331 ps} {27046366383 ps}} 24
