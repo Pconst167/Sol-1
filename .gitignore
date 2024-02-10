@@ -2,9 +2,3 @@
 *.swo
 *.un
 *.lck
-
-*.mti
-*.mpf
-*.dbg
-*.wlf
-systemverilog/work
