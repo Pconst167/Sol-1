@@ -59012,7 +59012,7 @@
     (property "Value" "74257N" (at 288.29 1939.29 0)
       (effects (font (size 1.778 1.5113)) (justify left bottom) hide)
     )
-    (property "Footprint" "main:DIL16" (at 295.91 1921.51 0)
+    (property "Footprint" "Package_DIP:DIP-10_W7.62mm_LongPads" (at 295.91 1921.51 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "" (at 295.91 1921.51 0)
