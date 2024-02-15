@@ -1,7 +1,6 @@
 module cpu_top(
   input logic arst,
   input logic clk,
-  //input logic [7:0] data_bus,
   input logic [7:0] pins_irq_req,
   input logic dma_req,
   input logic pin_wait,
@@ -9,7 +8,6 @@ module cpu_top(
   
   inout logic [7:0] data_bus,
   output logic [21:0] address_bus,
-  //output logic [7:0] data_bus_out,
   output logic rd,
   output logic wr,
   output logic mem_io,
@@ -154,10 +152,10 @@ module cpu_top(
   wire logic bus_wr;
   wire logic bus_mem_io;
 
-  assign rd = ~bus_rd;
-  assign wr = ~bus_wr;
-  assign mem_io = bus_mem_io;
-  assign halt = status_halt;
+  assign rd      = ~bus_rd;
+  assign wr      = ~bus_wr;
+  assign mem_io  = bus_mem_io;
+  assign halt    = status_halt;
   assign dma_ack = status_dma_ack;
 
   assign status_dma_ack         = cpu_status[bitpos_cpu_status_dma_ack];
