@@ -66338,7 +66338,7 @@
   (symbol (lib_id "main-eagle-import:74181N") (at 440.69 1858.01 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid afd16415-2449-44c1-9539-c72932f94553)
-    (property "Reference" "ALU_HIGH" (at 440.055 1858.645 0)
+    (property "Reference" "ALU_HIGH1" (at 440.055 1858.645 0)
       (effects (font (size 1.778 1.5113)) (justify left bottom))
     )
     (property "Value" "74181N" (at 433.07 1883.41 0)
@@ -66380,7 +66380,7 @@
     (instances
       (project "main"
         (path "/8dc530de-176d-4542-9ed1-97157904b8fd"
-          (reference "ALU_HIGH") (unit 1)
+          (reference "ALU_HIGH1") (unit 1)
         )
       )
     )
@@ -67394,7 +67394,7 @@
   (symbol (lib_id "main-eagle-import:74181N") (at 440.69 1812.29 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid badbba1c-071c-48b6-87ee-ddec13439f88)
-    (property "Reference" "ALU_LOW" (at 440.055 1812.925 0)
+    (property "Reference" "ALU_LOW1" (at 440.055 1812.925 0)
       (effects (font (size 1.778 1.5113)) (justify left bottom))
     )
     (property "Value" "74181N" (at 433.07 1837.69 0)
@@ -67436,7 +67436,7 @@
     (instances
       (project "main"
         (path "/8dc530de-176d-4542-9ed1-97157904b8fd"
-          (reference "ALU_LOW") (unit 1)
+          (reference "ALU_LOW1") (unit 1)
         )
       )
     )
