@@ -289,6 +289,7 @@ module microcode_sequencer(
         u_address <= {ir, 1'b0, ctrl_escape, 4'b0000};
     endcase
   end
+t
 
 // Load microcode ROM files into microcode memory
   initial begin

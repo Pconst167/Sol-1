@@ -1570,7 +1570,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp 03c61bc9-6fc1-472f-b637-70c474eba636)
-    (at 424 444.46)
+    (at 440.45 444.38)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "OC_FARNELL" "unknown")
@@ -2934,7 +2934,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 0f32695b-c879-462e-a5b8-8e087bf3507b)
-    (at 873.7 674.74)
+    (at 622.18 563.24)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -3289,7 +3289,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 13de1032-ae20-4692-a995-5faba4720fee)
-    (at 457 444.46)
+    (at 473.45 444.38)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -3473,7 +3473,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp 1693d94d-771f-41e8-b4ad-d433f7a49631)
-    (at 948.38 492.2)
+    (at 567.38 505.445)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -4009,7 +4009,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 1ce593f9-edb2-419d-af59-941e0d7ac4c1)
-    (at 354.93 407.38)
+    (at 371.38 407.3)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -6644,7 +6644,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp 3106f975-31ab-476d-8a60-2dd17d299c1f)
-    (at 424 407.92)
+    (at 440.45 407.84)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "OC_FARNELL" "unknown")
@@ -6733,7 +6733,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 3125f67a-63dd-4707-9102-2f6f263974af)
-    (at 945.93 408.02)
+    (at 584.38 433)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -6829,7 +6829,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 326b4cfc-66a1-4131-945e-2138c8457bcb)
-    (at 900.38 671.3)
+    (at 355 444.46)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -7197,7 +7197,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp 37874728-3851-445b-bc87-373f4b3649be)
-    (at 948.38 470.3)
+    (at 603.18 514.4875)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -7372,7 +7372,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 38ba8240-9908-4c94-ae24-74a482b19ecc)
-    (at 373.483328 444)
+    (at 389.933328 443.92)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -8685,7 +8685,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 41a26ef8-1a0c-4c21-9e42-4f6da901d3b1)
-    (at 390.13 407.38)
+    (at 406.58 407.3)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -11072,7 +11072,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 5198adaa-74d3-4d03-bea8-b6b5fec329eb)
-    (at 355.816662 444)
+    (at 372.266662 443.92)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -11168,7 +11168,7 @@
 
   (footprint "Package_DIP:DIP-14_W7.62mm" (layer "F.Cu")
     (tstamp 51ef8b44-6ab6-4404-b074-ef2eea81c37c)
-    (at 930.68 379.76)
+    (at 548.38 488.695)
     (descr "14-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "MF" "TEXAS INSTRUMENTS")
@@ -11327,7 +11327,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp 54f75b3f-ea6b-445f-8075-3b6ffdc2512f)
-    (at 440.38 381.125)
+    (at 456.83 381.045)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "OC_FARNELL" "unknown")
@@ -11592,7 +11592,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 5a930781-56fc-4f92-8885-5fd5138e8ce2)
-    (at 440.38 444.46)
+    (at 456.83 444.38)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -11688,7 +11688,7 @@
 
   (footprint "Package_DIP:DIP-28_W7.62mm" (layer "F.Cu")
     (tstamp 5b1d3e21-b9e7-438a-a02b-dfed56b50273)
-    (at 800.38 493.92)
+    (at 584.56 533.92)
     (descr "28-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -11914,7 +11914,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp 5df1516b-f1b5-4818-bd4e-1b0e1b0f9aea)
-    (at 408 444.46)
+    (at 424.45 444.38)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "OC_FARNELL" "unknown")
@@ -12003,7 +12003,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 5e1a4eaa-869b-4302-a6d2-b3af7f354671)
-    (at 927.95 674.74)
+    (at 567.56 562.78)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -12191,7 +12191,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp 607f2dc0-6fd2-4247-9430-6da13fba0af9)
-    (at 951.13 554.06)
+    (at 602.56 567.78)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -12445,7 +12445,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 65905003-7f4d-4bde-a505-a00571fa36d0)
-    (at 889.53 671.3)
+    (at 355 407.46)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -12541,7 +12541,7 @@
 
   (footprint "Package_DIP:DIP-14_W7.62mm" (layer "F.Cu")
     (tstamp 65c19fce-dcfe-4598-b56b-299028949f8c)
-    (at 914.13 377.935)
+    (at 337.38 381.375)
     (descr "14-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -12828,7 +12828,7 @@
 
   (footprint "Package_DIP:DIP-14_W7.62mm" (layer "F.Cu")
     (tstamp 673a7a47-e13f-4f8f-9753-93879b2f9551)
-    (at 776.97 393.48)
+    (at 584.38 465.695)
     (descr "14-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -13559,7 +13559,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 6f388162-5464-4dfa-8e3d-ff2b95d6f1a1)
-    (at 372.53 407.38)
+    (at 388.98 407.3)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -14317,7 +14317,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 763285eb-31f5-42a4-9162-bda4244e2976)
-    (at 391.15 444)
+    (at 407.6 443.92)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -14589,7 +14589,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp 7995e333-f945-4070-99ba-80f1c280f355)
-    (at 841.15 674.74)
+    (at 622.18 466.08)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -15547,7 +15547,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp 7f384793-813d-4771-9976-886ae2ac12e9)
-    (at 473.8 452.385)
+    (at 490.25 452.305)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "OC_FARNELL" "unknown")
@@ -15812,7 +15812,7 @@
 
   (footprint "Package_DIP:DIP-14_W7.62mm" (layer "F.Cu")
     (tstamp 82855e91-3bd2-49aa-9591-f0243eb22313)
-    (at 474 400.3)
+    (at 490.45 400.22)
     (descr "14-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -17751,7 +17751,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp 93f97948-09f3-4760-8bde-d9af22a88cca)
-    (at 940.28 554.06)
+    (at 603.18 540.13375)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -18875,7 +18875,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp a0118d1d-1cca-49b0-af6f-852d1b1db2a6)
-    (at 457 381.585)
+    (at 473.45 381.505)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "OC_FARNELL" "unknown")
@@ -19227,7 +19227,7 @@
 
   (footprint "Package_DIP:DIP-14_W7.62mm" (layer "F.Cu")
     (tstamp a2629614-a3dc-4079-b121-38bc3b6b2bca)
-    (at 952.38 379.76)
+    (at 548.38 462.695)
     (descr "14-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -19359,7 +19359,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp a6636c58-a7c5-4d8b-bb44-9b66d04cfd9d)
-    (at 935.08 408.02)
+    (at 567.38 471.7)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -19446,7 +19446,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp a76ac804-ecaa-4ff1-8ec6-b5870f3e5310)
-    (at 968.38 584.84)
+    (at 432.38 501)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -21384,7 +21384,7 @@
 
   (footprint "Package_DIP:DIP-28_W7.62mm" (layer "F.Cu")
     (tstamp b6e0670e-0886-4ef1-8d06-9c401a85eb72)
-    (at 789.53 493.92)
+    (at 584.56 490.38)
     (descr "28-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -21498,7 +21498,7 @@
 
   (footprint "Package_DIP:DIP-14_W7.62mm" (layer "F.Cu")
     (tstamp ba29c801-ea4f-4735-8b01-fcdd89a79920)
-    (at 591.2 169.375)
+    (at 567.38 446.16)
     (descr "14-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -21576,7 +21576,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp ba76e51c-b26d-42b7-b3dc-2f6ec93d76be)
-    (at 424 471)
+    (at 440.45 470.92)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "OC_FARNELL" "unknown")
@@ -21746,7 +21746,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp bc0bbb4a-16ae-4aa1-85c0-2b34930c6f4c)
-    (at 473.8 424.685)
+    (at 490.25 424.605)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "OC_FARNELL" "unknown")
@@ -22255,7 +22255,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp c3bdc3e3-f9fc-4dc3-8543-07fd70083fdf)
-    (at 969.68 489.5)
+    (at 548.38 515.895)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -23841,7 +23841,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp d33a80f8-a438-4b74-b724-277208143e55)
-    (at 940.28 575.96)
+    (at 567.56 533.78)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -24625,7 +24625,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp d95203ff-f162-4d5f-9852-6d114c96824a)
-    (at 917.1 674.74)
+    (at 584.56 577.32)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -25088,7 +25088,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp dd91a6d6-e42d-4ff0-8803-376bb4362dfc)
-    (at 852 674.74)
+    (at 622.18 498.413333)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -25184,7 +25184,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp e0457d95-5810-43fd-a02e-f4eafca61b40)
-    (at 407.73 407.38)
+    (at 424.18 407.3)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -25635,7 +25635,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp e5ffc312-fe4d-4d69-8531-242a66b1af1b)
-    (at 862.85 674.74)
+    (at 622.18 530.746666)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -25731,7 +25731,7 @@
 
   (footprint "Package_DIP:DIP-16_W7.62mm" (layer "F.Cu")
     (tstamp ecef7183-f596-4c24-baeb-93c41b152951)
-    (at 937.53 470.3)
+    (at 603.18 488.84125)
     (descr "16-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -26077,7 +26077,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp efbd815d-0dff-4490-a2a6-222880833f93)
-    (at 440.38 407.46)
+    (at 456.83 407.38)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -27162,7 +27162,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp f9493b4d-981e-4024-9fff-f51e2ce9d88c)
-    (at 457 407.46)
+    (at 473.45 407.38)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -27258,7 +27258,7 @@
 
   (footprint "Package_DIP:DIP-20_W7.62mm" (layer "F.Cu")
     (tstamp f9547c70-3db5-4801-aa69-6c9b728c5129)
-    (at 957.53 584.84)
+    (at 416.38 501)
     (descr "20-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -27446,7 +27446,7 @@
 
   (footprint "Package_DIP:DIP-14_W7.62mm" (layer "F.Cu")
     (tstamp fca93a94-89f9-4dd0-a8b6-db0f1ef07fde)
-    (at 770.17 344.855)
+    (at 603.18 465.695)
     (descr "14-lead though-hole mounted DIP package, row spacing 7.62 mm (300 mils)")
     (tags "THT DIP DIL PDIP 2.54mm 7.62mm 300mil")
     (property "Sheetfile" "main.kicad_sch")
@@ -27883,8 +27883,22 @@
     )
   )
 
-  (gr_rect (start 182.15 65.5) (end 1011.15 759.5)
+  (gr_poly
+    (pts
+      (xy 541.38 422.7)
+      (xy 639.38 422.7)
+      (xy 639.38 611.7)
+      (xy 560.38 611.7)
+      (xy 560.38 545.7)
+      (xy 541.38 545.7)
+    )
+
+    (stroke (width 0.15) (type solid)) (fill none) (layer "F.SilkS") (tstamp 6b9fe51b-350e-439a-a152-23a2dac5884e))
+  (gr_rect (start 33.5 33) (end 1149.5 812)
     (stroke (width 0.1) (type default)) (fill none) (layer "Edge.Cuts") (tstamp 453cc945-3db4-4bec-a80f-9f4a59812e7c))
+  (gr_text "Page Table Block" (at 578 427) (layer "F.SilkS") (tstamp bfba5978-bd2d-4b3c-af3b-b091238fa55d)
+    (effects (font (size 2 2) (thickness 0.25) bold) (justify left bottom))
+  )
 
   (segment (start 394.535 107.3) (end 407.235 107.3) (width 0.25) (layer "F.Cu") (net 12) (tstamp 0b304341-eb66-40e8-99d6-7ab7463421cf))
   (segment (start 436.91 109.3) (end 438.91 107.3) (width 0.25) (layer "F.Cu") (net 12) (tstamp 1b6fa19e-d9e9-4d13-aa93-55d7c0867bdd))
