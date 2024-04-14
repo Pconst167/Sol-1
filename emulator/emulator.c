@@ -13,6 +13,7 @@ int main(int argc, char *argv[]){
     return 0;
   }
 
+  puts("Sol-1 Emulator starting...");
   load_microcode_roms();
   load_bios_memory();
 
@@ -26,6 +27,7 @@ void load_bios_memory(){
   FILE *fp;
   int i;
   
+  puts("Loading BIOS memory...");
   if((fp = fopen("../software/obj/bios.obj", "rb")) == NULL){
     printf("BIOS file not found.\n");
     exit(1);
@@ -39,6 +41,8 @@ void load_bios_memory(){
   } while(!feof(fp));
   *(p - 1) = '\0'; // overwrite the EOF char with NULL
   fclose(fp);
+
+  puts("BIOS memory loaded successfully.");
 }
 
 void main_loop(){
@@ -52,8 +56,16 @@ void execute_instruction(){
 
 }
 
+void do_cycle(){
+
+  int_pending = irq_req && status_irq_enable;
+  any_interruption = dma_req || int_pending;
+
+}
+
 void execute_micro_instruction(){
   uint16_t micro_offset;
+  char mux_a, mux_b;
 
   for(;;){
     // Rising edge
@@ -61,18 +73,22 @@ void execute_micro_instruction(){
       // TODO: add sign extension to micro_offset
       micro_offset = u_offset_0 | u_offset_1 << 1 | u_offset_2 << 2 | u_offset_3 << 3 | u_offset_4 << 4 | u_offset_5 << 5 | u_offset_6 << 6;
       // micro address next
-      if(typ_0 == 0 && typ_1 == 0){
+
+      mux_a = typ1 && (typ0 || !typ0 && any_interruption);
+      mux_b = typ1 && !typ0;
+
+      if(typ_1 == 0 && typ_0 == 0){
         micro_addr += micro_offset;
       }
-      else if(typ_0 == 0 && typ_1 == 1){
+      else if(typ_1 == 1 && typ_0 == 0){
         if(micro_condition == 0) micro_addr += 1;
         else micro_addr += micro_offset;
       }
-      else if(typ_0 == 1 && typ_1 == 0){
-
+      else if(typ_1 == 0 && typ_0 == 1){
+        micro_addr = 16;
       }
-      else if(typ_0 == 1 && typ_1 == 1){
-
+      else if(typ_1 == 1 && typ_0 == 1){
+        micro_addr = ir << 6;
       }
 
       // register writes
@@ -194,7 +210,7 @@ void execute_micro_instruction(){
        unused                       = microcode[micro_addr].rom_10.unused      ;
        
        unused                       = microcode[micro_addr].rom_11.unused           ;
-       int_vector_wrt               = microcode[micro_addr].rom_11.int_vector_wrt   ;
+       irq_vector_wrt               = microcode[micro_addr].rom_11.irq_vector_wrt   ;
        irq_masks_wrt                = microcode[micro_addr].rom_11.irq_masks_wrt    ;
        mar_in_src                   = microcode[micro_addr].rom_11.mar_in_src       ;
        int_ack                      = microcode[micro_addr].rom_11.int_ack          ;
@@ -253,6 +269,7 @@ void load_microcode_roms(){
   int rom, rom_addr;
   char filename[256];
   
+  puts("Loading microcode ROMS...");
   for(rom = 0; rom < 14; rom++){
     sprintf(filename, "../hardware/microcode_assembler/output/sol-1_ROM%d.bin", rom);
     if((fp = fopen(filename, "rb")) == NULL){
@@ -361,4 +378,5 @@ void load_microcode_roms(){
         break;
     }
   }
+  puts("ROMS loaded successfully.");
 }

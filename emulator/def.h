@@ -3,32 +3,6 @@
 #define ID_LEN     128
 #define PROG_SIZE  1024 * 64
 
-uint16_t a;
-uint16_t b;
-uint16_t c;
-uint16_t d;
-uint16_t g;
-uint16_t pc;
-uint16_t sp;
-uint16_t ssp;
-uint16_t bp;
-uint16_t si;
-uint16_t di;
-uint16_t tdr;
-uint16_t mdr;
-uint16_t mar;
-unsigned char ir;
-unsigned char ptb;
-unsigned char status;
-unsigned char flags;
-
-unsigned char zbus;
-unsigned char xbus;
-unsigned char ybus;
-unsigned char alu_out;
-
-uint16_t micro_addr;
-
 struct t_microcode_rom{
   union{
     unsigned char as_array;
@@ -188,7 +162,7 @@ struct t_microcode_rom{
     unsigned char as_array;
     struct{
       unsigned char unused              : 1;
-      unsigned char int_vector_wrt      : 1;
+      unsigned char irq_vector_wrt      : 1;
       unsigned char irq_masks_wrt       : 1;    
       unsigned char mar_in_src          : 1;
       unsigned char int_ack             : 1;    
@@ -226,133 +200,6 @@ struct t_microcode_rom{
     };
   } rom_13;
 } microcode[64 * 256];
-
-unsigned char typ_0      ;
-unsigned char typ_1      ;
-unsigned char u_offset_0 ;
-unsigned char u_offset_1 ;
-unsigned char u_offset_2 ;
-unsigned char u_offset_3 ;
-unsigned char u_offset_4 ;
-unsigned char u_offset_5 ;
-
-unsigned char u_offset_6   ;
-unsigned char cond_invert  ;
-unsigned char cond_flag_src;
-unsigned char cond_sel_0   ;
-unsigned char cond_sel_1   ;
-unsigned char cond_sel_2   ;
-unsigned char cond_sel_3   ;
-unsigned char escape       ;
-
-unsigned char u_zf_in_src_0    ;
-unsigned char u_zf_in_src_1    ;
-unsigned char u_cf_in_src_0    ;
-unsigned char u_cf_in_src_1    ;
-unsigned char u_sf_in_src      ;
-unsigned char u_of_in_src      ;
-unsigned char ir_wrt           ;
-unsigned char status_flags_wrt ;
-
-unsigned char shift_src_0      ;
-unsigned char shift_src_1      ;
-unsigned char shift_src_2      ;
-unsigned char zbus_in_src_0    ;
-unsigned char zbus_in_src_1    ;
-unsigned char alu_a_src_0      ;     
-unsigned char alu_a_src_1      ;     
-unsigned char alu_a_src_2      ;
-
-unsigned char alu_a_src_3    ;
-unsigned char alu_a_src_4    ;
-unsigned char alu_a_src_5    ;
-unsigned char alu_op_0       ;
-unsigned char alu_op_1       ;
-unsigned char alu_op_2       ;
-unsigned char alu_op_3       ;
-unsigned char alu_mode       ;
-
-unsigned char alu_cf_in_src0        ;
-unsigned char alu_cf_in_src1        ;
-unsigned char alu_cf_in_invert      ;
-unsigned char zf_in_src_0           ;
-unsigned char zf_in_src_1           ;
-unsigned char alu_cf_out_invert     ;
-unsigned char cf_in_src_0           ;
-unsigned char cf_in_src_1           ;
-
-unsigned char cf_in_src_2    ;
-unsigned char sf_in_src_0    ;
-unsigned char sf_in_src_1    ;
-unsigned char of_in_src_0    ;
-unsigned char of_in_src_1    ;
-unsigned char of_in_src_2    ;
-unsigned char rd             ;             
-unsigned char wr             ;             
-                   
-unsigned char alu_b_src_0        ;
-unsigned char alu_b_src_1        ;
-unsigned char alu_b_src_2        ;
-unsigned char display_reg_load   ;
-unsigned char dl_wrt             ;
-unsigned char dh_wrt             ;
-unsigned char cl_wrt             ;
-unsigned char ch_wrt             ;
-
-unsigned char bl_wrt         ;
-unsigned char bh_wrt         ;
-unsigned char al_wrt         ;
-unsigned char ah_wrt         ;
-unsigned char mdr_in_src     ;
-unsigned char mdr_out_src    ;
-unsigned char mdr_out_en     ;  
-unsigned char mdrl_wrt      ;  
-
-unsigned char mdrh_wrt   ;
-unsigned char tdrl_wrt   ;
-unsigned char tdrh_wrt   ;
-unsigned char dil_wrt    ;
-unsigned char dih_wrt    ;
-unsigned char sil_wrt    ;
-unsigned char sih_wrt    ;
-unsigned char marl_wrt   ;
-
-unsigned char marh_wrt   ;
-unsigned char bpl_wrt    ;
-unsigned char bph_wrt    ;
-unsigned char pcl_wrt    ;
-unsigned char pch_wrt    ;
-unsigned char spl_wrt    ;
-unsigned char sph_wrt    ;
-unsigned char unused      ;
-
-unsigned char unused           ;
-unsigned char int_vector_wrt   ;
-unsigned char irq_masks_wrt    ;    
-unsigned char mar_in_src       ;
-unsigned char int_ack          ;    
-unsigned char clear_all_ints   ;
-unsigned char ptb_wrt          ;
-unsigned char page_table_we    ;
-
-unsigned char mdr_to_pagetable_data_buffer ;
-unsigned char force_user_ptb               ;
-unsigned char unused2                      ;
-unsigned char unused3                      ;
-unsigned char unused4                      ;
-unsigned char unused5                      ;
-unsigned char gl_wrt                       ;
-unsigned char gh_wrt                       ;
-
-unsigned char immy_0 ;
-unsigned char immy_1 ;
-unsigned char immy_2 ;
-unsigned char immy_3 ;
-unsigned char immy_4 ;
-unsigned char immy_5 ;
-unsigned char immy_6 ;
-unsigned char immy_7 ;
-
 
 struct t_opcode{
   char *name;
@@ -616,11 +463,170 @@ struct t_opcode{
   "halt", 0xff,
 };
 
+unsigned char typ_0      ;
+unsigned char typ_1      ;
+unsigned char u_offset_0 ;
+unsigned char u_offset_1 ;
+unsigned char u_offset_2 ;
+unsigned char u_offset_3 ;
+unsigned char u_offset_4 ;
+unsigned char u_offset_5 ;
+
+unsigned char u_offset_6   ;
+unsigned char cond_invert  ;
+unsigned char cond_flag_src;
+unsigned char cond_sel_0   ;
+unsigned char cond_sel_1   ;
+unsigned char cond_sel_2   ;
+unsigned char cond_sel_3   ;
+unsigned char escape       ;
+
+unsigned char u_zf_in_src_0    ;
+unsigned char u_zf_in_src_1    ;
+unsigned char u_cf_in_src_0    ;
+unsigned char u_cf_in_src_1    ;
+unsigned char u_sf_in_src      ;
+unsigned char u_of_in_src      ;
+unsigned char ir_wrt           ;
+unsigned char status_flags_wrt ;
+
+unsigned char shift_src_0      ;
+unsigned char shift_src_1      ;
+unsigned char shift_src_2      ;
+unsigned char zbus_in_src_0    ;
+unsigned char zbus_in_src_1    ;
+unsigned char alu_a_src_0      ;     
+unsigned char alu_a_src_1      ;     
+unsigned char alu_a_src_2      ;
+
+unsigned char alu_a_src_3    ;
+unsigned char alu_a_src_4    ;
+unsigned char alu_a_src_5    ;
+unsigned char alu_op_0       ;
+unsigned char alu_op_1       ;
+unsigned char alu_op_2       ;
+unsigned char alu_op_3       ;
+unsigned char alu_mode       ;
+
+unsigned char alu_cf_in_src0        ;
+unsigned char alu_cf_in_src1        ;
+unsigned char alu_cf_in_invert      ;
+unsigned char zf_in_src_0           ;
+unsigned char zf_in_src_1           ;
+unsigned char alu_cf_out_invert     ;
+unsigned char cf_in_src_0           ;
+unsigned char cf_in_src_1           ;
+
+unsigned char cf_in_src_2    ;
+unsigned char sf_in_src_0    ;
+unsigned char sf_in_src_1    ;
+unsigned char of_in_src_0    ;
+unsigned char of_in_src_1    ;
+unsigned char of_in_src_2    ;
+unsigned char rd             ;             
+unsigned char wr             ;             
+                   
+unsigned char alu_b_src_0        ;
+unsigned char alu_b_src_1        ;
+unsigned char alu_b_src_2        ;
+unsigned char display_reg_load   ;
+unsigned char dl_wrt             ;
+unsigned char dh_wrt             ;
+unsigned char cl_wrt             ;
+unsigned char ch_wrt             ;
+
+unsigned char bl_wrt         ;
+unsigned char bh_wrt         ;
+unsigned char al_wrt         ;
+unsigned char ah_wrt         ;
+unsigned char mdr_in_src     ;
+unsigned char mdr_out_src    ;
+unsigned char mdr_out_en     ;  
+unsigned char mdrl_wrt      ;  
+
+unsigned char mdrh_wrt   ;
+unsigned char tdrl_wrt   ;
+unsigned char tdrh_wrt   ;
+unsigned char dil_wrt    ;
+unsigned char dih_wrt    ;
+unsigned char sil_wrt    ;
+unsigned char sih_wrt    ;
+unsigned char marl_wrt   ;
+
+unsigned char marh_wrt   ;
+unsigned char bpl_wrt    ;
+unsigned char bph_wrt    ;
+unsigned char pcl_wrt    ;
+unsigned char pch_wrt    ;
+unsigned char spl_wrt    ;
+unsigned char sph_wrt    ;
+unsigned char unused      ;
+
+unsigned char unused           ;
+unsigned char irq_vector_wrt   ;
+unsigned char irq_masks_wrt    ;    
+unsigned char mar_in_src       ;
+unsigned char int_ack          ;    
+unsigned char clear_all_ints   ;
+unsigned char ptb_wrt          ;
+unsigned char page_table_we    ;
+
+unsigned char mdr_to_pagetable_data_buffer ;
+unsigned char force_user_ptb               ;
+unsigned char unused2                      ;
+unsigned char unused3                      ;
+unsigned char unused4                      ;
+unsigned char unused5                      ;
+unsigned char gl_wrt                       ;
+unsigned char gh_wrt                       ;
+
+unsigned char immy_0 ;
+unsigned char immy_1 ;
+unsigned char immy_2 ;
+unsigned char immy_3 ;
+unsigned char immy_4 ;
+unsigned char immy_5 ;
+unsigned char immy_6 ;
+unsigned char immy_7 ;
+
+uint16_t a;
+uint16_t b;
+uint16_t c;
+uint16_t d;
+uint16_t g;
+uint16_t pc;
+uint16_t sp;
+uint16_t ssp;
+uint16_t bp;
+uint16_t si;
+uint16_t di;
+uint16_t tdr;
+uint16_t mdr;
+uint16_t mar;
+unsigned char ir;
+unsigned char ptb;
+unsigned char status;
+unsigned char flags;
+
+unsigned char zbus;
+unsigned char xbus;
+unsigned char ybus;
+unsigned char alu_out;
+
+uint16_t micro_addr;
+uint8_t micro_condition;
+uint8_t irq_pending;
+uint8_t any_interruption;
+uint8_t irq_req;
+uint8_t dma_req;
+uint8_t status_irq_enable;
+
 unsigned char clk;
 unsigned char memory[256][65536];
 unsigned char bios_memory[65536];
 
 unsigned char program_in[65536];
+
 
 void load_program(char *filename);
 void load_bios_memory();
