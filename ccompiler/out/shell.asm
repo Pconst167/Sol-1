@@ -17,26 +17,32 @@ main:
 ; $var_index 
 ; $i 
   sub sp, 142
-;; set_string_var("path", "                                                                "); // 64 
+;; new_str_var("path", "", 64); 
   mov b, __s0 ; "path"
   swp b
   push b
-  mov b, __s1 ; "                                                                "
+  mov b, __s1 ; ""
   swp b
   push b
-  call set_string_var
-  add sp, 4
-;; set_string_var("home", "                                                                "); // 64 
-  mov b, __s2 ; "home"
+  mov b, $40
   swp b
   push b
-  mov b, __s1 ; "                                                                "
+  call new_str_var
+  add sp, 6
+;; new_str_var("home", "", 64); 
+  mov b, __s1 ; "home"
   swp b
   push b
-  call set_string_var
-  add sp, 4
+  mov b, __s2 ; ""
+  swp b
+  push b
+  mov b, $40
+  swp b
+  push b
+  call new_str_var
+  add sp, 6
 ;; read_config("/etc/shell.cfg", "path", variables[0].as_string); 
-  mov b, __s3 ; "/etc/shell.cfg"
+  mov b, __s2 ; "/etc/shell.cfg"
   swp b
   push b
   mov b, __s0 ; "path"
@@ -57,10 +63,10 @@ main:
   call read_config
   add sp, 6
 ;; read_config("/etc/shell.cfg", "home", variables[1].as_string); 
-  mov b, __s3 ; "/etc/shell.cfg"
+  mov b, __s2 ; "/etc/shell.cfg"
   swp b
   push b
-  mov b, __s2 ; "home"
+  mov b, __s1 ; "home"
   swp b
   push b
   mov d, _variables_data ; $variables
@@ -82,7 +88,7 @@ _for1_init:
 _for1_cond:
 _for1_block:
 ;; printf("root@Sol-1:");  
-  mov b, __s4 ; "root@Sol-1:"
+  mov b, __s3 ; "root@Sol-1:"
   swp b
   push b
   call printf
@@ -90,7 +96,7 @@ _for1_block:
 ;; print_cwd();  
   call print_cwd
 ;; printf(" # "); 
-  mov b, __s5 ; " # "
+  mov b, __s4 ; " # "
   swp b
   push b
   call printf
@@ -103,7 +109,7 @@ _for1_block:
   call gets
   add sp, 2
 ;; print("\n\r"); 
-  mov b, __s6 ; "\n\r"
+  mov b, __s5 ; "\n\r"
   swp b
   push b
   call print
@@ -288,7 +294,7 @@ _if8_true:
   add sp, 4
   jmp _if8_exit
 _if8_else:
-;; if(toktype == STRING_CONST) set_string_var(varname, string_const); 
+;; if(toktype == STRING_CONST) new_str_var(varname, string_const, strlen(string_const)); 
 _if9_cond:
   mov d, _toktype ; $toktype
   mov b, [d]
@@ -303,7 +309,7 @@ _if9_cond:
   cmp b, 0
   je _if9_else
 _if9_true:
-;; set_string_var(varname, string_const); 
+;; new_str_var(varname, string_const, strlen(string_const)); 
   lea d, [bp + -6] ; $varname
   mov bl, [d]
   mov bh, 0
@@ -313,11 +319,19 @@ _if9_true:
   mov b, d
   swp b
   push b
-  call set_string_var
-  add sp, 4
+  mov d, _string_const_data ; $string_const
+  mov b, d
+  swp b
+  push b
+  call strlen
+  add sp, 2
+  swp b
+  push b
+  call new_str_var
+  add sp, 6
   jmp _if9_exit
 _if9_else:
-;; if(toktype == IDENTIFIER) set_string_var(varname, token); 
+;; if(toktype == IDENTIFIER) new_str_var(varname, token, strlen(string_const)); 
 _if10_cond:
   mov d, _toktype ; $toktype
   mov b, [d]
@@ -332,7 +346,7 @@ _if10_cond:
   cmp b, 0
   je _if10_exit
 _if10_true:
-;; set_string_var(varname, token); 
+;; new_str_var(varname, token, strlen(string_const)); 
   lea d, [bp + -6] ; $varname
   mov bl, [d]
   mov bh, 0
@@ -342,8 +356,16 @@ _if10_true:
   mov b, d
   swp b
   push b
-  call set_string_var
-  add sp, 4
+  mov d, _string_const_data ; $string_const
+  mov b, d
+  swp b
+  push b
+  call strlen
+  add sp, 2
+  swp b
+  push b
+  call new_str_var
+  add sp, 6
   jmp _if10_exit
 _if10_exit:
 _if9_exit:
@@ -365,7 +387,7 @@ _if11_cond:
   mov b, d
   swp b
   push b
-  mov b, __s7 ; "cd"
+  mov b, __s6 ; "cd"
   swp b
   push b
   call strcmp
@@ -385,7 +407,7 @@ _if12_cond:
   mov b, d
   swp b
   push b
-  mov b, __s8 ; "shell"
+  mov b, __s7 ; "shell"
   swp b
   push b
   call strcmp
@@ -579,7 +601,7 @@ _if18_true:
   mov b, d
   swp b
   push b
-  mov b, __s9 ; "123"
+  mov b, __s8 ; "123"
   swp b
   push b
   call strcat
@@ -829,7 +851,7 @@ _if23_exit:
   mov b, d
   swp b
   push b
-  mov b, __s10 ; "/"
+  mov b, __s9 ; "/"
   swp b
   push b
   call strcat
@@ -1858,7 +1880,7 @@ _if32_true:
   jmp _if32_exit
 _if32_else:
 ;; print("Unknown type size in va_arg() call. Size needs to be either 1 or 2."); 
-  mov b, __s11 ; "Unknown type size in va_arg() call. Size needs to be either 1 or 2."
+  mov b, __s10 ; "Unknown type size in va_arg() call. Size needs to be either 1 or 2."
   swp b
   push b
   call print
@@ -2119,7 +2141,7 @@ _switch36_case5:
   jmp _switch36_exit ; case break
 _switch36_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s12 ; "Error: Unknown argument type.\n"
+  mov b, __s11 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -3277,7 +3299,57 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s13 ; "\033[2J\033[H"
+  mov b, __s12 ; "\033[2J\033[H"
+  swp b
+  push b
+  call print
+  add sp, 2
+  leave
+  ret
+
+printun:
+  enter 0 ; (push bp; mov bp, sp)
+;; print(prompt); 
+  lea d, [bp + 7] ; $prompt
+  mov b, [d]
+  swp b
+  push b
+  call print
+  add sp, 2
+;; printu(n); 
+  lea d, [bp + 5] ; $n
+  mov b, [d]
+  swp b
+  push b
+  call printu
+  add sp, 2
+;; print("\n"); 
+  mov b, __s13 ; "\n"
+  swp b
+  push b
+  call print
+  add sp, 2
+  leave
+  ret
+
+printsn:
+  enter 0 ; (push bp; mov bp, sp)
+;; print(prompt); 
+  lea d, [bp + 7] ; $prompt
+  mov b, [d]
+  swp b
+  push b
+  call print
+  add sp, 2
+;; prints(n); 
+  lea d, [bp + 5] ; $n
+  mov b, [d]
+  swp b
+  push b
+  call prints
+  add sp, 2
+;; print("\n"); 
+  mov b, __s13 ; "\n"
   swp b
   push b
   call print
@@ -6274,7 +6346,7 @@ error:
   call printf
   add sp, 2
 ;; printf("\n"); 
-  mov b, __s16 ; "\n"
+  mov b, __s13 ; "\n"
   swp b
   push b
   call printf
@@ -6321,95 +6393,8 @@ _if105_exit:
   leave
   ret
 
-set_string_var:
+new_str_var:
   enter 0 ; (push bp; mov bp, sp)
-; $i 
-  sub sp, 2
-;; for(i = 0; i < vars_tos; i++){ 
-_for106_init:
-  lea d, [bp + -1] ; $i
-  push d
-  mov b, $0
-  pop d
-  mov [d], b
-_for106_cond:
-  lea d, [bp + -1] ; $i
-  mov b, [d]
-; START RELATIONAL
-  push a
-  mov a, b
-  mov d, _vars_tos ; $vars_tos
-  mov b, [d]
-  cmp a, b
-  slt ; < 
-  pop a
-; END RELATIONAL
-  cmp b, 0
-  je _for106_exit
-_for106_block:
-;; if(!strcmp(variables[i].varname, varname)){ 
-_if107_cond:
-  mov d, _variables_data ; $variables
-  push a
-  push d
-  lea d, [bp + -1] ; $i
-  mov b, [d]
-  pop d
-  mma 21 ; mov a, 21; mul a, b; add d, b
-  pop a
-  add d, 0
-  clb
-  mov b, d
-  swp b
-  push b
-  lea d, [bp + 7] ; $varname
-  mov b, [d]
-  swp b
-  push b
-  call strcmp
-  add sp, 4
-  cmp b, 0
-  seq ; !
-  cmp b, 0
-  je _if107_exit
-_if107_true:
-;; strcpy(variables[vars_tos].as_string, strval); 
-  mov d, _variables_data ; $variables
-  push a
-  push d
-  mov d, _vars_tos ; $vars_tos
-  mov b, [d]
-  pop d
-  mma 21 ; mov a, 21; mul a, b; add d, b
-  pop a
-  add d, 17
-  clb
-  mov b, [d]
-  swp b
-  push b
-  lea d, [bp + 5] ; $strval
-  mov b, [d]
-  swp b
-  push b
-  call strcpy
-  add sp, 4
-;; return i; 
-  lea d, [bp + -1] ; $i
-  mov b, [d]
-  leave
-  ret
-  jmp _if107_exit
-_if107_exit:
-_for106_update:
-  lea d, [bp + -1] ; $i
-  mov b, [d]
-  mov g, b
-  inc b
-  lea d, [bp + -1] ; $i
-  mov [d], b
-  mov b, g
-  jmp _for106_cond
-_for106_exit:
 ;; variables[vars_tos].var_type = SHELL_VAR_TYP_STR; 
   mov d, _variables_data ; $variables
   push a
@@ -6425,7 +6410,7 @@ _for106_exit:
   mov b, 0; SHELL_VAR_TYP_STR
   pop d
   mov [d], bl
-;; variables[vars_tos].as_string = alloc(strlen(strval) + 1); 
+;; variables[vars_tos].as_string = alloc(64); 
   mov d, _variables_data ; $variables
   push a
   push d
@@ -6437,20 +6422,7 @@ _for106_exit:
   add d, 17
   clb
   push d
-  lea d, [bp + 5] ; $strval
-  mov b, [d]
-  swp b
-  push b
-  call strlen
-  add sp, 2
-; START TERMS
-  push a
-  mov a, b
-  mov b, $1
-  add a, b
-  mov b, a
-  pop a
-; END TERMS
+  mov b, $40
   swp b
   push b
   call alloc
@@ -6471,7 +6443,7 @@ _for106_exit:
   mov b, d
   swp b
   push b
-  lea d, [bp + 7] ; $varname
+  lea d, [bp + 9] ; $varname
   mov b, [d]
   swp b
   push b
@@ -6491,7 +6463,7 @@ _for106_exit:
   mov b, [d]
   swp b
   push b
-  lea d, [bp + 5] ; $strval
+  lea d, [bp + 7] ; $strval
   mov b, [d]
   swp b
   push b
@@ -6516,6 +6488,104 @@ _for106_exit:
   mov b, a
   pop a
 ; END TERMS
+  leave
+  ret
+
+set_str_var:
+  enter 0 ; (push bp; mov bp, sp)
+; $var_index 
+  sub sp, 2
+;; for(var_index = 0; var_index < vars_tos; var_index++){ 
+_for106_init:
+  lea d, [bp + -1] ; $var_index
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+_for106_cond:
+  lea d, [bp + -1] ; $var_index
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov d, _vars_tos ; $vars_tos
+  mov b, [d]
+  cmp a, b
+  slt ; < 
+  pop a
+; END RELATIONAL
+  cmp b, 0
+  je _for106_exit
+_for106_block:
+;; if(!strcmp(variables[var_index].varname, varname)){ 
+_if107_cond:
+  mov d, _variables_data ; $variables
+  push a
+  push d
+  lea d, [bp + -1] ; $var_index
+  mov b, [d]
+  pop d
+  mma 21 ; mov a, 21; mul a, b; add d, b
+  pop a
+  add d, 0
+  clb
+  mov b, d
+  swp b
+  push b
+  lea d, [bp + 7] ; $varname
+  mov b, [d]
+  swp b
+  push b
+  call strcmp
+  add sp, 4
+  cmp b, 0
+  seq ; !
+  cmp b, 0
+  je _if107_exit
+_if107_true:
+;; strcpy(variables[var_index].as_string, strval); 
+  mov d, _variables_data ; $variables
+  push a
+  push d
+  lea d, [bp + -1] ; $var_index
+  mov b, [d]
+  pop d
+  mma 21 ; mov a, 21; mul a, b; add d, b
+  pop a
+  add d, 17
+  clb
+  mov b, [d]
+  swp b
+  push b
+  lea d, [bp + 5] ; $strval
+  mov b, [d]
+  swp b
+  push b
+  call strcpy
+  add sp, 4
+;; return var_index; 
+  lea d, [bp + -1] ; $var_index
+  mov b, [d]
+  leave
+  ret
+  jmp _if107_exit
+_if107_exit:
+_for106_update:
+  lea d, [bp + -1] ; $var_index
+  mov b, [d]
+  mov g, b
+  inc b
+  lea d, [bp + -1] ; $var_index
+  mov [d], b
+  mov b, g
+  jmp _for106_cond
+_for106_exit:
+;; printf("Error: Variable does not exist."); 
+  mov b, __s16 ; "Error: Variable does not exist."
+  swp b
+  push b
+  call printf
+  add sp, 2
   leave
   ret
 
@@ -7439,22 +7509,22 @@ _last_cmd_data: .fill 128, 0
 _variables_data: .fill 210, 0
 _vars_tos: .fill 2, 0
 __s0: .db "path", 0
-__s1: .db "                                                                ", 0
-__s2: .db "home", 0
-__s3: .db "/etc/shell.cfg", 0
-__s4: .db "root@Sol-1:", 0
-__s5: .db " # ", 0
-__s6: .db "\n\r", 0
-__s7: .db "cd", 0
-__s8: .db "shell", 0
-__s9: .db "123", 0
-__s10: .db "/", 0
-__s11: .db "Unknown type size in va_arg() call. Size needs to be either 1 or 2.", 0
-__s12: .db "Error: Unknown argument type.\n", 0
-__s13: .db "\033[2J\033[H", 0
+__s1: .db "home", 0
+__s2: .db "/etc/shell.cfg", 0
+__s3: .db "root@Sol-1:", 0
+__s4: .db " # ", 0
+__s5: .db "\n\r", 0
+__s6: .db "cd", 0
+__s7: .db "shell", 0
+__s8: .db "123", 0
+__s9: .db "/", 0
+__s10: .db "Unknown type size in va_arg() call. Size needs to be either 1 or 2.", 0
+__s11: .db "Error: Unknown argument type.\n", 0
+__s12: .db "\033[2J\033[H", 0
+__s13: .db "\n", 0
 __s14: .db "Double quotes expected", 0
 __s15: .db "\nError: ", 0
-__s16: .db "\n", 0
+__s16: .db "Error: Variable does not exist.", 0
 __s17: .db "Undeclared variable.", 0
 __s18: .db ";", 0
 

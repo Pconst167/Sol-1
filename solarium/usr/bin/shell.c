@@ -1,3 +1,6 @@
+// Solarium Shell Environment
+//
+
 #include "lib/token.h"
 
 #define MAX_SHELL_VARIABLES 10
@@ -30,8 +33,8 @@ int main(){
   int var_index;
   int i;
 
-  set_string_var("path", "                                                                "); // 64
-  set_string_var("home", "                                                                "); // 64
+  new_str_var("path", "", 64);
+  new_str_var("home", "", 64);
   read_config("/etc/shell.cfg", "path", variables[0].as_string);
   read_config("/etc/shell.cfg", "home", variables[1].as_string);
 
@@ -58,8 +61,8 @@ int main(){
       if(is_assignment){
         get();
         if(toktype == INTEGER_CONST) set_int_var(varname, atoi(token));
-        else if(toktype == STRING_CONST) set_string_var(varname, string_const);
-        else if(toktype == IDENTIFIER) set_string_var(varname, token);
+        else if(toktype == STRING_CONST) new_str_var(varname, string_const, strlen(string_const));
+        else if(toktype == IDENTIFIER) new_str_var(varname, token, strlen(token));
       }
       else{
         prog = temp_prog;
@@ -129,23 +132,26 @@ void last_cmd_insert(){
   }
 }
 
-int set_string_var(char *varname, char *strval){
-  int i;
-  // CHeck if variable is pre-existing
-  for(i = 0; i < vars_tos; i++){
-    if(!strcmp(variables[i].varname, varname)){
-      strcpy(variables[vars_tos].as_string, strval);
-      return i;
-    }
-  }
-  // Create new var
+int new_str_var(char *varname, char *strval, int size){
   variables[vars_tos].var_type = SHELL_VAR_TYP_STR;
-  variables[vars_tos].as_string = alloc(strlen(strval) + 1);
+  variables[vars_tos].as_string = alloc(64);
   strcpy(variables[vars_tos].varname, varname);
   strcpy(variables[vars_tos].as_string, strval);
   vars_tos++;
 
   return vars_tos - 1;
+}
+
+int set_str_var(char *varname, char *strval){
+  int var_index;
+  // Check if variable is pre-existing
+  for(var_index = 0; var_index < vars_tos; var_index++){
+    if(!strcmp(variables[var_index].varname, varname)){
+      strcpy(variables[var_index].as_string, strval);
+      return var_index;
+    }
+  }
+  printf("Error: Variable does not exist.");
 }
 
 int set_int_var(char *varname, int as_int){
