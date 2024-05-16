@@ -410,6 +410,12 @@ _for8_exit:
   add sp, 2
 ;; show(); 
   call show
+;; puts("\n\rPress CTRL+C to quit.\n\r"); 
+  mov b, __s0 ; "\n\rPress CTRL+C to quit.\n\r"
+  swp b
+  push b
+  call puts
+  add sp, 2
 _for3_update:
   jmp _for3_cond
 _for3_exit:
@@ -788,7 +794,7 @@ _if15_true:
   jmp _if15_exit
 _if15_else:
 ;; print("Unknown type size in va_arg() call. Size needs to be either 1 or 2."); 
-  mov b, __s0 ; "Unknown type size in va_arg() call. Size needs to be either 1 or 2."
+  mov b, __s1 ; "Unknown type size in va_arg() call. Size needs to be either 1 or 2."
   swp b
   push b
   call print
@@ -1049,7 +1055,7 @@ _switch19_case5:
   jmp _switch19_exit ; case break
 _switch19_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s1 ; "Error: Unknown argument type.\n"
+  mov b, __s2 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -2207,7 +2213,57 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s2 ; "\033[2J\033[H"
+  mov b, __s3 ; "\033[2J\033[H"
+  swp b
+  push b
+  call print
+  add sp, 2
+  leave
+  ret
+
+printun:
+  enter 0 ; (push bp; mov bp, sp)
+;; print(prompt); 
+  lea d, [bp + 7] ; $prompt
+  mov b, [d]
+  swp b
+  push b
+  call print
+  add sp, 2
+;; printu(n); 
+  lea d, [bp + 5] ; $n
+  mov b, [d]
+  swp b
+  push b
+  call printu
+  add sp, 2
+;; print("\n"); 
+  mov b, __s4 ; "\n"
+  swp b
+  push b
+  call print
+  add sp, 2
+  leave
+  ret
+
+printsn:
+  enter 0 ; (push bp; mov bp, sp)
+;; print(prompt); 
+  lea d, [bp + 7] ; $prompt
+  mov b, [d]
+  swp b
+  push b
+  call print
+  add sp, 2
+;; prints(n); 
+  lea d, [bp + 5] ; $n
+  mov b, [d]
+  swp b
+  push b
+  call prints
+  add sp, 2
+;; print("\n"); 
+  mov b, __s4 ; "\n"
   swp b
   push b
   call print
@@ -2300,14 +2356,14 @@ _ternary36_cond:
   cmp b, 0
   je _ternary36_false
 _ternary36_true:
-  mov b, __s3 ; "@ "
+  mov b, __s5 ; "@ "
   swp b
   push b
   call printf
   add sp, 2
   jmp _ternary36_exit
 _ternary36_false:
-  mov b, __s4 ; ". "
+  mov b, __s6 ; ". "
   swp b
   push b
   call printf
@@ -2842,11 +2898,13 @@ _currState_data:
 .db $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,
 .db $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,
 .fill 400, 0
-__s0: .db "Unknown type size in va_arg() call. Size needs to be either 1 or 2.", 0
-__s1: .db "Error: Unknown argument type.\n", 0
-__s2: .db "\033[2J\033[H", 0
-__s3: .db "@ ", 0
-__s4: .db ". ", 0
+__s0: .db "\n\rPress CTRL+C to quit.\n\r", 0
+__s1: .db "Unknown type size in va_arg() call. Size needs to be either 1 or 2.", 0
+__s2: .db "Error: Unknown argument type.\n", 0
+__s3: .db "\033[2J\033[H", 0
+__s4: .db "\n", 0
+__s5: .db "@ ", 0
+__s6: .db ". ", 0
 
 _heap_top: .dw _heap
 _heap: .db 0
