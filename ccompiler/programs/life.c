@@ -89,5 +89,6 @@ int main(void){
     }
 		printf(clear);
 		show();
+		puts("\n\rPress CTRL+C to quit.\n\r");
 	}
 }
