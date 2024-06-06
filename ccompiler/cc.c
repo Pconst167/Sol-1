@@ -13,7 +13,7 @@
   ** fix goto: at present we cannot jump to a label that is declared after the goto.
 
   ** finish variable arguments code. function arguments need to be pushed into the stack from right to left
-     so that the fixed arguments are closer to BP when the function is executed and therefore can be located.
+     so that the *FIXED* arguments are closer to BP when the function is executed and therefore can be located.
 
   ** fix array variable declarations.
 */
