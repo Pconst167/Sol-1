@@ -27,43 +27,39 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408             ;; myfunc(1, 2, 'a', 255, 65535, 'b'); 
-0011   0408 26 61 00      mov b, $61
+0010   0408             ;; ff(255); 
+0011   0408 26 FF 00      mov b, $ff
 0012   040B FD AB         swp b
 0013   040D D8            push b
-0014   040E 26 FF 00      mov b, $ff
-0015   0411 FD AB         swp b
-0016   0413 D8            push b
-0017   0414 26 FF FF      mov b, $ffff
-0018   0417 FD AB         swp b
-0019   0419 D8            push b
-0020   041A 26 62 00      mov b, $62
-0021   041D FD AB         swp b
-0022   041F D8            push b
-0023   0420 26 01 00      mov b, $1
-0024   0423 FD AB         swp b
-0025   0425 D8            push b
-0026   0426 26 02 00      mov b, $2
-0027   0429 FD AB         swp b
-0028   042B D8            push b
-0029   042C 07 38 04      call myfunc
-0030   042F 51 0C 00      add sp, 12
-0031   0432             ;; return 0; 
-0032   0432 26 00 00      mov b, $0
-0033   0435 F9            leave
-0034   0436 05 0B         syscall sys_terminate_proc
-0035   0438             
-0036   0438             myfunc:
-0037   0438 F8 00 00      enter 0 ; (push bp; mov bp, sp)
-0038   043B F9            leave
-0039   043C 09            ret
-0040   043D             ; --- END TEXT BLOCK
-0041   043D             
-0042   043D             ; --- BEGIN DATA BLOCK
-0043   043D             
-0044   043D 3F 04       _heap_top: .dw _heap
-0045   043F 00          _heap: .db 0
-0046   0440             ; --- END DATA BLOCK
-0047   0440             
-0048   0440             .end
+0014   040E 07 1F 04      call ff
+0015   0411 51 02 00      add sp, 2
+0016   0414             ;; return 0; 
+0017   0414 26 00 00      mov b, $0
+0018   0417 F9            leave
+0019   0418 05 0B         syscall sys_terminate_proc
+0020   041A             
+0021   041A             myfunc:
+0022   041A F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0023   041D F9            leave
+0024   041E 09            ret
+0025   041F             
+0026   041F             ff:
+0027   041F F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0028   0422             ;; ff(1); 
+0029   0422 26 01 00      mov b, $1
+0030   0425 FD AB         swp b
+0031   0427 D8            push b
+0032   0428 07 1F 04      call ff
+0033   042B 51 02 00      add sp, 2
+0034   042E F9            leave
+0035   042F 09            ret
+0036   0430             ; --- END TEXT BLOCK
+0037   0430             
+0038   0430             ; --- BEGIN DATA BLOCK
+0039   0430             
+0040   0430 32 04       _heap_top: .dw _heap
+0041   0432 00          _heap: .db 0
+0042   0433             ; --- END DATA BLOCK
+0043   0433             
+0044   0433             .end
 tasm: Number of errors = 0

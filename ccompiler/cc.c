@@ -2143,7 +2143,6 @@ void parse_function_call(int func_id){
   t_type expr_in;
   char num_fixed_args;
   int current_func_call_total_arg_size;
-  int total_size_var_args;
   t_var last_normal_param;
   int num_paren;
   char *prog_end_of_arguments;
@@ -2201,14 +2200,12 @@ void parse_function_call(int func_id){
       get();
       if(tok == COMMA) param_index++;
     } while(param_index < function_table[func_id].num_fixed_args);
-    total_size_var_args = parse_variable_args(func_id);
+    current_func_call_total_arg_size = parse_variable_args(func_id);
     prog_end_of_arguments = prog;
     pop_prog(); // recover prog's location (beginning of function arguments)
   }
 
-  current_func_call_total_arg_size += total_size_var_args;
-
-  // Now parse fixed arguments
+  // parse fixed arguments
   param_index = 0;
   for(; param_index < function_table[func_id].num_fixed_args;){
     expr_in = parse_expr();
@@ -2244,7 +2241,7 @@ void parse_function_call(int func_id){
     param_index++;
   }
 
-  prog = prog_end_of_arguments;
+  if(function_table[func_id].has_var_args) prog = prog_end_of_arguments;
 
   // Check if the number of arguments matches the number of function parameters
   // but only if the function does not have variable arguments
