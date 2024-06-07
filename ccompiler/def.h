@@ -510,7 +510,7 @@ void declare_global(void);
 int declare_local(void);
 void declare_struct_global_vars(int struct_id);
 void parse_struct_initialization_data(int struct_id, int array_size);
-void declare_goto_label();
+void declare_goto_label(void);
 void declare_define(void);
 
 int search_global_var(char *var_name);
@@ -521,7 +521,7 @@ int search_function(char *func_name);
 int search_function_parameter(int function_id, char *param_name);
 int enum_element_exists(char *element_name);
 
-void emit_c_line();
+void emit_c_line(void);
 void emit(const char* format, ...);
 void emitln(const char* format, ...);
 void emit_data(const char* format, ...);
@@ -540,8 +540,8 @@ void skip_array_bracket(void);
 
 int count_cases(void);
 
-t_type parse_expr();
-t_type parse_assignment();
+t_type parse_expr(void);
+t_type parse_assignment(void);
 t_type parse_ternary_op(void);
 t_type parse_logical(void);
 t_type parse_logical_and(void);
@@ -551,9 +551,9 @@ t_type parse_bitwise_or(void);
 t_type parse_bitwise_xor(void);
 t_type parse_relational(void);
 t_type parse_bitwise_shift(void);
-t_type parse_terms();
-t_type parse_factors();
-t_type parse_atomic();
+t_type parse_terms(void);
+t_type parse_factors(void);
+t_type parse_atomic(void);
 
 void parse_case(void);
 void parse_block(void);
@@ -568,7 +568,7 @@ void parse_continue(void);
 void parse_break(void);
 void parse_asm(void);
 void parse_directive(void);
-int parse_variable_args(int func_id);
+int parse_variable_args(void);
 void parse_function_call(int func_id);
 void parse_goto(void);
 
@@ -591,7 +591,7 @@ int get_struct_size(int id);
 int get_struct_elements_count(int struct_id);
 int get_struct_element_offset(int struct_id, char *name);
 t_type get_struct_element_type(int struct_id, char *name);
-t_basic_type get_basic_type_from_tok();
+t_basic_type get_basic_type_from_tok(void);
 int is_struct(t_type type);
 
 int find_array_initialization_size(void);
@@ -607,15 +607,16 @@ void dbg_print_var_info(t_var *var);
 void dbg_print_type_info(t_type *type);
 
 
-void insert_runtime();
-void declare_heap();
+void insert_runtime(void);
+void declare_heap(void);
 void delete(char *start, int len);
 void insert(char *text, char *new_text);
 
 int is_register(char *name);
-int is_assignment();
-void push_prog();
-void pop_prog();
+int is_assignment(void);
+void push_prog(void);
+void pop_prog(void);
+void goto_beginning_of_arg(void);
 
 
 char is_space(char c);
@@ -623,4 +624,4 @@ char is_space(char c);
 char is_constant(char *varname);
 void dbg(char *s);
 int has_var_args(int func_id);
-t_type parse___asm();
+t_type parse___asm(void);

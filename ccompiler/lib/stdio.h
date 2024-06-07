@@ -2,10 +2,6 @@
 
 #define NULL 0
 
-struct va_list{
-  char *p; // pointer to current argument
-
-};
 struct FILE {
     int fd;            // file descriptor for the open file
     unsigned char *buf;// pointer to buffer for I/O operations
@@ -14,20 +10,63 @@ struct FILE {
     int mode;          // file mode (read, write, append, etc.)
     int error;         // error flag
 };
+/*
+struct va_list_t{
+  char *current_arg; // pointer to current argument
+};
 
-inline int va_arg(struct va_list *arg, int size){
-  int val;
-  if(size == 1){
-    val = *(char*)arg->p;
+void va_start(struct va_list_t *argp, char *first_fixed_param){
+  argp->current_arg = first_fixed_param + sizeof(first_fixed_param);
+}
+
+char *va_arg(struct va_list_t *argp, unsigned int size) {
+  char *p;
+  p = argp->current_arg;
+  argp->current_arg = argp->current_arg + size;
+  return p;
+}
+
+void va_end(struct va_list_t *argp) {
+  argp->current_arg = NULL;
+}
+*/
+void my_printf(const char *format, ...) {
+  struct va_list_t args;
+  int i, c;
+  char *s;
+  
+  va_start(&args, format);
+  while (*format != '\0') {
+      if (*format == '%') {
+          format++;
+          switch (*format) {
+              case 'd': {
+                  i = *(int *)va_arg(&args, sizeof(int));
+                  printu(i);
+                  break;
+              }
+              case 'c': {
+                  c = *(int *)va_arg(&args, sizeof(int));  // char is promoted to int in varargs
+                  putchar(c);
+                  break;
+              }
+              case 's': {
+                  s = va_arg(&args, sizeof(char*));
+                  puts(s);
+                  break;
+              }
+              default:
+                  putchar('%');
+                  putchar(*format);
+                  break;
+          }
+      } else {
+          putchar(*format);
+      }
+      format++;
   }
-  else if(size == 2){
-    val = *(int*)arg->p;
-  }
-  else{
-    print("Unknown type size in va_arg() call. Size needs to be either 1 or 2.");
-  }
-  arg->p = arg->p + size;
-  return val;
+  
+  va_end(&args);
 }
 
 void printf(char *format, ...){

@@ -2,7 +2,7 @@
 
 int main(){
 
-  printf("%i %d %d", 124, 1234, 65535);
+  printf("%i %s %d %c", 'A', 124, "Hello World this is a string", 65535);
 
   return 0;
 

@@ -1817,16 +1817,26 @@ t_type parse_atomic(void){
         emitln("  mov b, %d", get_total_type_size(global_var_table[var_id].type));
       }
       else error("Undeclared identifier: %s", token);
+      get();
     }
-    else switch(tok){
-      case CHAR:
-        emitln("  mov b, 1");
-        break;
-      case INT:
+    else{
+      t_token temp_tok = tok;
+      get();
+      if(tok == STAR){
+        while(tok == STAR) get();
         emitln("  mov b, 2");
-        break;
+      }
+      else{
+        switch(temp_tok){
+        case CHAR:
+          emitln("  mov b, 1");
+          break;
+        case INT:
+          emitln("  mov b, 2");
+          break;
+        }
+      }
     }
-    get();
     expr_out.basic_type = DT_INT;
     expr_out.ind_level = 0;
     expr_out.signedness = SNESS_SIGNED;
@@ -1905,7 +1915,7 @@ t_type parse_atomic(void){
     int ind_level = 0;
     char _signed = 1, _unsigned = 0;
     get();
-    if(tok != SIGNED && tok != UNSIGNED && tok != INT && tok != CHAR){
+    if(tok != SIGNED && tok != UNSIGNED && tok != INT && tok != CHAR && tok != VOID){
       back();
       expr_in = parse_expr();  // parses expression between parenthesis and result will be in B
       expr_out = expr_in;
@@ -2097,16 +2107,29 @@ t_type parse___asm(){
   return expr_out;
 }
 
-int parse_variable_args(int func_id){
-  int param_index = 0;
-  t_type expr_in;
-  int current_func_call_total_args;
+/*
+  todo: reverse order of var args pushed into the stack: var_arg3 needs to be pushed before var_arg2, etc
 
-  param_index = 0;
-  current_func_call_total_args = 0;
+  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
+  var1
+  var2
+  var3
+  fixed1
+  fixed2
+  pc
+  bp
+  locals...             <---- bp, sp
+*/
+int parse_variable_args(){
+  int param_index = 0;                                                                  
+  t_type expr_in;
+  int current_func_call_total_arg_size;
+
+  param_index = 0;                                                                        
+  current_func_call_total_arg_size = 0;
   do{
     expr_in = parse_expr();
-    current_func_call_total_args += get_type_size_for_func_arg_parsing(expr_in);
+    current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(expr_in);
     if(expr_in.ind_level > 0 || is_array(expr_in)){
       emitln("  swp b");
       emitln("  push b");
@@ -2135,16 +2158,185 @@ int parse_variable_args(int func_id){
     }
     param_index++;
   } while(tok == COMMA);
-  return current_func_call_total_args;
+  return current_func_call_total_arg_size;                                                      
+}
+
+// myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
+
+// function used for parsing function arguments.
+// this function rewinds "prog" from right to left until it meets a comma character, meaning that whatever comes after the comma is an argument expression
+// when the left-most argument is met, the separator is no longer a comma, but an opening parenthesis, so we need to keep track of
+// the number of parenthesis inside the function header because there could be expressions containing parenthesis there as well.
+void goto_beginning_of_arg(){
+  int paren_count = 1;
+  for(;;){
+    prog--;
+    if(*prog == ')') paren_count++;
+    else if(*prog == '('){
+      paren_count--;
+      if(paren_count == 0) break;
+    }
+    else if(*prog == ',') break;
+  }
+  prog--; // go back one position to the left to skip the comma char
+  push_prog(); // save the current prog position so that we can go back to it when finished parsing this argument
+  prog += 2; //go forwards to skip the comma in order to parse the expression
 }
 
 void parse_function_call(int func_id){
+  int total_function_arguments;
+  t_type arg_expr;
+  int current_func_call_total_arg_size;
+  int function_arg_index;
+  int paren_count;
+
+  get();
+  if(tok == CLOSING_PAREN){
+    if(function_table[func_id].num_fixed_args != 0)
+      error("Incorrect number of arguments for function: %s. Expecting %d, detected: 0", function_table[func_id].name, function_table[func_id].num_fixed_args);
+    else{
+      emitln("  call %s", function_table[func_id].name);
+      return;
+    }
+  }
+  else back();
+
+//  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
+//  var1
+//  var2
+//  var3
+//  fixed1
+//  fixed2
+//  pc
+//  bp
+//  locals...             <---- bp, sp
+//
+//  todo: reverse order of var args pushed into the stack: var_arg3 needs to be pushed before var_arg2, etc
+//  
+//  so the fixed args will be pushed closer to where BP points, because in order to calculate the BP
+//  offset for those arguments, we need a known reference from BP. if we pushed the var args closer to BP than
+//  the fixed args, it would not match with the way the BP offsets are calculated in the function declaration.
+//  so from BP, we push the fixed arguments so that their offsets are known and match the declaration.
+//  after that, we push the variable arguments on addresses above the ones for the fixed args.
+//  notice the order in which they are pushed: we push fixed1 at a higher address than fixed2, ...etc
+//  and then we push var1 at the highest address, then var2 at a lower address, and so on.
+//  this order doesnt matter as long as we remember it when trying to access the variable arguments in C code.
+//
+//  new way:
+//  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
+//  var3
+//  var2
+//  var1
+//  fixed2
+//  fixed1
+//  pc
+//  bp
+//  locals...             <---- bp, sp
+
+  current_func_call_total_arg_size = 0;
+  paren_count = 1;
+  total_function_arguments = 1;
+  // count the total number of arguments being passed to the function by counting the number of ',' characters
+  do{
+    get();
+    if(tok == COMMA) total_function_arguments++;
+    else if(tok == OPENING_PAREN) paren_count++;
+    else if(tok == CLOSING_PAREN) paren_count--;
+  } while(paren_count > 0);
+
+  function_arg_index = total_function_arguments - 1;
+  // now we are at the end of the function header, at the ')' token.
+  // go backwards finding one comma at a time, and then parsing the expression corresponding to that parameter.
+  do{
+    goto_beginning_of_arg(); // rewinds prog left until it meets a ',', or the opening '(' of the function header
+
+    arg_expr = parse_expr(); // parse this argument
+    // if parsing variable arguments
+    if(function_arg_index + 1 - function_table[func_id].num_fixed_args > 0){
+      // if this argument is a variable one, then its type or size is not given by a declaration at the function header, but from the result of the expression itself  
+      current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(arg_expr); 
+
+      current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(arg_expr);
+      if(arg_expr.ind_level > 0 || is_array(arg_expr)){
+        emitln("  swp b");
+        emitln("  push b");
+      }
+      else if(arg_expr.basic_type == DT_STRUCT){
+        emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(arg_expr));
+        emitln("  mov si, b"); 
+        emitln("  lea d, [sp + 1]");
+        emitln("  mov di, d");
+        emitln("  mov c, %d", get_type_size_for_func_arg_parsing(arg_expr));
+        emitln("  rep movsb");
+      }
+      else{
+        switch(arg_expr.basic_type){
+          case DT_CHAR:
+            emitln("  push bl");
+            break;
+          case DT_INT:
+            if(arg_expr.basic_type == DT_CHAR && arg_expr.ind_level == 0){
+              emitln("  snex b");
+            }
+            emitln("  swp b");
+            emitln("  push b");
+            break;
+        }
+      }
+    }
+    // else, parsing the fixed arguments
+    else{
+      // if the argument is a fixed one, then its type and hence size, is given in the function declaration
+      current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[function_arg_index].type); 
+      if(function_table[func_id].local_vars[function_arg_index].type.ind_level > 0 || 
+        is_array(function_table[func_id].local_vars[function_arg_index].type)
+      ){
+        emitln("  swp b");
+        emitln("  push b");
+      }
+      else if(function_table[func_id].local_vars[function_arg_index].type.basic_type == DT_STRUCT){
+        emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[function_arg_index].type));
+        emitln("  mov si, b"); 
+        emitln("  lea d, [sp + 1]");
+        emitln("  mov di, d");
+        emitln("  mov c, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[function_arg_index].type));
+        emitln("  rep movsb");
+      }
+      else{
+        switch(function_table[func_id].local_vars[function_arg_index].type.basic_type){
+          case DT_CHAR:
+            emitln("  push bl");
+            break;
+          case DT_INT:
+            if(arg_expr.basic_type == DT_CHAR && arg_expr.ind_level == 0) emitln("  snex b");
+            emitln("  swp b");
+            emitln("  push b");
+            break;
+        }
+      }
+    }
+    function_arg_index--;
+    pop_prog(); // recover prog position, which is exactly one char to the right of the comma after which this current argument comes
+  } while(function_arg_index >= 0); 
+
+
+  // Check if the number of arguments matches the number of function parameters
+  // but only if the function does not have variable arguments
+  if(function_table[func_id].num_fixed_args != total_function_arguments && !has_var_args(func_id))  
+    error("Incorrect number of arguments for function: %s. Expecting %d, detected: %d", function_table[func_id].name, function_table[func_id].num_fixed_args, total_function_arguments);
+
+  emitln("  call %s", function_table[func_id].name);
+  //if(tok != CLOSING_PAREN) error("Closing paren expected");
+  // the function's return value is in register B
+  if(function_table[func_id].total_parameter_size > 0)
+    emitln("  add sp, %d", current_func_call_total_arg_size); // clean stack of the arguments added to it
+}
+
+/*
+void parse_function_call(int func_id){
   int param_index = 0;
   t_type expr_in;
-  char num_fixed_args;
   int current_func_call_total_arg_size;
-  t_var last_normal_param;
-  int num_paren;
   char *prog_end_of_arguments;
 
   get();
@@ -2158,38 +2350,38 @@ void parse_function_call(int func_id){
   }
   else back();
 
-  /*  
-      myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
-      var1
-      var2
-      var3
-      fixed1
-      fixed2
-      pc
-      bp
-      locals...             <---- bp, sp
+/*  
+  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
+  var1
+  var2
+  var3
+  fixed1
+  fixed2
+  pc
+  bp
+  locals...             <---- bp, sp
 
-      todo: find number and size of variable args
-      
-      so the fixed args will be pushed closer to where BP points, because in order to calculate the BP
-      offset for those arguments, we need a known reference from BP. if we pushed the var args closer to BP than
-      the fixed args, it would not match with the way the BP offsets are calculated in the function declaration.
-      so from BP, we push the fixed arguments so that their offsets are known and match the declaration.
-      after that, we push the variable arguments on addresses above the ones for the fixed args.
-      notice the order in which they are pushed: we push fixed1 at a higher address than fixed2, ...etc
-      and then we push var1 at the highest address, then var2 at a lower address, and so on.
-      this order doesnt matter as long as we remember it when trying to access the variable arguments in C code.
+  todo: reverse order of var args pushed into the stack: var_arg3 needs to be pushed before var_arg2, etc
+  
+  so the fixed args will be pushed closer to where BP points, because in order to calculate the BP
+  offset for those arguments, we need a known reference from BP. if we pushed the var args closer to BP than
+  the fixed args, it would not match with the way the BP offsets are calculated in the function declaration.
+  so from BP, we push the fixed arguments so that their offsets are known and match the declaration.
+  after that, we push the variable arguments on addresses above the ones for the fixed args.
+  notice the order in which they are pushed: we push fixed1 at a higher address than fixed2, ...etc
+  and then we push var1 at the highest address, then var2 at a lower address, and so on.
+  this order doesnt matter as long as we remember it when trying to access the variable arguments in C code.
 
-      myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
-      var1
-      var2
-      var3
-      fixed1
-      fixed2
-      pc
-      bp
-      locals...             <---- bp, sp
-  */
+  new way:
+  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
+  var3
+  var2
+  var1
+  fixed2
+  fixed1
+  pc
+  bp
+  locals...             <---- bp, sp
 
   current_func_call_total_arg_size = 0;
   param_index = 0;
@@ -2206,7 +2398,7 @@ void parse_function_call(int func_id){
   }
 
   // parse fixed arguments
-  param_index = 0;
+  param_index = 0;                                                                                                                      
   for(; param_index < function_table[func_id].num_fixed_args;){
     expr_in = parse_expr();
     current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[param_index].type);
@@ -2254,6 +2446,7 @@ void parse_function_call(int func_id){
   if(function_table[func_id].total_parameter_size > 0)
     emitln("  add sp, %d", current_func_call_total_arg_size); // clean stack of the arguments added to it
 }
+*/
 
 void dbg_print_var_info(t_var *var){
   int i;
