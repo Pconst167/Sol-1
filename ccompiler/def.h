@@ -293,7 +293,6 @@ typedef struct {
   char name[ID_LEN];
   t_type type; // holds the type of data and the value itself
   _bool is_parameter;
-  _bool is_var_args;
   char is_static;
   int bp_offset; // if var is local, this holds the offset of the var from BP.
   int function_id; // the function does var belong to? (if it is a local var)
@@ -316,7 +315,7 @@ typedef struct {
   char _inline;
   char has_var_args;
   char num_fixed_args;
-} t_user_func;
+} t_function;
 
 char *basic_type_to_str_table[] = {
   "unused",
@@ -408,7 +407,7 @@ char libc_directory[] = "./lib/";
 
 char debug;
 
-t_user_func function_table[MAX_USER_FUNC];
+t_function function_table[MAX_USER_FUNC];
 t_enum enum_table[MAX_ENUM_DECLARATIONS];
 t_struct struct_table[MAX_STRUCT_DECLARATIONS];
 t_var global_var_table[MAX_GLOBAL_VARS];

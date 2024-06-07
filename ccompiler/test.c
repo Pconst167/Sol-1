@@ -1,14 +1,14 @@
 #include <stdio.h>
-#include <math.h>
 
 int main(){
 
-  int i=0;
-  i++;
-  ++i;
-  printu(i);
+  myfunc(1, 2, 'a', 255, 65535, 'b');
 
   return 0;
+
+}
+
+int myfunc(int a, int b, ...){
 
 }
 
