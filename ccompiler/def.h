@@ -580,7 +580,7 @@ int get_num_array_elements(t_type type);
 int get_array_offset(char dim, t_type array);
 int get_data_size_for_indexing(t_type type);
 int get_enum_val(char *element_name);
-int get_total_func_param_size(void);
+int get_total_func_fixed_param_size(void);
 t_var get_internal_var_ptr(char *var_name);
 int get_total_type_size(t_type type);
 char *get_var_base_addr(char *dest, char *var_name);

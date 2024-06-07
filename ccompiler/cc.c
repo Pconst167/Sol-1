@@ -28,9 +28,7 @@
 #include <libgen.h>
 #include "def.h"
 
-int main(int argc, 
-         char *argv[]
-){
+int main(int argc, char *argv[]){
   int main_index;
   char *filename_no_ext;
   char filename_out[ID_LEN];
@@ -114,9 +112,7 @@ void insert_runtime() {
 }
 
 
-int is_register(
-  char *name
-){
+int is_register(char *name){
   if(!strcmp(name, "a") ||
      !strcmp(name, "ah") ||
      !strcmp(name, "al") ||
@@ -547,6 +543,7 @@ void declare_func(void){
   if(!strcmp(token, "main")) is_main = true;
   get(); // gets past "("
 
+  func->has_var_args = false;
   func->local_var_tos = 0;
   func->num_fixed_args = 0;
   get();
@@ -556,7 +553,7 @@ void declare_func(void){
   else{
     back();
     temp_prog = prog;
-    total_parameter_bytes = get_total_func_param_size();
+    total_parameter_bytes = get_total_func_fixed_param_size();
     func->total_parameter_size = total_parameter_bytes;
     bp_offset = 4 + total_parameter_bytes; // +4 to account for pc and bp in the stack
     prog = temp_prog;
@@ -564,16 +561,12 @@ void declare_func(void){
       // set as parameter so that we can tell that if a array is declared, the argument is also a pointer
       // even though it may not be declared with any '*' tokens;
       func->local_vars[func->local_var_tos].is_parameter = true;
-      func->local_vars[func->local_var_tos].is_var_args  = false;
       temp_prog = prog;
       get();
       if(tok == VAR_ARG_DOTS){
-        func->local_vars[func->local_var_tos].is_var_args = true;
         func->has_var_args = true;
         get();
-        if(tok != CLOSING_PAREN) error("'...' needs to be the last function parameter if present.");
-        back();
-        goto complete_parameter_declaration;
+        break; // exit parameter loop as '...' has to be the last token in the param definition
       }
       if(tok == CONST){
         func->local_vars[func->local_var_tos].type.is_constant = true;
@@ -602,7 +595,7 @@ void declare_func(void){
         get();
       }
       if(toktype != IDENTIFIER) error("Identifier expected");
-      strcpy(param_name, token); // copy parameter name
+      strcpy(func->local_vars[func->local_var_tos].name, token);
       // Check if this is main, and argc or argv are declared
       // TODO: argc/argv need to be local to main but right now they are global
       if(is_main == true && (!strcmp(token, "argc") || !strcmp(token, "argv"))){
@@ -636,18 +629,9 @@ void declare_func(void){
       // assign the bp offset of this parameter
       func->local_vars[func->local_var_tos].bp_offset = bp_offset + 1;
 
-      // label
-      complete_parameter_declaration:
-        if(func->local_vars[func->local_var_tos].is_var_args){
-          func->local_vars[func->local_var_tos].name[0] = '\0';
-        }
-        else
-          strcpy(func->local_vars[func->local_var_tos].name, param_name);
-
       get();
       func->num_fixed_args++;
       func->local_var_tos++;
-      if(func->local_vars[func->local_var_tos].is_var_args) break;
     } while(tok == COMMA);
   }
   if(tok != CLOSING_PAREN) error("Closing parenthesis expected");
@@ -714,7 +698,7 @@ int get_param_size(){
 }
 
 
-int get_total_func_param_size(void){
+int get_total_func_fixed_param_size(void){
   int total_bytes;
 
   total_bytes = 0;
@@ -2025,17 +2009,6 @@ t_type parse_atomic(void){
       if((func_id = search_function(temp_name)) != -1){
         expr_out = function_table[func_id].return_type; // get function's return type
         parse_function_call(func_id);
-        /*
-        expr_out = function_table[func_id].return_type; // get function's return type
-        parse_function_arguments(func_id);
-        emit("  call ");
-        emitln(temp_name);
-        if(tok != CLOSING_PAREN) error("Closing paren expected");
-        // the function's return value is in register B
-        if(function_table[func_id].total_parameter_size > 0)
-          // clean stack of the arguments added to it
-          emitln("  add sp, %d", function_table[func_id].total_parameter_size);
-          */
       }
       else error("Undeclared function: %s", temp_name);
     }
@@ -2170,7 +2143,7 @@ void parse_function_call(int func_id){
   int param_index = 0;
   t_type expr_in;
   char num_fixed_args;
-  int current_func_call_total_args;
+  int current_func_call_total_arg_size;
   int total_size_var_args;
   t_var last_normal_param;
   int num_paren;
@@ -2197,16 +2170,16 @@ void parse_function_call(int func_id){
       locals...             <---- bp, sp
 
       find number and size of variable args
-
       
   */
 
   param_index = 0;
-  current_func_call_total_args = 0;
+  current_func_call_total_arg_size = 0;
   do{
-    if(function_table[func_id].local_vars[param_index].is_var_args){
+    // after parsing the fixed arguments, param_index will be >= the index of the first variable argument. then process the variable argumens.
+    if(function_table[func_id].has_var_args && param_index >= function_table[func_id].num_fixed_args){
       total_size_var_args = parse_variable_args(func_id);
-      current_func_call_total_args += total_size_var_args;;
+      current_func_call_total_arg_size += total_size_var_args;;
       // Add the variable args total offset to each parameter's address in the stack
       // So that the correct addreses are set for each parameter.
       /*for(int i = 0; i < function_table[func_id].local_var_tos; i++){
@@ -2221,7 +2194,7 @@ void parse_function_call(int func_id){
     }
     else{
       expr_in = parse_expr();
-      current_func_call_total_args += get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[param_index].type);
+      current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[param_index].type);
       if(function_table[func_id].local_vars[param_index].type.ind_level > 0 || 
         is_array(function_table[func_id].local_vars[param_index].type)
       ){
@@ -2250,8 +2223,8 @@ void parse_function_call(int func_id){
             break;
         }
       }
+      param_index++;
     }
-    param_index++;
   } while(tok == COMMA);
 
   // Check if the number of arguments matches the number of function parameters
@@ -2263,7 +2236,7 @@ void parse_function_call(int func_id){
   if(tok != CLOSING_PAREN) error("Closing paren expected");
   // the function's return value is in register B
   if(function_table[func_id].total_parameter_size > 0)
-    emitln("  add sp, %d", current_func_call_total_args); // clean stack of the arguments added to it
+    emitln("  add sp, %d", current_func_call_total_arg_size); // clean stack of the arguments added to it
 }
 
 void dbg_print_var_info(t_var *var){
@@ -2752,8 +2725,7 @@ int get_data_size_for_indexing(t_type type){
 }
 
 int has_var_args(int func_id){
-  return function_table[func_id].local_vars[1].is_var_args &&
-         function_table[func_id].local_vars[1].is_parameter;
+  return function_table[func_id].has_var_args;
 }
 
 

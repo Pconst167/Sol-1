@@ -1858,6 +1858,56 @@ clear:
   leave
   ret
 
+printun:
+  enter 0 ; (push bp; mov bp, sp)
+;; print(prompt); 
+  lea d, [bp + 7] ; $prompt
+  mov b, [d]
+  swp b
+  push b
+  call print
+  add sp, 2
+;; printu(n); 
+  lea d, [bp + 5] ; $n
+  mov b, [d]
+  swp b
+  push b
+  call printu
+  add sp, 2
+;; print("\n"); 
+  mov b, __s2 ; "\n"
+  swp b
+  push b
+  call print
+  add sp, 2
+  leave
+  ret
+
+printsn:
+  enter 0 ; (push bp; mov bp, sp)
+;; print(prompt); 
+  lea d, [bp + 7] ; $prompt
+  mov b, [d]
+  swp b
+  push b
+  call print
+  add sp, 2
+;; prints(n); 
+  lea d, [bp + 5] ; $n
+  mov b, [d]
+  swp b
+  push b
+  call prints
+  add sp, 2
+;; print("\n"); 
+  mov b, __s2 ; "\n"
+  swp b
+  push b
+  call print
+  add sp, 2
+  leave
+  ret
+
 include_stdio_asm:
   enter 0 ; (push bp; mov bp, sp)
 
