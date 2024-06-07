@@ -2160,17 +2160,35 @@ void parse_function_call(int func_id){
   else back();
 
   /*  myfunc(fixed1, fixed2, var1, var2, var3);
-      var3
-      var2
       var1
-      fixed2
+      var2
+      var3
       fixed1
+      fixed2
       pc
       bp
       locals...             <---- bp, sp
 
-      find number and size of variable args
+      todo: find number and size of variable args
       
+      so the fixed args will be pushed closer to where BP points, because in order to calculate the BP
+      offset for those arguments, we need a known reference from BP. if we pushed the var args closer to BP than
+      the fixed args, it would not match with the way the BP offsets are calculated in the function declaration.
+      so from BP, we push the fixed arguments so that their offsets are known and match the declaration.
+      after that, we push the variable arguments on addresses above the ones for the fixed args.
+      notice the order in which they are pushed: we push fixed1 at a higher address than fixed2, ...etc
+      and then we push var1 at the highest address, then var2 at a lower address, and so on.
+      this order doesnt matter as long as we remember it when trying to access the variable arguments in C code.
+
+      myfunc(fixed1, fixed2, var1, var2, var3);
+      var1
+      var2
+      var3
+      fixed1
+      fixed2
+      pc
+      bp
+      locals...             <---- bp, sp
   */
 
   param_index = 0;
