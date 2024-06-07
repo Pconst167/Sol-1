@@ -31,41 +31,42 @@ inline int va_arg(struct va_list *arg, int size){
 }
 
 void printf(char *format, ...){
-  char *p;
-  char *fp;
+  char *p, *fp;
   int i;
-  fp = format;
-  p = &format;
 
+  fp = format;
+  p = &format + 2;
+
+// printf("%i %d %d", 124, 1234, 65535);
   for(;;){
     if(!*fp) break;
-    if(*fp == '%'){
+    else if(*fp == '%'){
       fp++;
       switch(*fp){
         case 'd':
         case 'i':
-          p = p - 2;
           prints(*(int*)p);
+          p = p + 2;
           break;
 
         case 'u':
-          p = p - 2;
           printu(*(unsigned int*)p);
+          p = p + 2;
           break;
 
         case 'x':
-          p = p - 2;
           printx16(*(unsigned int*)p);
+          p = p + 2;
           break;
 
         case 'c':
-          p = p - 2;
           putchar(*(char*)p);
+          p = p + 2;
           break;
 
         case 's':
-          p = p - 2;
           print(*(char**)p);
+          p = p + 2;
           break;
 
         default:
