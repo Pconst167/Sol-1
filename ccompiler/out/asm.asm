@@ -46,21 +46,21 @@ main:
   pop d
   mov [d], b
 ;; loadfile(0x0000, program); 
-  mov b, $0
-  swp b
-  push b
   mov d, _program ; $program
   mov b, [d]
+  swp b
+  push b
+  mov b, $0
   swp b
   push b
   call loadfile
   add sp, 4
 ;; loadfile("./config.d/op_tbl", opcode_table); 
-  mov b, __s10 ; "./config.d/op_tbl"
-  swp b
-  push b
   mov d, _opcode_table ; $opcode_table
   mov b, [d]
+  swp b
+  push b
+  mov b, __s10 ; "./config.d/op_tbl"
   swp b
   push b
   call loadfile
@@ -328,6 +328,8 @@ _if11_cond:
   je _if11_else
 _if11_true:
 ;; emit_byte(string_const[0], 0); 
+  mov b, $0
+  push bl
   mov d, _string_const_data ; $string_const
   push a
   push d
@@ -337,8 +339,6 @@ _if11_true:
   pop a
   mov bl, [d]
   mov bh, 0
-  push bl
-  mov b, $0
   push bl
   call emit_byte
   add sp, 2
@@ -373,10 +373,10 @@ _if12_cond:
   je _if12_exit
 _if12_true:
 ;; emit_byte(int_const, 0); 
+  mov b, $0
+  push bl
   mov d, _int_const ; $int_const
   mov b, [d]
-  push bl
-  mov b, $0
   push bl
   call emit_byte
   add sp, 2
@@ -472,6 +472,8 @@ _if16_cond:
   je _if16_else
 _if16_true:
 ;; emit_byte(string_const[0], 0); 
+  mov b, $0
+  push bl
   mov d, _string_const_data ; $string_const
   push a
   push d
@@ -481,8 +483,6 @@ _if16_true:
   pop a
   mov bl, [d]
   mov bh, 0
-  push bl
-  mov b, $0
   push bl
   call emit_byte
   add sp, 2
@@ -524,12 +524,12 @@ _if17_cond:
   je _if17_exit
 _if17_true:
 ;; emit_word(int_const, 0); 
+  mov b, $0
+  push bl
   mov d, _int_const ; $int_const
   mov b, [d]
   swp b
   push b
-  mov b, $0
-  push bl
   call emit_word
   add sp, 3
 ;; printx16(int_const); 
@@ -685,6 +685,10 @@ _if23_cond:
   je _if23_else
 _if23_true:
 ;; emit_byte(string_const[0], emit_override); 
+  lea d, [bp + 5] ; $emit_override
+  mov bl, [d]
+  mov bh, 0
+  push bl
   mov d, _string_const_data ; $string_const
   push a
   push d
@@ -692,10 +696,6 @@ _if23_true:
   pop d
   add d, b
   pop a
-  mov bl, [d]
-  mov bh, 0
-  push bl
-  lea d, [bp + 5] ; $emit_override
   mov bl, [d]
   mov bh, 0
   push bl
@@ -719,12 +719,12 @@ _if24_cond:
   je _if24_exit
 _if24_true:
 ;; emit_byte(int_const, emit_override); 
-  mov d, _int_const ; $int_const
-  mov b, [d]
-  push bl
   lea d, [bp + 5] ; $emit_override
   mov bl, [d]
   mov bh, 0
+  push bl
+  mov d, _int_const ; $int_const
+  mov b, [d]
   push bl
   call emit_byte
   add sp, 2
@@ -796,6 +796,10 @@ _if28_cond:
   je _if28_else
 _if28_true:
 ;; emit_byte(string_const[0], emit_override); 
+  lea d, [bp + 5] ; $emit_override
+  mov bl, [d]
+  mov bh, 0
+  push bl
   mov d, _string_const_data ; $string_const
   push a
   push d
@@ -806,18 +810,14 @@ _if28_true:
   mov bl, [d]
   mov bh, 0
   push bl
-  lea d, [bp + 5] ; $emit_override
-  mov bl, [d]
-  mov bh, 0
-  push bl
   call emit_byte
   add sp, 2
 ;; emit_byte(0, emit_override); 
-  mov b, $0
-  push bl
   lea d, [bp + 5] ; $emit_override
   mov bl, [d]
   mov bh, 0
+  push bl
+  mov b, $0
   push bl
   call emit_byte
   add sp, 2
@@ -839,12 +839,12 @@ _if29_cond:
   je _if29_exit
 _if29_true:
 ;; emit_word(int_const, 0); 
+  mov b, $0
+  push bl
   mov d, _int_const ; $int_const
   mov b, [d]
   swp b
   push b
-  mov b, $0
-  push bl
   call emit_word
   add sp, 3
   jmp _if29_exit
@@ -1080,14 +1080,14 @@ _for31_exit:
   call print
   add sp, 2
 ;; print_info2("Org: ", _org, "\n"); 
-  mov b, __s21 ; "Org: "
+  mov b, __s9 ; "\n"
   swp b
   push b
   mov d, __org ; $_org
   mov b, [d]
   swp b
   push b
-  mov b, __s9 ; "\n"
+  mov b, __s21 ; "Org: "
   swp b
   push b
   call print_info2
@@ -1215,11 +1215,11 @@ label_parse_instr:
 ;; push_prog(); 
   call push_prog
 ;; strcpy(code_line, string_const); 
-  lea d, [bp + -95] ; $code_line
+  mov d, _string_const_data ; $string_const
   mov b, d
   swp b
   push b
-  mov d, _string_const_data ; $string_const
+  lea d, [bp + -95] ; $code_line
   mov b, d
   swp b
   push b
@@ -1351,11 +1351,11 @@ _if41_true:
 ;; get(); 
   call get
 ;; strcpy(opcode, token); 
-  lea d, [bp + -31] ; $opcode
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $opcode
   mov b, d
   swp b
   push b
@@ -1379,11 +1379,11 @@ _if42_cond:
   je _if42_else
 _if42_true:
 ;; strcat(opcode, " ."); 
-  lea d, [bp + -31] ; $opcode
-  mov b, d
+  mov b, __s24 ; " ."
   swp b
   push b
-  mov b, __s24 ; " ."
+  lea d, [bp + -31] ; $opcode
+  mov b, d
   swp b
   push b
   call strcat
@@ -1391,21 +1391,21 @@ _if42_true:
   jmp _if42_exit
 _if42_else:
 ;; strcat(opcode, " "); 
-  lea d, [bp + -31] ; $opcode
-  mov b, d
+  mov b, __s25 ; " "
   swp b
   push b
-  mov b, __s25 ; " "
+  lea d, [bp + -31] ; $opcode
+  mov b, d
   swp b
   push b
   call strcat
   add sp, 4
 ;; strcat(opcode, token); 
-  lea d, [bp + -31] ; $opcode
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $opcode
   mov b, d
   swp b
   push b
@@ -1437,11 +1437,11 @@ _if44_true:
   jmp _if44_exit
 _if44_exit:
 ;; strcat(opcode, token); 
-  lea d, [bp + -31] ; $opcode
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $opcode
   mov b, d
   swp b
   push b
@@ -1600,11 +1600,11 @@ _if49_exit:
 ;; num_operandsexp = exp(2, num_operands); 
   lea d, [bp + -125] ; $num_operandsexp
   push d
-  mov b, $2
-  swp b
-  push b
   lea d, [bp + -123] ; $num_operands
   mov b, [d]
+  swp b
+  push b
+  mov b, $2
   swp b
   push b
   call exp
@@ -1643,22 +1643,22 @@ _for50_block:
 ;; get(); 
   call get
 ;; strcpy(opcode, token); 
-  lea d, [bp + -31] ; $opcode
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $opcode
   mov b, d
   swp b
   push b
   call strcpy
   add sp, 4
 ;; strcat(opcode, " "); 
-  lea d, [bp + -31] ; $opcode
-  mov b, d
+  mov b, __s25 ; " "
   swp b
   push b
-  mov b, __s25 ; " "
+  lea d, [bp + -31] ; $opcode
+  mov b, d
   swp b
   push b
   call strcat
@@ -1736,10 +1736,6 @@ _if53_cond:
   je _if53_else
 _if53_true:
 ;; strcat(opcode, symbols[i*2+j]); 
-  lea d, [bp + -31] ; $opcode
-  mov b, d
-  swp b
-  push b
   mov d, _symbols_data ; $symbols
   push a
   push d
@@ -1767,6 +1763,10 @@ _if53_true:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
+  swp b
+  push b
+  lea d, [bp + -31] ; $opcode
+  mov b, d
   swp b
   push b
   call strcat
@@ -1824,11 +1824,11 @@ _if53_true:
   jmp _if53_exit
 _if53_else:
 ;; strcat(opcode, token); 
-  lea d, [bp + -31] ; $opcode
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $opcode
   mov b, d
   swp b
   push b
@@ -2175,11 +2175,11 @@ parse_instr:
 ;; push_prog(); 
   call push_prog
 ;; strcpy(code_line, string_const); 
-  lea d, [bp + -95] ; $code_line
+  mov d, _string_const_data ; $string_const
   mov b, d
   swp b
   push b
-  mov d, _string_const_data ; $string_const
+  lea d, [bp + -95] ; $code_line
   mov b, d
   swp b
   push b
@@ -2304,11 +2304,11 @@ _if67_true:
 ;; get(); 
   call get
 ;; strcpy(opcode, token); 
-  lea d, [bp + -31] ; $opcode
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $opcode
   mov b, d
   swp b
   push b
@@ -2332,11 +2332,11 @@ _if68_cond:
   je _if68_else
 _if68_true:
 ;; strcat(opcode, " ."); 
-  lea d, [bp + -31] ; $opcode
-  mov b, d
+  mov b, __s24 ; " ."
   swp b
   push b
-  mov b, __s24 ; " ."
+  lea d, [bp + -31] ; $opcode
+  mov b, d
   swp b
   push b
   call strcat
@@ -2344,21 +2344,21 @@ _if68_true:
   jmp _if68_exit
 _if68_else:
 ;; strcat(opcode, " "); 
-  lea d, [bp + -31] ; $opcode
-  mov b, d
+  mov b, __s25 ; " "
   swp b
   push b
-  mov b, __s25 ; " "
+  lea d, [bp + -31] ; $opcode
+  mov b, d
   swp b
   push b
   call strcat
   add sp, 4
 ;; strcat(opcode, token); 
-  lea d, [bp + -31] ; $opcode
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $opcode
   mov b, d
   swp b
   push b
@@ -2390,11 +2390,11 @@ _if70_true:
   jmp _if70_exit
 _if70_exit:
 ;; strcat(opcode, token); 
-  lea d, [bp + -31] ; $opcode
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $opcode
   mov b, d
   swp b
   push b
@@ -2443,24 +2443,24 @@ _if71_true:
   mov [d], b
   mov b, g
 ;; emit_byte(0xFD, emit_override); 
-  mov b, $fd
-  push bl
   lea d, [bp + 5] ; $emit_override
   mov bl, [d]
   mov bh, 0
+  push bl
+  mov b, $fd
   push bl
   call emit_byte
   add sp, 2
   jmp _if71_exit
 _if71_exit:
 ;; emit_byte(op.opcode, emit_override); 
-  lea d, [bp + -121] ; $op
-  add d, 24
-  clb
+  lea d, [bp + 5] ; $emit_override
   mov bl, [d]
   mov bh, 0
   push bl
-  lea d, [bp + 5] ; $emit_override
+  lea d, [bp + -121] ; $op
+  add d, 24
+  clb
   mov bl, [d]
   mov bh, 0
   push bl
@@ -2622,11 +2622,11 @@ _if76_exit:
 ;; num_operandsexp = exp(2, num_operands); 
   lea d, [bp + -127] ; $num_operandsexp
   push d
-  mov b, $2
-  swp b
-  push b
   lea d, [bp + -125] ; $num_operands
   mov b, [d]
+  swp b
+  push b
+  mov b, $2
   swp b
   push b
   call exp
@@ -2665,22 +2665,22 @@ _for77_block:
 ;; get(); 
   call get
 ;; strcpy(opcode, token); 
-  lea d, [bp + -31] ; $opcode
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $opcode
   mov b, d
   swp b
   push b
   call strcpy
   add sp, 4
 ;; strcat(opcode, " "); 
-  lea d, [bp + -31] ; $opcode
-  mov b, d
+  mov b, __s25 ; " "
   swp b
   push b
-  mov b, __s25 ; " "
+  lea d, [bp + -31] ; $opcode
+  mov b, d
   swp b
   push b
   call strcat
@@ -2751,10 +2751,6 @@ _if80_cond:
   je _if80_else
 _if80_true:
 ;; strcat(opcode, symbols[i*2+j]); 
-  lea d, [bp + -31] ; $opcode
-  mov b, d
-  swp b
-  push b
   mov d, _symbols_data ; $symbols
   push a
   push d
@@ -2782,6 +2778,10 @@ _if80_true:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
+  swp b
+  push b
+  lea d, [bp + -31] ; $opcode
+  mov b, d
   swp b
   push b
   call strcat
@@ -2839,11 +2839,11 @@ _if80_true:
   jmp _if80_exit
 _if80_else:
 ;; strcat(opcode, token); 
-  lea d, [bp + -31] ; $opcode
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $opcode
   mov b, d
   swp b
   push b
@@ -2912,11 +2912,11 @@ _if82_cond:
   je _if82_exit
 _if82_true:
 ;; emit_byte(0xFD, emit_override); 
-  mov b, $fd
-  push bl
   lea d, [bp + 5] ; $emit_override
   mov bl, [d]
   mov bh, 0
+  push bl
+  mov b, $fd
   push bl
   call emit_byte
   add sp, 2
@@ -2931,13 +2931,13 @@ _if82_true:
   jmp _if82_exit
 _if82_exit:
 ;; emit_byte(op.opcode, emit_override); 
-  lea d, [bp + -121] ; $op
-  add d, 24
-  clb
+  lea d, [bp + 5] ; $emit_override
   mov bl, [d]
   mov bh, 0
   push bl
-  lea d, [bp + 5] ; $emit_override
+  lea d, [bp + -121] ; $op
+  add d, 24
+  clb
   mov bl, [d]
   mov bh, 0
   push bl
@@ -3073,6 +3073,10 @@ _if88_cond:
   je _if88_exit
 _if88_true:
 ;; emit_word(get_label_addr(token), emit_override); 
+  lea d, [bp + 5] ; $emit_override
+  mov bl, [d]
+  mov bh, 0
+  push bl
   mov d, _token_data ; $token
   mov b, d
   swp b
@@ -3081,10 +3085,6 @@ _if88_true:
   add sp, 2
   swp b
   push b
-  lea d, [bp + 5] ; $emit_override
-  mov bl, [d]
-  mov bh, 0
-  push bl
   call emit_word
   add sp, 3
 ;; instr_len = instr_len + 2; 
@@ -3129,11 +3129,11 @@ _if89_cond:
   je _if89_exit
 _if89_true:
 ;; error_s("Undeclared label: ", token); 
-  mov b, __s30 ; "Undeclared label: "
-  swp b
-  push b
   mov d, _token_data ; $token
   mov b, d
+  swp b
+  push b
+  mov b, __s30 ; "Undeclared label: "
   swp b
   push b
   call error_s
@@ -3182,12 +3182,12 @@ _if91_cond:
   je _if91_else
 _if91_true:
 ;; emit_byte(int_const, emit_override); 
-  mov d, _int_const ; $int_const
-  mov b, [d]
-  push bl
   lea d, [bp + 5] ; $emit_override
   mov bl, [d]
   mov bh, 0
+  push bl
+  mov d, _int_const ; $int_const
+  mov b, [d]
   push bl
   call emit_byte
   add sp, 2
@@ -3225,14 +3225,14 @@ _if92_cond:
   je _if92_exit
 _if92_true:
 ;; emit_word(int_const, emit_override); 
-  mov d, _int_const ; $int_const
-  mov b, [d]
-  swp b
-  push b
   lea d, [bp + 5] ; $emit_override
   mov bl, [d]
   mov bh, 0
   push bl
+  mov d, _int_const ; $int_const
+  mov b, [d]
+  swp b
+  push b
   call emit_word
   add sp, 3
 ;; instr_len = instr_len + 2; 
@@ -3739,14 +3739,14 @@ display_output:
   call print
   add sp, 2
 ;; print_info2("Program size: ", prog_size, "\n"); 
-  mov b, __s44 ; "Program size: "
+  mov b, __s9 ; "\n"
   swp b
   push b
   mov d, _prog_size ; $prog_size
   mov b, [d]
   swp b
   push b
-  mov b, __s9 ; "\n"
+  mov b, __s44 ; "Program size: "
   swp b
   push b
   call print_info2
@@ -3829,11 +3829,11 @@ _for103_exit:
 is_reserved:
   enter 0 ; (push bp; mov bp, sp)
 ;; return !strcmp(name, "a") 
-  lea d, [bp + 5] ; $name
-  mov b, [d]
+  mov b, __s46 ; "a"
   swp b
   push b
-  mov b, __s46 ; "a"
+  lea d, [bp + 5] ; $name
+  mov b, [d]
   swp b
   push b
   call strcmp
@@ -3842,310 +3842,310 @@ is_reserved:
   seq ; !
   push a
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s47 ; "al"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s48 ; "ah"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s49 ; "b"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s50 ; "bl"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s51 ; "bh"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s52 ; "c"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s53 ; "cl"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s54 ; "ch"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s55 ; "d"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s56 ; "dl"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s57 ; "dh"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s58 ; "g"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s59 ; "gl"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s60 ; "gh"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s61 ; "pc"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s62 ; "sp"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s63 ; "bp"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s64 ; "si"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s65 ; "di"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s66 ; "word"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s67 ; "byte"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s68 ; "cmpsb"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
-  swp b
-  push b
   mov b, __s69 ; "movsb"
   swp b
   push b
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   call strcmp
   add sp, 4
   cmp b, 0
   seq ; !
   sor a, b ; ||
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
+  mov b, __s70 ; "stosb"
   swp b
   push b
-  mov b, __s70 ; "stosb"
+  lea d, [bp + 5] ; $name
+  mov b, [d]
   swp b
   push b
   call strcmp
@@ -4160,11 +4160,11 @@ is_reserved:
 is_directive:
   enter 0 ; (push bp; mov bp, sp)
 ;; return !strcmp(name, "org")  
-  lea d, [bp + 5] ; $name
-  mov b, [d]
+  mov b, __s0 ; "org"
   swp b
   push b
-  mov b, __s0 ; "org"
+  lea d, [bp + 5] ; $name
+  mov b, [d]
   swp b
   push b
   call strcmp
@@ -4173,11 +4173,11 @@ is_directive:
   seq ; !
   push a
   mov a, b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
+  mov b, __s71 ; "define"
   swp b
   push b
-  mov b, __s71 ; "define"
+  lea d, [bp + 5] ; $name
+  mov b, [d]
   swp b
   push b
   call strcmp
@@ -4196,23 +4196,23 @@ parse_label:
 ;; get(); 
   call get
 ;; strcpy(label_name, token); 
-  lea d, [bp + -31] ; $label_name
+  mov d, _token_data ; $token
   mov b, d
   swp b
   push b
-  mov d, _token_data ; $token
+  lea d, [bp + -31] ; $label_name
   mov b, d
   swp b
   push b
   call strcpy
   add sp, 4
 ;; declare_label(label_name, pc); 
-  lea d, [bp + -31] ; $label_name
-  mov b, d
-  swp b
-  push b
   mov d, _pc ; $pc
   mov b, [d]
+  swp b
+  push b
+  lea d, [bp + -31] ; $label_name
+  mov b, d
   swp b
   push b
   call declare_label
@@ -4273,6 +4273,10 @@ _if106_cond:
   je _if106_exit
 _if106_true:
 ;; strcpy(label_table[i].name, name); 
+  lea d, [bp + 7] ; $name
+  mov b, [d]
+  swp b
+  push b
   mov d, _label_table_data ; $label_table
   push a
   push d
@@ -4284,10 +4288,6 @@ _if106_true:
   add d, 0
   clb
   mov b, d
-  swp b
-  push b
-  lea d, [bp + 7] ; $name
-  mov b, [d]
   swp b
   push b
   call strcpy
@@ -4355,6 +4355,10 @@ _for107_cond:
 _for107_block:
 ;; if(!strcmp(label_table[i].name, name)){ 
 _if108_cond:
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   mov d, _label_table_data ; $label_table
   push a
   push d
@@ -4366,10 +4370,6 @@ _if108_cond:
   add d, 0
   clb
   mov b, d
-  swp b
-  push b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
   swp b
   push b
   call strcmp
@@ -4406,11 +4406,11 @@ _for107_update:
   jmp _for107_cond
 _for107_exit:
 ;; error_s("Label does not exist: ", name); 
-  mov b, __s72 ; "Label does not exist: "
-  swp b
-  push b
   lea d, [bp + 5] ; $name
   mov b, [d]
+  swp b
+  push b
+  mov b, __s72 ; "Label does not exist: "
   swp b
   push b
   call error_s
@@ -4445,6 +4445,10 @@ _for109_cond:
 _for109_block:
 ;; if(!strcmp(label_table[i].name, name)){ 
 _if110_cond:
+  lea d, [bp + 5] ; $name
+  mov b, [d]
+  swp b
+  push b
   mov d, _label_table_data ; $label_table
   push a
   push d
@@ -4456,10 +4460,6 @@ _if110_cond:
   add d, 0
   clb
   mov b, d
-  swp b
-  push b
-  lea d, [bp + 5] ; $name
-  mov b, [d]
   swp b
   push b
   call strcmp
@@ -4710,12 +4710,12 @@ _while115_exit:
   mov [d], bl
 ;; if(!strcmp(opcode_str, what_opcode)){ 
 _if116_cond:
-  lea d, [bp + -23] ; $opcode_str
-  mov b, d
-  swp b
-  push b
   lea d, [bp + 5] ; $what_opcode
   mov b, [d]
+  swp b
+  push b
+  lea d, [bp + -23] ; $opcode_str
+  mov b, d
   swp b
   push b
   call strcmp
@@ -4726,14 +4726,14 @@ _if116_cond:
   je _if116_else
 _if116_true:
 ;; strcpy(return_opcode.name, what_opcode); 
+  lea d, [bp + 5] ; $what_opcode
+  mov b, [d]
+  swp b
+  push b
   lea d, [bp + -60] ; $return_opcode
   add d, 0
   clb
   mov b, d
-  swp b
-  push b
-  lea d, [bp + 5] ; $what_opcode
-  mov b, [d]
   swp b
   push b
   call strcpy
@@ -7644,6 +7644,10 @@ _for168_cond:
 _for168_block:
 ;; if (!strcmp(keywords[i].keyword, keyword)) return keywords[i].tok; 
 _if169_cond:
+  lea d, [bp + 5] ; $keyword
+  mov b, [d]
+  swp b
+  push b
   mov d, _keywords_data ; $keywords
   push a
   push d
@@ -7654,10 +7658,6 @@ _if169_cond:
   pop a
   add d, 0
   clb
-  mov b, [d]
-  swp b
-  push b
-  lea d, [bp + 5] ; $keyword
   mov b, [d]
   swp b
   push b

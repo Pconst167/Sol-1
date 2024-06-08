@@ -2112,53 +2112,12 @@ t_type parse___asm(){
   return expr_out;
 }
 
-
-
-// myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
-
-// function used for parsing function arguments.
-// this function rewinds "prog" from right to left until it meets a comma character, meaning that whatever comes after the comma is an argument expression
-// when the left-most argument is met, the separator is no longer a comma, but an opening parenthesis, so we need to keep track of
-// the number of parenthesis inside the function header because there could be expressions containing parenthesis there as well.
-// todo: problem will arise if there are escaped double quotes \" inside any double quoted string arguments
-void goto_beginning_of_arg(int parenthesis_count){
-  for(;;){
-    if(*prog == '\"'){
-      prog--;
-      while(*prog != '\"'){
-        prog--;
-        if(prog == c_in) error("Unterminated string.");
-      }
-    }
-    else if(*prog == ')') parenthesis_count++;
-    else if(*prog == '('){
-      parenthesis_count--;
-      if(parenthesis_count == 0){
-        prog++; // skip the parenthesis 
-        push_prog(); // save the current prog position so that we can go back to it when finished parsing this argument
-        break;
-      }
-    }
-    else if(*prog == ','){
-      prog--; // go back one position to the left to skip the comma char, for the next iteration
-      push_prog(); // save the current prog position so that we can go back to it when finished parsing this argument
-      prog += 2; // go forwards to skip the comma in order to parse the expression
-      break;
-    }
-    prog--;
-  }
-}
-
 //  so the fixed args will be pushed closer to where BP points, because in order to calculate the BP
 //  offset for those arguments, we need a known reference from BP. if we pushed the var args closer to BP than
 //  the fixed args, it would not match with the way the BP offsets are calculated in the function declaration.
 //  so from BP, we push the fixed arguments so that their offsets are known and match the declaration.
 //  after that, we push the variable arguments on addresses above the ones for the fixed args.
-//  notice the order in which they are pushed: we push fixed1 at a higher address than fixed2, ...etc
-//  and then we push var1 at the highest address, then var2 at a lower address, and so on.
-//  this order doesnt matter as long as we remember it when trying to access the variable arguments in C code.
 //
-//  new way:
 //  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
 //  var3
 //  var2

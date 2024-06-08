@@ -66,21 +66,21 @@
 0046   044D E7            pop d
 0047   044E FD 43         mov [d], b
 0048   0450             ;; loadfile(0x0000, program); 
-0049   0450 26 00 00      mov b, $0
-0050   0453 FD AB         swp b
-0051   0455 D8            push b
-0052   0456 3B 7E 3F      mov d, _program ; $program
-0053   0459 2A            mov b, [d]
+0049   0450 3B 7E 3F      mov d, _program ; $program
+0050   0453 2A            mov b, [d]
+0051   0454 FD AB         swp b
+0052   0456 D8            push b
+0053   0457 26 00 00      mov b, $0
 0054   045A FD AB         swp b
 0055   045C D8            push b
 0056   045D 07 19 36      call loadfile
 0057   0460 51 04 00      add sp, 4
 0058   0463             ;; loadfile("./config.d/op_tbl", opcode_table); 
-0059   0463 26 D4 3F      mov b, __s10 ; "./config.d/op_tbl"
-0060   0466 FD AB         swp b
-0061   0468 D8            push b
-0062   0469 3B 84 3F      mov d, _opcode_table ; $opcode_table
-0063   046C 2A            mov b, [d]
+0059   0463 3B 84 3F      mov d, _opcode_table ; $opcode_table
+0060   0466 2A            mov b, [d]
+0061   0467 FD AB         swp b
+0062   0469 D8            push b
+0063   046A 26 D4 3F      mov b, __s10 ; "./config.d/op_tbl"
 0064   046D FD AB         swp b
 0065   046F D8            push b
 0066   0470 07 19 36      call loadfile
@@ -348,17 +348,17 @@
 0328   05E5 C6 19 06      je _if11_else
 0329   05E8             _if11_true:
 0330   05E8             ;; emit_byte(string_const[0], 0); 
-0331   05E8 3B 7C 3E      mov d, _string_const_data ; $string_const
-0332   05EB D7            push a
-0333   05EC DA            push d
-0334   05ED 26 00 00      mov b, $0
-0335   05F0 E7            pop d
-0336   05F1 5A            add d, b
-0337   05F2 E4            pop a
-0338   05F3 32            mov bl, [d]
-0339   05F4 A7 00         mov bh, 0
-0340   05F6 DD            push bl
-0341   05F7 26 00 00      mov b, $0
+0331   05E8 26 00 00      mov b, $0
+0332   05EB DD            push bl
+0333   05EC 3B 7C 3E      mov d, _string_const_data ; $string_const
+0334   05EF D7            push a
+0335   05F0 DA            push d
+0336   05F1 26 00 00      mov b, $0
+0337   05F4 E7            pop d
+0338   05F5 5A            add d, b
+0339   05F6 E4            pop a
+0340   05F7 32            mov bl, [d]
+0341   05F8 A7 00         mov bh, 0
 0342   05FA DD            push bl
 0343   05FB 07 8F 22      call emit_byte
 0344   05FE 51 02 00      add sp, 2
@@ -393,10 +393,10 @@
 0373   0629 C6 49 06      je _if12_exit
 0374   062C             _if12_true:
 0375   062C             ;; emit_byte(int_const, 0); 
-0376   062C 3B 7C 3F      mov d, _int_const ; $int_const
-0377   062F 2A            mov b, [d]
-0378   0630 DD            push bl
-0379   0631 26 00 00      mov b, $0
+0376   062C 26 00 00      mov b, $0
+0377   062F DD            push bl
+0378   0630 3B 7C 3F      mov d, _int_const ; $int_const
+0379   0633 2A            mov b, [d]
 0380   0634 DD            push bl
 0381   0635 07 8F 22      call emit_byte
 0382   0638 51 02 00      add sp, 2
@@ -492,17 +492,17 @@
 0472   06B8 C6 FA 06      je _if16_else
 0473   06BB             _if16_true:
 0474   06BB             ;; emit_byte(string_const[0], 0); 
-0475   06BB 3B 7C 3E      mov d, _string_const_data ; $string_const
-0476   06BE D7            push a
-0477   06BF DA            push d
-0478   06C0 26 00 00      mov b, $0
-0479   06C3 E7            pop d
-0480   06C4 5A            add d, b
-0481   06C5 E4            pop a
-0482   06C6 32            mov bl, [d]
-0483   06C7 A7 00         mov bh, 0
-0484   06C9 DD            push bl
-0485   06CA 26 00 00      mov b, $0
+0475   06BB 26 00 00      mov b, $0
+0476   06BE DD            push bl
+0477   06BF 3B 7C 3E      mov d, _string_const_data ; $string_const
+0478   06C2 D7            push a
+0479   06C3 DA            push d
+0480   06C4 26 00 00      mov b, $0
+0481   06C7 E7            pop d
+0482   06C8 5A            add d, b
+0483   06C9 E4            pop a
+0484   06CA 32            mov bl, [d]
+0485   06CB A7 00         mov bh, 0
 0486   06CD DD            push bl
 0487   06CE 07 8F 22      call emit_byte
 0488   06D1 51 02 00      add sp, 2
@@ -544,12 +544,12 @@
 0524   070A C6 2E 07      je _if17_exit
 0525   070D             _if17_true:
 0526   070D             ;; emit_word(int_const, 0); 
-0527   070D 3B 7C 3F      mov d, _int_const ; $int_const
-0528   0710 2A            mov b, [d]
-0529   0711 FD AB         swp b
-0530   0713 D8            push b
-0531   0714 26 00 00      mov b, $0
-0532   0717 DD            push bl
+0527   070D 26 00 00      mov b, $0
+0528   0710 DD            push bl
+0529   0711 3B 7C 3F      mov d, _int_const ; $int_const
+0530   0714 2A            mov b, [d]
+0531   0715 FD AB         swp b
+0532   0717 D8            push b
 0533   0718 07 C0 22      call emit_word
 0534   071B 51 03 00      add sp, 3
 0535   071E             ;; printx16(int_const); 
@@ -705,17 +705,17 @@
 0685   07EE C6 10 08      je _if23_else
 0686   07F1             _if23_true:
 0687   07F1             ;; emit_byte(string_const[0], emit_override); 
-0688   07F1 3B 7C 3E      mov d, _string_const_data ; $string_const
-0689   07F4 D7            push a
-0690   07F5 DA            push d
-0691   07F6 26 00 00      mov b, $0
-0692   07F9 E7            pop d
-0693   07FA 5A            add d, b
-0694   07FB E4            pop a
-0695   07FC 32            mov bl, [d]
-0696   07FD A7 00         mov bh, 0
-0697   07FF DD            push bl
-0698   0800 FA 05 00      lea d, [bp + 5] ; $emit_override
+0688   07F1 FA 05 00      lea d, [bp + 5] ; $emit_override
+0689   07F4 32            mov bl, [d]
+0690   07F5 A7 00         mov bh, 0
+0691   07F7 DD            push bl
+0692   07F8 3B 7C 3E      mov d, _string_const_data ; $string_const
+0693   07FB D7            push a
+0694   07FC DA            push d
+0695   07FD 26 00 00      mov b, $0
+0696   0800 E7            pop d
+0697   0801 5A            add d, b
+0698   0802 E4            pop a
 0699   0803 32            mov bl, [d]
 0700   0804 A7 00         mov bh, 0
 0701   0806 DD            push bl
@@ -739,12 +739,12 @@
 0719   0820 C6 38 08      je _if24_exit
 0720   0823             _if24_true:
 0721   0823             ;; emit_byte(int_const, emit_override); 
-0722   0823 3B 7C 3F      mov d, _int_const ; $int_const
-0723   0826 2A            mov b, [d]
-0724   0827 DD            push bl
-0725   0828 FA 05 00      lea d, [bp + 5] ; $emit_override
-0726   082B 32            mov bl, [d]
-0727   082C A7 00         mov bh, 0
+0722   0823 FA 05 00      lea d, [bp + 5] ; $emit_override
+0723   0826 32            mov bl, [d]
+0724   0827 A7 00         mov bh, 0
+0725   0829 DD            push bl
+0726   082A 3B 7C 3F      mov d, _int_const ; $int_const
+0727   082D 2A            mov b, [d]
 0728   082E DD            push bl
 0729   082F 07 8F 22      call emit_byte
 0730   0832 51 02 00      add sp, 2
@@ -816,28 +816,28 @@
 0796   0883 C6 B6 08      je _if28_else
 0797   0886             _if28_true:
 0798   0886             ;; emit_byte(string_const[0], emit_override); 
-0799   0886 3B 7C 3E      mov d, _string_const_data ; $string_const
-0800   0889 D7            push a
-0801   088A DA            push d
-0802   088B 26 00 00      mov b, $0
-0803   088E E7            pop d
-0804   088F 5A            add d, b
-0805   0890 E4            pop a
-0806   0891 32            mov bl, [d]
-0807   0892 A7 00         mov bh, 0
-0808   0894 DD            push bl
-0809   0895 FA 05 00      lea d, [bp + 5] ; $emit_override
+0799   0886 FA 05 00      lea d, [bp + 5] ; $emit_override
+0800   0889 32            mov bl, [d]
+0801   088A A7 00         mov bh, 0
+0802   088C DD            push bl
+0803   088D 3B 7C 3E      mov d, _string_const_data ; $string_const
+0804   0890 D7            push a
+0805   0891 DA            push d
+0806   0892 26 00 00      mov b, $0
+0807   0895 E7            pop d
+0808   0896 5A            add d, b
+0809   0897 E4            pop a
 0810   0898 32            mov bl, [d]
 0811   0899 A7 00         mov bh, 0
 0812   089B DD            push bl
 0813   089C 07 8F 22      call emit_byte
 0814   089F 51 02 00      add sp, 2
 0815   08A2             ;; emit_byte(0, emit_override); 
-0816   08A2 26 00 00      mov b, $0
-0817   08A5 DD            push bl
-0818   08A6 FA 05 00      lea d, [bp + 5] ; $emit_override
-0819   08A9 32            mov bl, [d]
-0820   08AA A7 00         mov bh, 0
+0816   08A2 FA 05 00      lea d, [bp + 5] ; $emit_override
+0817   08A5 32            mov bl, [d]
+0818   08A6 A7 00         mov bh, 0
+0819   08A8 DD            push bl
+0820   08A9 26 00 00      mov b, $0
 0821   08AC DD            push bl
 0822   08AD 07 8F 22      call emit_byte
 0823   08B0 51 02 00      add sp, 2
@@ -859,12 +859,12 @@
 0839   08C6 C6 DD 08      je _if29_exit
 0840   08C9             _if29_true:
 0841   08C9             ;; emit_word(int_const, 0); 
-0842   08C9 3B 7C 3F      mov d, _int_const ; $int_const
-0843   08CC 2A            mov b, [d]
-0844   08CD FD AB         swp b
-0845   08CF D8            push b
-0846   08D0 26 00 00      mov b, $0
-0847   08D3 DD            push bl
+0842   08C9 26 00 00      mov b, $0
+0843   08CC DD            push bl
+0844   08CD 3B 7C 3F      mov d, _int_const ; $int_const
+0845   08D0 2A            mov b, [d]
+0846   08D1 FD AB         swp b
+0847   08D3 D8            push b
 0848   08D4 07 C0 22      call emit_word
 0849   08D7 51 03 00      add sp, 3
 0850   08DA 0A DD 08      jmp _if29_exit
@@ -1100,14 +1100,14 @@
 1080   0A1C 07 0C 36      call print
 1081   0A1F 51 02 00      add sp, 2
 1082   0A22             ;; print_info2("Org: ", _org, "\n"); 
-1083   0A22 26 85 40      mov b, __s21 ; "Org: "
+1083   0A22 26 D2 3F      mov b, __s9 ; "\n"
 1084   0A25 FD AB         swp b
 1085   0A27 D8            push b
 1086   0A28 3B 31 3E      mov d, __org ; $_org
 1087   0A2B 2A            mov b, [d]
 1088   0A2C FD AB         swp b
 1089   0A2E D8            push b
-1090   0A2F 26 D2 3F      mov b, __s9 ; "\n"
+1090   0A2F 26 85 40      mov b, __s21 ; "Org: "
 1091   0A32 FD AB         swp b
 1092   0A34 D8            push b
 1093   0A35 07 75 1F      call print_info2
@@ -1235,11 +1235,11 @@
 1215   0AFE             ;; push_prog(); 
 1216   0AFE 07 86 31      call push_prog
 1217   0B01             ;; strcpy(code_line, string_const); 
-1218   0B01 FA A1 FF      lea d, [bp + -95] ; $code_line
+1218   0B01 3B 7C 3E      mov d, _string_const_data ; $string_const
 1219   0B04 2D            mov b, d
 1220   0B05 FD AB         swp b
 1221   0B07 D8            push b
-1222   0B08 3B 7C 3E      mov d, _string_const_data ; $string_const
+1222   0B08 FA A1 FF      lea d, [bp + -95] ; $code_line
 1223   0B0B 2D            mov b, d
 1224   0B0C FD AB         swp b
 1225   0B0E D8            push b
@@ -1371,11 +1371,11 @@
 1351   0BC6             ;; get(); 
 1352   0BC6 07 AE 25      call get
 1353   0BC9             ;; strcpy(opcode, token); 
-1354   0BC9 FA E1 FF      lea d, [bp + -31] ; $opcode
+1354   0BC9 3B 3C 3E      mov d, _token_data ; $token
 1355   0BCC 2D            mov b, d
 1356   0BCD FD AB         swp b
 1357   0BCF D8            push b
-1358   0BD0 3B 3C 3E      mov d, _token_data ; $token
+1358   0BD0 FA E1 FF      lea d, [bp + -31] ; $opcode
 1359   0BD3 2D            mov b, d
 1360   0BD4 FD AB         swp b
 1361   0BD6 D8            push b
@@ -1399,11 +1399,11 @@
 1379   0BF0 C6 09 0C      je _if42_else
 1380   0BF3             _if42_true:
 1381   0BF3             ;; strcat(opcode, " ."); 
-1382   0BF3 FA E1 FF      lea d, [bp + -31] ; $opcode
-1383   0BF6 2D            mov b, d
-1384   0BF7 FD AB         swp b
-1385   0BF9 D8            push b
-1386   0BFA 26 9D 40      mov b, __s24 ; " ."
+1382   0BF3 26 9D 40      mov b, __s24 ; " ."
+1383   0BF6 FD AB         swp b
+1384   0BF8 D8            push b
+1385   0BF9 FA E1 FF      lea d, [bp + -31] ; $opcode
+1386   0BFC 2D            mov b, d
 1387   0BFD FD AB         swp b
 1388   0BFF D8            push b
 1389   0C00 07 95 37      call strcat
@@ -1411,21 +1411,21 @@
 1391   0C06 0A 63 0C      jmp _if42_exit
 1392   0C09             _if42_else:
 1393   0C09             ;; strcat(opcode, " "); 
-1394   0C09 FA E1 FF      lea d, [bp + -31] ; $opcode
-1395   0C0C 2D            mov b, d
-1396   0C0D FD AB         swp b
-1397   0C0F D8            push b
-1398   0C10 26 A0 40      mov b, __s25 ; " "
+1394   0C09 26 A0 40      mov b, __s25 ; " "
+1395   0C0C FD AB         swp b
+1396   0C0E D8            push b
+1397   0C0F FA E1 FF      lea d, [bp + -31] ; $opcode
+1398   0C12 2D            mov b, d
 1399   0C13 FD AB         swp b
 1400   0C15 D8            push b
 1401   0C16 07 95 37      call strcat
 1402   0C19 51 04 00      add sp, 4
 1403   0C1C             ;; strcat(opcode, token); 
-1404   0C1C FA E1 FF      lea d, [bp + -31] ; $opcode
+1404   0C1C 3B 3C 3E      mov d, _token_data ; $token
 1405   0C1F 2D            mov b, d
 1406   0C20 FD AB         swp b
 1407   0C22 D8            push b
-1408   0C23 3B 3C 3E      mov d, _token_data ; $token
+1408   0C23 FA E1 FF      lea d, [bp + -31] ; $opcode
 1409   0C26 2D            mov b, d
 1410   0C27 FD AB         swp b
 1411   0C29 D8            push b
@@ -1457,11 +1457,11 @@
 1437   0C49 0A 4C 0C      jmp _if44_exit
 1438   0C4C             _if44_exit:
 1439   0C4C             ;; strcat(opcode, token); 
-1440   0C4C FA E1 FF      lea d, [bp + -31] ; $opcode
+1440   0C4C 3B 3C 3E      mov d, _token_data ; $token
 1441   0C4F 2D            mov b, d
 1442   0C50 FD AB         swp b
 1443   0C52 D8            push b
-1444   0C53 3B 3C 3E      mov d, _token_data ; $token
+1444   0C53 FA E1 FF      lea d, [bp + -31] ; $opcode
 1445   0C56 2D            mov b, d
 1446   0C57 FD AB         swp b
 1447   0C59 D8            push b
@@ -1620,11 +1620,11 @@
 1600   0D42             ;; num_operandsexp = exp(2, num_operands); 
 1601   0D42 FA 83 FF      lea d, [bp + -125] ; $num_operandsexp
 1602   0D45 DA            push d
-1603   0D46 26 02 00      mov b, $2
-1604   0D49 FD AB         swp b
-1605   0D4B D8            push b
-1606   0D4C FA 85 FF      lea d, [bp + -123] ; $num_operands
-1607   0D4F 2A            mov b, [d]
+1603   0D46 FA 85 FF      lea d, [bp + -123] ; $num_operands
+1604   0D49 2A            mov b, [d]
+1605   0D4A FD AB         swp b
+1606   0D4C D8            push b
+1607   0D4D 26 02 00      mov b, $2
 1608   0D50 FD AB         swp b
 1609   0D52 D8            push b
 1610   0D53 07 72 36      call exp
@@ -1663,22 +1663,22 @@
 1643   0D85             ;; get(); 
 1644   0D85 07 AE 25      call get
 1645   0D88             ;; strcpy(opcode, token); 
-1646   0D88 FA E1 FF      lea d, [bp + -31] ; $opcode
+1646   0D88 3B 3C 3E      mov d, _token_data ; $token
 1647   0D8B 2D            mov b, d
 1648   0D8C FD AB         swp b
 1649   0D8E D8            push b
-1650   0D8F 3B 3C 3E      mov d, _token_data ; $token
+1650   0D8F FA E1 FF      lea d, [bp + -31] ; $opcode
 1651   0D92 2D            mov b, d
 1652   0D93 FD AB         swp b
 1653   0D95 D8            push b
 1654   0D96 07 C9 36      call strcpy
 1655   0D99 51 04 00      add sp, 4
 1656   0D9C             ;; strcat(opcode, " "); 
-1657   0D9C FA E1 FF      lea d, [bp + -31] ; $opcode
-1658   0D9F 2D            mov b, d
-1659   0DA0 FD AB         swp b
-1660   0DA2 D8            push b
-1661   0DA3 26 A0 40      mov b, __s25 ; " "
+1657   0D9C 26 A0 40      mov b, __s25 ; " "
+1658   0D9F FD AB         swp b
+1659   0DA1 D8            push b
+1660   0DA2 FA E1 FF      lea d, [bp + -31] ; $opcode
+1661   0DA5 2D            mov b, d
 1662   0DA6 FD AB         swp b
 1663   0DA8 D8            push b
 1664   0DA9 07 95 37      call strcat
@@ -1756,37 +1756,37 @@
 1736   0E0E C6 8B 0E      je _if53_else
 1737   0E11             _if53_true:
 1738   0E11             ;; strcat(opcode, symbols[i*2+j]); 
-1739   0E11 FA E1 FF      lea d, [bp + -31] ; $opcode
-1740   0E14 2D            mov b, d
-1741   0E15 FD AB         swp b
-1742   0E17 D8            push b
-1743   0E18 3B 9E 3F      mov d, _symbols_data ; $symbols
-1744   0E1B D7            push a
-1745   0E1C DA            push d
-1746   0E1D FA 81 FF      lea d, [bp + -127] ; $i
-1747   0E20 2A            mov b, [d]
-1748   0E21             ; START FACTORS
-1749   0E21 D7            push a
-1750   0E22 11            mov a, b
-1751   0E23 26 02 00      mov b, $2
-1752   0E26 AC            mul a, b ; *
-1753   0E27 11            mov a, b
-1754   0E28 27            mov b, a
-1755   0E29 E4            pop a
-1756   0E2A             ; END FACTORS
-1757   0E2A             ; START TERMS
-1758   0E2A D7            push a
-1759   0E2B 11            mov a, b
-1760   0E2C FA 7F FF      lea d, [bp + -129] ; $j
-1761   0E2F 2A            mov b, [d]
-1762   0E30 54            add a, b
-1763   0E31 27            mov b, a
-1764   0E32 E4            pop a
-1765   0E33             ; END TERMS
-1766   0E33 E7            pop d
-1767   0E34 FD 13 02 00   mma 2 ; mov a, 2; mul a, b; add d, b
-1768   0E38 E4            pop a
-1769   0E39 2A            mov b, [d]
+1739   0E11 3B 9E 3F      mov d, _symbols_data ; $symbols
+1740   0E14 D7            push a
+1741   0E15 DA            push d
+1742   0E16 FA 81 FF      lea d, [bp + -127] ; $i
+1743   0E19 2A            mov b, [d]
+1744   0E1A             ; START FACTORS
+1745   0E1A D7            push a
+1746   0E1B 11            mov a, b
+1747   0E1C 26 02 00      mov b, $2
+1748   0E1F AC            mul a, b ; *
+1749   0E20 11            mov a, b
+1750   0E21 27            mov b, a
+1751   0E22 E4            pop a
+1752   0E23             ; END FACTORS
+1753   0E23             ; START TERMS
+1754   0E23 D7            push a
+1755   0E24 11            mov a, b
+1756   0E25 FA 7F FF      lea d, [bp + -129] ; $j
+1757   0E28 2A            mov b, [d]
+1758   0E29 54            add a, b
+1759   0E2A 27            mov b, a
+1760   0E2B E4            pop a
+1761   0E2C             ; END TERMS
+1762   0E2C E7            pop d
+1763   0E2D FD 13 02 00   mma 2 ; mov a, 2; mul a, b; add d, b
+1764   0E31 E4            pop a
+1765   0E32 2A            mov b, [d]
+1766   0E33 FD AB         swp b
+1767   0E35 D8            push b
+1768   0E36 FA E1 FF      lea d, [bp + -31] ; $opcode
+1769   0E39 2D            mov b, d
 1770   0E3A FD AB         swp b
 1771   0E3C D8            push b
 1772   0E3D 07 95 37      call strcat
@@ -1844,11 +1844,11 @@
 1824   0E88 0A 9F 0E      jmp _if53_exit
 1825   0E8B             _if53_else:
 1826   0E8B             ;; strcat(opcode, token); 
-1827   0E8B FA E1 FF      lea d, [bp + -31] ; $opcode
+1827   0E8B 3B 3C 3E      mov d, _token_data ; $token
 1828   0E8E 2D            mov b, d
 1829   0E8F FD AB         swp b
 1830   0E91 D8            push b
-1831   0E92 3B 3C 3E      mov d, _token_data ; $token
+1831   0E92 FA E1 FF      lea d, [bp + -31] ; $opcode
 1832   0E95 2D            mov b, d
 1833   0E96 FD AB         swp b
 1834   0E98 D8            push b
@@ -2195,11 +2195,11 @@
 2175   1081             ;; push_prog(); 
 2176   1081 07 86 31      call push_prog
 2177   1084             ;; strcpy(code_line, string_const); 
-2178   1084 FA A1 FF      lea d, [bp + -95] ; $code_line
+2178   1084 3B 7C 3E      mov d, _string_const_data ; $string_const
 2179   1087 2D            mov b, d
 2180   1088 FD AB         swp b
 2181   108A D8            push b
-2182   108B 3B 7C 3E      mov d, _string_const_data ; $string_const
+2182   108B FA A1 FF      lea d, [bp + -95] ; $code_line
 2183   108E 2D            mov b, d
 2184   108F FD AB         swp b
 2185   1091 D8            push b
@@ -2324,11 +2324,11 @@
 2304   113D             ;; get(); 
 2305   113D 07 AE 25      call get
 2306   1140             ;; strcpy(opcode, token); 
-2307   1140 FA E1 FF      lea d, [bp + -31] ; $opcode
+2307   1140 3B 3C 3E      mov d, _token_data ; $token
 2308   1143 2D            mov b, d
 2309   1144 FD AB         swp b
 2310   1146 D8            push b
-2311   1147 3B 3C 3E      mov d, _token_data ; $token
+2311   1147 FA E1 FF      lea d, [bp + -31] ; $opcode
 2312   114A 2D            mov b, d
 2313   114B FD AB         swp b
 2314   114D D8            push b
@@ -2352,11 +2352,11 @@
 2332   1167 C6 80 11      je _if68_else
 2333   116A             _if68_true:
 2334   116A             ;; strcat(opcode, " ."); 
-2335   116A FA E1 FF      lea d, [bp + -31] ; $opcode
-2336   116D 2D            mov b, d
-2337   116E FD AB         swp b
-2338   1170 D8            push b
-2339   1171 26 9D 40      mov b, __s24 ; " ."
+2335   116A 26 9D 40      mov b, __s24 ; " ."
+2336   116D FD AB         swp b
+2337   116F D8            push b
+2338   1170 FA E1 FF      lea d, [bp + -31] ; $opcode
+2339   1173 2D            mov b, d
 2340   1174 FD AB         swp b
 2341   1176 D8            push b
 2342   1177 07 95 37      call strcat
@@ -2364,21 +2364,21 @@
 2344   117D 0A DA 11      jmp _if68_exit
 2345   1180             _if68_else:
 2346   1180             ;; strcat(opcode, " "); 
-2347   1180 FA E1 FF      lea d, [bp + -31] ; $opcode
-2348   1183 2D            mov b, d
-2349   1184 FD AB         swp b
-2350   1186 D8            push b
-2351   1187 26 A0 40      mov b, __s25 ; " "
+2347   1180 26 A0 40      mov b, __s25 ; " "
+2348   1183 FD AB         swp b
+2349   1185 D8            push b
+2350   1186 FA E1 FF      lea d, [bp + -31] ; $opcode
+2351   1189 2D            mov b, d
 2352   118A FD AB         swp b
 2353   118C D8            push b
 2354   118D 07 95 37      call strcat
 2355   1190 51 04 00      add sp, 4
 2356   1193             ;; strcat(opcode, token); 
-2357   1193 FA E1 FF      lea d, [bp + -31] ; $opcode
+2357   1193 3B 3C 3E      mov d, _token_data ; $token
 2358   1196 2D            mov b, d
 2359   1197 FD AB         swp b
 2360   1199 D8            push b
-2361   119A 3B 3C 3E      mov d, _token_data ; $token
+2361   119A FA E1 FF      lea d, [bp + -31] ; $opcode
 2362   119D 2D            mov b, d
 2363   119E FD AB         swp b
 2364   11A0 D8            push b
@@ -2410,11 +2410,11 @@
 2390   11C0 0A C3 11      jmp _if70_exit
 2391   11C3             _if70_exit:
 2392   11C3             ;; strcat(opcode, token); 
-2393   11C3 FA E1 FF      lea d, [bp + -31] ; $opcode
+2393   11C3 3B 3C 3E      mov d, _token_data ; $token
 2394   11C6 2D            mov b, d
 2395   11C7 FD AB         swp b
 2396   11C9 D8            push b
-2397   11CA 3B 3C 3E      mov d, _token_data ; $token
+2397   11CA FA E1 FF      lea d, [bp + -31] ; $opcode
 2398   11CD 2D            mov b, d
 2399   11CE FD AB         swp b
 2400   11D0 D8            push b
@@ -2463,24 +2463,24 @@
 2443   121B FD 43         mov [d], b
 2444   121D FD 27         mov b, g
 2445   121F             ;; emit_byte(0xFD, emit_override); 
-2446   121F 26 FD 00      mov b, $fd
-2447   1222 DD            push bl
-2448   1223 FA 05 00      lea d, [bp + 5] ; $emit_override
-2449   1226 32            mov bl, [d]
-2450   1227 A7 00         mov bh, 0
+2446   121F FA 05 00      lea d, [bp + 5] ; $emit_override
+2447   1222 32            mov bl, [d]
+2448   1223 A7 00         mov bh, 0
+2449   1225 DD            push bl
+2450   1226 26 FD 00      mov b, $fd
 2451   1229 DD            push bl
 2452   122A 07 8F 22      call emit_byte
 2453   122D 51 02 00      add sp, 2
 2454   1230 0A 33 12      jmp _if71_exit
 2455   1233             _if71_exit:
 2456   1233             ;; emit_byte(op.opcode, emit_override); 
-2457   1233 FA 87 FF      lea d, [bp + -121] ; $op
-2458   1236 58 18 00      add d, 24
-2459   1239 FD 14         clb
-2460   123B 32            mov bl, [d]
-2461   123C A7 00         mov bh, 0
-2462   123E DD            push bl
-2463   123F FA 05 00      lea d, [bp + 5] ; $emit_override
+2457   1233 FA 05 00      lea d, [bp + 5] ; $emit_override
+2458   1236 32            mov bl, [d]
+2459   1237 A7 00         mov bh, 0
+2460   1239 DD            push bl
+2461   123A FA 87 FF      lea d, [bp + -121] ; $op
+2462   123D 58 18 00      add d, 24
+2463   1240 FD 14         clb
 2464   1242 32            mov bl, [d]
 2465   1243 A7 00         mov bh, 0
 2466   1245 DD            push bl
@@ -2642,11 +2642,11 @@
 2622   1339             ;; num_operandsexp = exp(2, num_operands); 
 2623   1339 FA 81 FF      lea d, [bp + -127] ; $num_operandsexp
 2624   133C DA            push d
-2625   133D 26 02 00      mov b, $2
-2626   1340 FD AB         swp b
-2627   1342 D8            push b
-2628   1343 FA 83 FF      lea d, [bp + -125] ; $num_operands
-2629   1346 2A            mov b, [d]
+2625   133D FA 83 FF      lea d, [bp + -125] ; $num_operands
+2626   1340 2A            mov b, [d]
+2627   1341 FD AB         swp b
+2628   1343 D8            push b
+2629   1344 26 02 00      mov b, $2
 2630   1347 FD AB         swp b
 2631   1349 D8            push b
 2632   134A 07 72 36      call exp
@@ -2685,22 +2685,22 @@
 2665   137C             ;; get(); 
 2666   137C 07 AE 25      call get
 2667   137F             ;; strcpy(opcode, token); 
-2668   137F FA E1 FF      lea d, [bp + -31] ; $opcode
+2668   137F 3B 3C 3E      mov d, _token_data ; $token
 2669   1382 2D            mov b, d
 2670   1383 FD AB         swp b
 2671   1385 D8            push b
-2672   1386 3B 3C 3E      mov d, _token_data ; $token
+2672   1386 FA E1 FF      lea d, [bp + -31] ; $opcode
 2673   1389 2D            mov b, d
 2674   138A FD AB         swp b
 2675   138C D8            push b
 2676   138D 07 C9 36      call strcpy
 2677   1390 51 04 00      add sp, 4
 2678   1393             ;; strcat(opcode, " "); 
-2679   1393 FA E1 FF      lea d, [bp + -31] ; $opcode
-2680   1396 2D            mov b, d
-2681   1397 FD AB         swp b
-2682   1399 D8            push b
-2683   139A 26 A0 40      mov b, __s25 ; " "
+2679   1393 26 A0 40      mov b, __s25 ; " "
+2680   1396 FD AB         swp b
+2681   1398 D8            push b
+2682   1399 FA E1 FF      lea d, [bp + -31] ; $opcode
+2683   139C 2D            mov b, d
 2684   139D FD AB         swp b
 2685   139F D8            push b
 2686   13A0 07 95 37      call strcat
@@ -2771,37 +2771,37 @@
 2751   13F9 C6 76 14      je _if80_else
 2752   13FC             _if80_true:
 2753   13FC             ;; strcat(opcode, symbols[i*2+j]); 
-2754   13FC FA E1 FF      lea d, [bp + -31] ; $opcode
-2755   13FF 2D            mov b, d
-2756   1400 FD AB         swp b
-2757   1402 D8            push b
-2758   1403 3B 9E 3F      mov d, _symbols_data ; $symbols
-2759   1406 D7            push a
-2760   1407 DA            push d
-2761   1408 FA 7F FF      lea d, [bp + -129] ; $i
-2762   140B 2A            mov b, [d]
-2763   140C             ; START FACTORS
-2764   140C D7            push a
-2765   140D 11            mov a, b
-2766   140E 26 02 00      mov b, $2
-2767   1411 AC            mul a, b ; *
-2768   1412 11            mov a, b
-2769   1413 27            mov b, a
-2770   1414 E4            pop a
-2771   1415             ; END FACTORS
-2772   1415             ; START TERMS
-2773   1415 D7            push a
-2774   1416 11            mov a, b
-2775   1417 FA 7D FF      lea d, [bp + -131] ; $j
-2776   141A 2A            mov b, [d]
-2777   141B 54            add a, b
-2778   141C 27            mov b, a
-2779   141D E4            pop a
-2780   141E             ; END TERMS
-2781   141E E7            pop d
-2782   141F FD 13 02 00   mma 2 ; mov a, 2; mul a, b; add d, b
-2783   1423 E4            pop a
-2784   1424 2A            mov b, [d]
+2754   13FC 3B 9E 3F      mov d, _symbols_data ; $symbols
+2755   13FF D7            push a
+2756   1400 DA            push d
+2757   1401 FA 7F FF      lea d, [bp + -129] ; $i
+2758   1404 2A            mov b, [d]
+2759   1405             ; START FACTORS
+2760   1405 D7            push a
+2761   1406 11            mov a, b
+2762   1407 26 02 00      mov b, $2
+2763   140A AC            mul a, b ; *
+2764   140B 11            mov a, b
+2765   140C 27            mov b, a
+2766   140D E4            pop a
+2767   140E             ; END FACTORS
+2768   140E             ; START TERMS
+2769   140E D7            push a
+2770   140F 11            mov a, b
+2771   1410 FA 7D FF      lea d, [bp + -131] ; $j
+2772   1413 2A            mov b, [d]
+2773   1414 54            add a, b
+2774   1415 27            mov b, a
+2775   1416 E4            pop a
+2776   1417             ; END TERMS
+2777   1417 E7            pop d
+2778   1418 FD 13 02 00   mma 2 ; mov a, 2; mul a, b; add d, b
+2779   141C E4            pop a
+2780   141D 2A            mov b, [d]
+2781   141E FD AB         swp b
+2782   1420 D8            push b
+2783   1421 FA E1 FF      lea d, [bp + -31] ; $opcode
+2784   1424 2D            mov b, d
 2785   1425 FD AB         swp b
 2786   1427 D8            push b
 2787   1428 07 95 37      call strcat
@@ -2859,11 +2859,11 @@
 2839   1473 0A 8A 14      jmp _if80_exit
 2840   1476             _if80_else:
 2841   1476             ;; strcat(opcode, token); 
-2842   1476 FA E1 FF      lea d, [bp + -31] ; $opcode
+2842   1476 3B 3C 3E      mov d, _token_data ; $token
 2843   1479 2D            mov b, d
 2844   147A FD AB         swp b
 2845   147C D8            push b
-2846   147D 3B 3C 3E      mov d, _token_data ; $token
+2846   147D FA E1 FF      lea d, [bp + -31] ; $opcode
 2847   1480 2D            mov b, d
 2848   1481 FD AB         swp b
 2849   1483 D8            push b
@@ -2932,11 +2932,11 @@
 2912   14E8 C6 0E 15      je _if82_exit
 2913   14EB             _if82_true:
 2914   14EB             ;; emit_byte(0xFD, emit_override); 
-2915   14EB 26 FD 00      mov b, $fd
-2916   14EE DD            push bl
-2917   14EF FA 05 00      lea d, [bp + 5] ; $emit_override
-2918   14F2 32            mov bl, [d]
-2919   14F3 A7 00         mov bh, 0
+2915   14EB FA 05 00      lea d, [bp + 5] ; $emit_override
+2916   14EE 32            mov bl, [d]
+2917   14EF A7 00         mov bh, 0
+2918   14F1 DD            push bl
+2919   14F2 26 FD 00      mov b, $fd
 2920   14F5 DD            push bl
 2921   14F6 07 8F 22      call emit_byte
 2922   14F9 51 02 00      add sp, 2
@@ -2951,13 +2951,13 @@
 2931   150B 0A 0E 15      jmp _if82_exit
 2932   150E             _if82_exit:
 2933   150E             ;; emit_byte(op.opcode, emit_override); 
-2934   150E FA 87 FF      lea d, [bp + -121] ; $op
-2935   1511 58 18 00      add d, 24
-2936   1514 FD 14         clb
-2937   1516 32            mov bl, [d]
-2938   1517 A7 00         mov bh, 0
-2939   1519 DD            push bl
-2940   151A FA 05 00      lea d, [bp + 5] ; $emit_override
+2934   150E FA 05 00      lea d, [bp + 5] ; $emit_override
+2935   1511 32            mov bl, [d]
+2936   1512 A7 00         mov bh, 0
+2937   1514 DD            push bl
+2938   1515 FA 87 FF      lea d, [bp + -121] ; $op
+2939   1518 58 18 00      add d, 24
+2940   151B FD 14         clb
 2941   151D 32            mov bl, [d]
 2942   151E A7 00         mov bh, 0
 2943   1520 DD            push bl
@@ -3093,18 +3093,18 @@
 3073   15D4 C6 0A 16      je _if88_exit
 3074   15D7             _if88_true:
 3075   15D7             ;; emit_word(get_label_addr(token), emit_override); 
-3076   15D7 3B 3C 3E      mov d, _token_data ; $token
-3077   15DA 2D            mov b, d
-3078   15DB FD AB         swp b
-3079   15DD D8            push b
-3080   15DE 07 31 1E      call get_label_addr
-3081   15E1 51 02 00      add sp, 2
-3082   15E4 FD AB         swp b
-3083   15E6 D8            push b
-3084   15E7 FA 05 00      lea d, [bp + 5] ; $emit_override
-3085   15EA 32            mov bl, [d]
-3086   15EB A7 00         mov bh, 0
-3087   15ED DD            push bl
+3076   15D7 FA 05 00      lea d, [bp + 5] ; $emit_override
+3077   15DA 32            mov bl, [d]
+3078   15DB A7 00         mov bh, 0
+3079   15DD DD            push bl
+3080   15DE 3B 3C 3E      mov d, _token_data ; $token
+3081   15E1 2D            mov b, d
+3082   15E2 FD AB         swp b
+3083   15E4 D8            push b
+3084   15E5 07 31 1E      call get_label_addr
+3085   15E8 51 02 00      add sp, 2
+3086   15EB FD AB         swp b
+3087   15ED D8            push b
 3088   15EE 07 C0 22      call emit_word
 3089   15F1 51 03 00      add sp, 3
 3090   15F4             ;; instr_len = instr_len + 2; 
@@ -3149,11 +3149,11 @@
 3129   1631 C6 4A 16      je _if89_exit
 3130   1634             _if89_true:
 3131   1634             ;; error_s("Undeclared label: ", token); 
-3132   1634 26 08 41      mov b, __s30 ; "Undeclared label: "
-3133   1637 FD AB         swp b
-3134   1639 D8            push b
-3135   163A 3B 3C 3E      mov d, _token_data ; $token
-3136   163D 2D            mov b, d
+3132   1634 3B 3C 3E      mov d, _token_data ; $token
+3133   1637 2D            mov b, d
+3134   1638 FD AB         swp b
+3135   163A D8            push b
+3136   163B 26 08 41      mov b, __s30 ; "Undeclared label: "
 3137   163E FD AB         swp b
 3138   1640 D8            push b
 3139   1641 07 4C 31      call error_s
@@ -3202,12 +3202,12 @@
 3182   167B C6 A2 16      je _if91_else
 3183   167E             _if91_true:
 3184   167E             ;; emit_byte(int_const, emit_override); 
-3185   167E 3B 7C 3F      mov d, _int_const ; $int_const
-3186   1681 2A            mov b, [d]
-3187   1682 DD            push bl
-3188   1683 FA 05 00      lea d, [bp + 5] ; $emit_override
-3189   1686 32            mov bl, [d]
-3190   1687 A7 00         mov bh, 0
+3185   167E FA 05 00      lea d, [bp + 5] ; $emit_override
+3186   1681 32            mov bl, [d]
+3187   1682 A7 00         mov bh, 0
+3188   1684 DD            push bl
+3189   1685 3B 7C 3F      mov d, _int_const ; $int_const
+3190   1688 2A            mov b, [d]
 3191   1689 DD            push bl
 3192   168A 07 8F 22      call emit_byte
 3193   168D 51 02 00      add sp, 2
@@ -3245,14 +3245,14 @@
 3225   16BD C6 EA 16      je _if92_exit
 3226   16C0             _if92_true:
 3227   16C0             ;; emit_word(int_const, emit_override); 
-3228   16C0 3B 7C 3F      mov d, _int_const ; $int_const
-3229   16C3 2A            mov b, [d]
-3230   16C4 FD AB         swp b
-3231   16C6 D8            push b
-3232   16C7 FA 05 00      lea d, [bp + 5] ; $emit_override
-3233   16CA 32            mov bl, [d]
-3234   16CB A7 00         mov bh, 0
-3235   16CD DD            push bl
+3228   16C0 FA 05 00      lea d, [bp + 5] ; $emit_override
+3229   16C3 32            mov bl, [d]
+3230   16C4 A7 00         mov bh, 0
+3231   16C6 DD            push bl
+3232   16C7 3B 7C 3F      mov d, _int_const ; $int_const
+3233   16CA 2A            mov b, [d]
+3234   16CB FD AB         swp b
+3235   16CD D8            push b
 3236   16CE 07 C0 22      call emit_word
 3237   16D1 51 03 00      add sp, 3
 3238   16D4             ;; instr_len = instr_len + 2; 
@@ -3759,14 +3759,14 @@
 3739   19E7 07 0C 36      call print
 3740   19EA 51 02 00      add sp, 2
 3741   19ED             ;; print_info2("Program size: ", prog_size, "\n"); 
-3742   19ED 26 F4 41      mov b, __s44 ; "Program size: "
+3742   19ED 26 D2 3F      mov b, __s9 ; "\n"
 3743   19F0 FD AB         swp b
 3744   19F2 D8            push b
 3745   19F3 3B 9C 3F      mov d, _prog_size ; $prog_size
 3746   19F6 2A            mov b, [d]
 3747   19F7 FD AB         swp b
 3748   19F9 D8            push b
-3749   19FA 26 D2 3F      mov b, __s9 ; "\n"
+3749   19FA 26 F4 41      mov b, __s44 ; "Program size: "
 3750   19FD FD AB         swp b
 3751   19FF D8            push b
 3752   1A00 07 75 1F      call print_info2
@@ -3849,11 +3849,11 @@
 3829   1A6F             is_reserved:
 3830   1A6F F8 00 00      enter 0 ; (push bp; mov bp, sp)
 3831   1A72             ;; return !strcmp(name, "a") 
-3832   1A72 FA 05 00      lea d, [bp + 5] ; $name
-3833   1A75 2A            mov b, [d]
-3834   1A76 FD AB         swp b
-3835   1A78 D8            push b
-3836   1A79 26 0E 42      mov b, __s46 ; "a"
+3832   1A72 26 0E 42      mov b, __s46 ; "a"
+3833   1A75 FD AB         swp b
+3834   1A77 D8            push b
+3835   1A78 FA 05 00      lea d, [bp + 5] ; $name
+3836   1A7B 2A            mov b, [d]
 3837   1A7C FD AB         swp b
 3838   1A7E D8            push b
 3839   1A7F 07 31 37      call strcmp
@@ -3862,11 +3862,11 @@
 3842   1A88 FD 71         seq ; !
 3843   1A8A D7            push a
 3844   1A8B 11            mov a, b
-3845   1A8C FA 05 00      lea d, [bp + 5] ; $name
-3846   1A8F 2A            mov b, [d]
-3847   1A90 FD AB         swp b
-3848   1A92 D8            push b
-3849   1A93 26 10 42      mov b, __s47 ; "al"
+3845   1A8C 26 10 42      mov b, __s47 ; "al"
+3846   1A8F FD AB         swp b
+3847   1A91 D8            push b
+3848   1A92 FA 05 00      lea d, [bp + 5] ; $name
+3849   1A95 2A            mov b, [d]
 3850   1A96 FD AB         swp b
 3851   1A98 D8            push b
 3852   1A99 07 31 37      call strcmp
@@ -3875,11 +3875,11 @@
 3855   1AA2 FD 71         seq ; !
 3856   1AA4 FD A8         sor a, b ; ||
 3857   1AA6 11            mov a, b
-3858   1AA7 FA 05 00      lea d, [bp + 5] ; $name
-3859   1AAA 2A            mov b, [d]
-3860   1AAB FD AB         swp b
-3861   1AAD D8            push b
-3862   1AAE 26 13 42      mov b, __s48 ; "ah"
+3858   1AA7 26 13 42      mov b, __s48 ; "ah"
+3859   1AAA FD AB         swp b
+3860   1AAC D8            push b
+3861   1AAD FA 05 00      lea d, [bp + 5] ; $name
+3862   1AB0 2A            mov b, [d]
 3863   1AB1 FD AB         swp b
 3864   1AB3 D8            push b
 3865   1AB4 07 31 37      call strcmp
@@ -3888,11 +3888,11 @@
 3868   1ABD FD 71         seq ; !
 3869   1ABF FD A8         sor a, b ; ||
 3870   1AC1 11            mov a, b
-3871   1AC2 FA 05 00      lea d, [bp + 5] ; $name
-3872   1AC5 2A            mov b, [d]
-3873   1AC6 FD AB         swp b
-3874   1AC8 D8            push b
-3875   1AC9 26 16 42      mov b, __s49 ; "b"
+3871   1AC2 26 16 42      mov b, __s49 ; "b"
+3872   1AC5 FD AB         swp b
+3873   1AC7 D8            push b
+3874   1AC8 FA 05 00      lea d, [bp + 5] ; $name
+3875   1ACB 2A            mov b, [d]
 3876   1ACC FD AB         swp b
 3877   1ACE D8            push b
 3878   1ACF 07 31 37      call strcmp
@@ -3901,11 +3901,11 @@
 3881   1AD8 FD 71         seq ; !
 3882   1ADA FD A8         sor a, b ; ||
 3883   1ADC 11            mov a, b
-3884   1ADD FA 05 00      lea d, [bp + 5] ; $name
-3885   1AE0 2A            mov b, [d]
-3886   1AE1 FD AB         swp b
-3887   1AE3 D8            push b
-3888   1AE4 26 18 42      mov b, __s50 ; "bl"
+3884   1ADD 26 18 42      mov b, __s50 ; "bl"
+3885   1AE0 FD AB         swp b
+3886   1AE2 D8            push b
+3887   1AE3 FA 05 00      lea d, [bp + 5] ; $name
+3888   1AE6 2A            mov b, [d]
 3889   1AE7 FD AB         swp b
 3890   1AE9 D8            push b
 3891   1AEA 07 31 37      call strcmp
@@ -3914,11 +3914,11 @@
 3894   1AF3 FD 71         seq ; !
 3895   1AF5 FD A8         sor a, b ; ||
 3896   1AF7 11            mov a, b
-3897   1AF8 FA 05 00      lea d, [bp + 5] ; $name
-3898   1AFB 2A            mov b, [d]
-3899   1AFC FD AB         swp b
-3900   1AFE D8            push b
-3901   1AFF 26 1B 42      mov b, __s51 ; "bh"
+3897   1AF8 26 1B 42      mov b, __s51 ; "bh"
+3898   1AFB FD AB         swp b
+3899   1AFD D8            push b
+3900   1AFE FA 05 00      lea d, [bp + 5] ; $name
+3901   1B01 2A            mov b, [d]
 3902   1B02 FD AB         swp b
 3903   1B04 D8            push b
 3904   1B05 07 31 37      call strcmp
@@ -3927,11 +3927,11 @@
 3907   1B0E FD 71         seq ; !
 3908   1B10 FD A8         sor a, b ; ||
 3909   1B12 11            mov a, b
-3910   1B13 FA 05 00      lea d, [bp + 5] ; $name
-3911   1B16 2A            mov b, [d]
-3912   1B17 FD AB         swp b
-3913   1B19 D8            push b
-3914   1B1A 26 1E 42      mov b, __s52 ; "c"
+3910   1B13 26 1E 42      mov b, __s52 ; "c"
+3911   1B16 FD AB         swp b
+3912   1B18 D8            push b
+3913   1B19 FA 05 00      lea d, [bp + 5] ; $name
+3914   1B1C 2A            mov b, [d]
 3915   1B1D FD AB         swp b
 3916   1B1F D8            push b
 3917   1B20 07 31 37      call strcmp
@@ -3940,11 +3940,11 @@
 3920   1B29 FD 71         seq ; !
 3921   1B2B FD A8         sor a, b ; ||
 3922   1B2D 11            mov a, b
-3923   1B2E FA 05 00      lea d, [bp + 5] ; $name
-3924   1B31 2A            mov b, [d]
-3925   1B32 FD AB         swp b
-3926   1B34 D8            push b
-3927   1B35 26 20 42      mov b, __s53 ; "cl"
+3923   1B2E 26 20 42      mov b, __s53 ; "cl"
+3924   1B31 FD AB         swp b
+3925   1B33 D8            push b
+3926   1B34 FA 05 00      lea d, [bp + 5] ; $name
+3927   1B37 2A            mov b, [d]
 3928   1B38 FD AB         swp b
 3929   1B3A D8            push b
 3930   1B3B 07 31 37      call strcmp
@@ -3953,11 +3953,11 @@
 3933   1B44 FD 71         seq ; !
 3934   1B46 FD A8         sor a, b ; ||
 3935   1B48 11            mov a, b
-3936   1B49 FA 05 00      lea d, [bp + 5] ; $name
-3937   1B4C 2A            mov b, [d]
-3938   1B4D FD AB         swp b
-3939   1B4F D8            push b
-3940   1B50 26 23 42      mov b, __s54 ; "ch"
+3936   1B49 26 23 42      mov b, __s54 ; "ch"
+3937   1B4C FD AB         swp b
+3938   1B4E D8            push b
+3939   1B4F FA 05 00      lea d, [bp + 5] ; $name
+3940   1B52 2A            mov b, [d]
 3941   1B53 FD AB         swp b
 3942   1B55 D8            push b
 3943   1B56 07 31 37      call strcmp
@@ -3966,11 +3966,11 @@
 3946   1B5F FD 71         seq ; !
 3947   1B61 FD A8         sor a, b ; ||
 3948   1B63 11            mov a, b
-3949   1B64 FA 05 00      lea d, [bp + 5] ; $name
-3950   1B67 2A            mov b, [d]
-3951   1B68 FD AB         swp b
-3952   1B6A D8            push b
-3953   1B6B 26 26 42      mov b, __s55 ; "d"
+3949   1B64 26 26 42      mov b, __s55 ; "d"
+3950   1B67 FD AB         swp b
+3951   1B69 D8            push b
+3952   1B6A FA 05 00      lea d, [bp + 5] ; $name
+3953   1B6D 2A            mov b, [d]
 3954   1B6E FD AB         swp b
 3955   1B70 D8            push b
 3956   1B71 07 31 37      call strcmp
@@ -3979,11 +3979,11 @@
 3959   1B7A FD 71         seq ; !
 3960   1B7C FD A8         sor a, b ; ||
 3961   1B7E 11            mov a, b
-3962   1B7F FA 05 00      lea d, [bp + 5] ; $name
-3963   1B82 2A            mov b, [d]
-3964   1B83 FD AB         swp b
-3965   1B85 D8            push b
-3966   1B86 26 28 42      mov b, __s56 ; "dl"
+3962   1B7F 26 28 42      mov b, __s56 ; "dl"
+3963   1B82 FD AB         swp b
+3964   1B84 D8            push b
+3965   1B85 FA 05 00      lea d, [bp + 5] ; $name
+3966   1B88 2A            mov b, [d]
 3967   1B89 FD AB         swp b
 3968   1B8B D8            push b
 3969   1B8C 07 31 37      call strcmp
@@ -3992,11 +3992,11 @@
 3972   1B95 FD 71         seq ; !
 3973   1B97 FD A8         sor a, b ; ||
 3974   1B99 11            mov a, b
-3975   1B9A FA 05 00      lea d, [bp + 5] ; $name
-3976   1B9D 2A            mov b, [d]
-3977   1B9E FD AB         swp b
-3978   1BA0 D8            push b
-3979   1BA1 26 2B 42      mov b, __s57 ; "dh"
+3975   1B9A 26 2B 42      mov b, __s57 ; "dh"
+3976   1B9D FD AB         swp b
+3977   1B9F D8            push b
+3978   1BA0 FA 05 00      lea d, [bp + 5] ; $name
+3979   1BA3 2A            mov b, [d]
 3980   1BA4 FD AB         swp b
 3981   1BA6 D8            push b
 3982   1BA7 07 31 37      call strcmp
@@ -4005,11 +4005,11 @@
 3985   1BB0 FD 71         seq ; !
 3986   1BB2 FD A8         sor a, b ; ||
 3987   1BB4 11            mov a, b
-3988   1BB5 FA 05 00      lea d, [bp + 5] ; $name
-3989   1BB8 2A            mov b, [d]
-3990   1BB9 FD AB         swp b
-3991   1BBB D8            push b
-3992   1BBC 26 2E 42      mov b, __s58 ; "g"
+3988   1BB5 26 2E 42      mov b, __s58 ; "g"
+3989   1BB8 FD AB         swp b
+3990   1BBA D8            push b
+3991   1BBB FA 05 00      lea d, [bp + 5] ; $name
+3992   1BBE 2A            mov b, [d]
 3993   1BBF FD AB         swp b
 3994   1BC1 D8            push b
 3995   1BC2 07 31 37      call strcmp
@@ -4018,11 +4018,11 @@
 3998   1BCB FD 71         seq ; !
 3999   1BCD FD A8         sor a, b ; ||
 4000   1BCF 11            mov a, b
-4001   1BD0 FA 05 00      lea d, [bp + 5] ; $name
-4002   1BD3 2A            mov b, [d]
-4003   1BD4 FD AB         swp b
-4004   1BD6 D8            push b
-4005   1BD7 26 30 42      mov b, __s59 ; "gl"
+4001   1BD0 26 30 42      mov b, __s59 ; "gl"
+4002   1BD3 FD AB         swp b
+4003   1BD5 D8            push b
+4004   1BD6 FA 05 00      lea d, [bp + 5] ; $name
+4005   1BD9 2A            mov b, [d]
 4006   1BDA FD AB         swp b
 4007   1BDC D8            push b
 4008   1BDD 07 31 37      call strcmp
@@ -4031,11 +4031,11 @@
 4011   1BE6 FD 71         seq ; !
 4012   1BE8 FD A8         sor a, b ; ||
 4013   1BEA 11            mov a, b
-4014   1BEB FA 05 00      lea d, [bp + 5] ; $name
-4015   1BEE 2A            mov b, [d]
-4016   1BEF FD AB         swp b
-4017   1BF1 D8            push b
-4018   1BF2 26 33 42      mov b, __s60 ; "gh"
+4014   1BEB 26 33 42      mov b, __s60 ; "gh"
+4015   1BEE FD AB         swp b
+4016   1BF0 D8            push b
+4017   1BF1 FA 05 00      lea d, [bp + 5] ; $name
+4018   1BF4 2A            mov b, [d]
 4019   1BF5 FD AB         swp b
 4020   1BF7 D8            push b
 4021   1BF8 07 31 37      call strcmp
@@ -4044,11 +4044,11 @@
 4024   1C01 FD 71         seq ; !
 4025   1C03 FD A8         sor a, b ; ||
 4026   1C05 11            mov a, b
-4027   1C06 FA 05 00      lea d, [bp + 5] ; $name
-4028   1C09 2A            mov b, [d]
-4029   1C0A FD AB         swp b
-4030   1C0C D8            push b
-4031   1C0D 26 36 42      mov b, __s61 ; "pc"
+4027   1C06 26 36 42      mov b, __s61 ; "pc"
+4028   1C09 FD AB         swp b
+4029   1C0B D8            push b
+4030   1C0C FA 05 00      lea d, [bp + 5] ; $name
+4031   1C0F 2A            mov b, [d]
 4032   1C10 FD AB         swp b
 4033   1C12 D8            push b
 4034   1C13 07 31 37      call strcmp
@@ -4057,11 +4057,11 @@
 4037   1C1C FD 71         seq ; !
 4038   1C1E FD A8         sor a, b ; ||
 4039   1C20 11            mov a, b
-4040   1C21 FA 05 00      lea d, [bp + 5] ; $name
-4041   1C24 2A            mov b, [d]
-4042   1C25 FD AB         swp b
-4043   1C27 D8            push b
-4044   1C28 26 39 42      mov b, __s62 ; "sp"
+4040   1C21 26 39 42      mov b, __s62 ; "sp"
+4041   1C24 FD AB         swp b
+4042   1C26 D8            push b
+4043   1C27 FA 05 00      lea d, [bp + 5] ; $name
+4044   1C2A 2A            mov b, [d]
 4045   1C2B FD AB         swp b
 4046   1C2D D8            push b
 4047   1C2E 07 31 37      call strcmp
@@ -4070,11 +4070,11 @@
 4050   1C37 FD 71         seq ; !
 4051   1C39 FD A8         sor a, b ; ||
 4052   1C3B 11            mov a, b
-4053   1C3C FA 05 00      lea d, [bp + 5] ; $name
-4054   1C3F 2A            mov b, [d]
-4055   1C40 FD AB         swp b
-4056   1C42 D8            push b
-4057   1C43 26 3C 42      mov b, __s63 ; "bp"
+4053   1C3C 26 3C 42      mov b, __s63 ; "bp"
+4054   1C3F FD AB         swp b
+4055   1C41 D8            push b
+4056   1C42 FA 05 00      lea d, [bp + 5] ; $name
+4057   1C45 2A            mov b, [d]
 4058   1C46 FD AB         swp b
 4059   1C48 D8            push b
 4060   1C49 07 31 37      call strcmp
@@ -4083,11 +4083,11 @@
 4063   1C52 FD 71         seq ; !
 4064   1C54 FD A8         sor a, b ; ||
 4065   1C56 11            mov a, b
-4066   1C57 FA 05 00      lea d, [bp + 5] ; $name
-4067   1C5A 2A            mov b, [d]
-4068   1C5B FD AB         swp b
-4069   1C5D D8            push b
-4070   1C5E 26 3F 42      mov b, __s64 ; "si"
+4066   1C57 26 3F 42      mov b, __s64 ; "si"
+4067   1C5A FD AB         swp b
+4068   1C5C D8            push b
+4069   1C5D FA 05 00      lea d, [bp + 5] ; $name
+4070   1C60 2A            mov b, [d]
 4071   1C61 FD AB         swp b
 4072   1C63 D8            push b
 4073   1C64 07 31 37      call strcmp
@@ -4096,11 +4096,11 @@
 4076   1C6D FD 71         seq ; !
 4077   1C6F FD A8         sor a, b ; ||
 4078   1C71 11            mov a, b
-4079   1C72 FA 05 00      lea d, [bp + 5] ; $name
-4080   1C75 2A            mov b, [d]
-4081   1C76 FD AB         swp b
-4082   1C78 D8            push b
-4083   1C79 26 42 42      mov b, __s65 ; "di"
+4079   1C72 26 42 42      mov b, __s65 ; "di"
+4080   1C75 FD AB         swp b
+4081   1C77 D8            push b
+4082   1C78 FA 05 00      lea d, [bp + 5] ; $name
+4083   1C7B 2A            mov b, [d]
 4084   1C7C FD AB         swp b
 4085   1C7E D8            push b
 4086   1C7F 07 31 37      call strcmp
@@ -4109,11 +4109,11 @@
 4089   1C88 FD 71         seq ; !
 4090   1C8A FD A8         sor a, b ; ||
 4091   1C8C 11            mov a, b
-4092   1C8D FA 05 00      lea d, [bp + 5] ; $name
-4093   1C90 2A            mov b, [d]
-4094   1C91 FD AB         swp b
-4095   1C93 D8            push b
-4096   1C94 26 45 42      mov b, __s66 ; "word"
+4092   1C8D 26 45 42      mov b, __s66 ; "word"
+4093   1C90 FD AB         swp b
+4094   1C92 D8            push b
+4095   1C93 FA 05 00      lea d, [bp + 5] ; $name
+4096   1C96 2A            mov b, [d]
 4097   1C97 FD AB         swp b
 4098   1C99 D8            push b
 4099   1C9A 07 31 37      call strcmp
@@ -4122,11 +4122,11 @@
 4102   1CA3 FD 71         seq ; !
 4103   1CA5 FD A8         sor a, b ; ||
 4104   1CA7 11            mov a, b
-4105   1CA8 FA 05 00      lea d, [bp + 5] ; $name
-4106   1CAB 2A            mov b, [d]
-4107   1CAC FD AB         swp b
-4108   1CAE D8            push b
-4109   1CAF 26 4A 42      mov b, __s67 ; "byte"
+4105   1CA8 26 4A 42      mov b, __s67 ; "byte"
+4106   1CAB FD AB         swp b
+4107   1CAD D8            push b
+4108   1CAE FA 05 00      lea d, [bp + 5] ; $name
+4109   1CB1 2A            mov b, [d]
 4110   1CB2 FD AB         swp b
 4111   1CB4 D8            push b
 4112   1CB5 07 31 37      call strcmp
@@ -4135,11 +4135,11 @@
 4115   1CBE FD 71         seq ; !
 4116   1CC0 FD A8         sor a, b ; ||
 4117   1CC2 11            mov a, b
-4118   1CC3 FA 05 00      lea d, [bp + 5] ; $name
-4119   1CC6 2A            mov b, [d]
-4120   1CC7 FD AB         swp b
-4121   1CC9 D8            push b
-4122   1CCA 26 4F 42      mov b, __s68 ; "cmpsb"
+4118   1CC3 26 4F 42      mov b, __s68 ; "cmpsb"
+4119   1CC6 FD AB         swp b
+4120   1CC8 D8            push b
+4121   1CC9 FA 05 00      lea d, [bp + 5] ; $name
+4122   1CCC 2A            mov b, [d]
 4123   1CCD FD AB         swp b
 4124   1CCF D8            push b
 4125   1CD0 07 31 37      call strcmp
@@ -4148,11 +4148,11 @@
 4128   1CD9 FD 71         seq ; !
 4129   1CDB FD A8         sor a, b ; ||
 4130   1CDD 11            mov a, b
-4131   1CDE FA 05 00      lea d, [bp + 5] ; $name
-4132   1CE1 2A            mov b, [d]
-4133   1CE2 FD AB         swp b
-4134   1CE4 D8            push b
-4135   1CE5 26 55 42      mov b, __s69 ; "movsb"
+4131   1CDE 26 55 42      mov b, __s69 ; "movsb"
+4132   1CE1 FD AB         swp b
+4133   1CE3 D8            push b
+4134   1CE4 FA 05 00      lea d, [bp + 5] ; $name
+4135   1CE7 2A            mov b, [d]
 4136   1CE8 FD AB         swp b
 4137   1CEA D8            push b
 4138   1CEB 07 31 37      call strcmp
@@ -4161,11 +4161,11 @@
 4141   1CF4 FD 71         seq ; !
 4142   1CF6 FD A8         sor a, b ; ||
 4143   1CF8 11            mov a, b
-4144   1CF9 FA 05 00      lea d, [bp + 5] ; $name
-4145   1CFC 2A            mov b, [d]
-4146   1CFD FD AB         swp b
-4147   1CFF D8            push b
-4148   1D00 26 5B 42      mov b, __s70 ; "stosb"
+4144   1CF9 26 5B 42      mov b, __s70 ; "stosb"
+4145   1CFC FD AB         swp b
+4146   1CFE D8            push b
+4147   1CFF FA 05 00      lea d, [bp + 5] ; $name
+4148   1D02 2A            mov b, [d]
 4149   1D03 FD AB         swp b
 4150   1D05 D8            push b
 4151   1D06 07 31 37      call strcmp
@@ -4180,11 +4180,11 @@
 4160   1D16             is_directive:
 4161   1D16 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 4162   1D19             ;; return !strcmp(name, "org")  
-4163   1D19 FA 05 00      lea d, [bp + 5] ; $name
-4164   1D1C 2A            mov b, [d]
-4165   1D1D FD AB         swp b
-4166   1D1F D8            push b
-4167   1D20 26 AE 3F      mov b, __s0 ; "org"
+4163   1D19 26 AE 3F      mov b, __s0 ; "org"
+4164   1D1C FD AB         swp b
+4165   1D1E D8            push b
+4166   1D1F FA 05 00      lea d, [bp + 5] ; $name
+4167   1D22 2A            mov b, [d]
 4168   1D23 FD AB         swp b
 4169   1D25 D8            push b
 4170   1D26 07 31 37      call strcmp
@@ -4193,11 +4193,11 @@
 4173   1D2F FD 71         seq ; !
 4174   1D31 D7            push a
 4175   1D32 11            mov a, b
-4176   1D33 FA 05 00      lea d, [bp + 5] ; $name
-4177   1D36 2A            mov b, [d]
-4178   1D37 FD AB         swp b
-4179   1D39 D8            push b
-4180   1D3A 26 61 42      mov b, __s71 ; "define"
+4176   1D33 26 61 42      mov b, __s71 ; "define"
+4177   1D36 FD AB         swp b
+4178   1D38 D8            push b
+4179   1D39 FA 05 00      lea d, [bp + 5] ; $name
+4180   1D3C 2A            mov b, [d]
 4181   1D3D FD AB         swp b
 4182   1D3F D8            push b
 4183   1D40 07 31 37      call strcmp
@@ -4216,23 +4216,23 @@
 4196   1D56             ;; get(); 
 4197   1D56 07 AE 25      call get
 4198   1D59             ;; strcpy(label_name, token); 
-4199   1D59 FA E1 FF      lea d, [bp + -31] ; $label_name
+4199   1D59 3B 3C 3E      mov d, _token_data ; $token
 4200   1D5C 2D            mov b, d
 4201   1D5D FD AB         swp b
 4202   1D5F D8            push b
-4203   1D60 3B 3C 3E      mov d, _token_data ; $token
+4203   1D60 FA E1 FF      lea d, [bp + -31] ; $label_name
 4204   1D63 2D            mov b, d
 4205   1D64 FD AB         swp b
 4206   1D66 D8            push b
 4207   1D67 07 C9 36      call strcpy
 4208   1D6A 51 04 00      add sp, 4
 4209   1D6D             ;; declare_label(label_name, pc); 
-4210   1D6D FA E1 FF      lea d, [bp + -31] ; $label_name
-4211   1D70 2D            mov b, d
+4210   1D6D 3B 33 3E      mov d, _pc ; $pc
+4211   1D70 2A            mov b, [d]
 4212   1D71 FD AB         swp b
 4213   1D73 D8            push b
-4214   1D74 3B 33 3E      mov d, _pc ; $pc
-4215   1D77 2A            mov b, [d]
+4214   1D74 FA E1 FF      lea d, [bp + -31] ; $label_name
+4215   1D77 2D            mov b, d
 4216   1D78 FD AB         swp b
 4217   1D7A D8            push b
 4218   1D7B 07 86 1D      call declare_label
@@ -4293,21 +4293,21 @@
 4273   1DD0 C6 1D 1E      je _if106_exit
 4274   1DD3             _if106_true:
 4275   1DD3             ;; strcpy(label_table[i].name, name); 
-4276   1DD3 3B 11 3D      mov d, _label_table_data ; $label_table
-4277   1DD6 D7            push a
-4278   1DD7 DA            push d
-4279   1DD8 FA FF FF      lea d, [bp + -1] ; $i
-4280   1DDB 2A            mov b, [d]
-4281   1DDC E7            pop d
-4282   1DDD FD 13 12 00   mma 18 ; mov a, 18; mul a, b; add d, b
-4283   1DE1 E4            pop a
-4284   1DE2 58 00 00      add d, 0
-4285   1DE5 FD 14         clb
-4286   1DE7 2D            mov b, d
-4287   1DE8 FD AB         swp b
-4288   1DEA D8            push b
-4289   1DEB FA 07 00      lea d, [bp + 7] ; $name
-4290   1DEE 2A            mov b, [d]
+4276   1DD3 FA 07 00      lea d, [bp + 7] ; $name
+4277   1DD6 2A            mov b, [d]
+4278   1DD7 FD AB         swp b
+4279   1DD9 D8            push b
+4280   1DDA 3B 11 3D      mov d, _label_table_data ; $label_table
+4281   1DDD D7            push a
+4282   1DDE DA            push d
+4283   1DDF FA FF FF      lea d, [bp + -1] ; $i
+4284   1DE2 2A            mov b, [d]
+4285   1DE3 E7            pop d
+4286   1DE4 FD 13 12 00   mma 18 ; mov a, 18; mul a, b; add d, b
+4287   1DE8 E4            pop a
+4288   1DE9 58 00 00      add d, 0
+4289   1DEC FD 14         clb
+4290   1DEE 2D            mov b, d
 4291   1DEF FD AB         swp b
 4292   1DF1 D8            push b
 4293   1DF2 07 C9 36      call strcpy
@@ -4375,21 +4375,21 @@
 4355   1E54             _for107_block:
 4356   1E54             ;; if(!strcmp(label_table[i].name, name)){ 
 4357   1E54             _if108_cond:
-4358   1E54 3B 11 3D      mov d, _label_table_data ; $label_table
-4359   1E57 D7            push a
-4360   1E58 DA            push d
-4361   1E59 FA FF FF      lea d, [bp + -1] ; $i
-4362   1E5C 2A            mov b, [d]
-4363   1E5D E7            pop d
-4364   1E5E FD 13 12 00   mma 18 ; mov a, 18; mul a, b; add d, b
-4365   1E62 E4            pop a
-4366   1E63 58 00 00      add d, 0
-4367   1E66 FD 14         clb
-4368   1E68 2D            mov b, d
-4369   1E69 FD AB         swp b
-4370   1E6B D8            push b
-4371   1E6C FA 05 00      lea d, [bp + 5] ; $name
-4372   1E6F 2A            mov b, [d]
+4358   1E54 FA 05 00      lea d, [bp + 5] ; $name
+4359   1E57 2A            mov b, [d]
+4360   1E58 FD AB         swp b
+4361   1E5A D8            push b
+4362   1E5B 3B 11 3D      mov d, _label_table_data ; $label_table
+4363   1E5E D7            push a
+4364   1E5F DA            push d
+4365   1E60 FA FF FF      lea d, [bp + -1] ; $i
+4366   1E63 2A            mov b, [d]
+4367   1E64 E7            pop d
+4368   1E65 FD 13 12 00   mma 18 ; mov a, 18; mul a, b; add d, b
+4369   1E69 E4            pop a
+4370   1E6A 58 00 00      add d, 0
+4371   1E6D FD 14         clb
+4372   1E6F 2D            mov b, d
 4373   1E70 FD AB         swp b
 4374   1E72 D8            push b
 4375   1E73 07 31 37      call strcmp
@@ -4426,11 +4426,11 @@
 4406   1EAD 0A 41 1E      jmp _for107_cond
 4407   1EB0             _for107_exit:
 4408   1EB0             ;; error_s("Label does not exist: ", name); 
-4409   1EB0 26 68 42      mov b, __s72 ; "Label does not exist: "
-4410   1EB3 FD AB         swp b
-4411   1EB5 D8            push b
-4412   1EB6 FA 05 00      lea d, [bp + 5] ; $name
-4413   1EB9 2A            mov b, [d]
+4409   1EB0 FA 05 00      lea d, [bp + 5] ; $name
+4410   1EB3 2A            mov b, [d]
+4411   1EB4 FD AB         swp b
+4412   1EB6 D8            push b
+4413   1EB7 26 68 42      mov b, __s72 ; "Label does not exist: "
 4414   1EBA FD AB         swp b
 4415   1EBC D8            push b
 4416   1EBD 07 4C 31      call error_s
@@ -4465,21 +4465,21 @@
 4445   1EE8             _for109_block:
 4446   1EE8             ;; if(!strcmp(label_table[i].name, name)){ 
 4447   1EE8             _if110_cond:
-4448   1EE8 3B 11 3D      mov d, _label_table_data ; $label_table
-4449   1EEB D7            push a
-4450   1EEC DA            push d
-4451   1EED FA FF FF      lea d, [bp + -1] ; $i
-4452   1EF0 2A            mov b, [d]
-4453   1EF1 E7            pop d
-4454   1EF2 FD 13 12 00   mma 18 ; mov a, 18; mul a, b; add d, b
-4455   1EF6 E4            pop a
-4456   1EF7 58 00 00      add d, 0
-4457   1EFA FD 14         clb
-4458   1EFC 2D            mov b, d
-4459   1EFD FD AB         swp b
-4460   1EFF D8            push b
-4461   1F00 FA 05 00      lea d, [bp + 5] ; $name
-4462   1F03 2A            mov b, [d]
+4448   1EE8 FA 05 00      lea d, [bp + 5] ; $name
+4449   1EEB 2A            mov b, [d]
+4450   1EEC FD AB         swp b
+4451   1EEE D8            push b
+4452   1EEF 3B 11 3D      mov d, _label_table_data ; $label_table
+4453   1EF2 D7            push a
+4454   1EF3 DA            push d
+4455   1EF4 FA FF FF      lea d, [bp + -1] ; $i
+4456   1EF7 2A            mov b, [d]
+4457   1EF8 E7            pop d
+4458   1EF9 FD 13 12 00   mma 18 ; mov a, 18; mul a, b; add d, b
+4459   1EFD E4            pop a
+4460   1EFE 58 00 00      add d, 0
+4461   1F01 FD 14         clb
+4462   1F03 2D            mov b, d
 4463   1F04 FD AB         swp b
 4464   1F06 D8            push b
 4465   1F07 07 31 37      call strcmp
@@ -4730,12 +4730,12 @@
 4710   2086 FD 3E         mov [d], bl
 4711   2088             ;; if(!strcmp(opcode_str, what_opcode)){ 
 4712   2088             _if116_cond:
-4713   2088 FA E9 FF      lea d, [bp + -23] ; $opcode_str
-4714   208B 2D            mov b, d
+4713   2088 FA 05 00      lea d, [bp + 5] ; $what_opcode
+4714   208B 2A            mov b, [d]
 4715   208C FD AB         swp b
 4716   208E D8            push b
-4717   208F FA 05 00      lea d, [bp + 5] ; $what_opcode
-4718   2092 2A            mov b, [d]
+4717   208F FA E9 FF      lea d, [bp + -23] ; $opcode_str
+4718   2092 2D            mov b, d
 4719   2093 FD AB         swp b
 4720   2095 D8            push b
 4721   2096 07 31 37      call strcmp
@@ -4746,14 +4746,14 @@
 4726   20A4 C6 BD 21      je _if116_else
 4727   20A7             _if116_true:
 4728   20A7             ;; strcpy(return_opcode.name, what_opcode); 
-4729   20A7 FA C4 FF      lea d, [bp + -60] ; $return_opcode
-4730   20AA 58 00 00      add d, 0
-4731   20AD FD 14         clb
-4732   20AF 2D            mov b, d
-4733   20B0 FD AB         swp b
-4734   20B2 D8            push b
-4735   20B3 FA 05 00      lea d, [bp + 5] ; $what_opcode
-4736   20B6 2A            mov b, [d]
+4729   20A7 FA 05 00      lea d, [bp + 5] ; $what_opcode
+4730   20AA 2A            mov b, [d]
+4731   20AB FD AB         swp b
+4732   20AD D8            push b
+4733   20AE FA C4 FF      lea d, [bp + -60] ; $return_opcode
+4734   20B1 58 00 00      add d, 0
+4735   20B4 FD 14         clb
+4736   20B6 2D            mov b, d
 4737   20B7 FD AB         swp b
 4738   20B9 D8            push b
 4739   20BA 07 C9 36      call strcpy
@@ -7664,20 +7664,20 @@
 7644   3258             _for168_block:
 7645   3258             ;; if (!strcmp(keywords[i].keyword, keyword)) return keywords[i].tok; 
 7646   3258             _if169_cond:
-7647   3258 3B F9 3C      mov d, _keywords_data ; $keywords
-7648   325B D7            push a
-7649   325C DA            push d
-7650   325D FA FF FF      lea d, [bp + -1] ; $i
-7651   3260 2A            mov b, [d]
-7652   3261 E7            pop d
-7653   3262 FD 13 03 00   mma 3 ; mov a, 3; mul a, b; add d, b
-7654   3266 E4            pop a
-7655   3267 58 00 00      add d, 0
-7656   326A FD 14         clb
-7657   326C 2A            mov b, [d]
-7658   326D FD AB         swp b
-7659   326F D8            push b
-7660   3270 FA 05 00      lea d, [bp + 5] ; $keyword
+7647   3258 FA 05 00      lea d, [bp + 5] ; $keyword
+7648   325B 2A            mov b, [d]
+7649   325C FD AB         swp b
+7650   325E D8            push b
+7651   325F 3B F9 3C      mov d, _keywords_data ; $keywords
+7652   3262 D7            push a
+7653   3263 DA            push d
+7654   3264 FA FF FF      lea d, [bp + -1] ; $i
+7655   3267 2A            mov b, [d]
+7656   3268 E7            pop d
+7657   3269 FD 13 03 00   mma 3 ; mov a, 3; mul a, b; add d, b
+7658   326D E4            pop a
+7659   326E 58 00 00      add d, 0
+7660   3271 FD 14         clb
 7661   3273 2A            mov b, [d]
 7662   3274 FD AB         swp b
 7663   3276 D8            push b

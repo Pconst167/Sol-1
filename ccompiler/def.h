@@ -618,7 +618,6 @@ int is_register(char *name);
 int is_assignment(void);
 void push_prog(void);
 void pop_prog(void);
-void goto_beginning_of_arg(int paren_count);
 
 
 char is_space(char c);
