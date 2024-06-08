@@ -61,6 +61,7 @@ int main(int argc, char *argv[]){
     }
   }
 
+
   emitln("; --- FILENAME: %s", argv[1]);
   if(include_kernel_exp) emitln(".include \"lib/kernel.exp\"");
   emitln(".include \"lib/bios.exp\"");
@@ -88,6 +89,9 @@ int main(int argc, char *argv[]){
   strcat(filename_out, ".asm");
   generate_file(filename_out); // generate named assembly file
   generate_file("out.asm"); // generate a.s assembly file
+
+  //for(i = 0; i < function_table_tos; i++)
+    //dbg_print_function_info(&function_table[i]);
 
   return 0;
 }
@@ -2109,55 +2113,6 @@ t_type parse___asm(){
 }
 
 
-//  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
-//  var3
-//  var2
-//  var1
-//  fixed2
-//  fixed1
-//  pc
-//  bp
-//  locals...             <---- bp, sp
-int parse_variable_args(){
-  int param_index = 0;                                                                  
-  t_type expr_in;
-  int current_func_call_total_arg_size;
-
-  param_index = 0;                                                                        
-  current_func_call_total_arg_size = 0;
-  do{
-    expr_in = parse_expr();
-    current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(expr_in);
-    if(expr_in.ind_level > 0 || is_array(expr_in)){
-      emitln("  swp b");
-      emitln("  push b");
-    }
-    else if(expr_in.primitive_type == DT_STRUCT){
-      emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(expr_in));
-      emitln("  mov si, b"); 
-      emitln("  lea d, [sp + 1]");
-      emitln("  mov di, d");
-      emitln("  mov c, %d", get_type_size_for_func_arg_parsing(expr_in));
-      emitln("  rep movsb");
-    }
-    else{
-      switch(expr_in.primitive_type){
-        case DT_CHAR:
-          emitln("  push bl");
-          break;
-        case DT_INT:
-          if(expr_in.primitive_type == DT_CHAR && expr_in.ind_level == 0){
-            emitln("  snex b");
-          }
-          emitln("  swp b");
-          emitln("  push b");
-          break;
-      }
-    }
-    param_index++;
-  } while(tok == COMMA);
-  return current_func_call_total_arg_size;                                                      
-}
 
 // myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
 
@@ -2419,8 +2374,8 @@ void parse_function_call(int func_id){
 void dbg_print_var_info(t_var *var){
   int i;
   int local = 0;
+
   if(local_var_exists(var->name) != -1) local = 1;
-  printf("*******************************************\n");
   printf("Name: %s\n", var->name);
   printf("Scope: %s\n", local ? "Local" : "Global");
   printf("Func Name: %s\n", function_table[var->function_id].name);
@@ -2436,10 +2391,25 @@ void dbg_print_var_info(t_var *var){
   printf("*******************************************\n");
 }
 
+void dbg_print_function_info(t_function *function){
+  int i;
+
+  printf("Function Name: %s\n", function->name);
+  printf("RETURN TYPE INFO:\n");
+  dbg_print_type_info(&function->return_type);
+  printf("PARAMETER LIST:\n");
+  for(i = 0; function->local_vars[i].name && function->local_vars[i].is_parameter ; i++){
+    printf("Parameter[%d] Name: %s\n", i, function->local_vars[i].name);
+    printf("Ind Level: %d\n", function->local_vars[i].type.ind_level);
+    printf("Longness: %d\n", function->local_vars[i].type.longness);
+    printf("Signedness: %d\n", function->local_vars[i].type.signedness);
+    printf("Struct ID: %d\n", function->local_vars[i].type.struct_id);
+  }
+  printf("*******************************************\n");
+}
 void dbg_print_type_info(t_type *type){
   int i;
 
-  printf("*******************************************\n");
   printf("Basic Type: %s\n", primitive_type_to_str_table[type->primitive_type]);
   for(i = 0; type->dims[i]; i++)
     printf("Dims[%d]: %d\n", i, type->dims[i]);

@@ -606,6 +606,7 @@ char is_digit(char c);
 
 void dbg_print_var_info(t_var *var);
 void dbg_print_type_info(t_type *type);
+void dbg_print_function_info(t_function *function);
 
 
 void insert_runtime(void);
