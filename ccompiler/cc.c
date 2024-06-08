@@ -93,7 +93,27 @@ int main(int argc, char *argv[]){
   //for(i = 0; i < function_table_tos; i++)
     //dbg_print_function_info(&function_table[i]);
 
+  display_typedef_table();
+
   return 0;
+}
+
+void display_typedef_table(){
+  int i, j;
+
+  printf("TYPEDEF TABLE:\n");
+
+  for(i = 0; i < typedef_table_tos; i++){
+    printf("Typedef Name: %s\n", typedef_table[i].name);
+
+    printf("Primitive type: %s\n", primitive_type_to_str_table[typedef_table[i].type.primitive_type]);
+    printf("Indirection: %d\n", typedef_table[i].type.ind_level);
+    printf("Struct ID: %d\n", typedef_table[i].type.struct_id);
+
+    for(j = 0; typedef_table[i].type.dims[j]; j++){
+      printf("Dims[%d]: %d\n", j, typedef_table[i].type.dims[j]);
+    }
+  }
 }
 
 void insert_runtime() {
@@ -2390,6 +2410,7 @@ void dbg_print_function_info(t_function *function){
   }
   printf("*******************************************\n");
 }
+
 void dbg_print_type_info(t_type *type){
   int i;
 
@@ -3166,13 +3187,86 @@ int get_struct_elements_count(int struct_id){
 }
 
 void declare_typedef(void){
+  char temp[512 + 8];
+  char *temp_prog;
+  int struct_id;
+  t_type type;
+
   if(typedef_table_tos == MAX_TYPEDEFS) error("Maximum number of typedefs exceeded.");
 
-  get(); 
-  
-  
+  for(int i = 0; i < MAX_MATRIX_DIMS; i++){
+    type.dims[i] = 0; // clear all matrix dimensions because type is a local var and the dimensions will have garbage values
+  }
 
-  if(tok != SEMICOLON) error("Semicolon expected");
+  get(); 
+  type.signedness = SNESS_SIGNED; // set as signed by default
+  type.longness = LNESS_NORMAL; 
+  while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == CONST){
+    if(tok == CONST) type.is_constant = true;
+    else if(tok == SIGNED) type.signedness = SNESS_SIGNED;
+    else if(tok == UNSIGNED) type.signedness = SNESS_UNSIGNED;
+    else if(tok == LONG) type.longness = LNESS_LONG;
+    get();
+  }
+  type.primitive_type = get_primitive_type_from_tok();
+  type.struct_id = -1;
+  if(type.primitive_type == DT_STRUCT){ // check if this is a struct
+    get();
+    struct_id = search_struct(token);
+    if(struct_id == -1) error("Undeclared struct: %s", token);
+  }
+
+  get();
+// **************** checks whether this is a pointer declaration *******************************
+  type.ind_level = 0;
+  while(tok == STAR){
+    type.ind_level++;
+    get();
+  }
+// *********************************************************************************************
+  if(toktype != IDENTIFIER) error("Identifier expected");
+  if(type.primitive_type == DT_VOID && type.ind_level == 0) error("Invalid type in variable: %s", token);
+
+  type.struct_id = struct_id;
+  type.dims[0] = 0;
+  strcpy(typedef_table[typedef_table_tos].name, token);
+  get();
+  // checks if this is a array declaration
+  int dim = 0;
+  if(tok == OPENING_BRACKET){
+    while(tok == OPENING_BRACKET){
+      get();
+      if(tok == CLOSING_BRACKET){ // variable length array
+        int fixed_part_size = 1;
+        int initialization_size;
+        temp_prog = prog;
+        get();
+        if(tok == OPENING_BRACKET){
+          do{
+            get();
+            fixed_part_size = fixed_part_size * int_const;
+            get();
+            expect(CLOSING_BRACKET, "Closing brackets expected");
+            get();
+          } while(tok == OPENING_BRACKET);
+        }
+        back();
+        initialization_size = find_array_initialization_size();
+        type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
+        prog = temp_prog;
+      }
+      else{
+        type.dims[dim] = atoi(token);
+        get();
+        if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+      }
+      get();
+      dim++;
+    }
+  }
+  typedef_table[typedef_table_tos].type = type;
+  typedef_table_tos++;
+  expect(SEMICOLON, "Semicolon expected.");
 }
 
 // enum my_enum {item1, item2, item3};

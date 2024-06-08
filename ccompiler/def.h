@@ -212,22 +212,6 @@ typedef struct{
 
 typedef unsigned char _bool;
 
-struct{
-  char *as_str;
-  t_token_type toktype;
-} toktype_to_str[] = {
-  "char constant", CHAR_CONST, 
-  "delimiter", DELIMITER,
-  "double constant", DOUBLE_CONST,
-  "end", END,
-  "float constant", FLOAT_CONST, 
-  "identifier", IDENTIFIER, 
-  "integer constant", INTEGER_CONST, 
-  "reserved", RESERVED, 
-  "string constant", STRING_CONST, 
-  "undefined", TYPE_UNDEF
-};
-
 typedef enum{
   LOCAL = 0, GLOBAL
 } t_var_scope;
@@ -275,11 +259,11 @@ typedef struct {
   int dims[MAX_MATRIX_DIMS];
 } t_type;
 
+
 typedef struct{
-  char type_name[ID_LEN];
+  char name[ID_LEN];
   t_type type;
 } t_typedef;
-t_typedef typedef_table[MAX_TYPEDEFS];
 
 typedef struct{
   char name[ID_LEN];
@@ -298,11 +282,6 @@ typedef struct {
   int bp_offset; // if var is local, this holds the offset of the var from BP.
   int function_id; // the function does var belong to? (if it is a local var)
 } t_var;
-
-struct{
-  char name[ID_LEN];
-  char content[256];
-} defines_table[MAX_DEFINES];
 
 typedef struct {
   char name[ID_LEN];
@@ -408,6 +387,28 @@ char libc_directory[] = "./lib/";
 
 char debug;
 
+struct{
+  char name[ID_LEN];
+  char content[256];
+} defines_table[MAX_DEFINES];
+
+struct{
+  char *as_str;
+  t_token_type toktype;
+} toktype_to_str[] = {
+  "char constant", CHAR_CONST, 
+  "delimiter", DELIMITER,
+  "double constant", DOUBLE_CONST,
+  "end", END,
+  "float constant", FLOAT_CONST, 
+  "identifier", IDENTIFIER, 
+  "integer constant", INTEGER_CONST, 
+  "reserved", RESERVED, 
+  "string constant", STRING_CONST, 
+  "undefined", TYPE_UNDEF
+};
+
+t_typedef typedef_table[MAX_TYPEDEFS];
 t_function function_table[MAX_USER_FUNC];
 t_enum enum_table[MAX_ENUM_DECLARATIONS];
 t_struct struct_table[MAX_STRUCT_DECLARATIONS];
@@ -607,6 +608,7 @@ char is_digit(char c);
 void dbg_print_var_info(t_var *var);
 void dbg_print_type_info(t_type *type);
 void dbg_print_function_info(t_function *function);
+void display_typedef_table();
 
 
 void insert_runtime(void);
