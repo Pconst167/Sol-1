@@ -2093,7 +2093,8 @@ t_type parse___asm(){
   expr_out.is_constant = 0;
   expr_out.signedness  = SNESS_UNSIGNED;
   expr_out.longness    = LNESS_NORMAL;
-  get(); expect(OPENING_PAREN, "'(' expected.");
+  get(); 
+  expect(OPENING_PAREN, "'(' expected.");
 
   get();
   if(toktype != STRING_CONST) error("Register name expected.");
@@ -2107,19 +2108,16 @@ t_type parse___asm(){
   return expr_out;
 }
 
-/*
-  todo: reverse order of var args pushed into the stack: var_arg3 needs to be pushed before var_arg2, etc
 
-  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
-  var1
-  var2
-  var3
-  fixed1
-  fixed2
-  pc
-  bp
-  locals...             <---- bp, sp
-*/
+//  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
+//  var3
+//  var2
+//  var1
+//  fixed2
+//  fixed1
+//  pc
+//  bp
+//  locals...             <---- bp, sp
 int parse_variable_args(){
   int param_index = 0;                                                                  
   t_type expr_in;
@@ -2167,52 +2165,36 @@ int parse_variable_args(){
 // this function rewinds "prog" from right to left until it meets a comma character, meaning that whatever comes after the comma is an argument expression
 // when the left-most argument is met, the separator is no longer a comma, but an opening parenthesis, so we need to keep track of
 // the number of parenthesis inside the function header because there could be expressions containing parenthesis there as well.
+// todo: problem will arise if there are escaped double quotes \" inside any double quoted string arguments
 void goto_beginning_of_arg(){
-  int paren_count = 1;
+  int paren_count = 0;
   for(;;){
-    prog--;
-    if(*prog == ')') paren_count++;
+    if(*prog == '\"'){
+      prog--;
+      while(*prog != '\"'){
+        prog--;
+        if(prog == c_in) error("Unterminated string.");
+      }
+    }
+    else if(*prog == ')') paren_count++;
     else if(*prog == '('){
       paren_count--;
-      if(paren_count == 0) break;
+      if(paren_count == 0){
+        prog++; // skip the parenthesis 
+        push_prog(); // save the current prog position so that we can go back to it when finished parsing this argument
+        break;
+      }
     }
-    else if(*prog == ',') break;
+    else if(*prog == ','){
+      prog--; // go back one position to the left to skip the comma char, for the next iteration
+      push_prog(); // save the current prog position so that we can go back to it when finished parsing this argument
+      prog += 2; // go forwards to skip the comma in order to parse the expression
+      break;
+    }
+    prog--;
   }
-  prog--; // go back one position to the left to skip the comma char
-  push_prog(); // save the current prog position so that we can go back to it when finished parsing this argument
-  prog += 2; //go forwards to skip the comma in order to parse the expression
 }
 
-void parse_function_call(int func_id){
-  int total_function_arguments;
-  t_type arg_expr;
-  int current_func_call_total_arg_size;
-  int function_arg_index;
-  int paren_count;
-
-  get();
-  if(tok == CLOSING_PAREN){
-    if(function_table[func_id].num_fixed_args != 0)
-      error("Incorrect number of arguments for function: %s. Expecting %d, detected: 0", function_table[func_id].name, function_table[func_id].num_fixed_args);
-    else{
-      emitln("  call %s", function_table[func_id].name);
-      return;
-    }
-  }
-  else back();
-
-//  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
-//  var1
-//  var2
-//  var3
-//  fixed1
-//  fixed2
-//  pc
-//  bp
-//  locals...             <---- bp, sp
-//
-//  todo: reverse order of var args pushed into the stack: var_arg3 needs to be pushed before var_arg2, etc
-//  
 //  so the fixed args will be pushed closer to where BP points, because in order to calculate the BP
 //  offset for those arguments, we need a known reference from BP. if we pushed the var args closer to BP than
 //  the fixed args, it would not match with the way the BP offsets are calculated in the function declaration.
@@ -2232,6 +2214,24 @@ void parse_function_call(int func_id){
 //  pc
 //  bp
 //  locals...             <---- bp, sp
+void parse_function_call(int func_id){
+  int total_function_arguments;
+  t_type arg_expr;
+  int current_func_call_total_arg_size;
+  int current_arg_position;
+  int paren_count;
+  char *prog_at_end_of_header;
+
+  get();
+  if(tok == CLOSING_PAREN){
+    if(function_table[func_id].num_fixed_args != 0)
+      error("Incorrect number of arguments for function: %s. Expecting %d, detected: 0", function_table[func_id].name, function_table[func_id].num_fixed_args);
+    else{
+      emitln("  call %s", function_table[func_id].name);
+      return;
+    }
+  }
+  else back();
 
   current_func_call_total_arg_size = 0;
   paren_count = 1;
@@ -2243,20 +2243,20 @@ void parse_function_call(int func_id){
     else if(tok == OPENING_PAREN) paren_count++;
     else if(tok == CLOSING_PAREN) paren_count--;
   } while(paren_count > 0);
+  // here prog is at ';'
+  prog_at_end_of_header = prog;
 
-  function_arg_index = total_function_arguments - 1;
+  current_arg_position = total_function_arguments;
   // now we are at the end of the function header, at the ')' token.
   // go backwards finding one comma at a time, and then parsing the expression corresponding to that parameter.
   do{
-    goto_beginning_of_arg(); // rewinds prog left until it meets a ',', or the opening '(' of the function header
-
+    goto_beginning_of_arg(); // rewinds prog left until it meets a ',' or the opening '(' of the function header
     arg_expr = parse_expr(); // parse this argument
     // if parsing variable arguments
-    if(function_arg_index + 1 - function_table[func_id].num_fixed_args > 0){
+    if(current_arg_position - function_table[func_id].num_fixed_args > 0){
       // if this argument is a variable one, then its type or size is not given by a declaration at the function header, but from the result of the expression itself  
       current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(arg_expr); 
 
-      current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(arg_expr);
       if(arg_expr.ind_level > 0 || is_array(arg_expr)){
         emitln("  swp b");
         emitln("  push b");
@@ -2287,23 +2287,23 @@ void parse_function_call(int func_id){
     // else, parsing the fixed arguments
     else{
       // if the argument is a fixed one, then its type and hence size, is given in the function declaration
-      current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[function_arg_index].type); 
-      if(function_table[func_id].local_vars[function_arg_index].type.ind_level > 0 || 
-        is_array(function_table[func_id].local_vars[function_arg_index].type)
+      current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[current_arg_position - 1].type); 
+      if(function_table[func_id].local_vars[current_arg_position - 1].type.ind_level > 0 || 
+        is_array(function_table[func_id].local_vars[current_arg_position - 1].type)
       ){
         emitln("  swp b");
         emitln("  push b");
       }
-      else if(function_table[func_id].local_vars[function_arg_index].type.basic_type == DT_STRUCT){
-        emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[function_arg_index].type));
+      else if(function_table[func_id].local_vars[current_arg_position - 1].type.basic_type == DT_STRUCT){
+        emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[current_arg_position - 1].type));
         emitln("  mov si, b"); 
         emitln("  lea d, [sp + 1]");
         emitln("  mov di, d");
-        emitln("  mov c, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[function_arg_index].type));
+        emitln("  mov c, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[current_arg_position - 1].type));
         emitln("  rep movsb");
       }
       else{
-        switch(function_table[func_id].local_vars[function_arg_index].type.basic_type){
+        switch(function_table[func_id].local_vars[current_arg_position - 1].type.basic_type){
           case DT_CHAR:
             emitln("  push bl");
             break;
@@ -2315,9 +2315,9 @@ void parse_function_call(int func_id){
         }
       }
     }
-    function_arg_index--;
+    current_arg_position--;
     pop_prog(); // recover prog position, which is exactly one char to the right of the comma after which this current argument comes
-  } while(function_arg_index >= 0); 
+  } while(current_arg_position > 0); 
 
 
   // Check if the number of arguments matches the number of function parameters
@@ -2330,6 +2330,9 @@ void parse_function_call(int func_id){
   // the function's return value is in register B
   if(function_table[func_id].total_parameter_size > 0)
     emitln("  add sp, %d", current_func_call_total_arg_size); // clean stack of the arguments added to it
+
+  // recover prog, placing it at the end of the function header
+  prog = prog_at_end_of_header;
 }
 
 /*
@@ -2879,6 +2882,7 @@ int get_basic_type_size(t_type type){
       return get_struct_size(type.struct_id);
   }
 }
+
 int get_type_size_for_func_arg_parsing(t_type type){
   if(type.ind_level > 0) 
     return 2;

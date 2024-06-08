@@ -30,44 +30,6 @@ void va_end(struct va_list_t *argp) {
   argp->current_arg = NULL;
 }
 */
-void my_printf(const char *format, ...) {
-  struct va_list_t args;
-  int i, c;
-  char *s;
-  
-  va_start(&args, format);
-  while (*format != '\0') {
-      if (*format == '%') {
-          format++;
-          switch (*format) {
-              case 'd': {
-                  i = *(int *)va_arg(&args, sizeof(int));
-                  printu(i);
-                  break;
-              }
-              case 'c': {
-                  c = *(int *)va_arg(&args, sizeof(int));  // char is promoted to int in varargs
-                  putchar(c);
-                  break;
-              }
-              case 's': {
-                  s = va_arg(&args, sizeof(char*));
-                  puts(s);
-                  break;
-              }
-              default:
-                  putchar('%');
-                  putchar(*format);
-                  break;
-          }
-      } else {
-          putchar(*format);
-      }
-      format++;
-  }
-  
-  va_end(&args);
-}
 
 void printf(char *format, ...){
   char *p, *fp;
