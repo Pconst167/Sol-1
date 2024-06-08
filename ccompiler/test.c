@@ -1,12 +1,10 @@
-
+#include <stdio.h>
 
 
 int main(){
 
-  printf(2, 'A', "Paulo", 1);
+  printf("Char: %c, String: %s, Integer: %d", 'A', "Paulo", 1);
+
 
 }
 
-
-void printf(int a, ...){
-}
