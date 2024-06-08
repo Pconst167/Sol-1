@@ -149,7 +149,7 @@ void declare_argc_argv(){
 
 void declare_heap(){
   strcpy(global_var_table[global_var_tos].name, "heap_top");
-  global_var_table[global_var_tos].type.basic_type = DT_CHAR;
+  global_var_table[global_var_tos].type.primitive_type = DT_CHAR;
   global_var_table[global_var_tos].type.is_constant = false;
   global_var_table[global_var_tos].type.dims[0] = 0;
   global_var_table[global_var_tos].type.ind_level = 1;
@@ -526,9 +526,9 @@ void declare_func(void){
     else if(tok == LONG)     func->return_type.longness   = LNESS_LONG;
     get();
   }
-  func->return_type.basic_type = get_basic_type_from_tok();
+  func->return_type.primitive_type = get_primitive_type_from_tok();
   func->return_type.struct_id = -1;
-  if(func->return_type.basic_type == DT_STRUCT){ // check if this is a struct
+  if(func->return_type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
     func->return_type.struct_id = search_struct(token);
     if(func->return_type.struct_id == -1) error("Undeclared struct: %s", token);
@@ -582,9 +582,9 @@ void declare_func(void){
       }
       if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) error("Var type expected in argument declaration for function: %s", func->name);
       // gets the parameter type
-      func->local_vars[func->local_var_tos].type.basic_type = get_basic_type_from_tok();
+      func->local_vars[func->local_var_tos].type.primitive_type = get_primitive_type_from_tok();
       func->local_vars[func->local_var_tos].type.struct_id = -1;
-      if(func->local_vars[func->local_var_tos].type.basic_type == DT_STRUCT){ // check if this is a struct
+      if(func->local_vars[func->local_var_tos].type.primitive_type == DT_STRUCT){ // check if this is a struct
         get();
         func->local_vars[func->local_var_tos].type.struct_id = search_struct(token);
         if(func->local_vars[func->local_var_tos].type.struct_id == -1) error("Undeclared struct: %s", token);
@@ -1334,16 +1334,16 @@ void skip_array_bracket(void){
   if(brackets && toktype == END) error("Closing brackets expected");
 }
 
-t_basic_type get_var_type(char *var_name){
+t_primitive_type get_var_type(char *var_name){
   register int i;
 
   for(i = 0; i < function_table[current_func_id].local_var_tos; i++)
     if(!strcmp(function_table[current_func_id].local_vars[i].name, var_name))
-      return function_table[current_func_id].local_vars[i].type.basic_type;
+      return function_table[current_func_id].local_vars[i].type.primitive_type;
 
   for(i = 0; i < global_var_tos; i++)
     if(!strcmp(global_var_table[i].name, var_name)) 
-      return global_var_table[i].type.basic_type;
+      return global_var_table[i].type.primitive_type;
 
   error("Undeclared variable: %s", var_name);
 }
@@ -1352,9 +1352,9 @@ void emit_var_assignment__addr_in_d(t_type type){
   int var_id;
   char temp[ID_LEN];
 
-  if(type.ind_level > 0 || type.basic_type == DT_INT)
+  if(type.ind_level > 0 || type.primitive_type == DT_INT)
     emitln("  mov [d], b");
-  else if(type.basic_type == DT_CHAR)
+  else if(type.primitive_type == DT_CHAR)
     emitln("  mov [d], bl");
   else 
     error("Not able to resolve variable type");
@@ -1365,7 +1365,7 @@ t_type parse_expr(){
 
   type.dims[0] = 0;
   type.ind_level = 0;
-  type.basic_type = DT_INT;
+  type.primitive_type = DT_INT;
   type.signedness = SNESS_SIGNED;
   type.longness = LNESS_NORMAL;
   get();
@@ -1430,11 +1430,11 @@ t_type parse_assignment(){
     emitln("  push d"); // save 'd'. this is the array base address. save because expr below could use 'd' and overwrite it
     parse_expr(); // evaluate expression, result in 'b'
     emitln("  pop d"); 
-    if(expr_in.ind_level > 0 || expr_in.basic_type == DT_INT)
+    if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT)
       emitln("  mov [d], b");
-    else if(expr_in.basic_type == DT_CHAR)
+    else if(expr_in.primitive_type == DT_CHAR)
       emitln("  mov [d], bl");
-    else if(expr_in.basic_type == DT_STRUCT){
+    else if(expr_in.primitive_type == DT_STRUCT){
       emitln("  mov si, b");
       emitln("  mov di, d");
       emitln("  mov c, %d", get_total_type_size(expr_in));
@@ -1450,7 +1450,7 @@ t_type parse_assignment(){
     if(tok != ASSIGNMENT) error("Syntax error: Assignment expected");
     parse_expr(); // evaluates the value to be assigned to the address, result in 'b'
     emitln("  pop d"); // now pop 'b' from before into 'd' so that we can recover the address for the assignment
-    switch(expr_in.basic_type){
+    switch(expr_in.primitive_type){
       case DT_CHAR:
         emitln("  mov [d], bl");
         break;
@@ -1531,10 +1531,10 @@ t_type parse_logical_or(void){
     }
     emitln("  pop a");
     expr_out.ind_level = 0; // if is a logical operation then result is an integer with ind_level = 0
-    expr_out.basic_type = DT_INT;
+    expr_out.primitive_type = DT_INT;
   }
   else{
-    expr_out.basic_type = type1.basic_type;
+    expr_out.primitive_type = type1.primitive_type;
     expr_out.ind_level = type1.ind_level;
   }
   return expr_out;
@@ -1553,10 +1553,10 @@ t_type parse_logical_and(void){
     }
     emitln("  pop a");
     expr_out.ind_level = 0; // if is a logical operation then result is an integer with ind_level = 0
-    expr_out.basic_type = DT_INT;
+    expr_out.primitive_type = DT_INT;
   }
   else{
-    expr_out.basic_type = type1.basic_type;
+    expr_out.primitive_type = type1.primitive_type;
     expr_out.ind_level = type1.ind_level;
   }
   return expr_out;
@@ -1566,7 +1566,7 @@ t_type parse_bitwise_or(void){
   t_type type1, type2, expr_out;
 
   type1 = parse_bitwise_xor();
-  type2.basic_type = DT_CHAR;
+  type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == BITWISE_OR){
     emitln("  push a");
@@ -1586,7 +1586,7 @@ t_type parse_bitwise_xor(void){
   t_type type1, type2, expr_out;
 
   type1 = parse_bitwise_and();
-  type2.basic_type = DT_CHAR;
+  type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == BITWISE_XOR){
     emitln("  push a");
@@ -1606,7 +1606,7 @@ t_type parse_bitwise_and(void){
   t_type type1, type2, expr_out;
 
   type1 = parse_relational();
-  type2.basic_type = DT_CHAR;
+  type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == AMPERSAND){
     emitln("  push a");
@@ -1676,12 +1676,12 @@ t_type parse_relational(void){
     }
     emitln("  pop a");
     emitln("; END RELATIONAL");
-    expr_out.basic_type = DT_INT;
+    expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0; // if is a relational operation then result is an integer with ind_level = 0
     expr_out.signedness = SNESS_UNSIGNED;
   }
   else{
-    expr_out.basic_type = type1.basic_type;
+    expr_out.primitive_type = type1.primitive_type;
     expr_out.ind_level = type1.ind_level;
   }
   return expr_out;
@@ -1693,7 +1693,7 @@ t_type parse_bitwise_shift(void){
 
   temp_tok = 0;
   type1 = parse_terms();
-  type2.basic_type = DT_CHAR;
+  type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == BITWISE_SHL || tok == BITWISE_SHR){
     emitln("; START SHIFT");
@@ -1730,7 +1730,7 @@ t_type parse_terms(void){
   
   temp_tok = TOK_UNDEF;
   type1 = parse_factors();
-  type2.basic_type = DT_CHAR;
+  type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == PLUS || tok == MINUS){
     emitln("; START TERMS");
@@ -1759,7 +1759,7 @@ t_type parse_factors(void){
 // if type1 is an INT and type2 is a char*, then the result should be a char* still
   temp_tok = TOK_UNDEF;
   type1 = parse_atomic();
-  type2.basic_type = DT_CHAR;
+  type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == STAR || tok == FSLASH || tok == MOD) {
     emitln("; START FACTORS");
@@ -1799,7 +1799,7 @@ t_type parse_atomic(void){
     if(string_id == -1) string_id = add_string_data(string_const);
     // now emit the reference to this string into the ASM
     emitln("  mov b, __s%d ; \"%s\"", string_id, string_const);
-    expr_out.basic_type = DT_CHAR;
+    expr_out.primitive_type = DT_CHAR;
     expr_out.ind_level = 1;
     expr_out.signedness = SNESS_SIGNED;
   }
@@ -1837,23 +1837,23 @@ t_type parse_atomic(void){
         }
       }
     }
-    expr_out.basic_type = DT_INT;
+    expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0;
     expr_out.signedness = SNESS_SIGNED;
     expect(CLOSING_PAREN, "Closing paren expected");
   }
   else if(tok == STAR){ // is a pointer operator
     expr_in = parse_atomic(); // parse expression after STAR, which could be inside parenthesis. result in B
-    if(expr_in.basic_type == DT_VOID && expr_in.ind_level <= 1) error("Dereferencing void pointer with indirection level of 1 or less.");
+    if(expr_in.primitive_type == DT_VOID && expr_in.ind_level <= 1) error("Dereferencing void pointer with indirection level of 1 or less.");
     emitln("  mov d, b");// now we have the pointer value. we then get the data at the address.
-    if(expr_in.basic_type == DT_INT || expr_in.ind_level > 1)
+    if(expr_in.primitive_type == DT_INT || expr_in.ind_level > 1)
       emitln("  mov b, [d]"); 
-    else if(expr_in.basic_type == DT_CHAR){
+    else if(expr_in.primitive_type == DT_CHAR){
       emitln("  mov bl, [d]"); 
       emitln("  mov bh, 0");
     }
     back();
-    expr_out.basic_type = expr_in.basic_type;
+    expr_out.primitive_type = expr_in.primitive_type;
     expr_out.ind_level = expr_in.ind_level - 1;
     expr_out.signedness = expr_in.signedness;
   }
@@ -1868,13 +1868,13 @@ t_type parse_atomic(void){
     int i;
     emitln("  mov b, $%x", int_const);
     i = int_const;
-    expr_out.basic_type = DT_INT;
+    expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0;
     expr_out.signedness = i > 32767 || i < -32768 ? SNESS_UNSIGNED : SNESS_SIGNED;
   }
   else if(toktype == CHAR_CONST){
     emitln("  mov b, $%x", string_const[0]);
-    expr_out.basic_type = DT_CHAR; //TODO: int or char? 
+    expr_out.primitive_type = DT_CHAR; //TODO: int or char? 
     expr_out.ind_level = 0;
     expr_out.signedness = SNESS_UNSIGNED;
     expr_out.dims[0] = 0;
@@ -1882,22 +1882,22 @@ t_type parse_atomic(void){
   // -127, -128, -255, -32768, -32767, -65535
   else if(tok == MINUS){
     expr_in = parse_atomic(); // TODO: add error if type is pointer since cant neg a pointer
-    if(expr_in.ind_level > 0 || expr_in.basic_type == DT_INT) 
+    if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT) 
       emitln("  neg b");
     else 
       emitln("  neg b"); // treating as int as experiment
     back();
-    expr_out.basic_type = DT_INT; // convert to int
+    expr_out.primitive_type = DT_INT; // convert to int
     expr_out.ind_level = 0;
     expr_out.signedness = expr_in.signedness;
   }
   else if(tok == BITWISE_NOT){
     expr_in = parse_atomic(); // in 'b'
-    if(expr_in.ind_level > 0 || expr_in.basic_type == DT_INT) 
+    if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT) 
       emitln("  not b");
     else 
       emitln("  not b"); // treating as int as an experiment
-    expr_out.basic_type = DT_INT;
+    expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0;
     expr_out.signedness = expr_in.signedness;
     back();
@@ -1907,7 +1907,7 @@ t_type parse_atomic(void){
     emitln("  cmp b, 0");
     emitln("  seq ; !");
     back();
-    expr_out.basic_type = DT_INT;
+    expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0;
     expr_out.signedness = SNESS_UNSIGNED;
   }
@@ -1942,7 +1942,7 @@ t_type parse_atomic(void){
         if(ind_level == 0) error("Invalid data type of pure 'void'.");
         expr_in = parse_atomic();
         expr_out = expr_in;
-        expr_out.basic_type = DT_VOID;
+        expr_out.primitive_type = DT_VOID;
         expr_out.ind_level = ind_level;
         back();
       }
@@ -1957,7 +1957,7 @@ t_type parse_atomic(void){
         else if(_unsigned == 1 && ind_level == 0) emitln("  mov bh, 0"); // zero extend b
         expr_in = parse_atomic();
         expr_out = expr_in;
-        expr_out.basic_type = DT_INT;
+        expr_out.primitive_type = DT_INT;
         expr_out.ind_level = ind_level;
         back();
       }
@@ -1971,7 +1971,7 @@ t_type parse_atomic(void){
         expr_in = parse_atomic();
         if(ind_level == 0) emitln("  mov bh, 0"); // zero out bh to make it a char
         expr_out = expr_in;
-        expr_out.basic_type = DT_CHAR;
+        expr_out.primitive_type = DT_CHAR;
         expr_out.ind_level = ind_level;
         back();
       }
@@ -2025,7 +2025,7 @@ t_type parse_atomic(void){
     else if(enum_element_exists(temp_name) != -1){
       back();
       emitln("  mov b, %d; %s", get_enum_val(temp_name), temp_name);
-      expr_out.basic_type = DT_INT;
+      expr_out.primitive_type = DT_INT;
       expr_out.ind_level = 0;
       expr_out.signedness = SNESS_SIGNED; // TODO: check enums can always be signed...
     }
@@ -2036,13 +2036,13 @@ t_type parse_atomic(void){
       back();
       if(is_array(expr_in))
         emitln("  mov b, d");
-      else if(expr_in.ind_level > 0 || expr_in.basic_type == DT_INT)
+      else if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT)
         emitln("  mov b, [d]"); 
-      else if(expr_in.basic_type == DT_CHAR){
+      else if(expr_in.primitive_type == DT_CHAR){
         emitln("  mov bl, [d]");
         emitln("  mov bh, 0"); 
       }
-      else if(expr_in.basic_type == DT_STRUCT)
+      else if(expr_in.primitive_type == DT_STRUCT)
         emitln("  mov b, d");
       expr_out = expr_in;
     }
@@ -2087,7 +2087,7 @@ t_type parse___asm(){
   int var_id;
   t_type expr_out;
 
-  expr_out.basic_type  = DT_INT;
+  expr_out.primitive_type  = DT_INT;
   expr_out.dims[0]     = 0;
   expr_out.ind_level   = 0;
   expr_out.is_constant = 0;
@@ -2132,7 +2132,7 @@ int parse_variable_args(){
       emitln("  swp b");
       emitln("  push b");
     }
-    else if(expr_in.basic_type == DT_STRUCT){
+    else if(expr_in.primitive_type == DT_STRUCT){
       emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(expr_in));
       emitln("  mov si, b"); 
       emitln("  lea d, [sp + 1]");
@@ -2141,12 +2141,12 @@ int parse_variable_args(){
       emitln("  rep movsb");
     }
     else{
-      switch(expr_in.basic_type){
+      switch(expr_in.primitive_type){
         case DT_CHAR:
           emitln("  push bl");
           break;
         case DT_INT:
-          if(expr_in.basic_type == DT_CHAR && expr_in.ind_level == 0){
+          if(expr_in.primitive_type == DT_CHAR && expr_in.ind_level == 0){
             emitln("  snex b");
           }
           emitln("  swp b");
@@ -2167,7 +2167,8 @@ int parse_variable_args(){
 // the number of parenthesis inside the function header because there could be expressions containing parenthesis there as well.
 // todo: problem will arise if there are escaped double quotes \" inside any double quoted string arguments
 void goto_beginning_of_arg(){
-  int paren_count = 0;
+  int paren_count = 1;
+  
   for(;;){
     if(*prog == '\"'){
       prog--;
@@ -2217,8 +2218,9 @@ void goto_beginning_of_arg(){
 void parse_function_call(int func_id){
   int total_function_arguments;
   t_type arg_expr;
+  t_type arg_type;
   int current_func_call_total_arg_size;
-  int current_arg_position;
+  int curr_arg_num;
   int paren_count;
   char *prog_at_end_of_header;
 
@@ -2234,9 +2236,9 @@ void parse_function_call(int func_id){
   else back();
 
   current_func_call_total_arg_size = 0;
-  paren_count = 1;
   total_function_arguments = 1;
   // count the total number of arguments being passed to the function by counting the number of ',' characters
+  paren_count = 1;
   do{
     get();
     if(tok == COMMA) total_function_arguments++;
@@ -2246,79 +2248,41 @@ void parse_function_call(int func_id){
   // here prog is at ';'
   prog_at_end_of_header = prog;
 
-  current_arg_position = total_function_arguments;
+  curr_arg_num = total_function_arguments;
   // now we are at the end of the function header, at the ')' token.
   // go backwards finding one comma at a time, and then parsing the expression corresponding to that parameter.
   do{
     goto_beginning_of_arg(); // rewinds prog left until it meets a ',' or the opening '(' of the function header
     arg_expr = parse_expr(); // parse this argument
-    // if parsing variable arguments
-    if(current_arg_position - function_table[func_id].num_fixed_args > 0){
-      // if this argument is a variable one, then its type or size is not given by a declaration at the function header, but from the result of the expression itself  
-      current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(arg_expr); 
+    // if this argument is a variable one, then its type or size is not given by a declaration at the function header, but from the result of the expression itself  
+    if(curr_arg_num > function_table[func_id].num_fixed_args) arg_type = arg_expr;
+    // if the argument is a fixed one, then its type and hence size, is given in the function declaration
+    else arg_type = function_table[func_id].local_vars[curr_arg_num - 1].type;
+    current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(arg_type); 
 
-      if(arg_expr.ind_level > 0 || is_array(arg_expr)){
-        emitln("  swp b");
-        emitln("  push b");
-      }
-      else if(arg_expr.basic_type == DT_STRUCT){
-        emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(arg_expr));
-        emitln("  mov si, b"); 
-        emitln("  lea d, [sp + 1]");
-        emitln("  mov di, d");
-        emitln("  mov c, %d", get_type_size_for_func_arg_parsing(arg_expr));
-        emitln("  rep movsb");
-      }
-      else{
-        switch(arg_expr.basic_type){
-          case DT_CHAR:
-            emitln("  push bl");
-            break;
-          case DT_INT:
-            if(arg_expr.basic_type == DT_CHAR && arg_expr.ind_level == 0){
-              emitln("  snex b");
-            }
-            emitln("  swp b");
-            emitln("  push b");
-            break;
-        }
-      }
+    if(arg_type.ind_level > 0 || is_array(arg_type)){
+      emitln("  swp b");
+      emitln("  push b");
     }
-    // else, parsing the fixed arguments
-    else{
-      // if the argument is a fixed one, then its type and hence size, is given in the function declaration
-      current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[current_arg_position - 1].type); 
-      if(function_table[func_id].local_vars[current_arg_position - 1].type.ind_level > 0 || 
-        is_array(function_table[func_id].local_vars[current_arg_position - 1].type)
-      ){
-        emitln("  swp b");
-        emitln("  push b");
-      }
-      else if(function_table[func_id].local_vars[current_arg_position - 1].type.basic_type == DT_STRUCT){
-        emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[current_arg_position - 1].type));
-        emitln("  mov si, b"); 
-        emitln("  lea d, [sp + 1]");
-        emitln("  mov di, d");
-        emitln("  mov c, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[current_arg_position - 1].type));
-        emitln("  rep movsb");
-      }
-      else{
-        switch(function_table[func_id].local_vars[current_arg_position - 1].type.basic_type){
-          case DT_CHAR:
-            emitln("  push bl");
-            break;
-          case DT_INT:
-            if(arg_expr.basic_type == DT_CHAR && arg_expr.ind_level == 0) emitln("  snex b");
-            emitln("  swp b");
-            emitln("  push b");
-            break;
-        }
-      }
+    else if(arg_type.primitive_type == DT_STRUCT){
+      emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(arg_type));
+      emitln("  mov si, b"); 
+      emitln("  lea d, [sp + 1]");
+      emitln("  mov di, d");
+      emitln("  mov c, %d", get_type_size_for_func_arg_parsing(arg_type));
+      emitln("  rep movsb");
     }
-    current_arg_position--;
-    pop_prog(); // recover prog position, which is exactly one char to the right of the comma after which this current argument comes
-  } while(current_arg_position > 0); 
-
+    else if(arg_type.primitive_type == DT_CHAR){
+      emitln("  push bl");
+    }
+    else if(arg_type.primitive_type == DT_INT){
+      if(arg_type.primitive_type == DT_CHAR && arg_type.ind_level == 0) emitln("  snex b");
+      emitln("  swp b");
+      emitln("  push b");
+    }
+    curr_arg_num--;
+    pop_prog(); // recover prog position, which is exactly one char to the left of the comma after which this current argument comes
+  } while(curr_arg_num > 0); 
 
   // Check if the number of arguments matches the number of function parameters
   // but only if the function does not have variable arguments
@@ -2326,7 +2290,6 @@ void parse_function_call(int func_id){
     error("Incorrect number of arguments for function: %s. Expecting %d, detected: %d", function_table[func_id].name, function_table[func_id].num_fixed_args, total_function_arguments);
 
   emitln("  call %s", function_table[func_id].name);
-  //if(tok != CLOSING_PAREN) error("Closing paren expected");
   // the function's return value is in register B
   if(function_table[func_id].total_parameter_size > 0)
     emitln("  add sp, %d", current_func_call_total_arg_size); // clean stack of the arguments added to it
@@ -2411,7 +2374,7 @@ void parse_function_call(int func_id){
       emitln("  swp b");
       emitln("  push b");
     }
-    else if(function_table[func_id].local_vars[param_index].type.basic_type == DT_STRUCT){
+    else if(function_table[func_id].local_vars[param_index].type.primitive_type == DT_STRUCT){
       emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[param_index].type));
       emitln("  mov si, b"); 
       emitln("  lea d, [sp + 1]");
@@ -2420,12 +2383,12 @@ void parse_function_call(int func_id){
       emitln("  rep movsb");
     }
     else{
-      switch(function_table[func_id].local_vars[param_index].type.basic_type){
+      switch(function_table[func_id].local_vars[param_index].type.primitive_type){
         case DT_CHAR:
           emitln("  push bl");
           break;
         case DT_INT:
-          if(expr_in.basic_type == DT_CHAR && expr_in.ind_level == 0){
+          if(expr_in.primitive_type == DT_CHAR && expr_in.ind_level == 0){
             emitln("  snex b");
           }
           emitln("  swp b");
@@ -2461,7 +2424,7 @@ void dbg_print_var_info(t_var *var){
   printf("Func Name: %s\n", function_table[var->function_id].name);
   printf("Is Parameter: %d\n", var->is_parameter);
   printf("Is Static: %d\n", var->is_static);
-  printf("Basic Type: %s\n", basic_type_to_str_table[var->type.basic_type]);
+  printf("Basic Type: %s\n", primitive_type_to_str_table[var->type.primitive_type]);
   for(i = 0; var->type.dims[i]; i++)
     printf("Dims[%d]: %d\n", i, var->type.dims[i]);
   printf("Ind Level: %d\n", var->type.ind_level);
@@ -2475,7 +2438,7 @@ void dbg_print_type_info(t_type *type){
   int i;
 
   printf("*******************************************\n");
-  printf("Basic Type: %s\n", basic_type_to_str_table[type->basic_type]);
+  printf("Basic Type: %s\n", primitive_type_to_str_table[type->primitive_type]);
   for(i = 0; type->dims[i]; i++)
     printf("Dims[%d]: %d\n", i, type->dims[i]);
   printf("Ind Level: %d\n", type->ind_level);
@@ -2511,7 +2474,7 @@ char **p;
 p++ increases p by 2 since it is a pointer to pointer.
 */
 int get_pointer_unit(t_type type){
-  switch(type.basic_type){
+  switch(type.primitive_type){
     case DT_VOID:
       return 1;
       break;
@@ -2584,76 +2547,76 @@ t_type emit_array_arithmetic(t_type type){
 t_type cast(t_type t1, t_type t2){
   t_type type;
 
-  switch(t1.basic_type){
+  switch(t1.primitive_type){
     case DT_CHAR:
-      switch(t2.basic_type){
+      switch(t2.primitive_type){
         case DT_CHAR:
           if(t1.ind_level > 0){
-            type.basic_type = DT_CHAR;
+            type.primitive_type = DT_CHAR;
             type.ind_level  = t1.ind_level;
             type.signedness = t1.signedness;
           }
           else if(t2.ind_level > 0){
-            type.basic_type = DT_CHAR;
+            type.primitive_type = DT_CHAR;
             type.ind_level  = t2.ind_level;
             type.signedness = t2.signedness;
           }
           else{
-            type.basic_type = DT_INT;
+            type.primitive_type = DT_INT;
             type.ind_level  = 0;
             type.signedness = SNESS_SIGNED;
           }
           break;
         case DT_INT:
           if(t1.ind_level > 0){
-            type.basic_type = DT_CHAR;
+            type.primitive_type = DT_CHAR;
             type.ind_level  = t1.ind_level;
             type.signedness = t1.signedness;
           }
           else if(t2.ind_level > 0){
-            type.basic_type = DT_INT;
+            type.primitive_type = DT_INT;
             type.ind_level  = t2.ind_level;
             type.signedness = t2.signedness;
           }
           else{
-            type.basic_type = DT_INT;
+            type.primitive_type = DT_INT;
             type.ind_level  = 0;
             type.signedness = t2.signedness; // assign whatever the int's signedness is
           }
       }
       break;
     case DT_INT:
-      switch(t2.basic_type){
+      switch(t2.primitive_type){
         case DT_CHAR:
           if(t1.ind_level > 0){
-            type.basic_type = DT_INT;
+            type.primitive_type = DT_INT;
             type.ind_level  = t1.ind_level;
             type.signedness = t1.signedness; // assign whatever the int's signednss is
           }
           else if(t2.ind_level > 0){
-            type.basic_type = DT_CHAR;
+            type.primitive_type = DT_CHAR;
             type.ind_level  = t2.ind_level;
             type.signedness = t2.signedness; // assign whatever the char* signedness is
           }
           else{
-            type.basic_type = DT_INT;
+            type.primitive_type = DT_INT;
             type.ind_level  = 0;
             type.signedness = t1.signedness; // assign whatever the int's signedness is
           }
           break;
         case DT_INT:
           if(t1.ind_level > 0){
-            type.basic_type = DT_INT;
+            type.primitive_type = DT_INT;
             type.ind_level  = t1.ind_level;
             type.signedness = t1.signedness;
           }
           else if(t2.ind_level > 0){
-            type.basic_type = DT_INT;
+            type.primitive_type = DT_INT;
             type.ind_level  = t2.ind_level;
             type.signedness = t2.signedness;
           }
           else{
-            type.basic_type = DT_INT;
+            type.primitive_type = DT_INT;
             type.ind_level  = 0;
             if(t1.signedness == SNESS_UNSIGNED || t2.signedness == SNESS_UNSIGNED)
               type.signedness = SNESS_UNSIGNED;
@@ -2741,7 +2704,7 @@ t_type emit_var_addr_into_d(char *var_name){
   if((var_id = local_var_exists(var_name)) != -1){ // is a local variable
     type = function_table[current_func_id].local_vars[var_id].type;
     if(function_table[current_func_id].local_vars[var_id].is_static){
-      if(is_array(function_table[current_func_id].local_vars[var_id].type) || (function_table[current_func_id].local_vars[var_id].type.basic_type == DT_STRUCT && function_table[current_func_id].local_vars[var_id].type.ind_level == 0))
+      if(is_array(function_table[current_func_id].local_vars[var_id].type) || (function_table[current_func_id].local_vars[var_id].type.primitive_type == DT_STRUCT && function_table[current_func_id].local_vars[var_id].type.ind_level == 0))
         emitln("  mov d, _static_%s_%s_data ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
       else
         emitln("  mov d, _static_%s_%s ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
@@ -2760,7 +2723,7 @@ t_type emit_var_addr_into_d(char *var_name){
   }
   else if((var_id = global_var_exists(var_name)) != -1){  // is a global variable
     type = global_var_table[var_id].type;
-    if(is_array(global_var_table[var_id].type) || (global_var_table[var_id].type.basic_type == DT_STRUCT && global_var_table[var_id].type.ind_level == 0)) 
+    if(is_array(global_var_table[var_id].type) || (global_var_table[var_id].type.primitive_type == DT_STRUCT && global_var_table[var_id].type.ind_level == 0)) 
       emitln("  mov d, _%s_data ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
     else
       emitln("  mov d, _%s ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
@@ -2837,14 +2800,14 @@ int get_array_offset(char dim, t_type type){
   if(dim < array_dim_count(type) - 1){
     for(i = dim + 1; i < array_dim_count(type); i++)
       offset = offset * type.dims[i];
-    return offset * get_basic_type_size(type);
+    return offset * get_primitive_type_size(type);
   }
   else
-    return 1 * get_basic_type_size(type);
+    return 1 * get_primitive_type_size(type);
 }
 
 int is_struct(t_type type){
-  return type.basic_type == DT_STRUCT;
+  return type.primitive_type == DT_STRUCT;
 }
 
 int is_array(t_type type){
@@ -2867,13 +2830,13 @@ int get_total_type_size(t_type type){
     size = size * type.dims[i];
   
   // if it is not a array, it will return 1 * the data size
-  return size * get_basic_type_size(type);
+  return size * get_primitive_type_size(type);
 }
 
-int get_basic_type_size(t_type type){
+int get_primitive_type_size(t_type type){
   if(type.ind_level > 0) 
     return 2;
-  else switch(type.basic_type){
+  else switch(type.primitive_type){
     case DT_CHAR:
       return 1;
     case DT_INT:
@@ -2889,7 +2852,7 @@ int get_type_size_for_func_arg_parsing(t_type type){
   else if(is_array(type)){
     return 2;
   }
-  else switch(type.basic_type){
+  else switch(type.primitive_type){
     case DT_CHAR:
       return 1;
     case DT_INT:
@@ -2909,7 +2872,7 @@ int get_struct_size(int id){
     for(j = 0; struct_table[id].elements[i].type.dims[j]; j++)
       array_size *= struct_table[id].elements[i].type.dims[j];
     if(struct_table[id].elements[i].type.ind_level > 0) size += array_size * 2;
-    else switch(struct_table[id].elements[i].type.basic_type){
+    else switch(struct_table[id].elements[i].type.primitive_type){
       case DT_CHAR:
         size += array_size * 1;
         break;
@@ -2927,7 +2890,7 @@ int get_struct_size(int id){
 int get_data_size_for_indexing(t_type type){
   if(type.ind_level >= 2) 
     return 2;
-  else switch(type.basic_type){
+  else switch(type.primitive_type){
     case DT_CHAR:
       return 1;
     case DT_INT:
@@ -3000,9 +2963,9 @@ int declare_struct(){
       else if(tok == LONG)     new_struct.elements[element_tos].type.longness   = LNESS_LONG;
       get();
     }
-    new_struct.elements[element_tos].type.basic_type = get_basic_type_from_tok();
+    new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
     new_struct.elements[element_tos].type.struct_id = -1;
-    if(new_struct.elements[element_tos].type.basic_type == DT_STRUCT){
+    if(new_struct.elements[element_tos].type.primitive_type == DT_STRUCT){
       get();
       if(tok == OPENING_BRACE){ // internal struct declaration!
         back();
@@ -3023,7 +2986,7 @@ int declare_struct(){
       get();
     }
 // *********************************************************************************************
-    if(new_struct.elements[element_tos].type.basic_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) error("Invalid type in variable");
+    if(new_struct.elements[element_tos].type.primitive_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) error("Invalid type in variable");
 
     strcpy(new_struct.elements[element_tos].name, token);
     new_struct.elements[element_tos].type.dims[0] = 0;
@@ -3087,7 +3050,7 @@ void declare_struct_global_vars(int struct_id){
     // checks if there is another global variable with the same name
     if(search_global_var(token) != -1) error("Duplicate global variable");
     
-    global_var_table[global_var_tos].type.basic_type = DT_STRUCT;
+    global_var_table[global_var_tos].type.primitive_type = DT_STRUCT;
     global_var_table[global_var_tos].type.ind_level = ind_level;
     global_var_table[global_var_tos].type.struct_id = struct_id;
     global_var_table[global_var_tos].type.dims[0] = 0;
@@ -3140,7 +3103,7 @@ void declare_struct_global_vars(int struct_id){
       get();
     }
     else{
-      if(dim > 0 || global_var_table[global_var_tos].type.basic_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0){
+      if(dim > 0 || global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0){
         emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
       }
       else
@@ -3177,7 +3140,7 @@ void parse_struct_initialization_data(int struct_id, int array_size){
           int_const = get_enum_val(token);
           toktype = INTEGER_CONST;
         }
-        switch(struct_table[struct_id].elements[i].type.basic_type){
+        switch(struct_table[struct_id].elements[i].type.primitive_type){
           case DT_STRUCT:
             expect(OPENING_BRACE, "Opening braces expected for array or struct element initialization.");
             parse_struct_initialization_data(struct_table[struct_id].elements[i].type.struct_id, 1);
@@ -3372,9 +3335,9 @@ void declare_global(void){
     else if(tok == LONG) type.longness = LNESS_LONG;
     get();
   }
-  type.basic_type = get_basic_type_from_tok();
+  type.primitive_type = get_primitive_type_from_tok();
   type.struct_id = -1;
-  if(type.basic_type == DT_STRUCT){ // check if this is a struct
+  if(type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
     struct_id = search_struct(token);
     if(struct_id == -1) error("Undeclared struct: %s", token);
@@ -3392,7 +3355,7 @@ void declare_global(void){
     }
 // *********************************************************************************************
     if(toktype != IDENTIFIER) error("Identifier expected");
-    if(global_var_table[global_var_tos].type.basic_type == DT_VOID && global_var_table[global_var_tos].type.ind_level == 0) error("Invalid type in variable: %s", token);
+    if(global_var_table[global_var_tos].type.primitive_type == DT_VOID && global_var_table[global_var_tos].type.ind_level == 0) error("Invalid type in variable: %s", token);
 
     // checks if there is another global variable with the same name
     if(search_global_var(token) != -1) error("Duplicate global variable: %s", token);
@@ -3437,13 +3400,13 @@ void declare_global(void){
     }
 
     // _data section for var is emmitted if:
-    // ind_level == 1 && data.basic_type_char
+    // ind_level == 1 && data.primitive_type_char
     // var is a array (dims > 0)
     // checks for variable initialization
     if(tok == ASSIGNMENT)
       emit_global_var_initialization(&global_var_table[global_var_tos]);
     else{ // no assignment!
-      if(dim > 0 || (global_var_table[global_var_tos].type.basic_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0)){
+      if(dim > 0 || (global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0)){
         emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
         //emit_data("_%s: .dw _%s_data\n", global_var_table[global_var_tos].name, global_var_table[global_var_tos].name);
       }
@@ -3493,13 +3456,13 @@ void emit_global_var_initialization(t_var *var){
     expect(CLOSING_BRACE, "Closing braces expected");
     // fill in the remaining unitialized array values with 0's 
     emit_data("\n");
-    if(get_total_type_size(var->type) - j * get_basic_type_size(var->type) > 0){
-      emit_data(".fill %u, 0\n", get_total_type_size(var->type) - j * get_basic_type_size(var->type));
+    if(get_total_type_size(var->type) - j * get_primitive_type_size(var->type) > 0){
+      emit_data(".fill %u, 0\n", get_total_type_size(var->type) - j * get_primitive_type_size(var->type));
     }
   }
   else{
     get();
-    switch(var->type.basic_type){
+    switch(var->type.primitive_type){
       case DT_VOID:
         emit_data("_%s: ", var->name);
         emit_data_dbdw(var->type);
@@ -3578,15 +3541,15 @@ void emit_static_var_initialization(t_var *var){
       }
     } while(tok == COMMA);
     // fill in the remaining unitialized array values with 0's 
-    if(get_total_type_size(var->type) - j * get_basic_type_size(var->type) > 0){
-      emit_data(".fill %u, 0\n", get_total_type_size(var->type) - j * get_basic_type_size(var->type));
+    if(get_total_type_size(var->type) - j * get_primitive_type_size(var->type) > 0){
+      emit_data(".fill %u, 0\n", get_total_type_size(var->type) - j * get_primitive_type_size(var->type));
     }
     emit_data("_static_%s: .dw _static_%s_%s_data\n", function_table[current_func_id].name, var->name, var->name);
     expect(CLOSING_BRACE, "Closing braces expected");
   }
   else{
     get();
-    switch(var->type.basic_type){
+    switch(var->type.primitive_type){
       case DT_VOID:
         emit_data("_static_%s_%s: ", function_table[current_func_id].name, var->name);
         emit_data_dbdw(var->type);
@@ -3623,8 +3586,8 @@ void emit_static_var_initialization(t_var *var){
 }
 
 void emit_data_dbdw(t_type type){
-  if((type.ind_level >  0 && type.basic_type == DT_CHAR && type.dims[0] == 0)
-  || (type.ind_level == 0 && type.basic_type == DT_CHAR)
+  if((type.ind_level >  0 && type.primitive_type == DT_CHAR && type.dims[0] == 0)
+  || (type.ind_level == 0 && type.primitive_type == DT_CHAR)
   ) 
     emit_data(".db ");
   else
@@ -3670,7 +3633,7 @@ int local_var_exists(char *var_name){
   return -1;
 }
 
-t_basic_type get_basic_type_from_tok(){
+t_primitive_type get_primitive_type_from_tok(){
   switch(tok){
     case VOID:
       return DT_VOID;
@@ -3709,9 +3672,9 @@ int declare_local(void){
     else if(tok == STATIC) new_var.is_static = true;
     get();
   }
-  new_var.type.basic_type = get_basic_type_from_tok();
+  new_var.type.primitive_type = get_primitive_type_from_tok();
   new_var.type.struct_id = -1;
-  if(new_var.type.basic_type == DT_STRUCT){ // check if this is a struct
+  if(new_var.type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
     struct_id = search_struct(token);
     if(struct_id == -1) error("Undeclared struct: %s", token);
@@ -3774,7 +3737,7 @@ int declare_local(void){
       if(tok == ASSIGNMENT)
         emit_static_var_initialization(&new_var);
       else{
-        if(new_var.type.dims[0] > 0 || new_var.type.basic_type == DT_STRUCT){
+        if(new_var.type.dims[0] > 0 || new_var.type.primitive_type == DT_STRUCT){
           emit_data("_static_%s_%s_data: .fill %u, 0\n", function_table[current_func_id].name, new_var.name, get_total_type_size(new_var.type));
           //emit_data("_static_%s_%s_: .dw _static_%s_%s_data\n", function_table[current_func_id].name, new_var.name, function_table[current_func_id].name, new_var.name);
         }
@@ -3808,7 +3771,7 @@ int declare_local(void){
           }
           if(toktype != CHAR_CONST && toktype != INTEGER_CONST) error("Local variable initialization is non constant");
           //emitln("  lea d, [sp + %d]", current_function_var_bp_offset + 1);
-          if(new_var.type.basic_type == DT_CHAR){
+          if(new_var.type.primitive_type == DT_CHAR){
             if(toktype == CHAR_CONST){
               emitln("  mov al, $%x", string_const[0]);
               emitln("  mov [bp + %d], al", new_var.bp_offset);
@@ -3820,7 +3783,7 @@ int declare_local(void){
               //emitln("  mov [d], al");
             }
           }
-          else if(new_var.type.basic_type == DT_INT || new_var.type.ind_level > 0){
+          else if(new_var.type.primitive_type == DT_INT || new_var.type.ind_level > 0){
             if(toktype == CHAR_CONST){
               emitln("  mov a, $%x", string_const[0]);
               emitln("  mov [bp + %d], a", new_var.bp_offset);

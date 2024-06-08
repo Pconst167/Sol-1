@@ -246,7 +246,7 @@ typedef union {
 // basic data types
 typedef enum {
   DT_VOID = 1, DT_CHAR, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRUCT
-} t_basic_type;
+} t_primitive_type;
 
 typedef enum {
   LNESS_NORMAL, LNESS_LONG
@@ -265,7 +265,7 @@ typedef struct{
 } t_enum;
 
 typedef struct {
-  t_basic_type basic_type;
+  t_primitive_type primitive_type;
   t_signedness signedness;
   t_longness longness;
   char is_constant; // is it a constant?
@@ -317,7 +317,7 @@ typedef struct {
   char num_fixed_args;
 } t_function;
 
-char *basic_type_to_str_table[] = {
+char *primitive_type_to_str_table[] = {
   "unused",
   "void",
   "char",
@@ -574,7 +574,7 @@ void parse_goto(void);
 
 t_type cast(t_type t1, t_type t2);
 
-t_basic_type get_var_type(char *var_name);
+t_primitive_type get_var_type(char *var_name);
 int get_num_array_elements(t_type type);
 int get_array_offset(char dim, t_type array);
 int get_data_size_for_indexing(t_type type);
@@ -585,13 +585,13 @@ int get_total_type_size(t_type type);
 char *get_var_base_addr(char *dest, char *var_name);
 int get_param_size(void);
 int get_pointer_unit(t_type type);
-int get_basic_type_size(t_type type);
+int get_primitive_type_size(t_type type);
 int get_type_size_for_func_arg_parsing(t_type type);
 int get_struct_size(int id);
 int get_struct_elements_count(int struct_id);
 int get_struct_element_offset(int struct_id, char *name);
 t_type get_struct_element_type(int struct_id, char *name);
-t_basic_type get_basic_type_from_tok(void);
+t_primitive_type get_primitive_type_from_tok(void);
 int is_struct(t_type type);
 
 int find_array_initialization_size(void);
