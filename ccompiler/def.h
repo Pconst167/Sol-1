@@ -426,7 +426,7 @@ int struct_table_tos;
 int defines_tos;
 int typedef_table_tos;
 
-char *prog_stack[10];
+char *prog_stack[256];
 int prog_tos;
 
 int errors_in_a_row;
@@ -618,7 +618,7 @@ int is_register(char *name);
 int is_assignment(void);
 void push_prog(void);
 void pop_prog(void);
-void goto_beginning_of_arg(void);
+void goto_beginning_of_arg(int paren_count);
 
 
 char is_space(char c);

@@ -24,11 +24,11 @@ main:
   call gets
   add sp, 2
 ;; base64_encode(input, output); 
-  lea d, [bp + -255] ; $input
+  lea d, [bp + -767] ; $output
   mov b, d
   swp b
   push b
-  lea d, [bp + -767] ; $output
+  lea d, [bp + -255] ; $input
   mov b, d
   swp b
   push b
@@ -367,105 +367,6 @@ _while4_exit:
   leave
   ret
 
-va_arg:
-  enter 0 ; (push bp; mov bp, sp)
-; $val 
-  sub sp, 2
-;; if(size == 1){ 
-_if5_cond:
-  lea d, [bp + 5] ; $size
-  mov b, [d]
-; START RELATIONAL
-  push a
-  mov a, b
-  mov b, $1
-  cmp a, b
-  seq ; ==
-  pop a
-; END RELATIONAL
-  cmp b, 0
-  je _if5_else
-_if5_true:
-;; val = *(char*)arg->p; 
-  lea d, [bp + -1] ; $val
-  push d
-  lea d, [bp + 7] ; $arg
-  mov d, [d]
-  add d, 0
-  clb
-  mov b, [d]
-  mov d, b
-  mov bl, [d]
-  mov bh, 0
-  pop d
-  mov [d], b
-  jmp _if5_exit
-_if5_else:
-;; if(size == 2){ 
-_if6_cond:
-  lea d, [bp + 5] ; $size
-  mov b, [d]
-; START RELATIONAL
-  push a
-  mov a, b
-  mov b, $2
-  cmp a, b
-  seq ; ==
-  pop a
-; END RELATIONAL
-  cmp b, 0
-  je _if6_else
-_if6_true:
-;; val = *(int*)arg->p; 
-  lea d, [bp + -1] ; $val
-  push d
-  lea d, [bp + 7] ; $arg
-  mov d, [d]
-  add d, 0
-  clb
-  mov b, [d]
-  mov d, b
-  mov b, [d]
-  pop d
-  mov [d], b
-  jmp _if6_exit
-_if6_else:
-;; print("Unknown type size in va_arg() call. Size needs to be either 1 or 2."); 
-  mov b, __s3 ; "Unknown type size in va_arg() call. Size needs to be either 1 or 2."
-  swp b
-  push b
-  call print
-  add sp, 2
-_if6_exit:
-_if5_exit:
-;; arg->p = arg->p + size; 
-  lea d, [bp + 7] ; $arg
-  mov d, [d]
-  add d, 0
-  clb
-  push d
-  lea d, [bp + 7] ; $arg
-  mov d, [d]
-  add d, 0
-  clb
-  mov b, [d]
-; START TERMS
-  push a
-  mov a, b
-  lea d, [bp + 5] ; $size
-  mov b, [d]
-  add a, b
-  mov b, a
-  pop a
-; END TERMS
-  pop d
-  mov [d], b
-;; return val; 
-  lea d, [bp + -1] ; $val
-  mov b, [d]
-  leave
-  ret
-
 printf:
   enter 0 ; (push bp; mov bp, sp)
 ; $p 
@@ -479,19 +380,27 @@ printf:
   mov b, [d]
   pop d
   mov [d], b
-;; p = &format; 
+;; p = &format + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + 5] ; $format
   mov b, d
+; START TERMS
+  push a
+  mov a, b
+  mov b, $2
+  add a, b
+  mov b, a
+  pop a
+; END TERMS
   pop d
   mov [d], b
 ;; for(;;){ 
-_for7_init:
-_for7_cond:
-_for7_block:
+_for5_init:
+_for5_cond:
+_for5_block:
 ;; if(!*fp) break; 
-_if8_cond:
+_if6_cond:
   lea d, [bp + -3] ; $fp
   mov b, [d]
   mov d, b
@@ -500,14 +409,14 @@ _if8_cond:
   cmp b, 0
   seq ; !
   cmp b, 0
-  je _if8_exit
-_if8_true:
+  je _if6_else
+_if6_true:
 ;; break; 
-  jmp _for7_exit ; for break
-  jmp _if8_exit
-_if8_exit:
+  jmp _for5_exit ; for break
+  jmp _if6_exit
+_if6_else:
 ;; if(*fp == '%'){ 
-_if9_cond:
+_if7_cond:
   lea d, [bp + -3] ; $fp
   mov b, [d]
   mov d, b
@@ -522,8 +431,8 @@ _if9_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _if9_else
-_if9_true:
+  je _if7_else
+_if7_true:
 ;; fp++; 
   lea d, [bp + -3] ; $fp
   mov b, [d]
@@ -533,44 +442,29 @@ _if9_true:
   mov [d], b
   mov b, g
 ;; switch(*fp){ 
-_switch10_expr:
+_switch8_expr:
   lea d, [bp + -3] ; $fp
   mov b, [d]
   mov d, b
   mov bl, [d]
   mov bh, 0
-_switch10_comparisons:
+_switch8_comparisons:
   cmp bl, $64
-  je _switch10_case0
+  je _switch8_case0
   cmp bl, $69
-  je _switch10_case1
+  je _switch8_case1
   cmp bl, $75
-  je _switch10_case2
+  je _switch8_case2
   cmp bl, $78
-  je _switch10_case3
+  je _switch8_case3
   cmp bl, $63
-  je _switch10_case4
+  je _switch8_case4
   cmp bl, $73
-  je _switch10_case5
-  jmp _switch10_default
-  jmp _switch10_exit
-_switch10_case0:
-_switch10_case1:
-;; p = p - 2; 
-  lea d, [bp + -1] ; $p
-  push d
-  lea d, [bp + -1] ; $p
-  mov b, [d]
-; START TERMS
-  push a
-  mov a, b
-  mov b, $2
-  sub a, b
-  mov b, a
-  pop a
-; END TERMS
-  pop d
-  mov [d], b
+  je _switch8_case5
+  jmp _switch8_default
+  jmp _switch8_exit
+_switch8_case0:
+_switch8_case1:
 ;; prints(*(int*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
@@ -580,10 +474,7 @@ _switch10_case1:
   push b
   call prints
   add sp, 2
-;; break; 
-  jmp _switch10_exit ; case break
-_switch10_case2:
-;; p = p - 2; 
+;; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -592,12 +483,15 @@ _switch10_case2:
   push a
   mov a, b
   mov b, $2
-  sub a, b
+  add a, b
   mov b, a
   pop a
 ; END TERMS
   pop d
   mov [d], b
+;; break; 
+  jmp _switch8_exit ; case break
+_switch8_case2:
 ;; printu(*(unsigned int*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
@@ -607,10 +501,7 @@ _switch10_case2:
   push b
   call printu
   add sp, 2
-;; break; 
-  jmp _switch10_exit ; case break
-_switch10_case3:
-;; p = p - 2; 
+;; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -619,12 +510,15 @@ _switch10_case3:
   push a
   mov a, b
   mov b, $2
-  sub a, b
+  add a, b
   mov b, a
   pop a
 ; END TERMS
   pop d
   mov [d], b
+;; break; 
+  jmp _switch8_exit ; case break
+_switch8_case3:
 ;; printx16(*(unsigned int*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
@@ -634,10 +528,7 @@ _switch10_case3:
   push b
   call printx16
   add sp, 2
-;; break; 
-  jmp _switch10_exit ; case break
-_switch10_case4:
-;; p = p - 2; 
+;; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -646,12 +537,15 @@ _switch10_case4:
   push a
   mov a, b
   mov b, $2
-  sub a, b
+  add a, b
   mov b, a
   pop a
 ; END TERMS
   pop d
   mov [d], b
+;; break; 
+  jmp _switch8_exit ; case break
+_switch8_case4:
 ;; putchar(*(char*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
@@ -661,10 +555,7 @@ _switch10_case4:
   push bl
   call putchar
   add sp, 1
-;; break; 
-  jmp _switch10_exit ; case break
-_switch10_case5:
-;; p = p - 2; 
+;; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -673,12 +564,15 @@ _switch10_case5:
   push a
   mov a, b
   mov b, $2
-  sub a, b
+  add a, b
   mov b, a
   pop a
 ; END TERMS
   pop d
   mov [d], b
+;; break; 
+  jmp _switch8_exit ; case break
+_switch8_case5:
 ;; print(*(char**)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
@@ -688,16 +582,31 @@ _switch10_case5:
   push b
   call print
   add sp, 2
+;; p = p + 2; 
+  lea d, [bp + -1] ; $p
+  push d
+  lea d, [bp + -1] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  mov b, $2
+  add a, b
+  mov b, a
+  pop a
+; END TERMS
+  pop d
+  mov [d], b
 ;; break; 
-  jmp _switch10_exit ; case break
-_switch10_default:
+  jmp _switch8_exit ; case break
+_switch8_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s4 ; "Error: Unknown argument type.\n"
+  mov b, __s3 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
   add sp, 2
-_switch10_exit:
+_switch8_exit:
 ;; fp++; 
   lea d, [bp + -3] ; $fp
   mov b, [d]
@@ -706,8 +615,8 @@ _switch10_exit:
   lea d, [bp + -3] ; $fp
   mov [d], b
   mov b, g
-  jmp _if9_exit
-_if9_else:
+  jmp _if7_exit
+_if7_else:
 ;; putchar(*fp); 
   lea d, [bp + -3] ; $fp
   mov b, [d]
@@ -725,10 +634,11 @@ _if9_else:
   lea d, [bp + -3] ; $fp
   mov [d], b
   mov b, g
-_if9_exit:
-_for7_update:
-  jmp _for7_cond
-_for7_exit:
+_if7_exit:
+_if6_exit:
+_for5_update:
+  jmp _for5_cond
+_for5_exit:
   leave
   ret
 
@@ -777,13 +687,13 @@ hex_to_int:
   pop d
   mov [d], b
 ;; for (i = 0; i < len; i++) { 
-_for11_init:
+_for9_init:
   lea d, [bp + -3] ; $i
   push d
   mov b, $0
   pop d
   mov [d], b
-_for11_cond:
+_for9_cond:
   lea d, [bp + -3] ; $i
   mov b, [d]
 ; START RELATIONAL
@@ -796,8 +706,8 @@ _for11_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _for11_exit
-_for11_block:
+  je _for9_exit
+_for9_block:
 ;; hex_char = hex_string[i]; 
   lea d, [bp + -4] ; $hex_char
   push d
@@ -815,7 +725,7 @@ _for11_block:
   pop d
   mov [d], bl
 ;; if (hex_char >= 'a' && hex_char <= 'f')  
-_if12_cond:
+_if10_cond:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
@@ -843,8 +753,8 @@ _if12_cond:
   sand a, b ; &&
   pop a
   cmp b, 0
-  je _if12_else
-_if12_true:
+  je _if10_else
+_if10_true:
 ;; value = (value * 16) + (hex_char - 'a' + 10); 
   lea d, [bp + -1] ; $value
   push d
@@ -881,10 +791,10 @@ _if12_true:
 ; END TERMS
   pop d
   mov [d], b
-  jmp _if12_exit
-_if12_else:
+  jmp _if10_exit
+_if10_else:
 ;; if (hex_char >= 'A' && hex_char <= 'F')  
-_if13_cond:
+_if11_cond:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
@@ -912,8 +822,8 @@ _if13_cond:
   sand a, b ; &&
   pop a
   cmp b, 0
-  je _if13_else
-_if13_true:
+  je _if11_else
+_if11_true:
 ;; value = (value * 16) + (hex_char - 'A' + 10); 
   lea d, [bp + -1] ; $value
   push d
@@ -950,8 +860,8 @@ _if13_true:
 ; END TERMS
   pop d
   mov [d], b
-  jmp _if13_exit
-_if13_else:
+  jmp _if11_exit
+_if11_else:
 ;; value = (value * 16) + (hex_char - '0'); 
   lea d, [bp + -1] ; $value
   push d
@@ -986,9 +896,9 @@ _if13_else:
 ; END TERMS
   pop d
   mov [d], b
-_if13_exit:
-_if12_exit:
-_for11_update:
+_if11_exit:
+_if10_exit:
+_for9_update:
   lea d, [bp + -3] ; $i
   mov b, [d]
   mov g, b
@@ -996,8 +906,8 @@ _for11_update:
   lea d, [bp + -3] ; $i
   mov [d], b
   mov b, g
-  jmp _for11_cond
-_for11_exit:
+  jmp _for9_cond
+_for9_exit:
 ;; return value; 
   lea d, [bp + -1] ; $value
   mov b, [d]
@@ -1014,7 +924,7 @@ atoi:
   mov [bp + -3], a
   sub sp, 4
 ;; while (*str == ' ') str++; 
-_while14_cond:
+_while12_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
   mov d, b
@@ -1029,8 +939,8 @@ _while14_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _while14_exit
-_while14_block:
+  je _while12_exit
+_while12_block:
 ;; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
@@ -1039,10 +949,10 @@ _while14_block:
   lea d, [bp + 5] ; $str
   mov [d], b
   mov b, g
-  jmp _while14_cond
-_while14_exit:
+  jmp _while12_cond
+_while12_exit:
 ;; if (*str == '-' || *str == '+') { 
-_if15_cond:
+_if13_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
   mov d, b
@@ -1074,10 +984,10 @@ _if15_cond:
   sor a, b ; ||
   pop a
   cmp b, 0
-  je _if15_exit
-_if15_true:
+  je _if13_exit
+_if13_true:
 ;; if (*str == '-') sign = -1; 
-_if16_cond:
+_if14_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
   mov d, b
@@ -1092,8 +1002,8 @@ _if16_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _if16_exit
-_if16_true:
+  je _if14_exit
+_if14_true:
 ;; sign = -1; 
   lea d, [bp + -3] ; $sign
   push d
@@ -1101,8 +1011,8 @@ _if16_true:
   neg b
   pop d
   mov [d], b
-  jmp _if16_exit
-_if16_exit:
+  jmp _if14_exit
+_if14_exit:
 ;; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
@@ -1111,10 +1021,10 @@ _if16_exit:
   lea d, [bp + 5] ; $str
   mov [d], b
   mov b, g
-  jmp _if15_exit
-_if15_exit:
+  jmp _if13_exit
+_if13_exit:
 ;; while (*str >= '0' && *str <= '9') { 
-_while17_cond:
+_while15_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
   mov d, b
@@ -1146,8 +1056,8 @@ _while17_cond:
   sand a, b ; &&
   pop a
   cmp b, 0
-  je _while17_exit
-_while17_block:
+  je _while15_exit
+_while15_block:
 ;; result = result * 10 + (*str - '0'); 
   lea d, [bp + -1] ; $result
   push d
@@ -1192,8 +1102,8 @@ _while17_block:
   lea d, [bp + 5] ; $str
   mov [d], b
   mov b, g
-  jmp _while17_cond
-_while17_exit:
+  jmp _while15_cond
+_while15_exit:
 ;; return sign * result; 
   lea d, [bp + -3] ; $sign
   mov b, [d]
@@ -1238,7 +1148,7 @@ prints:
   mov [bp + -6], a
   sub sp, 7
 ;; if (num < 0) { 
-_if18_cond:
+_if16_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
 ; START RELATIONAL
@@ -1250,8 +1160,8 @@ _if18_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _if18_else
-_if18_true:
+  je _if16_else
+_if16_true:
 ;; putchar('-'); 
   mov b, $2d
   push bl
@@ -1265,10 +1175,10 @@ _if18_true:
   neg b
   pop d
   mov [d], b
-  jmp _if18_exit
-_if18_else:
+  jmp _if16_exit
+_if16_else:
 ;; if (num == 0) { 
-_if19_cond:
+_if17_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
 ; START RELATIONAL
@@ -1280,8 +1190,8 @@ _if19_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _if19_exit
-_if19_true:
+  je _if17_exit
+_if17_true:
 ;; putchar('0'); 
   mov b, $30
   push bl
@@ -1290,11 +1200,11 @@ _if19_true:
 ;; return; 
   leave
   ret
-  jmp _if19_exit
-_if19_exit:
-_if18_exit:
+  jmp _if17_exit
+_if17_exit:
+_if16_exit:
 ;; while (num > 0) { 
-_while20_cond:
+_while18_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
 ; START RELATIONAL
@@ -1306,8 +1216,8 @@ _while20_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _while20_exit
-_while20_block:
+  je _while18_exit
+_while18_block:
 ;; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
@@ -1362,10 +1272,10 @@ _while20_block:
   lea d, [bp + -6] ; $i
   mov [d], b
   mov b, g
-  jmp _while20_cond
-_while20_exit:
+  jmp _while18_cond
+_while18_exit:
 ;; while (i > 0) { 
-_while21_cond:
+_while19_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
 ; START RELATIONAL
@@ -1377,8 +1287,8 @@ _while21_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _while21_exit
-_while21_block:
+  je _while19_exit
+_while19_block:
 ;; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
@@ -1401,8 +1311,8 @@ _while21_block:
   push bl
   call putchar
   add sp, 1
-  jmp _while21_cond
-_while21_exit:
+  jmp _while19_cond
+_while19_exit:
   leave
   ret
 
@@ -1418,7 +1328,7 @@ printu:
   pop d
   mov [d], b
 ;; if(num == 0){ 
-_if22_cond:
+_if20_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
 ; START RELATIONAL
@@ -1430,8 +1340,8 @@ _if22_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _if22_exit
-_if22_true:
+  je _if20_exit
+_if20_true:
 ;; putchar('0'); 
   mov b, $30
   push bl
@@ -1440,10 +1350,10 @@ _if22_true:
 ;; return; 
   leave
   ret
-  jmp _if22_exit
-_if22_exit:
+  jmp _if20_exit
+_if20_exit:
 ;; while (num > 0) { 
-_while23_cond:
+_while21_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
 ; START RELATIONAL
@@ -1455,8 +1365,8 @@ _while23_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _while23_exit
-_while23_block:
+  je _while21_exit
+_while21_block:
 ;; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
@@ -1511,10 +1421,10 @@ _while23_block:
   lea d, [bp + -6] ; $i
   mov [d], b
   mov b, g
-  jmp _while23_cond
-_while23_exit:
+  jmp _while21_cond
+_while21_exit:
 ;; while (i > 0) { 
-_while24_cond:
+_while22_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
 ; START RELATIONAL
@@ -1526,8 +1436,8 @@ _while24_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _while24_exit
-_while24_block:
+  je _while22_exit
+_while22_block:
 ;; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
@@ -1550,8 +1460,8 @@ _while24_block:
   push bl
   call putchar
   add sp, 1
-  jmp _while24_cond
-_while24_exit:
+  jmp _while22_cond
+_while22_exit:
   leave
   ret
 
@@ -1850,7 +1760,7 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s5 ; "\033[2J\033[H"
+  mov b, __s4 ; "\033[2J\033[H"
   swp b
   push b
   call print
@@ -1943,7 +1853,7 @@ base64_encode:
   pop d
   mov [d], b
 ;; while (input_len--) { 
-_while25_cond:
+_while23_cond:
   lea d, [bp + -7] ; $input_len
   mov b, [d]
   mov g, b
@@ -1952,8 +1862,8 @@ _while25_cond:
   mov [d], b
   mov b, g
   cmp b, 0
-  je _while25_exit
-_while25_block:
+  je _while23_exit
+_while23_block:
 ;; input_buffer[i++] = *(input++); 
   lea d, [bp + -10] ; $input_buffer
   push a
@@ -1982,7 +1892,7 @@ _while25_block:
   pop d
   mov [d], bl
 ;; if (i == 3) { 
-_if26_cond:
+_if24_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
 ; START RELATIONAL
@@ -1994,8 +1904,8 @@ _if26_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _if26_exit
-_if26_true:
+  je _if24_exit
+_if24_true:
 ;; output_buffer[0] = (input_buffer[0] & 0xFC) >> 2; 
   lea d, [bp + -14] ; $output_buffer
   push a
@@ -2190,13 +2100,13 @@ _if26_true:
   pop d
   mov [d], bl
 ;; for (i = 0; i < 4; i++) { 
-_for27_init:
+_for25_init:
   lea d, [bp + -1] ; $i
   push d
   mov b, $0
   pop d
   mov [d], b
-_for27_cond:
+_for25_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
 ; START RELATIONAL
@@ -2208,8 +2118,8 @@ _for27_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _for27_exit
-_for27_block:
+  je _for25_exit
+_for25_block:
 ;; output[j++] = base64_table[output_buffer[i]]; 
   lea d, [bp + 5] ; $output
   mov d, [d]
@@ -2247,7 +2157,7 @@ _for27_block:
   mov bh, 0
   pop d
   mov [d], bl
-_for27_update:
+_for25_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov g, b
@@ -2255,34 +2165,34 @@ _for27_update:
   lea d, [bp + -1] ; $i
   mov [d], b
   mov b, g
-  jmp _for27_cond
-_for27_exit:
+  jmp _for25_cond
+_for25_exit:
 ;; i = 0; 
   lea d, [bp + -1] ; $i
   push d
   mov b, $0
   pop d
   mov [d], b
-  jmp _if26_exit
-_if26_exit:
-  jmp _while25_cond
-_while25_exit:
+  jmp _if24_exit
+_if24_exit:
+  jmp _while23_cond
+_while23_exit:
 ;; if (i) { 
-_if28_cond:
+_if26_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
   cmp b, 0
-  je _if28_exit
-_if28_true:
+  je _if26_exit
+_if26_true:
 ;; for (k = i; k < 3; k++) { 
-_for29_init:
+_for27_init:
   lea d, [bp + -5] ; $k
   push d
   lea d, [bp + -1] ; $i
   mov b, [d]
   pop d
   mov [d], b
-_for29_cond:
+_for27_cond:
   lea d, [bp + -5] ; $k
   mov b, [d]
 ; START RELATIONAL
@@ -2294,8 +2204,8 @@ _for29_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _for29_exit
-_for29_block:
+  je _for27_exit
+_for27_block:
 ;; input_buffer[k] = '\0'; 
   lea d, [bp + -10] ; $input_buffer
   push a
@@ -2309,7 +2219,7 @@ _for29_block:
   mov b, $0
   pop d
   mov [d], bl
-_for29_update:
+_for27_update:
   lea d, [bp + -5] ; $k
   mov b, [d]
   mov g, b
@@ -2317,8 +2227,8 @@ _for29_update:
   lea d, [bp + -5] ; $k
   mov [d], b
   mov b, g
-  jmp _for29_cond
-_for29_exit:
+  jmp _for27_cond
+_for27_exit:
 ;; output_buffer[0] = (input_buffer[0] & 0xFC) >> 2; 
   lea d, [bp + -14] ; $output_buffer
   push a
@@ -2487,13 +2397,13 @@ _for29_exit:
   pop d
   mov [d], bl
 ;; for (k = 0; k < i + 1; k++) { 
-_for30_init:
+_for28_init:
   lea d, [bp + -5] ; $k
   push d
   mov b, $0
   pop d
   mov [d], b
-_for30_cond:
+_for28_cond:
   lea d, [bp + -5] ; $k
   mov b, [d]
 ; START RELATIONAL
@@ -2514,8 +2424,8 @@ _for30_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _for30_exit
-_for30_block:
+  je _for28_exit
+_for28_block:
 ;; output[j++] = base64_table[output_buffer[k]]; 
   lea d, [bp + 5] ; $output
   mov d, [d]
@@ -2553,7 +2463,7 @@ _for30_block:
   mov bh, 0
   pop d
   mov [d], bl
-_for30_update:
+_for28_update:
   lea d, [bp + -5] ; $k
   mov b, [d]
   mov g, b
@@ -2561,10 +2471,10 @@ _for30_update:
   lea d, [bp + -5] ; $k
   mov [d], b
   mov b, g
-  jmp _for30_cond
-_for30_exit:
+  jmp _for28_cond
+_for28_exit:
 ;; while (i++ < 3) { 
-_while31_cond:
+_while29_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov g, b
@@ -2581,8 +2491,8 @@ _while31_cond:
   pop a
 ; END RELATIONAL
   cmp b, 0
-  je _while31_exit
-_while31_block:
+  je _while29_exit
+_while29_block:
 ;; output[j++] = '='; 
   lea d, [bp + 5] ; $output
   mov d, [d]
@@ -2602,10 +2512,10 @@ _while31_block:
   mov b, $3d
   pop d
   mov [d], bl
-  jmp _while31_cond
-_while31_exit:
-  jmp _if28_exit
-_if28_exit:
+  jmp _while29_cond
+_while29_exit:
+  jmp _if26_exit
+_if26_exit:
 ;; output[j] = '\0'; 
   lea d, [bp + 5] ; $output
   mov d, [d]
@@ -2630,9 +2540,8 @@ _base64_table: .dw _base64_table_data
 __s0: .db "Enter a string to encode in base64: ", 0
 __s1: .db "Base64 encoded string: ", 0
 __s2: .db "\n", 0
-__s3: .db "Unknown type size in va_arg() call. Size needs to be either 1 or 2.", 0
-__s4: .db "Error: Unknown argument type.\n", 0
-__s5: .db "\033[2J\033[H", 0
+__s3: .db "Error: Unknown argument type.\n", 0
+__s4: .db "\033[2J\033[H", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

@@ -2121,11 +2121,7 @@ t_type parse___asm(){
 // when the left-most argument is met, the separator is no longer a comma, but an opening parenthesis, so we need to keep track of
 // the number of parenthesis inside the function header because there could be expressions containing parenthesis there as well.
 // todo: problem will arise if there are escaped double quotes \" inside any double quoted string arguments
-void goto_beginning_of_arg(){
-  // needs to be static because multiple calls are made to this function and the paren count needs to be kept
-  // between calls. if it were not static then the count would be cleared between calls 
-  static int paren_count = 0; 
-  
+void goto_beginning_of_arg(int parenthesis_count){
   for(;;){
     if(*prog == '\"'){
       prog--;
@@ -2134,10 +2130,10 @@ void goto_beginning_of_arg(){
         if(prog == c_in) error("Unterminated string.");
       }
     }
-    else if(*prog == ')') paren_count++;
+    else if(*prog == ')') parenthesis_count++;
     else if(*prog == '('){
-      paren_count--;
-      if(paren_count == 0){
+      parenthesis_count--;
+      if(parenthesis_count == 0){
         prog++; // skip the parenthesis 
         push_prog(); // save the current prog position so that we can go back to it when finished parsing this argument
         break;
@@ -2179,6 +2175,7 @@ void parse_function_call(int func_id){
   int current_func_call_total_arg_size;
   int curr_arg_num;
   int paren_count;
+  int parenthesis_count;
   char *prog_at_end_of_header;
 
   get();
@@ -2202,14 +2199,41 @@ void parse_function_call(int func_id){
     else if(tok == OPENING_PAREN) paren_count++;
     else if(tok == CLOSING_PAREN) paren_count--;
   } while(paren_count > 0);
-  // here prog is at ';'
   prog_at_end_of_header = prog;
+  
+  // while(is_space(*p));
+  prog--; // here prog is at ')'
 
+  parenthesis_count = 0;  
   curr_arg_num = total_function_arguments;
   // now we are at the end of the function header, at the ')' token.
   // go backwards finding one comma at a time, and then parsing the expression corresponding to that parameter.
   do{
-    goto_beginning_of_arg(); // rewinds prog left until it meets a ',' or the opening '(' of the function header
+    for(;;){
+      if(*prog == '\"'){
+        prog--;
+        while(*prog != '\"'){
+          prog--;
+          if(prog == c_in) error("Unterminated string.");
+        }
+      }
+      else if(*prog == ')') parenthesis_count++;
+      else if(*prog == '('){
+        parenthesis_count--;
+        if(parenthesis_count == 0){
+          prog++; // skip the parenthesis 
+          push_prog(); // save the current prog position so that we can go back to it when finished parsing this argument
+          break;
+        }
+      }
+      else if(*prog == ','){
+        prog--; // go back one position to the left to skip the comma char, for the next iteration
+        push_prog(); // save the current prog position so that we can go back to it when finished parsing this argument
+        prog += 2; // go forwards to skip the comma in order to parse the expression
+        break;
+      }
+      prog--;
+    }
     arg_expr = parse_expr(); // parse this argument
     // if this argument is a variable one, then its type or size is not given by a declaration at the function header, but from the result of the expression itself  
     if(curr_arg_num > function_table[func_id].num_fixed_args) arg_type = arg_expr;

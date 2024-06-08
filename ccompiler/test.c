@@ -1,9 +1,12 @@
-#include <stdio.h>
+
+
 
 int main(){
 
-  printf("Hello: %c %d %s", 'A', 64, "Paulo");  
+  printf(2, 'A', "Paulo", 1);
 
-  return 0;
+}
 
+
+void printf(int a, ...){
 }
