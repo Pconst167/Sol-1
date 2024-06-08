@@ -119,6 +119,7 @@ struct{
   char *as_str;
   t_token token;
 } token_to_str[] = {
+  "undefined",               TOK_UNDEF,
   "__asm",                   __ASM,
   "ampersand = bitwise_and", AMPERSAND, 
   "asm",                     ASM,

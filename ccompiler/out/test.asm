@@ -7,26 +7,20 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; ff3('1', '2', '3', '4'); 
-  mov b, $34
+;; putchar('A',1,2); 
+  mov b, $2
   swp b
   push b
-  mov b, $33
+  mov b, $1
   swp b
   push b
-  mov b, $32
-  swp b
-  push b
-  mov b, $31
+  mov b, $2
   push bl
-  call ff3
-  add sp, 7
-;; return 0; 
-  mov b, $0
-  leave
+  call putchar
+  add sp, 5
   syscall sys_terminate_proc
 
-ff3:
+putchar:
   enter 0 ; (push bp; mov bp, sp)
   leave
   ret

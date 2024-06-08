@@ -912,7 +912,7 @@ void parse_goto(void){
       return;
     }
   }
-  error("Undeclared identifier: %s", token);
+  error("(parse_goto) Undeclared identifier: %s", token);
 }
 
 void parse_if(void){
@@ -1816,7 +1816,7 @@ t_type parse_atomic(void){
         var_id = global_var_exists(token);
         emitln("  mov b, %d", get_total_type_size(global_var_table[var_id].type));
       }
-      else error("Undeclared identifier: %s", token);
+      else error("(Parse atomic) Undeclared identifier: %s", token);
       get();
     }
     else{
@@ -2167,7 +2167,7 @@ int parse_variable_args(){
 // the number of parenthesis inside the function header because there could be expressions containing parenthesis there as well.
 // todo: problem will arise if there are escaped double quotes \" inside any double quoted string arguments
 void goto_beginning_of_arg(){
-  int paren_count = 1;
+  int paren_count = 0;
   
   for(;;){
     if(*prog == '\"'){
@@ -2690,7 +2690,7 @@ char *get_var_base_addr(char *dest, char *var_name){
   else if(global_var_exists(var_name) != -1)  // is a global variable
     strcpy(dest, var_name);
   else 
-    error("Undeclared identifier: %s", var_name);
+    error("(get_var_base_addr) Undeclared identifier: %s", var_name);
 
   return dest;
 }
@@ -2728,7 +2728,7 @@ t_type emit_var_addr_into_d(char *var_name){
     else
       emitln("  mov d, _%s ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
   }
-  else error("Undeclared identifier: %s", var_name);
+  else error("(emit_var_addr_into_d) Undeclared identifier: %s", var_name);
 
   var = get_internal_var_ptr(var_name);
   get();

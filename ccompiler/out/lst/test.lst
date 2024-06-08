@@ -27,36 +27,30 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408             ;; ff3('1', '2', '3', '4'); 
-0011   0408 26 34 00      mov b, $34
+0010   0408             ;; putchar('A',1,2); 
+0011   0408 26 02 00      mov b, $2
 0012   040B FD AB         swp b
 0013   040D D8            push b
-0014   040E 26 33 00      mov b, $33
+0014   040E 26 01 00      mov b, $1
 0015   0411 FD AB         swp b
 0016   0413 D8            push b
-0017   0414 26 32 00      mov b, $32
-0018   0417 FD AB         swp b
-0019   0419 D8            push b
-0020   041A 26 31 00      mov b, $31
-0021   041D DD            push bl
-0022   041E 07 2A 04      call ff3
-0023   0421 51 07 00      add sp, 7
-0024   0424             ;; return 0; 
-0025   0424 26 00 00      mov b, $0
-0026   0427 F9            leave
-0027   0428 05 0B         syscall sys_terminate_proc
-0028   042A             
-0029   042A             ff3:
-0030   042A F8 00 00      enter 0 ; (push bp; mov bp, sp)
-0031   042D F9            leave
-0032   042E 09            ret
-0033   042F             ; --- END TEXT BLOCK
-0034   042F             
-0035   042F             ; --- BEGIN DATA BLOCK
-0036   042F             
-0037   042F 31 04       _heap_top: .dw _heap
-0038   0431 00          _heap: .db 0
-0039   0432             ; --- END DATA BLOCK
-0040   0432             
-0041   0432             .end
+0017   0414 26 02 00      mov b, $2
+0018   0417 DD            push bl
+0019   0418 07 20 04      call putchar
+0020   041B 51 05 00      add sp, 5
+0021   041E 05 0B         syscall sys_terminate_proc
+0022   0420             
+0023   0420             putchar:
+0024   0420 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0025   0423 F9            leave
+0026   0424 09            ret
+0027   0425             ; --- END TEXT BLOCK
+0028   0425             
+0029   0425             ; --- BEGIN DATA BLOCK
+0030   0425             
+0031   0425 27 04       _heap_top: .dw _heap
+0032   0427 00          _heap: .db 0
+0033   0428             ; --- END DATA BLOCK
+0034   0428             
+0035   0428             .end
 tasm: Number of errors = 0
