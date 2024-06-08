@@ -14,7 +14,7 @@ main:
   mov b, $1
   swp b
   push b
-  mov b, $2
+  mov b, $41
   push bl
   call putchar
   add sp, 5

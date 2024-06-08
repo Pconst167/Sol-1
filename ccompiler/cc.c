@@ -2167,9 +2167,10 @@ int parse_variable_args(){
 // the number of parenthesis inside the function header because there could be expressions containing parenthesis there as well.
 // todo: problem will arise if there are escaped double quotes \" inside any double quoted string arguments
 void goto_beginning_of_arg(){
-  int paren_count = 0;
+  static int paren_count = 0;
   
   for(;;){
+        putchar(*prog);
     if(*prog == '\"'){
       prog--;
       while(*prog != '\"'){
@@ -2180,6 +2181,7 @@ void goto_beginning_of_arg(){
     else if(*prog == ')') paren_count++;
     else if(*prog == '('){
       paren_count--;
+      printf("count:%d\n",paren_count);
       if(paren_count == 0){
         prog++; // skip the parenthesis 
         push_prog(); // save the current prog position so that we can go back to it when finished parsing this argument
@@ -2194,6 +2196,7 @@ void goto_beginning_of_arg(){
     }
     prog--;
   }
+  puts("OK");
 }
 
 //  so the fixed args will be pushed closer to where BP points, because in order to calculate the BP
