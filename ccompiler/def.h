@@ -608,7 +608,9 @@ char is_digit(char c);
 void dbg_print_var_info(t_var *var);
 void dbg_print_type_info(t_type *type);
 void dbg_print_function_info(t_function *function);
-void display_typedef_table();
+void display_typedef_table(void);
+void display_function_table(void);
+char find_switch(int argc, char **argv, char *_switch);
 
 
 void insert_runtime(void);

@@ -28,20 +28,37 @@
 #include <libgen.h>
 #include "def.h"
 
+char find_switch(int argc, char **argv, char *_switch){
+  for(int i = 0; i < argc; i++){
+    if(!strcmp(argv[i], _switch)) return 1;
+  }
+  return 0;
+}
+
 int main(int argc, char *argv[]){
   int main_index;
   char *filename_no_ext;
   char filename_out[ID_LEN];
-  int i;
+  char switch_display_function_table;
+  char switch_display_typedef_table;
 
-  if(argc > 1) load_program(argv[1]);  
+  switch_display_function_table = 0;
+  switch_display_typedef_table  = 0;
+
+  if(argc > 1){
+    if(find_switch(argc, argv, "--display-tables")){
+      switch_display_function_table = 1;
+      switch_display_typedef_table = 1;
+    }
+    load_program(argv[1]);  
+  }
   else{
     printf("Usage: cc [filename]\n");
     return 0;
   }
 
   filename_no_ext = basename(argv[1]);
-  for(i = 0; i < strlen(filename_no_ext); i++){
+  for(int i = 0; i < strlen(filename_no_ext); i++){
     if(filename_no_ext[i] == '.'){
       filename_no_ext[i] = '\0';
       break;
@@ -90,12 +107,15 @@ int main(int argc, char *argv[]){
   generate_file(filename_out); // generate named assembly file
   generate_file("out.asm"); // generate a.s assembly file
 
-  //for(i = 0; i < function_table_tos; i++)
-    //dbg_print_function_info(&function_table[i]);
-
-  display_typedef_table();
+  if(switch_display_function_table) display_function_table();
+  if(switch_display_typedef_table) display_typedef_table();
 
   return 0;
+}
+
+void display_function_table(void){
+  for(int i = 0; i < function_table_tos; i++)
+    dbg_print_function_info(&function_table[i]);
 }
 
 void display_typedef_table(){
