@@ -120,7 +120,6 @@ struct{
   t_token token;
 } token_to_str[] = {
   "undefined",               TOK_UNDEF,
-  "__asm",                   __ASM,
   "ampersand = bitwise_and", AMPERSAND, 
   "asm",                     ASM,
   "assignment",              ASSIGNMENT,
@@ -538,7 +537,6 @@ t_type emit_var_addr_into_d(char *var_name);
 void skip_statements(void);
 void skip_block(void);
 void skip_case(void);
-void skip_array_bracket(void);
 
 int count_cases(void);
 
@@ -576,7 +574,6 @@ void parse_goto(void);
 
 t_type cast(t_type t1, t_type t2);
 
-t_primitive_type get_var_type(char *var_name);
 int get_num_array_elements(t_type type);
 int get_array_offset(char dim, t_type array);
 int get_data_size_for_indexing(t_type type);

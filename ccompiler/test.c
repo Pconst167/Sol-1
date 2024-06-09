@@ -1,17 +1,10 @@
-#include <stdio.h>
 
-struct s1{
-  char c;
-  int i;
-};
 
-typedef struct s1 my_struct1[10][5];
-typedef struct s1 my_struct2[20][6];
+void main(void){
+	unsigned int N, i;
 
-int main(){
-  int aa;
+	i <= N;
+	
 
-  printf("Char: %c, String: %s, Integer: %d", 'A', "Paulo", 1);
-
+	return 0;
 }
-

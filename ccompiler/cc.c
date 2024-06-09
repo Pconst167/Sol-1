@@ -26,14 +26,9 @@
 #include <ctype.h>
 #include <math.h>
 #include <libgen.h>
+
 #include "def.h"
 
-char find_switch(int argc, char **argv, char *_switch){
-  for(int i = 0; i < argc; i++){
-    if(!strcmp(argv[i], _switch)) return 1;
-  }
-  return 0;
-}
 
 int main(int argc, char *argv[]){
   int main_index;
@@ -113,6 +108,13 @@ int main(int argc, char *argv[]){
   return 0;
 }
 
+char find_switch(int argc, char **argv, char *_switch){
+  for(int i = 0; i < argc; i++){
+    if(!strcmp(argv[i], _switch)) return 1;
+  }
+  return 0;
+}
+
 void display_function_table(void){
   for(int i = 0; i < function_table_tos; i++)
     dbg_print_function_info(&function_table[i]);
@@ -154,7 +156,6 @@ void insert_runtime() {
   while(*loc != '{') loc++;
   insert(loc, runtime_argc_argv_getter);
 }
-
 
 int is_register(char *name){
   if(!strcmp(name, "a") ||
@@ -292,7 +293,7 @@ void declare_all_locals(int function_id){
     if(tok == OPENING_BRACE) total_braces++;
     if(tok == CLOSING_BRACE) total_braces--;
     if(total_braces == 0) break;
-    if(tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
+    if(tok == UNSIGNED || tok == SIGNED || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
       get();
       while(tok == STAR) get();
       get(); // get identifier
@@ -978,10 +979,8 @@ void parse_if(void){
   temp_p = prog;
   skip_statements(); // skip main IF block in order to check for ELSE block.
   get();
-  if(tok == ELSE) 
-    emitln("  je _if%d_else", current_label_index_if);
-  else 
-    emitln("  je _if%d_exit", current_label_index_if);
+  if(tok == ELSE) emitln("  je _if%d_else", current_label_index_if);
+  else emitln("  je _if%d_exit", current_label_index_if);
   prog = temp_p;
   emitln("_if%d_true:", current_label_index_if);
   parse_block();  // parse the positive condition block
@@ -1008,41 +1007,9 @@ void parse_return(void){
   }
   emitln("  leave");
   // check if this is "main"
-  if(!strcmp(function_table[current_func_id].name, "main"))
-    emitln("  syscall sys_terminate_proc");
-  else 
-    emitln("  ret");
+  if(!strcmp(function_table[current_func_id].name, "main")) emitln("  syscall sys_terminate_proc");
+  else emitln("  ret");
 }
-
-/*
-  switch(expr){
-    case const1:
-
-    case const2:
-
-    default:
-  }
-  parse expr into b
-  for each case, mov const into a
-  cmp a, b
-  if true, execute block
-  else jmp to next block
-  
-*/
-int count_cases(void){
-  int nbr_cases = 0;
-
-  for(;;){
-    get();
-    if(tok == OPENING_BRACE){
-      back();
-      skip_block();
-    }
-    else if(tok == CASE) nbr_cases++;
-    else if(tok == CLOSING_BRACE || tok == DEFAULT) return nbr_cases;
-  }
-}
-
 
 void skip_case(void){
   do{
@@ -1057,19 +1024,6 @@ void skip_case(void){
   if(tok == CASE){
     back();
     tok = CASE;
-  }
-}
-
-void goto_next_case(void){
-  int nbr_cases = 0;
-  for(;;){
-    get();
-    if(tok == OPENING_BRACE){
-      back();
-      skip_block();
-    }
-    else if(tok == CASE) nbr_cases++;
-    else if(tok == CLOSING_BRACE || tok == DEFAULT) return;
   }
 }
 
@@ -1297,7 +1251,8 @@ void declare_goto_label(void){
   goto_tos = function_table[current_func_id].goto_labels_table_tos;
   get();
   for(i = 0; i < goto_tos; i++)
-    if(!strcmp(function_table[current_func_id].goto_labels_table[i], token)) error("Duplicate label: %s", token);
+    if(!strcmp(function_table[current_func_id].goto_labels_table[i], token)) 
+      error("Duplicate label: %s", token);
   sprintf(function_table[current_func_id].goto_labels_table[goto_tos], "%s_%s", function_table[current_func_id].name, token);
   emitln("%s:", function_table[current_func_id].goto_labels_table[goto_tos]);
   function_table[current_func_id].goto_labels_table_tos++;
@@ -1361,35 +1316,10 @@ void skip_block(void){
   
   do{
     get();
-         if(tok == OPENING_BRACE) braces++;
+    if(tok == OPENING_BRACE) braces++;
     else if(tok == CLOSING_BRACE) braces--;
   } while(braces && toktype != END);
   if(braces && toktype == END) error("Closing braces expected");
-}
-
-void skip_array_bracket(void){
-  int brackets = 0;
-  
-  do{
-    get();
-         if(tok == OPENING_BRACKET) brackets++;
-    else if(tok == CLOSING_BRACKET) brackets--;
-  } while(brackets && toktype != END);
-  if(brackets && toktype == END) error("Closing brackets expected");
-}
-
-t_primitive_type get_var_type(char *var_name){
-  register int i;
-
-  for(i = 0; i < function_table[current_func_id].local_var_tos; i++)
-    if(!strcmp(function_table[current_func_id].local_vars[i].name, var_name))
-      return function_table[current_func_id].local_vars[i].type.primitive_type;
-
-  for(i = 0; i < global_var_tos; i++)
-    if(!strcmp(global_var_table[i].name, var_name)) 
-      return global_var_table[i].type.primitive_type;
-
-  error("Undeclared variable: %s", var_name);
 }
 
 void emit_var_assignment__addr_in_d(t_type type){
@@ -1413,7 +1343,8 @@ t_type parse_expr(){
   type.signedness = SNESS_SIGNED;
   type.longness = LNESS_NORMAL;
   get();
-  if(tok == SEMICOLON) return type;
+  if(tok == SEMICOLON) 
+    return type;
   else{
     back();
     return parse_assignment();
@@ -1432,14 +1363,18 @@ int is_assignment(){
       found_assignment = 1;
       break;
     }
-    if(toktype == END) error("Unterminated expression.");
-    if(tok == SEMICOLON) break;
-    if(tok == OPENING_PAREN) paren++;
+    if(toktype == END) 
+      error("Unterminated expression.");
+    if(tok == SEMICOLON) 
+      break;
+    if(tok == OPENING_PAREN) 
+      paren++;
     else if(tok == CLOSING_PAREN){
       if(paren == 0) break;
       else paren--;
     }
-    else if(tok == OPENING_BRACKET) bracket++;
+    else if(tok == OPENING_BRACKET) 
+      bracket++;
     else if(tok == CLOSING_BRACKET){
       if(bracket == 0) break; 
       else bracket--;
@@ -1466,7 +1401,8 @@ t_type parse_assignment(){
   // is assignment
   get();
   if(toktype == IDENTIFIER){
-    if(is_constant(token)) error("assignment of read-only variable: %s", token);
+    if(is_constant(token)) 
+      error("assignment of read-only variable: %s", token);
     strcpy(var_name, token);
     expr_in = emit_var_addr_into_d(var_name);
     get();
@@ -1491,7 +1427,8 @@ t_type parse_assignment(){
     expr_in = parse_atomic(); // parse what comes after '*' (considered a pointer)
     emitln("  push b"); // pointer given in 'b'. push 'b' into stack to save it. we will retrieve it below into 'd' for the assignment address
     // after evaluating the address expression, the token will be a "="
-    if(tok != ASSIGNMENT) error("Syntax error: Assignment expected");
+    if(tok != ASSIGNMENT) 
+      error("Syntax error: Assignment expected");
     parse_expr(); // evaluates the value to be assigned to the address, result in 'b'
     emitln("  pop d"); // now pop 'b' from before into 'd' so that we can recover the address for the assignment
     switch(expr_in.primitive_type){
@@ -1840,7 +1777,9 @@ t_type parse_atomic(void){
   get();
   if(toktype == STRING_CONST){
     string_id = search_string(string_const);
-    if(string_id == -1) string_id = add_string_data(string_const);
+    if(string_id == -1){
+      string_id = add_string_data(string_const);
+    }
     // now emit the reference to this string into the ASM
     emitln("  mov b, __s%d ; \"%s\"", string_id, string_const);
     expr_out.primitive_type = DT_CHAR;
@@ -1860,14 +1799,18 @@ t_type parse_atomic(void){
         var_id = global_var_exists(token);
         emitln("  mov b, %d", get_total_type_size(global_var_table[var_id].type));
       }
-      else error("(Parse atomic) Undeclared identifier: %s", token);
+      else{
+        error("(Parse atomic) Undeclared identifier: %s", token);
+      }
       get();
     }
     else{
       t_token temp_tok = tok;
       get();
       if(tok == STAR){
-        while(tok == STAR) get();
+        while(tok == STAR){
+          get();
+        }
         emitln("  mov b, 2");
       }
       else{
@@ -1888,7 +1831,8 @@ t_type parse_atomic(void){
   }
   else if(tok == STAR){ // is a pointer operator
     expr_in = parse_atomic(); // parse expression after STAR, which could be inside parenthesis. result in B
-    if(expr_in.primitive_type == DT_VOID && expr_in.ind_level <= 1) error("Dereferencing void pointer with indirection level of 1 or less.");
+    if(expr_in.primitive_type == DT_VOID && expr_in.ind_level <= 1) 
+      error("Dereferencing void pointer with indirection level of 1 or less.");
     emitln("  mov d, b");// now we have the pointer value. we then get the data at the address.
     if(expr_in.primitive_type == DT_INT || expr_in.ind_level > 1)
       emitln("  mov b, [d]"); 
