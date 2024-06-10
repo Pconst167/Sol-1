@@ -1,8 +1,10 @@
 
 int main() {
+	int a = 555, b = 444;
+	char c = 'H';
 
-
-	prin(110, 123);
+	prin(a, b);
+	putchar(c);
 	//gcd(100, 10);
 
     return 0;
