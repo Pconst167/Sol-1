@@ -98,8 +98,7 @@ typedef enum {
   VAR_ARG_DOTS,
   VOID,
   VOLATILE,
-  WHILE,
-  __ASM
+  WHILE
 } t_token; // internal token representation
 
 typedef enum {
@@ -233,7 +232,7 @@ typedef enum {
 } t_primitive_type;
 
 typedef enum {
-  LNESS_NORMAL, LNESS_LONG
+  LNESS_NORMAL, LNESS_SHORT, LNESS_LONG
 } t_longness;
 
 typedef enum {
@@ -314,7 +313,6 @@ struct _keyword_table{
   "pragma",   PRAGMA,
   "define",   DEFINE,
   "asm",      ASM,
-  "__asm",    __ASM,
   "inline",   INLINE,
 
   "register", REGISTER,
@@ -440,6 +438,7 @@ t_token_type toktype;
 t_token tok;
 char token[CONST_LEN];            // string token representation
 char string_const[STRING_CONST_SIZE];  // holds string and char constants without quotes and with escape sequences converted into the correct bytes
+t_longness const_longness;
 int int_const;
 char *prog;                           // pointer to the current program position
 char c_in[PROG_SIZE];               // C program-in buffer
@@ -509,6 +508,7 @@ int declare_struct(void);
 void declare_func(void);
 void declare_global(void);
 int declare_local(void);
+void declare_all_locals(int function_id);
 void declare_struct_global_vars(int struct_id);
 void parse_struct_initialization_data(int struct_id, int array_size);
 void declare_goto_label(void);
@@ -593,7 +593,7 @@ t_type get_struct_element_type(int struct_id, char *name);
 t_primitive_type get_primitive_type_from_tok(void);
 int is_struct(t_type type);
 
-int find_array_initialization_size(void);
+int find_array_initialization_size(t_longness longness);
 int is_array(t_type type);
 int array_dim_count(t_type type);
 
@@ -626,7 +626,6 @@ char is_space(char c);
 char is_constant(char *varname);
 void dbg(char *s);
 int has_var_args(int func_id);
-t_type parse___asm(void);
 
 
 

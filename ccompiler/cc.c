@@ -260,50 +260,6 @@ void load_program(char *filename){
   fclose(fp);
 }
 
-void declare_all_locals(int function_id){
-  int total_braces = 0;
-  char *temp_prog;
-  int total_sp;
-  current_function_var_bp_offset = 0; 
-  current_func_id = function_id;
-  prog = function_table[function_id].code_location;
-
-  total_sp = 0;
-  for(;;){
-    declare_all_locals_L0:
-    temp_prog = prog;
-    get();
-    if(tok == ASM){
-      for(;;){
-        get();
-        if(tok == CLOSING_BRACE) goto declare_all_locals_L0;
-        if(toktype == END) error("Unterminated inline asm block.");
-      }
-    }
-    if(tok == OPENING_PAREN){ // skip expressions inside parenthesis as they can't be variable declarations.
-      for(;;){
-        get();
-        if(tok == CLOSING_PAREN) goto declare_all_locals_L0;
-        if(toktype == END) error("Unterminated parenthesized expression.");
-      }
-    }
-    if(tok == OPENING_BRACE) total_braces++;
-    if(tok == CLOSING_BRACE) total_braces--;
-    if(total_braces == 0) break;
-    if(tok == CONST || tok == UNSIGNED || tok == SIGNED || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
-      if(tok == CONST) get();
-      get();
-      while(tok == STAR) get();
-      get(); // get identifier
-      get();
-      if(tok != OPENING_PAREN){
-        prog = temp_prog;
-        total_sp += declare_local();
-      }
-    }
-  }
-  if(total_sp > 0) emitln("  sub sp, %d", total_sp);
-}
 
 void parse_functions(void){
   register int i;
@@ -538,6 +494,645 @@ void pre_scan(void){
   } while(toktype != END);
 }
 
+/*
+struct t_shell_var{
+  char varname[16];
+  char var_type;
+  char *as_string;
+  int as_int;
+} variables[MAX_SHELL_VARIABLES];
+int vars_tos;
+*/
+int declare_struct(){
+  int element_tos;
+  int curr_struct_id;
+  int struct_id;
+  t_struct new_struct;
+  char *temp_prog;
+  int struct_is_embedded = 0;
+
+  if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error("Max number of struct declarations reached");
+  
+  get(); // 'struct'
+  get(); // try getting struct name
+  if(toktype == IDENTIFIER){
+    strcpy(new_struct.name, token);
+    get(); // '{'
+    if(tok != OPENING_BRACE) error("Opening braces expected");
+    // Add the new struct to the struct table prematurely so that any elements in this struct that are pointers of this struct type can be recognized by a search
+    strcpy(struct_table[struct_table_tos].name, token);
+    curr_struct_id = struct_table_tos;
+    struct_table_tos++;
+  }
+  else if(tok == OPENING_BRACE){ // implicit struct declaration inside a struct itself
+    struct_is_embedded = 1;
+  // assign a null string to the struct name then
+    *new_struct.name = '\0'; // okay to do since we dont use struct names as the end point of search loops. we use 'struct_table_tos'
+    curr_struct_id = struct_table_tos;
+    struct_table_tos++;
+  }
+
+  element_tos = 0;
+  do{
+    if(element_tos == MAX_STRUCT_ELEMENTS) error("Max number of struct elements reached");
+    get();
+    new_struct.elements[element_tos].type.signedness = SNESS_SIGNED; // set as signed by default
+    new_struct.elements[element_tos].type.longness = LNESS_NORMAL; // set as signed by default
+    while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
+           if(tok == SIGNED)   new_struct.elements[element_tos].type.signedness = SNESS_SIGNED;
+      else if(tok == UNSIGNED) new_struct.elements[element_tos].type.signedness = SNESS_UNSIGNED;
+      else if(tok == SHORT)    new_struct.elements[element_tos].type.longness   = LNESS_SHORT;
+      else if(tok == LONG)     new_struct.elements[element_tos].type.longness   = LNESS_LONG;
+      get();
+    }
+    new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
+    new_struct.elements[element_tos].type.struct_id = -1;
+    if(new_struct.elements[element_tos].type.primitive_type == DT_STRUCT){
+      get();
+      if(tok == OPENING_BRACE){ // internal struct declaration!
+        back();
+        struct_id = declare_struct();
+        get(); // get element name
+      }
+      else{
+        if((struct_id = search_struct(token)) == -1) error("Undeclared struct");
+        get();
+      }
+      new_struct.elements[element_tos].type.struct_id = struct_id;
+    }
+    else get();
+// **************** checks whether this is a pointer declaration *******************************
+    new_struct.elements[element_tos].type.ind_level = 0;
+    while(tok == STAR){
+      new_struct.elements[element_tos].type.ind_level++;
+      get();
+    }
+// *********************************************************************************************
+    if(new_struct.elements[element_tos].type.primitive_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) error("Invalid type in variable");
+
+    strcpy(new_struct.elements[element_tos].name, token);
+    new_struct.elements[element_tos].type.dims[0] = 0;
+    get();
+    // checks if this is a array declaration
+    int dim = 0;
+    if(tok == OPENING_BRACKET){
+      while(tok == OPENING_BRACKET){
+        get();
+        if(toktype != INTEGER_CONST) error("Constant expected");
+        new_struct.elements[element_tos].type.dims[dim] = atoi(token);
+        get();
+        if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+        get();
+        dim++;
+      }
+      new_struct.elements[element_tos].type.dims[dim] = 0; // sets the last dimention to 0, to mark the end of the list
+    }
+    element_tos++;
+    get();
+    if(tok != CLOSING_BRACE) back();
+  } while(tok != CLOSING_BRACE);
+  
+  new_struct.elements[element_tos].name[0] = '\0'; // end elements list
+  struct_table[curr_struct_id] = new_struct; 
+
+  get();
+
+  if(toktype == IDENTIFIER && struct_is_embedded){
+    back();
+  }
+  else if (toktype == IDENTIFIER){ // declare variables if present
+    back();
+    declare_struct_global_vars(curr_struct_id);
+  }
+  else if(tok != SEMICOLON) error("Semicolon expected after struct declaration.");
+
+  return curr_struct_id; // return struct_id
+}
+
+int declare_local(void){                        
+  t_var new_var;
+  char *temp_prog;
+  int struct_id;
+  char temp[1024];
+  int total_sp = 0;
+  
+  get();
+  new_var.type.is_constant = false;
+  new_var.is_static = false;
+  new_var.type.signedness = SNESS_SIGNED; // set as signed by default
+  new_var.type.longness = LNESS_NORMAL;
+  while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == STATIC || tok == CONST){
+    if(tok == CONST) new_var.type.is_constant = true;
+    else if(tok == SIGNED) new_var.type.signedness = SNESS_SIGNED;
+    else if(tok == UNSIGNED) new_var.type.signedness = SNESS_UNSIGNED;
+    else if(tok == SHORT) new_var.type.longness = LNESS_SHORT;
+    else if(tok == LONG) new_var.type.longness = LNESS_LONG;
+    else if(tok == STATIC) new_var.is_static = true;
+    get();
+  }
+  new_var.type.primitive_type = get_primitive_type_from_tok();
+  new_var.type.struct_id = -1;
+  if(new_var.type.primitive_type == DT_STRUCT){ // check if this is a struct
+    get();
+    struct_id = search_struct(token);
+    if(struct_id == -1) error("Undeclared struct: %s", token);
+  }
+
+  do{
+    if(function_table[current_func_id].local_var_tos == MAX_LOCAL_VARS) error("Local var declaration limit reached");
+    new_var.is_parameter = false;
+    new_var.function_id = current_func_id; // set variable owner function
+    new_var.type.struct_id = struct_id;
+// **************** checks whether this is a pointer declaration *******************************
+    new_var.type.ind_level = 0;
+    get();
+    while(tok == STAR){
+      new_var.type.ind_level++;
+      get();
+    }    
+// *********************************************************************************************
+    if(toktype != IDENTIFIER) error("Identifier expected");
+    if(local_var_exists(token) != -1) error("Duplicate local variable: %s", token);
+    sprintf(new_var.name, "%s", token);
+    get();
+
+    // checks if this is a array declaration
+    int dim = 0;
+    new_var.type.dims[0] = 0; // in case its not a array, this signals that fact
+    if(tok == OPENING_BRACKET){
+      while(tok == OPENING_BRACKET){
+        get();
+        if(tok == CLOSING_BRACKET){ // variable length array
+          int fixed_part_size = 1, initialization_size;
+          temp_prog = prog;
+          get();
+          if(tok == OPENING_BRACKET){
+            do{
+              get();
+              fixed_part_size = fixed_part_size * int_const;
+              get();
+              expect(CLOSING_BRACKET, "Closing brackets expected");
+              get();
+            } while(tok == OPENING_BRACKET);
+          }
+          back();
+          initialization_size = find_array_initialization_size(new_var.type.longness);
+          new_var.type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
+          prog = temp_prog;
+        }
+        else{
+          new_var.type.dims[dim] = atoi(token);
+          get();
+          if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+        }
+        get();
+        dim++;
+      }
+      new_var.type.dims[dim] = 0; // sets the last variable dimention to 0, to mark the end of the list
+    }
+
+    if(new_var.is_static){
+      if(tok == ASSIGNMENT)
+        emit_static_var_initialization(&new_var);
+      else{
+        if(new_var.type.dims[0] > 0 || new_var.type.primitive_type == DT_STRUCT){
+          emit_data("_static_%s_%s_data: .fill %u, 0\n", function_table[current_func_id].name, new_var.name, get_total_type_size(new_var.type));
+          //emit_data("_static_%s_%s_: .dw _static_%s_%s_data\n", function_table[current_func_id].name, new_var.name, function_table[current_func_id].name, new_var.name);
+        }
+        else
+          emit_data("_static_%s_%s: .fill %u, 0\n", function_table[current_func_id].name, new_var.name, get_total_type_size(new_var.type));
+      }
+    }
+    else{
+      // this is used to position local variables correctly relative to BP.
+      // whenever a new function is parsed, this is reset to 0.
+      // then inside the function it can increase according to how many local vars there are.
+      new_var.bp_offset = current_function_var_bp_offset - get_total_type_size(new_var.type) + 1;
+      //new_var.bp_offset = current_function_var_bp_offset + 1;
+      current_function_var_bp_offset -= get_total_type_size(new_var.type);
+
+      total_sp += get_total_type_size(new_var.type);
+      emitln("; $%s ", new_var.name);
+      //emitln("  sub sp, %d ; $%s", get_total_type_size(new_var.type), new_var.name);
+      if(tok == ASSIGNMENT){
+        char isneg = 0;
+        if(new_var.type.dims[0] > 0){
+          print_info("Warning: Skipping initialization of local variable '%s' (not yet implemented).", new_var.name);
+          do{
+            get();
+          } while(tok != SEMICOLON);
+        }
+        else{
+          get();
+          if(tok == MINUS){
+            isneg = 1;
+            get();
+          }
+          if(token_not_a_const()){
+            error("Local variable initialization is non constant");
+          }
+          if(new_var.type.primitive_type == DT_INT || new_var.type.ind_level > 0){
+            if(toktype == CHAR_CONST){
+              emitln("  mov a, $%x", string_const[0]);
+              emitln("  mov [bp + %d], a", new_var.bp_offset);
+            }
+            else if(toktype == STRING_CONST){
+              if(toktype != STRING_CONST) error("String constant expected");
+              emit_data("_%s_data: ", new_var.name);
+              emit_data_dbdw(new_var.type);
+              emit_data("%s, 0\n", token);
+              emit_data("_%s: .dw _%s_data\n", new_var.name, new_var.name);
+
+              emitln("  mov a, _%s_data", new_var.name);
+              emitln("  mov [bp + %d], a", new_var.bp_offset);
+            }
+            else{
+              emitln("  mov a, $%x", (isneg ? -atoi(token) : atoi(token)));
+              emitln("  mov [bp + %d], a", new_var.bp_offset);
+            }
+          }
+          else if(new_var.type.primitive_type == DT_CHAR){
+            if(toktype == CHAR_CONST){
+              emitln("  mov al, $%x", string_const[0]);
+              emitln("  mov [bp + %d], al", new_var.bp_offset);
+            }
+            else{
+              emitln("  mov al, $%x", (unsigned char)(isneg ? -atoi(token) : atoi(token)));
+              emitln("  mov [bp + %d], al", new_var.bp_offset);
+            }
+          }
+          get(); // get ';'
+        }
+      }
+    }
+    // assigns the new variable to the local stack
+    function_table[current_func_id].local_vars[function_table[current_func_id].local_var_tos] = new_var;    
+    function_table[current_func_id].local_var_tos++;
+  } while(tok == COMMA);
+
+  if(tok != SEMICOLON) error("Semicolon expected");
+
+  return total_sp;
+} // declare_local
+
+void declare_global(void){
+  char temp[512 + 8];
+  char *temp_prog;
+  int struct_id;
+  t_type type;
+
+  get(); 
+  type.signedness = SNESS_SIGNED; // set as signed by default
+  type.longness = LNESS_NORMAL; 
+  type.is_constant = false; 
+  while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == CONST){
+    if(tok == CONST) type.is_constant = true;
+    else if(tok == SIGNED) type.signedness = SNESS_SIGNED;
+    else if(tok == UNSIGNED) type.signedness = SNESS_UNSIGNED;
+    else if(tok == SHORT) type.longness = LNESS_SHORT;
+    else if(tok == LONG) type.longness = LNESS_LONG;
+    get();
+  }
+  type.primitive_type = get_primitive_type_from_tok();
+  type.struct_id = -1;
+  if(type.primitive_type == DT_STRUCT){ // check if this is a struct
+    get();
+    struct_id = search_struct(token);
+    if(struct_id == -1) error("Undeclared struct: %s", token);
+  }
+
+  do{
+    if(global_var_tos == MAX_GLOBAL_VARS) error("Max number of global variable declarations exceeded");
+    global_var_table[global_var_tos].type = type;
+    get();
+// **************** checks whether this is a pointer declaration *******************************
+    global_var_table[global_var_tos].type.ind_level = 0;
+    while(tok == STAR){
+      global_var_table[global_var_tos].type.ind_level++;
+      get();
+    }
+// *********************************************************************************************
+    if(toktype != IDENTIFIER) error("Identifier expected");
+    if(global_var_table[global_var_tos].type.primitive_type == DT_VOID && global_var_table[global_var_tos].type.ind_level == 0) 
+      error("Invalid type in variable: %s", token);
+
+    // checks if there is another global variable with the same name
+    if(search_global_var(token) != -1) 
+      error("Duplicate global variable: %s", token);
+    
+    global_var_table[global_var_tos].type.struct_id = struct_id;
+    global_var_table[global_var_tos].type.dims[0] = 0;
+    strcpy(global_var_table[global_var_tos].name, token);
+    get();
+    // checks if this is a array declaration
+    int dim = 0;
+    if(tok == OPENING_BRACKET){
+      while(tok == OPENING_BRACKET){
+        get();
+        if(tok == CLOSING_BRACKET){ // variable length array
+          int fixed_part_size = 1;
+          int initialization_size;
+          temp_prog = prog;
+          get();
+          if(tok == OPENING_BRACKET){
+            do{
+              get();
+              fixed_part_size = fixed_part_size * int_const;
+              get();
+              expect(CLOSING_BRACKET, "Closing brackets expected");
+              get();
+            } while(tok == OPENING_BRACKET);
+          }
+          back();
+          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.longness);
+          global_var_table[global_var_tos].type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
+          prog = temp_prog;
+        }
+        else{
+          global_var_table[global_var_tos].type.dims[dim] = atoi(token);
+          get();
+          if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+        }
+        get();
+        dim++;
+      }
+      global_var_table[global_var_tos].type.dims[dim] = 0; // sets the last variable dimention to 0, to mark the end of the list
+    }
+
+    // _data section for var is emmitted if:
+    // ind_level == 1 && data.primitive_type_char
+    // var is a array (dims > 0)
+    // checks for variable initialization
+    if(tok == ASSIGNMENT)
+      emit_global_var_initialization(&global_var_table[global_var_tos]);
+    else{ // no assignment!
+      if(dim > 0 || (global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0)){
+        emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
+        //emit_data("_%s: .dw _%s_data\n", global_var_table[global_var_tos].name, global_var_table[global_var_tos].name);
+      }
+      else
+        emit_data("_%s: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
+    }
+    global_var_tos++;  
+  } while(tok == COMMA);
+
+  if(tok != SEMICOLON) error("Semicolon expected");
+}
+
+// enum my_enum {item1, item2, item3};
+void declare_enum(void){
+  int element_tos;
+  int value;
+
+  if(enum_table_tos == MAX_ENUM_DECLARATIONS) error("Maximum number of enumeration declarations exceeded");
+
+  get(); // get enum name
+  strcpy(enum_table[enum_table_tos].name, token);
+  get(); // '{'
+  if(tok != OPENING_BRACE) error("Opening braces expected");
+  element_tos = 0;
+  value = 0;
+
+  do{
+    get();
+    if(toktype != IDENTIFIER) error("Identifier expected");
+    strcpy(enum_table[enum_table_tos].elements[element_tos].name, token);
+    get();
+    if(tok == ASSIGNMENT){
+      get();
+      value = int_const;
+    }
+    enum_table[enum_table_tos].elements[element_tos].value = value;
+    value++;
+    element_tos++;  
+  } while(tok == COMMA);
+  
+  enum_table_tos++;
+
+  if(tok != CLOSING_BRACE) error("Closing braces expected");
+  get();
+  if(tok != SEMICOLON) error("Semicolon expected");
+}
+
+void declare_typedef(void){
+  char temp[512 + 8];
+  char *temp_prog;
+  int struct_id;
+  t_type type;
+
+  if(typedef_table_tos == MAX_TYPEDEFS) error("Maximum number of typedefs exceeded.");
+
+  for(int i = 0; i < MAX_MATRIX_DIMS; i++){
+    type.dims[i] = 0; // clear all matrix dimensions because type is a local var and the dimensions will have garbage values
+  }
+
+  get(); 
+  type.signedness = SNESS_SIGNED; // set as signed by default
+  type.longness = LNESS_NORMAL; 
+  while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == CONST){
+    if(tok == CONST) type.is_constant = true;
+    else if(tok == SIGNED)   type.signedness = SNESS_SIGNED;
+    else if(tok == UNSIGNED) type.signedness = SNESS_UNSIGNED;
+    else if(tok == SHORT)    type.longness = LNESS_SHORT;
+    else if(tok == LONG)     type.longness = LNESS_LONG;
+    get();
+  }
+  type.primitive_type = get_primitive_type_from_tok();
+  type.struct_id = -1;
+  if(type.primitive_type == DT_STRUCT){ // check if this is a struct
+    get();
+    struct_id = search_struct(token);
+    if(struct_id == -1) error("Undeclared struct: %s", token);
+  }
+
+  get();
+// **************** checks whether this is a pointer declaration *******************************
+  type.ind_level = 0;
+  while(tok == STAR){
+    type.ind_level++;
+    get();
+  }
+// *********************************************************************************************
+  if(toktype != IDENTIFIER) error("Identifier expected");
+  if(type.primitive_type == DT_VOID && type.ind_level == 0) error("Invalid type in variable: %s", token);
+
+  type.struct_id = struct_id;
+  type.dims[0] = 0;
+  strcpy(typedef_table[typedef_table_tos].name, token);
+  get();
+  // checks if this is a array declaration
+  int dim = 0;
+  if(tok == OPENING_BRACKET){
+    while(tok == OPENING_BRACKET){
+      get();
+      if(tok == CLOSING_BRACKET){ // variable length array
+        int fixed_part_size = 1;
+        int initialization_size;
+        temp_prog = prog;
+        get();
+        if(tok == OPENING_BRACKET){
+          do{
+            get();
+            fixed_part_size = fixed_part_size * int_const;
+            get();
+            expect(CLOSING_BRACKET, "Closing brackets expected");
+            get();
+          } while(tok == OPENING_BRACKET);
+        }
+        back();
+        initialization_size = find_array_initialization_size(type.longness);
+        type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
+        prog = temp_prog;
+      }
+      else{
+        type.dims[dim] = atoi(token);
+        get();
+        if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+      }
+      get();
+      dim++;
+    }
+  }
+  typedef_table[typedef_table_tos].type = type;
+  typedef_table_tos++;
+  expect(SEMICOLON, "Semicolon expected.");
+}
+
+// declare struct variables right after struct declaration
+void declare_struct_global_vars(int struct_id){
+  t_type type;
+  int ind_level;
+  char is_constant = false;
+  char temp[512 + 8];
+  char *temp_prog;
+
+  do{
+    if(global_var_tos == MAX_GLOBAL_VARS) error("Global variable declaration limit exceeded");
+    global_var_table[global_var_tos].type.is_constant = is_constant;
+    get();
+// **************** checks whether this is a pointer declaration *******************************
+    ind_level = 0;
+    while(tok == STAR){
+      ind_level++;
+      get();
+    }
+// *********************************************************************************************
+    if(toktype != IDENTIFIER) error("Identifier expected");
+
+    // checks if there is another global variable with the same name
+    if(search_global_var(token) != -1) error("Duplicate global variable");
+    
+    global_var_table[global_var_tos].type.primitive_type = DT_STRUCT;
+    global_var_table[global_var_tos].type.ind_level = ind_level;
+    global_var_table[global_var_tos].type.struct_id = struct_id;
+    global_var_table[global_var_tos].type.dims[0] = 0;
+    strcpy(global_var_table[global_var_tos].name, token);
+    get();
+    // checks if this is a array declaration
+    int dim = 0;
+    if(tok == OPENING_BRACKET){
+      while(tok == OPENING_BRACKET){
+        get();
+        if(tok == CLOSING_BRACKET){ // variable length array
+          int fixed_part_size = 1, initialization_size;
+          temp_prog = prog;
+          get();
+          if(tok == OPENING_BRACKET){
+            do{
+              get();
+              fixed_part_size = fixed_part_size * int_const;
+              get();
+              expect(CLOSING_BRACKET, "Closing brackets expected");
+              get();
+            } while(tok == OPENING_BRACKET);
+          }
+          back();
+          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.longness);
+          global_var_table[global_var_tos].type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
+          get();
+          if(tok != SEMICOLON) error("Semicolon expected.");
+          break;
+        }
+        else{
+          global_var_table[global_var_tos].type.dims[dim] = atoi(token);
+          get();
+          if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+        }
+        get();
+        dim++;
+      }
+      global_var_table[global_var_tos].type.dims[dim] = 0; // sets the last variable dimention to 0, to mark the end of the list
+
+    }
+
+    if(tok == ASSIGNMENT){
+      int array_size = 1;
+      array_size = get_num_array_elements(global_var_table[global_var_tos].type);
+      get();
+      expect(OPENING_BRACE, "Opening braces expected in struct initialization.");
+      emit_data("_%s_data:\n", global_var_table[global_var_tos].name);
+      parse_struct_initialization_data(struct_id, array_size);
+      get();
+    }
+    else{
+      if(dim > 0 || global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0){
+        emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
+      }
+      else
+        emit_data("_%s: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
+    }
+
+    global_var_tos++;  
+
+    get();
+  } while(tok == COMMA);
+  back();
+}
+
+void declare_all_locals(int function_id){
+  int total_braces = 0;
+  char *temp_prog;
+  int total_sp;
+  current_function_var_bp_offset = 0; 
+  current_func_id = function_id;
+  prog = function_table[function_id].code_location;
+
+  total_sp = 0;
+  for(;;){
+    declare_all_locals_L0:
+    temp_prog = prog;
+    get();
+    if(tok == ASM){
+      for(;;){
+        get();
+        if(tok == CLOSING_BRACE) goto declare_all_locals_L0;
+        if(toktype == END) error("Unterminated inline asm block.");
+      }
+    }
+    if(tok == OPENING_PAREN){ // skip expressions inside parenthesis as they can't be variable declarations.
+      for(;;){
+        get();
+        if(tok == CLOSING_PAREN) goto declare_all_locals_L0;
+        if(toktype == END) error("Unterminated parenthesized expression.");
+      }
+    }
+    if(tok == OPENING_BRACE) total_braces++;
+    if(tok == CLOSING_BRACE) total_braces--;
+    if(total_braces == 0) break;
+    if(tok == CONST || tok == UNSIGNED || tok == SIGNED || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
+      if(tok == CONST) get();
+      get();
+      while(tok == STAR) get();
+      get(); // get identifier
+      get();
+      if(tok != OPENING_PAREN){
+        prog = temp_prog;
+        total_sp += declare_local();
+      }
+    }
+  }
+  if(total_sp > 0) emitln("  sub sp, %d", total_sp);
+}
 
 void declare_func(void){
   t_function *func; // variable to hold a pointer to the user function top of stack
@@ -563,9 +1158,10 @@ void declare_func(void){
 
   func->return_type.signedness = SNESS_SIGNED; // set as signed by default
   func->return_type.longness = LNESS_NORMAL; 
-  while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == CONST){
+  while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
          if(tok == SIGNED)   func->return_type.signedness = SNESS_SIGNED;
     else if(tok == UNSIGNED) func->return_type.signedness = SNESS_UNSIGNED;
+    else if(tok == SHORT)    func->return_type.longness   = LNESS_SHORT;
     else if(tok == LONG)     func->return_type.longness   = LNESS_LONG;
     get();
   }
@@ -618,10 +1214,11 @@ void declare_func(void){
       }
       func->local_vars[func->local_var_tos].type.signedness = SNESS_SIGNED; // set as signed by default
       func->local_vars[func->local_var_tos].type.longness = LNESS_NORMAL; 
-      while(tok == SIGNED || tok == UNSIGNED || tok == LONG){
-             if(tok == SIGNED) func->local_vars[func->local_var_tos].type.signedness = SNESS_SIGNED;
+      while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
+             if(tok == SIGNED)   func->local_vars[func->local_var_tos].type.signedness = SNESS_SIGNED;
         else if(tok == UNSIGNED) func->local_vars[func->local_var_tos].type.signedness = SNESS_UNSIGNED;
-        else if(tok == LONG) func->local_vars[func->local_var_tos].type.longness = LNESS_LONG;
+        else if(tok == SHORT)    func->local_vars[func->local_var_tos].type.longness = LNESS_SHORT;
+        else if(tok == LONG)     func->local_vars[func->local_var_tos].type.longness = LNESS_LONG;
         get();
       }
       if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) error("Var type expected in argument declaration for function: %s", func->name);
@@ -684,6 +1281,20 @@ void declare_func(void){
   if(tok != OPENING_BRACE) error("Opening curly braces expected");
   back(); // puts the "{" back so that it can be found by skip_block()
   function_table_tos++;
+}
+
+void declare_goto_label(void){
+  int i, goto_tos;
+
+  goto_tos = function_table[current_func_id].goto_labels_table_tos;
+  get();
+  for(i = 0; i < goto_tos; i++)
+    if(!strcmp(function_table[current_func_id].goto_labels_table[i], token)) 
+      error("Duplicate label: %s", token);
+  sprintf(function_table[current_func_id].goto_labels_table[goto_tos], "%s_%s", function_table[current_func_id].name, token);
+  emitln("%s:", function_table[current_func_id].goto_labels_table[goto_tos]);
+  function_table[current_func_id].goto_labels_table_tos++;
+  get();
 }
 
 int get_param_size(){
@@ -1245,19 +1856,6 @@ void parse_block(void){
   } while(braces); // exits when it finds the last closing brace
 }
 
-void declare_goto_label(void){
-  int i, goto_tos;
-
-  goto_tos = function_table[current_func_id].goto_labels_table_tos;
-  get();
-  for(i = 0; i < goto_tos; i++)
-    if(!strcmp(function_table[current_func_id].goto_labels_table[i], token)) 
-      error("Duplicate label: %s", token);
-  sprintf(function_table[current_func_id].goto_labels_table[goto_tos], "%s_%s", function_table[current_func_id].name, token);
-  emitln("%s:", function_table[current_func_id].goto_labels_table[goto_tos]);
-  function_table[current_func_id].goto_labels_table_tos++;
-  get();
-}
 
 void skip_statements(void){
   int paren = 0;
@@ -1997,9 +2595,6 @@ t_type parse_atomic(void){
     emit_var_assignment__addr_in_d(expr_in);
     expr_out = expr_in;
   }
-  else if(tok == __ASM){
-    parse___asm();
-  }    
   else if(toktype == IDENTIFIER){
     strcpy(temp_name, token);
     get();
@@ -2068,31 +2663,6 @@ t_type parse_atomic(void){
     get(); // gets the next token (it must be a delimiter)
   } 
 
-  return expr_out;
-}
-
-t_type parse___asm(){
-  int var_id;
-  t_type expr_out;
-
-  expr_out.primitive_type  = DT_INT;
-  expr_out.dims[0]     = 0;
-  expr_out.ind_level   = 0;
-  expr_out.is_constant = 0;
-  expr_out.signedness  = SNESS_UNSIGNED;
-  expr_out.longness    = LNESS_NORMAL;
-  get(); 
-  expect(OPENING_PAREN, "'(' expected.");
-
-  get();
-  if(toktype != STRING_CONST) error("Register name expected.");
-
-  emitln("  push a");
-  emitln("  mov a, %s", string_const);
-  emitln("  mov b, a", string_const);
-  emitln("  pop a");
-
-  get(); expect(CLOSING_PAREN, "')' expected.");
   return expr_out;
 }
 
@@ -2780,7 +3350,10 @@ int get_primitive_type_size(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      return 2;
+      if(type.longness == LNESS_LONG)
+        return 4;
+      else
+        return 2;
     case DT_STRUCT:
       return get_struct_size(type.struct_id);
   }
@@ -2796,7 +3369,10 @@ int get_type_size_for_func_arg_parsing(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      return 2;
+      if(type.longness == LNESS_LONG)
+        return 4;
+      else
+        return 2;
     case DT_STRUCT:
       return get_struct_size(type.struct_id);
   }
@@ -2811,17 +3387,22 @@ int get_struct_size(int id){
     array_size = 1;
     for(j = 0; struct_table[id].elements[i].type.dims[j]; j++)
       array_size *= struct_table[id].elements[i].type.dims[j];
-    if(struct_table[id].elements[i].type.ind_level > 0) size += array_size * 2;
-    else switch(struct_table[id].elements[i].type.primitive_type){
-      case DT_CHAR:
-        size += array_size * 1;
-        break;
-      case DT_INT:
-        size += array_size * 2;
-        break;
-      case DT_STRUCT:
-        size += array_size * get_struct_size(struct_table[id].elements[i].type.struct_id);
-    }
+    if(struct_table[id].elements[i].type.ind_level > 0) 
+      size += array_size * 2;
+    else 
+      switch(struct_table[id].elements[i].type.primitive_type){
+        case DT_CHAR:
+          size += array_size * 1;
+          break;
+        case DT_INT:
+          if(struct_table[id].elements[i].type.longness == LNESS_LONG)
+            size += array_size * 4;
+          else
+            size += array_size * 2;
+          break;
+        case DT_STRUCT:
+          size += array_size * get_struct_size(struct_table[id].elements[i].type.struct_id);
+      }
   }
 
   return size;
@@ -2834,7 +3415,10 @@ int get_data_size_for_indexing(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      return 2;
+      if(type.longness == LNESS_LONG)
+        return 4;
+      else
+        return 2;
     case DT_STRUCT:
       return get_struct_size(type.struct_id);
   }
@@ -2853,211 +3437,7 @@ int search_global_var(char *var_name){
   
   return -1;
 }
-/*
-struct t_shell_var{
-  char varname[16];
-  char var_type;
-  char *as_string;
-  int as_int;
-} variables[MAX_SHELL_VARIABLES];
-int vars_tos;
-*/
-int declare_struct(){
-  int element_tos;
-  int curr_struct_id;
-  int struct_id;
-  t_struct new_struct;
-  char *temp_prog;
-  int struct_is_embedded = 0;
 
-  if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error("Max number of struct declarations reached");
-  
-  get(); // 'struct'
-  get(); // try getting struct name
-  if(toktype == IDENTIFIER){
-    strcpy(new_struct.name, token);
-    get(); // '{'
-    if(tok != OPENING_BRACE) error("Opening braces expected");
-    // Add the new struct to the struct table prematurely so that any elements in this struct that are pointers of this struct type can be recognized by a search
-    strcpy(struct_table[struct_table_tos].name, token);
-    curr_struct_id = struct_table_tos;
-    struct_table_tos++;
-  }
-  else if(tok == OPENING_BRACE){ // implicit struct declaration inside a struct itself
-    struct_is_embedded = 1;
-  // assign a null string to the struct name then
-    *new_struct.name = '\0'; // okay to do since we dont use struct names as the end point of search loops. we use 'struct_table_tos'
-    curr_struct_id = struct_table_tos;
-    struct_table_tos++;
-  }
-
-  element_tos = 0;
-  do{
-    if(element_tos == MAX_STRUCT_ELEMENTS) error("Max number of struct elements reached");
-    get();
-    new_struct.elements[element_tos].type.signedness = SNESS_SIGNED; // set as signed by default
-    new_struct.elements[element_tos].type.longness = LNESS_NORMAL; // set as signed by default
-    while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
-           if(tok == SIGNED)   new_struct.elements[element_tos].type.signedness = SNESS_SIGNED;
-      else if(tok == UNSIGNED) new_struct.elements[element_tos].type.signedness = SNESS_UNSIGNED;
-      else if(tok == SHORT)    new_struct.elements[element_tos].type.longness   = LNESS_SHORT;
-      else if(tok == LONG)     new_struct.elements[element_tos].type.longness   = LNESS_LONG;
-      get();
-    }
-    new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
-    new_struct.elements[element_tos].type.struct_id = -1;
-    if(new_struct.elements[element_tos].type.primitive_type == DT_STRUCT){
-      get();
-      if(tok == OPENING_BRACE){ // internal struct declaration!
-        back();
-        struct_id = declare_struct();
-        get(); // get element name
-      }
-      else{
-        if((struct_id = search_struct(token)) == -1) error("Undeclared struct");
-        get();
-      }
-      new_struct.elements[element_tos].type.struct_id = struct_id;
-    }
-    else get();
-// **************** checks whether this is a pointer declaration *******************************
-    new_struct.elements[element_tos].type.ind_level = 0;
-    while(tok == STAR){
-      new_struct.elements[element_tos].type.ind_level++;
-      get();
-    }
-// *********************************************************************************************
-    if(new_struct.elements[element_tos].type.primitive_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) error("Invalid type in variable");
-
-    strcpy(new_struct.elements[element_tos].name, token);
-    new_struct.elements[element_tos].type.dims[0] = 0;
-    get();
-    // checks if this is a array declaration
-    int dim = 0;
-    if(tok == OPENING_BRACKET){
-      while(tok == OPENING_BRACKET){
-        get();
-        if(toktype != INTEGER_CONST) error("Constant expected");
-        new_struct.elements[element_tos].type.dims[dim] = atoi(token);
-        get();
-        if(tok != CLOSING_BRACKET) error("Closing brackets expected");
-        get();
-        dim++;
-      }
-      new_struct.elements[element_tos].type.dims[dim] = 0; // sets the last dimention to 0, to mark the end of the list
-    }
-    element_tos++;
-    get();
-    if(tok != CLOSING_BRACE) back();
-  } while(tok != CLOSING_BRACE);
-  
-  new_struct.elements[element_tos].name[0] = '\0'; // end elements list
-  struct_table[curr_struct_id] = new_struct; 
-
-  get();
-
-  if(toktype == IDENTIFIER && struct_is_embedded){
-    back();
-  }
-  else if (toktype == IDENTIFIER){ // declare variables if present
-    back();
-    declare_struct_global_vars(curr_struct_id);
-  }
-  else if(tok != SEMICOLON) error("Semicolon expected after struct declaration.");
-
-  return curr_struct_id; // return struct_id
-}
-
-// declare struct variables right after struct declaration
-void declare_struct_global_vars(int struct_id){
-  t_type type;
-  int ind_level;
-  char is_constant = false;
-  char temp[512 + 8];
-  char *temp_prog;
-
-  do{
-    if(global_var_tos == MAX_GLOBAL_VARS) error("Global variable declaration limit exceeded");
-    global_var_table[global_var_tos].type.is_constant = is_constant;
-    get();
-// **************** checks whether this is a pointer declaration *******************************
-    ind_level = 0;
-    while(tok == STAR){
-      ind_level++;
-      get();
-    }
-// *********************************************************************************************
-    if(toktype != IDENTIFIER) error("Identifier expected");
-
-    // checks if there is another global variable with the same name
-    if(search_global_var(token) != -1) error("Duplicate global variable");
-    
-    global_var_table[global_var_tos].type.primitive_type = DT_STRUCT;
-    global_var_table[global_var_tos].type.ind_level = ind_level;
-    global_var_table[global_var_tos].type.struct_id = struct_id;
-    global_var_table[global_var_tos].type.dims[0] = 0;
-    strcpy(global_var_table[global_var_tos].name, token);
-    get();
-    // checks if this is a array declaration
-    int dim = 0;
-    if(tok == OPENING_BRACKET){
-      while(tok == OPENING_BRACKET){
-        get();
-        if(tok == CLOSING_BRACKET){ // variable length array
-          int fixed_part_size = 1, initialization_size;
-          temp_prog = prog;
-          get();
-          if(tok == OPENING_BRACKET){
-            do{
-              get();
-              fixed_part_size = fixed_part_size * int_const;
-              get();
-              expect(CLOSING_BRACKET, "Closing brackets expected");
-              get();
-            } while(tok == OPENING_BRACKET);
-          }
-          back();
-          initialization_size = find_array_initialization_size();
-          global_var_table[global_var_tos].type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
-          get();
-          if(tok != SEMICOLON) error("Semicolon expected.");
-          break;
-        }
-        else{
-          global_var_table[global_var_tos].type.dims[dim] = atoi(token);
-          get();
-          if(tok != CLOSING_BRACKET) error("Closing brackets expected");
-        }
-        get();
-        dim++;
-      }
-      global_var_table[global_var_tos].type.dims[dim] = 0; // sets the last variable dimention to 0, to mark the end of the list
-
-    }
-
-    if(tok == ASSIGNMENT){
-      int array_size = 1;
-      array_size = get_num_array_elements(global_var_table[global_var_tos].type);
-      get();
-      expect(OPENING_BRACE, "Opening braces expected in struct initialization.");
-      emit_data("_%s_data:\n", global_var_table[global_var_tos].name);
-      parse_struct_initialization_data(struct_id, array_size);
-      get();
-    }
-    else{
-      if(dim > 0 || global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0){
-        emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
-      }
-      else
-        emit_data("_%s: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
-    }
-
-    global_var_tos++;  
-
-    get();
-  } while(tok == COMMA);
-  back();
-}
 
 void parse_struct_initialization_data(int struct_id, int array_size){
   int i, j, k, q;
@@ -3152,123 +3532,7 @@ int get_struct_elements_count(int struct_id){
   return total;
 }
 
-void declare_typedef(void){
-  char temp[512 + 8];
-  char *temp_prog;
-  int struct_id;
-  t_type type;
 
-  if(typedef_table_tos == MAX_TYPEDEFS) error("Maximum number of typedefs exceeded.");
-
-  for(int i = 0; i < MAX_MATRIX_DIMS; i++){
-    type.dims[i] = 0; // clear all matrix dimensions because type is a local var and the dimensions will have garbage values
-  }
-
-  get(); 
-  type.signedness = SNESS_SIGNED; // set as signed by default
-  type.longness = LNESS_NORMAL; 
-  while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == CONST){
-    if(tok == CONST) type.is_constant = true;
-    else if(tok == SIGNED) type.signedness = SNESS_SIGNED;
-    else if(tok == UNSIGNED) type.signedness = SNESS_UNSIGNED;
-    else if(tok == LONG) type.longness = LNESS_LONG;
-    get();
-  }
-  type.primitive_type = get_primitive_type_from_tok();
-  type.struct_id = -1;
-  if(type.primitive_type == DT_STRUCT){ // check if this is a struct
-    get();
-    struct_id = search_struct(token);
-    if(struct_id == -1) error("Undeclared struct: %s", token);
-  }
-
-  get();
-// **************** checks whether this is a pointer declaration *******************************
-  type.ind_level = 0;
-  while(tok == STAR){
-    type.ind_level++;
-    get();
-  }
-// *********************************************************************************************
-  if(toktype != IDENTIFIER) error("Identifier expected");
-  if(type.primitive_type == DT_VOID && type.ind_level == 0) error("Invalid type in variable: %s", token);
-
-  type.struct_id = struct_id;
-  type.dims[0] = 0;
-  strcpy(typedef_table[typedef_table_tos].name, token);
-  get();
-  // checks if this is a array declaration
-  int dim = 0;
-  if(tok == OPENING_BRACKET){
-    while(tok == OPENING_BRACKET){
-      get();
-      if(tok == CLOSING_BRACKET){ // variable length array
-        int fixed_part_size = 1;
-        int initialization_size;
-        temp_prog = prog;
-        get();
-        if(tok == OPENING_BRACKET){
-          do{
-            get();
-            fixed_part_size = fixed_part_size * int_const;
-            get();
-            expect(CLOSING_BRACKET, "Closing brackets expected");
-            get();
-          } while(tok == OPENING_BRACKET);
-        }
-        back();
-        initialization_size = find_array_initialization_size();
-        type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
-        prog = temp_prog;
-      }
-      else{
-        type.dims[dim] = atoi(token);
-        get();
-        if(tok != CLOSING_BRACKET) error("Closing brackets expected");
-      }
-      get();
-      dim++;
-    }
-  }
-  typedef_table[typedef_table_tos].type = type;
-  typedef_table_tos++;
-  expect(SEMICOLON, "Semicolon expected.");
-}
-
-// enum my_enum {item1, item2, item3};
-void declare_enum(void){
-  int element_tos;
-  int value;
-
-  if(enum_table_tos == MAX_ENUM_DECLARATIONS) error("Maximum number of enumeration declarations exceeded");
-
-  get(); // get enum name
-  strcpy(enum_table[enum_table_tos].name, token);
-  get(); // '{'
-  if(tok != OPENING_BRACE) error("Opening braces expected");
-  element_tos = 0;
-  value = 0;
-
-  do{
-    get();
-    if(toktype != IDENTIFIER) error("Identifier expected");
-    strcpy(enum_table[enum_table_tos].elements[element_tos].name, token);
-    get();
-    if(tok == ASSIGNMENT){
-      get();
-      value = int_const;
-    }
-    enum_table[enum_table_tos].elements[element_tos].value = value;
-    value++;
-    element_tos++;  
-  } while(tok == COMMA);
-  
-  enum_table_tos++;
-
-  if(tok != CLOSING_BRACE) error("Closing braces expected");
-  get();
-  if(tok != SEMICOLON) error("Semicolon expected");
-}
 
 int enum_element_exists(char *name){
   int i, j;
@@ -3291,7 +3555,7 @@ int get_enum_val(char *name){
   return -1;
 }
 
-int find_array_initialization_size(void){
+int find_array_initialization_size(t_longness longness){
   char *temp_prog = prog; // save starting prog position
   int len = 0;
   int braces;
@@ -3311,7 +3575,10 @@ int find_array_initialization_size(void){
           len += 1;
           break;
         case INTEGER_CONST:
-          len += 2;
+          if(longness == LNESS_LONG)
+            len += 4;
+          else
+            len += 2;
           break;
         case STRING_CONST:
           len += 2;
@@ -3333,106 +3600,6 @@ int search_struct(char *name){
   return -1;
 }
 
-void declare_global(void){
-  char temp[512 + 8];
-  char *temp_prog;
-  int struct_id;
-  t_type type;
-
-  get(); 
-  type.signedness = SNESS_SIGNED; // set as signed by default
-  type.longness = LNESS_NORMAL; 
-  type.is_constant = false; 
-  while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == CONST){
-    if(tok == CONST) type.is_constant = true;
-    else if(tok == SIGNED) type.signedness = SNESS_SIGNED;
-    else if(tok == UNSIGNED) type.signedness = SNESS_UNSIGNED;
-    else if(tok == LONG) type.longness = LNESS_LONG;
-    get();
-  }
-  type.primitive_type = get_primitive_type_from_tok();
-  type.struct_id = -1;
-  if(type.primitive_type == DT_STRUCT){ // check if this is a struct
-    get();
-    struct_id = search_struct(token);
-    if(struct_id == -1) error("Undeclared struct: %s", token);
-  }
-
-  do{
-    if(global_var_tos == MAX_GLOBAL_VARS) error("Max number of global variable declarations exceeded");
-    global_var_table[global_var_tos].type = type;
-    get();
-// **************** checks whether this is a pointer declaration *******************************
-    global_var_table[global_var_tos].type.ind_level = 0;
-    while(tok == STAR){
-      global_var_table[global_var_tos].type.ind_level++;
-      get();
-    }
-// *********************************************************************************************
-    if(toktype != IDENTIFIER) error("Identifier expected");
-    if(global_var_table[global_var_tos].type.primitive_type == DT_VOID && global_var_table[global_var_tos].type.ind_level == 0) error("Invalid type in variable: %s", token);
-
-    // checks if there is another global variable with the same name
-    if(search_global_var(token) != -1) error("Duplicate global variable: %s", token);
-    
-    global_var_table[global_var_tos].type.struct_id = struct_id;
-    global_var_table[global_var_tos].type.dims[0] = 0;
-    strcpy(global_var_table[global_var_tos].name, token);
-    get();
-    // checks if this is a array declaration
-    int dim = 0;
-    if(tok == OPENING_BRACKET){
-      while(tok == OPENING_BRACKET){
-        get();
-        if(tok == CLOSING_BRACKET){ // variable length array
-          int fixed_part_size = 1;
-          int initialization_size;
-          temp_prog = prog;
-          get();
-          if(tok == OPENING_BRACKET){
-            do{
-              get();
-              fixed_part_size = fixed_part_size * int_const;
-              get();
-              expect(CLOSING_BRACKET, "Closing brackets expected");
-              get();
-            } while(tok == OPENING_BRACKET);
-          }
-          back();
-          initialization_size = find_array_initialization_size();
-          global_var_table[global_var_tos].type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
-          prog = temp_prog;
-        }
-        else{
-          global_var_table[global_var_tos].type.dims[dim] = atoi(token);
-          get();
-          if(tok != CLOSING_BRACKET) error("Closing brackets expected");
-        }
-        get();
-        dim++;
-      }
-      global_var_table[global_var_tos].type.dims[dim] = 0; // sets the last variable dimention to 0, to mark the end of the list
-    }
-
-    // _data section for var is emmitted if:
-    // ind_level == 1 && data.primitive_type_char
-    // var is a array (dims > 0)
-    // checks for variable initialization
-    if(tok == ASSIGNMENT)
-      emit_global_var_initialization(&global_var_table[global_var_tos]);
-    else{ // no assignment!
-      if(dim > 0 || (global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0)){
-        emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
-        //emit_data("_%s: .dw _%s_data\n", global_var_table[global_var_tos].name, global_var_table[global_var_tos].name);
-      }
-      else
-        emit_data("_%s: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
-    }
-    global_var_tos++;  
-  } while(tok == COMMA);
-
-  if(tok != SEMICOLON) error("Semicolon expected");
-}
 
 void emit_global_var_initialization(t_var *var){
   char temp[512 + 8];
@@ -3671,170 +3838,6 @@ char token_not_a_const(void){
   return toktype != CHAR_CONST && toktype != INTEGER_CONST && toktype != STRING_CONST;
 }
 
-int declare_local(void){                        
-  t_var new_var;
-  char *temp_prog;
-  int struct_id;
-  char temp[1024];
-  int total_sp = 0;
-  
-  get();
-  new_var.type.is_constant = false;
-  new_var.is_static = false;
-  new_var.type.signedness = SNESS_SIGNED; // set as signed by default
-  new_var.type.longness = LNESS_NORMAL;
-  while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == STATIC || tok == CONST){
-    if(tok == CONST) new_var.type.is_constant = true;
-    else if(tok == SIGNED) new_var.type.signedness = SNESS_SIGNED;
-    else if(tok == UNSIGNED) new_var.type.signedness = SNESS_UNSIGNED;
-    else if(tok == LONG) new_var.type.longness = LNESS_LONG;
-    else if(tok == STATIC) new_var.is_static = true;
-    get();
-  }
-  new_var.type.primitive_type = get_primitive_type_from_tok();
-  new_var.type.struct_id = -1;
-  if(new_var.type.primitive_type == DT_STRUCT){ // check if this is a struct
-    get();
-    struct_id = search_struct(token);
-    if(struct_id == -1) error("Undeclared struct: %s", token);
-  }
-
-  do{
-    if(function_table[current_func_id].local_var_tos == MAX_LOCAL_VARS) error("Local var declaration limit reached");
-    new_var.is_parameter = false;
-    new_var.function_id = current_func_id; // set variable owner function
-    new_var.type.struct_id = struct_id;
-// **************** checks whether this is a pointer declaration *******************************
-    new_var.type.ind_level = 0;
-    get();
-    while(tok == STAR){
-      new_var.type.ind_level++;
-      get();
-    }    
-// *********************************************************************************************
-    if(toktype != IDENTIFIER) error("Identifier expected");
-    if(local_var_exists(token) != -1) error("Duplicate local variable: %s", token);
-    sprintf(new_var.name, "%s", token);
-    get();
-
-    // checks if this is a array declaration
-    int dim = 0;
-    new_var.type.dims[0] = 0; // in case its not a array, this signals that fact
-    if(tok == OPENING_BRACKET){
-      while(tok == OPENING_BRACKET){
-        get();
-        if(tok == CLOSING_BRACKET){ // variable length array
-          int fixed_part_size = 1, initialization_size;
-          temp_prog = prog;
-          get();
-          if(tok == OPENING_BRACKET){
-            do{
-              get();
-              fixed_part_size = fixed_part_size * int_const;
-              get();
-              expect(CLOSING_BRACKET, "Closing brackets expected");
-              get();
-            } while(tok == OPENING_BRACKET);
-          }
-          back();
-          initialization_size = find_array_initialization_size();
-          new_var.type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
-          prog = temp_prog;
-        }
-        else{
-          new_var.type.dims[dim] = atoi(token);
-          get();
-          if(tok != CLOSING_BRACKET) error("Closing brackets expected");
-        }
-        get();
-        dim++;
-      }
-      new_var.type.dims[dim] = 0; // sets the last variable dimention to 0, to mark the end of the list
-    }
-
-    if(new_var.is_static){
-      if(tok == ASSIGNMENT)
-        emit_static_var_initialization(&new_var);
-      else{
-        if(new_var.type.dims[0] > 0 || new_var.type.primitive_type == DT_STRUCT){
-          emit_data("_static_%s_%s_data: .fill %u, 0\n", function_table[current_func_id].name, new_var.name, get_total_type_size(new_var.type));
-          //emit_data("_static_%s_%s_: .dw _static_%s_%s_data\n", function_table[current_func_id].name, new_var.name, function_table[current_func_id].name, new_var.name);
-        }
-        else
-          emit_data("_static_%s_%s: .fill %u, 0\n", function_table[current_func_id].name, new_var.name, get_total_type_size(new_var.type));
-      }
-    }
-    else{
-      // this is used to position local variables correctly relative to BP.
-      // whenever a new function is parsed, this is reset to 0.
-      // then inside the function it can increase according to how many local vars there are.
-      new_var.bp_offset = current_function_var_bp_offset - get_total_type_size(new_var.type) + 1;
-      //new_var.bp_offset = current_function_var_bp_offset + 1;
-      current_function_var_bp_offset -= get_total_type_size(new_var.type);
-
-      total_sp += get_total_type_size(new_var.type);
-      emitln("; $%s ", new_var.name);
-      //emitln("  sub sp, %d ; $%s", get_total_type_size(new_var.type), new_var.name);
-      if(tok == ASSIGNMENT){
-        char isneg = 0;
-        if(new_var.type.dims[0] > 0){
-          print_info("Warning: Skipping initialization of local variable '%s' (not yet implemented).", new_var.name);
-          do{
-            get();
-          } while(tok != SEMICOLON);
-        }
-        else{
-          get();
-          if(tok == MINUS){
-            isneg = 1;
-            get();
-          }
-          if(token_not_a_const()){
-            error("Local variable initialization is non constant");
-          }
-          if(new_var.type.primitive_type == DT_INT || new_var.type.ind_level > 0){
-            if(toktype == CHAR_CONST){
-              emitln("  mov a, $%x", string_const[0]);
-              emitln("  mov [bp + %d], a", new_var.bp_offset);
-            }
-            else if(toktype == STRING_CONST){
-              if(toktype != STRING_CONST) error("String constant expected");
-              emit_data("_%s_data: ", new_var.name);
-              emit_data_dbdw(new_var.type);
-              emit_data("%s, 0\n", token);
-              emit_data("_%s: .dw _%s_data\n", new_var.name, new_var.name);
-
-              emitln("  mov a, _%s_data", new_var.name);
-              emitln("  mov [bp + %d], a", new_var.bp_offset);
-            }
-            else{
-              emitln("  mov a, $%x", (isneg ? -atoi(token) : atoi(token)));
-              emitln("  mov [bp + %d], a", new_var.bp_offset);
-            }
-          }
-          else if(new_var.type.primitive_type == DT_CHAR){
-            if(toktype == CHAR_CONST){
-              emitln("  mov al, $%x", string_const[0]);
-              emitln("  mov [bp + %d], al", new_var.bp_offset);
-            }
-            else{
-              emitln("  mov al, $%x", (unsigned char)(isneg ? -atoi(token) : atoi(token)));
-              emitln("  mov [bp + %d], al", new_var.bp_offset);
-            }
-          }
-          get(); // get ';'
-        }
-      }
-    }
-    // assigns the new variable to the local stack
-    function_table[current_func_id].local_vars[function_table[current_func_id].local_var_tos] = new_var;    
-    function_table[current_func_id].local_var_tos++;
-  } while(tok == COMMA);
-
-  if(tok != SEMICOLON) error("Semicolon expected");
-
-  return total_sp;
-} // declare_local
 
 t_var get_internal_var_ptr(char *var_name){
   register int i;
@@ -4057,6 +4060,11 @@ void get(void){
       *t = '\0';
       sscanf(token, "%d", &int_const);
     }
+    if(*prog == 'L'){
+      const_longness = LNESS_LONG;
+      prog++;
+    }
+    else const_longness = LNESS_NORMAL;
     toktype = INTEGER_CONST;
     return; // return to avoid *t = '\0' line at the end of function
   }

@@ -7,263 +7,22 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; $s 
-  sub sp, 1190
-;; s[0].a[0] = 'A'; 
-  lea d, [bp + -1189] ; $s
+;; c = a + b; 
+  mov d, _c ; $c
+  push d
+  mov d, _a ; $a
+  mov b, [d]
+; START TERMS
   push a
-  push d
-  mov b, $0
-  pop d
-  mma 238 ; mov a, 238; mul a, b; add d, b
+  mov a, b
+  mov d, _b ; $b
+  mov b, [d]
+  add a, b
+  mov b, a
   pop a
-  add d, 0
-  clb
-  push a
-  push d
-  mov b, $0
-  pop d
-  add d, b
-  pop a
-  push d
-  mov b, $41
-  pop d
-  mov [d], bl
-;; s[1].a[1] = 'B'; 
-  lea d, [bp + -1189] ; $s
-  push a
-  push d
-  mov b, $1
-  pop d
-  mma 238 ; mov a, 238; mul a, b; add d, b
-  pop a
-  add d, 0
-  clb
-  push a
-  push d
-  mov b, $1
-  pop d
-  add d, b
-  pop a
-  push d
-  mov b, $42
-  pop d
-  mov [d], bl
-;; s[2].ss[1].a[1] = 'Z'; 
-  lea d, [bp + -1189] ; $s
-  push a
-  push d
-  mov b, $2
-  pop d
-  mma 238 ; mov a, 238; mul a, b; add d, b
-  pop a
-  add d, 10
-  clb
-  push a
-  push d
-  mov b, $1
-  pop d
-  mma 37 ; mov a, 37; mul a, b; add d, b
-  pop a
-  add d, 0
-  clb
-  push a
-  push d
-  mov b, $1
-  pop d
-  mma 2 ; mov a, 2; mul a, b; add d, b
-  pop a
-  push d
-  mov b, $5a
+; END TERMS
   pop d
   mov [d], b
-;; s[3].sss[1].c[2]='H'; 
-  lea d, [bp + -1189] ; $s
-  push a
-  push d
-  mov b, $3
-  pop d
-  mma 238 ; mov a, 238; mul a, b; add d, b
-  pop a
-  add d, 121
-  clb
-  push a
-  push d
-  mov b, $1
-  pop d
-  mma 37 ; mov a, 37; mul a, b; add d, b
-  pop a
-  add d, 4
-  clb
-  push a
-  push d
-  mov b, $2
-  pop d
-  add d, b
-  pop a
-  push d
-  mov b, $48
-  pop d
-  mov [d], bl
-;; s[0].b[2]=123; 
-  lea d, [bp + -1189] ; $s
-  push a
-  push d
-  mov b, $0
-  pop d
-  mma 238 ; mov a, 238; mul a, b; add d, b
-  pop a
-  add d, 232
-  clb
-  push a
-  push d
-  mov b, $2
-  pop d
-  mma 2 ; mov a, 2; mul a, b; add d, b
-  pop a
-  push d
-  mov b, $7b
-  pop d
-  mov [d], b
-;; printf("%c\n", s[0].a[0]); 
-  lea d, [bp + -1189] ; $s
-  push a
-  push d
-  mov b, $0
-  pop d
-  mma 238 ; mov a, 238; mul a, b; add d, b
-  pop a
-  add d, 0
-  clb
-  push a
-  push d
-  mov b, $0
-  pop d
-  add d, b
-  pop a
-  mov bl, [d]
-  mov bh, 0
-  swp b
-  push b
-  mov b, __s0 ; "%c\n"
-  swp b
-  push b
-  call printf
-  add sp, 4
-;; printf("%c\n", s[1].a[1]); 
-  lea d, [bp + -1189] ; $s
-  push a
-  push d
-  mov b, $1
-  pop d
-  mma 238 ; mov a, 238; mul a, b; add d, b
-  pop a
-  add d, 0
-  clb
-  push a
-  push d
-  mov b, $1
-  pop d
-  add d, b
-  pop a
-  mov bl, [d]
-  mov bh, 0
-  swp b
-  push b
-  mov b, __s0 ; "%c\n"
-  swp b
-  push b
-  call printf
-  add sp, 4
-;; printf("%c\n", s[2].ss[1].a[1]); 
-  lea d, [bp + -1189] ; $s
-  push a
-  push d
-  mov b, $2
-  pop d
-  mma 238 ; mov a, 238; mul a, b; add d, b
-  pop a
-  add d, 10
-  clb
-  push a
-  push d
-  mov b, $1
-  pop d
-  mma 37 ; mov a, 37; mul a, b; add d, b
-  pop a
-  add d, 0
-  clb
-  push a
-  push d
-  mov b, $1
-  pop d
-  mma 2 ; mov a, 2; mul a, b; add d, b
-  pop a
-  mov b, [d]
-  swp b
-  push b
-  mov b, __s0 ; "%c\n"
-  swp b
-  push b
-  call printf
-  add sp, 4
-;; printf("%c\n", s[3].sss[1].c[2]); 
-  lea d, [bp + -1189] ; $s
-  push a
-  push d
-  mov b, $3
-  pop d
-  mma 238 ; mov a, 238; mul a, b; add d, b
-  pop a
-  add d, 121
-  clb
-  push a
-  push d
-  mov b, $1
-  pop d
-  mma 37 ; mov a, 37; mul a, b; add d, b
-  pop a
-  add d, 4
-  clb
-  push a
-  push d
-  mov b, $2
-  pop d
-  add d, b
-  pop a
-  mov bl, [d]
-  mov bh, 0
-  swp b
-  push b
-  mov b, __s0 ; "%c\n"
-  swp b
-  push b
-  call printf
-  add sp, 4
-;; printf("%d\n", s[0].b[2]); 
-  lea d, [bp + -1189] ; $s
-  push a
-  push d
-  mov b, $0
-  pop d
-  mma 238 ; mov a, 238; mul a, b; add d, b
-  pop a
-  add d, 232
-  clb
-  push a
-  push d
-  mov b, $2
-  pop d
-  mma 2 ; mov a, 2; mul a, b; add d, b
-  pop a
-  mov b, [d]
-  swp b
-  push b
-  mov b, __s1 ; "%d\n"
-  swp b
-  push b
-  call printf
-  add sp, 4
   syscall sys_terminate_proc
 
 strcpy:
@@ -809,7 +568,7 @@ _switch8_case5:
   jmp _switch8_exit ; case break
 _switch8_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s2 ; "Error: Unknown argument type.\n"
+  mov b, __s0 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -1968,7 +1727,7 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s3 ; "\033[2J\033[H"
+  mov b, __s1 ; "\033[2J\033[H"
   swp b
   push b
   call print
@@ -1993,7 +1752,7 @@ printun:
   call printu
   add sp, 2
 ;; print("\n"); 
-  mov b, __s4 ; "\n"
+  mov b, __s2 ; "\n"
   swp b
   push b
   call print
@@ -2018,7 +1777,7 @@ printsn:
   call prints
   add sp, 2
 ;; print("\n"); 
-  mov b, __s4 ; "\n"
+  mov b, __s2 ; "\n"
   swp b
   push b
   call print
@@ -2038,11 +1797,12 @@ include_stdio_asm:
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
-__s0: .db "%c\n", 0
-__s1: .db "%d\n", 0
-__s2: .db "Error: Unknown argument type.\n", 0
-__s3: .db "\033[2J\033[H", 0
-__s4: .db "\n", 0
+_a: .fill 4, 0
+_b: .fill 4, 0
+_c: .fill 4, 0
+__s0: .db "Error: Unknown argument type.\n", 0
+__s1: .db "\033[2J\033[H", 0
+__s2: .db "\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0
