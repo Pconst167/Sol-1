@@ -427,8 +427,6 @@ int typedef_table_tos;
 char *prog_stack[256];
 int prog_tos;
 
-int errors_in_a_row;
-
 char include_kernel_exp = 1;
 char org[64] = "text_org";
 int include_files_total_lines;
@@ -499,6 +497,7 @@ void get(void);
 void get_line(void);
 void back(void);
 void print_info(const char* format, ...);
+void warning(const char* format, ...);
 void error(const char* format, ...);
 void expect(t_token _tok, char *message);
 

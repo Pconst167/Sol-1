@@ -2452,7 +2452,11 @@ t_type parse_atomic(void){
   }
   else if(toktype == INTEGER_CONST){
     int i;
-    emitln("  mov b, $%x", int_const);
+    if(const_longness == LNESS_LONG){
+      emitln("  mov b, $%x", int_const & 0x0000FFFF);
+      emitln("  mov c, $%x", int_const >> 16);
+    }
+    else emitln("  mov b, $%x", int_const);
     i = int_const;
     expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0;
@@ -2619,6 +2623,10 @@ t_type parse_atomic(void){
       back();
       if(is_array(expr_in))
         emitln("  mov b, d");
+      else if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT){
+        emitln("  mov b, $%x", int_const & 0x0000FFFF);
+        emitln("  mov c, $%x", int_const >> 16);
+      }
       else if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT)
         emitln("  mov b, [d]"); 
       else if(expr_in.primitive_type == DT_CHAR){
@@ -2791,122 +2799,6 @@ void parse_function_call(int func_id){
   // recover prog, placing it at the end of the function header
   prog = prog_at_end_of_header;
 }
-
-/*
-void parse_function_call(int func_id){
-  int param_index = 0;
-  t_type expr_in;
-  int current_func_call_total_arg_size;
-  char *prog_end_of_arguments;
-
-  get();
-  if(tok == CLOSING_PAREN){
-    if(function_table[func_id].num_fixed_args != 0)
-      error("Incorrect number of arguments for function: %s. Expecting %d, detected: 0", function_table[func_id].name, function_table[func_id].num_fixed_args);
-    else{
-      emitln("  call %s", function_table[func_id].name);
-      return;
-    }
-  }
-  else back();
-
-/*  
-  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
-  var1
-  var2
-  var3
-  fixed1
-  fixed2
-  pc
-  bp
-  locals...             <---- bp, sp
-
-  todo: reverse order of var args pushed into the stack: var_arg3 needs to be pushed before var_arg2, etc
-  
-  so the fixed args will be pushed closer to where BP points, because in order to calculate the BP
-  offset for those arguments, we need a known reference from BP. if we pushed the var args closer to BP than
-  the fixed args, it would not match with the way the BP offsets are calculated in the function declaration.
-  so from BP, we push the fixed arguments so that their offsets are known and match the declaration.
-  after that, we push the variable arguments on addresses above the ones for the fixed args.
-  notice the order in which they are pushed: we push fixed1 at a higher address than fixed2, ...etc
-  and then we push var1 at the highest address, then var2 at a lower address, and so on.
-  this order doesnt matter as long as we remember it when trying to access the variable arguments in C code.
-
-  new way:
-  myfunc(fixed1, fixed2, var_arg1, var_arg2, var_arg3);
-  var3
-  var2
-  var1
-  fixed2
-  fixed1
-  pc
-  bp
-  locals...             <---- bp, sp
-
-  current_func_call_total_arg_size = 0;
-  param_index = 0;
-  if(function_table[func_id].has_var_args){
-    push_prog(); // save prog's location at beginning of function arguments
-    // get past fixed arguments first
-    do{
-      get();
-      if(tok == COMMA) param_index++;
-    } while(param_index < function_table[func_id].num_fixed_args);
-    current_func_call_total_arg_size = parse_variable_args(func_id);
-    prog_end_of_arguments = prog;
-    pop_prog(); // recover prog's location (beginning of function arguments)
-  }
-
-  // parse fixed arguments
-  param_index = 0;                                                                                                                      
-  for(; param_index < function_table[func_id].num_fixed_args;){
-    expr_in = parse_expr();
-    current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[param_index].type);
-    if(function_table[func_id].local_vars[param_index].type.ind_level > 0 || 
-      is_array(function_table[func_id].local_vars[param_index].type)
-    ){
-      emitln("  swp b");
-      emitln("  push b");
-    }
-    else if(function_table[func_id].local_vars[param_index].type.primitive_type == DT_STRUCT){
-      emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[param_index].type));
-      emitln("  mov si, b"); 
-      emitln("  lea d, [sp + 1]");
-      emitln("  mov di, d");
-      emitln("  mov c, %d", get_type_size_for_func_arg_parsing(function_table[func_id].local_vars[param_index].type));
-      emitln("  rep movsb");
-    }
-    else{
-      switch(function_table[func_id].local_vars[param_index].type.primitive_type){
-        case DT_CHAR:
-          emitln("  push bl");
-          break;
-        case DT_INT:
-          if(expr_in.primitive_type == DT_CHAR && expr_in.ind_level == 0){
-            emitln("  snex b");
-          }
-          emitln("  swp b");
-          emitln("  push b");
-          break;
-      }
-    }
-    param_index++;
-  }
-
-  if(function_table[func_id].has_var_args) prog = prog_end_of_arguments;
-
-  // Check if the number of arguments matches the number of function parameters
-  // but only if the function does not have variable arguments
-  if(function_table[func_id].num_fixed_args != param_index && !has_var_args(func_id))  
-    error("Incorrect number of arguments for function: %s. Expecting %d, detected: %d", function_table[func_id].name, function_table[func_id].num_fixed_args, param_index);
-
-  emitln("  call %s", function_table[func_id].name);
-  //if(tok != CLOSING_PAREN) error("Closing paren expected");
-  // the function's return value is in register B
-  if(function_table[func_id].total_parameter_size > 0)
-    emitln("  add sp, %d", current_func_call_total_arg_size); // clean stack of the arguments added to it
-}
-*/
 
 void dbg_print_var_info(t_var *var){
   int i;
@@ -3871,6 +3763,34 @@ void print_info(const char* format, ...){
   puts(tempbuffer);
 }
 
+void warning(const char* format, ...){
+  int line = 1;
+  char tempbuffer[1024];
+  char warning_token[256];
+  va_list args;
+  va_start(args, format);
+  vsnprintf(tempbuffer, sizeof(tempbuffer), format, args);
+  va_end(args);
+
+  strcpy(warning_token, token);
+
+  prog = c_in;
+  while(prog != prog_before_error){
+    if(*prog == '\n') line++;
+    prog++;
+  }
+
+  printf("\nWarning  : %s\n", tempbuffer);
+  printf("At line %d : ", line - include_files_total_lines);
+  while(*prog != '\n' && prog != c_in) prog--;
+  prog++;
+  while(*prog != '\n') putchar(*prog++);
+  printf("\n");
+  printf("Token     : %s\n", warning_token);
+  printf("Tok       : %s (%d)\n", token_to_str[tok].as_str, tok);
+  printf("Toktype   : %s\n\n", toktype_to_str[toktype].as_str);
+}
+
 void error(const char* format, ...){
   int line = 1;
   char tempbuffer[1024];
@@ -3888,19 +3808,17 @@ void error(const char* format, ...){
     prog++;
   }
 
-  printf("\nError     : %s\n", tempbuffer);
-  printf("At line %d : ", line - include_files_total_lines);
+  printf("\nError       : %s\n", tempbuffer);
+  printf("At line %d   : ", line - include_files_total_lines);
   while(*prog != '\n' && prog != c_in) prog--;
   prog++;
   while(*prog != '\n') putchar(*prog++);
   printf("\n");
-  printf("Token     : %s\n", error_token);
-  printf("Tok       : %s (%d)\n", token_to_str[tok].as_str, tok);
-  printf("Toktype   : %s\n\n", toktype_to_str[toktype].as_str);
+  printf("Token       : %s\n", error_token);
+  printf("Tok         : %s (%d)\n", token_to_str[tok].as_str, tok);
+  printf("Toktype     : %s\n\n", toktype_to_str[toktype].as_str);
 
-  errors_in_a_row++;
   exit(1);
-  //if(errors_in_a_row == MAX_ERRORS) exit(0);
 }
 
 // converts a literal string or char constant into constants with true escape sequences
@@ -4060,11 +3978,20 @@ void get(void){
       *t = '\0';
       sscanf(token, "%d", &int_const);
     }
-    if(*prog == 'L'){
+    if(*prog == 'L' || *prog == 'l'){
       const_longness = LNESS_LONG;
-      prog++;
+      *t++ = *prog++;
     }
     else const_longness = LNESS_NORMAL;
+    if(const_longness == LNESS_LONG){
+      //if(int_const > 4294967295) error("The constant value of %d exceeds the maximum value for a long integer.", int_const);
+    }
+    else if(const_longness == LNESS_SHORT){
+      //if(int_const > 65535) error("The constant value of %d exceeds the maximum value for a short integer.", int_const);
+    }
+    else if(const_longness == LNESS_NORMAL){
+      //if(int_const > 65535) error("The constant value of %d exceeds the maximum value for a normal integer.", int_const);
+    }
     toktype = INTEGER_CONST;
     return; // return to avoid *t = '\0' line at the end of function
   }
