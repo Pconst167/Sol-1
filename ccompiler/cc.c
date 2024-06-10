@@ -2008,7 +2008,14 @@ t_type parse_assignment(){
     emitln("  push d"); // save 'd'. this is the array base address. save because expr below could use 'd' and overwrite it
     parse_expr(); // evaluate expression, result in 'b'
     emitln("  pop d"); 
-    if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT)
+    if(expr_in.ind_level > 0)
+      emitln("  mov [d], b");
+    else if(expr_in.primitive_type == DT_INT && expr_in.longness == LNESS_LONG){
+      emitln("  mov [d], b");
+      emitln("  mov b, c");
+      emitln("  mov [d + 2], b");
+    }
+    else if(expr_in.primitive_type == DT_INT)
       emitln("  mov [d], b");
     else if(expr_in.primitive_type == DT_CHAR)
       emitln("  mov [d], bl");
@@ -2031,10 +2038,19 @@ t_type parse_assignment(){
     emitln("  pop d"); // now pop 'b' from before into 'd' so that we can recover the address for the assignment
     switch(expr_in.primitive_type){
       case DT_CHAR:
-        emitln("  mov [d], bl");
+        if(expr_in.ind_level > 1)
+          emitln("  mov [d], b");
+        else
+          emitln("  mov [d], bl");
         break;
       case DT_INT:
-        emitln("  mov [d], b");
+        if(expr_in.primitive_type == DT_INT && expr_in.longness == LNESS_LONG){
+          emitln("  mov [d], b");
+          emitln("  mov b, c");
+          emitln("  mov [d + 2], b");
+        }
+        else
+          emitln("  mov [d], b");
         break;
       default: error("Invalid pointer");
     }
@@ -2098,46 +2114,40 @@ t_type parse_logical(void){
 }
 
 t_type parse_logical_or(void){
-  t_type type1, expr_out;
+  t_type type1, type2, expr_out;
 
   type1 = parse_logical_and();
+  type2.primitive_type = DT_CHAR;
+  type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == LOGICAL_OR){
     emitln("  push a");
     while(tok == LOGICAL_OR){
       emitln("  mov a, b");
-      parse_logical_and();
+      type2 = parse_logical_and();
       emitln("  sor a, b ; ||");
     }
     emitln("  pop a");
-    expr_out.ind_level = 0; // if is a logical operation then result is an integer with ind_level = 0
-    expr_out.primitive_type = DT_INT;
   }
-  else{
-    expr_out.primitive_type = type1.primitive_type;
-    expr_out.ind_level = type1.ind_level;
-  }
+  expr_out = cast(type1, type2);
   return expr_out;
 }
 
 t_type parse_logical_and(void){
-  t_type type1, expr_out;
+  t_type type1, type2, expr_out;
 
   type1 = parse_bitwise_or();
+  type2.primitive_type = DT_CHAR;
+  type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == LOGICAL_AND){
     emitln("  push a");
     while(tok == LOGICAL_AND){
       emitln("  mov a, b");
-      parse_bitwise_or();
+      type2 = parse_bitwise_or();
       emitln("  sand a, b ; &&");
     }
     emitln("  pop a");
-    expr_out.ind_level = 0; // if is a logical operation then result is an integer with ind_level = 0
-    expr_out.primitive_type = DT_INT;
   }
-  else{
-    expr_out.primitive_type = type1.primitive_type;
-    expr_out.ind_level = type1.ind_level;
-  }
+  expr_out = cast(type1, type2);
   return expr_out;
 }
 
@@ -2432,8 +2442,13 @@ t_type parse_atomic(void){
     if(expr_in.primitive_type == DT_VOID && expr_in.ind_level <= 1) 
       error("Dereferencing void pointer with indirection level of 1 or less.");
     emitln("  mov d, b");// now we have the pointer value. we then get the data at the address.
-    if(expr_in.primitive_type == DT_INT || expr_in.ind_level > 1)
+    if(expr_in.ind_level > 1)
       emitln("  mov b, [d]"); 
+    else if((expr_in.primitive_type == DT_INT && expr_in.longness == LNESS_LONG)){
+      emitln("  mov b, [d + 2]");
+      emitln("  mov c, b");
+      emitln("  mov b, [d]");
+    }
     else if(expr_in.primitive_type == DT_CHAR){
       emitln("  mov bl, [d]"); 
       emitln("  mov bh, 0");
@@ -2623,11 +2638,13 @@ t_type parse_atomic(void){
       back();
       if(is_array(expr_in))
         emitln("  mov b, d");
-      else if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT){
+      else if(expr_in.ind_level > 0)
+        emitln("  mov b, [d]"); 
+      else if(expr_in.primitive_type == DT_INT && expr_in.longness == LNESS_LONG){
         emitln("  mov b, $%x", int_const & 0x0000FFFF);
         emitln("  mov c, $%x", int_const >> 16);
       }
-      else if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT)
+      else if(expr_in.primitive_type == DT_INT)
         emitln("  mov b, [d]"); 
       else if(expr_in.primitive_type == DT_CHAR){
         emitln("  mov bl, [d]");

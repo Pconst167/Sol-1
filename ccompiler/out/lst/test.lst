@@ -27,36 +27,41 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408             ;; 65536L; 
-0011   0408 26 00 00      mov b, $0
-0012   040B 38 01 00      mov c, $1
-0013   040E             ;; c = a + b; 
-0014   040E 3B 2C 04      mov d, _c ; $c
-0015   0411 DA            push d
-0016   0412 3B 24 04      mov d, _a ; $a
-0017   0415 2A            mov b, [d]
-0018   0416             ; START TERMS
-0019   0416 D7            push a
-0020   0417 11            mov a, b
-0021   0418 3B 28 04      mov d, _b ; $b
-0022   041B 2A            mov b, [d]
-0023   041C 54            add a, b
-0024   041D 27            mov b, a
-0025   041E E4            pop a
-0026   041F             ; END TERMS
-0027   041F E7            pop d
-0028   0420 FD 43         mov [d], b
-0029   0422 05 0B         syscall sys_terminate_proc
-0030   0424             ; --- END TEXT BLOCK
-0031   0424             
-0032   0424             ; --- BEGIN DATA BLOCK
-0033   0424 00 00 00 00 _a: .fill 4, 0
-0034   0428 00 00 00 00 _b: .fill 4, 0
-0035   042C 00 00 00 00 _c: .fill 4, 0
-0036   0430             
-0037   0430 32 04       _heap_top: .dw _heap
-0038   0432 00          _heap: .db 0
-0039   0433             ; --- END DATA BLOCK
-0040   0433             
-0041   0433             .end
+0010   0408             ;; a = 65536L; 
+0011   0408 3B 32 04      mov d, _a ; $a
+0012   040B DA            push d
+0013   040C 26 00 00      mov b, $0
+0014   040F 38 01 00      mov c, $1
+0015   0412 E7            pop d
+0016   0413 FD 43         mov [d], b
+0017   0415 28            mov b, c
+0018   0416 FD 44 02 00   mov [d + 2], b
+0019   041A             ;; p = &a; 
+0020   041A 3B 3E 04      mov d, _p ; $p
+0021   041D DA            push d
+0022   041E 3B 32 04      mov d, _a ; $a
+0023   0421 2D            mov b, d
+0024   0422 E7            pop d
+0025   0423 FD 43         mov [d], b
+0026   0425             ;; *p; 
+0027   0425 3B 3E 04      mov d, _p ; $p
+0028   0428 2A            mov b, [d]
+0029   0429 74            mov d, b
+0030   042A 2B 02 00      mov b, [d + 2]
+0031   042D FD 39         mov c, b
+0032   042F 2A            mov b, [d]
+0033   0430 05 0B         syscall sys_terminate_proc
+0034   0432             ; --- END TEXT BLOCK
+0035   0432             
+0036   0432             ; --- BEGIN DATA BLOCK
+0037   0432 00 00 00 00 _a: .fill 4, 0
+0038   0436 00 00 00 00 _b: .fill 4, 0
+0039   043A 00 00 00 00 _c: .fill 4, 0
+0040   043E 00 00       _p: .fill 2, 0
+0041   0440             
+0042   0440 42 04       _heap_top: .dw _heap
+0043   0442 00          _heap: .db 0
+0044   0443             ; --- END DATA BLOCK
+0045   0443             
+0046   0443             .end
 tasm: Number of errors = 0

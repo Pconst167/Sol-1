@@ -4,9 +4,13 @@ long int a;
 long int b;
 long int c;
 
+long int *p;
+
 int main() {
-	65536L;
-	c = a + b;
+	a = 65536L;
+	p = &a;
+
+	*p;
 
 }
 
