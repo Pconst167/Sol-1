@@ -3665,6 +3665,10 @@ t_primitive_type get_primitive_type_from_tok(){
   }
 }
 
+char token_not_a_const(void){
+  return toktype != CHAR_CONST && toktype != INTEGER_CONST && toktype != STRING_CONST;
+}
+
 int declare_local(void){                        
   t_var new_var;
   char *temp_prog;
@@ -3782,30 +3786,37 @@ int declare_local(void){
             isneg = 1;
             get();
           }
-          if(toktype != CHAR_CONST && toktype != INTEGER_CONST) error("Local variable initialization is non constant");
-          //emitln("  lea d, [sp + %d]", current_function_var_bp_offset + 1);
-          if(new_var.type.primitive_type == DT_CHAR){
-            if(toktype == CHAR_CONST){
-              emitln("  mov al, $%x", string_const[0]);
-              emitln("  mov [bp + %d], al", new_var.bp_offset);
-              //emitln("  mov [d], al");
-            }
-            else{
-              emitln("  mov al, $%x", (unsigned char)(isneg ? -atoi(token) : atoi(token)));
-              emitln("  mov [bp + %d], al", new_var.bp_offset);
-              //emitln("  mov [d], al");
-            }
+          if(token_not_a_const()){
+            error("Local variable initialization is non constant");
           }
-          else if(new_var.type.primitive_type == DT_INT || new_var.type.ind_level > 0){
+          if(new_var.type.primitive_type == DT_INT || new_var.type.ind_level > 0){
             if(toktype == CHAR_CONST){
               emitln("  mov a, $%x", string_const[0]);
               emitln("  mov [bp + %d], a", new_var.bp_offset);
-              //emitln("  mov [d], a");
+            }
+            else if(toktype == STRING_CONST){
+              if(toktype != STRING_CONST) error("String constant expected");
+              emit_data("_%s_data: ", new_var.name);
+              emit_data_dbdw(new_var.type);
+              emit_data("%s, 0\n", token);
+              emit_data("_%s: .dw _%s_data\n", new_var.name, new_var.name);
+
+              emitln("  mov a, _%s_data", new_var.name);
+              emitln("  mov [bp + %d], a", new_var.bp_offset);
             }
             else{
               emitln("  mov a, $%x", (isneg ? -atoi(token) : atoi(token)));
               emitln("  mov [bp + %d], a", new_var.bp_offset);
-              //emitln("  mov [d], a");
+            }
+          }
+          else if(new_var.type.primitive_type == DT_CHAR){
+            if(toktype == CHAR_CONST){
+              emitln("  mov al, $%x", string_const[0]);
+              emitln("  mov [bp + %d], al", new_var.bp_offset);
+            }
+            else{
+              emitln("  mov al, $%x", (unsigned char)(isneg ? -atoi(token) : atoi(token)));
+              emitln("  mov [bp + %d], al", new_var.bp_offset);
             }
           }
           get(); // get ';'

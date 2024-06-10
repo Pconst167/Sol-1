@@ -627,3 +627,7 @@ char is_constant(char *varname);
 void dbg(char *s);
 int has_var_args(int func_id);
 t_type parse___asm(void);
+
+
+
+char token_not_a_const(void);
