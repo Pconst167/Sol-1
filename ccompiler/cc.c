@@ -2897,9 +2897,10 @@ int declare_struct(){
     get();
     new_struct.elements[element_tos].type.signedness = SNESS_SIGNED; // set as signed by default
     new_struct.elements[element_tos].type.longness = LNESS_NORMAL; // set as signed by default
-    while(tok == SIGNED || tok == UNSIGNED || tok == LONG){
+    while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
            if(tok == SIGNED)   new_struct.elements[element_tos].type.signedness = SNESS_SIGNED;
       else if(tok == UNSIGNED) new_struct.elements[element_tos].type.signedness = SNESS_UNSIGNED;
+      else if(tok == SHORT)    new_struct.elements[element_tos].type.longness   = LNESS_SHORT;
       else if(tok == LONG)     new_struct.elements[element_tos].type.longness   = LNESS_LONG;
       get();
     }
