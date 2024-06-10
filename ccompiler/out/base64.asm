@@ -66,14 +66,14 @@ strcpy:
 ;; psrc = src; 
   lea d, [bp + -1] ; $psrc
   push d
-  lea d, [bp + 5] ; $src
+  lea d, [bp + 7] ; $src
   mov b, [d]
   pop d
   mov [d], b
 ;; pdest = dest; 
   lea d, [bp + -3] ; $pdest
   push d
-  lea d, [bp + 7] ; $dest
+  lea d, [bp + 5] ; $dest
   mov b, [d]
   pop d
   mov [d], b
@@ -124,14 +124,14 @@ strcmp:
   enter 0 ; (push bp; mov bp, sp)
 ;; while (*s1 && (*s1 == *s2)) { 
 _while2_cond:
-  lea d, [bp + 7] ; $s1
+  lea d, [bp + 5] ; $s1
   mov b, [d]
   mov d, b
   mov bl, [d]
   mov bh, 0
   push a
   mov a, b
-  lea d, [bp + 7] ; $s1
+  lea d, [bp + 5] ; $s1
   mov b, [d]
   mov d, b
   mov bl, [d]
@@ -139,7 +139,7 @@ _while2_cond:
 ; START RELATIONAL
   push a
   mov a, b
-  lea d, [bp + 5] ; $s2
+  lea d, [bp + 7] ; $s2
   mov b, [d]
   mov d, b
   mov bl, [d]
@@ -154,25 +154,25 @@ _while2_cond:
   je _while2_exit
 _while2_block:
 ;; s1++; 
-  lea d, [bp + 7] ; $s1
+  lea d, [bp + 5] ; $s1
   mov b, [d]
   mov g, b
   inc b
-  lea d, [bp + 7] ; $s1
+  lea d, [bp + 5] ; $s1
   mov [d], b
   mov b, g
 ;; s2++; 
-  lea d, [bp + 5] ; $s2
+  lea d, [bp + 7] ; $s2
   mov b, [d]
   mov g, b
   inc b
-  lea d, [bp + 5] ; $s2
+  lea d, [bp + 7] ; $s2
   mov [d], b
   mov b, g
   jmp _while2_cond
 _while2_exit:
 ;; return *s1 - *s2; 
-  lea d, [bp + 7] ; $s1
+  lea d, [bp + 5] ; $s1
   mov b, [d]
   mov d, b
   mov bl, [d]
@@ -180,7 +180,7 @@ _while2_exit:
 ; START TERMS
   push a
   mov a, b
-  lea d, [bp + 5] ; $s2
+  lea d, [bp + 7] ; $s2
   mov b, [d]
   mov d, b
   mov bl, [d]
@@ -200,7 +200,7 @@ strcat:
 ;; dest_len = strlen(dest); 
   lea d, [bp + -1] ; $dest_len
   push d
-  lea d, [bp + 7] ; $dest
+  lea d, [bp + 5] ; $dest
   mov b, [d]
   swp b
   push b
@@ -216,7 +216,7 @@ _for3_init:
   pop d
   mov [d], b
 _for3_cond:
-  lea d, [bp + 5] ; $src
+  lea d, [bp + 7] ; $src
   mov d, [d]
   push a
   push d
@@ -239,7 +239,7 @@ _for3_cond:
   je _for3_exit
 _for3_block:
 ;; dest[dest_len + i] = src[i]; 
-  lea d, [bp + 7] ; $dest
+  lea d, [bp + 5] ; $dest
   mov d, [d]
   push a
   push d
@@ -258,7 +258,7 @@ _for3_block:
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
   push d
-  lea d, [bp + 5] ; $src
+  lea d, [bp + 7] ; $src
   mov d, [d]
   push a
   push d
@@ -289,7 +289,7 @@ _for3_update:
   jmp _for3_cond
 _for3_exit:
 ;; dest[dest_len + i] = 0; 
-  lea d, [bp + 7] ; $dest
+  lea d, [bp + 5] ; $dest
   mov d, [d]
   push a
   push d
@@ -312,7 +312,7 @@ _for3_exit:
   pop d
   mov [d], bl
 ;; return dest; 
-  lea d, [bp + 7] ; $dest
+  lea d, [bp + 5] ; $dest
   mov b, [d]
   leave
   ret
@@ -1576,10 +1576,10 @@ loadfile:
   enter 0 ; (push bp; mov bp, sp)
 
 ; --- BEGIN INLINE ASM BLOCK
-  lea d, [bp + 5] ; $destination
+  lea d, [bp + 7] ; $destination
   mov a, [d]
   mov di, a
-  lea d, [bp + 7] ; $filename
+  lea d, [bp + 5] ; $filename
   mov d, [d]
   mov al, 20
   syscall sys_filesystem
@@ -1771,14 +1771,14 @@ clear:
 printun:
   enter 0 ; (push bp; mov bp, sp)
 ;; print(prompt); 
-  lea d, [bp + 7] ; $prompt
+  lea d, [bp + 5] ; $prompt
   mov b, [d]
   swp b
   push b
   call print
   add sp, 2
 ;; printu(n); 
-  lea d, [bp + 5] ; $n
+  lea d, [bp + 7] ; $n
   mov b, [d]
   swp b
   push b
@@ -1796,14 +1796,14 @@ printun:
 printsn:
   enter 0 ; (push bp; mov bp, sp)
 ;; print(prompt); 
-  lea d, [bp + 7] ; $prompt
+  lea d, [bp + 5] ; $prompt
   mov b, [d]
   swp b
   push b
   call print
   add sp, 2
 ;; prints(n); 
-  lea d, [bp + 5] ; $n
+  lea d, [bp + 7] ; $n
   mov b, [d]
   swp b
   push b
@@ -1844,7 +1844,7 @@ base64_encode:
 ;; input_len = strlen(input); 
   lea d, [bp + -7] ; $input_len
   push d
-  lea d, [bp + 7] ; $input
+  lea d, [bp + 5] ; $input
   mov b, [d]
   swp b
   push b
@@ -1879,11 +1879,11 @@ _while23_block:
   add d, b
   pop a
   push d
-  lea d, [bp + 7] ; $input
+  lea d, [bp + 5] ; $input
   mov b, [d]
   mov g, b
   inc b
-  lea d, [bp + 7] ; $input
+  lea d, [bp + 5] ; $input
   mov [d], b
   mov b, g
   mov d, b
@@ -2121,7 +2121,7 @@ _for25_cond:
   je _for25_exit
 _for25_block:
 ;; output[j++] = base64_table[output_buffer[i]]; 
-  lea d, [bp + 5] ; $output
+  lea d, [bp + 7] ; $output
   mov d, [d]
   push a
   push d
@@ -2427,7 +2427,7 @@ _for28_cond:
   je _for28_exit
 _for28_block:
 ;; output[j++] = base64_table[output_buffer[k]]; 
-  lea d, [bp + 5] ; $output
+  lea d, [bp + 7] ; $output
   mov d, [d]
   push a
   push d
@@ -2494,7 +2494,7 @@ _while29_cond:
   je _while29_exit
 _while29_block:
 ;; output[j++] = '='; 
-  lea d, [bp + 5] ; $output
+  lea d, [bp + 7] ; $output
   mov d, [d]
   push a
   push d
@@ -2517,7 +2517,7 @@ _while29_exit:
   jmp _if26_exit
 _if26_exit:
 ;; output[j] = '\0'; 
-  lea d, [bp + 5] ; $output
+  lea d, [bp + 7] ; $output
   mov d, [d]
   push a
   push d

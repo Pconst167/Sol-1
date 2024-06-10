@@ -86,14 +86,14 @@
 0066   0469             ;; psrc = src; 
 0067   0469 FA FF FF      lea d, [bp + -1] ; $psrc
 0068   046C DA            push d
-0069   046D FA 05 00      lea d, [bp + 5] ; $src
+0069   046D FA 07 00      lea d, [bp + 7] ; $src
 0070   0470 2A            mov b, [d]
 0071   0471 E7            pop d
 0072   0472 FD 43         mov [d], b
 0073   0474             ;; pdest = dest; 
 0074   0474 FA FD FF      lea d, [bp + -3] ; $pdest
 0075   0477 DA            push d
-0076   0478 FA 07 00      lea d, [bp + 7] ; $dest
+0076   0478 FA 05 00      lea d, [bp + 5] ; $dest
 0077   047B 2A            mov b, [d]
 0078   047C E7            pop d
 0079   047D FD 43         mov [d], b
@@ -144,14 +144,14 @@
 0124   04C3 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 0125   04C6             ;; while (*s1 && (*s1 == *s2)) { 
 0126   04C6             _while2_cond:
-0127   04C6 FA 07 00      lea d, [bp + 7] ; $s1
+0127   04C6 FA 05 00      lea d, [bp + 5] ; $s1
 0128   04C9 2A            mov b, [d]
 0129   04CA 74            mov d, b
 0130   04CB 32            mov bl, [d]
 0131   04CC A7 00         mov bh, 0
 0132   04CE D7            push a
 0133   04CF 11            mov a, b
-0134   04D0 FA 07 00      lea d, [bp + 7] ; $s1
+0134   04D0 FA 05 00      lea d, [bp + 5] ; $s1
 0135   04D3 2A            mov b, [d]
 0136   04D4 74            mov d, b
 0137   04D5 32            mov bl, [d]
@@ -159,7 +159,7 @@
 0139   04D8             ; START RELATIONAL
 0140   04D8 D7            push a
 0141   04D9 11            mov a, b
-0142   04DA FA 05 00      lea d, [bp + 5] ; $s2
+0142   04DA FA 07 00      lea d, [bp + 7] ; $s2
 0143   04DD 2A            mov b, [d]
 0144   04DE 74            mov d, b
 0145   04DF 32            mov bl, [d]
@@ -174,25 +174,25 @@
 0154   04EC C6 10 05      je _while2_exit
 0155   04EF             _while2_block:
 0156   04EF             ;; s1++; 
-0157   04EF FA 07 00      lea d, [bp + 7] ; $s1
+0157   04EF FA 05 00      lea d, [bp + 5] ; $s1
 0158   04F2 2A            mov b, [d]
 0159   04F3 FD 79         mov g, b
 0160   04F5 FD 77         inc b
-0161   04F7 FA 07 00      lea d, [bp + 7] ; $s1
+0161   04F7 FA 05 00      lea d, [bp + 5] ; $s1
 0162   04FA FD 43         mov [d], b
 0163   04FC FD 27         mov b, g
 0164   04FE             ;; s2++; 
-0165   04FE FA 05 00      lea d, [bp + 5] ; $s2
+0165   04FE FA 07 00      lea d, [bp + 7] ; $s2
 0166   0501 2A            mov b, [d]
 0167   0502 FD 79         mov g, b
 0168   0504 FD 77         inc b
-0169   0506 FA 05 00      lea d, [bp + 5] ; $s2
+0169   0506 FA 07 00      lea d, [bp + 7] ; $s2
 0170   0509 FD 43         mov [d], b
 0171   050B FD 27         mov b, g
 0172   050D 0A C6 04      jmp _while2_cond
 0173   0510             _while2_exit:
 0174   0510             ;; return *s1 - *s2; 
-0175   0510 FA 07 00      lea d, [bp + 7] ; $s1
+0175   0510 FA 05 00      lea d, [bp + 5] ; $s1
 0176   0513 2A            mov b, [d]
 0177   0514 74            mov d, b
 0178   0515 32            mov bl, [d]
@@ -200,7 +200,7 @@
 0180   0518             ; START TERMS
 0181   0518 D7            push a
 0182   0519 11            mov a, b
-0183   051A FA 05 00      lea d, [bp + 5] ; $s2
+0183   051A FA 07 00      lea d, [bp + 7] ; $s2
 0184   051D 2A            mov b, [d]
 0185   051E 74            mov d, b
 0186   051F 32            mov bl, [d]
@@ -220,7 +220,7 @@
 0200   052D             ;; dest_len = strlen(dest); 
 0201   052D FA FF FF      lea d, [bp + -1] ; $dest_len
 0202   0530 DA            push d
-0203   0531 FA 07 00      lea d, [bp + 7] ; $dest
+0203   0531 FA 05 00      lea d, [bp + 5] ; $dest
 0204   0534 2A            mov b, [d]
 0205   0535 FD AB         swp b
 0206   0537 D8            push b
@@ -236,7 +236,7 @@
 0216   0548 E7            pop d
 0217   0549 FD 43         mov [d], b
 0218   054B             _for3_cond:
-0219   054B FA 05 00      lea d, [bp + 5] ; $src
+0219   054B FA 07 00      lea d, [bp + 7] ; $src
 0220   054E FD 2A         mov d, [d]
 0221   0550 D7            push a
 0222   0551 DA            push d
@@ -259,7 +259,7 @@
 0239   056B C6 B6 05      je _for3_exit
 0240   056E             _for3_block:
 0241   056E             ;; dest[dest_len + i] = src[i]; 
-0242   056E FA 07 00      lea d, [bp + 7] ; $dest
+0242   056E FA 05 00      lea d, [bp + 5] ; $dest
 0243   0571 FD 2A         mov d, [d]
 0244   0573 D7            push a
 0245   0574 DA            push d
@@ -278,7 +278,7 @@
 0258   0583 FD 13 01 00   mma 1 ; mov a, 1; mul a b; add d, b
 0259   0587 E4            pop a
 0260   0588 DA            push d
-0261   0589 FA 05 00      lea d, [bp + 5] ; $src
+0261   0589 FA 07 00      lea d, [bp + 7] ; $src
 0262   058C FD 2A         mov d, [d]
 0263   058E D7            push a
 0264   058F DA            push d
@@ -309,7 +309,7 @@
 0289   05B3 0A 4B 05      jmp _for3_cond
 0290   05B6             _for3_exit:
 0291   05B6             ;; dest[dest_len + i] = 0; 
-0292   05B6 FA 07 00      lea d, [bp + 7] ; $dest
+0292   05B6 FA 05 00      lea d, [bp + 5] ; $dest
 0293   05B9 FD 2A         mov d, [d]
 0294   05BB D7            push a
 0295   05BC DA            push d
@@ -332,7 +332,7 @@
 0312   05D4 E7            pop d
 0313   05D5 FD 3E         mov [d], bl
 0314   05D7             ;; return dest; 
-0315   05D7 FA 07 00      lea d, [bp + 7] ; $dest
+0315   05D7 FA 05 00      lea d, [bp + 5] ; $dest
 0316   05DA 2A            mov b, [d]
 0317   05DB F9            leave
 0318   05DC 09            ret
@@ -1596,10 +1596,10 @@
 1576   0C77 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 1577   0C7A             
 1578   0C7A             ; --- BEGIN INLINE ASM BLOCK
-1579   0C7A FA 05 00      lea d, [bp + 5] ; $destination
+1579   0C7A FA 07 00      lea d, [bp + 7] ; $destination
 1580   0C7D 15            mov a, [d]
 1581   0C7E 4F            mov di, a
-1582   0C7F FA 07 00      lea d, [bp + 7] ; $filename
+1582   0C7F FA 05 00      lea d, [bp + 5] ; $filename
 1583   0C82 FD 2A         mov d, [d]
 1584   0C84 19 14         mov al, 20
 1585   0C86 05 04         syscall sys_filesystem
@@ -1791,14 +1791,14 @@
 1771   0D5E             printun:
 1772   0D5E F8 00 00      enter 0 ; (push bp; mov bp, sp)
 1773   0D61             ;; print(prompt); 
-1774   0D61 FA 07 00      lea d, [bp + 7] ; $prompt
+1774   0D61 FA 05 00      lea d, [bp + 5] ; $prompt
 1775   0D64 2A            mov b, [d]
 1776   0D65 FD AB         swp b
 1777   0D67 D8            push b
 1778   0D68 07 6A 0C      call print
 1779   0D6B 51 02 00      add sp, 2
 1780   0D6E             ;; printu(n); 
-1781   0D6E FA 05 00      lea d, [bp + 5] ; $n
+1781   0D6E FA 07 00      lea d, [bp + 7] ; $n
 1782   0D71 2A            mov b, [d]
 1783   0D72 FD AB         swp b
 1784   0D74 D8            push b
@@ -1816,14 +1816,14 @@
 1796   0D89             printsn:
 1797   0D89 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 1798   0D8C             ;; print(prompt); 
-1799   0D8C FA 07 00      lea d, [bp + 7] ; $prompt
+1799   0D8C FA 05 00      lea d, [bp + 5] ; $prompt
 1800   0D8F 2A            mov b, [d]
 1801   0D90 FD AB         swp b
 1802   0D92 D8            push b
 1803   0D93 07 6A 0C      call print
 1804   0D96 51 02 00      add sp, 2
 1805   0D99             ;; prints(n); 
-1806   0D99 FA 05 00      lea d, [bp + 5] ; $n
+1806   0D99 FA 07 00      lea d, [bp + 7] ; $n
 1807   0D9C 2A            mov b, [d]
 1808   0D9D FD AB         swp b
 1809   0D9F D8            push b
@@ -2662,7 +2662,7 @@
 1844   1153             ;; input_len = strlen(input); 
 1845   1153 FA F9 FF      lea d, [bp + -7] ; $input_len
 1846   1156 DA            push d
-1847   1157 FA 07 00      lea d, [bp + 7] ; $input
+1847   1157 FA 05 00      lea d, [bp + 5] ; $input
 1848   115A 2A            mov b, [d]
 1849   115B FD AB         swp b
 1850   115D D8            push b
@@ -2697,11 +2697,11 @@
 1879   1191 5A            add d, b
 1880   1192 E4            pop a
 1881   1193 DA            push d
-1882   1194 FA 07 00      lea d, [bp + 7] ; $input
+1882   1194 FA 05 00      lea d, [bp + 5] ; $input
 1883   1197 2A            mov b, [d]
 1884   1198 FD 79         mov g, b
 1885   119A FD 77         inc b
-1886   119C FA 07 00      lea d, [bp + 7] ; $input
+1886   119C FA 05 00      lea d, [bp + 5] ; $input
 1887   119F FD 43         mov [d], b
 1888   11A1 FD 27         mov b, g
 1889   11A3 74            mov d, b
@@ -2939,7 +2939,7 @@
 2121   12D3 C6 27 13      je _for25_exit
 2122   12D6             _for25_block:
 2123   12D6             ;; output[j++] = base64_table[output_buffer[i]]; 
-2124   12D6 FA 05 00      lea d, [bp + 5] ; $output
+2124   12D6 FA 07 00      lea d, [bp + 7] ; $output
 2125   12D9 FD 2A         mov d, [d]
 2126   12DB D7            push a
 2127   12DC DA            push d
@@ -3245,7 +3245,7 @@
 2427   147E C6 D2 14      je _for28_exit
 2428   1481             _for28_block:
 2429   1481             ;; output[j++] = base64_table[output_buffer[k]]; 
-2430   1481 FA 05 00      lea d, [bp + 5] ; $output
+2430   1481 FA 07 00      lea d, [bp + 7] ; $output
 2431   1484 FD 2A         mov d, [d]
 2432   1486 D7            push a
 2433   1487 DA            push d
@@ -3312,7 +3312,7 @@
 2494   14ED C6 16 15      je _while29_exit
 2495   14F0             _while29_block:
 2496   14F0             ;; output[j++] = '='; 
-2497   14F0 FA 05 00      lea d, [bp + 5] ; $output
+2497   14F0 FA 07 00      lea d, [bp + 7] ; $output
 2498   14F3 FD 2A         mov d, [d]
 2499   14F5 D7            push a
 2500   14F6 DA            push d
@@ -3335,7 +3335,7 @@
 2517   1516 0A 19 15      jmp _if26_exit
 2518   1519             _if26_exit:
 2519   1519             ;; output[j] = '\0'; 
-2520   1519 FA 05 00      lea d, [bp + 5] ; $output
+2520   1519 FA 07 00      lea d, [bp + 7] ; $output
 2521   151C FD 2A         mov d, [d]
 2522   151E D7            push a
 2523   151F DA            push d
