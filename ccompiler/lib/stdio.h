@@ -389,7 +389,7 @@ void printsn(char *prompt, int n){
 
 void include_stdio_asm(){
   asm{
-    .include "lib/stdio.asm"
+    .include "lib/asm/stdio.asm"
   }
 }
 

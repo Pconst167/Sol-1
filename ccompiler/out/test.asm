@@ -1,6 +1,6 @@
 ; --- FILENAME: test
-.include "lib/kernel.exp"
-.include "lib/bios.exp"
+.include "lib/asm/kernel.exp"
+.include "lib/asm/bios.exp"
 .org text_org
 
 ; --- BEGIN TEXT BLOCK
@@ -1789,7 +1789,7 @@ include_stdio_asm:
   enter 0 ; (push bp; mov bp, sp)
 
 ; --- BEGIN INLINE ASM BLOCK
-.include "lib/stdio.asm"
+.include "lib/asm/stdio.asm"
 ; --- END INLINE ASM BLOCK
 
   leave

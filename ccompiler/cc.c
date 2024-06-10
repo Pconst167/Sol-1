@@ -75,8 +75,8 @@ int main(int argc, char *argv[]){
 
 
   emitln("; --- FILENAME: %s", argv[1]);
-  if(include_kernel_exp) emitln(".include \"lib/kernel.exp\"");
-  emitln(".include \"lib/bios.exp\"");
+  if(include_kernel_exp) emitln(".include \"lib/asm/kernel.exp\"");
+  emitln(".include \"lib/asm/bios.exp\"");
   emitln(".org %s", org);
 
   emit("\n; --- BEGIN TEXT BLOCK");
