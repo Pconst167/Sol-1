@@ -67,7 +67,7 @@ int neighbours(int i, int j){
 int main(void){
 	int i, j;
   int n;
-
+Hello World my name is Paulo.
 	for(i = 0; i < HEIGHT; i++){
 		for(j = 0; j < WIDTH; j++){
 			nextState[i][j] = currState[i][j];

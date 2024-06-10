@@ -7,25 +7,94 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; printf("GCD: %d", gcd(125, 65535)); 
-  mov b, $ffff
+; $a 
+; $b 
+; $c 
+; $d 
+  sub sp, 8
+;; a = 5; b = 6; c = 7; d = 8; 
+  lea d, [bp + -1] ; $a
+  push d
+  mov b, $5
+  pop d
+  mov [d], b
+;; b = 6; c = 7; d = 8; 
+  lea d, [bp + -3] ; $b
+  push d
+  mov b, $6
+  pop d
+  mov [d], b
+;; c = 7; d = 8; 
+  lea d, [bp + -5] ; $c
+  push d
+  mov b, $7
+  pop d
+  mov [d], b
+;; d = 8; 
+  lea d, [bp + -7] ; $d
+  push d
+  mov b, $8
+  pop d
+  mov [d], b
+;; printf("a: %d, b: %d, c: %d, d: %d\n",a,b,c,d); 
+  lea d, [bp + -7] ; $d
+  mov b, [d]
   swp b
   push b
-  mov b, $ffff
+  lea d, [bp + -5] ; $c
+  mov b, [d]
   swp b
   push b
-  mov b, $7d
+  lea d, [bp + -3] ; $b
+  mov b, [d]
   swp b
   push b
-  call gcd
-  add sp, 4
+  lea d, [bp + -1] ; $a
+  mov b, [d]
   swp b
   push b
-  mov b, __s0 ; "GCD: %d"
+  mov b, __s0 ; "a: %d, b: %d, c: %d, d: %d\n"
   swp b
   push b
   call printf
-  add sp, 6
+  add sp, 10
+;; f(1,2,3,4); 
+  mov b, $4
+  swp b
+  push b
+  mov b, $3
+  swp b
+  push b
+  mov b, $2
+  swp b
+  push b
+  mov b, $1
+  swp b
+  push b
+  call f
+  add sp, 8
+;; printf("a: %d, b: %d, c: %d, d: %d\n",a,b,c,d); 
+  lea d, [bp + -7] ; $d
+  mov b, [d]
+  swp b
+  push b
+  lea d, [bp + -5] ; $c
+  mov b, [d]
+  swp b
+  push b
+  lea d, [bp + -3] ; $b
+  mov b, [d]
+  swp b
+  push b
+  lea d, [bp + -1] ; $a
+  mov b, [d]
+  swp b
+  push b
+  mov b, __s0 ; "a: %d, b: %d, c: %d, d: %d\n"
+  swp b
+  push b
+  call printf
+  add sp, 10
 ;; return 0; 
   mov b, $0
   leave
@@ -1801,57 +1870,67 @@ include_stdio_asm:
   leave
   ret
 
-gcd:
+f:
   enter 0 ; (push bp; mov bp, sp)
-;; if (b == 0) { 
-_if23_cond:
-  lea d, [bp + 7] ; $b
-  mov b, [d]
-; START RELATIONAL
-  push a
-  mov a, b
+; $aaa 
+; $bbb 
+; $ccc 
+; $ddd 
+  sub sp, 8
+;; aa = 11; bb = 22; cc = 33; dd = 44; 
+  lea d, [bp + 5] ; $aa
+  push d
+  mov b, $b
+  pop d
+  mov [d], b
+;; bb = 22; cc = 33; dd = 44; 
+  lea d, [bp + 7] ; $bb
+  push d
+  mov b, $16
+  pop d
+  mov [d], b
+;; cc = 33; dd = 44; 
+  lea d, [bp + 9] ; $cc
+  push d
+  mov b, $21
+  pop d
+  mov [d], b
+;; dd = 44; 
+  lea d, [bp + 11] ; $dd
+  push d
+  mov b, $2c
+  pop d
+  mov [d], b
+;; aaa = 0; bbb = 9; ccc = 8; ddd = 7; 
+  lea d, [bp + -1] ; $aaa
+  push d
   mov b, $0
-  cmp a, b
-  seq ; ==
-  pop a
-; END RELATIONAL
-  cmp b, 0
-  je _if23_exit
-_if23_true:
-;; return a; 
-  lea d, [bp + 5] ; $a
-  mov b, [d]
-  leave
-  ret
-  jmp _if23_exit
-_if23_exit:
-;; return gcd(b, a % b); 
-  lea d, [bp + 5] ; $a
-  mov b, [d]
-; START FACTORS
-  push a
-  mov a, b
-  lea d, [bp + 7] ; $b
-  mov b, [d]
-  div a, b ; 
-  mov a, b
-  mov b, a
-  pop a
-; END FACTORS
-  swp b
-  push b
-  lea d, [bp + 7] ; $b
-  mov b, [d]
-  swp b
-  push b
-  call gcd
-  add sp, 4
+  pop d
+  mov [d], b
+;; bbb = 9; ccc = 8; ddd = 7; 
+  lea d, [bp + -3] ; $bbb
+  push d
+  mov b, $9
+  pop d
+  mov [d], b
+;; ccc = 8; ddd = 7; 
+  lea d, [bp + -5] ; $ccc
+  push d
+  mov b, $8
+  pop d
+  mov [d], b
+;; ddd = 7; 
+  lea d, [bp + -7] ; $ddd
+  push d
+  mov b, $7
+  pop d
+  mov [d], b
   leave
   ret
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
-__s0: .db "GCD: %d", 0
+__s0: .db "a: %d, b: %d, c: %d, d: %d\n", 0
 __s1: .db "Error: Unknown argument type.\n", 0
 __s2: .db "\033[2J\033[H", 0
 __s3: .db "\n", 0
