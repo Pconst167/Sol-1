@@ -138,6 +138,13 @@ void display_typedef_table(){
   }
 }
 
+  // Declare int argc, char argv [] variables
+  // if argc and argv variables are in main(), then we create two new local variables inside main
+  // such that int argc contains the number of arguments given in 0x00, with a space separator
+  // and char argv[], will contain the string argument entries as a vector.
+  // char argv[] is an array of pointers so each entry contains a pointer to an argument string.
+  // 
+  // for calculating argc, we need to write assembly that will count space separated arguments.
 void insert_runtime() {
   int i;
   int main_index;
@@ -180,16 +187,6 @@ int is_register(char *name){
   )
     return 1;
   else return 0;
-}
-
-void declare_argc_argv(){
-  // Declare int argc, char argv [] variables
-  // if argc and argv variables are in main(), then we create two new local variables inside main
-  // such that int argc contains the number of arguments given in 0x00, with a space separator
-  // and char argv[], will contain the string argument entries as a vector.
-  // char argv[] is an array of pointers so each entry contains a pointer to an argument string.
-  // 
-  // for calculating argc, we need to write assembly that will count space separated arguments.
 }
 
 void declare_heap(){
@@ -293,7 +290,8 @@ void declare_all_locals(int function_id){
     if(tok == OPENING_BRACE) total_braces++;
     if(tok == CLOSING_BRACE) total_braces--;
     if(total_braces == 0) break;
-    if(tok == UNSIGNED || tok == SIGNED || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
+    if(tok == CONST || tok == UNSIGNED || tok == SIGNED || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
+      if(tok == CONST) get();
       get();
       while(tok == STAR) get();
       get(); // get identifier
@@ -1168,6 +1166,7 @@ void parse_block(void){
     get();
     if(tok != CLOSING_BRACE) return_is_last_statement = 0;
     switch(tok){
+      case CONST:
       case STATIC:
       case SIGNED:
       case UNSIGNED:
@@ -2963,6 +2962,7 @@ int declare_struct(){
     back();
     declare_struct_global_vars(curr_struct_id);
   }
+  else if(tok != SEMICOLON) error("Semicolon expected after struct declaration.");
 
   return curr_struct_id; // return struct_id
 }

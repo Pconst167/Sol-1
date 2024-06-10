@@ -1,20 +1,32 @@
 #include <stdio.h>
 
+struct s1{
+	int a[2];
+	char c[33];
+};
+
+struct s2{
+	char a[10];
+	struct s1 ss[3];
+	struct s1 sss[3];
+	int b[3];
+};
+
 int main() {
-	int a, b, c, d;
-	a = 5; b = 6; c = 7; d = 8;
 
-	printf("a: %d, b: %d, c: %d, d: %d\n",a,b,c,d);
-	f(1,2,3,4);
-	printf("a: %d, b: %d, c: %d, d: %d\n",a,b,c,d);
+	struct s2 s[5];
 
-    return 0;
+	s[0].a[0] = 'A';
+	s[1].a[1] = 'B';
+	s[2].ss[1].a[1] = 'Z';
+	s[3].sss[1].c[2]='H';
+	s[0].b[2]=123;
+
+	printf("%c\n", s[0].a[0]);
+	printf("%c\n", s[1].a[1]);
+	printf("%c\n", s[2].ss[1].a[1]);
+	printf("%c\n", s[3].sss[1].c[2]);
+	printf("%d\n", s[0].b[2]);
+
 }
 
-
-
-int f(int aa, int bb, int cc, int dd) {
-	int aaa, bbb, ccc, ddd;
-	aa = 11; bb = 22; cc = 33; dd = 44;
-	aaa = 0; bbb = 9; ccc = 8; ddd = 7;
-}
