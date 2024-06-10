@@ -443,14 +443,14 @@
 0423   069D             ;; psrc = src; 
 0424   069D FA FF FF      lea d, [bp + -1] ; $psrc
 0425   06A0 DA            push d
-0426   06A1 FA 05 00      lea d, [bp + 5] ; $src
+0426   06A1 FA 07 00      lea d, [bp + 7] ; $src
 0427   06A4 2A            mov b, [d]
 0428   06A5 E7            pop d
 0429   06A6 FD 43         mov [d], b
 0430   06A8             ;; pdest = dest; 
 0431   06A8 FA FD FF      lea d, [bp + -3] ; $pdest
 0432   06AB DA            push d
-0433   06AC FA 07 00      lea d, [bp + 7] ; $dest
+0433   06AC FA 05 00      lea d, [bp + 5] ; $dest
 0434   06AF 2A            mov b, [d]
 0435   06B0 E7            pop d
 0436   06B1 FD 43         mov [d], b
@@ -501,14 +501,14 @@
 0481   06F7 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 0482   06FA             ;; while (*s1 && (*s1 == *s2)) { 
 0483   06FA             _while4_cond:
-0484   06FA FA 07 00      lea d, [bp + 7] ; $s1
+0484   06FA FA 05 00      lea d, [bp + 5] ; $s1
 0485   06FD 2A            mov b, [d]
 0486   06FE 74            mov d, b
 0487   06FF 32            mov bl, [d]
 0488   0700 A7 00         mov bh, 0
 0489   0702 D7            push a
 0490   0703 11            mov a, b
-0491   0704 FA 07 00      lea d, [bp + 7] ; $s1
+0491   0704 FA 05 00      lea d, [bp + 5] ; $s1
 0492   0707 2A            mov b, [d]
 0493   0708 74            mov d, b
 0494   0709 32            mov bl, [d]
@@ -516,7 +516,7 @@
 0496   070C             ; START RELATIONAL
 0497   070C D7            push a
 0498   070D 11            mov a, b
-0499   070E FA 05 00      lea d, [bp + 5] ; $s2
+0499   070E FA 07 00      lea d, [bp + 7] ; $s2
 0500   0711 2A            mov b, [d]
 0501   0712 74            mov d, b
 0502   0713 32            mov bl, [d]
@@ -531,25 +531,25 @@
 0511   0720 C6 44 07      je _while4_exit
 0512   0723             _while4_block:
 0513   0723             ;; s1++; 
-0514   0723 FA 07 00      lea d, [bp + 7] ; $s1
+0514   0723 FA 05 00      lea d, [bp + 5] ; $s1
 0515   0726 2A            mov b, [d]
 0516   0727 FD 79         mov g, b
 0517   0729 FD 77         inc b
-0518   072B FA 07 00      lea d, [bp + 7] ; $s1
+0518   072B FA 05 00      lea d, [bp + 5] ; $s1
 0519   072E FD 43         mov [d], b
 0520   0730 FD 27         mov b, g
 0521   0732             ;; s2++; 
-0522   0732 FA 05 00      lea d, [bp + 5] ; $s2
+0522   0732 FA 07 00      lea d, [bp + 7] ; $s2
 0523   0735 2A            mov b, [d]
 0524   0736 FD 79         mov g, b
 0525   0738 FD 77         inc b
-0526   073A FA 05 00      lea d, [bp + 5] ; $s2
+0526   073A FA 07 00      lea d, [bp + 7] ; $s2
 0527   073D FD 43         mov [d], b
 0528   073F FD 27         mov b, g
 0529   0741 0A FA 06      jmp _while4_cond
 0530   0744             _while4_exit:
 0531   0744             ;; return *s1 - *s2; 
-0532   0744 FA 07 00      lea d, [bp + 7] ; $s1
+0532   0744 FA 05 00      lea d, [bp + 5] ; $s1
 0533   0747 2A            mov b, [d]
 0534   0748 74            mov d, b
 0535   0749 32            mov bl, [d]
@@ -557,7 +557,7 @@
 0537   074C             ; START TERMS
 0538   074C D7            push a
 0539   074D 11            mov a, b
-0540   074E FA 05 00      lea d, [bp + 5] ; $s2
+0540   074E FA 07 00      lea d, [bp + 7] ; $s2
 0541   0751 2A            mov b, [d]
 0542   0752 74            mov d, b
 0543   0753 32            mov bl, [d]
@@ -577,7 +577,7 @@
 0557   0761             ;; dest_len = strlen(dest); 
 0558   0761 FA FF FF      lea d, [bp + -1] ; $dest_len
 0559   0764 DA            push d
-0560   0765 FA 07 00      lea d, [bp + 7] ; $dest
+0560   0765 FA 05 00      lea d, [bp + 5] ; $dest
 0561   0768 2A            mov b, [d]
 0562   0769 FD AB         swp b
 0563   076B D8            push b
@@ -593,7 +593,7 @@
 0573   077C E7            pop d
 0574   077D FD 43         mov [d], b
 0575   077F             _for5_cond:
-0576   077F FA 05 00      lea d, [bp + 5] ; $src
+0576   077F FA 07 00      lea d, [bp + 7] ; $src
 0577   0782 FD 2A         mov d, [d]
 0578   0784 D7            push a
 0579   0785 DA            push d
@@ -616,7 +616,7 @@
 0596   079F C6 EA 07      je _for5_exit
 0597   07A2             _for5_block:
 0598   07A2             ;; dest[dest_len + i] = src[i]; 
-0599   07A2 FA 07 00      lea d, [bp + 7] ; $dest
+0599   07A2 FA 05 00      lea d, [bp + 5] ; $dest
 0600   07A5 FD 2A         mov d, [d]
 0601   07A7 D7            push a
 0602   07A8 DA            push d
@@ -635,7 +635,7 @@
 0615   07B7 FD 13 01 00   mma 1 ; mov a, 1; mul a b; add d, b
 0616   07BB E4            pop a
 0617   07BC DA            push d
-0618   07BD FA 05 00      lea d, [bp + 5] ; $src
+0618   07BD FA 07 00      lea d, [bp + 7] ; $src
 0619   07C0 FD 2A         mov d, [d]
 0620   07C2 D7            push a
 0621   07C3 DA            push d
@@ -666,7 +666,7 @@
 0646   07E7 0A 7F 07      jmp _for5_cond
 0647   07EA             _for5_exit:
 0648   07EA             ;; dest[dest_len + i] = 0; 
-0649   07EA FA 07 00      lea d, [bp + 7] ; $dest
+0649   07EA FA 05 00      lea d, [bp + 5] ; $dest
 0650   07ED FD 2A         mov d, [d]
 0651   07EF D7            push a
 0652   07F0 DA            push d
@@ -689,7 +689,7 @@
 0669   0808 E7            pop d
 0670   0809 FD 3E         mov [d], bl
 0671   080B             ;; return dest; 
-0672   080B FA 07 00      lea d, [bp + 7] ; $dest
+0672   080B FA 05 00      lea d, [bp + 5] ; $dest
 0673   080E 2A            mov b, [d]
 0674   080F F9            leave
 0675   0810 09            ret
@@ -1953,10 +1953,10 @@
 1933   0EAB F8 00 00      enter 0 ; (push bp; mov bp, sp)
 1934   0EAE             
 1935   0EAE             ; --- BEGIN INLINE ASM BLOCK
-1936   0EAE FA 05 00      lea d, [bp + 5] ; $destination
+1936   0EAE FA 07 00      lea d, [bp + 7] ; $destination
 1937   0EB1 15            mov a, [d]
 1938   0EB2 4F            mov di, a
-1939   0EB3 FA 07 00      lea d, [bp + 7] ; $filename
+1939   0EB3 FA 05 00      lea d, [bp + 5] ; $filename
 1940   0EB6 FD 2A         mov d, [d]
 1941   0EB8 19 14         mov al, 20
 1942   0EBA 05 04         syscall sys_filesystem
@@ -2148,14 +2148,14 @@
 2128   0F92             printun:
 2129   0F92 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 2130   0F95             ;; print(prompt); 
-2131   0F95 FA 07 00      lea d, [bp + 7] ; $prompt
+2131   0F95 FA 05 00      lea d, [bp + 5] ; $prompt
 2132   0F98 2A            mov b, [d]
 2133   0F99 FD AB         swp b
 2134   0F9B D8            push b
 2135   0F9C 07 9E 0E      call print
 2136   0F9F 51 02 00      add sp, 2
 2137   0FA2             ;; printu(n); 
-2138   0FA2 FA 05 00      lea d, [bp + 5] ; $n
+2138   0FA2 FA 07 00      lea d, [bp + 7] ; $n
 2139   0FA5 2A            mov b, [d]
 2140   0FA6 FD AB         swp b
 2141   0FA8 D8            push b
@@ -2173,14 +2173,14 @@
 2153   0FBD             printsn:
 2154   0FBD F8 00 00      enter 0 ; (push bp; mov bp, sp)
 2155   0FC0             ;; print(prompt); 
-2156   0FC0 FA 07 00      lea d, [bp + 7] ; $prompt
+2156   0FC0 FA 05 00      lea d, [bp + 5] ; $prompt
 2157   0FC3 2A            mov b, [d]
 2158   0FC4 FD AB         swp b
 2159   0FC6 D8            push b
 2160   0FC7 07 9E 0E      call print
 2161   0FCA 51 02 00      add sp, 2
 2162   0FCD             ;; prints(n); 
-2163   0FCD FA 05 00      lea d, [bp + 5] ; $n
+2163   0FCD FA 07 00      lea d, [bp + 7] ; $n
 2164   0FD0 2A            mov b, [d]
 2165   0FD1 FD AB         swp b
 2166   0FD3 D8            push b
@@ -3007,7 +3007,7 @@
 2189   1375 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 2190   1378             ;; if (b == 0) { 
 2191   1378             _if25_cond:
-2192   1378 FA 05 00      lea d, [bp + 5] ; $b
+2192   1378 FA 07 00      lea d, [bp + 7] ; $b
 2193   137B 2A            mov b, [d]
 2194   137C             ; START RELATIONAL
 2195   137C D7            push a
@@ -3021,19 +3021,19 @@
 2203   1388 C6 94 13      je _if25_exit
 2204   138B             _if25_true:
 2205   138B             ;; return a; 
-2206   138B FA 07 00      lea d, [bp + 7] ; $a
+2206   138B FA 05 00      lea d, [bp + 5] ; $a
 2207   138E 2A            mov b, [d]
 2208   138F F9            leave
 2209   1390 09            ret
 2210   1391 0A 94 13      jmp _if25_exit
 2211   1394             _if25_exit:
 2212   1394             ;; return gcd(b, a % b); 
-2213   1394 FA 07 00      lea d, [bp + 7] ; $a
+2213   1394 FA 05 00      lea d, [bp + 5] ; $a
 2214   1397 2A            mov b, [d]
 2215   1398             ; START FACTORS
 2216   1398 D7            push a
 2217   1399 11            mov a, b
-2218   139A FA 05 00      lea d, [bp + 5] ; $b
+2218   139A FA 07 00      lea d, [bp + 7] ; $b
 2219   139D 2A            mov b, [d]
 2220   139E AE            div a, b ; 
 2221   139F 11            mov a, b
@@ -3042,7 +3042,7 @@
 2224   13A2             ; END FACTORS
 2225   13A2 FD AB         swp b
 2226   13A4 D8            push b
-2227   13A5 FA 05 00      lea d, [bp + 5] ; $b
+2227   13A5 FA 07 00      lea d, [bp + 7] ; $b
 2228   13A8 2A            mov b, [d]
 2229   13A9 FD AB         swp b
 2230   13AB D8            push b
@@ -3097,7 +3097,7 @@
 2279   13F1             ; START FACTORS
 2280   13F1 D7            push a
 2281   13F2 11            mov a, b
-2282   13F3 FA 09 00      lea d, [bp + 9] ; $base
+2282   13F3 FA 05 00      lea d, [bp + 5] ; $base
 2283   13F6 2A            mov b, [d]
 2284   13F7 AC            mul a, b ; *
 2285   13F8 11            mov a, b
@@ -3107,7 +3107,7 @@
 2289   13FB             ; START FACTORS
 2290   13FB D7            push a
 2291   13FC 11            mov a, b
-2292   13FD FA 05 00      lea d, [bp + 5] ; $mod
+2292   13FD FA 09 00      lea d, [bp + 9] ; $mod
 2293   1400 2A            mov b, [d]
 2294   1401 AE            div a, b ; 
 2295   1402 11            mov a, b
@@ -3135,14 +3135,14 @@
 2317   141D E7            pop d
 2318   141E FD 43         mov [d], b
 2319   1420             ;; base = (base * base) % mod; 
-2320   1420 FA 09 00      lea d, [bp + 9] ; $base
+2320   1420 FA 05 00      lea d, [bp + 5] ; $base
 2321   1423 DA            push d
-2322   1424 FA 09 00      lea d, [bp + 9] ; $base
+2322   1424 FA 05 00      lea d, [bp + 5] ; $base
 2323   1427 2A            mov b, [d]
 2324   1428             ; START FACTORS
 2325   1428 D7            push a
 2326   1429 11            mov a, b
-2327   142A FA 09 00      lea d, [bp + 9] ; $base
+2327   142A FA 05 00      lea d, [bp + 5] ; $base
 2328   142D 2A            mov b, [d]
 2329   142E AC            mul a, b ; *
 2330   142F 11            mov a, b
@@ -3152,7 +3152,7 @@
 2334   1432             ; START FACTORS
 2335   1432 D7            push a
 2336   1433 11            mov a, b
-2337   1434 FA 05 00      lea d, [bp + 5] ; $mod
+2337   1434 FA 09 00      lea d, [bp + 9] ; $mod
 2338   1437 2A            mov b, [d]
 2339   1438 AE            div a, b ; 
 2340   1439 11            mov a, b
@@ -3257,7 +3257,7 @@
 2439   14C3             ; START RELATIONAL
 2440   14C3 D7            push a
 2441   14C4 11            mov a, b
-2442   14C5 FA 05 00      lea d, [bp + 5] ; $phi
+2442   14C5 FA 07 00      lea d, [bp + 7] ; $phi
 2443   14C8 2A            mov b, [d]
 2444   14C9 B0            cmp a, b
 2445   14CA FD 73         slt ; < 
@@ -3273,7 +3273,7 @@
 2455   14D7             ; START FACTORS
 2456   14D7 D7            push a
 2457   14D8 11            mov a, b
-2458   14D9 FA 07 00      lea d, [bp + 7] ; $e
+2458   14D9 FA 05 00      lea d, [bp + 5] ; $e
 2459   14DC 2A            mov b, [d]
 2460   14DD AC            mul a, b ; *
 2461   14DE 11            mov a, b
@@ -3283,7 +3283,7 @@
 2465   14E1             ; START FACTORS
 2466   14E1 D7            push a
 2467   14E2 11            mov a, b
-2468   14E3 FA 05 00      lea d, [bp + 5] ; $phi
+2468   14E3 FA 07 00      lea d, [bp + 7] ; $phi
 2469   14E6 2A            mov b, [d]
 2470   14E7 AE            div a, b ; 
 2471   14E8 11            mov a, b

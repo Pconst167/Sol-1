@@ -600,7 +600,8 @@ void declare_func(void){
     temp_prog = prog;
     total_parameter_bytes = get_total_func_fixed_param_size();
     func->total_parameter_size = total_parameter_bytes;
-    bp_offset = 4 + total_parameter_bytes; // +4 to account for pc and bp in the stack
+    bp_offset = 5; // +4 to account for pc and bp in the stack
+    //bp_offset = total_parameter_bytes + 4; // +4 to account for pc and bp in the stack
     prog = temp_prog;
     do{
       // set as parameter so that we can tell that if a array is declared, the argument is also a pointer
@@ -670,9 +671,9 @@ void declare_func(void){
         func->local_vars[func->local_var_tos].type.dims[i] = 0; // sets the last variable dimention to 0, to mark the end of the list
       }
       prog = temp_prog;
-      bp_offset -= get_param_size();
       // assign the bp offset of this parameter
-      func->local_vars[func->local_var_tos].bp_offset = bp_offset + 1;
+      func->local_vars[func->local_var_tos].bp_offset = bp_offset;
+      bp_offset += get_param_size();
 
       get();
       func->num_fixed_args++;
@@ -3766,8 +3767,9 @@ int declare_local(void){
       // this is used to position local variables correctly relative to BP.
       // whenever a new function is parsed, this is reset to 0.
       // then inside the function it can increase according to how many local vars there are.
+      new_var.bp_offset = current_function_var_bp_offset - get_total_type_size(new_var.type) + 1;
+      //new_var.bp_offset = current_function_var_bp_offset + 1;
       current_function_var_bp_offset -= get_total_type_size(new_var.type);
-      new_var.bp_offset = current_function_var_bp_offset + 1;
 
       total_sp += get_total_type_size(new_var.type);
       emitln("; $%s ", new_var.name);

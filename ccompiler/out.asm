@@ -423,14 +423,14 @@ strcpy:
 ;; psrc = src; 
   lea d, [bp + -1] ; $psrc
   push d
-  lea d, [bp + 5] ; $src
+  lea d, [bp + 7] ; $src
   mov b, [d]
   pop d
   mov [d], b
 ;; pdest = dest; 
   lea d, [bp + -3] ; $pdest
   push d
-  lea d, [bp + 7] ; $dest
+  lea d, [bp + 5] ; $dest
   mov b, [d]
   pop d
   mov [d], b
@@ -481,14 +481,14 @@ strcmp:
   enter 0 ; (push bp; mov bp, sp)
 ;; while (*s1 && (*s1 == *s2)) { 
 _while4_cond:
-  lea d, [bp + 7] ; $s1
+  lea d, [bp + 5] ; $s1
   mov b, [d]
   mov d, b
   mov bl, [d]
   mov bh, 0
   push a
   mov a, b
-  lea d, [bp + 7] ; $s1
+  lea d, [bp + 5] ; $s1
   mov b, [d]
   mov d, b
   mov bl, [d]
@@ -496,7 +496,7 @@ _while4_cond:
 ; START RELATIONAL
   push a
   mov a, b
-  lea d, [bp + 5] ; $s2
+  lea d, [bp + 7] ; $s2
   mov b, [d]
   mov d, b
   mov bl, [d]
@@ -511,25 +511,25 @@ _while4_cond:
   je _while4_exit
 _while4_block:
 ;; s1++; 
-  lea d, [bp + 7] ; $s1
+  lea d, [bp + 5] ; $s1
   mov b, [d]
   mov g, b
   inc b
-  lea d, [bp + 7] ; $s1
+  lea d, [bp + 5] ; $s1
   mov [d], b
   mov b, g
 ;; s2++; 
-  lea d, [bp + 5] ; $s2
+  lea d, [bp + 7] ; $s2
   mov b, [d]
   mov g, b
   inc b
-  lea d, [bp + 5] ; $s2
+  lea d, [bp + 7] ; $s2
   mov [d], b
   mov b, g
   jmp _while4_cond
 _while4_exit:
 ;; return *s1 - *s2; 
-  lea d, [bp + 7] ; $s1
+  lea d, [bp + 5] ; $s1
   mov b, [d]
   mov d, b
   mov bl, [d]
@@ -537,7 +537,7 @@ _while4_exit:
 ; START TERMS
   push a
   mov a, b
-  lea d, [bp + 5] ; $s2
+  lea d, [bp + 7] ; $s2
   mov b, [d]
   mov d, b
   mov bl, [d]
@@ -557,7 +557,7 @@ strcat:
 ;; dest_len = strlen(dest); 
   lea d, [bp + -1] ; $dest_len
   push d
-  lea d, [bp + 7] ; $dest
+  lea d, [bp + 5] ; $dest
   mov b, [d]
   swp b
   push b
@@ -573,7 +573,7 @@ _for5_init:
   pop d
   mov [d], b
 _for5_cond:
-  lea d, [bp + 5] ; $src
+  lea d, [bp + 7] ; $src
   mov d, [d]
   push a
   push d
@@ -596,7 +596,7 @@ _for5_cond:
   je _for5_exit
 _for5_block:
 ;; dest[dest_len + i] = src[i]; 
-  lea d, [bp + 7] ; $dest
+  lea d, [bp + 5] ; $dest
   mov d, [d]
   push a
   push d
@@ -615,7 +615,7 @@ _for5_block:
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
   push d
-  lea d, [bp + 5] ; $src
+  lea d, [bp + 7] ; $src
   mov d, [d]
   push a
   push d
@@ -646,7 +646,7 @@ _for5_update:
   jmp _for5_cond
 _for5_exit:
 ;; dest[dest_len + i] = 0; 
-  lea d, [bp + 7] ; $dest
+  lea d, [bp + 5] ; $dest
   mov d, [d]
   push a
   push d
@@ -669,7 +669,7 @@ _for5_exit:
   pop d
   mov [d], bl
 ;; return dest; 
-  lea d, [bp + 7] ; $dest
+  lea d, [bp + 5] ; $dest
   mov b, [d]
   leave
   ret
@@ -1933,10 +1933,10 @@ loadfile:
   enter 0 ; (push bp; mov bp, sp)
 
 ; --- BEGIN INLINE ASM BLOCK
-  lea d, [bp + 5] ; $destination
+  lea d, [bp + 7] ; $destination
   mov a, [d]
   mov di, a
-  lea d, [bp + 7] ; $filename
+  lea d, [bp + 5] ; $filename
   mov d, [d]
   mov al, 20
   syscall sys_filesystem
@@ -2128,14 +2128,14 @@ clear:
 printun:
   enter 0 ; (push bp; mov bp, sp)
 ;; print(prompt); 
-  lea d, [bp + 7] ; $prompt
+  lea d, [bp + 5] ; $prompt
   mov b, [d]
   swp b
   push b
   call print
   add sp, 2
 ;; printu(n); 
-  lea d, [bp + 5] ; $n
+  lea d, [bp + 7] ; $n
   mov b, [d]
   swp b
   push b
@@ -2153,14 +2153,14 @@ printun:
 printsn:
   enter 0 ; (push bp; mov bp, sp)
 ;; print(prompt); 
-  lea d, [bp + 7] ; $prompt
+  lea d, [bp + 5] ; $prompt
   mov b, [d]
   swp b
   push b
   call print
   add sp, 2
 ;; prints(n); 
-  lea d, [bp + 5] ; $n
+  lea d, [bp + 7] ; $n
   mov b, [d]
   swp b
   push b
@@ -2189,7 +2189,7 @@ gcd:
   enter 0 ; (push bp; mov bp, sp)
 ;; if (b == 0) { 
 _if25_cond:
-  lea d, [bp + 5] ; $b
+  lea d, [bp + 7] ; $b
   mov b, [d]
 ; START RELATIONAL
   push a
@@ -2203,19 +2203,19 @@ _if25_cond:
   je _if25_exit
 _if25_true:
 ;; return a; 
-  lea d, [bp + 7] ; $a
+  lea d, [bp + 5] ; $a
   mov b, [d]
   leave
   ret
   jmp _if25_exit
 _if25_exit:
 ;; return gcd(b, a % b); 
-  lea d, [bp + 7] ; $a
+  lea d, [bp + 5] ; $a
   mov b, [d]
 ; START FACTORS
   push a
   mov a, b
-  lea d, [bp + 5] ; $b
+  lea d, [bp + 7] ; $b
   mov b, [d]
   div a, b ; 
   mov a, b
@@ -2224,7 +2224,7 @@ _if25_exit:
 ; END FACTORS
   swp b
   push b
-  lea d, [bp + 5] ; $b
+  lea d, [bp + 7] ; $b
   mov b, [d]
   swp b
   push b
@@ -2279,7 +2279,7 @@ _if27_true:
 ; START FACTORS
   push a
   mov a, b
-  lea d, [bp + 9] ; $base
+  lea d, [bp + 5] ; $base
   mov b, [d]
   mul a, b ; *
   mov a, b
@@ -2289,7 +2289,7 @@ _if27_true:
 ; START FACTORS
   push a
   mov a, b
-  lea d, [bp + 5] ; $mod
+  lea d, [bp + 9] ; $mod
   mov b, [d]
   div a, b ; 
   mov a, b
@@ -2317,14 +2317,14 @@ _if27_exit:
   pop d
   mov [d], b
 ;; base = (base * base) % mod; 
-  lea d, [bp + 9] ; $base
+  lea d, [bp + 5] ; $base
   push d
-  lea d, [bp + 9] ; $base
+  lea d, [bp + 5] ; $base
   mov b, [d]
 ; START FACTORS
   push a
   mov a, b
-  lea d, [bp + 9] ; $base
+  lea d, [bp + 5] ; $base
   mov b, [d]
   mul a, b ; *
   mov a, b
@@ -2334,7 +2334,7 @@ _if27_exit:
 ; START FACTORS
   push a
   mov a, b
-  lea d, [bp + 5] ; $mod
+  lea d, [bp + 9] ; $mod
   mov b, [d]
   div a, b ; 
   mov a, b
@@ -2439,7 +2439,7 @@ _for30_cond:
 ; START RELATIONAL
   push a
   mov a, b
-  lea d, [bp + 5] ; $phi
+  lea d, [bp + 7] ; $phi
   mov b, [d]
   cmp a, b
   slt ; < 
@@ -2455,7 +2455,7 @@ _if31_cond:
 ; START FACTORS
   push a
   mov a, b
-  lea d, [bp + 7] ; $e
+  lea d, [bp + 5] ; $e
   mov b, [d]
   mul a, b ; *
   mov a, b
@@ -2465,7 +2465,7 @@ _if31_cond:
 ; START FACTORS
   push a
   mov a, b
-  lea d, [bp + 5] ; $phi
+  lea d, [bp + 7] ; $phi
   mov b, [d]
   div a, b ; 
   mov a, b

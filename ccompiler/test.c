@@ -1,18 +1,55 @@
-#include <stdio.h>
+
+int main() {
 
 
-void main(void){
-	char *s = "hello World";
-	char *p;
+	prin(110, 123);
+	//gcd(100, 10);
 
-	p = func(s);
-
-	printf(p);
-
-	return 0;
+    return 0;
 }
 
-char *func(char m[]){
-	printf(m);
-	return m;
+void prin(int a, int b){
+	printu(a);
+	printu(b);
+}
+
+
+int gcd(int a, int b) {
+    if (b == 0) {
+        return a;
+    }
+    return gcd(b, a % b);
+}
+
+void printu(unsigned int num) {
+  char digits[5];
+  int i;
+  i = 0;
+  if(num == 0){
+    putchar('0');
+    return;
+  }
+  while (num > 0) {
+    digits[i] = '0' + (num % 10);
+    num = num / 10;
+    i++;
+  }
+  // Print the digits in reverse order using putchar()
+  while (i > 0) {
+    i--;
+    putchar(digits[i]);
+  }
+}
+void putchar(char c){
+  asm{
+    meta mov d, c
+    mov al, [d]
+    mov ah, al
+    call _putchar
+  }
+}
+void include_stdio_asm(){
+  asm{
+    .include "lib/stdio.asm"
+  }
 }
