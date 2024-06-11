@@ -2116,16 +2116,38 @@ t_type parse_logical(void){
 t_type parse_logical_or(void){
   t_type type1, type2, expr_out;
 
+  type1.longness = LNESS_NORMAL;
+  type2.longness = LNESS_NORMAL;
   type1 = parse_logical_and();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == LOGICAL_OR){
     emitln("  push a");
+    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG)
+      emitln("  push g");
     while(tok == LOGICAL_OR){
-      emitln("  mov a, b");
+      if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG){
+        emitln("  mov a, b");
+        emitln("  mov g, c");
+      }
+      else
+        emitln("  mov a, b");
       type2 = parse_logical_and();
-      emitln("  sor a, b ; ||");
+      // or between ga and cb
+      if(type2.primitive_type == DT_INT && type2.longness == LNESS_LONG){
+        emitln("  sor a, b ; ||"); // result in B
+        emitln("  push b");
+        emitln("  mov a, c");
+        emitln("  mov b, g");
+        emitln("  sor a, b ; ||"); // result in B
+        emitln("  pop a"); 
+        emitln("  sor a, b ; ||"); // final result in B
+      }
+      else
+        emitln("  sor a, b ; ||");
     }
+    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG)
+      emitln("  pop g");
     emitln("  pop a");
   }
   expr_out = cast(type1, type2);
@@ -2135,16 +2157,33 @@ t_type parse_logical_or(void){
 t_type parse_logical_and(void){
   t_type type1, type2, expr_out;
 
+  type1.longness = LNESS_NORMAL;
+  type2.longness = LNESS_NORMAL;
   type1 = parse_bitwise_or();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == LOGICAL_AND){
     emitln("  push a");
+    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG)
+      emitln("  push g");
     while(tok == LOGICAL_AND){
-      emitln("  mov a, b");
+      if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG){
+        emitln("  mov a, b");
+        emitln("  mov g, c");
+      }
+      else
+        emitln("  mov a, b");
       type2 = parse_bitwise_or();
-      emitln("  sand a, b ; &&");
+      if(type2.primitive_type == DT_INT && type2.longness == LNESS_LONG){
+        emitln("  sand a, b ; &&");
+        emitln("  mov b, g");
+        emitln("  sand a, b ; &&");
+      }
+      else 
+        emitln("  sand a, b ; &&");
     }
+    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG)
+      emitln("  pop g");
     emitln("  pop a");
   }
   expr_out = cast(type1, type2);
@@ -2154,6 +2193,8 @@ t_type parse_logical_and(void){
 t_type parse_bitwise_or(void){
   t_type type1, type2, expr_out;
 
+  type1.longness = LNESS_NORMAL;
+  type2.longness = LNESS_NORMAL;
   type1 = parse_bitwise_xor();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
@@ -2174,6 +2215,8 @@ t_type parse_bitwise_or(void){
 t_type parse_bitwise_xor(void){
   t_type type1, type2, expr_out;
 
+  type1.longness = LNESS_NORMAL;
+  type2.longness = LNESS_NORMAL;
   type1 = parse_bitwise_and();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
@@ -2194,6 +2237,8 @@ t_type parse_bitwise_xor(void){
 t_type parse_bitwise_and(void){
   t_type type1, type2, expr_out;
 
+  type1.longness = LNESS_NORMAL;
+  type2.longness = LNESS_NORMAL;
   type1 = parse_relational();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
@@ -2215,9 +2260,12 @@ t_type parse_relational(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
+  type1.longness = LNESS_NORMAL;
+  type2.longness = LNESS_NORMAL;
 /* x = y > 1 && z<4 && y == 2 */
   temp_tok = TOK_UNDEF;
   type1 = parse_bitwise_shift();
+  
   if(tok == EQUAL              || tok == NOT_EQUAL    || tok == LESS_THAN ||
      tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL
   ){
@@ -2265,14 +2313,8 @@ t_type parse_relational(void){
     }
     emitln("  pop a");
     emitln("; END RELATIONAL");
-    expr_out.primitive_type = DT_INT;
-    expr_out.ind_level = 0; // if is a relational operation then result is an integer with ind_level = 0
-    expr_out.signedness = SNESS_UNSIGNED;
   }
-  else{
-    expr_out.primitive_type = type1.primitive_type;
-    expr_out.ind_level = type1.ind_level;
-  }
+  expr_out = cast(type1, type2);
   return expr_out;
 }
 
@@ -2280,6 +2322,8 @@ t_type parse_bitwise_shift(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
+  type1.longness = LNESS_NORMAL;
+  type2.longness = LNESS_NORMAL;
   temp_tok = 0;
   type1 = parse_terms();
   type2.primitive_type = DT_CHAR;
@@ -2317,6 +2361,8 @@ t_type parse_terms(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
   
+  type1.longness = LNESS_NORMAL;
+  type2.longness = LNESS_NORMAL;
   temp_tok = TOK_UNDEF;
   type1 = parse_factors();
   type2.primitive_type = DT_CHAR;
@@ -2325,13 +2371,30 @@ t_type parse_terms(void){
     emitln("; START TERMS");
     emitln("  push a");
     emitln("  mov a, b");
+    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG){
+      emitln("  push g");
+    }
     while(tok == PLUS || tok == MINUS){
       temp_tok = tok;
       type2 = parse_factors();
-      if(temp_tok == PLUS) 
-        emitln("  add a, b");
-      else if(temp_tok == MINUS)
+      if(temp_tok == PLUS){
+        if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG){
+          emitln("  add a, b");
+          emitln("  push a");
+          emitln("  mov b, c");
+          emitln("  adc a, b");
+          emitln("  mov c, a");
+          emitln("  pop a");
+        }
+        else
+          emitln("  add a, b");
+      }
+      else if(temp_tok == MINUS){
         emitln("  sub a, b");
+      }
+    }
+    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG){
+      emitln("  pop g");
     }
     emitln("  mov b, a");
     emitln("  pop a");
@@ -2345,6 +2408,8 @@ t_type parse_factors(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
+  type1.longness = LNESS_NORMAL;
+  type2.longness = LNESS_NORMAL;
 // if type1 is an INT and type2 is a char*, then the result should be a char* still
   temp_tok = TOK_UNDEF;
   type1 = parse_atomic();
@@ -2373,6 +2438,7 @@ t_type parse_factors(void){
     emitln("  pop a");
     emitln("; END FACTORS");
   }
+
   expr_out = cast(type1, type2);
   return expr_out;
 }
@@ -2382,6 +2448,8 @@ t_type parse_atomic(void){
   char temp_name[ID_LEN], temp[1024];
   t_type expr_in, expr_out;
 
+  expr_in.longness = LNESS_NORMAL;
+  expr_out.longness = LNESS_NORMAL;
   get();
   if(toktype == STRING_CONST){
     string_id = search_string(string_const);
@@ -2466,16 +2534,15 @@ t_type parse_atomic(void){
     expr_out.ind_level++;
   }
   else if(toktype == INTEGER_CONST){
-    int i;
     if(const_longness == LNESS_LONG){
       emitln("  mov b, $%x", int_const & 0x0000FFFF);
       emitln("  mov c, $%x", int_const >> 16);
+      expr_out.longness = LNESS_LONG;
     }
     else emitln("  mov b, $%x", int_const);
-    i = int_const;
     expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0;
-    expr_out.signedness = i > 32767 || i < -32768 ? SNESS_UNSIGNED : SNESS_SIGNED;
+    expr_out.signedness = int_const > 32767 || int_const < -32768 ? SNESS_UNSIGNED : SNESS_SIGNED;
   }
   else if(toktype == CHAR_CONST){
     emitln("  mov b, $%x", string_const[0]);
@@ -2520,7 +2587,7 @@ t_type parse_atomic(void){
     int ind_level = 0;
     char _signed = 1, _unsigned = 0;
     get();
-    if(tok != SIGNED && tok != UNSIGNED && tok != INT && tok != CHAR && tok != VOID){
+    if(tok != SIGNED && tok != UNSIGNED && tok != LONG && tok != INT && tok != CHAR && tok != VOID){
       back();
       expr_in = parse_expr();  // parses expression between parenthesis and result will be in B
       expr_out = expr_in;
@@ -2550,6 +2617,28 @@ t_type parse_atomic(void){
         expr_out.primitive_type = DT_VOID;
         expr_out.ind_level = ind_level;
         back();
+      }
+      else if(tok == LONG){
+        get();
+        while(tok == STAR){
+          ind_level++;
+          get();
+        }
+        expect(CLOSING_PAREN, "Closing paren expected");
+        get();
+        expect(OPENING_PAREN, "Opening paren expected");
+        get();
+        if(toktype != INTEGER_CONST) 
+          error("Integer constant expected (for now).");
+        get();
+        expect(CLOSING_PAREN, "Closing paren expected");
+        emitln("  mov b, $%x", int_const & 0x0000FFFF);
+        emitln("  mov c, $%x", int_const >> 16);
+        expr_out.dims[0] = 0;
+        expr_out.primitive_type = DT_INT;
+        expr_out.longness = LNESS_LONG;
+        expr_out.ind_level = ind_level;
+
       }
       else if(tok == INT){
         get();
@@ -2660,7 +2749,7 @@ t_type parse_atomic(void){
 // Check for post ++/--
   get();
   if(tok == INCREMENT){  // post increment. get value first, then do assignment
-    emitln("  mov g, b"); 
+    emitln("  push b"); 
     if(get_pointer_unit(expr_in) > 1) {
       emitln("  inc b");
       emitln("  inc b");
@@ -2669,12 +2758,12 @@ t_type parse_atomic(void){
       emitln("  inc b");
     emit_var_addr_into_d(temp_name);
     emitln("  mov [d], b");
-    emitln("  mov b, g");
+    emitln("  pop b");
     expr_out = expr_in;
     get(); // gets the next token (it must be a delimiter)
   }    
   else if(tok == DECREMENT){ // post decrement. get value first, then do assignment
-    emitln("  mov g, b");
+    emitln("  push b");
     if(get_pointer_unit(expr_in) > 1){
       emitln("  dec b");
       emitln("  dec b");
@@ -2683,7 +2772,7 @@ t_type parse_atomic(void){
       emitln("  dec b");
     emit_var_addr_into_d(temp_name);
     emitln("  mov [d], b");
-    emitln("  mov b, g");
+    emitln("  pop b");
     expr_out = expr_in;
     get(); // gets the next token (it must be a delimiter)
   } 
@@ -3044,6 +3133,11 @@ t_type cast(t_type t1, t_type t2){
           }
       }
   }
+  if(t1.longness == LNESS_LONG || t2.longness == LNESS_LONG)
+    type.longness = LNESS_LONG;
+  else
+    type.longness = LNESS_NORMAL;
+
   return type;
 }
 
@@ -3978,15 +4072,12 @@ void get(void){
     convert_constant(); // converts this string token qith quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
   }
   else if(is_digit(*prog)){
-    char temp_hex[64];
-    char *p = temp_hex;
     if(*prog == '0' && *(prog+1) == 'x'){
-      *p++ = *prog++;
-      *p++ = *prog++;
-      while(is_hex_digit(*prog)) *p++ = *prog++;
-      *p = '\0';
-      strcpy(token, temp_hex);
-      sscanf(temp_hex, "%x", &int_const);
+      *t++ = *prog++;
+      *t++ = *prog++;
+      while(is_hex_digit(*prog)) *t++ = *prog++;
+      *t = '\0';
+      sscanf(token, "%x", &int_const);
     }
     else{
       while(is_digit(*prog)){
@@ -3998,6 +4089,7 @@ void get(void){
     if(*prog == 'L' || *prog == 'l'){
       const_longness = LNESS_LONG;
       *t++ = *prog++;
+      *t = '\0';
     }
     else const_longness = LNESS_NORMAL;
     if(const_longness == LNESS_LONG){
