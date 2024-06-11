@@ -2180,7 +2180,7 @@ _if27_cond:
   cmp a, b
   seq ; ==
   pop a
-  sand a, b ; ==
+  sand a, b
   pop g
   pop a
 ; END RELATIONAL
@@ -2353,7 +2353,7 @@ _if30_cond:
   cmp a, b
   seq ; ==
   pop a
-  sand a, b ; ==
+  sand a, b
   pop g
   pop a
 ; END RELATIONAL
