@@ -191,7 +191,7 @@ void print_signed(int num) {
   }
 }
 
-void print_signed_long(int num) {
+void print_signed_long(long int num) {
   char digits[10];
   int i = 0;
 
