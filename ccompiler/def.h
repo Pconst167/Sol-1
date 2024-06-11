@@ -232,8 +232,8 @@ typedef enum {
 } t_primitive_type;
 
 typedef enum {
-  LNESS_NORMAL, LNESS_SHORT, LNESS_LONG
-} t_longness;
+  MOD_NORMAL, MOD_SHORT, MOD_LONG
+} t_modifier;
 
 typedef enum {
   SNESS_SIGNED = 0, SNESS_UNSIGNED
@@ -250,7 +250,7 @@ typedef struct{
 typedef struct {
   t_primitive_type primitive_type;
   t_signedness signedness;
-  t_longness longness;
+  t_modifier modifier;
   char is_constant; // is it a constant?
   int ind_level; // holds the pointer indirection level
   int struct_id; // struct ID if var is a struct
@@ -436,7 +436,7 @@ t_token_type toktype;
 t_token tok;
 char token[CONST_LEN];            // string token representation
 char string_const[STRING_CONST_SIZE];  // holds string and char constants without quotes and with escape sequences converted into the correct bytes
-t_longness const_longness;
+t_modifier const_modifier;
 int int_const;
 char *prog;                           // pointer to the current program position
 char c_in[PROG_SIZE];               // C program-in buffer
@@ -592,7 +592,7 @@ t_type get_struct_element_type(int struct_id, char *name);
 t_primitive_type get_primitive_type_from_tok(void);
 int is_struct(t_type type);
 
-int find_array_initialization_size(t_longness longness);
+int find_array_initialization_size(t_modifier modifier);
 int is_array(t_type type);
 int array_dim_count(t_type type);
 

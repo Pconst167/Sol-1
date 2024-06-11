@@ -195,7 +195,7 @@ void declare_heap(){
   global_var_table[global_var_tos].type.is_constant = false;
   global_var_table[global_var_tos].type.dims[0] = 0;
   global_var_table[global_var_tos].type.ind_level = 1;
-  global_var_table[global_var_tos].type.longness = LNESS_NORMAL;
+  global_var_table[global_var_tos].type.modifier = MOD_NORMAL;
   global_var_table[global_var_tos].type.signedness = SNESS_UNSIGNED;
   global_var_tos++;
 }
@@ -537,12 +537,12 @@ int declare_struct(){
     if(element_tos == MAX_STRUCT_ELEMENTS) error("Max number of struct elements reached");
     get();
     new_struct.elements[element_tos].type.signedness = SNESS_SIGNED; // set as signed by default
-    new_struct.elements[element_tos].type.longness = LNESS_NORMAL; // set as signed by default
+    new_struct.elements[element_tos].type.modifier = MOD_NORMAL; // set as signed by default
     while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
            if(tok == SIGNED)   new_struct.elements[element_tos].type.signedness = SNESS_SIGNED;
       else if(tok == UNSIGNED) new_struct.elements[element_tos].type.signedness = SNESS_UNSIGNED;
-      else if(tok == SHORT)    new_struct.elements[element_tos].type.longness   = LNESS_SHORT;
-      else if(tok == LONG)     new_struct.elements[element_tos].type.longness   = LNESS_LONG;
+      else if(tok == SHORT)    new_struct.elements[element_tos].type.modifier   = MOD_SHORT;
+      else if(tok == LONG)     new_struct.elements[element_tos].type.modifier   = MOD_LONG;
       get();
     }
     new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
@@ -620,13 +620,13 @@ int declare_local(void){
   new_var.type.is_constant = false;
   new_var.is_static = false;
   new_var.type.signedness = SNESS_SIGNED; // set as signed by default
-  new_var.type.longness = LNESS_NORMAL;
+  new_var.type.modifier = MOD_NORMAL;
   while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == STATIC || tok == CONST){
     if(tok == CONST) new_var.type.is_constant = true;
     else if(tok == SIGNED) new_var.type.signedness = SNESS_SIGNED;
     else if(tok == UNSIGNED) new_var.type.signedness = SNESS_UNSIGNED;
-    else if(tok == SHORT) new_var.type.longness = LNESS_SHORT;
-    else if(tok == LONG) new_var.type.longness = LNESS_LONG;
+    else if(tok == SHORT) new_var.type.modifier = MOD_SHORT;
+    else if(tok == LONG) new_var.type.modifier = MOD_LONG;
     else if(tok == STATIC) new_var.is_static = true;
     get();
   }
@@ -676,7 +676,7 @@ int declare_local(void){
             } while(tok == OPENING_BRACKET);
           }
           back();
-          initialization_size = find_array_initialization_size(new_var.type.longness);
+          initialization_size = find_array_initialization_size(new_var.type.modifier);
           new_var.type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
           prog = temp_prog;
         }
@@ -783,14 +783,14 @@ void declare_global(void){
 
   get(); 
   type.signedness = SNESS_SIGNED; // set as signed by default
-  type.longness = LNESS_NORMAL; 
+  type.modifier = MOD_NORMAL; 
   type.is_constant = false; 
   while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == CONST){
     if(tok == CONST) type.is_constant = true;
     else if(tok == SIGNED) type.signedness = SNESS_SIGNED;
     else if(tok == UNSIGNED) type.signedness = SNESS_UNSIGNED;
-    else if(tok == SHORT) type.longness = LNESS_SHORT;
-    else if(tok == LONG) type.longness = LNESS_LONG;
+    else if(tok == SHORT) type.modifier = MOD_SHORT;
+    else if(tok == LONG) type.modifier = MOD_LONG;
     get();
   }
   type.primitive_type = get_primitive_type_from_tok();
@@ -844,7 +844,7 @@ void declare_global(void){
             } while(tok == OPENING_BRACKET);
           }
           back();
-          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.longness);
+          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.modifier);
           global_var_table[global_var_tos].type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
           prog = temp_prog;
         }
@@ -928,13 +928,13 @@ void declare_typedef(void){
 
   get(); 
   type.signedness = SNESS_SIGNED; // set as signed by default
-  type.longness = LNESS_NORMAL; 
+  type.modifier = MOD_NORMAL; 
   while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == CONST){
     if(tok == CONST) type.is_constant = true;
     else if(tok == SIGNED)   type.signedness = SNESS_SIGNED;
     else if(tok == UNSIGNED) type.signedness = SNESS_UNSIGNED;
-    else if(tok == SHORT)    type.longness = LNESS_SHORT;
-    else if(tok == LONG)     type.longness = LNESS_LONG;
+    else if(tok == SHORT)    type.modifier = MOD_SHORT;
+    else if(tok == LONG)     type.modifier = MOD_LONG;
     get();
   }
   type.primitive_type = get_primitive_type_from_tok();
@@ -980,7 +980,7 @@ void declare_typedef(void){
           } while(tok == OPENING_BRACKET);
         }
         back();
-        initialization_size = find_array_initialization_size(type.longness);
+        initialization_size = find_array_initialization_size(type.modifier);
         type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
         prog = temp_prog;
       }
@@ -1047,7 +1047,7 @@ void declare_struct_global_vars(int struct_id){
             } while(tok == OPENING_BRACKET);
           }
           back();
-          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.longness);
+          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.modifier);
           global_var_table[global_var_tos].type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
           get();
           if(tok != SEMICOLON) error("Semicolon expected.");
@@ -1143,6 +1143,7 @@ void declare_func(void){
   char is_main;
   char _inline;
   char add_argc_argv;
+  int i = 0;
 
   add_argc_argv = false;
   is_main = false;
@@ -1157,12 +1158,12 @@ void declare_func(void){
   }
 
   func->return_type.signedness = SNESS_SIGNED; // set as signed by default
-  func->return_type.longness = LNESS_NORMAL; 
+  func->return_type.modifier = MOD_NORMAL; 
   while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
          if(tok == SIGNED)   func->return_type.signedness = SNESS_SIGNED;
     else if(tok == UNSIGNED) func->return_type.signedness = SNESS_UNSIGNED;
-    else if(tok == SHORT)    func->return_type.longness   = LNESS_SHORT;
-    else if(tok == LONG)     func->return_type.longness   = LNESS_LONG;
+    else if(tok == SHORT)    func->return_type.modifier   = MOD_SHORT;
+    else if(tok == LONG)     func->return_type.modifier   = MOD_LONG;
     get();
   }
   func->return_type.primitive_type = get_primitive_type_from_tok();
@@ -1213,12 +1214,12 @@ void declare_func(void){
         get();
       }
       func->local_vars[func->local_var_tos].type.signedness = SNESS_SIGNED; // set as signed by default
-      func->local_vars[func->local_var_tos].type.longness = LNESS_NORMAL; 
+      func->local_vars[func->local_var_tos].type.modifier = MOD_NORMAL; 
       while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
              if(tok == SIGNED)   func->local_vars[func->local_var_tos].type.signedness = SNESS_SIGNED;
         else if(tok == UNSIGNED) func->local_vars[func->local_var_tos].type.signedness = SNESS_UNSIGNED;
-        else if(tok == SHORT)    func->local_vars[func->local_var_tos].type.longness = LNESS_SHORT;
-        else if(tok == LONG)     func->local_vars[func->local_var_tos].type.longness = LNESS_LONG;
+        else if(tok == SHORT)    func->local_vars[func->local_var_tos].type.modifier = MOD_SHORT;
+        else if(tok == LONG)     func->local_vars[func->local_var_tos].type.modifier = MOD_LONG;
         get();
       }
       if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) error("Var type expected in argument declaration for function: %s", func->name);
@@ -1244,7 +1245,6 @@ void declare_func(void){
       }
       // checks if this is a array declaration
       get();
-      int i = 0;
       func->local_vars[func->local_var_tos].type.dims[0] = 0; // in case its not a array, this signals that fact
       if(tok == OPENING_BRACKET){
         while(tok == OPENING_BRACKET){
@@ -1300,11 +1300,18 @@ void declare_goto_label(void){
 int get_param_size(){
   int data_size;
   int struct_id;
+  t_modifier modifier;
 
+  modifier = MOD_NORMAL;  
   get();
   if(tok == CONST) get();
   if(tok == SIGNED || tok == UNSIGNED) get();
   
+  while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
+    if(tok == LONG) modifier = MOD_LONG;
+    get();
+  }
+
   switch(tok){
     case VAR_ARG_DOTS:
       data_size = 0; // assign zero here as the real size will be computed when the variable arguments are pushed
@@ -1313,7 +1320,10 @@ int get_param_size(){
       data_size = 1;
       break;
     case INT:
-      data_size = 2;
+      if(modifier == MOD_LONG)
+        data_size = 4;
+      else  
+        data_size = 2;
       break;
     case FLOAT:
       data_size = 2;
@@ -1939,7 +1949,7 @@ t_type parse_expr(){
   type.ind_level = 0;
   type.primitive_type = DT_INT;
   type.signedness = SNESS_SIGNED;
-  type.longness = LNESS_NORMAL;
+  type.modifier = MOD_NORMAL;
   get();
   if(tok == SEMICOLON) 
     return type;
@@ -2010,7 +2020,7 @@ t_type parse_assignment(){
     emitln("  pop d"); 
     if(expr_in.ind_level > 0)
       emitln("  mov [d], b");
-    else if(expr_in.primitive_type == DT_INT && expr_in.longness == LNESS_LONG){
+    else if(expr_in.primitive_type == DT_INT && expr_in.modifier == MOD_LONG){
       emitln("  mov [d], b");
       emitln("  mov b, c");
       emitln("  mov [d + 2], b");
@@ -2044,7 +2054,7 @@ t_type parse_assignment(){
           emitln("  mov [d], bl");
         break;
       case DT_INT:
-        if(expr_in.primitive_type == DT_INT && expr_in.longness == LNESS_LONG){
+        if(expr_in.primitive_type == DT_INT && expr_in.modifier == MOD_LONG){
           emitln("  mov [d], b");
           emitln("  mov b, c");
           emitln("  mov [d + 2], b");
@@ -2116,17 +2126,17 @@ t_type parse_logical(void){
 t_type parse_logical_or(void){
   t_type type1, type2, expr_out;
 
-  type1.longness = LNESS_NORMAL;
-  type2.longness = LNESS_NORMAL;
+  type1.modifier = MOD_NORMAL;
+  type2.modifier = MOD_NORMAL;
   type1 = parse_logical_and();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == LOGICAL_OR){
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG)
+    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
       emitln("  push g");
     while(tok == LOGICAL_OR){
-      if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG){
+      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG){
         emitln("  mov a, b");
         emitln("  mov g, c");
       }
@@ -2134,7 +2144,7 @@ t_type parse_logical_or(void){
         emitln("  mov a, b");
       type2 = parse_logical_and();
       // or between ga and cb
-      if(type2.primitive_type == DT_INT && type2.longness == LNESS_LONG){
+      if(type2.primitive_type == DT_INT && type2.modifier == MOD_LONG){
         emitln("  sor a, b ; ||"); // result in B
         emitln("  push b");
         emitln("  mov a, c");
@@ -2146,7 +2156,7 @@ t_type parse_logical_or(void){
       else
         emitln("  sor a, b ; ||");
     }
-    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG)
+    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
       emitln("  pop g");
     emitln("  pop a");
   }
@@ -2157,24 +2167,24 @@ t_type parse_logical_or(void){
 t_type parse_logical_and(void){
   t_type type1, type2, expr_out;
 
-  type1.longness = LNESS_NORMAL;
-  type2.longness = LNESS_NORMAL;
+  type1.modifier = MOD_NORMAL;
+  type2.modifier = MOD_NORMAL;
   type1 = parse_bitwise_or();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == LOGICAL_AND){
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG)
+    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
       emitln("  push g");
     while(tok == LOGICAL_AND){
-      if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG){
+      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG){
         emitln("  mov a, b");
         emitln("  mov g, c");
       }
       else
         emitln("  mov a, b");
       type2 = parse_bitwise_or();
-      if(type2.primitive_type == DT_INT && type2.longness == LNESS_LONG){
+      if(type2.primitive_type == DT_INT && type2.modifier == MOD_LONG){
         emitln("  sand a, b ; &&");
         emitln("  mov b, g");
         emitln("  sand a, b ; &&");
@@ -2182,7 +2192,7 @@ t_type parse_logical_and(void){
       else 
         emitln("  sand a, b ; &&");
     }
-    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG)
+    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
       emitln("  pop g");
     emitln("  pop a");
   }
@@ -2193,8 +2203,8 @@ t_type parse_logical_and(void){
 t_type parse_bitwise_or(void){
   t_type type1, type2, expr_out;
 
-  type1.longness = LNESS_NORMAL;
-  type2.longness = LNESS_NORMAL;
+  type1.modifier = MOD_NORMAL;
+  type2.modifier = MOD_NORMAL;
   type1 = parse_bitwise_xor();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
@@ -2215,8 +2225,8 @@ t_type parse_bitwise_or(void){
 t_type parse_bitwise_xor(void){
   t_type type1, type2, expr_out;
 
-  type1.longness = LNESS_NORMAL;
-  type2.longness = LNESS_NORMAL;
+  type1.modifier = MOD_NORMAL;
+  type2.modifier = MOD_NORMAL;
   type1 = parse_bitwise_and();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
@@ -2237,8 +2247,8 @@ t_type parse_bitwise_xor(void){
 t_type parse_bitwise_and(void){
   t_type type1, type2, expr_out;
 
-  type1.longness = LNESS_NORMAL;
-  type2.longness = LNESS_NORMAL;
+  type1.modifier = MOD_NORMAL;
+  type2.modifier = MOD_NORMAL;
   type1 = parse_relational();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
@@ -2260,8 +2270,8 @@ t_type parse_relational(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
-  type1.longness = LNESS_NORMAL;
-  type2.longness = LNESS_NORMAL;
+  type1.modifier = MOD_NORMAL;
+  type2.modifier = MOD_NORMAL;
 /* x = y > 1 && z<4 && y == 2 */
   temp_tok = TOK_UNDEF;
   type1 = parse_bitwise_shift();
@@ -2322,8 +2332,8 @@ t_type parse_bitwise_shift(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
-  type1.longness = LNESS_NORMAL;
-  type2.longness = LNESS_NORMAL;
+  type1.modifier = MOD_NORMAL;
+  type2.modifier = MOD_NORMAL;
   temp_tok = 0;
   type1 = parse_terms();
   type2.primitive_type = DT_CHAR;
@@ -2361,8 +2371,8 @@ t_type parse_terms(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
   
-  type1.longness = LNESS_NORMAL;
-  type2.longness = LNESS_NORMAL;
+  type1.modifier = MOD_NORMAL;
+  type2.modifier = MOD_NORMAL;
   temp_tok = TOK_UNDEF;
   type1 = parse_factors();
   type2.primitive_type = DT_CHAR;
@@ -2371,14 +2381,14 @@ t_type parse_terms(void){
     emitln("; START TERMS");
     emitln("  push a");
     emitln("  mov a, b");
-    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG){
+    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG){
       emitln("  push g");
     }
     while(tok == PLUS || tok == MINUS){
       temp_tok = tok;
       type2 = parse_factors();
       if(temp_tok == PLUS){
-        if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG){
+        if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG){
           emitln("  add a, b");
           emitln("  push a");
           emitln("  mov b, c");
@@ -2393,7 +2403,7 @@ t_type parse_terms(void){
         emitln("  sub a, b");
       }
     }
-    if(type1.primitive_type == DT_INT && type1.longness == LNESS_LONG){
+    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG){
       emitln("  pop g");
     }
     emitln("  mov b, a");
@@ -2408,8 +2418,8 @@ t_type parse_factors(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
-  type1.longness = LNESS_NORMAL;
-  type2.longness = LNESS_NORMAL;
+  type1.modifier = MOD_NORMAL;
+  type2.modifier = MOD_NORMAL;
 // if type1 is an INT and type2 is a char*, then the result should be a char* still
   temp_tok = TOK_UNDEF;
   type1 = parse_atomic();
@@ -2448,8 +2458,8 @@ t_type parse_atomic(void){
   char temp_name[ID_LEN], temp[1024];
   t_type expr_in, expr_out;
 
-  expr_in.longness = LNESS_NORMAL;
-  expr_out.longness = LNESS_NORMAL;
+  expr_in.modifier = MOD_NORMAL;
+  expr_out.modifier = MOD_NORMAL;
   get();
   if(toktype == STRING_CONST){
     string_id = search_string(string_const);
@@ -2513,7 +2523,7 @@ t_type parse_atomic(void){
     if(expr_in.ind_level > 1){
       emitln("  mov b, [d]"); 
     }
-    else if((expr_in.primitive_type == DT_INT && expr_in.longness == LNESS_LONG)){
+    else if((expr_in.primitive_type == DT_INT && expr_in.modifier == MOD_LONG)){
       emitln("  mov b, [d + 2]"); // upper byte
       emitln("  mov c, b");       // upper in c
       emitln("  mov b, [d]");     // lower byte
@@ -2523,7 +2533,7 @@ t_type parse_atomic(void){
       emitln("  mov bh, 0");
     }
     back();
-    expr_out.longness = expr_in.longness;
+    expr_out.modifier = expr_in.modifier;
     expr_out.primitive_type = expr_in.primitive_type;
     expr_out.ind_level = expr_in.ind_level - 1;
     expr_out.signedness = expr_in.signedness;
@@ -2536,10 +2546,10 @@ t_type parse_atomic(void){
     expr_out.ind_level++;
   }
   else if(toktype == INTEGER_CONST){
-    if(const_longness == LNESS_LONG){
+    if(const_modifier == MOD_LONG){
       emitln("  mov b, $%x", int_const & 0x0000FFFF);
       emitln("  mov c, $%x", (unsigned)int_const >> 16);
-      expr_out.longness = LNESS_LONG;
+      expr_out.modifier = MOD_LONG;
     }
     else emitln("  mov b, $%x", int_const);
     expr_out.primitive_type = DT_INT;
@@ -2628,7 +2638,7 @@ t_type parse_atomic(void){
         }
         expect(CLOSING_PAREN, "Closing paren expected");
         expr_in = parse_atomic();
-        expr_in.longness = LNESS_LONG;
+        expr_in.modifier = MOD_LONG;
         expr_in.primitive_type = DT_INT;
         expr_in.ind_level = ind_level;
         expr_out = expr_in;
@@ -2722,7 +2732,7 @@ t_type parse_atomic(void){
         emitln("  mov b, d");
       else if(expr_in.ind_level > 0)
         emitln("  mov b, [d]"); 
-      else if(expr_in.primitive_type == DT_INT && expr_in.longness == LNESS_LONG){
+      else if(expr_in.primitive_type == DT_INT && expr_in.modifier == MOD_LONG){
         emitln("  mov b, $%x", int_const & 0x0000FFFF);
         emitln("  mov c, $%x", int_const >> 16);
       }
@@ -2873,7 +2883,7 @@ void parse_function_call(int func_id){
       emitln("  mov c, %d", get_type_size_for_func_arg_parsing(arg_type));
       emitln("  rep movsb");
     }
-    else if(arg_type.longness == LNESS_LONG){
+    else if(arg_type.modifier == MOD_LONG){
       emitln("  mov g, b");
       emitln("  mov b, c");
       emitln("  swp b");
@@ -2921,7 +2931,7 @@ void dbg_print_var_info(t_var *var){
   for(i = 0; var->type.dims[i]; i++)
     printf("Dims[%d]: %d\n", i, var->type.dims[i]);
   printf("Ind Level: %d\n", var->type.ind_level);
-  printf("Longness: %d\n", var->type.longness);
+  printf("modifier: %d\n", var->type.modifier);
   printf("Signedness: %d\n", var->type.signedness);
   printf("Struct ID: %d\n", var->type.struct_id);
   printf("*******************************************\n");
@@ -2937,7 +2947,7 @@ void dbg_print_function_info(t_function *function){
   for(i = 0; function->local_vars[i].name && function->local_vars[i].is_parameter ; i++){
     printf("Parameter[%d] Name: %s\n", i, function->local_vars[i].name);
     printf("Ind Level: %d\n", function->local_vars[i].type.ind_level);
-    printf("Longness: %d\n", function->local_vars[i].type.longness);
+    printf("modifier: %d\n", function->local_vars[i].type.modifier);
     printf("Signedness: %d\n", function->local_vars[i].type.signedness);
     printf("Struct ID: %d\n", function->local_vars[i].type.struct_id);
   }
@@ -2951,7 +2961,7 @@ void dbg_print_type_info(t_type *type){
   for(i = 0; type->dims[i]; i++)
     printf("Dims[%d]: %d\n", i, type->dims[i]);
   printf("Ind Level: %d\n", type->ind_level);
-  printf("Longness: %d\n", type->longness);
+  printf("modifier: %d\n", type->modifier);
   printf("Signedness: %d\n", type->signedness);
   printf("Struct ID: %d\n", type->struct_id);
   printf("*******************************************\n");
@@ -3134,10 +3144,10 @@ t_type cast(t_type t1, t_type t2){
           }
       }
   }
-  if(t1.longness == LNESS_LONG || t2.longness == LNESS_LONG)
-    type.longness = LNESS_LONG;
+  if(t1.modifier == MOD_LONG || t2.modifier == MOD_LONG)
+    type.modifier = MOD_LONG;
   else
-    type.longness = LNESS_NORMAL;
+    type.modifier = MOD_NORMAL;
 
   return type;
 }
@@ -3354,7 +3364,7 @@ int get_primitive_type_size(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      if(type.longness == LNESS_LONG)
+      if(type.modifier == MOD_LONG)
         return 4;
       else
         return 2;
@@ -3373,7 +3383,7 @@ int get_type_size_for_func_arg_parsing(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      if(type.longness == LNESS_LONG)
+      if(type.modifier == MOD_LONG)
         return 4;
       else
         return 2;
@@ -3399,7 +3409,7 @@ int get_struct_size(int id){
           size += array_size * 1;
           break;
         case DT_INT:
-          if(struct_table[id].elements[i].type.longness == LNESS_LONG)
+          if(struct_table[id].elements[i].type.modifier == MOD_LONG)
             size += array_size * 4;
           else
             size += array_size * 2;
@@ -3419,7 +3429,7 @@ int get_data_size_for_indexing(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      if(type.longness == LNESS_LONG)
+      if(type.modifier == MOD_LONG)
         return 4;
       else
         return 2;
@@ -3559,7 +3569,7 @@ int get_enum_val(char *name){
   return -1;
 }
 
-int find_array_initialization_size(t_longness longness){
+int find_array_initialization_size(t_modifier modifier){
   char *temp_prog = prog; // save starting prog position
   int len = 0;
   int braces;
@@ -3579,7 +3589,7 @@ int find_array_initialization_size(t_longness longness){
           len += 1;
           break;
         case INTEGER_CONST:
-          if(longness == LNESS_LONG)
+          if(modifier == MOD_LONG)
             len += 4;
           else
             len += 2;
@@ -4088,18 +4098,18 @@ void get(void){
       sscanf(token, "%d", &int_const);
     }
     if(*prog == 'L' || *prog == 'l'){
-      const_longness = LNESS_LONG;
+      const_modifier = MOD_LONG;
       *t++ = *prog++;
       *t = '\0';
     }
-    else const_longness = LNESS_NORMAL;
-    if(const_longness == LNESS_LONG){
+    else const_modifier = MOD_NORMAL;
+    if(const_modifier == MOD_LONG){
       //if(int_const > 4294967295) error("The constant value of %d exceeds the maximum value for a long integer.", int_const);
     }
-    else if(const_longness == LNESS_SHORT){
+    else if(const_modifier == MOD_SHORT){
       //if(int_const > 65535) error("The constant value of %d exceeds the maximum value for a short integer.", int_const);
     }
-    else if(const_longness == LNESS_NORMAL){
+    else if(const_modifier == MOD_NORMAL){
       //if(int_const > 65535) error("The constant value of %d exceeds the maximum value for a normal integer.", int_const);
     }
     toktype = INTEGER_CONST;
