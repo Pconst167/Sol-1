@@ -7,18 +7,45 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; print_signed_long(4294967257L); 
-  mov b, $ffd9
+;; printx16(4294967295L != 4294967294L); 
+  mov b, $ffff
   mov c, $ffff
-  mov g, b
-  mov b, c
+; START RELATIONAL
+  push a
+  push g
+  mov a, b
+  mov g, c
+  mov b, $fffe
+  mov c, $ffff
+  cmp a, b
+  sneq ; !=
+  push b
+  mov a, c
+  mov b, g
+  cmp a, b
+  sneq ; !=
+  pop a
+  sor a, b
+  pop g
+  pop a
+; END RELATIONAL
   swp b
   push b
-  mov b, g
-  push b
-  call print_signed_long
-  add sp, 4
+  call printx16
+  add sp, 2
   syscall sys_terminate_proc
+
+printx16:
+  enter 0 ; (push bp; mov bp, sp)
+
+; --- BEGIN INLINE ASM BLOCK
+  lea d, [bp + 5] ; $hex
+  mov b, [d]
+  call print_u16x
+; --- END INLINE ASM BLOCK
+
+  leave
+  ret
 
 putchar:
   enter 0 ; (push bp; mov bp, sp)
@@ -58,10 +85,13 @@ _if1_cond:
   mov b, [d] ; Lower Word in B
 ; START RELATIONAL
   push a
+  push g
   mov a, b
+  mov g, c
   mov b, $0
   cmp a, b
   slt ; < 
+  pop g
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -94,10 +124,20 @@ _if2_cond:
   mov b, [d] ; Lower Word in B
 ; START RELATIONAL
   push a
+  push g
   mov a, b
+  mov g, c
   mov b, $0
   cmp a, b
   seq ; ==
+  push b
+  mov a, c
+  mov b, g
+  cmp a, b
+  seq ; ==
+  pop a
+  sand a, b
+  pop g
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -122,10 +162,13 @@ _while3_cond:
   mov b, [d] ; Lower Word in B
 ; START RELATIONAL
   push a
+  push g
   mov a, b
+  mov g, c
   mov b, $0
   cmp a, b
   sgt ; >
+  pop g
   pop a
 ; END RELATIONAL
   cmp b, 0

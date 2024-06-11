@@ -20,10 +20,6 @@ void main(){
 
   printf("> ");
   // Create binary file
-  asm{
-    meta mov d, arg
-    mov al, 6
-    syscall sys_filesystem
-  }
+  mkbin();
 
 }

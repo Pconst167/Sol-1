@@ -2136,12 +2136,9 @@ t_type parse_logical_or(void){
     if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
       emitln("  push g");
     while(tok == LOGICAL_OR){
-      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG){
-        emitln("  mov a, b");
+      emitln("  mov a, b");
+      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
         emitln("  mov g, c");
-      }
-      else
-        emitln("  mov a, b");
       type2 = parse_logical_and();
       // or between ga and cb
       if(type2.primitive_type == DT_INT && type2.modifier == MOD_LONG){
@@ -2177,17 +2174,19 @@ t_type parse_logical_and(void){
     if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
       emitln("  push g");
     while(tok == LOGICAL_AND){
-      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG){
-        emitln("  mov a, b");
+      emitln("  mov a, b");
+      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
         emitln("  mov g, c");
-      }
-      else
-        emitln("  mov a, b");
       type2 = parse_bitwise_or();
+      // or between ga and cb
       if(type2.primitive_type == DT_INT && type2.modifier == MOD_LONG){
-        emitln("  sand a, b ; &&");
+        emitln("  sand a, b ; &&"); // result in B
+        emitln("  push b");
+        emitln("  mov a, c");
         emitln("  mov b, g");
-        emitln("  sand a, b ; &&");
+        emitln("  sand a, b ; ||"); // result in B
+        emitln("  pop a"); 
+        emitln("  sand a, b ; ||"); // final result in B
       }
       else 
         emitln("  sand a, b ; &&");
@@ -2281,46 +2280,83 @@ t_type parse_relational(void){
   ){
     emitln("; START RELATIONAL");
     emitln("  push a");
+    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+      emitln("  push g");
     while(tok == EQUAL              || tok == NOT_EQUAL    || tok == LESS_THAN || 
           tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL
     ){
       temp_tok = tok;
       emitln("  mov a, b");
+      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+        emitln("  mov g, c");
       type2 = parse_bitwise_shift();
       expr_out = cast(type1, type2); // convert to a common type
-      emitln("  cmp a, b");
       switch(temp_tok){
         case EQUAL:
-          emitln("  seq ; ==");
+          if(expr_out.primitive_type == DT_INT && expr_out.modifier == MOD_LONG){
+            emitln("  cmp a, b");
+            emitln("  seq ; ==");
+            emitln("  push b");
+            emitln("  mov a, c");
+            emitln("  mov b, g");
+            emitln("  cmp a, b");
+            emitln("  seq ; ==");
+            emitln("  pop a"); 
+            emitln("  sand a, b");
+          }
+          else{
+            emitln("  cmp a, b");
+            emitln("  seq ; ==");
+          }
           break;
         case NOT_EQUAL:
-          emitln("  sneq ; !=");
+          if(expr_out.primitive_type == DT_INT && expr_out.modifier == MOD_LONG){
+            emitln("  cmp a, b");
+            emitln("  sneq ; !=");
+            emitln("  push b");
+            emitln("  mov a, c");
+            emitln("  mov b, g");
+            emitln("  cmp a, b");
+            emitln("  sneq ; !=");
+            emitln("  pop a"); 
+            emitln("  sor a, b");  // If either result is a 1, then one of the CMP is false, thus result is false.
+          }
+          else{
+            emitln("  cmp a, b");
+            emitln("  sneq ; !=");
+          }
           break;
         case LESS_THAN:
+          emitln("  cmp a, b");
           if(expr_out.ind_level > 0 || expr_out.signedness == SNESS_UNSIGNED)
             emitln("  slu ; < (unsigned)");
           else
             emitln("  slt ; < ");
           break;
         case LESS_THAN_OR_EQUAL:
+          emitln("  cmp a, b");
           if(expr_out.ind_level > 0 || expr_out.signedness == SNESS_UNSIGNED)
             emitln("  sleu ; <= (unsigned)");
           else
             emitln("  sle ; <=");
           break;
         case GREATER_THAN:
+          emitln("  cmp a, b");
           if(expr_out.ind_level > 0 || expr_out.signedness == SNESS_UNSIGNED)
             emitln("  sgu ; > (unsigned)");
           else
             emitln("  sgt ; >");
           break;
         case GREATER_THAN_OR_EQUAL:
+          emitln("  cmp a, b");
           if(expr_out.ind_level > 0 || expr_out.signedness == SNESS_UNSIGNED)
             emitln("  sgeu ; >= (unsigned)");
           else
             emitln("  sge ; >=");
       }
     }
+    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+      emitln("  pop g");
     emitln("  pop a");
     emitln("; END RELATIONAL");
   }

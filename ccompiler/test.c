@@ -1,9 +1,16 @@
 
 int main() {
 
-	print_signed_long(4294967257L);
+	printx16(4294967295L != 4294967294L);
 
 
+}
+void printx16(int hex) {
+  asm{
+    meta mov d, hex
+    mov b, [d]
+    call print_u16x
+  }
 }
 
 void putchar(char c){
