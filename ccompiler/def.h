@@ -554,6 +554,20 @@ t_type parse_terms(void);
 t_type parse_factors(void);
 t_type parse_atomic(void);
 
+t_type parse_sizeof();
+t_type parse_string_const();
+t_type parse_integer_const();
+t_type parse_unary_logical_not();
+t_type parse_bitwise_not();
+t_type parse_unary_minus();
+t_type parse_char_const();
+t_type parse_post_decrementing(t_type expr_in, char *temp_name);
+t_type parse_post_incrementing(t_type expr_in, char *temp_name);
+t_type parse_pre_decrementing();
+t_type parse_pre_incrementing();
+t_type parse_referencing();
+t_type parse_dereferencing(void);
+
 void parse_case(void);
 void parse_block(void);
 void parse_functions(void);

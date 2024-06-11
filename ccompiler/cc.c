@@ -2489,156 +2489,350 @@ t_type parse_factors(void){
   return expr_out;
 }
 
-t_type parse_atomic(void){
-  int var_id, func_id, string_id;
-  char temp_name[ID_LEN], temp[1024];
-  t_type expr_in, expr_out;
+t_type parse_sizeof(){
+  t_type expr_out;
+  int var_id;
 
-  expr_in.modifier = MOD_NORMAL;
-  expr_out.modifier = MOD_NORMAL;
   get();
-  if(toktype == STRING_CONST){
-    string_id = search_string(string_const);
-    if(string_id == -1){
-      string_id = add_string_data(string_const);
+  expect(OPENING_PAREN, "Opening parenthesis expected");
+  get();
+  if(toktype == IDENTIFIER){
+    if(local_var_exists(token) != -1){ // is a local variable
+      var_id = local_var_exists(token);
+      emitln("  mov b, %d", get_total_type_size(function_table[current_func_id].local_vars[var_id].type));
     }
-    // now emit the reference to this string into the ASM
-    emitln("  mov b, __s%d ; \"%s\"", string_id, string_const);
-    expr_out.primitive_type = DT_CHAR;
-    expr_out.ind_level = 1;
-    expr_out.signedness = SNESS_SIGNED;
-  }
-  else if(tok == SIZEOF){
-    get();
-    expect(OPENING_PAREN, "Opening parenthesis expected");
-    get();
-    if(toktype == IDENTIFIER){
-      if(local_var_exists(token) != -1){ // is a local variable
-        var_id = local_var_exists(token);
-        emitln("  mov b, %d", get_total_type_size(function_table[current_func_id].local_vars[var_id].type));
-      }
-      else if(global_var_exists(token) != -1){  // is a global variable
-        var_id = global_var_exists(token);
-        emitln("  mov b, %d", get_total_type_size(global_var_table[var_id].type));
-      }
-      else{
-        error("(Parse atomic) Undeclared identifier: %s", token);
-      }
-      get();
+    else if(global_var_exists(token) != -1){  // is a global variable
+      var_id = global_var_exists(token);
+      emitln("  mov b, %d", get_total_type_size(global_var_table[var_id].type));
     }
     else{
-      t_token temp_tok = tok;
-      get();
-      if(tok == STAR){
-        while(tok == STAR){
-          get();
-        }
+      error("(Parse atomic) Undeclared identifier: %s", token);
+    }
+    get();
+  }
+  else{
+    t_token temp_tok = tok;
+    get();
+    if(tok == STAR){
+      while(tok == STAR){
+        get();
+      }
+      emitln("  mov b, 2");
+    }
+    else{
+      switch(temp_tok){
+      case CHAR:
+        emitln("  mov b, 1");
+        break;
+      case INT:
         emitln("  mov b, 2");
-      }
-      else{
-        switch(temp_tok){
-        case CHAR:
-          emitln("  mov b, 1");
-          break;
-        case INT:
-          emitln("  mov b, 2");
-          break;
-        }
+        break;
       }
     }
-    expr_out.primitive_type = DT_INT;
-    expr_out.ind_level = 0;
-    expr_out.signedness = SNESS_SIGNED;
-    expect(CLOSING_PAREN, "Closing paren expected");
   }
-  else if(tok == STAR){ // is a pointer operator
-    expr_in = parse_atomic(); // parse expression after STAR, which could be inside parenthesis. result in B
-    if(expr_in.primitive_type == DT_VOID && expr_in.ind_level <= 1) 
-      error("Dereferencing void pointer with indirection level of 1 or less.");
-    emitln("  mov d, b");// now we have the pointer value. we then get the data at the address.
-    if(expr_in.ind_level > 1){
-      emitln("  mov b, [d]"); 
-    }
-    else if((expr_in.primitive_type == DT_INT && expr_in.modifier == MOD_LONG)){
-      emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
-      emitln("  mov c, b ; And place it into C"); 
-      emitln("  mov b, [d] ; Lower Word in B"); 
-    }
-    else if(expr_in.primitive_type == DT_CHAR){
-      emitln("  mov bl, [d]"); 
-      emitln("  mov bh, 0");
-    }
-    back();
-    expr_out.modifier = expr_in.modifier;
-    expr_out.primitive_type = expr_in.primitive_type;
-    expr_out.ind_level = expr_in.ind_level - 1;
-    expr_out.signedness = expr_in.signedness;
+  expr_out.primitive_type = DT_INT;
+  expr_out.ind_level = 0;
+  expr_out.signedness = SNESS_SIGNED;
+  expect(CLOSING_PAREN, "Closing paren expected");
+  return expr_out;
+}
+
+t_type parse_string_const(){
+  t_type expr_out;
+  int string_id;
+
+  string_id = search_string(string_const);
+  if(string_id == -1){
+    string_id = add_string_data(string_const);
   }
-  else if(tok == AMPERSAND){
-    get(); // get variable name
-    if(toktype != IDENTIFIER) error("Identifier expected");
-    expr_in = emit_var_addr_into_d(token);
-    emitln("  mov b, d");
-    expr_out.ind_level++;
-  }
-  else if(toktype == INTEGER_CONST){
+  // now emit the reference to this string into the ASM
+  emitln("  mov b, __s%d ; \"%s\"", string_id, string_const);
+  expr_out.modifier = MOD_NORMAL;
+  expr_out.primitive_type = DT_CHAR;
+  expr_out.ind_level = 1;
+  expr_out.signedness = SNESS_SIGNED;
+  return expr_out;
+}
+
+t_type parse_integer_const(){
+  t_type expr_out;
     if(const_modifier == MOD_LONG){
       emitln("  mov b, $%x", int_const & 0x0000FFFF);
       emitln("  mov c, $%x", (unsigned)int_const >> 16);
       expr_out.modifier = MOD_LONG;
     }
-    else emitln("  mov b, $%x", int_const);
+    else{
+      expr_out.modifier = MOD_NORMAL;
+      emitln("  mov b, $%x", int_const);
+    }
     expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0;
     expr_out.signedness = int_const > 32767 || int_const < -32768 ? SNESS_UNSIGNED : SNESS_SIGNED;
+
+  return expr_out;
+}
+
+t_type parse_(){
+  t_type expr_out;
+
+  return expr_out;
+}
+t_type parse_unary_logical_not(){
+  t_type expr_out;
+
+  expr_out = parse_atomic(); // in 'b'
+  emitln("  cmp b, 0");
+  emitln("  seq ; !");
+  back();
+  expr_out.modifier = MOD_NORMAL;
+  expr_out.primitive_type = DT_INT;
+  expr_out.ind_level = 0;
+  expr_out.signedness = SNESS_UNSIGNED;
+  return expr_out;
+}
+t_type parse_bitwise_not(){
+  t_type expr_out;
+
+  expr_out = parse_atomic(); // in 'b'
+  if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT) 
+    emitln("  not b");
+  else 
+    emitln("  not b"); // treating as int as an experiment
+  expr_out.modifier = MOD_NORMAL;
+  expr_out.primitive_type = DT_INT;
+  expr_out.ind_level = 0;
+  expr_out.signedness = expr_out.signedness;
+  back();
+  return expr_out;
+}
+
+// -127, -128, -255, -32768, -32767, -65535
+t_type parse_unary_minus(){
+  t_type expr_out;
+  expr_out = parse_atomic(); // TODO: add error if type is pointer since cant neg a pointer
+  if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT) 
+    emitln("  neg b");
+  else 
+    emitln("  neg b"); // treating as int as experiment
+  back();
+  expr_out.primitive_type = DT_INT; // convert to int
+  expr_out.ind_level = 0;
+  expr_out.signedness = expr_out.signedness;
+  expr_out.modifier = MOD_NORMAL;
+  return expr_out;
+}
+t_type parse_char_const(){
+  t_type expr_out;
+  emitln("  mov b, $%x", string_const[0]);
+  expr_out.primitive_type = DT_CHAR; //TODO: int or char? 
+  expr_out.ind_level = 0;
+  expr_out.signedness = SNESS_UNSIGNED;
+  expr_out.modifier = MOD_NORMAL;
+  expr_out.dims[0] = 0;
+  return expr_out;
+}
+
+t_type parse_post_decrementing(t_type expr_in, char *temp_name){
+  t_type expr_out;
+
+  emitln("  push b");
+  if(get_pointer_unit(expr_in) > 1){
+    emitln("  dec b");
+    emitln("  dec b");
   }
-  else if(toktype == CHAR_CONST){
-    emitln("  mov b, $%x", string_const[0]);
-    expr_out.primitive_type = DT_CHAR; //TODO: int or char? 
-    expr_out.ind_level = 0;
-    expr_out.signedness = SNESS_UNSIGNED;
-    expr_out.dims[0] = 0;
+  else
+    emitln("  dec b");
+  emit_var_addr_into_d(temp_name);
+  emitln("  mov [d], b");
+  emitln("  pop b");
+  expr_out = expr_in;
+  get(); // gets the next token (it must be a delimiter)
+
+  return expr_out;
+}
+
+t_type parse_post_incrementing(t_type expr_in, char *temp_name){
+  t_type expr_out;
+
+  emitln("  push b"); 
+  if(get_pointer_unit(expr_in) > 1) {
+    emitln("  inc b");
+    emitln("  inc b");
   }
-  // -127, -128, -255, -32768, -32767, -65535
-  else if(tok == MINUS){
-    expr_in = parse_atomic(); // TODO: add error if type is pointer since cant neg a pointer
-    if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT) 
-      emitln("  neg b");
-    else 
-      emitln("  neg b"); // treating as int as experiment
-    back();
-    expr_out.primitive_type = DT_INT; // convert to int
-    expr_out.ind_level = 0;
-    expr_out.signedness = expr_in.signedness;
+  else 
+    emitln("  inc b");
+  emit_var_addr_into_d(temp_name);
+  emitln("  mov [d], b");
+  emitln("  pop b");
+  expr_out = expr_in;
+  get(); // gets the next token (it must be a delimiter)
+
+  return expr_out;
+}
+
+t_type parse_pre_decrementing(){
+  t_type expr_out;
+  char temp_name[ID_LEN];
+
+  get();
+  if(toktype != IDENTIFIER) error("Identifier expected");
+  strcpy(temp_name, token);
+  expr_out = emit_var_addr_into_d(temp_name);
+  emitln("  mov b, [d]");
+  if(get_pointer_unit(expr_out) > 1) {
+    emitln("  dec b");
+    emitln("  dec b");
   }
-  else if(tok == BITWISE_NOT){
-    expr_in = parse_atomic(); // in 'b'
-    if(expr_in.ind_level > 0 || expr_in.primitive_type == DT_INT) 
-      emitln("  not b");
-    else 
-      emitln("  not b"); // treating as int as an experiment
-    expr_out.primitive_type = DT_INT;
-    expr_out.ind_level = 0;
-    expr_out.signedness = expr_in.signedness;
-    back();
+  else 
+    emitln("  dec b");
+  emit_var_addr_into_d(temp_name);
+  emit_var_assignment__addr_in_d(expr_out);
+  return expr_out;
+}
+
+t_type parse_pre_incrementing(){
+  t_type expr_out;
+  char temp_name[ID_LEN];
+
+  get();
+  if(toktype != IDENTIFIER) error("Identifier expected");
+  strcpy(temp_name, token);
+  expr_out = emit_var_addr_into_d(temp_name);
+  emitln("  mov b, [d]");
+  if(get_pointer_unit(expr_out) > 1) {
+    emitln("  inc b");
+    emitln("  inc b");
   }
-  else if(tok == LOGICAL_NOT){
-    expr_in = parse_atomic(); // in 'b'
-    emitln("  cmp b, 0");
-    emitln("  seq ; !");
-    back();
-    expr_out.primitive_type = DT_INT;
-    expr_out.ind_level = 0;
-    expr_out.signedness = SNESS_UNSIGNED;
+  else 
+    emitln("  inc b");
+  emit_var_addr_into_d(temp_name);
+  emit_var_assignment__addr_in_d(expr_out);
+
+  return expr_out;
+}
+
+t_type parse_referencing(){
+  t_type expr_out;
+
+  get(); // get variable name
+  if(toktype != IDENTIFIER) error("Identifier expected");
+  expr_out = emit_var_addr_into_d(token);
+  emitln("  mov b, d");
+  expr_out.ind_level++;
+  return expr_out;
+}
+
+t_type parse_dereferencing(void){
+  t_type expr_out;
+
+  expr_out = parse_atomic(); // parse expression after STAR, which could be inside parenthesis. result in B
+  if(expr_out.primitive_type == DT_VOID && expr_out.ind_level <= 1) 
+    error("Dereferencing void pointer with indirection level of 1 or less.");
+  emitln("  mov d, b");// now we have the pointer value. we then get the data at the address.
+  if(expr_out.ind_level > 1){
+    emitln("  mov b, [d]"); 
   }
+  else if((expr_out.primitive_type == DT_INT && expr_out.modifier == MOD_LONG)){
+    emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
+    emitln("  mov c, b ; And place it into C"); 
+    emitln("  mov b, [d] ; Lower Word in B"); 
+  }
+  else if(expr_out.primitive_type == DT_CHAR){
+    emitln("  mov bl, [d]"); 
+    emitln("  mov bh, 0");
+  }
+  back();
+  return expr_out;
+}
+
+t_type parse_atomic(void){
+  int var_id, func_id, string_id;
+  char temp_name[ID_LEN], temp[1024];
+  t_type expr_in, expr_out;
+  int ind_level = 0;
+  char _signed = 1, _unsigned = 0;
+
+  get();
+  if(toktype == STRING_CONST)
+    expr_out = parse_string_const();
+
+  else if(toktype == INTEGER_CONST)
+    expr_out = parse_integer_const();
+
+  else if(toktype == CHAR_CONST)
+    expr_out = parse_char_const();
+
+  else if(tok == SIZEOF)
+    expr_out = parse_sizeof();
+
+  else if(tok == STAR)
+    expr_out = parse_dereferencing();
+
+  else if(tok == AMPERSAND)
+    expr_out = parse_referencing();
+
+  else if(tok == MINUS)
+    expr_out = parse_unary_minus();
+
+  else if(tok == BITWISE_NOT)
+    expr_out = parse_bitwise_not();
+
+  else if(tok == LOGICAL_NOT)
+    expr_out = parse_unary_logical_not();
+
+  else if(tok == INCREMENT)
+    expr_out = parse_pre_incrementing();
+
+  else if(tok == DECREMENT)
+    expr_out = parse_pre_decrementing();
+
+  else if(toktype == IDENTIFIER){
+    strcpy(temp_name, token);
+    get();
+    if(tok == OPENING_PAREN){ // function call      
+      if((func_id = search_function(temp_name)) != -1){
+        expr_out = function_table[func_id].return_type; // get function's return type
+        parse_function_call(func_id);
+      }
+      else error("Undeclared function: %s", temp_name);
+    }
+    else if(enum_element_exists(temp_name) != -1){
+      back();
+      emitln("  mov b, %d; %s", get_enum_val(temp_name), temp_name);
+      expr_out.primitive_type = DT_INT;
+      expr_out.ind_level = 0;
+      expr_out.signedness = SNESS_SIGNED; // TODO: check enums can always be signed...
+    }
+    else{
+      back();
+      expr_out = emit_var_addr_into_d(temp_name); // into 'b'
+      // emit base address for variable, whether struct or not
+      back();
+      if(is_array(expr_out))
+        emitln("  mov b, d");
+      else if(expr_out.ind_level > 0)
+        emitln("  mov b, [d]"); 
+      else if(expr_out.primitive_type == DT_INT && expr_out.modifier == MOD_LONG){
+        emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
+        emitln("  mov c, b ; And place it into C"); 
+        emitln("  mov b, [d] ; Lower Word in B"); 
+      }
+      else if(expr_out.primitive_type == DT_INT)
+        emitln("  mov b, [d]"); 
+      else if(expr_out.primitive_type == DT_CHAR){
+        emitln("  mov bl, [d]");
+        emitln("  mov bh, 0"); 
+      }
+      else if(expr_out.primitive_type == DT_STRUCT)
+        emitln("  mov b, d");
+    }
+  }
+
   else if(tok == OPENING_PAREN){
-    int ind_level = 0;
-    char _signed = 1, _unsigned = 0;
     get();
     if(tok != SIGNED && tok != UNSIGNED && tok != LONG && tok != INT && tok != CHAR && tok != VOID){
       back();
-      expr_in = parse_expr();  // parses expression between parenthesis and result will be in B
-      expr_out = expr_in;
+      expr_out = parse_expr();  // parses expression between parenthesis and result will be in B
       if(tok != CLOSING_PAREN) error("Closing paren expected");
     }
     else{
@@ -2660,10 +2854,9 @@ t_type parse_atomic(void){
         }
         expect(CLOSING_PAREN, "Closing paren expected");
         if(ind_level == 0) error("Invalid data type of pure 'void'.");
-        expr_in = parse_atomic();
-        expr_in.primitive_type = DT_VOID;
-        expr_in.ind_level = ind_level;
-        expr_out = expr_in;
+        expr_out = parse_atomic();
+        expr_out.primitive_type = DT_VOID;
+        expr_out.ind_level = ind_level;
         back();
       }
       else if(tok == LONG){
@@ -2673,11 +2866,10 @@ t_type parse_atomic(void){
           get();
         }
         expect(CLOSING_PAREN, "Closing paren expected");
-        expr_in = parse_atomic();
-        expr_in.modifier = MOD_LONG;
-        expr_in.primitive_type = DT_INT;
-        expr_in.ind_level = ind_level;
-        expr_out = expr_in;
+        expr_out = parse_atomic();
+        expr_out.modifier = MOD_LONG;
+        expr_out.primitive_type = DT_INT;
+        expr_out.ind_level = ind_level;
       }
       else if(tok == INT){
         get();
@@ -2688,8 +2880,7 @@ t_type parse_atomic(void){
         expect(CLOSING_PAREN, "Closing paren expected");
         if(_signed == 1 && ind_level == 0) emitln("  snex b"); // sign extend b
         else if(_unsigned == 1 && ind_level == 0) emitln("  mov bh, 0"); // zero extend b
-        expr_in = parse_atomic();
-        expr_out = expr_in;
+        expr_out = parse_atomic();
         expr_out.primitive_type = DT_INT;
         expr_out.ind_level = ind_level;
         back();
@@ -2701,121 +2892,23 @@ t_type parse_atomic(void){
           get();
         }
         expect(CLOSING_PAREN, "Closing paren expected");
-        expr_in = parse_atomic();
+        expr_out = parse_atomic();
         if(ind_level == 0) emitln("  mov bh, 0"); // zero out bh to make it a char
-        expr_out = expr_in;
         expr_out.primitive_type = DT_CHAR;
         expr_out.ind_level = ind_level;
         back();
       }
     }
   }
-  else if(tok == INCREMENT){  // pre increment. do increment first
-    get();
-    if(toktype != IDENTIFIER) error("Identifier expected");
-    strcpy(temp_name, token);
-    expr_in = emit_var_addr_into_d(temp_name);
-    emitln("  mov b, [d]");
-    if(get_pointer_unit(expr_in) > 1) {
-      emitln("  inc b");
-      emitln("  inc b");
-    }
-    else 
-      emitln("  inc b");
-    emit_var_addr_into_d(temp_name);
-    emit_var_assignment__addr_in_d(expr_in);
-    expr_out = expr_in;
-  }    
-  else if(tok == DECREMENT){ // pre decrement. do decrement first
-    get();
-    if(toktype != IDENTIFIER) error("Identifier expected");
-    strcpy(temp_name, token);
-    expr_in = emit_var_addr_into_d(temp_name);
-    emitln("  mov b, [d]");
-    if(get_pointer_unit(expr_in) > 1) {
-      emitln("  dec b");
-      emitln("  dec b");
-    }
-    else 
-      emitln("  dec b");
-    emit_var_addr_into_d(temp_name);
-    emit_var_assignment__addr_in_d(expr_in);
-    expr_out = expr_in;
-  }
-  else if(toktype == IDENTIFIER){
-    strcpy(temp_name, token);
-    get();
-    if(tok == OPENING_PAREN){ // function call      
-      if((func_id = search_function(temp_name)) != -1){
-        expr_out = function_table[func_id].return_type; // get function's return type
-        parse_function_call(func_id);
-      }
-      else error("Undeclared function: %s", temp_name);
-    }
-    else if(enum_element_exists(temp_name) != -1){
-      back();
-      emitln("  mov b, %d; %s", get_enum_val(temp_name), temp_name);
-      expr_out.primitive_type = DT_INT;
-      expr_out.ind_level = 0;
-      expr_out.signedness = SNESS_SIGNED; // TODO: check enums can always be signed...
-    }
-    else{
-      back();
-      expr_in = emit_var_addr_into_d(temp_name); // into 'b'
-      // emit base address for variable, whether struct or not
-      back();
-      if(is_array(expr_in))
-        emitln("  mov b, d");
-      else if(expr_in.ind_level > 0)
-        emitln("  mov b, [d]"); 
-      else if(expr_in.primitive_type == DT_INT && expr_in.modifier == MOD_LONG){
-        emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
-        emitln("  mov c, b ; And place it into C"); 
-        emitln("  mov b, [d] ; Lower Word in B"); 
-      }
-      else if(expr_in.primitive_type == DT_INT)
-        emitln("  mov b, [d]"); 
-      else if(expr_in.primitive_type == DT_CHAR){
-        emitln("  mov bl, [d]");
-        emitln("  mov bh, 0"); 
-      }
-      else if(expr_in.primitive_type == DT_STRUCT)
-        emitln("  mov b, d");
-      expr_out = expr_in;
-    }
-  }
+
   else error("Invalid expression");
 
 // Check for post ++/--
   get();
-  if(tok == INCREMENT){  // post increment. get value first, then do assignment
-    emitln("  push b"); 
-    if(get_pointer_unit(expr_in) > 1) {
-      emitln("  inc b");
-      emitln("  inc b");
-    }
-    else 
-      emitln("  inc b");
-    emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  pop b");
-    expr_out = expr_in;
-    get(); // gets the next token (it must be a delimiter)
-  }    
-  else if(tok == DECREMENT){ // post decrement. get value first, then do assignment
-    emitln("  push b");
-    if(get_pointer_unit(expr_in) > 1){
-      emitln("  dec b");
-      emitln("  dec b");
-    }
-    else
-      emitln("  dec b");
-    emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  pop b");
-    expr_out = expr_in;
-    get(); // gets the next token (it must be a delimiter)
-  } 
+  if(tok == INCREMENT)  // post increment. get value first, then do assignment
+    expr_out = parse_post_incrementing(expr_out, temp_name);
+  else if(tok == DECREMENT) // post decrement. get value first, then do assignment
+    expr_out = parse_post_decrementing(expr_out, temp_name);
 
   return expr_out;
 }
@@ -3343,6 +3436,7 @@ t_type emit_var_addr_into_d(char *var_name){
     back();
   }
   else back();
+  type.modifier = MOD_NORMAL;
   return type;
 }
 

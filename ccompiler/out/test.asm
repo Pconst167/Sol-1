@@ -80,18 +80,13 @@ print_signed_long:
 ;; if (num < 0) { 
 _if1_cond:
   lea d, [bp + 5] ; $num
-  mov b, [d + 2] ; Upper Word of the Long Int
-  mov c, b ; And place it into C
-  mov b, [d] ; Lower Word in B
+  mov b, [d]
 ; START RELATIONAL
   push a
-  push g
   mov a, b
-  mov g, c
   mov b, $0
   cmp a, b
   slt ; < 
-  pop g
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -106,38 +101,22 @@ _if1_true:
   lea d, [bp + 5] ; $num
   push d
   lea d, [bp + 5] ; $num
-  mov b, [d + 2] ; Upper Word of the Long Int
-  mov c, b ; And place it into C
-  mov b, [d] ; Lower Word in B
+  mov b, [d]
   neg b
   pop d
   mov [d], b
-  mov b, c
-  mov [d + 2], b
   jmp _if1_exit
 _if1_else:
 ;; if (num == 0) { 
 _if2_cond:
   lea d, [bp + 5] ; $num
-  mov b, [d + 2] ; Upper Word of the Long Int
-  mov c, b ; And place it into C
-  mov b, [d] ; Lower Word in B
+  mov b, [d]
 ; START RELATIONAL
   push a
-  push g
   mov a, b
-  mov g, c
   mov b, $0
   cmp a, b
   seq ; ==
-  push b
-  mov a, c
-  mov b, g
-  cmp a, b
-  seq ; ==
-  pop a
-  sand a, b
-  pop g
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -157,18 +136,13 @@ _if1_exit:
 ;; while (num > 0) { 
 _while3_cond:
   lea d, [bp + 5] ; $num
-  mov b, [d + 2] ; Upper Word of the Long Int
-  mov c, b ; And place it into C
-  mov b, [d] ; Lower Word in B
+  mov b, [d]
 ; START RELATIONAL
   push a
-  push g
   mov a, b
-  mov g, c
   mov b, $0
   cmp a, b
   sgt ; >
-  pop g
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -189,9 +163,7 @@ _while3_block:
   push a
   mov a, b
   lea d, [bp + 5] ; $num
-  mov b, [d + 2] ; Upper Word of the Long Int
-  mov c, b ; And place it into C
-  mov b, [d] ; Lower Word in B
+  mov b, [d]
 ; START FACTORS
   push a
   mov a, b
@@ -211,9 +183,7 @@ _while3_block:
   lea d, [bp + 5] ; $num
   push d
   lea d, [bp + 5] ; $num
-  mov b, [d + 2] ; Upper Word of the Long Int
-  mov c, b ; And place it into C
-  mov b, [d] ; Lower Word in B
+  mov b, [d]
 ; START FACTORS
   push a
   mov a, b
@@ -224,8 +194,6 @@ _while3_block:
 ; END FACTORS
   pop d
   mov [d], b
-  mov b, c
-  mov [d + 2], b
 ;; i++; 
   lea d, [bp + -11] ; $i
   mov b, [d]
