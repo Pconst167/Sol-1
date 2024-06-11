@@ -2510,18 +2510,20 @@ t_type parse_atomic(void){
     if(expr_in.primitive_type == DT_VOID && expr_in.ind_level <= 1) 
       error("Dereferencing void pointer with indirection level of 1 or less.");
     emitln("  mov d, b");// now we have the pointer value. we then get the data at the address.
-    if(expr_in.ind_level > 1)
+    if(expr_in.ind_level > 1){
       emitln("  mov b, [d]"); 
+    }
     else if((expr_in.primitive_type == DT_INT && expr_in.longness == LNESS_LONG)){
-      emitln("  mov b, [d + 2]");
-      emitln("  mov c, b");
-      emitln("  mov b, [d]");
+      emitln("  mov b, [d + 2]"); // upper byte
+      emitln("  mov c, b");       // upper in c
+      emitln("  mov b, [d]");     // lower byte
     }
     else if(expr_in.primitive_type == DT_CHAR){
       emitln("  mov bl, [d]"); 
       emitln("  mov bh, 0");
     }
     back();
+    expr_out.longness = expr_in.longness;
     expr_out.primitive_type = expr_in.primitive_type;
     expr_out.ind_level = expr_in.ind_level - 1;
     expr_out.signedness = expr_in.signedness;
@@ -2613,9 +2615,9 @@ t_type parse_atomic(void){
         expect(CLOSING_PAREN, "Closing paren expected");
         if(ind_level == 0) error("Invalid data type of pure 'void'.");
         expr_in = parse_atomic();
+        expr_in.primitive_type = DT_VOID;
+        expr_in.ind_level = ind_level;
         expr_out = expr_in;
-        expr_out.primitive_type = DT_VOID;
-        expr_out.ind_level = ind_level;
         back();
       }
       else if(tok == LONG){
@@ -2625,20 +2627,11 @@ t_type parse_atomic(void){
           get();
         }
         expect(CLOSING_PAREN, "Closing paren expected");
-        get();
-        expect(OPENING_PAREN, "Opening paren expected");
-        get();
-        if(toktype != INTEGER_CONST) 
-          error("Integer constant expected (for now).");
-        get();
-        expect(CLOSING_PAREN, "Closing paren expected");
-        emitln("  mov b, $%x", int_const & 0x0000FFFF);
-        emitln("  mov c, $%x", int_const >> 16);
-        expr_out.dims[0] = 0;
-        expr_out.primitive_type = DT_INT;
-        expr_out.longness = LNESS_LONG;
-        expr_out.ind_level = ind_level;
-
+        expr_in = parse_atomic();
+        expr_in.longness = LNESS_LONG;
+        expr_in.primitive_type = DT_INT;
+        expr_in.ind_level = ind_level;
+        expr_out = expr_in;
       }
       else if(tok == INT){
         get();

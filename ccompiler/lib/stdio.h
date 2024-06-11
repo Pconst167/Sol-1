@@ -44,19 +44,27 @@ void printf(char *format, ...){
     else if(*fp == '%'){
       fp++;
       switch(*fp){
+        case 'l':
+        case 'L':
+          fp++;
+          if(*fp == 'd' || *fp == 'i'){
+            print_signed_long(*(long *)p);
+            p = p + 4;
+          }
+          else if(*fp == 'u'){
+            print_unsigned_long(*(unsigned long *)p);
+            p = p + 4;
+          }
+          else err("Unexpected format in printf.");
+          break;
         case 'd':
         case 'i':
-          prints(*(int*)p);
+          print_signed(*(int*)p);
           p = p + 2;
           break;
 
         case 'u':
-          if((*fp+1) == 'L'){
-            printu(*(unsigned int*)p);
-            fp++;
-          }
-          else
-            printu(*(unsigned int*)p);
+          print_unsigned(*(unsigned int*)p);
           p = p + 2;
           break;
 
@@ -85,6 +93,11 @@ void printf(char *format, ...){
       fp++;
     }
   }
+}
+
+void err(char *e){
+  print(e);
+  exit();
 }
 
 void printx16(int hex) {
@@ -153,7 +166,7 @@ int gets(char *s){
   return strlen(s);
 }
 
-void prints(int num) {
+void print_signed(int num) {
   char digits[5];
   int i = 0;
 
@@ -178,7 +191,32 @@ void prints(int num) {
   }
 }
 
-void printul(unsigned int num) {
+void print_signed_long(int num) {
+  char digits[10];
+  int i = 0;
+
+  if (num < 0) {
+    putchar('-');
+    num = -num;
+  }
+  else if (num == 0) {
+    putchar('0');
+    return;
+  }
+
+  while (num > 0) {
+    digits[i] = '0' + (num % 10);
+    num = num / 10;
+    i++;
+  }
+
+  while (i > 0) {
+    i--;
+    putchar(digits[i]);
+  }
+}
+
+void print_unsigned_long(unsigned int num) {
   char digits[10];
   int i;
   i = 0;
@@ -198,7 +236,7 @@ void printul(unsigned int num) {
   }
 }
 
-void printu(unsigned int num) {
+void print_unsigned(unsigned int num) {
   char digits[5];
   int i;
   i = 0;
@@ -402,13 +440,13 @@ void clear(){
 
 void printun(char *prompt, int n){
   print(prompt);
-  printu(n);
+  print_unsigned(n);
   print("\n");
 }
 
 void printsn(char *prompt, int n){
   print(prompt);
-  prints(n);
+  print_signed(n);
   print("\n");
 }
 
