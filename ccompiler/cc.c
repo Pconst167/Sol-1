@@ -2524,9 +2524,9 @@ t_type parse_atomic(void){
       emitln("  mov b, [d]"); 
     }
     else if((expr_in.primitive_type == DT_INT && expr_in.modifier == MOD_LONG)){
-      emitln("  mov b, [d + 2]"); // upper byte
-      emitln("  mov c, b");       // upper in c
-      emitln("  mov b, [d]");     // lower byte
+      emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
+      emitln("  mov c, b ; And place it into C"); 
+      emitln("  mov b, [d] ; Lower Word in B"); 
     }
     else if(expr_in.primitive_type == DT_CHAR){
       emitln("  mov bl, [d]"); 
@@ -2733,8 +2733,9 @@ t_type parse_atomic(void){
       else if(expr_in.ind_level > 0)
         emitln("  mov b, [d]"); 
       else if(expr_in.primitive_type == DT_INT && expr_in.modifier == MOD_LONG){
-        emitln("  mov b, $%x", int_const & 0x0000FFFF);
-        emitln("  mov c, $%x", int_const >> 16);
+        emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
+        emitln("  mov c, b ; And place it into C"); 
+        emitln("  mov b, [d] ; Lower Word in B"); 
       }
       else if(expr_in.primitive_type == DT_INT)
         emitln("  mov b, [d]"); 
