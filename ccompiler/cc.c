@@ -2538,7 +2538,7 @@ t_type parse_atomic(void){
   else if(toktype == INTEGER_CONST){
     if(const_longness == LNESS_LONG){
       emitln("  mov b, $%x", int_const & 0x0000FFFF);
-      emitln("  mov c, $%x", int_const >> 16);
+      emitln("  mov c, $%x", int_const >> 16); // todo fix the way the number is outputhere
       expr_out.longness = LNESS_LONG;
     }
     else emitln("  mov b, $%x", int_const);
@@ -2872,6 +2872,14 @@ void parse_function_call(int func_id){
       emitln("  mov di, d");
       emitln("  mov c, %d", get_type_size_for_func_arg_parsing(arg_type));
       emitln("  rep movsb");
+    }
+    else if(arg_type.longness == LNESS_LONG){
+      emitln("  mov g, b");
+      emitln("  mov b, c");
+      emitln("  swp b");
+      emitln("  push b");
+      emitln("  mov b, g");
+      emitln("  push b");
     }
     else if(arg_type.primitive_type == DT_CHAR){
       emitln("  push bl");

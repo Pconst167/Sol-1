@@ -10,7 +10,11 @@ main:
 ;; printf("Value: %ld", 4294967295L); 
   mov b, $ffff
   mov c, $ffffffff
+  mov g, b
+  mov b, c
   swp b
+  push b
+  mov b, g
   push b
   mov b, __s0 ; "Value: %ld"
   swp b

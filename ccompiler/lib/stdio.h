@@ -216,7 +216,7 @@ void print_signed_long(long int num) {
   }
 }
 
-void print_unsigned_long(unsigned int num) {
+void print_unsigned_long(unsigned long int num) {
   char digits[10];
   int i;
   i = 0;
