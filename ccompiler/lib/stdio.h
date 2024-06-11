@@ -51,7 +51,12 @@ void printf(char *format, ...){
           break;
 
         case 'u':
-          printu(*(unsigned int*)p);
+          if((*fp+1) == 'L'){
+            printu(*(unsigned int*)p);
+            fp++;
+          }
+          else
+            printu(*(unsigned int*)p);
           p = p + 2;
           break;
 
@@ -167,6 +172,26 @@ void prints(int num) {
     i++;
   }
 
+  while (i > 0) {
+    i--;
+    putchar(digits[i]);
+  }
+}
+
+void printul(unsigned int num) {
+  char digits[10];
+  int i;
+  i = 0;
+  if(num == 0){
+    putchar('0');
+    return;
+  }
+  while (num > 0) {
+    digits[i] = '0' + (num % 10);
+    num = num / 10;
+    i++;
+  }
+  // Print the digits in reverse order using putchar()
   while (i > 0) {
     i--;
     putchar(digits[i]);
