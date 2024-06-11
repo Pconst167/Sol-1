@@ -27,9 +27,9 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408             ;; printf("Value: %ld", 4294967295L); 
-0011   0408 26 FF FF      mov b, $ffff
-0012   040B 38 FF FF      mov c, $ffffffff
+0010   0408             ;; printf("Value: %ld", 4294967257L); 
+0011   0408 26 D9 FF      mov b, $ffd9
+0012   040B 38 FF FF      mov c, $ffff
 0013   040E FD 79         mov g, b
 0014   0410 28            mov b, c
 0015   0411 FD AB         swp b

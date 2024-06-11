@@ -7,9 +7,9 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; printf("Value: %ld", 4294967295L); 
-  mov b, $ffff
-  mov c, $ffffffff
+;; printf("Value: %ld", 4294967257L); 
+  mov b, $ffd9
+  mov c, $ffff
   mov g, b
   mov b, c
   swp b

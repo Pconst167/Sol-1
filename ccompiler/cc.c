@@ -2538,7 +2538,7 @@ t_type parse_atomic(void){
   else if(toktype == INTEGER_CONST){
     if(const_longness == LNESS_LONG){
       emitln("  mov b, $%x", int_const & 0x0000FFFF);
-      emitln("  mov c, $%x", int_const >> 16); // todo fix the way the number is outputhere
+      emitln("  mov c, $%x", (unsigned)int_const >> 16);
       expr_out.longness = LNESS_LONG;
     }
     else emitln("  mov b, $%x", int_const);
