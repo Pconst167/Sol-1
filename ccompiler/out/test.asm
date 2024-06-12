@@ -7,24 +7,17 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; printf("%d %d %c %s", 1, 2, 'A', "Paulinho"); 
-  mov b, __s0 ; "Paulinho"
+;; printx32(0xAABBCCDDL); 
+  mov b, $ccdd
+  mov c, $aabb
+  mov g, b
+  mov b, c
   swp b
   push b
-  mov b, $41
-  swp b
+  mov b, g
   push b
-  mov b, $2
-  swp b
-  push b
-  mov b, $1
-  swp b
-  push b
-  mov b, __s1 ; "%d %d %c %s"
-  swp b
-  push b
-  call printf
-  add sp, 10
+  call printx32
+  add sp, 4
   syscall sys_terminate_proc
 
 strcpy:
@@ -564,7 +557,7 @@ _if10_true:
   jmp _if10_exit
 _if10_else:
 ;; err("Unexpected format in printf."); 
-  mov b, __s2 ; "Unexpected format in printf."
+  mov b, __s0 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -711,7 +704,7 @@ _switch8_case7:
   jmp _switch8_exit ; case break
 _switch8_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s3 ; "Error: Unknown argument type.\n"
+  mov b, __s1 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -763,6 +756,20 @@ err:
   add sp, 2
 ;; exit(); 
   call exit
+  leave
+  ret
+
+printx32:
+  enter 0 ; (push bp; mov bp, sp)
+
+; --- BEGIN INLINE ASM BLOCK
+  lea d, [bp + 5] ; $hex
+  mov b, [d+2]
+  call print_u16x
+  mov b, [d]
+  call print_u16x
+; --- END INLINE ASM BLOCK
+
   leave
   ret
 
@@ -2211,7 +2218,7 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s4 ; "\033[2J\033[H"
+  mov b, __s2 ; "\033[2J\033[H"
   swp b
   push b
   call print
@@ -2236,7 +2243,7 @@ printun:
   call print_unsigned
   add sp, 2
 ;; print("\n"); 
-  mov b, __s5 ; "\n"
+  mov b, __s3 ; "\n"
   swp b
   push b
   call print
@@ -2261,7 +2268,7 @@ printsn:
   call print_signed
   add sp, 2
 ;; print("\n"); 
-  mov b, __s5 ; "\n"
+  mov b, __s3 ; "\n"
   swp b
   push b
   call print
@@ -2278,15 +2285,87 @@ include_stdio_asm:
 
   leave
   ret
+
+print_unsigned_long2:
+  enter 0 ; (push bp; mov bp, sp)
+; $p 
+  sub sp, 2
+;; p = &num; 
+  lea d, [bp + -1] ; $p
+  push d
+  lea d, [bp + 5] ; $num
+  mov b, d
+  pop d
+  mov [d], b
+;; printx8(*p); 
+  lea d, [bp + -1] ; $p
+  mov b, [d]
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+  push bl
+  call printx8
+  add sp, 1
+;; printx8(*(p+1)); 
+  lea d, [bp + -1] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  mov b, $1
+  add a, b
+  mov b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+  push bl
+  call printx8
+  add sp, 1
+;; printx8(*(p-2)); 
+  lea d, [bp + -1] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  mov b, $2
+  sub a, b
+  mov b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+  push bl
+  call printx8
+  add sp, 1
+;; printx8(*(p-3)); 
+  lea d, [bp + -1] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  mov b, $3
+  sub a, b
+  mov b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+  push bl
+  call printx8
+  add sp, 1
+  leave
+  ret
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
-__s0: .db "Paulinho", 0
-__s1: .db "%d %d %c %s", 0
-__s2: .db "Unexpected format in printf.", 0
-__s3: .db "Error: Unknown argument type.\n", 0
-__s4: .db "\033[2J\033[H", 0
-__s5: .db "\n", 0
+__s0: .db "Unexpected format in printf.", 0
+__s1: .db "Error: Unknown argument type.\n", 0
+__s2: .db "\033[2J\033[H", 0
+__s3: .db "\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

@@ -102,6 +102,16 @@ void err(char *e){
   exit();
 }
 
+void printx32(long int hex) {
+  asm{
+    meta mov d, hex
+    mov b, [d+2]
+    call print_u16x
+    mov b, [d]
+    call print_u16x
+  }
+}
+
 void printx16(int hex) {
   asm{
     meta mov d, hex
@@ -109,6 +119,7 @@ void printx16(int hex) {
     call print_u16x
   }
 }
+
 void printx8(char hex) {
   asm{
     meta mov d, hex
