@@ -1119,7 +1119,7 @@ void declare_all_locals(int function_id){
     if(tok == OPENING_BRACE) total_braces++;
     if(tok == CLOSING_BRACE) total_braces--;
     if(total_braces == 0) break;
-    if(tok == CONST || tok == UNSIGNED || tok == SIGNED || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
+    if(tok == CONST || tok == UNSIGNED || tok == SIGNED || tok == LONG || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
       if(tok == CONST) get();
       get();
       while(tok == STAR) get();
