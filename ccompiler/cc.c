@@ -2512,8 +2512,10 @@ t_type parse_atomic(void){
   else if(tok == SIZEOF)
     expr_out = parse_sizeof();
 
-  else if(tok == STAR)
+  else if(tok == STAR){
+    
     expr_out = parse_dereferencing();
+    }
 
   else if(tok == AMPERSAND)
     expr_out = parse_referencing();
@@ -2897,21 +2899,29 @@ t_type parse_dereferencing(void){
   t_type expr_out;
 
   expr_out = parse_atomic(); // parse expression after STAR, which could be inside parenthesis. result in B
+
   if(expr_out.primitive_type == DT_VOID && expr_out.ind_level <= 1) 
     error("Dereferencing void pointer with indirection level of 1 or less.");
+
   emitln("  mov d, b");// now we have the pointer value. we then get the data at the address.
+  
   if(expr_out.ind_level > 1){
     emitln("  mov b, [d]"); 
   }
-  else if((expr_out.primitive_type == DT_INT && expr_out.modifier == MOD_LONG)){
-    emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
-    emitln("  mov c, b ; And place it into C"); 
-    emitln("  mov b, [d] ; Lower Word in B"); 
+  else if(expr_out.primitive_type == DT_INT){
+    if(expr_out.modifier == MOD_LONG){
+      emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
+      emitln("  mov c, b ; And place it into C"); 
+      emitln("  mov b, [d] ; Lower Word in B"); 
+    }
+    else
+      emitln("  mov b, [d]"); 
   }
   else if(expr_out.primitive_type == DT_CHAR){
     emitln("  mov bl, [d]"); 
     emitln("  mov bh, 0");
   }
+  
   back();
   return expr_out;
 }

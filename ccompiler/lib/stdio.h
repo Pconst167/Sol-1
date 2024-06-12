@@ -58,6 +58,7 @@ void printf(char *format, ...){
           }
           else err("Unexpected format in printf.");
           break;
+
         case 'd':
         case 'i':
           print_signed(*(int*)p);
@@ -449,14 +450,6 @@ void printsn(char *prompt, int n){
   print(prompt);
   print_signed(n);
   print("\n");
-}
-
-void mkbin(){
-  asm{
-    meta mov d, arg
-    mov al, 6
-    syscall sys_filesystem
-  }
 }
 
 void include_stdio_asm(){
