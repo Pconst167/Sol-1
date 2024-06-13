@@ -2,8 +2,15 @@
 
 int main() {
 	long int i;
-	i = 0xAABBCCDDL;
+	char c;
+	int j;
 
-	printx32((int)i);
+	i = 0xAABBCCDDL;
+	c = 0xAE;
+	j = 0x1234;
+
+	printx32(0x1234);
+
+	printf("Value: %lx", (char)i);
 
 }

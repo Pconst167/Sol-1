@@ -2639,13 +2639,24 @@ t_type parse_atomic(void){
         }
         else if(modifier == MOD_LONG){
           expr_out = parse_atomic();
+          if(signedness == SNESS_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR || expr_out.primitive_type == DT_INT){
+            emitln("  snex b"); // sign extend b
+            emitln("  mov c, b"); // sign extend c
+          }
+          else if(signedness == SNESS_UNSIGNED && ind_level == 0 && (expr_out.primitive_type == DT_CHAR || expr_out.primitive_type == DT_INT)){
+            emitln("  mov bh, 0"); // zero extend b
+            emitln("  mov c, 0"); // zero extend c
+          }
           back();
         }
       }
       else if(primitive_type == DT_CHAR){
         expr_out = parse_atomic();
-        if(ind_level == 0) 
+        if(ind_level == 0){
           emitln("  mov bh, 0"); // zero out bh to make it a char
+          if(expr_out.modifier == MOD_LONG)
+            emitln("  mov c, 0"); // and if the type is longm then zero out c as well
+        }
         back();
       }
       expr_out.primitive_type = primitive_type;
@@ -3454,7 +3465,6 @@ t_type emit_var_addr_into_d(char *var_name){
     back();
   }
   else back();
-  type.modifier = MOD_NORMAL;
   return type;
 }
 

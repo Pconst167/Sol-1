@@ -48,15 +48,14 @@ void printf(char *format, ...){
         case 'l':
         case 'L':
           fp++;
-          if(*fp == 'd' || *fp == 'i'){
+          if(*fp == 'd' || *fp == 'i')
             print_signed_long(*(long *)p);
-            p = p + 4;
-          }
-          else if(*fp == 'u'){
+          else if(*fp == 'u')
             print_unsigned_long(*(unsigned long *)p);
-            p = p + 4;
-          }
+          else if(*fp == 'x')
+            printx32(*(long int *)p);
           else err("Unexpected format in printf.");
+          p = p + 4;
           break;
 
         case 'd':
