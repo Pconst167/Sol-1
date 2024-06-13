@@ -2504,7 +2504,7 @@ t_type parse_atomic(void){
   char temp_name[ID_LEN], temp[1024];
   t_type expr_in, expr_out;
   int ind_level = 0;
-  t_signedness signedess;
+  t_signedness signedness;
   t_primitive_type primitive_type;
   t_modifier modifier;
 
@@ -2592,7 +2592,7 @@ t_type parse_atomic(void){
       if(tok != CLOSING_PAREN) error("Closing paren expected");
     }
     else{
-      signedess = SNESS_SIGNED;
+      signedness = SNESS_SIGNED;
       modifier  = MOD_NORMAL;
 
       while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
@@ -2622,38 +2622,36 @@ t_type parse_atomic(void){
         get();
       }
 
+      get();
+
+      dbg(token);
       if(primitive_type == DT_VOID){
         if(ind_level == 0) error("Invalid data type of pure 'void'.");
         expr_out = parse_atomic();
         expr_out.primitive_type = DT_VOID;
         expr_out.ind_level = ind_level;
-        back();
       }
       else if(primitive_type == DT_INT){
         if(modifier == MOD_NORMAL){
+          expr_out = parse_atomic();
           if(signedness == SNESS_SIGNED && ind_level == 0) emitln("  snex b"); // sign extend b
-          else if(_unsigned == 1 && expr_out.ind_level == 0) emitln("  mov bh, 0"); // zero extend b
-          expr_out = parse_atomic();
+          else if(signedness == SNESS_UNSIGNED && ind_level == 0) emitln("  mov bh, 0"); // zero extend b
           expr_out.primitive_type = DT_INT;
-          expr_out.ind_level = expr_out.ind_level;
-          back();
-
+          expr_out.ind_level = ind_level;
         }
-        else if(expr_out.modifier == MOD_LONG){
+        else if(modifier == MOD_LONG){
           expr_out = parse_atomic();
-          expr_out.modifier = MOD_LONG;
           expr_out.primitive_type = DT_INT;
-          expr_out.ind_level = expr_out.ind_level;
+          expr_out.ind_level = ind_level;
         }
       }
       else if(primitive_type == DT_CHAR){
         expr_out = parse_atomic();
-        if(expr_out.ind_level == 0) emitln("  mov bh, 0"); // zero out bh to make it a char
+        if(ind_level == 0) emitln("  mov bh, 0"); // zero out bh to make it a char
         expr_out.primitive_type = DT_CHAR;
-        expr_out.ind_level = expr_out.ind_level;
-        back();
+        expr_out.ind_level = ind_level;
       }
-      expr_out.signedness = signedess;
+      expr_out.signedness = signedness;
       expr_out.modifier = modifier;
       expect(CLOSING_PAREN, "Closing paren expected");
     }
