@@ -1,8 +1,9 @@
+#include <stdio.h>
 
 int main() {
 	long int i;
 	i = 0xAABBCCDDL;
 
-	(long int)i;
+	printx32((int)i);
 
 }

@@ -2623,35 +2623,33 @@ t_type parse_atomic(void){
       }
 
       if(primitive_type == DT_VOID){
-        if(ind_level == 0) error("Invalid data type of pure 'void'.");
+        if(ind_level == 0) 
+          error("Invalid data type of pure 'void'.");
         expr_out = parse_atomic();
-        expr_out.primitive_type = DT_VOID;
-        expr_out.ind_level = ind_level;
         back();
       }
       else if(primitive_type == DT_INT){
         if(modifier == MOD_NORMAL){
           expr_out = parse_atomic();
-          if(signedness == SNESS_SIGNED && ind_level == 0) emitln("  snex b"); // sign extend b
-          else if(signedness == SNESS_UNSIGNED && ind_level == 0) emitln("  mov bh, 0"); // zero extend b
-          expr_out.primitive_type = DT_INT;
-          expr_out.ind_level = ind_level;
+          if(signedness == SNESS_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
+            emitln("  snex b"); // sign extend b
+          else if(signedness == SNESS_UNSIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
+            emitln("  mov bh, 0"); // zero extend b
           back();
         }
         else if(modifier == MOD_LONG){
           expr_out = parse_atomic();
-          expr_out.primitive_type = DT_INT;
-          expr_out.ind_level = ind_level;
           back();
         }
       }
       else if(primitive_type == DT_CHAR){
         expr_out = parse_atomic();
-        if(ind_level == 0) emitln("  mov bh, 0"); // zero out bh to make it a char
-        expr_out.primitive_type = DT_CHAR;
-        expr_out.ind_level = ind_level;
+        if(ind_level == 0) 
+          emitln("  mov bh, 0"); // zero out bh to make it a char
         back();
       }
+      expr_out.primitive_type = primitive_type;
+      expr_out.ind_level = ind_level;
       expr_out.signedness = signedness;
       expr_out.modifier = modifier;
     }
