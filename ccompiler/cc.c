@@ -4201,6 +4201,7 @@ void get(void){
   } while(is_space(*prog) || (*prog == '/' && *(prog+1) == '/') || (*prog == '/' && *(prog+1) == '*'));
   if(*prog == '\0'){
     toktype = END;
+    tok = END_OF_PROG;
     return;
   }
   if(*prog == '\''){

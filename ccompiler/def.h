@@ -21,6 +21,7 @@
 
 typedef enum {
   TOK_UNDEF = 0, 
+  END_OF_PROG,
 
   AMPERSAND,
   ASM,
@@ -46,6 +47,8 @@ typedef enum {
   DECREMENT,
   DEFAULT,
   DEFINE,
+  DEF_IFDEF,
+  DEF_ENDIF,
   DIRECTIVE, 
   DO,
   DOLLAR,
@@ -143,6 +146,8 @@ struct{
   "decrement",               DECREMENT,
   "default",                 DEFAULT,
   "define",                  DEFINE,
+  "ifdef",                   DEF_IFDEF,
+  "endif",                   DEF_ENDIF,
   "directive",               DIRECTIVE, 
   "do",                      DO,
   "dollar",                  DOLLAR, 
@@ -312,6 +317,8 @@ struct _keyword_table{
   "include",  INCLUDE,
   "pragma",   PRAGMA,
   "define",   DEFINE,
+  "ifdef",    DEF_IFDEF,
+  "endif",    DEF_ENDIF,
   "asm",      ASM,
   "inline",   INLINE,
 
