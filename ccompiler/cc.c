@@ -2622,14 +2622,13 @@ t_type parse_atomic(void){
         get();
       }
 
-      get();
 
-      dbg(token);
       if(primitive_type == DT_VOID){
         if(ind_level == 0) error("Invalid data type of pure 'void'.");
         expr_out = parse_atomic();
         expr_out.primitive_type = DT_VOID;
         expr_out.ind_level = ind_level;
+        back();
       }
       else if(primitive_type == DT_INT){
         if(modifier == MOD_NORMAL){
@@ -2638,11 +2637,13 @@ t_type parse_atomic(void){
           else if(signedness == SNESS_UNSIGNED && ind_level == 0) emitln("  mov bh, 0"); // zero extend b
           expr_out.primitive_type = DT_INT;
           expr_out.ind_level = ind_level;
+          back();
         }
         else if(modifier == MOD_LONG){
           expr_out = parse_atomic();
           expr_out.primitive_type = DT_INT;
           expr_out.ind_level = ind_level;
+          back();
         }
       }
       else if(primitive_type == DT_CHAR){
@@ -2650,10 +2651,10 @@ t_type parse_atomic(void){
         if(ind_level == 0) emitln("  mov bh, 0"); // zero out bh to make it a char
         expr_out.primitive_type = DT_CHAR;
         expr_out.ind_level = ind_level;
+        back();
       }
       expr_out.signedness = signedness;
       expr_out.modifier = modifier;
-      expect(CLOSING_PAREN, "Closing paren expected");
     }
   }
 

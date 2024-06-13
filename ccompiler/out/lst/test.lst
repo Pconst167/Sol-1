@@ -36,14 +36,17 @@
 0016   0412 38 BB AA      mov c, $aabb
 0017   0415 E7            pop d
 0018   0416 FD 43         mov [d], b
-0019   0418 05 0B         syscall sys_terminate_proc
-0020   041A             ; --- END TEXT BLOCK
-0021   041A             
-0022   041A             ; --- BEGIN DATA BLOCK
-0023   041A             
-0024   041A 1C 04       _heap_top: .dw _heap
-0025   041C 00          _heap: .db 0
-0026   041D             ; --- END DATA BLOCK
-0027   041D             
-0028   041D             .end
+0019   0418             ;; (long int)i; 
+0020   0418 FA FD FF      lea d, [bp + -3] ; $i
+0021   041B 2A            mov b, [d]
+0022   041C 05 0B         syscall sys_terminate_proc
+0023   041E             ; --- END TEXT BLOCK
+0024   041E             
+0025   041E             ; --- BEGIN DATA BLOCK
+0026   041E             
+0027   041E 20 04       _heap_top: .dw _heap
+0028   0420 00          _heap: .db 0
+0029   0421             ; --- END DATA BLOCK
+0030   0421             
+0031   0421             .end
 tasm: Number of errors = 0

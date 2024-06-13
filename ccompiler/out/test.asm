@@ -16,6 +16,9 @@ main:
   mov c, $aabb
   pop d
   mov [d], b
+;; (long int)i; 
+  lea d, [bp + -3] ; $i
+  mov b, [d]
   syscall sys_terminate_proc
 ; --- END TEXT BLOCK
 
