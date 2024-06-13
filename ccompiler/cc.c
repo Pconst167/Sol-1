@@ -461,12 +461,18 @@ void pre_scan(void){
       continue;
     }
 
-    if(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == CONST || tok == VOID || tok == CHAR || tok == INT || tok == FLOAT || tok == DOUBLE || tok == STRUCT){
+    if(tok == SIGNED || tok == UNSIGNED || 
+       tok == LONG   || tok == CONST    || 
+       tok == VOID   || tok == CHAR     ||
+       tok == INT    || tok == FLOAT    || 
+       tok == DOUBLE || tok == STRUCT   ||
+       tok == SHORT
+    ){
       if(tok == CONST){
         get();
       }
       if(tok == SIGNED || tok == UNSIGNED) get();
-      if(tok == LONG) get();
+      if(tok == LONG || tok == SHORT) get();
       if(tok == STRUCT){
         get(); // get struct's type name
         if(toktype != IDENTIFIER) error("Struct's type name expected.");
@@ -1119,7 +1125,7 @@ void declare_all_locals(int function_id){
     if(tok == OPENING_BRACE) total_braces++;
     if(tok == CLOSING_BRACE) total_braces--;
     if(total_braces == 0) break;
-    if(tok == CONST || tok == UNSIGNED || tok == SIGNED || tok == LONG || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
+    if(tok == CONST || tok == UNSIGNED || tok == SIGNED || tok == LONG || tok == SHORT || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
       if(tok == CONST) get();
       get();
       while(tok == STAR) get();
@@ -1792,6 +1798,7 @@ void parse_block(void){
       case SIGNED:
       case UNSIGNED:
       case LONG:
+      case SHORT:
       case VOID:
       case INT:
       case CHAR:
@@ -2497,7 +2504,9 @@ t_type parse_atomic(void){
   char temp_name[ID_LEN], temp[1024];
   t_type expr_in, expr_out;
   int ind_level = 0;
-  char _signed = 1, _unsigned = 0;
+  t_signedness signedess;
+  t_primitive_type primitive_type;
+  t_modifier modifier;
 
   get();
   if(toktype == STRING_CONST)
@@ -2512,10 +2521,8 @@ t_type parse_atomic(void){
   else if(tok == SIZEOF)
     expr_out = parse_sizeof();
 
-  else if(tok == STAR){
-    
+  else if(tok == STAR)
     expr_out = parse_dereferencing();
-    }
 
   else if(tok == AMPERSAND)
     expr_out = parse_referencing();
@@ -2579,74 +2586,76 @@ t_type parse_atomic(void){
 
   else if(tok == OPENING_PAREN){
     get();
-    if(tok != SIGNED && tok != UNSIGNED && tok != LONG && tok != INT && tok != CHAR && tok != VOID){
+    if(tok != SIGNED && tok != UNSIGNED && tok != LONG && tok != SHORT && tok != INT && tok != CHAR && tok != VOID){
       back();
       expr_out = parse_expr();  // parses expression between parenthesis and result will be in B
       if(tok != CLOSING_PAREN) error("Closing paren expected");
     }
     else{
-      if(tok == SIGNED){
-        _signed = 1;
-        _unsigned = 0;
+      signedess = SNESS_SIGNED;
+      modifier  = MOD_NORMAL;
+
+      while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
+        if(tok == SIGNED)
+          signedness = SNESS_SIGNED;
+        else if(tok == UNSIGNED)
+          signedness = SNESS_UNSIGNED;
+        else if(tok == SHORT)
+          modifier = MOD_SHORT;
+        else if(tok == LONG)
+          modifier = MOD_LONG;
         get();
       }
-      else if(tok == UNSIGNED){
-        _unsigned = 1;
-        _signed = 0;
-        get();
-      }
+
       if(tok == VOID){
+        primitive_type = DT_VOID;
+      }
+      else if(tok == INT){
+        primitive_type = DT_INT;
+      }
+      else if(tok == CHAR){
+        primitive_type = DT_CHAR;
+      }
+      get();
+      while(tok == STAR){
+        expr_out.ind_level++;
         get();
-        while(tok == STAR){
-          ind_level++;
-          get();
-        }
-        expect(CLOSING_PAREN, "Closing paren expected");
+      }
+
+      if(primitive_type == DT_VOID){
         if(ind_level == 0) error("Invalid data type of pure 'void'.");
         expr_out = parse_atomic();
         expr_out.primitive_type = DT_VOID;
         expr_out.ind_level = ind_level;
         back();
       }
-      else if(tok == LONG){
-        get();
-        while(tok == STAR){
-          ind_level++;
-          get();
+      else if(primitive_type == DT_INT){
+        if(modifier == MOD_NORMAL){
+          if(signedness == SNESS_SIGNED && ind_level == 0) emitln("  snex b"); // sign extend b
+          else if(_unsigned == 1 && expr_out.ind_level == 0) emitln("  mov bh, 0"); // zero extend b
+          expr_out = parse_atomic();
+          expr_out.primitive_type = DT_INT;
+          expr_out.ind_level = expr_out.ind_level;
+          back();
+
         }
-        expect(CLOSING_PAREN, "Closing paren expected");
-        expr_out = parse_atomic();
-        expr_out.modifier = MOD_LONG;
-        expr_out.primitive_type = DT_INT;
-        expr_out.ind_level = ind_level;
+        else if(expr_out.modifier == MOD_LONG){
+          expr_out = parse_atomic();
+          expr_out.modifier = MOD_LONG;
+          expr_out.primitive_type = DT_INT;
+          expr_out.ind_level = expr_out.ind_level;
+        }
       }
-      else if(tok == INT){
-        get();
-        while(tok == STAR){
-          ind_level++;
-          get();
-        }
-        expect(CLOSING_PAREN, "Closing paren expected");
-        if(_signed == 1 && ind_level == 0) emitln("  snex b"); // sign extend b
-        else if(_unsigned == 1 && ind_level == 0) emitln("  mov bh, 0"); // zero extend b
+      else if(primitive_type == DT_CHAR){
         expr_out = parse_atomic();
-        expr_out.primitive_type = DT_INT;
-        expr_out.ind_level = ind_level;
-        back();
-      }
-      else if(tok == CHAR){
-        get();
-        while(tok == STAR){
-          ind_level++;
-          get();
-        }
-        expect(CLOSING_PAREN, "Closing paren expected");
-        expr_out = parse_atomic();
-        if(ind_level == 0) emitln("  mov bh, 0"); // zero out bh to make it a char
+        if(expr_out.ind_level == 0) emitln("  mov bh, 0"); // zero out bh to make it a char
         expr_out.primitive_type = DT_CHAR;
-        expr_out.ind_level = ind_level;
+        expr_out.ind_level = expr_out.ind_level;
         back();
       }
+      expr_out.signedness = signedess;
+      expr_out.modifier = modifier;
+      expect(CLOSING_PAREN, "Closing paren expected");
     }
   }
 

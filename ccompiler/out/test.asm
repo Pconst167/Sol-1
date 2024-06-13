@@ -7,9 +7,18 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; printx32(0xAABBCCDDL); 
+; $i 
+  sub sp, 4
+;; i = 0xAABBCCDDL; 
+  lea d, [bp + -3] ; $i
+  push d
   mov b, $ccdd
   mov c, $aabb
+  pop d
+  mov [d], b
+;; printx32(i); 
+  lea d, [bp + -3] ; $i
+  mov b, [d]
   mov g, b
   mov b, c
   swp b
