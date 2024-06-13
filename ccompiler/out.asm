@@ -10,7 +10,8 @@ main:
 ; $i 
 ; $c 
 ; $j 
-  sub sp, 7
+; $ms 
+  sub sp, 15
 ;; i = 0xAABBCCDDL; 
   lea d, [bp + -3] ; $i
   push d
@@ -32,26 +33,113 @@ main:
   mov b, $1234
   pop d
   mov [d], b
-;; printx32(0x1234); 
-  mov b, $1234
-  mov g, b
-  mov b, c
-  swp b
-  push b
-  mov b, g
-  push b
-  call printx32
-  add sp, 4
-;; printf("Value: %lx", (char)i); 
-  lea d, [bp + -3] ; $i
-  mov b, [d + 2] ; Upper Word of the Long Int
-  mov c, b ; And place it into C
-  mov b, [d] ; Lower Word in B
+;; ms.c = 'A'; 
+  lea d, [bp + -14] ; $ms
+  add d, 0
+  clb
+  push d
+  mov b, $41
+  pop d
+  mov [d], bl
+;; ms.a = 65535; 
+  lea d, [bp + -14] ; $ms
+  add d, 1
+  clb
+  push d
+  mov b, $ffff
+  pop d
+  mov [d], b
+;; ms.sp = &ms; 
+  lea d, [bp + -14] ; $ms
+  add d, 3
+  clb
+  push d
+  lea d, [bp + -14] ; $ms
+  mov b, d
+  pop d
+  mov [d], b
+;; ms.s2.cc = 'Z'; 
+  lea d, [bp + -14] ; $ms
+  add d, 5
+  clb
+  add d, 0
+  clb
+  push d
+  mov b, $5a
+  pop d
+  mov [d], bl
+;; ms.s2.aa = 32765; 
+  lea d, [bp + -14] ; $ms
+  add d, 5
+  clb
+  add d, 1
+  clb
+  push d
+  mov b, $7ffd
+  pop d
+  mov [d], b
+;; printf("Value: %c\n", ms.c); 
+  lea d, [bp + -14] ; $ms
+  add d, 0
+  clb
+  mov bl, [d]
   mov bh, 0
-  mov c, 0
   swp b
   push b
-  mov b, __s0 ; "Value: %lx"
+  mov b, __s0 ; "Value: %c\n"
+  swp b
+  push b
+  call printf
+  add sp, 4
+;; printf("Value: %d\n", ms.a); 
+  lea d, [bp + -14] ; $ms
+  add d, 1
+  clb
+  mov b, [d]
+  swp b
+  push b
+  mov b, __s1 ; "Value: %d\n"
+  swp b
+  push b
+  call printf
+  add sp, 4
+;; printf("Value: %x\n", ms.sp); 
+  lea d, [bp + -14] ; $ms
+  add d, 3
+  clb
+  mov b, [d]
+  swp b
+  push b
+  mov b, __s2 ; "Value: %x\n"
+  swp b
+  push b
+  call printf
+  add sp, 4
+;; printf("Value: %c\n", ms.s2.cc); 
+  lea d, [bp + -14] ; $ms
+  add d, 5
+  clb
+  add d, 0
+  clb
+  mov bl, [d]
+  mov bh, 0
+  swp b
+  push b
+  mov b, __s0 ; "Value: %c\n"
+  swp b
+  push b
+  call printf
+  add sp, 4
+;; printf("Value: %d\n", ms.s2.aa); 
+  lea d, [bp + -14] ; $ms
+  add d, 5
+  clb
+  add d, 1
+  clb
+  mov b, [d]
+  swp b
+  push b
+  mov b, __s1 ; "Value: %d\n"
   swp b
   push b
   call printf
@@ -519,6 +607,7 @@ _if9_true:
   swp b
   push b
   mov b, g
+  swp b
   push b
   call print_signed_long
   add sp, 4
@@ -549,6 +638,7 @@ _if10_true:
   swp b
   push b
   mov b, g
+  swp b
   push b
   call print_unsigned_long
   add sp, 4
@@ -575,8 +665,6 @@ _if11_true:
 ;; printx32(*(long int *)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
-  snex b
-  mov c, b
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -586,13 +674,14 @@ _if11_true:
   swp b
   push b
   mov b, g
+  swp b
   push b
   call printx32
   add sp, 4
   jmp _if11_exit
 _if11_else:
 ;; err("Unexpected format in printf."); 
-  mov b, __s1 ; "Unexpected format in printf."
+  mov b, __s3 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -622,7 +711,6 @@ _switch8_case3:
 ;; print_signed(*(int*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
-  snex b
   mov d, b
   mov b, [d]
   swp b
@@ -650,7 +738,6 @@ _switch8_case4:
 ;; print_unsigned(*(unsigned int*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
-  mov bh, 0
   mov d, b
   mov b, [d]
   swp b
@@ -678,7 +765,6 @@ _switch8_case5:
 ;; printx16(*(unsigned int*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
-  mov bh, 0
   mov d, b
   mov b, [d]
   swp b
@@ -706,7 +792,6 @@ _switch8_case6:
 ;; putchar(*(char*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
-  mov bh, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -731,13 +816,9 @@ _switch8_case6:
 ;; break; 
   jmp _switch8_exit ; case break
 _switch8_case7:
-;; print(*(char**)p); 
+;; print((char*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
-  mov bh, 0
-  mov d, b
-  mov bl, [d]
-  mov bh, 0
   swp b
   push b
   call print
@@ -761,7 +842,7 @@ _switch8_case7:
   jmp _switch8_exit ; case break
 _switch8_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s2 ; "Error: Unknown argument type.\n"
+  mov b, __s4 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -2330,7 +2411,7 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s3 ; "\033[2J\033[H"
+  mov b, __s5 ; "\033[2J\033[H"
   swp b
   push b
   call print
@@ -2355,7 +2436,7 @@ printun:
   call print_unsigned
   add sp, 2
 ;; print("\n"); 
-  mov b, __s4 ; "\n"
+  mov b, __s6 ; "\n"
   swp b
   push b
   call print
@@ -2380,7 +2461,7 @@ printsn:
   call print_signed
   add sp, 2
 ;; print("\n"); 
-  mov b, __s4 ; "\n"
+  mov b, __s6 ; "\n"
   swp b
   push b
   call print
@@ -2400,11 +2481,13 @@ include_stdio_asm:
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
-__s0: .db "Value: %lx", 0
-__s1: .db "Unexpected format in printf.", 0
-__s2: .db "Error: Unknown argument type.\n", 0
-__s3: .db "\033[2J\033[H", 0
-__s4: .db "\n", 0
+__s0: .db "Value: %c\n", 0
+__s1: .db "Value: %d\n", 0
+__s2: .db "Value: %x\n", 0
+__s3: .db "Unexpected format in printf.", 0
+__s4: .db "Error: Unknown argument type.\n", 0
+__s5: .db "\033[2J\033[H", 0
+__s6: .db "\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

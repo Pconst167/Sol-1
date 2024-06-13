@@ -520,7 +520,7 @@ int declare_struct(){
   if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error("Max number of struct declarations reached");
   
   get(); // 'struct'
-  get(); // try getting struct name
+  if(tok != OPENING_BRACE) get(); // try getting struct name, but only if the current token is not a brace, which means we are inside a struct declaration already and one of the members was an implicit struct that had no name, but is an elememnt of a previous struct
   if(toktype == IDENTIFIER){
     strcpy(new_struct.name, token);
     get(); // '{'
@@ -1404,12 +1404,12 @@ void parse_asm(void){
          || strstr(string_const, ".EQU")){
       emitln(string_const);
     } 
-    else if(strstr(string_const, "meta mov")){
+    else if(strstr(string_const, "addr mov")){
       prog = temp_prog;
-      get(); // get 'meta' operator
+      get(); // get 'addr' operator
       get(); // get 'mov'
       get(); // get 'd' register
-      if(strcmp(token, "d") && strcmp(token, "D")) error("'d' register expected in 'meta mov' operation.");
+      if(strcmp(token, "d") && strcmp(token, "D")) error("'d' register expected in 'addr mov' operation.");
       get(); if(tok != COMMA) error("Comma expected.");
       get(); if(toktype != IDENTIFIER) error("Identifier expected.");
       emit_var_addr_into_d(token);
@@ -2616,9 +2616,10 @@ t_type parse_atomic(void){
       else if(tok == CHAR){
         primitive_type = DT_CHAR;
       }
+      ind_level = 0;
       get();
       while(tok == STAR){
-        expr_out.ind_level++;
+        ind_level++;
         get();
       }
 
@@ -3048,6 +3049,7 @@ void parse_function_call(int func_id){
       emitln("  swp b");
       emitln("  push b");
       emitln("  mov b, g");
+      emitln("  swp b");
       emitln("  push b");
     }
     else if(arg_type.primitive_type == DT_CHAR){
@@ -4197,12 +4199,10 @@ void get(void){
       }
     }
   } while(is_space(*prog) || (*prog == '/' && *(prog+1) == '/') || (*prog == '/' && *(prog+1) == '*'));
-
   if(*prog == '\0'){
     toktype = END;
     return;
   }
-  
   if(*prog == '\''){
     *t++ = '\'';
     prog++;
@@ -4211,12 +4211,10 @@ void get(void){
       prog++;
       *t++ = *prog++;
     }
-    else{
+    else
       *t++ = *prog++;
-    }
-    if(*prog != '\''){
+    if(*prog != '\'')
       error("Single quotes expected");
-    }
     *t++ = '\'';
     prog++;
     toktype = CHAR_CONST;
@@ -4231,9 +4229,8 @@ void get(void){
         *t++ = '\"';
         prog += 2;
       }
-      else{
+      else
         *t++ = *prog++;
-      }
     }
     if(*prog != '\"') error("Double quotes expected");
     *t++ = *prog++;
@@ -4242,6 +4239,8 @@ void get(void){
     convert_constant(); // converts this string token qith quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
   }
   else if(is_digit(*prog)){
+    toktype = INTEGER_CONST;
+    const_modifier = MOD_NORMAL;
     if(*prog == '0' && *(prog+1) == 'x'){
       *t++ = *prog++;
       *t++ = *prog++;
@@ -4259,9 +4258,11 @@ void get(void){
     if(*prog == 'L' || *prog == 'l'){
       const_modifier = MOD_LONG;
       *t++ = *prog++;
-      *t = '\0';
     }
-    else const_modifier = MOD_NORMAL;
+    else if(int_const > 65535 || int_const < -32768)
+      const_modifier = MOD_LONG;
+    *t = '\0';
+
     if(const_modifier == MOD_LONG){
       //if(int_const > 4294967295) error("The constant value of %d exceeds the maximum value for a long integer.", int_const);
     }
@@ -4271,7 +4272,6 @@ void get(void){
     else if(const_modifier == MOD_NORMAL){
       //if(int_const > 65535) error("The constant value of %d exceeds the maximum value for a normal integer.", int_const);
     }
-    toktype = INTEGER_CONST;
     return; // return to avoid *t = '\0' line at the end of function
   }
   else if(is_identifier_char(*prog)){

@@ -80,7 +80,7 @@ void printf(char *format, ...){
           break;
 
         case 's':
-          print(*(char**)p);
+          print((char*)p);
           p = p + 2;
           break;
 
@@ -103,7 +103,7 @@ void err(char *e){
 
 void printx32(long int hex) {
   asm{
-    meta mov d, hex
+    addr mov d, hex
     mov b, [d+2]
     call print_u16x
     mov b, [d]
@@ -113,7 +113,7 @@ void printx32(long int hex) {
 
 void printx16(int hex) {
   asm{
-    meta mov d, hex
+    addr mov d, hex
     mov b, [d]
     call print_u16x
   }
@@ -121,7 +121,7 @@ void printx16(int hex) {
 
 void printx8(char hex) {
   asm{
-    meta mov d, hex
+    addr mov d, hex
     mov bl, [d]
     call print_u8x
   }
@@ -170,7 +170,7 @@ int atoi(char *str) {
 
 int gets(char *s){
   asm{
-    meta mov d, s
+    addr mov d, s
     mov a, [d]
     mov d, a
     call _gets
@@ -274,7 +274,7 @@ char rand(){
       mov al, 0
       syscall sys_rtc					; get seconds
       mov al, ah
-      meta mov d, sec
+      addr mov d, sec
       mov al, [d]
   }
   return sec;
@@ -289,7 +289,7 @@ void date(){
 
 void putchar(char c){
   asm{
-    meta mov d, c
+    addr mov d, c
     mov al, [d]
     mov ah, al
     call _putchar
@@ -301,7 +301,7 @@ char getchar(){
   asm{
     call getch
     mov al, ah
-    meta mov d, c
+    addr mov d, c
     mov [d], al
   }
   return c;
@@ -311,7 +311,7 @@ int scann(){
   int m;
   asm{
     call scan_u16d
-    meta mov d, m
+    addr mov d, m
     mov [d], a
   }
   
@@ -320,7 +320,7 @@ int scann(){
 
 void puts(char *s){
   asm{
-    meta mov d, s
+    addr mov d, s
     mov a, [d]
     mov d, a
     call _puts
@@ -331,7 +331,7 @@ void puts(char *s){
 
 void print(char *s){
   asm{
-    meta mov d, s
+    addr mov d, s
     mov d, [d]
     call _puts
   }
@@ -339,10 +339,10 @@ void print(char *s){
 
 int loadfile(char *filename, char *destination){
   asm{
-    meta mov d, destination
+    addr mov d, destination
     mov a, [d]
     mov di, a
-    meta mov d, filename
+    addr mov d, filename
     mov d, [d]
     mov al, 20
     syscall sys_filesystem
@@ -355,7 +355,7 @@ int create_file(char *filename, char *content){
 
 int delete_file(char *filename){
   asm{
-    meta mov d, filename
+    addr mov d, filename
     mov al, 10
     syscall sys_filesystem
   }
@@ -437,10 +437,10 @@ unsigned char getparam(char *address){
 
   asm{
     mov al, 4
-    meta mov d, address
+    addr mov d, address
     mov d, [d]
     syscall sys_system
-    meta mov d, data
+    addr mov d, data
     mov [d], bl
   }
   return data;
