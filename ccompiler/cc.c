@@ -2622,7 +2622,6 @@ t_type parse_atomic(void){
         get();
       }
 
-
       if(primitive_type == DT_VOID){
         if(ind_level == 0) error("Invalid data type of pure 'void'.");
         expr_out = parse_atomic();
