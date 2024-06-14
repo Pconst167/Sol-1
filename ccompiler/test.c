@@ -13,14 +13,11 @@ struct list *p;
 
 
 int main() {
-	int i=0;
+	static long int aa;
 
-	label:
-		i++;
-		if(i >= 100) goto label;
-		else goto label;
-	
-	exit:
+	aa=1;
+
+
 
 
 	return;
