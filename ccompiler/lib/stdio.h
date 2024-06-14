@@ -70,7 +70,7 @@ void printf(char *format, ...){
           break;
 
         case 'x':
-          printx16(*(unsigned int*)p);
+          printx16(*(int*)p);
           p = p + 2;
           break;
 
@@ -80,7 +80,7 @@ void printf(char *format, ...){
           break;
 
         case 's':
-          print((char*)p);
+          print(*(char**)p);
           p = p + 2;
           break;
 

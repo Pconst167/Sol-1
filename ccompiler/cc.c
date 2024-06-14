@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
   switch_display_typedef_table  = 0;
 
   if(argc > 1){
-    if(find_switch(argc, argv, "--display-tables")){
+    if(find_cmdline_switch(argc, argv, "--display-tables")){
       switch_display_function_table = 1;
       switch_display_typedef_table = 1;
     }
@@ -102,25 +102,25 @@ int main(int argc, char *argv[]){
   generate_file(filename_out); // generate named assembly file
   generate_file("out.asm"); // generate a.s assembly file
 
-  if(switch_display_function_table) display_function_table();
-  if(switch_display_typedef_table) display_typedef_table();
+  if(switch_display_function_table) print_function_table();
+  if(switch_display_typedef_table) print_typedef_table();
 
   return 0;
 }
 
-char find_switch(int argc, char **argv, char *_switch){
+char find_cmdline_switch(int argc, char **argv, char *_switch){
   for(int i = 0; i < argc; i++){
     if(!strcmp(argv[i], _switch)) return 1;
   }
   return 0;
 }
 
-void display_function_table(void){
+void print_function_table(void){
   for(int i = 0; i < function_table_tos; i++)
     dbg_print_function_info(&function_table[i]);
 }
 
-void display_typedef_table(){
+void print_typedef_table(){
   int i, j;
 
   printf("TYPEDEF TABLE:\n");
@@ -519,22 +519,21 @@ int declare_struct(){
 
   if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error("Max number of struct declarations reached");
   
+  curr_struct_id = struct_table_tos;
   get(); // 'struct'
   if(tok != OPENING_BRACE) get(); // try getting struct name, but only if the current token is not a brace, which means we are inside a struct declaration already and one of the members was an implicit struct that had no name, but is an elememnt of a previous struct
   if(toktype == IDENTIFIER){
     strcpy(new_struct.name, token);
+    strcpy(struct_table[struct_table_tos].name, token);
     get(); // '{'
     if(tok != OPENING_BRACE) error("Opening braces expected");
     // Add the new struct to the struct table prematurely so that any elements in this struct that are pointers of this struct type can be recognized by a search
-    strcpy(struct_table[struct_table_tos].name, token);
-    curr_struct_id = struct_table_tos;
     struct_table_tos++;
   }
   else if(tok == OPENING_BRACE){ // implicit struct declaration inside a struct itself
     struct_is_embedded = 1;
   // assign a null string to the struct name then
     *new_struct.name = '\0'; // okay to do since we dont use struct names as the end point of search loops. we use 'struct_table_tos'
-    curr_struct_id = struct_table_tos;
     struct_table_tos++;
   }
 
@@ -1772,8 +1771,10 @@ void parse_case(void){
 }
 
 void emit_c_line(){
-  char *temp = prog;
+  char *temp;
   char *s = string_const;
+
+  temp = prog;
   back();
   while(*prog != 0x0A && *prog){
     *s++ = *prog++;
@@ -1813,6 +1814,7 @@ void parse_block(void){
         parse_asm();
         break;
       case GOTO:
+        emit_c_line();
         parse_goto();
         break;
       case IF:
@@ -1857,6 +1859,7 @@ void parse_block(void){
       default:
         if(toktype == END) error("Closing brace expected");
         emit_c_line();
+        prog = temp_prog;
         get();
         if(toktype == IDENTIFIER){
           get();
@@ -2920,21 +2923,24 @@ t_type parse_dereferencing(void){
   if(expr_out.primitive_type == DT_VOID && expr_out.ind_level <= 1) 
     error("Dereferencing void pointer with indirection level of 1 or less.");
 
-  emitln("  mov d, b");// now we have the pointer value. we then get the data at the address.
-  
   if(expr_out.ind_level > 1){
+    emitln("  mov d, b");// now we have the pointer value.
     emitln("  mov b, [d]"); 
   }
   else if(expr_out.primitive_type == DT_INT){
     if(expr_out.modifier == MOD_LONG){
+      emitln("  mov d, b");// now we have the pointer value.
       emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
       emitln("  mov c, b ; And place it into C"); 
       emitln("  mov b, [d] ; Lower Word in B"); 
     }
-    else
+    else{
+      emitln("  mov d, b");// now we have the pointer value.
       emitln("  mov b, [d]"); 
+    }
   }
   else if(expr_out.primitive_type == DT_CHAR){
+    emitln("  mov d, b");// now we have the pointer value.
     emitln("  mov bl, [d]"); 
     emitln("  mov bh, 0");
   }
@@ -3066,7 +3072,7 @@ void parse_function_call(int func_id){
 
   // Check if the number of arguments matches the number of function parameters
   // but only if the function does not have variable arguments
-  if(function_table[func_id].num_fixed_args != total_function_arguments && !has_var_args(func_id))  
+  if(function_table[func_id].num_fixed_args != total_function_arguments && !function_has_variable_arguments(func_id))  
     error("Incorrect number of arguments for function: %s. Expecting %d, detected: %d", function_table[func_id].name, function_table[func_id].num_fixed_args, total_function_arguments);
 
   emitln("  call %s", function_table[func_id].name);
@@ -3381,7 +3387,7 @@ char *get_var_base_addr(char *dest, char *var_name){
 }
 
 t_type emit_var_addr_into_d(char *var_name){
-  int var_id, dims;
+  int dims, offset, struct_id, var_id;
   char temp[64], element_name[ID_LEN], temp_name[ID_LEN];
   t_type type;
   t_var var;
@@ -3443,16 +3449,13 @@ t_type emit_var_addr_into_d(char *var_name){
         else error("Invalid indexing");
       }
       else if(tok == STRUCT_DOT){
-        int offset; int var_id; int struct_id;
         get(); // get element name
         strcpy(element_name, token);
         offset = get_struct_element_offset(type.struct_id, element_name);
         type = get_struct_element_type(type.struct_id, element_name);
         emitln("  add d, %d", offset);
-        emitln("  clb"); // clear b
       }
       else if(tok == STRUCT_ARROW){
-        int offset; int var_id; int struct_id;
         get(); // get element name
         strcpy(element_name, token);
         offset = get_struct_element_offset(type.struct_id, element_name);
@@ -3460,7 +3463,6 @@ t_type emit_var_addr_into_d(char *var_name){
         get_var_base_addr(temp, var_name);
         emitln("  mov d, [d]");
         emitln("  add d, %d", offset);
-        emitln("  clb"); // clear b
       }
       get();
     } while (tok == OPENING_BRACKET || tok == STRUCT_DOT || tok == STRUCT_ARROW);
@@ -3599,7 +3601,7 @@ int get_data_size_for_indexing(t_type type){
   }
 }
 
-int has_var_args(int func_id){
+int function_has_variable_arguments(int func_id){
   return function_table[func_id].has_var_args;
 }
 

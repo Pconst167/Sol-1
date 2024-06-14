@@ -625,9 +625,10 @@ char is_digit(char c);
 void dbg_print_var_info(t_var *var);
 void dbg_print_type_info(t_type *type);
 void dbg_print_function_info(t_function *function);
-void display_typedef_table(void);
-void display_function_table(void);
-char find_switch(int argc, char **argv, char *_switch);
+
+void print_typedef_table(void);
+void print_function_table(void);
+char find_cmdline_switch(int argc, char **argv, char *_switch);
 
 
 void insert_runtime(void);
@@ -645,7 +646,7 @@ char is_space(char c);
 
 char is_constant(char *varname);
 void dbg(char *s);
-int has_var_args(int func_id);
+int function_has_variable_arguments(int func_id);
 
 
 
