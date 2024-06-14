@@ -1,4 +1,4 @@
-#include "stdio.c"
+#include <stdio.h>
 
 void bubble_sort(char arr[1], int n) {
     int i, j;

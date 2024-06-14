@@ -9,11 +9,10 @@ void main(void){
 	printf("Enter a number to find all prime numbers up to it: ");
 	N = scann();
 
-	print("Prime numbers are: \n");
+	printf("Prime numbers are: \n");
 	for (i = 2; i <= N; i++) {
 			if (isPrime(i)) {
-					printu(i);
-					print("\n");
+					printf("%d\n", i);
 			}
 	}
 
@@ -40,8 +39,7 @@ void primes1(void){
 		
 		if(divides == 0){
 			count = count + 1;	
-			printu(n);
-			print("\n");
+			printf("%d\n", n);
 		}
 		n = n + 1;
 	}

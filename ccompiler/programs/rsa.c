@@ -9,44 +9,39 @@ int main() {
     e = find_e(phi);
     d = find_d(e, phi);
 
-    print("Public Key: (");
-    printu(n);
-    print(", ");
-    printu(e);
-    print(")\n");
+    printf("Public Key: (");
+    printf("%d, ", n);
+    printf("%d\n", e);
 
     print("Private Key: (");
-    printu(n);
-    print(", ");
-    printu(d);
-    print(")\n");
+    printf("%d, ", n);
+    printf("%d\n", d);
 
     char input_str[100];
-    print("Enter a string: ");
+    printf("Enter a string: ");
     gets(input_str);
 
     int encrypted_chars[100];
     int encrypted_chars_len ;
     encrypted_chars_len = 0;
-    print("Encrypted text: ");
+    printf("Encrypted text: ");
     int i;
     for (i = 0; input_str[i] != '\0' && input_str[i] != '\n'; i++) {
         encrypted_chars[i] = mod_exp(input_str[i], e, n);
-        printu(encrypted_chars[i]);
-        print(" ");
+        printf("%d ", encrypted_chars[i]);
         encrypted_chars_len++;
     }
-    print("\n");
+    printf("\n");
 
     int decrypted_char;
     char c;
-    print("Decrypted text: ");
+    printf("Decrypted text: ");
     for (i = 0; i < encrypted_chars_len; i++) {
         decrypted_char = mod_exp(encrypted_chars[i], d, n);
         c = decrypted_char;
         putchar(c);
     }
-    print("\n");
+    printf("\n");
 
     return 0;
 }

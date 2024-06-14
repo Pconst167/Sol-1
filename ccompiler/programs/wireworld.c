@@ -1,4 +1,4 @@
-#include "stdio.h"
+#include <stdio.h>
 
 enum CellState {
     EMPTY,
@@ -23,9 +23,9 @@ void print_grid() {
                 case ELECTRON_HEAD: c = 'H'; break;
                 case ELECTRON_TAIL: c = 'T'; break;
             }
-            _putchar(c);
+            putchar(c);
         }
-        _putchar('\n');
+        putchar('\n');
     }
     return;
 }
