@@ -2333,7 +2333,26 @@ t_type parse_relational(void){
           }
           break;
         case LESS_THAN:
+        // g_a < c_b         if(c < g || (c==g && a < b)) then LESS_THAN == 1    
+          emitln("  mov si, a"); // save temporarily
+          emitln("  mov di, b");
+          emitln("  mov a, c");
+          emitln("  mov b, g");
           emitln("  cmp a, b");
+          emitln("  seq ; =="); 
+          emitln("  push b");
+          emitln("  slt ; <"); // save result in register b
+          emitln("  push b");
+
+
+          emitln("  cmp a, b");
+          emitln("  slt ; <"); // save result in register b
+          emitln("  mov di, b");
+          emitln("  mov a, g");
+          emitln("  mov b, c");
+          emitln("  slt ; <"); // save result in register b
+          emitln("  mov si, b");
+
           if(expr_out.ind_level > 0 || expr_out.signedness == SNESS_UNSIGNED)
             emitln("  slu ; < (unsigned)");
           else
