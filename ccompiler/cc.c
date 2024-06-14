@@ -2333,6 +2333,8 @@ t_type parse_relational(void){
           }
           break;
         case LESS_THAN:
+        //    ab < gc      00000000_00000000 < 00000000_00000000
+        //                    a       b           g         c
           emitln("  cmp a, b");
           if(expr_out.ind_level > 0 || expr_out.signedness == SNESS_UNSIGNED)
             emitln("  slu ; < (unsigned)");
