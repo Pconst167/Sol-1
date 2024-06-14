@@ -1,4 +1,4 @@
-//#include <stdio.h>
+#include <stdio.h>
 
 struct list{
 	char name[100];
@@ -10,15 +10,9 @@ struct list{
 struct list l[10];
 struct list *p;
 
-
-
 int main() {
-	static long int aa;
 
-	aa=1;
-
-
-
+	printf("String: %s, %c, %x", "Hello World, this Works!", 'A', 0xABCD);
 
 	return;
 

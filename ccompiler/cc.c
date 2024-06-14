@@ -711,7 +711,6 @@ int declare_local(void){
       new_var.bp_offset = current_function_var_bp_offset - get_total_type_size(new_var.type) + 1;
       //new_var.bp_offset = current_function_var_bp_offset + 1;
       current_function_var_bp_offset -= get_total_type_size(new_var.type);
-
       total_sp += get_total_type_size(new_var.type);
       emitln("; $%s ", new_var.name);
       //emitln("  sub sp, %d ; $%s", get_total_type_size(new_var.type), new_var.name);

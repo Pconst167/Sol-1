@@ -513,7 +513,6 @@ _if9_cond:
   je _if9_else
 _if9_true:
 ;; print_signed_long(*(long *)p); 
-  mov d, b
   mov g, b
   mov b, c
   swp b
@@ -544,7 +543,6 @@ _if10_cond:
   je _if10_else
 _if10_true:
 ;; print_unsigned_long(*(unsigned long *)p); 
-  mov d, b
   mov g, b
   mov b, c
   swp b

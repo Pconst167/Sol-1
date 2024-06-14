@@ -70,17 +70,33 @@ void printf(char *format, ...){
           break;
 
         case 'x':
-          printx16(*(int*)p);
+          asm{
+            addr mov d, p
+            mov d, [d]
+            mov b, [d]
+            call print_u16x
+          }
           p = p + 2;
           break;
 
         case 'c':
-          putchar(*(char*)p);
+          asm{
+            addr mov d, p
+            mov d, [d]
+            mov al, [d]
+            mov ah, al
+            call _putchar
+          }
           p = p + 2;
           break;
 
         case 's':
-          print(*(char**)p);
+          asm{
+            addr mov d, p
+            mov d, [d]
+            mov d, [d]
+            call _puts
+          }
           p = p + 2;
           break;
 
@@ -349,7 +365,6 @@ int loadfile(char *filename, char *destination){
   }
 }
 
-
 int create_file(char *filename, char *content){
 }
 
@@ -448,18 +463,6 @@ unsigned char getparam(char *address){
 
 void clear(){
   print("\033[2J\033[H");
-}
-
-void printun(char *prompt, int n){
-  print(prompt);
-  print_unsigned(n);
-  print("\n");
-}
-
-void printsn(char *prompt, int n){
-  print(prompt);
-  print_signed(n);
-  print("\n");
 }
 
 void include_stdio_asm(){
