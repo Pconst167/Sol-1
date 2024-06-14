@@ -2333,22 +2333,23 @@ t_type parse_relational(void){
           }
           break;
         case LESS_THAN:
-        //    ab < gc      00000000_00000000 < 00000000_00000000
-        //                    a       b           g         c
-        // g_a < c_b         if(c < g || (c==g && a < b)) then LESS_THAN == 1    
-          emitln("  mov si, a"); // save temporarily
+        //    ga < cb      00000000_00000000 < 00000000_00000000
+        //                    g       a           c         b
+        // g_a < c_b         if(g < c || (c==g && a < b)) then LESS_THAN == 1    
+        // cb is the current parsed long.  ga is the previously parsed long.   
+        // check if g < c. save result. check that c==g && a < b. save result. or both results together
+          emitln("  mov si, a"); 
           emitln("  mov di, b");
-          emitln("  mov a, c");
-          emitln("  mov b, g");
-          emitln("  cmp a, b");
-          emitln("  seq ; =="); 
-          emitln("  push b");
-          emitln("  slt ; <"); // save result in register b
-          emitln("  push b");
 
-
+          emitln("  mov a, g");
+          emitln("  mov b, c");
           emitln("  cmp a, b");
-          emitln("  slt ; <"); // save result in register b
+          emitln("  sltu ; <"); // test if g < c
+          emitln("  push b");   // save partial result
+
+          emitln("  seq ; =="); // test if c == c
+          emitln("  push b");   // save partial result
+
           emitln("  mov di, b");
           emitln("  mov a, g");
           emitln("  mov b, c");
