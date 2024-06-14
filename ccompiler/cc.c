@@ -12,10 +12,6 @@
 
   ** fix goto: at present we cannot jump to a label that is declared after the goto.
 
-  ** finish variable arguments code. function arguments need to be pushed into the stack from right to left
-     so that the *FIXED* arguments are closer to BP when the function is executed and therefore can be located.
-
-  ** fix array variable declarations.
 */
 
 #include <stdio.h>
@@ -2803,6 +2799,8 @@ t_type parse_bitwise_not(){
 t_type parse_unary_minus(){
   t_type expr_out;
   expr_out = parse_atomic(); // TODO: add error if type is pointer since cant neg a pointer
+  if(expr_out.ind_level > 0) 
+    error("Negation of a pointer type.");
   if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT) 
     emitln("  neg b");
   else 
