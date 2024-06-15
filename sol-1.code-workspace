@@ -4,5 +4,12 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"stdint.h": "c",
+			"stdint-gcc.h": "c",
+			"libgen.h": "c",
+			"features.h": "c"
+		}
+	}
 }

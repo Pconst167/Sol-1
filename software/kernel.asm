@@ -2490,6 +2490,7 @@ _load_hex:
   mov a, di
   mov d, a          ; start of string data block
   call _gets        ; get program string
+  call _puts        ; reprint to screen
   mov si, a
 __load_hex_loop:
   lodsb             ; load from [SI] to AL

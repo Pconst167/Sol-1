@@ -17,11 +17,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
-#include <math.h>
 #include <libgen.h>
+#include <math.h>
 
 #include "def.h"
 
@@ -1936,18 +1935,6 @@ void skip_block(void){
   if(braces && toktype == END) error(ERR_FATAL, "Closing braces expected");
 }
 
-void emit_var_assignment__addr_in_d(t_type type){
-  int var_id;
-  char temp[ID_LEN];
-
-  if(type.ind_level > 0 || type.primitive_type == DT_INT)
-    emitln("  mov [d], b");
-  else if(type.primitive_type == DT_CHAR)
-    emitln("  mov [d], bl");
-  else 
-    error(ERR_FATAL, "Not able to resolve variable type");
-}
-
 t_type parse_expr(){
   t_type type;
 
@@ -2098,11 +2085,11 @@ t_type parse_ternary_op(void){
   temp_prog = prog;
   temp_asm_p = asm_p; // save current assembly output pointer
   emitln("_ternary%d_cond:", highest_label_index + 1); // +1 because we are emitting the label ahead
-  parse_logical(); // evaluate condition
+  parse_logical_or(); // evaluate condition
   if(tok != TERNARY_OP){
     prog = temp_prog;
     asm_p = temp_asm_p; // recover asm output pointer
-    return parse_logical();
+    return parse_logical_or();
   }
 
   // '?' was found
@@ -2126,10 +2113,6 @@ t_type parse_ternary_op(void){
   return expr_out;
 }
 
-t_type parse_logical(void){
-  return parse_logical_or();
-}
-
 t_type parse_logical_or(void){
   t_type type1, type2, expr_out;
 
@@ -2142,27 +2125,26 @@ t_type parse_logical_or(void){
   expr_out = type1;
   if(tok == LOGICAL_OR){
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
+    if(type_is_32bit(type1))
       emitln("  push g");
     while(tok == LOGICAL_OR){
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
+      if(type_is_32bit(type1))
         emitln("  mov g, c");
       type2 = parse_logical_and();
       expr_out = cast(expr_out, type2);
       // or between ga and cb
-      if(expr_out.primitive_type == DT_INT && expr_out.ind_level == 0 && expr_out.size_modifier == MOD_LONG){
+      if(type_is_32bit(expr_out)){
         // if type1 was not a 32bit value, then we must clear the garbage from the registers used below
 
-        // need to simplifity this because if the high word (type1) was not a 32bit word, then
+        // need to simplifiyti eas ftp1wsnot a 32bit word, then
         // we dont need to compare the high word of type1 in the code below for the OR.
         // we can omit that and use just the high word of the second half of the OR (type2). 
         emitln("  sor a, b ; ||"); // result in B
         emitln("  push b");
         emitln("  mov a, c");
-        if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG){
+        if(type_is_32bit(type1))
           emitln("  mov b, g");
-        }
         else 
           emitln("  mov b, 0");
         emitln("  sor a, b ; ||"); // result in B
@@ -2172,7 +2154,7 @@ t_type parse_logical_or(void){
       else
         emitln("  sor a, b ; ||");
     }
-    if(type1.primitive_type == DT_INT && type2.ind_level == 0 && type1.size_modifier == MOD_LONG)
+    if(type_is_32bit(type1))
       emitln("  pop g");
     emitln("  pop a");
   }
@@ -2189,15 +2171,15 @@ t_type parse_logical_and(void){
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == LOGICAL_AND){
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
+    if(type_is_32bit(type1))
       emitln("  push g");
     while(tok == LOGICAL_AND){
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
+      if(type_is_32bit(type1))
         emitln("  mov g, c");
       type2 = parse_bitwise_or();
       // or between ga and cb
-      if(type2.primitive_type == DT_INT && type2.ind_level == 0 && type2.size_modifier == MOD_LONG){
+      if(type_is_32bit(type2)){
         emitln("  sand a, b ; &&"); // result in B
         emitln("  push b");
         emitln("  mov a, c");
@@ -2209,7 +2191,7 @@ t_type parse_logical_and(void){
       else 
         emitln("  sand a, b ; &&");
     }
-    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
+    if(type_is_32bit(type1))
       emitln("  pop g");
     emitln("  pop a");
   }
@@ -2298,20 +2280,20 @@ t_type parse_relational(void){
   ){
     emitln("; START RELATIONAL");
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
+    if(type_is_32bit(type1))
       emitln("  push g");
     while(tok == EQUAL              || tok == NOT_EQUAL    || tok == LESS_THAN || 
           tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL
     ){
       temp_tok = tok;
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
+      if(type_is_32bit(type1))
         emitln("  mov g, c");
       type2 = parse_bitwise_shift();
       expr_out = cast(type1, type2); // convert to a common type
       switch(temp_tok){
         case EQUAL:
-          if(expr_out.primitive_type == DT_INT && expr_out.ind_level == 0 && expr_out.size_modifier == MOD_LONG){
+          if(type_is_32bit(expr_out)){
             emitln("  cmp a, b");
             emitln("  seq ; ==");
             emitln("  push b");
@@ -2328,7 +2310,7 @@ t_type parse_relational(void){
           }
           break;
         case NOT_EQUAL:
-          if(expr_out.primitive_type == DT_INT && expr_out.ind_level == 0 && expr_out.size_modifier == MOD_LONG){
+          if(type_is_32bit(expr_out)){
             emitln("  cmp a, b");
             emitln("  sneq ; !=");
             emitln("  push b");
@@ -2403,7 +2385,7 @@ t_type parse_relational(void){
             emitln("  sge ; >=");
       }
     }
-    if(expr_out.primitive_type == DT_INT && expr_out.ind_level == 0 && expr_out.size_modifier == MOD_LONG)
+    if(type_is_32bit(expr_out))
       emitln("  pop g");
     emitln("  pop a");
     emitln("; END RELATIONAL");
@@ -2464,17 +2446,17 @@ t_type parse_terms(void){
   if(tok == PLUS || tok == MINUS){
     emitln("; START TERMS");
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
+    if(type_is_32bit(type1))
       emitln("  push g");
     while(tok == PLUS || tok == MINUS){
       temp_tok = tok;
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
+      if(type_is_32bit(type1))
         emitln("  mov g, c");
       type2 = parse_factors();
       // ga + cb
       if(temp_tok == PLUS){
-        if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG){
+        if(type_is_32bit(type1)){
           emitln("  add a, b");
           emitln("  push a");
           emitln("  mov a, g");
@@ -2490,9 +2472,8 @@ t_type parse_terms(void){
         emitln("  sub a, b");
       }
     }
-    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG){
+    if(type_is_32bit(type1))
       emitln("  pop g");
-    }
     emitln("  mov b, a");
     emitln("  pop a");
     emitln("; END TERMS");
@@ -2512,7 +2493,7 @@ t_type parse_factors(void){
   type1 = parse_atomic();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
-  if(tok == STAR || tok == FSLASH || tok == MOD) {
+  if(tok == STAR || tok == FSLASH || tok == MOD){
     emitln("; START FACTORS");
     emitln("  push a");
     emitln("  mov a, b");
@@ -2916,8 +2897,16 @@ t_type parse_pre_decrementing(){
   }
   else 
     emitln("  dec b");
+
   emit_var_addr_into_d(temp_name);
-  emit_var_assignment__addr_in_d(expr_out);
+
+  if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT)
+    emitln("  mov [d], b");
+  else if(expr_out.primitive_type == DT_CHAR)
+    emitln("  mov [d], bl");
+  else 
+    error(ERR_FATAL, "Not able to resolve variable type");
+
   return expr_out;
 }
 
@@ -2936,8 +2925,15 @@ t_type parse_pre_incrementing(){
   }
   else 
     emitln("  inc b");
+
   emit_var_addr_into_d(temp_name);
-  emit_var_assignment__addr_in_d(expr_out);
+
+  if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT)
+    emitln("  mov [d], b");
+  else if(expr_out.primitive_type == DT_CHAR)
+    emitln("  mov [d], bl");
+  else 
+    error(ERR_FATAL, "Not able to resolve variable type");
 
   return expr_out;
 }
@@ -3980,6 +3976,10 @@ void emit_static_var_initialization(t_var *var){
     }
   }
   get();
+}
+
+u8 type_is_32bit(t_type type){
+  return type.primitive_type == DT_INT && type.ind_level == 0 && type.size_modifier == MOD_LONG;
 }
 
 void emit_data_dbdw(t_type type){

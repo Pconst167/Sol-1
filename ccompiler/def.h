@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #define CONST_LEN                  128
 #define ID_LEN                     128
 #define MAX_DEFINES                128
@@ -18,6 +20,16 @@
 
 #define true 1
 #define false 0
+
+typedef int8_t i8;
+typedef int16_t i16;
+typedef int32_t i32;
+typedef int64_t i64;
+
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
 
 typedef enum {ERR_WARNING, ERR_FATAL} t_error_type;
 
@@ -539,7 +551,6 @@ void emit_string_table_data(void);
 t_type emit_array_arithmetic(t_type type);
 void emit_global_var_initialization(t_var *var);
 void emit_static_var_initialization(t_var *var);
-void emit_var_assignment__addr_in_d(t_type type);
 t_type emit_var_addr_into_d(char *var_name);
 
 void skip_statements(void);
@@ -551,7 +562,6 @@ int count_cases(void);
 t_type parse_expr(void);
 t_type parse_assignment(void);
 t_type parse_ternary_op(void);
-t_type parse_logical(void);
 t_type parse_logical_and(void);
 t_type parse_logical_or(void);
 t_type parse_bitwise_and(void);
@@ -653,3 +663,4 @@ int function_has_variable_arguments(int func_id);
 
 
 char token_not_a_const(void);
+u8 type_is_32bit(t_type type);

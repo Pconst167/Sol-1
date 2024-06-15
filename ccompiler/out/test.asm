@@ -7,6 +7,8 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
+; $i 
+  sub sp, 2
 ;; 'A' || 123L; 
   mov b, $41
   push a
