@@ -11,7 +11,7 @@ struct FILE {
     int mode;          // file mode (read, write, append, etc.)
     int error;         // error flag
 };
-/*
+
 struct va_list_t{
   char *current_arg; // pointer to current argument
 };
@@ -30,7 +30,6 @@ char *va_arg(struct va_list_t *argp, unsigned int size) {
 void va_end(struct va_list_t *argp) {
   argp->current_arg = NULL;
 }
-*/
 
 void printf(char *format, ...){
   char *p, *fp;

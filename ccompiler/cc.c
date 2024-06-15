@@ -2026,7 +2026,7 @@ t_type parse_assignment(){
     emitln("  pop d"); 
     if(expr_in.ind_level > 0)
       emitln("  mov [d], b");
-    else if(expr_in.primitive_type == DT_INT && expr_in.size_modifier == MOD_LONG){
+    else if(expr_in.primitive_type == DT_INT && expr_in.ind_level == 0 && expr_in.size_modifier == MOD_LONG){
       emitln("  mov [d], b");
       emitln("  mov b, c");
       emitln("  mov [d + 2], b");
@@ -2045,22 +2045,23 @@ t_type parse_assignment(){
     return expr_out;
   }
   else if(tok == STAR){ // tests if this is a pointer assignment
-    expr_in = parse_atomic(); // parse what comes after '*' (considered a pointer)
+    t_type pointer_expr;
+    pointer_expr = parse_atomic(); // parse what comes after '*' (considered a pointer)
     emitln("  push b"); // pointer given in 'b'. push 'b' into stack to save it. we will retrieve it below into 'd' for the assignment address
     // after evaluating the address expression, the token will be a "="
     if(tok != ASSIGNMENT) 
       error(ERR_FATAL, "Syntax error: Assignment expected");
     parse_expr(); // evaluates the value to be assigned to the address, result in 'b'
     emitln("  pop d"); // now pop 'b' from before into 'd' so that we can recover the address for the assignment
-    switch(expr_in.primitive_type){
+    switch(pointer_expr.primitive_type){
       case DT_CHAR:
-        if(expr_in.ind_level > 1)
+        if(pointer_expr.ind_level > 1)
           emitln("  mov [d], b");
         else
           emitln("  mov [d], bl");
         break;
       case DT_INT:
-        if(expr_in.primitive_type == DT_INT && expr_in.size_modifier == MOD_LONG){
+        if(pointer_expr.ind_level == 1 && pointer_expr.size_modifier == MOD_LONG){
           emitln("  mov [d], b");
           emitln("  mov b, c");
           emitln("  mov [d + 2], b");
@@ -2070,7 +2071,7 @@ t_type parse_assignment(){
         break;
       default: error(ERR_FATAL, "Invalid pointer");
     }
-    expr_out = expr_in;
+    expr_out = pointer_expr;
     expr_out.ind_level--;
     return expr_out;
   }
@@ -2134,24 +2135,32 @@ t_type parse_logical_or(void){
 
   type1.size_modifier = MOD_NORMAL;
   type2.size_modifier = MOD_NORMAL;
-  type1 = parse_logical_and();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
+
+  type1 = parse_logical_and();
+  expr_out = type1;
   if(tok == LOGICAL_OR){
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
       emitln("  push g");
     while(tok == LOGICAL_OR){
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+      if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
         emitln("  mov g, c");
       type2 = parse_logical_and();
+      expr_out = cast(expr_out, type2);
       // or between ga and cb
-      if(type2.primitive_type == DT_INT && type2.size_modifier == MOD_LONG){
+      if(expr_out.primitive_type == DT_INT && expr_out.ind_level == 0 && expr_out.size_modifier == MOD_LONG){
+        // if type1 was not a 32bit value, then we must clear the garbage from the registers used below
         emitln("  sor a, b ; ||"); // result in B
         emitln("  push b");
         emitln("  mov a, c");
-        emitln("  mov b, g");
+        if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG){
+          emitln("  mov b, g");
+        }
+        else 
+          emitln("  mov b, 0");
         emitln("  sor a, b ; ||"); // result in B
         emitln("  pop a"); 
         emitln("  sor a, b ; ||"); // final result in B
@@ -2159,11 +2168,10 @@ t_type parse_logical_or(void){
       else
         emitln("  sor a, b ; ||");
     }
-    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type2.ind_level == 0 && type1.size_modifier == MOD_LONG)
       emitln("  pop g");
     emitln("  pop a");
   }
-  expr_out = cast(type1, type2);
   return expr_out;
 }
 
@@ -2177,15 +2185,15 @@ t_type parse_logical_and(void){
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == LOGICAL_AND){
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
       emitln("  push g");
     while(tok == LOGICAL_AND){
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+      if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
         emitln("  mov g, c");
       type2 = parse_bitwise_or();
       // or between ga and cb
-      if(type2.primitive_type == DT_INT && type2.size_modifier == MOD_LONG){
+      if(type2.primitive_type == DT_INT && type2.ind_level == 0 && type2.size_modifier == MOD_LONG){
         emitln("  sand a, b ; &&"); // result in B
         emitln("  push b");
         emitln("  mov a, c");
@@ -2197,7 +2205,7 @@ t_type parse_logical_and(void){
       else 
         emitln("  sand a, b ; &&");
     }
-    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
       emitln("  pop g");
     emitln("  pop a");
   }
@@ -2286,20 +2294,20 @@ t_type parse_relational(void){
   ){
     emitln("; START RELATIONAL");
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
       emitln("  push g");
     while(tok == EQUAL              || tok == NOT_EQUAL    || tok == LESS_THAN || 
           tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL
     ){
       temp_tok = tok;
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+      if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
         emitln("  mov g, c");
       type2 = parse_bitwise_shift();
       expr_out = cast(type1, type2); // convert to a common type
       switch(temp_tok){
         case EQUAL:
-          if(expr_out.primitive_type == DT_INT && expr_out.size_modifier == MOD_LONG){
+          if(expr_out.primitive_type == DT_INT && expr_out.ind_level == 0 && expr_out.size_modifier == MOD_LONG){
             emitln("  cmp a, b");
             emitln("  seq ; ==");
             emitln("  push b");
@@ -2316,7 +2324,7 @@ t_type parse_relational(void){
           }
           break;
         case NOT_EQUAL:
-          if(expr_out.primitive_type == DT_INT && expr_out.size_modifier == MOD_LONG){
+          if(expr_out.primitive_type == DT_INT && expr_out.ind_level == 0 && expr_out.size_modifier == MOD_LONG){
             emitln("  cmp a, b");
             emitln("  sneq ; !=");
             emitln("  push b");
@@ -2391,7 +2399,7 @@ t_type parse_relational(void){
             emitln("  sge ; >=");
       }
     }
-    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+    if(expr_out.primitive_type == DT_INT && expr_out.ind_level == 0 && expr_out.size_modifier == MOD_LONG)
       emitln("  pop g");
     emitln("  pop a");
     emitln("; END RELATIONAL");
@@ -2452,17 +2460,17 @@ t_type parse_terms(void){
   if(tok == PLUS || tok == MINUS){
     emitln("; START TERMS");
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
       emitln("  push g");
     while(tok == PLUS || tok == MINUS){
       temp_tok = tok;
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
+      if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG)
         emitln("  mov g, c");
       type2 = parse_factors();
       // ga + cb
       if(temp_tok == PLUS){
-        if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG){
+        if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG){
           emitln("  add a, b");
           emitln("  push a");
           emitln("  mov a, g");
@@ -2478,7 +2486,7 @@ t_type parse_terms(void){
         emitln("  sub a, b");
       }
     }
-    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG){
+    if(type1.primitive_type == DT_INT && type1.ind_level == 0 && type1.size_modifier == MOD_LONG){
       emitln("  pop g");
     }
     emitln("  mov b, a");
@@ -2792,11 +2800,6 @@ t_type parse_integer_const(){
   return expr_out;
 }
 
-t_type parse_(){
-  t_type expr_out;
-
-  return expr_out;
-}
 t_type parse_unary_logical_not(){
   t_type expr_out;
 
@@ -2810,6 +2813,7 @@ t_type parse_unary_logical_not(){
   expr_out.sign_modifier = SNESS_UNSIGNED;
   return expr_out;
 }
+
 t_type parse_bitwise_not(){
   t_type expr_out;
 
@@ -2829,6 +2833,7 @@ t_type parse_bitwise_not(){
 // -127, -128, -255, -32768, -32767, -65535
 t_type parse_unary_minus(){
   t_type expr_out;
+
   expr_out = parse_atomic(); // TODO: add error if type is pointer since cant neg a pointer
   if(expr_out.ind_level > 0) 
     error(ERR_FATAL, "Negation of a pointer type.");
@@ -4253,10 +4258,11 @@ void get(void){
     toktype = STRING_CONST;
     convert_constant(); // converts this string token qith quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
   }
-  else if(is_digit(*prog)){
+  else if(is_digit(*prog) || (*prog == '-' && is_digit(*(prog+1)))){
     toktype = INTEGER_CONST;
     const_size_modifier = MOD_NORMAL;
     const_sign_modifier = SNESS_SIGNED;
+    if(*prog == '-') *t++ = *prog++;
     if(*prog == '0' && *(prog+1) == 'x'){
       *t++ = *prog++;
       *t++ = *prog++;
