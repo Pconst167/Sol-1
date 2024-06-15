@@ -12,6 +12,13 @@
 
   ** fix goto: at present we cannot jump to a label that is declared after the goto.
 
+  ** write a syntax parser/checker so that EITHER:
+    * at beginning of program entire syntax is checked for errors 
+    * after syntax is cleared OK, simply parse semantics which will be a simple matter of issuing a bunch of get()'s as the semantic parses parses.
+  OR:
+    * run syntax checker on a construct basis such that when executing a construct, say IF, check entire syntax for that construct and clear syntax
+    * and thenparse semantics for that construct
+
 */
 
 #include <stdio.h>
