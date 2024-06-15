@@ -191,8 +191,8 @@ void declare_heap(){
   global_var_table[global_var_tos].type.is_constant = false;
   global_var_table[global_var_tos].type.dims[0] = 0;
   global_var_table[global_var_tos].type.ind_level = 1;
-  global_var_table[global_var_tos].type.modifier = MOD_NORMAL;
-  global_var_table[global_var_tos].type.signedness = SNESS_UNSIGNED;
+  global_var_table[global_var_tos].type.size_modifier = MOD_NORMAL;
+  global_var_table[global_var_tos].type.sign_modifier = SNESS_UNSIGNED;
   global_var_tos++;
 }
 
@@ -375,7 +375,7 @@ void pre_processor(void){
             strcat(filename, token);
           }
         }
-        else error("Syntax error in include directive.");
+        else error(ERR_FATAL, "Syntax error in include directive.");
         if((fp = fopen(filename, "rb")) == NULL){
           printf("%s: Included source file not found.\n", filename);
           exit(1);
@@ -471,7 +471,7 @@ void pre_scan(void){
       if(tok == LONG || tok == SHORT) get();
       if(tok == STRUCT){
         get(); // get struct's type name
-        if(toktype != IDENTIFIER) error("Struct's type name expected.");
+        if(toktype != IDENTIFIER) error(ERR_FATAL, "Struct's type name expected.");
       }
       // if not a strut, then the var type has just been gotten
       get();
@@ -479,7 +479,7 @@ void pre_scan(void){
         while(tok == STAR) get();
       }
       else{
-        if(toktype != IDENTIFIER) error("Identifier expected in variable or function declaration.");
+        if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected in variable or function declaration.");
       }
       get(); // get semicolon, assignment, comma, or opening braces
       if(tok == OPENING_PAREN){ //it must be a function declaration
@@ -492,7 +492,7 @@ void pre_scan(void){
         declare_global();
       }
     }
-    else error("Unexpected token during pre-scan phase: %s", token);
+    else error(ERR_FATAL, "Unexpected token during pre-scan phase: %s", token);
   } while(toktype != END);
 }
 
@@ -513,7 +513,7 @@ int declare_struct(){
   char *temp_prog;
   int struct_is_embedded = 0;
 
-  if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error("Max number of struct declarations reached");
+  if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error(ERR_FATAL, "Max number of struct declarations reached");
   
   curr_struct_id = struct_table_tos;
   get(); // 'struct'
@@ -522,7 +522,7 @@ int declare_struct(){
     strcpy(new_struct.name, token);
     strcpy(struct_table[struct_table_tos].name, token);
     get(); // '{'
-    if(tok != OPENING_BRACE) error("Opening braces expected");
+    if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
     // Add the new struct to the struct table prematurely so that any elements in this struct that are pointers of this struct type can be recognized by a search
     struct_table_tos++;
   }
@@ -535,15 +535,15 @@ int declare_struct(){
 
   element_tos = 0;
   do{
-    if(element_tos == MAX_STRUCT_ELEMENTS) error("Max number of struct elements reached");
+    if(element_tos == MAX_STRUCT_ELEMENTS) error(ERR_FATAL, "Max number of struct elements reached");
     get();
-    new_struct.elements[element_tos].type.signedness = SNESS_SIGNED; // set as signed by default
-    new_struct.elements[element_tos].type.modifier = MOD_NORMAL; // set as signed by default
+    new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
+    new_struct.elements[element_tos].type.size_modifier = MOD_NORMAL; // set as signed by default
     while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
-           if(tok == SIGNED)   new_struct.elements[element_tos].type.signedness = SNESS_SIGNED;
-      else if(tok == UNSIGNED) new_struct.elements[element_tos].type.signedness = SNESS_UNSIGNED;
-      else if(tok == SHORT)    new_struct.elements[element_tos].type.modifier   = MOD_SHORT;
-      else if(tok == LONG)     new_struct.elements[element_tos].type.modifier   = MOD_LONG;
+           if(tok == SIGNED)   new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED;
+      else if(tok == UNSIGNED) new_struct.elements[element_tos].type.sign_modifier = SNESS_UNSIGNED;
+      else if(tok == SHORT)    new_struct.elements[element_tos].type.size_modifier   = MOD_SHORT;
+      else if(tok == LONG)     new_struct.elements[element_tos].type.size_modifier   = MOD_LONG;
       get();
     }
     new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
@@ -556,7 +556,7 @@ int declare_struct(){
         get(); // get element name
       }
       else{
-        if((struct_id = search_struct(token)) == -1) error("Undeclared struct");
+        if((struct_id = search_struct(token)) == -1) error(ERR_FATAL, "Undeclared struct");
         get();
       }
       new_struct.elements[element_tos].type.struct_id = struct_id;
@@ -569,7 +569,7 @@ int declare_struct(){
       get();
     }
 // *********************************************************************************************
-    if(new_struct.elements[element_tos].type.primitive_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) error("Invalid type in variable");
+    if(new_struct.elements[element_tos].type.primitive_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) error(ERR_FATAL, "Invalid type in variable");
 
     strcpy(new_struct.elements[element_tos].name, token);
     new_struct.elements[element_tos].type.dims[0] = 0;
@@ -579,10 +579,10 @@ int declare_struct(){
     if(tok == OPENING_BRACKET){
       while(tok == OPENING_BRACKET){
         get();
-        if(toktype != INTEGER_CONST) error("Constant expected");
+        if(toktype != INTEGER_CONST) error(ERR_FATAL, "Constant expected");
         new_struct.elements[element_tos].type.dims[dim] = atoi(token);
         get();
-        if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+        if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
         get();
         dim++;
       }
@@ -605,7 +605,7 @@ int declare_struct(){
     back();
     declare_struct_global_vars(curr_struct_id);
   }
-  else if(tok != SEMICOLON) error("Semicolon expected after struct declaration.");
+  else if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected after struct declaration.");
 
   return curr_struct_id; // return struct_id
 }
@@ -620,14 +620,14 @@ int declare_local(void){
   get();
   new_var.type.is_constant = false;
   new_var.is_static = false;
-  new_var.type.signedness = SNESS_SIGNED; // set as signed by default
-  new_var.type.modifier = MOD_NORMAL;
+  new_var.type.sign_modifier = SNESS_SIGNED; // set as signed by default
+  new_var.type.size_modifier = MOD_NORMAL;
   while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == STATIC || tok == CONST){
     if(tok == CONST) new_var.type.is_constant = true;
-    else if(tok == SIGNED) new_var.type.signedness = SNESS_SIGNED;
-    else if(tok == UNSIGNED) new_var.type.signedness = SNESS_UNSIGNED;
-    else if(tok == SHORT) new_var.type.modifier = MOD_SHORT;
-    else if(tok == LONG) new_var.type.modifier = MOD_LONG;
+    else if(tok == SIGNED) new_var.type.sign_modifier = SNESS_SIGNED;
+    else if(tok == UNSIGNED) new_var.type.sign_modifier = SNESS_UNSIGNED;
+    else if(tok == SHORT) new_var.type.size_modifier = MOD_SHORT;
+    else if(tok == LONG) new_var.type.size_modifier = MOD_LONG;
     else if(tok == STATIC) new_var.is_static = true;
     get();
   }
@@ -636,11 +636,11 @@ int declare_local(void){
   if(new_var.type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
     struct_id = search_struct(token);
-    if(struct_id == -1) error("Undeclared struct: %s", token);
+    if(struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
   }
 
   do{
-    if(function_table[current_func_id].local_var_tos == MAX_LOCAL_VARS) error("Local var declaration limit reached");
+    if(function_table[current_func_id].local_var_tos == MAX_LOCAL_VARS) error(ERR_FATAL, "Local var declaration limit reached");
     new_var.is_parameter = false;
     new_var.function_id = current_func_id; // set variable owner function
     new_var.type.struct_id = struct_id;
@@ -652,8 +652,8 @@ int declare_local(void){
       get();
     }    
 // *********************************************************************************************
-    if(toktype != IDENTIFIER) error("Identifier expected");
-    if(local_var_exists(token) != -1) error("Duplicate local variable: %s", token);
+    if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+    if(local_var_exists(token) != -1) error(ERR_FATAL, "Duplicate local variable: %s", token);
     sprintf(new_var.name, "%s", token);
     get();
 
@@ -677,14 +677,14 @@ int declare_local(void){
             } while(tok == OPENING_BRACKET);
           }
           back();
-          initialization_size = find_array_initialization_size(new_var.type.modifier);
+          initialization_size = find_array_initialization_size(new_var.type.size_modifier);
           new_var.type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
           prog = temp_prog;
         }
         else{
           new_var.type.dims[dim] = atoi(token);
           get();
-          if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+          if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
         }
         get();
         dim++;
@@ -729,7 +729,7 @@ int declare_local(void){
             get();
           }
           if(token_not_a_const()){
-            error("Local variable initialization is non constant");
+            error(ERR_FATAL, "Local variable initialization is non constant");
           }
           if(new_var.type.primitive_type == DT_INT || new_var.type.ind_level > 0){
             if(toktype == CHAR_CONST){
@@ -737,7 +737,7 @@ int declare_local(void){
               emitln("  mov [bp + %d], a", new_var.bp_offset);
             }
             else if(toktype == STRING_CONST){
-              if(toktype != STRING_CONST) error("String constant expected");
+              if(toktype != STRING_CONST) error(ERR_FATAL, "String constant expected");
               emit_data("_%s_data: ", new_var.name);
               emit_data_dbdw(new_var.type);
               emit_data("%s, 0\n", token);
@@ -770,7 +770,7 @@ int declare_local(void){
     function_table[current_func_id].local_var_tos++;
   } while(tok == COMMA);
 
-  if(tok != SEMICOLON) error("Semicolon expected");
+  if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 
   return total_sp;
 } // declare_local
@@ -782,15 +782,15 @@ void declare_global(void){
   t_type type;
 
   get(); 
-  type.signedness = SNESS_SIGNED; // set as signed by default
-  type.modifier = MOD_NORMAL; 
+  type.sign_modifier = SNESS_SIGNED; // set as signed by default
+  type.size_modifier = MOD_NORMAL; 
   type.is_constant = false; 
   while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == CONST){
     if(tok == CONST) type.is_constant = true;
-    else if(tok == SIGNED) type.signedness = SNESS_SIGNED;
-    else if(tok == UNSIGNED) type.signedness = SNESS_UNSIGNED;
-    else if(tok == SHORT) type.modifier = MOD_SHORT;
-    else if(tok == LONG) type.modifier = MOD_LONG;
+    else if(tok == SIGNED) type.sign_modifier = SNESS_SIGNED;
+    else if(tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;
+    else if(tok == SHORT) type.size_modifier = MOD_SHORT;
+    else if(tok == LONG) type.size_modifier = MOD_LONG;
     get();
   }
   type.primitive_type = get_primitive_type_from_tok();
@@ -798,11 +798,11 @@ void declare_global(void){
   if(type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
     struct_id = search_struct(token);
-    if(struct_id == -1) error("Undeclared struct: %s", token);
+    if(struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
   }
 
   do{
-    if(global_var_tos == MAX_GLOBAL_VARS) error("Max number of global variable declarations exceeded");
+    if(global_var_tos == MAX_GLOBAL_VARS) error(ERR_FATAL, "Max number of global variable declarations exceeded");
     global_var_table[global_var_tos].type = type;
     get();
 // **************** checks whether this is a pointer declaration *******************************
@@ -812,13 +812,13 @@ void declare_global(void){
       get();
     }
 // *********************************************************************************************
-    if(toktype != IDENTIFIER) error("Identifier expected");
+    if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
     if(global_var_table[global_var_tos].type.primitive_type == DT_VOID && global_var_table[global_var_tos].type.ind_level == 0) 
-      error("Invalid type in variable: %s", token);
+      error(ERR_FATAL, "Invalid type in variable: %s", token);
 
     // checks if there is another global variable with the same name
     if(search_global_var(token) != -1) 
-      error("Duplicate global variable: %s", token);
+      error(ERR_FATAL, "Duplicate global variable: %s", token);
     
     global_var_table[global_var_tos].type.struct_id = struct_id;
     global_var_table[global_var_tos].type.dims[0] = 0;
@@ -844,14 +844,14 @@ void declare_global(void){
             } while(tok == OPENING_BRACKET);
           }
           back();
-          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.modifier);
+          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.size_modifier);
           global_var_table[global_var_tos].type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
           prog = temp_prog;
         }
         else{
           global_var_table[global_var_tos].type.dims[dim] = atoi(token);
           get();
-          if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+          if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
         }
         get();
         dim++;
@@ -876,7 +876,7 @@ void declare_global(void){
     global_var_tos++;  
   } while(tok == COMMA);
 
-  if(tok != SEMICOLON) error("Semicolon expected");
+  if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 }
 
 // enum my_enum {item1, item2, item3};
@@ -884,18 +884,18 @@ void declare_enum(void){
   int element_tos;
   int value;
 
-  if(enum_table_tos == MAX_ENUM_DECLARATIONS) error("Maximum number of enumeration declarations exceeded");
+  if(enum_table_tos == MAX_ENUM_DECLARATIONS) error(ERR_FATAL, "Maximum number of enumeration declarations exceeded");
 
   get(); // get enum name
   strcpy(enum_table[enum_table_tos].name, token);
   get(); // '{'
-  if(tok != OPENING_BRACE) error("Opening braces expected");
+  if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
   element_tos = 0;
   value = 0;
 
   do{
     get();
-    if(toktype != IDENTIFIER) error("Identifier expected");
+    if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
     strcpy(enum_table[enum_table_tos].elements[element_tos].name, token);
     get();
     if(tok == ASSIGNMENT){
@@ -909,9 +909,9 @@ void declare_enum(void){
   
   enum_table_tos++;
 
-  if(tok != CLOSING_BRACE) error("Closing braces expected");
+  if(tok != CLOSING_BRACE) error(ERR_FATAL, "Closing braces expected");
   get();
-  if(tok != SEMICOLON) error("Semicolon expected");
+  if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 }
 
 void declare_typedef(void){
@@ -920,21 +920,21 @@ void declare_typedef(void){
   int struct_id;
   t_type type;
 
-  if(typedef_table_tos == MAX_TYPEDEFS) error("Maximum number of typedefs exceeded.");
+  if(typedef_table_tos == MAX_TYPEDEFS) error(ERR_FATAL, "Maximum number of typedefs exceeded.");
 
   for(int i = 0; i < MAX_MATRIX_DIMS; i++){
     type.dims[i] = 0; // clear all matrix dimensions because type is a local var and the dimensions will have garbage values
   }
 
   get(); 
-  type.signedness = SNESS_SIGNED; // set as signed by default
-  type.modifier = MOD_NORMAL; 
+  type.sign_modifier = SNESS_SIGNED; // set as signed by default
+  type.size_modifier = MOD_NORMAL; 
   while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == CONST){
     if(tok == CONST) type.is_constant = true;
-    else if(tok == SIGNED)   type.signedness = SNESS_SIGNED;
-    else if(tok == UNSIGNED) type.signedness = SNESS_UNSIGNED;
-    else if(tok == SHORT)    type.modifier = MOD_SHORT;
-    else if(tok == LONG)     type.modifier = MOD_LONG;
+    else if(tok == SIGNED)   type.sign_modifier = SNESS_SIGNED;
+    else if(tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;
+    else if(tok == SHORT)    type.size_modifier = MOD_SHORT;
+    else if(tok == LONG)     type.size_modifier = MOD_LONG;
     get();
   }
   type.primitive_type = get_primitive_type_from_tok();
@@ -942,7 +942,7 @@ void declare_typedef(void){
   if(type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
     struct_id = search_struct(token);
-    if(struct_id == -1) error("Undeclared struct: %s", token);
+    if(struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
   }
 
   get();
@@ -953,8 +953,8 @@ void declare_typedef(void){
     get();
   }
 // *********************************************************************************************
-  if(toktype != IDENTIFIER) error("Identifier expected");
-  if(type.primitive_type == DT_VOID && type.ind_level == 0) error("Invalid type in variable: %s", token);
+  if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+  if(type.primitive_type == DT_VOID && type.ind_level == 0) error(ERR_FATAL, "Invalid type in variable: %s", token);
 
   type.struct_id = struct_id;
   type.dims[0] = 0;
@@ -980,14 +980,14 @@ void declare_typedef(void){
           } while(tok == OPENING_BRACKET);
         }
         back();
-        initialization_size = find_array_initialization_size(type.modifier);
+        initialization_size = find_array_initialization_size(type.size_modifier);
         type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
         prog = temp_prog;
       }
       else{
         type.dims[dim] = atoi(token);
         get();
-        if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+        if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
       }
       get();
       dim++;
@@ -1007,7 +1007,7 @@ void declare_struct_global_vars(int struct_id){
   char *temp_prog;
 
   do{
-    if(global_var_tos == MAX_GLOBAL_VARS) error("Global variable declaration limit exceeded");
+    if(global_var_tos == MAX_GLOBAL_VARS) error(ERR_FATAL, "Global variable declaration limit exceeded");
     global_var_table[global_var_tos].type.is_constant = is_constant;
     get();
 // **************** checks whether this is a pointer declaration *******************************
@@ -1017,10 +1017,10 @@ void declare_struct_global_vars(int struct_id){
       get();
     }
 // *********************************************************************************************
-    if(toktype != IDENTIFIER) error("Identifier expected");
+    if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
 
     // checks if there is another global variable with the same name
-    if(search_global_var(token) != -1) error("Duplicate global variable");
+    if(search_global_var(token) != -1) error(ERR_FATAL, "Duplicate global variable");
     
     global_var_table[global_var_tos].type.primitive_type = DT_STRUCT;
     global_var_table[global_var_tos].type.ind_level = ind_level;
@@ -1047,16 +1047,16 @@ void declare_struct_global_vars(int struct_id){
             } while(tok == OPENING_BRACKET);
           }
           back();
-          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.modifier);
+          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.size_modifier);
           global_var_table[global_var_tos].type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
           get();
-          if(tok != SEMICOLON) error("Semicolon expected.");
+          if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected.");
           break;
         }
         else{
           global_var_table[global_var_tos].type.dims[dim] = atoi(token);
           get();
-          if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+          if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
         }
         get();
         dim++;
@@ -1106,14 +1106,14 @@ void declare_all_locals(int function_id){
       for(;;){
         get();
         if(tok == CLOSING_BRACE) goto declare_all_locals_L0;
-        if(toktype == END) error("Unterminated inline asm block.");
+        if(toktype == END) error(ERR_FATAL, "Unterminated inline asm block.");
       }
     }
     if(tok == OPENING_PAREN){ // skip expressions inside parenthesis as they can't be variable declarations.
       for(;;){
         get();
         if(tok == CLOSING_PAREN) goto declare_all_locals_L0;
-        if(toktype == END) error("Unterminated parenthesized expression.");
+        if(toktype == END) error(ERR_FATAL, "Unterminated parenthesized expression.");
       }
     }
     if(tok == OPENING_BRACE) total_braces++;
@@ -1149,7 +1149,7 @@ void declare_func(void){
   add_argc_argv = false;
   is_main = false;
 
-  if(function_table_tos == MAX_USER_FUNC - 1) error("Maximum number of function declarations exceeded. Max: %d", MAX_USER_FUNC);
+  if(function_table_tos == MAX_USER_FUNC - 1) error(ERR_FATAL, "Maximum number of function declarations exceeded. Max: %d", MAX_USER_FUNC);
   func = &function_table[function_table_tos];
 
   get();
@@ -1158,13 +1158,13 @@ void declare_func(void){
     get();
   }
 
-  func->return_type.signedness = SNESS_SIGNED; // set as signed by default
-  func->return_type.modifier = MOD_NORMAL; 
+  func->return_type.sign_modifier = SNESS_SIGNED; // set as signed by default
+  func->return_type.size_modifier = MOD_NORMAL; 
   while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
-         if(tok == SIGNED)   func->return_type.signedness = SNESS_SIGNED;
-    else if(tok == UNSIGNED) func->return_type.signedness = SNESS_UNSIGNED;
-    else if(tok == SHORT)    func->return_type.modifier   = MOD_SHORT;
-    else if(tok == LONG)     func->return_type.modifier   = MOD_LONG;
+         if(tok == SIGNED)   func->return_type.sign_modifier = SNESS_SIGNED;
+    else if(tok == UNSIGNED) func->return_type.sign_modifier = SNESS_UNSIGNED;
+    else if(tok == SHORT)    func->return_type.size_modifier   = MOD_SHORT;
+    else if(tok == LONG)     func->return_type.size_modifier   = MOD_LONG;
     get();
   }
   func->return_type.primitive_type = get_primitive_type_from_tok();
@@ -1172,7 +1172,7 @@ void declare_func(void){
   if(func->return_type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
     func->return_type.struct_id = search_struct(token);
-    if(func->return_type.struct_id == -1) error("Undeclared struct: %s", token);
+    if(func->return_type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
   }
 
   get();
@@ -1214,30 +1214,30 @@ void declare_func(void){
         func->local_vars[func->local_var_tos].type.is_constant = true;
         get();
       }
-      func->local_vars[func->local_var_tos].type.signedness = SNESS_SIGNED; // set as signed by default
-      func->local_vars[func->local_var_tos].type.modifier = MOD_NORMAL; 
+      func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
+      func->local_vars[func->local_var_tos].type.size_modifier = MOD_NORMAL; 
       while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
-             if(tok == SIGNED)   func->local_vars[func->local_var_tos].type.signedness = SNESS_SIGNED;
-        else if(tok == UNSIGNED) func->local_vars[func->local_var_tos].type.signedness = SNESS_UNSIGNED;
-        else if(tok == SHORT)    func->local_vars[func->local_var_tos].type.modifier = MOD_SHORT;
-        else if(tok == LONG)     func->local_vars[func->local_var_tos].type.modifier = MOD_LONG;
+             if(tok == SIGNED)   func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_SIGNED;
+        else if(tok == UNSIGNED) func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_UNSIGNED;
+        else if(tok == SHORT)    func->local_vars[func->local_var_tos].type.size_modifier = MOD_SHORT;
+        else if(tok == LONG)     func->local_vars[func->local_var_tos].type.size_modifier = MOD_LONG;
         get();
       }
-      if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) error("Var type expected in argument declaration for function: %s", func->name);
+      if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) error(ERR_FATAL, "Var type expected in argument declaration for function: %s", func->name);
       // gets the parameter type
       func->local_vars[func->local_var_tos].type.primitive_type = get_primitive_type_from_tok();
       func->local_vars[func->local_var_tos].type.struct_id = -1;
       if(func->local_vars[func->local_var_tos].type.primitive_type == DT_STRUCT){ // check if this is a struct
         get();
         func->local_vars[func->local_var_tos].type.struct_id = search_struct(token);
-        if(func->local_vars[func->local_var_tos].type.struct_id == -1) error("Undeclared struct: %s", token);
+        if(func->local_vars[func->local_var_tos].type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
       }
       get();
       while(tok == STAR){
         func->local_vars[func->local_var_tos].type.ind_level++;
         get();
       }
-      if(toktype != IDENTIFIER) error("Identifier expected");
+      if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
       strcpy(func->local_vars[func->local_var_tos].name, token);
       // Check if this is main, and argc or argv are declared
       // TODO: argc/argv need to be local to main but right now they are global
@@ -1259,7 +1259,7 @@ void declare_func(void){
           else{
             func->local_vars[func->local_var_tos].type.dims[i] = atoi(token);
             get();
-            if(tok != CLOSING_BRACKET) error("Closing bracket expected");
+            if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing bracket expected");
             i++;
             get();
           }
@@ -1276,10 +1276,10 @@ void declare_func(void){
       func->local_var_tos++;
     } while(tok == COMMA);
   }
-  if(tok != CLOSING_PAREN) error("Closing parenthesis expected");
+  if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
   func->code_location = prog; // sets the function starting point to  just after the "(" token
   get(); // gets to the "{" token
-  if(tok != OPENING_BRACE) error("Opening curly braces expected");
+  if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening curly braces expected");
   back(); // puts the "{" back so that it can be found by skip_block()
   function_table_tos++;
 }
@@ -1291,7 +1291,7 @@ void declare_goto_label(void){
   get();
   for(i = 0; i < goto_tos; i++)
     if(!strcmp(function_table[current_func_id].goto_labels_table[i], token)) 
-      error("Duplicate label: %s", token);
+      error(ERR_FATAL, "Duplicate label: %s", token);
   sprintf(function_table[current_func_id].goto_labels_table[goto_tos], "%s_%s", function_table[current_func_id].name, token);
   emitln("%s:", function_table[current_func_id].goto_labels_table[goto_tos]);
   function_table[current_func_id].goto_labels_table_tos++;
@@ -1301,15 +1301,15 @@ void declare_goto_label(void){
 int get_param_size(){
   int data_size;
   int struct_id;
-  t_modifier modifier;
+  t_size_modifier size_modifier;
 
-  modifier = MOD_NORMAL;  
+  size_modifier = MOD_NORMAL;  
   get();
   if(tok == CONST) get();
   if(tok == SIGNED || tok == UNSIGNED) get();
   
   while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
-    if(tok == LONG) modifier = MOD_LONG;
+    if(tok == LONG) size_modifier = MOD_LONG;
     get();
   }
 
@@ -1321,7 +1321,7 @@ int get_param_size(){
       data_size = 1;
       break;
     case INT:
-      if(modifier == MOD_LONG)
+      if(size_modifier == MOD_LONG)
         data_size = 4;
       else  
         data_size = 2;
@@ -1384,7 +1384,7 @@ void parse_asm(void){
   char *p, *t;
   
   get();
-  if(tok != OPENING_BRACE) error("Opening braces expected");
+  if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
   emitln("\n; --- BEGIN INLINE ASM BLOCK");
   for(;;){
     while(is_space(*prog)) prog++;
@@ -1404,9 +1404,9 @@ void parse_asm(void){
       get(); // get 'addr' operator
       get(); // get 'mov'
       get(); // get 'd' register
-      if(strcmp(token, "d") && strcmp(token, "D")) error("'d' register expected in 'addr mov' operation.");
-      get(); if(tok != COMMA) error("Comma expected.");
-      get(); if(toktype != IDENTIFIER) error("Identifier expected.");
+      if(strcmp(token, "d") && strcmp(token, "D")) error(ERR_FATAL, "'d' register expected in 'addr mov' operation.");
+      get(); if(tok != COMMA) error(ERR_FATAL, "Comma expected.");
+      get(); if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected.");
       emit_var_addr_into_d(token);
     }
     else{
@@ -1444,14 +1444,14 @@ void parse_for(void){
   current_label_index_for = highest_label_index;
 
   get();
-  if(tok != OPENING_PAREN) error("Opening parenthesis expected");
+  if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   emitln("_for%d_init:", current_label_index_for);
   get();
   if(tok != SEMICOLON){
     back();
     parse_expr();
   }
-  if(tok != SEMICOLON) error("Semicolon expected");
+  if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 
   emitln("_for%d_cond:", current_label_index_for);
   // checks for an empty condition, which means always true
@@ -1459,7 +1459,7 @@ void parse_for(void){
   if(tok != SEMICOLON){
     back();
     parse_expr();
-    if(tok != SEMICOLON) error("Semicolon expected");
+    if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
     emitln("  cmp b, 0");
     emitln("  je _for%d_exit", current_label_index_for);
   }
@@ -1473,7 +1473,7 @@ void parse_for(void){
     else if(*prog == ')') paren--;
     prog++;
   } while(paren && *prog);
-  if(!*prog) error("Closing parenthesis expected");
+  if(!*prog) error(ERR_FATAL, "Closing parenthesis expected");
   parse_block();
   
   emitln("_for%d_update:", current_label_index_for);
@@ -1508,9 +1508,9 @@ void parse_while(void){
 
   emitln("_while%d_cond:", current_label_index_while);
   get();
-  if(tok != OPENING_PAREN) error("Opening parenthesis expected");
+  if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
-  if(tok != CLOSING_PAREN) error("Closing parenthesis expected");
+  if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
   emitln("  cmp b, 0");
   emitln("  je _while%d_exit", current_label_index_while);
   emitln("_while%d_block:", current_label_index_while);
@@ -1537,7 +1537,7 @@ void parse_do(void){
 
   emitln("_do%d_block:", current_label_index_do);
   get();
-  if(tok != OPENING_BRACE) error("Opening brace expected in 'do' statement.");
+  if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening brace expected in 'do' statement.");
   back();
   parse_block();  // parse block
 
@@ -1545,16 +1545,16 @@ void parse_do(void){
   emitln("_do%d_cond:", current_label_index_do);
   get(); // get 'while'
   get();
-  if(tok != OPENING_PAREN) error("Opening parenthesis expected");
+  if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
-  if(tok != CLOSING_PAREN) error("Closing parenthesis expected");
+  if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
   emitln("  cmp b, 1");
   emitln("  je _do%d_block", current_label_index_do);
 
   emitln("_do%d_exit:", current_label_index_do);
 
   get();
-  if(tok != SEMICOLON) error("Semicolon expected");
+  if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 
   label_tos_do--;
   current_label_index_do = label_stack_do[label_tos_do];
@@ -1568,17 +1568,17 @@ void parse_goto(void){
   char label[256];
 
   get();
-  if(toktype != IDENTIFIER) error("Identifier expected");
+  if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
   for(i = 0; i < function_table[current_func_id].goto_labels_table_tos; i++){
     sprintf(label, "%s_%s", function_table[current_func_id].name, token);
     if(!strcmp(function_table[current_func_id].goto_labels_table[i], label)){
       emitln("  jmp %s", label);
       get();
-      if(tok != SEMICOLON) error("Semicolon expected");
+      if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
       return;
     }
   }
-  error("(parse_goto) Undeclared identifier: %s", token);
+  error(ERR_FATAL, "(parse_goto) Undeclared identifier: %s", token);
 }
 
 void parse_if(void){
@@ -1592,9 +1592,9 @@ void parse_if(void){
 
   emitln("_if%d_cond:", current_label_index_if);
   get();
-  if(tok != OPENING_PAREN) error("Opening parenthesis expected");
+  if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
-  if(tok != CLOSING_PAREN) error("Closing parenthesis expected");
+  if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
   emitln("  cmp b, 0");
   
   temp_p = prog;
@@ -1663,33 +1663,33 @@ void parse_switch(void){
 
   emitln("_switch%d_expr:", current_label_index_switch);
   get();
-  if(tok != OPENING_PAREN) error("Opening parenthesis expected");
+  if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
-  if(tok != CLOSING_PAREN) error("Closing parenthesis expected");
+  if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
   emitln("_switch%d_comparisons:", current_label_index_switch);
 
   get();
-  if(tok != OPENING_BRACE) error("Opening braces expected");
+  if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
 
   temp_p = prog;
   current_case_nbr = 0;
   // emit compares and jumps
   do{
     get();
-    if(tok != CASE) error("Case expected");
+    if(tok != CASE) error(ERR_FATAL, "Case expected");
     get();
     if(toktype == INTEGER_CONST){
       emitln("  cmp b, %d", int_const);
       emitln("  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
       get();
-      if(tok != COLON) error("Colon expected");
+      if(tok != COLON) error(ERR_FATAL, "Colon expected");
       skip_case();
     }
     else if(toktype == CHAR_CONST){
       emitln("  cmp bl, $%x", *string_const);
       emitln("  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
       get();
-      if(tok != COLON) error("Colon expected");
+      if(tok != COLON) error(ERR_FATAL, "Colon expected");
       skip_case();
     }
     else if(toktype == IDENTIFIER){
@@ -1697,11 +1697,11 @@ void parse_switch(void){
         emitln("  cmp b, %d", get_enum_val(token));
         emitln("  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
         get();
-        if(tok != COLON) error("Colon expected");
+        if(tok != COLON) error(ERR_FATAL, "Colon expected");
         skip_case();
       }
     }
-    else error("Constant expected");
+    else error(ERR_FATAL, "Constant expected");
     current_case_nbr++;
   } while(tok == CASE);
 
@@ -1740,7 +1740,7 @@ void parse_switch(void){
   else back();
 
   get(); // get the final '}'
-  if(tok != CLOSING_BRACE) error("Closing braces expected");
+  if(tok != CLOSING_BRACE) error(ERR_FATAL, "Closing braces expected");
   emitln("_switch%d_exit:", current_label_index_switch);
   
   label_tos_switch--;
@@ -1853,7 +1853,7 @@ void parse_block(void){
         if(!override_return_is_last_statement) return_is_last_statement = 1; // only consider this return as a final return if we are not inside an IF statement.
         break;
       default:
-        if(toktype == END) error("Closing brace expected");
+        if(toktype == END) error(ERR_FATAL, "Closing brace expected");
         emit_c_line();
         prog = temp_prog;
         get();
@@ -1867,7 +1867,7 @@ void parse_block(void){
         }
         prog = temp_prog;
         parse_expr();
-        if(tok != SEMICOLON) error("Semicolon expected");
+        if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
     }    
   } while(braces); // exits when it finds the last closing brace
 }
@@ -1884,14 +1884,14 @@ void skip_statements(void){
     case IF:
       // skips the conditional expression between parenthesis
       get();
-      if(tok != OPENING_PAREN) error("Opening parenthesis expected");
+      if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
       paren = 1; // found the first parenthesis
       do{
              if(*prog == '(') paren++;
         else if(*prog == ')') paren--;
         prog++;
       } while(paren && *prog);
-      if(!*prog) error("Closing parenthesis expected");
+      if(!*prog) error(ERR_FATAL, "Closing parenthesis expected");
       skip_statements();
       get();
       if(tok == ELSE) skip_statements();
@@ -1903,14 +1903,14 @@ void skip_statements(void){
       break;
     case FOR:
       get();
-      if(tok != OPENING_PAREN) error("Opening parenthesis expected");
+      if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
       paren = 1;
       do{
              if(*prog == '(') paren++;
         else if(*prog == ')') paren--;
         prog++;
       } while(paren && *prog);
-      if(!*prog) error("Closing paren expected");
+      if(!*prog) error(ERR_FATAL, "Closing paren expected");
       get();
       if(tok != SEMICOLON){
         back();
@@ -1921,7 +1921,7 @@ void skip_statements(void){
       back(); // puts the last token back, which might be a ";" token
       while(tok != SEMICOLON && toktype != END) get();
       //while(*prog++ != ';' && *prog);
-      if(toktype == END) error("Semicolon expected");
+      if(toktype == END) error(ERR_FATAL, "Semicolon expected");
   }
 }
 
@@ -1933,7 +1933,7 @@ void skip_block(void){
     if(tok == OPENING_BRACE) braces++;
     else if(tok == CLOSING_BRACE) braces--;
   } while(braces && toktype != END);
-  if(braces && toktype == END) error("Closing braces expected");
+  if(braces && toktype == END) error(ERR_FATAL, "Closing braces expected");
 }
 
 void emit_var_assignment__addr_in_d(t_type type){
@@ -1945,7 +1945,7 @@ void emit_var_assignment__addr_in_d(t_type type){
   else if(type.primitive_type == DT_CHAR)
     emitln("  mov [d], bl");
   else 
-    error("Not able to resolve variable type");
+    error(ERR_FATAL, "Not able to resolve variable type");
 }
 
 t_type parse_expr(){
@@ -1954,8 +1954,8 @@ t_type parse_expr(){
   type.dims[0] = 0;
   type.ind_level = 0;
   type.primitive_type = DT_INT;
-  type.signedness = SNESS_SIGNED;
-  type.modifier = MOD_NORMAL;
+  type.sign_modifier = SNESS_SIGNED;
+  type.size_modifier = MOD_NORMAL;
   get();
   if(tok == SEMICOLON) 
     return type;
@@ -1978,7 +1978,7 @@ int is_assignment(){
       break;
     }
     if(toktype == END) 
-      error("Unterminated expression.");
+      error(ERR_FATAL, "Unterminated expression.");
     if(tok == SEMICOLON) 
       break;
     if(tok == OPENING_PAREN) 
@@ -2016,7 +2016,7 @@ t_type parse_assignment(){
   get();
   if(toktype == IDENTIFIER){
     if(is_constant(token)) 
-      error("assignment of read-only variable: %s", token);
+      error(ERR_FATAL, "assignment of read-only variable: %s", token);
     strcpy(var_name, token);
     expr_in = emit_var_addr_into_d(var_name);
     get();
@@ -2026,7 +2026,7 @@ t_type parse_assignment(){
     emitln("  pop d"); 
     if(expr_in.ind_level > 0)
       emitln("  mov [d], b");
-    else if(expr_in.primitive_type == DT_INT && expr_in.modifier == MOD_LONG){
+    else if(expr_in.primitive_type == DT_INT && expr_in.size_modifier == MOD_LONG){
       emitln("  mov [d], b");
       emitln("  mov b, c");
       emitln("  mov [d + 2], b");
@@ -2049,7 +2049,7 @@ t_type parse_assignment(){
     emitln("  push b"); // pointer given in 'b'. push 'b' into stack to save it. we will retrieve it below into 'd' for the assignment address
     // after evaluating the address expression, the token will be a "="
     if(tok != ASSIGNMENT) 
-      error("Syntax error: Assignment expected");
+      error(ERR_FATAL, "Syntax error: Assignment expected");
     parse_expr(); // evaluates the value to be assigned to the address, result in 'b'
     emitln("  pop d"); // now pop 'b' from before into 'd' so that we can recover the address for the assignment
     switch(expr_in.primitive_type){
@@ -2060,7 +2060,7 @@ t_type parse_assignment(){
           emitln("  mov [d], bl");
         break;
       case DT_INT:
-        if(expr_in.primitive_type == DT_INT && expr_in.modifier == MOD_LONG){
+        if(expr_in.primitive_type == DT_INT && expr_in.size_modifier == MOD_LONG){
           emitln("  mov [d], b");
           emitln("  mov b, c");
           emitln("  mov [d + 2], b");
@@ -2068,7 +2068,7 @@ t_type parse_assignment(){
         else
           emitln("  mov [d], b");
         break;
-      default: error("Invalid pointer");
+      default: error(ERR_FATAL, "Invalid pointer");
     }
     expr_out = expr_in;
     expr_out.ind_level--;
@@ -2086,7 +2086,7 @@ char is_constant(char *varname){
   else if((var_id = global_var_exists(varname)) != -1)  // is a global variable
     return global_var_table[var_id].type.is_constant;
   else 
-    error("Undeclared variable: %s", varname);
+    error(ERR_FATAL, "Undeclared variable: %s", varname);
 }
 
 // A = cond1 ? true_val : false_val;
@@ -2113,7 +2113,7 @@ t_type parse_ternary_op(void){
   emitln("  je _ternary%d_false", current_label_index_ter);
   emitln("_ternary%d_true:", current_label_index_ter);
   type1 = parse_ternary_op(); // result in 'b'
-  if(tok != COLON) error("Colon expected");
+  if(tok != COLON) error(ERR_FATAL, "Colon expected");
   emitln("  jmp _ternary%d_exit", current_label_index_ter);
   emitln("_ternary%d_false:", current_label_index_ter);
   type2 = parse_ternary_op(); // result in 'b'
@@ -2132,22 +2132,22 @@ t_type parse_logical(void){
 t_type parse_logical_or(void){
   t_type type1, type2, expr_out;
 
-  type1.modifier = MOD_NORMAL;
-  type2.modifier = MOD_NORMAL;
+  type1.size_modifier = MOD_NORMAL;
+  type2.size_modifier = MOD_NORMAL;
   type1 = parse_logical_and();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == LOGICAL_OR){
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
       emitln("  push g");
     while(tok == LOGICAL_OR){
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+      if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
         emitln("  mov g, c");
       type2 = parse_logical_and();
       // or between ga and cb
-      if(type2.primitive_type == DT_INT && type2.modifier == MOD_LONG){
+      if(type2.primitive_type == DT_INT && type2.size_modifier == MOD_LONG){
         emitln("  sor a, b ; ||"); // result in B
         emitln("  push b");
         emitln("  mov a, c");
@@ -2159,7 +2159,7 @@ t_type parse_logical_or(void){
       else
         emitln("  sor a, b ; ||");
     }
-    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
       emitln("  pop g");
     emitln("  pop a");
   }
@@ -2170,22 +2170,22 @@ t_type parse_logical_or(void){
 t_type parse_logical_and(void){
   t_type type1, type2, expr_out;
 
-  type1.modifier = MOD_NORMAL;
-  type2.modifier = MOD_NORMAL;
+  type1.size_modifier = MOD_NORMAL;
+  type2.size_modifier = MOD_NORMAL;
   type1 = parse_bitwise_or();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
   if(tok == LOGICAL_AND){
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
       emitln("  push g");
     while(tok == LOGICAL_AND){
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+      if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
         emitln("  mov g, c");
       type2 = parse_bitwise_or();
       // or between ga and cb
-      if(type2.primitive_type == DT_INT && type2.modifier == MOD_LONG){
+      if(type2.primitive_type == DT_INT && type2.size_modifier == MOD_LONG){
         emitln("  sand a, b ; &&"); // result in B
         emitln("  push b");
         emitln("  mov a, c");
@@ -2197,7 +2197,7 @@ t_type parse_logical_and(void){
       else 
         emitln("  sand a, b ; &&");
     }
-    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
       emitln("  pop g");
     emitln("  pop a");
   }
@@ -2208,8 +2208,8 @@ t_type parse_logical_and(void){
 t_type parse_bitwise_or(void){
   t_type type1, type2, expr_out;
 
-  type1.modifier = MOD_NORMAL;
-  type2.modifier = MOD_NORMAL;
+  type1.size_modifier = MOD_NORMAL;
+  type2.size_modifier = MOD_NORMAL;
   type1 = parse_bitwise_xor();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
@@ -2230,8 +2230,8 @@ t_type parse_bitwise_or(void){
 t_type parse_bitwise_xor(void){
   t_type type1, type2, expr_out;
 
-  type1.modifier = MOD_NORMAL;
-  type2.modifier = MOD_NORMAL;
+  type1.size_modifier = MOD_NORMAL;
+  type2.size_modifier = MOD_NORMAL;
   type1 = parse_bitwise_and();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
@@ -2252,8 +2252,8 @@ t_type parse_bitwise_xor(void){
 t_type parse_bitwise_and(void){
   t_type type1, type2, expr_out;
 
-  type1.modifier = MOD_NORMAL;
-  type2.modifier = MOD_NORMAL;
+  type1.size_modifier = MOD_NORMAL;
+  type2.size_modifier = MOD_NORMAL;
   type1 = parse_relational();
   type2.primitive_type = DT_CHAR;
   type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
@@ -2275,8 +2275,8 @@ t_type parse_relational(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
-  type1.modifier = MOD_NORMAL;
-  type2.modifier = MOD_NORMAL;
+  type1.size_modifier = MOD_NORMAL;
+  type2.size_modifier = MOD_NORMAL;
 /* x = y > 1 && z<4 && y == 2 */
   temp_tok = TOK_UNDEF;
   type1 = parse_bitwise_shift();
@@ -2286,20 +2286,20 @@ t_type parse_relational(void){
   ){
     emitln("; START RELATIONAL");
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
       emitln("  push g");
     while(tok == EQUAL              || tok == NOT_EQUAL    || tok == LESS_THAN || 
           tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL
     ){
       temp_tok = tok;
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+      if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
         emitln("  mov g, c");
       type2 = parse_bitwise_shift();
       expr_out = cast(type1, type2); // convert to a common type
       switch(temp_tok){
         case EQUAL:
-          if(expr_out.primitive_type == DT_INT && expr_out.modifier == MOD_LONG){
+          if(expr_out.primitive_type == DT_INT && expr_out.size_modifier == MOD_LONG){
             emitln("  cmp a, b");
             emitln("  seq ; ==");
             emitln("  push b");
@@ -2316,7 +2316,7 @@ t_type parse_relational(void){
           }
           break;
         case NOT_EQUAL:
-          if(expr_out.primitive_type == DT_INT && expr_out.modifier == MOD_LONG){
+          if(expr_out.primitive_type == DT_INT && expr_out.size_modifier == MOD_LONG){
             emitln("  cmp a, b");
             emitln("  sneq ; !=");
             emitln("  push b");
@@ -2339,51 +2339,59 @@ t_type parse_relational(void){
         // cb is the current parsed long.  ga is the previously parsed long.   
         // check if g < c. save result. check that c==g && a < b. save result. or both results together
           emitln("  mov si, a"); 
-          emitln("  mov di, b");
+          emitln("  mov a, b"); 
+          emitln("  mov di, a");
 
           emitln("  mov a, g");
           emitln("  mov b, c");
           emitln("  cmp a, b");
-          emitln("  sltu ; <"); // test if g < c
+          emitln("  slu ; <");  // test if g < c, result in b
           emitln("  push b");   // save partial result
 
-          emitln("  seq ; =="); // test if c == c
+          emitln("  mov b, c"); // recover b
+          emitln("  seq ; =="); // test if c == g
           emitln("  push b");   // save partial result
 
-          emitln("  mov di, b");
-          emitln("  mov a, g");
-          emitln("  mov b, c");
-          emitln("  slt ; <"); // save result in register b
-          emitln("  mov si, b");
+          emitln("  mov a, di");
+          emitln("  mov b, a");
+          emitln("  mov a, si");
+          emitln("  cmp a, b");
+          emitln("  slu ; <"); // test if a < b, result in b
 
-          if(expr_out.ind_level > 0 || expr_out.signedness == SNESS_UNSIGNED)
-            emitln("  slu ; < (unsigned)");
+          emitln("  pop a");
+          emitln("  and b, a"); // result here: c == g and a < b
+          emitln("  pop a");
+          emitln("  or b, a"); // result here: (c == g and a < b) || g < c
+          emitln("  ");
+
+          if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+            ;
           else
-            emitln("  slt ; < ");
+            ;
           break;
         case LESS_THAN_OR_EQUAL:
           emitln("  cmp a, b");
-          if(expr_out.ind_level > 0 || expr_out.signedness == SNESS_UNSIGNED)
+          if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
             emitln("  sleu ; <= (unsigned)");
           else
             emitln("  sle ; <=");
           break;
         case GREATER_THAN:
           emitln("  cmp a, b");
-          if(expr_out.ind_level > 0 || expr_out.signedness == SNESS_UNSIGNED)
+          if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
             emitln("  sgu ; > (unsigned)");
           else
             emitln("  sgt ; >");
           break;
         case GREATER_THAN_OR_EQUAL:
           emitln("  cmp a, b");
-          if(expr_out.ind_level > 0 || expr_out.signedness == SNESS_UNSIGNED)
+          if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
             emitln("  sgeu ; >= (unsigned)");
           else
             emitln("  sge ; >=");
       }
     }
-    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
       emitln("  pop g");
     emitln("  pop a");
     emitln("; END RELATIONAL");
@@ -2396,8 +2404,8 @@ t_type parse_bitwise_shift(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
-  type1.modifier = MOD_NORMAL;
-  type2.modifier = MOD_NORMAL;
+  type1.size_modifier = MOD_NORMAL;
+  type2.size_modifier = MOD_NORMAL;
   temp_tok = 0;
   type1 = parse_terms();
   type2.primitive_type = DT_CHAR;
@@ -2411,13 +2419,13 @@ t_type parse_bitwise_shift(void){
       type2 = parse_terms();
       emitln("  mov c, b"); // using 16bit values even though only cl is needed, because 'mov cl, bl' is not implemented as an opcode
       if(temp_tok == BITWISE_SHL){
-        if(type1.signedness == SNESS_SIGNED) 
+        if(type1.sign_modifier == SNESS_SIGNED) 
           emitln("  shl a, cl"); // there is no ashl, since it is equal to shl
         else 
           emitln("  shl a, cl");
       }
       else if(temp_tok == BITWISE_SHR){
-        if(type1.signedness == SNESS_SIGNED) 
+        if(type1.sign_modifier == SNESS_SIGNED) 
           emitln("  ashr a, cl");
         else 
           emitln("  shr a, cl");
@@ -2435,8 +2443,8 @@ t_type parse_terms(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
   
-  type1.modifier = MOD_NORMAL;
-  type2.modifier = MOD_NORMAL;
+  type1.size_modifier = MOD_NORMAL;
+  type2.size_modifier = MOD_NORMAL;
   temp_tok = TOK_UNDEF;
   type1 = parse_factors();
   type2.primitive_type = DT_CHAR;
@@ -2444,17 +2452,17 @@ t_type parse_terms(void){
   if(tok == PLUS || tok == MINUS){
     emitln("; START TERMS");
     emitln("  push a");
-    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
       emitln("  push g");
     while(tok == PLUS || tok == MINUS){
       temp_tok = tok;
       emitln("  mov a, b");
-      if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG)
+      if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG)
         emitln("  mov g, c");
       type2 = parse_factors();
       // ga + cb
       if(temp_tok == PLUS){
-        if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG){
+        if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG){
           emitln("  add a, b");
           emitln("  push a");
           emitln("  mov a, g");
@@ -2470,7 +2478,7 @@ t_type parse_terms(void){
         emitln("  sub a, b");
       }
     }
-    if(type1.primitive_type == DT_INT && type1.modifier == MOD_LONG){
+    if(type1.primitive_type == DT_INT && type1.size_modifier == MOD_LONG){
       emitln("  pop g");
     }
     emitln("  mov b, a");
@@ -2485,8 +2493,8 @@ t_type parse_factors(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
-  type1.modifier = MOD_NORMAL;
-  type2.modifier = MOD_NORMAL;
+  type1.size_modifier = MOD_NORMAL;
+  type2.size_modifier = MOD_NORMAL;
 // if type1 is an INT and type2 is a char*, then the result should be a char* still
   temp_tok = TOK_UNDEF;
   type1 = parse_atomic();
@@ -2525,9 +2533,9 @@ t_type parse_atomic(void){
   char temp_name[ID_LEN], temp[1024];
   t_type expr_in, expr_out;
   int ind_level = 0;
-  t_signedness signedness;
+  t_sign_modifier sign_modifier;
   t_primitive_type primitive_type;
-  t_modifier modifier;
+  t_size_modifier size_modifier;
 
   get();
   if(toktype == STRING_CONST)
@@ -2571,14 +2579,14 @@ t_type parse_atomic(void){
         expr_out = function_table[func_id].return_type; // get function's return type
         parse_function_call(func_id);
       }
-      else error("Undeclared function: %s", temp_name);
+      else error(ERR_FATAL, "Undeclared function: %s", temp_name);
     }
     else if(enum_element_exists(temp_name) != -1){
       back();
       emitln("  mov b, %d; %s", get_enum_val(temp_name), temp_name);
       expr_out.primitive_type = DT_INT;
       expr_out.ind_level = 0;
-      expr_out.signedness = SNESS_SIGNED; // TODO: check enums can always be signed...
+      expr_out.sign_modifier = SNESS_SIGNED; // TODO: check enums can always be signed...
     }
     else{
       back();
@@ -2589,7 +2597,7 @@ t_type parse_atomic(void){
         emitln("  mov b, d");
       else if(expr_out.ind_level > 0)
         emitln("  mov b, [d]"); 
-      else if(expr_out.primitive_type == DT_INT && expr_out.modifier == MOD_LONG){
+      else if(expr_out.primitive_type == DT_INT && expr_out.size_modifier == MOD_LONG){
         emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
         emitln("  mov c, b ; And place it into C"); 
         emitln("  mov b, [d] ; Lower Word in B"); 
@@ -2610,21 +2618,21 @@ t_type parse_atomic(void){
     if(tok != SIGNED && tok != UNSIGNED && tok != LONG && tok != SHORT && tok != INT && tok != CHAR && tok != VOID){
       back();
       expr_out = parse_expr();  // parses expression between parenthesis and result will be in B
-      if(tok != CLOSING_PAREN) error("Closing paren expected");
+      if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing paren expected");
     }
     else{
-      signedness = SNESS_SIGNED;
-      modifier  = MOD_NORMAL;
+      sign_modifier = SNESS_SIGNED;
+      size_modifier  = MOD_NORMAL;
 
       while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
         if(tok == SIGNED)
-          signedness = SNESS_SIGNED;
+          sign_modifier = SNESS_SIGNED;
         else if(tok == UNSIGNED)
-          signedness = SNESS_UNSIGNED;
+          sign_modifier = SNESS_UNSIGNED;
         else if(tok == SHORT)
-          modifier = MOD_SHORT;
+          size_modifier = MOD_SHORT;
         else if(tok == LONG)
-          modifier = MOD_LONG;
+          size_modifier = MOD_LONG;
         get();
       }
 
@@ -2646,26 +2654,26 @@ t_type parse_atomic(void){
 
       if(primitive_type == DT_VOID){
         if(ind_level == 0) 
-          error("Invalid data type of pure 'void'.");
+          error(ERR_FATAL, "Invalid data type of pure 'void'.");
         expr_out = parse_atomic();
         back();
       }
       else if(primitive_type == DT_INT){
-        if(modifier == MOD_NORMAL){
+        if(size_modifier == MOD_NORMAL){
           expr_out = parse_atomic();
-          if(signedness == SNESS_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
+          if(sign_modifier == SNESS_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
             emitln("  snex b"); // sign extend b
-          else if(signedness == SNESS_UNSIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
+          else if(sign_modifier == SNESS_UNSIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
             emitln("  mov bh, 0"); // zero extend b
           back();
         }
-        else if(modifier == MOD_LONG){
+        else if(size_modifier == MOD_LONG){
           expr_out = parse_atomic();
-          if(signedness == SNESS_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR || expr_out.primitive_type == DT_INT){
+          if(sign_modifier == SNESS_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR || expr_out.primitive_type == DT_INT){
             emitln("  snex b"); // sign extend b
             emitln("  mov c, b"); // sign extend c
           }
-          else if(signedness == SNESS_UNSIGNED && ind_level == 0 && (expr_out.primitive_type == DT_CHAR || expr_out.primitive_type == DT_INT)){
+          else if(sign_modifier == SNESS_UNSIGNED && ind_level == 0 && (expr_out.primitive_type == DT_CHAR || expr_out.primitive_type == DT_INT)){
             emitln("  mov bh, 0"); // zero extend b
             emitln("  mov c, 0"); // zero extend c
           }
@@ -2676,19 +2684,19 @@ t_type parse_atomic(void){
         expr_out = parse_atomic();
         if(ind_level == 0){
           emitln("  mov bh, 0"); // zero out bh to make it a char
-          if(expr_out.modifier == MOD_LONG)
+          if(expr_out.size_modifier == MOD_LONG)
             emitln("  mov c, 0"); // and if the type is longm then zero out c as well
         }
         back();
       }
       expr_out.primitive_type = primitive_type;
       expr_out.ind_level = ind_level;
-      expr_out.signedness = signedness;
-      expr_out.modifier = modifier;
+      expr_out.sign_modifier = sign_modifier;
+      expr_out.size_modifier = size_modifier;
     }
   }
 
-  else error("Invalid expression");
+  else error(ERR_FATAL, "Invalid expression");
 
 // Check for post ++/--
   get();
@@ -2717,7 +2725,7 @@ t_type parse_sizeof(){
       emitln("  mov b, %d", get_total_type_size(global_var_table[var_id].type));
     }
     else{
-      error("(Parse atomic) Undeclared identifier: %s", token);
+      error(ERR_FATAL, "(Parse atomic) Undeclared identifier: %s", token);
     }
     get();
   }
@@ -2743,7 +2751,7 @@ t_type parse_sizeof(){
   }
   expr_out.primitive_type = DT_INT;
   expr_out.ind_level = 0;
-  expr_out.signedness = SNESS_SIGNED;
+  expr_out.sign_modifier = SNESS_SIGNED;
   expect(CLOSING_PAREN, "Closing paren expected");
   return expr_out;
 }
@@ -2758,27 +2766,28 @@ t_type parse_string_const(){
   }
   // now emit the reference to this string into the ASM
   emitln("  mov b, __s%d ; \"%s\"", string_id, string_const);
-  expr_out.modifier = MOD_NORMAL;
+  expr_out.size_modifier = MOD_NORMAL;
   expr_out.primitive_type = DT_CHAR;
   expr_out.ind_level = 1;
-  expr_out.signedness = SNESS_SIGNED;
+  expr_out.sign_modifier = SNESS_SIGNED;
   return expr_out;
 }
 
 t_type parse_integer_const(){
   t_type expr_out;
-    if(const_modifier == MOD_LONG){
-      emitln("  mov b, $%x", int_const & 0x0000FFFF);
-      emitln("  mov c, $%x", (unsigned)int_const >> 16);
-      expr_out.modifier = MOD_LONG;
-    }
-    else{
-      expr_out.modifier = MOD_NORMAL;
-      emitln("  mov b, $%x", int_const);
-    }
-    expr_out.primitive_type = DT_INT;
-    expr_out.ind_level = 0;
-    expr_out.signedness = int_const > 32767 || int_const < -32768 ? SNESS_UNSIGNED : SNESS_SIGNED;
+
+  if(const_size_modifier == MOD_LONG){
+    emitln("  mov b, $%x", int_const & 0x0000FFFF);
+    emitln("  mov c, $%x", (unsigned)int_const >> 16);
+  }
+  else{
+    emitln("  mov b, $%x", int_const);
+  }
+
+  expr_out.sign_modifier = const_sign_modifier;
+  expr_out.size_modifier = const_size_modifier;
+  expr_out.primitive_type = DT_INT;
+  expr_out.ind_level = 0;
 
   return expr_out;
 }
@@ -2795,10 +2804,10 @@ t_type parse_unary_logical_not(){
   emitln("  cmp b, 0");
   emitln("  seq ; !");
   back();
-  expr_out.modifier = MOD_NORMAL;
+  expr_out.size_modifier = MOD_NORMAL;
   expr_out.primitive_type = DT_INT;
   expr_out.ind_level = 0;
-  expr_out.signedness = SNESS_UNSIGNED;
+  expr_out.sign_modifier = SNESS_UNSIGNED;
   return expr_out;
 }
 t_type parse_bitwise_not(){
@@ -2809,10 +2818,10 @@ t_type parse_bitwise_not(){
     emitln("  not b");
   else 
     emitln("  not b"); // treating as int as an experiment
-  expr_out.modifier = MOD_NORMAL;
+  expr_out.size_modifier = MOD_NORMAL;
   expr_out.primitive_type = DT_INT;
   expr_out.ind_level = 0;
-  expr_out.signedness = expr_out.signedness;
+  expr_out.sign_modifier = expr_out.sign_modifier;
   back();
   return expr_out;
 }
@@ -2822,7 +2831,7 @@ t_type parse_unary_minus(){
   t_type expr_out;
   expr_out = parse_atomic(); // TODO: add error if type is pointer since cant neg a pointer
   if(expr_out.ind_level > 0) 
-    error("Negation of a pointer type.");
+    error(ERR_FATAL, "Negation of a pointer type.");
   if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT) 
     emitln("  neg b");
   else 
@@ -2830,8 +2839,8 @@ t_type parse_unary_minus(){
   back();
   expr_out.primitive_type = DT_INT; // convert to int
   expr_out.ind_level = 0;
-  expr_out.signedness = expr_out.signedness;
-  expr_out.modifier = MOD_NORMAL;
+  expr_out.sign_modifier = expr_out.sign_modifier;
+  expr_out.size_modifier = MOD_NORMAL;
   return expr_out;
 }
 t_type parse_char_const(){
@@ -2839,8 +2848,8 @@ t_type parse_char_const(){
   emitln("  mov b, $%x", string_const[0]);
   expr_out.primitive_type = DT_CHAR; //TODO: int or char? 
   expr_out.ind_level = 0;
-  expr_out.signedness = SNESS_UNSIGNED;
-  expr_out.modifier = MOD_NORMAL;
+  expr_out.sign_modifier = SNESS_UNSIGNED;
+  expr_out.size_modifier = MOD_NORMAL;
   expr_out.dims[0] = 0;
   return expr_out;
 }
@@ -2888,7 +2897,7 @@ t_type parse_pre_decrementing(){
   char temp_name[ID_LEN];
 
   get();
-  if(toktype != IDENTIFIER) error("Identifier expected");
+  if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
   strcpy(temp_name, token);
   expr_out = emit_var_addr_into_d(temp_name);
   emitln("  mov b, [d]");
@@ -2908,7 +2917,7 @@ t_type parse_pre_incrementing(){
   char temp_name[ID_LEN];
 
   get();
-  if(toktype != IDENTIFIER) error("Identifier expected");
+  if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
   strcpy(temp_name, token);
   expr_out = emit_var_addr_into_d(temp_name);
   emitln("  mov b, [d]");
@@ -2928,7 +2937,7 @@ t_type parse_referencing(){
   t_type expr_out;
 
   get(); // get variable name
-  if(toktype != IDENTIFIER) error("Identifier expected");
+  if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
   expr_out = emit_var_addr_into_d(token);
   emitln("  mov b, d");
   expr_out.ind_level++;
@@ -2941,14 +2950,14 @@ t_type parse_dereferencing(void){
   expr_out = parse_atomic(); // parse expression after STAR, which could be inside parenthesis. result in B
 
   if(expr_out.primitive_type == DT_VOID && expr_out.ind_level <= 1) 
-    error("Dereferencing void pointer with indirection level of 1 or less.");
+    error(ERR_FATAL, "Dereferencing void pointer with indirection level of 1 or less.");
 
   if(expr_out.ind_level > 1){
     emitln("  mov d, b");// now we have the pointer value.
     emitln("  mov b, [d]"); 
   }
   else if(expr_out.primitive_type == DT_INT){
-    if(expr_out.modifier == MOD_LONG){
+    if(expr_out.size_modifier == MOD_LONG){
       emitln("  mov d, b");// now we have the pointer value.
       emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
       emitln("  mov c, b ; And place it into C"); 
@@ -2997,7 +3006,7 @@ void parse_function_call(int func_id){
   get();
   if(tok == CLOSING_PAREN){
     if(function_table[func_id].num_fixed_args != 0)
-      error("Incorrect number of arguments for function: %s. Expecting %d, detected: 0", function_table[func_id].name, function_table[func_id].num_fixed_args);
+      error(ERR_FATAL, "Incorrect number of arguments for function: %s. Expecting %d, detected: 0", function_table[func_id].name, function_table[func_id].num_fixed_args);
     else{
       emitln("  call %s", function_table[func_id].name);
       return;
@@ -3030,7 +3039,7 @@ void parse_function_call(int func_id){
         prog--;
         while(*prog != '\"'){
           prog--;
-          if(prog == c_in) error("Unterminated string.");
+          if(prog == c_in) error(ERR_FATAL, "Unterminated string.");
         }
       }
       else if(*prog == ')') parenthesis_count++;
@@ -3069,7 +3078,7 @@ void parse_function_call(int func_id){
       emitln("  mov c, %d", get_type_size_for_func_arg_parsing(arg_type));
       emitln("  rep movsb");
     }
-    else if(arg_type.modifier == MOD_LONG){
+    else if(arg_type.size_modifier == MOD_LONG){
       emitln("  mov g, b");
       emitln("  mov b, c");
       emitln("  swp b");
@@ -3093,7 +3102,7 @@ void parse_function_call(int func_id){
   // Check if the number of arguments matches the number of function parameters
   // but only if the function does not have variable arguments
   if(function_table[func_id].num_fixed_args != total_function_arguments && !function_has_variable_arguments(func_id))  
-    error("Incorrect number of arguments for function: %s. Expecting %d, detected: %d", function_table[func_id].name, function_table[func_id].num_fixed_args, total_function_arguments);
+    error(ERR_FATAL, "Incorrect number of arguments for function: %s. Expecting %d, detected: %d", function_table[func_id].name, function_table[func_id].num_fixed_args, total_function_arguments);
 
   emitln("  call %s", function_table[func_id].name);
   // the function's return value is in register B
@@ -3118,8 +3127,8 @@ void dbg_print_var_info(t_var *var){
   for(i = 0; var->type.dims[i]; i++)
     printf("Dims[%d]: %d\n", i, var->type.dims[i]);
   printf("Ind Level: %d\n", var->type.ind_level);
-  printf("modifier: %d\n", var->type.modifier);
-  printf("Signedness: %d\n", var->type.signedness);
+  printf("modifier: %d\n", var->type.size_modifier);
+  printf("sign_modifier: %d\n", var->type.sign_modifier);
   printf("Struct ID: %d\n", var->type.struct_id);
   printf("*******************************************\n");
 }
@@ -3127,16 +3136,16 @@ void dbg_print_var_info(t_var *var){
 void dbg_print_function_info(t_function *function){
   int i;
 
-  printf("Function Name: %s\n", function->name);
+  printf("function name: %s\n", function->name);
   printf("RETURN TYPE INFO:\n");
   dbg_print_type_info(&function->return_type);
   printf("PARAMETER LIST:\n");
   for(i = 0; function->local_vars[i].name && function->local_vars[i].is_parameter ; i++){
-    printf("Parameter[%d] Name: %s\n", i, function->local_vars[i].name);
-    printf("Ind Level: %d\n", function->local_vars[i].type.ind_level);
-    printf("modifier: %d\n", function->local_vars[i].type.modifier);
-    printf("Signedness: %d\n", function->local_vars[i].type.signedness);
-    printf("Struct ID: %d\n", function->local_vars[i].type.struct_id);
+    printf("parameter[%d] Name: %s\n", i, function->local_vars[i].name);
+    printf("ind level: %d\n", function->local_vars[i].type.ind_level);
+    printf("size modifier: %d\n", function->local_vars[i].type.size_modifier);
+    printf("sign modifier: %d\n", function->local_vars[i].type.sign_modifier);
+    printf("struct id: %d\n", function->local_vars[i].type.struct_id);
   }
   printf("*******************************************\n");
 }
@@ -3144,13 +3153,13 @@ void dbg_print_function_info(t_function *function){
 void dbg_print_type_info(t_type *type){
   int i;
 
-  printf("Basic Type: %s\n", primitive_type_to_str_table[type->primitive_type]);
+  printf("basic type: %s\n", primitive_type_to_str_table[type->primitive_type]);
   for(i = 0; type->dims[i]; i++)
-    printf("Dims[%d]: %d\n", i, type->dims[i]);
-  printf("Ind Level: %d\n", type->ind_level);
-  printf("modifier: %d\n", type->modifier);
-  printf("Signedness: %d\n", type->signedness);
-  printf("Struct ID: %d\n", type->struct_id);
+    printf("dims[%d]: %d\n", i, type->dims[i]);
+  printf("ind level: %d\n", type->ind_level);
+  printf("size modifier: %d\n", type->size_modifier);
+  printf("sign modifier: %d\n", type->sign_modifier);
+  printf("struct id: %d\n", type->struct_id);
   printf("*******************************************\n");
 }
 
@@ -3168,7 +3177,7 @@ t_type get_struct_element_type(int struct_id, char *name){
   for(int i = 0; *struct_table[struct_id].elements[i].name; i++)
     if(!strcmp(struct_table[struct_id].elements[i].name, name))
       return struct_table[struct_id].elements[i].type;
-  error("Undeclared struct element: %s", name);
+  error(ERR_FATAL, "Undeclared struct element: %s", name);
 }
 
 /* function used for dealihg with pointer arithmetic.
@@ -3216,7 +3225,7 @@ t_type emit_array_arithmetic(t_type type){
     }
     else 
       emitln("  add d, b");
-    if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+    if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
     get();
     if(tok != OPENING_BRACKET){
       back();
@@ -3260,34 +3269,34 @@ t_type cast(t_type t1, t_type t2){
           if(t1.ind_level > 0){
             type.primitive_type = DT_CHAR;
             type.ind_level  = t1.ind_level;
-            type.signedness = t1.signedness;
+            type.sign_modifier = t1.sign_modifier;
           }
           else if(t2.ind_level > 0){
             type.primitive_type = DT_CHAR;
             type.ind_level  = t2.ind_level;
-            type.signedness = t2.signedness;
+            type.sign_modifier = t2.sign_modifier;
           }
           else{
             type.primitive_type = DT_INT;
             type.ind_level  = 0;
-            type.signedness = SNESS_SIGNED;
+            type.sign_modifier = SNESS_SIGNED;
           }
           break;
         case DT_INT:
           if(t1.ind_level > 0){
             type.primitive_type = DT_CHAR;
             type.ind_level  = t1.ind_level;
-            type.signedness = t1.signedness;
+            type.sign_modifier = t1.sign_modifier;
           }
           else if(t2.ind_level > 0){
             type.primitive_type = DT_INT;
             type.ind_level  = t2.ind_level;
-            type.signedness = t2.signedness;
+            type.sign_modifier = t2.sign_modifier;
           }
           else{
             type.primitive_type = DT_INT;
             type.ind_level  = 0;
-            type.signedness = t2.signedness; // assign whatever the int's signedness is
+            type.sign_modifier = t2.sign_modifier; // assign whatever the int's sign_modifier is
           }
       }
       break;
@@ -3297,44 +3306,44 @@ t_type cast(t_type t1, t_type t2){
           if(t1.ind_level > 0){
             type.primitive_type = DT_INT;
             type.ind_level  = t1.ind_level;
-            type.signedness = t1.signedness; // assign whatever the int's signednss is
+            type.sign_modifier = t1.sign_modifier; // assign whatever the int's signednss is
           }
           else if(t2.ind_level > 0){
             type.primitive_type = DT_CHAR;
             type.ind_level  = t2.ind_level;
-            type.signedness = t2.signedness; // assign whatever the char* signedness is
+            type.sign_modifier = t2.sign_modifier; // assign whatever the char* sign_modifier is
           }
           else{
             type.primitive_type = DT_INT;
             type.ind_level  = 0;
-            type.signedness = t1.signedness; // assign whatever the int's signedness is
+            type.sign_modifier = t1.sign_modifier; // assign whatever the int's sign_modifier is
           }
           break;
         case DT_INT:
           if(t1.ind_level > 0){
             type.primitive_type = DT_INT;
             type.ind_level  = t1.ind_level;
-            type.signedness = t1.signedness;
+            type.sign_modifier = t1.sign_modifier;
           }
           else if(t2.ind_level > 0){
             type.primitive_type = DT_INT;
             type.ind_level  = t2.ind_level;
-            type.signedness = t2.signedness;
+            type.sign_modifier = t2.sign_modifier;
           }
           else{
             type.primitive_type = DT_INT;
             type.ind_level  = 0;
-            if(t1.signedness == SNESS_UNSIGNED || t2.signedness == SNESS_UNSIGNED)
-              type.signedness = SNESS_UNSIGNED;
+            if(t1.sign_modifier == SNESS_UNSIGNED || t2.sign_modifier == SNESS_UNSIGNED)
+              type.sign_modifier = SNESS_UNSIGNED;
             else
-              type.signedness = SNESS_SIGNED;
+              type.sign_modifier = SNESS_SIGNED;
           }
       }
   }
-  if(t1.modifier == MOD_LONG || t2.modifier == MOD_LONG)
-    type.modifier = MOD_LONG;
+  if(t1.size_modifier == MOD_LONG || t2.size_modifier == MOD_LONG)
+    type.size_modifier = MOD_LONG;
   else
-    type.modifier = MOD_NORMAL;
+    type.size_modifier = MOD_NORMAL;
 
   return type;
 }
@@ -3354,7 +3363,7 @@ unsigned int add_string_data(char *str){
       return i;
     }
 
-  error("Maximum number of string literals reached.");
+  error(ERR_FATAL, "Maximum number of string literals reached.");
 }
 
 void emit_string_table_data(void){
@@ -3401,7 +3410,7 @@ char *get_var_base_addr(char *dest, char *var_name){
   else if(global_var_exists(var_name) != -1)  // is a global variable
     strcpy(dest, var_name);
   else 
-    error("(get_var_base_addr) Undeclared identifier: %s", var_name);
+    error(ERR_FATAL, "(get_var_base_addr) Undeclared identifier: %s", var_name);
 
   return dest;
 }
@@ -3439,7 +3448,7 @@ t_type emit_var_addr_into_d(char *var_name){
     else
       emitln("  mov d, _%s ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
   }
-  else error("(emit_var_addr_into_d) Undeclared identifier: %s", var_name);
+  else error(ERR_FATAL, "(emit_var_addr_into_d) Undeclared identifier: %s", var_name);
 
   var = get_internal_var_ptr(var_name);
   get();
@@ -3461,12 +3470,12 @@ t_type emit_var_addr_into_d(char *var_name){
           emitln("  push d"); // save 'd' in case the expressions inside brackets use 'd' for addressing (likely)
           parse_expr(); // parse index expression, result in B
           emitln("  pop d");
-          if(tok != CLOSING_BRACKET) error("Closing brackets expected");
+          if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
           emitln("  mma %u ; mov a, %u; mul a b; add d, b", get_data_size_for_indexing(type), get_data_size_for_indexing(type)); // mov a, u16; mul a b; add d, b
           emitln("  pop a");
           type.ind_level--; // indexing reduces ind_level by 1
         }
-        else error("Invalid indexing");
+        else error(ERR_FATAL, "Invalid indexing");
       }
       else if(tok == STRUCT_DOT){
         get(); // get element name
@@ -3547,7 +3556,7 @@ int get_primitive_type_size(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      if(type.modifier == MOD_LONG)
+      if(type.size_modifier == MOD_LONG)
         return 4;
       else
         return 2;
@@ -3566,7 +3575,7 @@ int get_type_size_for_func_arg_parsing(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      if(type.modifier == MOD_LONG)
+      if(type.size_modifier == MOD_LONG)
         return 4;
       else
         return 2;
@@ -3592,7 +3601,7 @@ int get_struct_size(int id){
           size += array_size * 1;
           break;
         case DT_INT:
-          if(struct_table[id].elements[i].type.modifier == MOD_LONG)
+          if(struct_table[id].elements[i].type.size_modifier == MOD_LONG)
             size += array_size * 4;
           else
             size += array_size * 2;
@@ -3612,7 +3621,7 @@ int get_data_size_for_indexing(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      if(type.modifier == MOD_LONG)
+      if(type.size_modifier == MOD_LONG)
         return 4;
       else
         return 2;
@@ -3690,7 +3699,7 @@ void parse_struct_initialization_data(int struct_id, int array_size){
                   emit_data(".db %d\n", (char)int_const);
                   break;
                 case STRING_CONST:
-                  error("Incompatible data type for struct element in initialization.");
+                  error(ERR_FATAL, "Incompatible data type for struct element in initialization.");
               }
             }
             break;
@@ -3712,12 +3721,12 @@ void parse_struct_initialization_data(int struct_id, int array_size){
         if(is_array(struct_table[struct_id].elements[i].type)){
           get();
           if(tok == CLOSING_BRACE) break;
-          else if(tok != COMMA) error("Comma expected in struct initialization.");
+          else if(tok != COMMA) error(ERR_FATAL, "Comma expected in struct initialization.");
         }
       }
       get();
       if(tok == CLOSING_BRACE) break;
-      else if(tok != COMMA) error("Comma expected in struct initialization.");
+      else if(tok != COMMA) error(ERR_FATAL, "Comma expected in struct initialization.");
     }
     if(tok == CLOSING_BRACE) break;
   }
@@ -3752,7 +3761,7 @@ int get_enum_val(char *name){
   return -1;
 }
 
-int find_array_initialization_size(t_modifier modifier){
+int find_array_initialization_size(t_size_modifier size_modifier){
   char *temp_prog = prog; // save starting prog position
   int len = 0;
   int braces;
@@ -3772,7 +3781,7 @@ int find_array_initialization_size(t_modifier modifier){
           len += 1;
           break;
         case INTEGER_CONST:
-          if(modifier == MOD_LONG)
+          if(size_modifier == MOD_LONG)
             len += 4;
           else
             len += 2;
@@ -3822,7 +3831,7 @@ void emit_global_var_initialization(t_var *var){
         string_id = add_string_data(string_const);
         emit_data("__s%u, ", string_id);
       }
-      else error("Unknown data type");
+      else error(ERR_FATAL, "Unknown data type");
       if(toktype == CHAR_CONST || toktype == INTEGER_CONST || toktype == STRING_CONST) j++;
       if(braces == 0) break;
       get();
@@ -3854,7 +3863,7 @@ void emit_global_var_initialization(t_var *var){
             emit_data("_%s: .dw _%s_data\n", var->name, temp);
           }
           else{
-            if(toktype != STRING_CONST) error("String constant expected");
+            if(toktype != STRING_CONST) error(ERR_FATAL, "String constant expected");
             emit_data("_%s_data: ", var->name);
             emit_data_dbdw(var->type);
             emit_data("%s, 0\n", token);
@@ -3911,7 +3920,7 @@ void emit_static_var_initialization(t_var *var){
         emit_data("__s%u, ", string_id);
       }
       else 
-        error("Unknown data type");
+        error(ERR_FATAL, "Unknown data type");
       if(toktype == CHAR_CONST || toktype == INTEGER_CONST || toktype == STRING_CONST) j++;
       get();
       if(j % 30 == 0){ // split into multiple lines due to TASM limitation of how many items per .dw directive
@@ -3936,7 +3945,7 @@ void emit_static_var_initialization(t_var *var){
         break;
       case DT_CHAR:
         if(var->type.ind_level > 0){ // if is a string
-          if(toktype != STRING_CONST) error("String constant expected");
+          if(toktype != STRING_CONST) error(ERR_FATAL, "String constant expected");
           emit_data("_static_%s_%s_data: ", function_table[current_func_id].name, var->name);
           emit_data_dbdw(var->type);
           emit_data("%s, 0\n", token); // TODO: do not require char pointer initialization to be a string only!
@@ -4027,7 +4036,7 @@ t_primitive_type get_primitive_type_from_tok(){
     case STRUCT:
       return DT_STRUCT;
     default:
-      error("Unknown data type.");
+      error(ERR_FATAL, "Unknown data type.");
   }
 }
 
@@ -4047,15 +4056,15 @@ t_var get_internal_var_ptr(char *var_name){
   for(i = 0; (i < global_var_tos) && (*global_var_table[i].name); i++)
     if(!strcmp(global_var_table[i].name, var_name)) return global_var_table[i];
   
-  error("Undeclared variable: %s", var_name);
+  error(ERR_FATAL, "Undeclared variable: %s", var_name);
 }
 
 void expect(t_token _tok, char *message){
-  if(tok != _tok) error(message);
+  if(tok != _tok) error(ERR_FATAL, message);
 }
 
 void expect_type(t_token _tok, char *message){
-  if(tok != _tok) error(message);
+  if(tok != _tok) error(ERR_FATAL, message);
 }
 
 void print_info(const char* format, ...){
@@ -4068,43 +4077,18 @@ void print_info(const char* format, ...){
   puts(tempbuffer);
 }
 
-void warning(const char* format, ...){
-  int line = 1;
-  char tempbuffer[1024];
-  char warning_token[256];
-  va_list args;
-  va_start(args, format);
-  vsnprintf(tempbuffer, sizeof(tempbuffer), format, args);
-  va_end(args);
-
-  strcpy(warning_token, token);
-
-  prog = c_in;
-  while(prog != prog_before_error){
-    if(*prog == '\n') line++;
-    prog++;
-  }
-
-  printf("\nWarning  : %s\n", tempbuffer);
-  printf("At line %d : ", line - include_files_total_lines);
-  while(*prog != '\n' && prog != c_in) prog--;
-  prog++;
-  while(*prog != '\n') putchar(*prog++);
-  printf("\n");
-  printf("Token     : %s\n", warning_token);
-  printf("Tok       : %s (%d)\n", token_to_str[tok].as_str, tok);
-  printf("Toktype   : %s\n\n", toktype_to_str[toktype].as_str);
-}
-
-void error(const char* format, ...){
+void error(t_error_type error_type, const char* format, ...){
   int line = 1;
   char tempbuffer[1024];
   char error_token[256];
+  char *temp_prog;
   va_list args;
+
   va_start(args, format);
   vsnprintf(tempbuffer, sizeof(tempbuffer), format, args);
   va_end(args);
 
+  temp_prog = prog;  
   strcpy(error_token, token);
 
   prog = c_in;
@@ -4113,7 +4097,11 @@ void error(const char* format, ...){
     prog++;
   }
 
-  printf("\nError       : %s\n", tempbuffer);
+  if(error_type == ERR_WARNING)
+    printf("\nWarning     : %s\n", tempbuffer);
+  else 
+    printf("\nError       : %s\n", tempbuffer);
+
   printf("At line %d   : ", line - include_files_total_lines);
   while(*prog != '\n' && prog != c_in) prog--;
   prog++;
@@ -4123,7 +4111,11 @@ void error(const char* format, ...){
   printf("Tok         : %s (%d)\n", token_to_str[tok].as_str, tok);
   printf("Toktype     : %s\n\n", toktype_to_str[toktype].as_str);
 
-  exit(1);
+
+  if(error_type == ERR_WARNING)
+    prog = temp_prog;
+  else
+    exit(1);
 }
 
 // converts a literal string or char constant into constants with true escape sequences
@@ -4237,7 +4229,7 @@ void get(void){
     else
       *t++ = *prog++;
     if(*prog != '\'')
-      error("Single quotes expected");
+      error(ERR_FATAL, "Single quotes expected");
     *t++ = '\'';
     prog++;
     toktype = CHAR_CONST;
@@ -4255,7 +4247,7 @@ void get(void){
       else
         *t++ = *prog++;
     }
-    if(*prog != '\"') error("Double quotes expected");
+    if(*prog != '\"') error(ERR_FATAL, "Double quotes expected");
     *t++ = *prog++;
     *t = '\0';
     toktype = STRING_CONST;
@@ -4263,7 +4255,8 @@ void get(void){
   }
   else if(is_digit(*prog)){
     toktype = INTEGER_CONST;
-    const_modifier = MOD_NORMAL;
+    const_size_modifier = MOD_NORMAL;
+    const_sign_modifier = SNESS_SIGNED;
     if(*prog == '0' && *(prog+1) == 'x'){
       *t++ = *prog++;
       *t++ = *prog++;
@@ -4278,22 +4271,34 @@ void get(void){
       *t = '\0';
       sscanf(token, "%d", &int_const);
     }
-    if(*prog == 'L' || *prog == 'l'){
-      const_modifier = MOD_LONG;
-      *t++ = *prog++;
+    if(*prog == 'L' || *prog == 'l' || *prog == 'u' || *prog == 'U'){
+      while(*prog == 'L' || *prog == 'l' || *prog == 'u' || *prog == 'U'){
+        if(*prog == 'L' || *prog == 'l'){
+          const_size_modifier = MOD_LONG;
+        }
+        else if(*prog == 'U' || *prog == 'u'){
+          const_sign_modifier = SNESS_UNSIGNED;
+        }
+        *t++ = *prog++;
+        *t = '\0';
+      }
     }
-    else if(int_const > 65535 || int_const < -32768)
-      const_modifier = MOD_LONG;
-    *t = '\0';
-
-    if(const_modifier == MOD_LONG){
-      //if(int_const > 4294967295) error("The constant value of %d exceeds the maximum value for a long integer.", int_const);
-    }
-    else if(const_modifier == MOD_SHORT){
-      //if(int_const > 65535) error("The constant value of %d exceeds the maximum value for a short integer.", int_const);
-    }
-    else if(const_modifier == MOD_NORMAL){
-      //if(int_const > 65535) error("The constant value of %d exceeds the maximum value for a normal integer.", int_const);
+    else{
+      if(int_const > 32767 && int_const <= 65535)
+        const_sign_modifier = SNESS_UNSIGNED;
+      else if(int_const > 65535 && int_const <= 2147483647)
+        const_size_modifier = MOD_LONG;
+      else if(int_const > 2147483647){
+        const_size_modifier = MOD_LONG;
+        const_sign_modifier = SNESS_UNSIGNED;
+      }
+      else if(int_const > 4294967295){
+        error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", int_const);
+      }
+      else if(int_const < -32768 && int_const >= -2147483648)
+        const_size_modifier = MOD_LONG;
+      else if(int_const < -2147483648)
+        error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", int_const);
     }
     return; // return to avoid *t = '\0' line at the end of function
   }
@@ -4493,13 +4498,13 @@ void back(void){
 }
 
 void push_prog(){
-  if(prog_tos == 10) error("Cannot push prog. Stack overflow.");
+  if(prog_tos == 10) error(ERR_FATAL, "Cannot push prog. Stack overflow.");
   prog_stack[prog_tos] = prog;
   prog_tos++;
 }
 
 void pop_prog(){
-  if(prog_tos == 0) error("Cannot pop prog. Stack overflow.");
+  if(prog_tos == 0) error(ERR_FATAL, "Cannot pop prog. Stack overflow.");
   prog_tos--;
   prog = prog_stack[prog_tos];
 }
@@ -4515,7 +4520,7 @@ void get_line(void){
   }
   if(*prog == ';') while(*prog != 0x0A && *prog) prog++;
 
-  if(*prog == '\0' && string_const[0] == '\0') error("Unexpected EOF");
+  if(*prog == '\0' && string_const[0] == '\0') error(ERR_FATAL, "Unexpected EOF");
 
   while(is_space(*prog)) prog++;
   *t = '\0';

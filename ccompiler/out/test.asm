@@ -7,21 +7,113 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; printf("String: %s, %c, %x", "Hello World, this Works!", 'A', 0xABCD); 
-  mov b, $abcd
+; $i1 
+; $i2 
+  sub sp, 8
+;; i1 = 123; 
+  lea d, [bp + -3] ; $i1
+  push d
+  mov b, $7b
+  pop d
+  mov [d], b
+  mov b, c
+  mov [d + 2], b
+;; i2 = 1234; 
+  lea d, [bp + -7] ; $i2
+  push d
+  mov b, $4d2
+  pop d
+  mov [d], b
+  mov b, c
+  mov [d + 2], b
+;; -2147483648; 
+  mov b, $0
+  mov c, $8000
+  neg b
+;; printf("Result: %d, %d", i1 < i2, i2 < i1); 
+  lea d, [bp + -7] ; $i2
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+; START RELATIONAL
+  push a
+  push g
+  mov a, b
+  mov g, c
+  lea d, [bp + -3] ; $i1
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+  mov si, a
+  mov a, b
+  mov di, a
+  mov a, g
+  mov b, c
+  cmp a, b
+  slu ; <
+  push b
+  mov b, c
+  seq ; ==
+  push b
+  mov a, di
+  mov b, a
+  mov a, si
+  cmp a, b
+  slu ; <
+  pop a
+  and b, a
+  pop a
+  or b, a
+  
+  pop g
+  pop a
+; END RELATIONAL
   swp b
   push b
-  mov b, $41
+  lea d, [bp + -3] ; $i1
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+; START RELATIONAL
+  push a
+  push g
+  mov a, b
+  mov g, c
+  lea d, [bp + -7] ; $i2
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+  mov si, a
+  mov a, b
+  mov di, a
+  mov a, g
+  mov b, c
+  cmp a, b
+  slu ; <
+  push b
+  mov b, c
+  seq ; ==
+  push b
+  mov a, di
+  mov b, a
+  mov a, si
+  cmp a, b
+  slu ; <
+  pop a
+  and b, a
+  pop a
+  or b, a
+  
+  pop g
+  pop a
+; END RELATIONAL
   swp b
   push b
-  mov b, __s0 ; "Hello World, this Works!"
-  swp b
-  push b
-  mov b, __s1 ; "String: %s, %c, %x"
+  mov b, __s0 ; "Result: %d, %d"
   swp b
   push b
   call printf
-  add sp, 8
+  add sp, 6
 ;; return; 
   leave
   syscall sys_terminate_proc
@@ -559,7 +651,7 @@ _if11_true:
   jmp _if11_exit
 _if11_else:
 ;; err("Unexpected format in printf."); 
-  mov b, __s2 ; "Unexpected format in printf."
+  mov b, __s1 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -720,7 +812,7 @@ _switch8_case7:
   jmp _switch8_exit ; case break
 _switch8_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s3 ; "Error: Unknown argument type.\n"
+  mov b, __s2 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -848,8 +940,27 @@ _for12_cond:
   mov a, b
   lea d, [bp + -6] ; $len
   mov b, [d]
+  mov si, a
+  mov a, b
+  mov di, a
+  mov a, g
+  mov b, c
   cmp a, b
-  slt ; < 
+  slu ; <
+  push b
+  mov b, c
+  seq ; ==
+  push b
+  mov a, di
+  mov b, a
+  mov a, si
+  cmp a, b
+  slu ; <
+  pop a
+  and b, a
+  pop a
+  or b, a
+  
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -1304,8 +1415,27 @@ _if19_cond:
   push a
   mov a, b
   mov b, $0
+  mov si, a
+  mov a, b
+  mov di, a
+  mov a, g
+  mov b, c
   cmp a, b
-  slt ; < 
+  slu ; <
+  push b
+  mov b, c
+  seq ; ==
+  push b
+  mov a, di
+  mov b, a
+  mov a, si
+  cmp a, b
+  slu ; <
+  pop a
+  and b, a
+  pop a
+  or b, a
+  
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -1484,8 +1614,27 @@ _if23_cond:
   mov a, b
   mov g, c
   mov b, $0
+  mov si, a
+  mov a, b
+  mov di, a
+  mov a, g
+  mov b, c
   cmp a, b
-  slt ; < 
+  slu ; <
+  push b
+  mov b, c
+  seq ; ==
+  push b
+  mov a, di
+  mov b, a
+  mov a, si
+  cmp a, b
+  slu ; <
+  pop a
+  and b, a
+  pop a
+  or b, a
+  
   pop g
   pop a
 ; END RELATIONAL
@@ -2289,7 +2438,7 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s4 ; "\033[2J\033[H"
+  mov b, __s3 ; "\033[2J\033[H"
   swp b
   push b
   call print
@@ -2309,13 +2458,10 @@ include_stdio_asm:
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
-_l_data: .fill 1060, 0
-_p: .fill 2, 0
-__s0: .db "Hello World, this Works!", 0
-__s1: .db "String: %s, %c, %x", 0
-__s2: .db "Unexpected format in printf.", 0
-__s3: .db "Error: Unknown argument type.\n", 0
-__s4: .db "\033[2J\033[H", 0
+__s0: .db "Result: %d, %d", 0
+__s1: .db "Unexpected format in printf.", 0
+__s2: .db "Error: Unknown argument type.\n", 0
+__s3: .db "\033[2J\033[H", 0
 
 _heap_top: .dw _heap
 _heap: .db 0
