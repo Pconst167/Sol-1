@@ -2153,6 +2153,10 @@ t_type parse_logical_or(void){
       // or between ga and cb
       if(expr_out.primitive_type == DT_INT && expr_out.ind_level == 0 && expr_out.size_modifier == MOD_LONG){
         // if type1 was not a 32bit value, then we must clear the garbage from the registers used below
+
+        // need to simplifity this because if the high word (type1) was not a 32bit word, then
+        // we dont need to compare the high word of type1 in the code below for the OR.
+        // we can omit that and use just the high word of the second half of the OR (type2). 
         emitln("  sor a, b ; ||"); // result in B
         emitln("  push b");
         emitln("  mov a, c");
