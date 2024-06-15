@@ -1,7 +1,7 @@
 
 int main() {
 
-	45L || 123L;
+	'A' || 123L;
 
 	return;
 
