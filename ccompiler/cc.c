@@ -2182,12 +2182,10 @@ t_type parse_logical_or(void){
   expr_out = type1;
   if(tok == LOGICAL_OR){
     emitln("  push a");
-    if(type_is_32bit(type1))
-      emitln("  push g");
+    if(type_is_32bit(type1)) emitln("  push g");
     while(tok == LOGICAL_OR){
       emitln("  mov a, b");
-      if(type_is_32bit(type1))
-        emitln("  mov g, c");
+      if(type_is_32bit(type1)) emitln("  mov g, c");
       type2 = parse_logical_and();
       expr_out = cast(expr_out, type2);
       // or between ga and cb
@@ -2233,7 +2231,7 @@ t_type parse_logical_and(void){
       type2 = parse_bitwise_or();
       expr_out = cast(expr_out, type2);
       // or between ga and cb
-      if(type_is_32bit(type2)){
+      if(type_is_32bit(expr_out)){
         emitln("  sand a, b ; &&"); // result in B
         emitln("  push b");
         emitln("  mov a, c");
@@ -2322,19 +2320,15 @@ t_type parse_relational(void){
   expr_out = type1;
   
   if(tok == EQUAL              || tok == NOT_EQUAL    || tok == LESS_THAN ||
-     tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL
-  ){
+     tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL){
     emitln("; START RELATIONAL");
     emitln("  push a");
-    if(type_is_32bit(type1))
-      emitln("  push g");
+    if(type_is_32bit(type1)) emitln("  push g");
     while(tok == EQUAL              || tok == NOT_EQUAL    || tok == LESS_THAN || 
-          tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL
-    ){
+          tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL){
       temp_tok = tok;
       emitln("  mov a, b");
-      if(type_is_32bit(type1))
-        emitln("  mov g, c");
+      if(type_is_32bit(type1)) emitln("  mov g, c");
       type2 = parse_bitwise_shift();
       expr_out = cast(expr_out, type2);
       switch(temp_tok){
@@ -2485,18 +2479,16 @@ t_type parse_terms(void){
   if(tok == PLUS || tok == MINUS){
     emitln("; START TERMS");
     emitln("  push a");
-    if(type_is_32bit(type1))
-      emitln("  push g");
+    if(type_is_32bit(type1)) emitln("  push g");
     while(tok == PLUS || tok == MINUS){
       temp_tok = tok;
       emitln("  mov a, b");
-      if(type_is_32bit(type1))
-        emitln("  mov g, c");
+      if(type_is_32bit(type1)) emitln("  mov g, c");
       type2 = parse_factors();
       expr_out = cast(expr_out, type2);
       // ga + cb
       if(temp_tok == PLUS){
-        if(type_is_32bit(type1)){
+        if(type_is_32bit(expr_out)){
           emitln("  add a, b");
           emitln("  push a");
           emitln("  mov a, g");
@@ -2512,8 +2504,7 @@ t_type parse_terms(void){
         emitln("  sub a, b");
       }
     }
-    if(type_is_32bit(type1))
-      emitln("  pop g");
+    if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  mov b, a");
     emitln("  pop a");
     emitln("; END TERMS");

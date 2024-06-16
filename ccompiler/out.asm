@@ -1506,6 +1506,12 @@ _while21_block:
   pop a
 ; END FACTORS
   add a, b
+  push a
+  mov a, g
+  mov b, c
+  adc a, b
+  mov c, a
+  pop b
   mov b, a
   pop a
 ; END TERMS
@@ -1678,6 +1684,12 @@ _while24_block:
   pop a
 ; END FACTORS
   add a, b
+  push a
+  mov a, g
+  mov b, c
+  adc a, b
+  mov c, a
+  pop b
   mov b, a
   pop a
 ; END TERMS
