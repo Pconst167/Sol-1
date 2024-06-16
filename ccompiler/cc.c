@@ -2424,7 +2424,7 @@ t_type parse_relational(void){
           }
           else{
             emitln("  cmp a, b");
-            emitln("  slt ; <= (signed)");
+            emitln("  slu ; <= (unsigned)");
           }
 
           if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
@@ -2527,14 +2527,14 @@ t_type parse_terms(void){
           emitln("  pop b");
         }
         else
-          emitln("  add a, b");
+          emitln("  add b, a");
       }
       else if(temp_tok == MINUS){
         emitln("  sub a, b");
+        emitln("  mov b, a");
       }
     }
     if(type_is_32bit(type1)) emitln("  pop g");
-    emitln("  mov b, a");
     emitln("  pop a");
     emitln("; END TERMS");
   }
@@ -2826,11 +2826,11 @@ t_type parse_integer_const(){
   t_type expr_out;
 
   if(const_size_modifier == MOD_LONG){
-    emitln("  mov b, $%x", int_const & 0x0000FFFF);
-    emitln("  mov c, $%x", (unsigned)int_const >> 16);
+    emitln("  mov b, %d", (uint16_t)(int_const & 0x0000FFFF));
+    emitln("  mov c, %d", (uint16_t)(int_const >> 16));
   }
   else{
-    emitln("  mov b, $%x", int_const);
+    emitln("  mov b, $%x", (uint16_t)int_const);
   }
 
   expr_out.sign_modifier = const_sign_modifier;

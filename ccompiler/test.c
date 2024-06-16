@@ -1,12 +1,8 @@
+#include <stdio.h>
 
 
-int main(){
+void main(){
+  int i, j;
 
-}
-
-int test0_subTest0(int ia[5]){
-
-
-  ia[1];
-
+  i + j + (i&&j);
 }

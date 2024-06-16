@@ -29,7 +29,7 @@ _for1_cond:
   lea d, [bp + -23] ; $nbr_tests
   mov b, [d]
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -45,7 +45,7 @@ _for1_block:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
-  mov b, $ffffffff
+  mov b, $ffff
   pop d
   mov [d], b
 _for1_update:
@@ -194,7 +194,7 @@ _for2_cond:
   lea d, [bp + -23] ; $nbr_tests
   mov b, [d]
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -424,8 +424,7 @@ _for5_block:
   mov a, b
   lea d, [bp + -3] ; $i
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -454,8 +453,7 @@ _for5_update:
   push a
   mov a, b
   mov b, $1
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -474,8 +472,7 @@ _for5_exit:
   mov a, b
   lea d, [bp + -3] ; $i
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -644,7 +641,7 @@ _if9_true:
 ;; sign = -1; 
   lea d, [bp + -3] ; $sign
   push d
-  mov b, $ffffffff
+  mov b, $ffff
   pop d
   mov [d], b
   jmp _if9_exit
@@ -724,8 +721,7 @@ _while10_block:
   mov b, a
   pop a
 ; END TERMS
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -808,8 +804,7 @@ alloc:
   mov a, b
   lea d, [bp + 5] ; $bytes
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -863,8 +858,7 @@ va_start:
   push a
   mov a, b
   mov b, 2
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -899,8 +893,7 @@ va_arg:
   mov a, b
   lea d, [bp + 7] ; $size
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -946,8 +939,7 @@ printf:
   push a
   mov a, b
   mov b, $2
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -1164,8 +1156,7 @@ _if15_exit:
   push a
   mov a, b
   mov b, $4
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -1192,8 +1183,7 @@ _switch14_case3:
   push a
   mov a, b
   mov b, $2
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -1219,8 +1209,7 @@ _switch14_case4:
   push a
   mov a, b
   mov b, $2
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -1245,8 +1234,7 @@ _switch14_case5:
   push a
   mov a, b
   mov b, $2
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -1272,8 +1260,7 @@ _switch14_case6:
   push a
   mov a, b
   mov b, $2
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -1298,8 +1285,7 @@ _switch14_case7:
   push a
   mov a, b
   mov b, $2
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -1437,7 +1423,7 @@ _for18_cond:
   lea d, [bp + -6] ; $len
   mov b, [d]
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -1515,14 +1501,13 @@ _if19_true:
   mov a, b
   mov b, $61
   sub a, b
+  mov b, a
   mov a, b
   mov b, $a
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -1585,14 +1570,13 @@ _if20_true:
   mov a, b
   mov b, $41
   sub a, b
+  mov b, a
   mov a, b
   mov b, $a
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -1627,8 +1611,7 @@ _if20_else:
   mov b, a
   pop a
 ; END TERMS
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -1687,7 +1670,7 @@ _if21_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -1774,8 +1757,7 @@ _while23_block:
   mov b, a
   pop a
 ; END FACTORS
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -2004,7 +1986,6 @@ _while27_block:
   adc a, b
   mov c, a
   pop b
-  mov b, a
   pop a
 ; END TERMS
   pop d
@@ -2182,7 +2163,6 @@ _while30_block:
   adc a, b
   mov c, a
   pop b
-  mov b, a
   pop a
 ; END TERMS
   pop d
@@ -2334,8 +2314,7 @@ _while33_block:
   mov b, a
   pop a
 ; END FACTORS
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -2658,7 +2637,7 @@ _for35_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -2680,8 +2659,7 @@ _for35_block:
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -2725,7 +2703,7 @@ _for36_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -2752,8 +2730,7 @@ _if37_cond:
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   cmp a, b
@@ -2845,7 +2822,7 @@ _for39_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -2866,7 +2843,7 @@ _for40_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -2893,12 +2870,11 @@ _for40_block:
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
-  add a, b
+  add b, a
   mov a, b
   lea d, [bp + -3] ; $j
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -2967,7 +2943,7 @@ _for41_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -2988,7 +2964,7 @@ _for42_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -3020,12 +2996,11 @@ _if43_cond:
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
-  add a, b
+  add b, a
   mov a, b
   lea d, [bp + -3] ; $j
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   cmp a, b
@@ -3144,7 +3119,7 @@ _for45_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -3166,12 +3141,11 @@ _for45_block:
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
-  add a, b
+  add b, a
   mov a, b
   lea d, [bp + -3] ; $j
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -3225,7 +3199,7 @@ _for46_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -3252,12 +3226,11 @@ _if47_cond:
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
-  add a, b
+  add b, a
   mov a, b
   lea d, [bp + -3] ; $j
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   cmp a, b
@@ -3361,7 +3334,7 @@ _for49_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -3382,7 +3355,7 @@ _for50_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -3409,12 +3382,11 @@ _for50_block:
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
-  add a, b
+  add b, a
   mov a, b
   lea d, [bp + -3] ; $j
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -3483,7 +3455,7 @@ _for51_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -3504,7 +3476,7 @@ _for52_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -3536,12 +3508,11 @@ _if53_cond:
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
-  add a, b
+  add b, a
   mov a, b
   lea d, [bp + -3] ; $j
   mov b, [d]
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   cmp a, b
@@ -4270,7 +4241,7 @@ test5:
   mov a, b
   lea d, [bp + -5] ; $j
   mov b, [d]
-  add a, b
+  add b, a
   mov a, b
   lea d, [bp + -7] ; $k
   mov b, [d]
@@ -4279,7 +4250,7 @@ test5:
   mov b, $1
   sand a, b ; &&
   pop a
-  add a, b
+  add b, a
   mov a, b
   mov b, $1
   push a
@@ -4287,8 +4258,7 @@ test5:
   mov b, $0
   sand a, b ; &&
   pop a
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -4305,8 +4275,7 @@ test5:
   mov b, $1
   sand a, b ; &&
   pop a
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -4323,8 +4292,7 @@ test5:
   mov b, [d]
   sor a, b ; ||
   pop a
-  add a, b
-  mov b, a
+  add b, a
   pop a
 ; END TERMS
   pop d
@@ -4415,7 +4383,7 @@ _for55_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -4521,7 +4489,7 @@ _for56_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -4644,7 +4612,7 @@ _for57_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -4754,7 +4722,7 @@ _for58_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -4878,7 +4846,7 @@ _for59_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -4984,7 +4952,7 @@ _for60_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -5108,7 +5076,7 @@ _for61_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -5218,7 +5186,7 @@ _for62_cond:
   mov a, b
   mov b, $5
   cmp a, b
-  slt ; <= (signed)
+  slu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
