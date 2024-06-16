@@ -426,7 +426,8 @@ i8 type_detected(void){
      tok == SHORT  || tok == STATIC   ||
      search_typedef(token) != -1
   ){
-    while(tok == CONST || tok == STATIC || tok == SIGNED || tok == UNSIGNED){
+    while(tok == CONST || tok == STATIC || tok == SIGNED || tok == UNSIGNED ||
+          tok == LONG || tok == SHORT){
       get();
     }
     if(tok == STRUCT){
@@ -837,7 +838,6 @@ void declare_global(void){
   }
   else back();
   type = get_type();
-
   do{
     if(global_var_tos == MAX_GLOBAL_VARS) error(ERR_FATAL, "Max number of global variable declarations exceeded");
     global_var_table[global_var_tos].type = type;
