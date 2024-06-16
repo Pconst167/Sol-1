@@ -2395,31 +2395,37 @@ t_type parse_relational(void){
         // g_a < c_b         if(g < c || (c==g && a < b)) then LESS_THAN == 1    
         // cb is the current parsed long.  ga is the previously parsed long.   
         // check if g < c. save result. check that c==g && a < b. save result. or both results together
-          emitln("  mov si, a"); 
-          emitln("  mov a, b"); 
-          emitln("  mov di, a");
+          if(type_is_32bit(expr_out)){
+            emitln("  mov si, a"); 
+            emitln("  mov a, b"); 
+            emitln("  mov di, a");
 
-          emitln("  mov a, g");
-          emitln("  mov b, c");
-          emitln("  cmp a, b");
-          emitln("  slu ; <");  // test if g < c, result in b
-          emitln("  push b");   // save partial result
+            emitln("  mov a, g");
+            emitln("  mov b, c");
+            emitln("  cmp a, b");
+            emitln("  slu ; <");  // test if g < c, result in b
+            emitln("  push b");   // save partial result
 
-          emitln("  mov b, c"); // recover b
-          emitln("  seq ; =="); // test if c == g
-          emitln("  push b");   // save partial result
+            emitln("  mov b, c"); // recover b
+            emitln("  seq ; =="); // test if c == g
+            emitln("  push b");   // save partial result
 
-          emitln("  mov a, di");
-          emitln("  mov b, a");
-          emitln("  mov a, si");
-          emitln("  cmp a, b");
-          emitln("  slu ; <"); // test if a < b, result in b
+            emitln("  mov a, di");
+            emitln("  mov b, a");
+            emitln("  mov a, si");
+            emitln("  cmp a, b");
+            emitln("  slu ; <"); // test if a < b, result in b
 
-          emitln("  pop a");
-          emitln("  and b, a"); // result here: c == g and a < b
-          emitln("  pop a");
-          emitln("  or b, a"); // result here: (c == g and a < b) || g < c
-          emitln("  ");
+            emitln("  pop a");
+            emitln("  and b, a"); // result here: c == g and a < b
+            emitln("  pop a");
+            emitln("  or b, a"); // result here: (c == g and a < b) || g < c
+            emitln("  ");
+          }
+          else{
+            emitln("  cmp a, b");
+            emitln("  slt ; <= (signed)");
+          }
 
           if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
             ;

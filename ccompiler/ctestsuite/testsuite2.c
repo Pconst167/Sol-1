@@ -1,4 +1,4 @@
-#include "stdio.h"
+#include <stdio.h>
 
 struct t_structTest3{
   char c;
@@ -21,8 +21,8 @@ void main(){
   pass[3] = test3(st1);
 
   for(i = 0; i < nbr_tests; i++){
-    printf("Test "); prints(i); printf(" Result: ");
-    prints(pass[i]);
+    printf("Test "); printf(i); printf(" Result: ");
+    printf(pass[i]);
     printf("\n");
   }
 }
@@ -47,7 +47,7 @@ int test0(){
   ia[3] = 3;
   ia[4] = 4;
 
-  pass = pass && test0_subTest0(c, i);
+  pass = pass && test0_subTest0(c, i, ca, ia);
 
   return pass;
 }

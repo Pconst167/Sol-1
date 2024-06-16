@@ -1,4 +1,4 @@
-#include "stdio.h"
+#include <stdio.h>
 
 char gca1[5] = {'0','1','2','3','4'};
 int gia1[5] = {0,1,2,3,4};
@@ -9,6 +9,7 @@ void main(){
   int pass[10];
   int i;
   int nbr_tests = 10;
+
   // initialize pass array with -1's
   for(i = 0; i < nbr_tests; i++){
     pass[i] = -1;
@@ -25,14 +26,9 @@ void main(){
   pass[8] = test8();
   pass[9] = test9();
 
-  for(i = 0; i < nbr_tests; i++){
-    printf("Test "); prints(i); printf(" Result: ");
-    prints(pass[i]);
-    printf("\n");
-  }
-
+  for(i = 0; i < nbr_tests; i++)
+    printf("Test %d, Result: %d\n", i, pass[i]);
 }
-
 
 int test0(){
   int i;
