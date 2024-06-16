@@ -20,19 +20,11 @@ void setup() {
   int total_delay=0;
   //ESP.wdtEnable(1000);  // 1 second watchdog timeout
   Serial.begin(baud);
+  WiFi.begin("", "");
   while (WiFi.status() != WL_CONNECTED){
     delay(1000);
-    total_delay += 1000;
-    if(total_delay >= 60*1000){
-      break;
-    }
   }
 
-  if(total_delay >= 60*1000){
-    while (WiFi.status() != WL_CONNECTED){
-      delay(1000);
-    }
-  }
   server.begin(); 
 }
 

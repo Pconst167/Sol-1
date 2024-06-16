@@ -1,6 +1,7 @@
 
 #define	EXIT_FAILURE	1	/* Failing exit status.  */
 #define	EXIT_SUCCESS	0	/* Successful exit status.  */
+
 /* The largest number rand will return (same as INT_MAX).  */
 #define	RAND_MAX	2147483647
 

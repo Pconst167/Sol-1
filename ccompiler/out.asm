@@ -26,9 +26,15 @@ main:
 ;; return; 
   leave
   syscall sys_terminate_proc
+
+f:
+  enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
+_c: .fill 1, 0
 
 _heap_top: .dw _heap
 _heap: .db 0

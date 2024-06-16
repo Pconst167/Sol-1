@@ -46,13 +46,19 @@
 0026   0423             ;; return; 
 0027   0423 F9            leave
 0028   0424 05 0B         syscall sys_terminate_proc
-0029   0426             ; --- END TEXT BLOCK
-0030   0426             
-0031   0426             ; --- BEGIN DATA BLOCK
-0032   0426             
-0033   0426 28 04       _heap_top: .dw _heap
-0034   0428 00          _heap: .db 0
-0035   0429             ; --- END DATA BLOCK
-0036   0429             
-0037   0429             .end
+0029   0426             
+0030   0426             f:
+0031   0426 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0032   0429 F9            leave
+0033   042A 09            ret
+0034   042B             ; --- END TEXT BLOCK
+0035   042B             
+0036   042B             ; --- BEGIN DATA BLOCK
+0037   042B 00          _c: .fill 1, 0
+0038   042C             
+0039   042C 2E 04       _heap_top: .dw _heap
+0040   042E 00          _heap: .db 0
+0041   042F             ; --- END DATA BLOCK
+0042   042F             
+0043   042F             .end
 tasm: Number of errors = 0

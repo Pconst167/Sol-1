@@ -664,3 +664,5 @@ int function_has_variable_arguments(int func_id);
 
 char token_not_a_const(void);
 u8 type_is_32bit(t_type type);
+i8 type_detected(void);
+i8 search_typedef(char *name);

@@ -425,9 +425,61 @@ int search_define(char *name){
   return -1;
 }
 
+i8 search_typedef(char *name){
+  int i;
+  for(i = 0; i < typedef_table_tos; i++){
+    if(!strcmp(typedef_table[i].name, name)) return i;
+  }
+  return -1;
+}
+
+// -1 : not a type
+//  0 : variable
+//  1 : function
+i8 type_detected(void){
+  if(tok == SIGNED || tok == UNSIGNED || 
+     tok == LONG   || tok == CONST    || 
+     tok == VOID   || tok == CHAR     ||
+     tok == INT    || tok == FLOAT    || 
+     tok == DOUBLE || tok == STRUCT   ||
+     tok == SHORT  ||
+     search_typedef(token) != -1
+  ){
+    if(tok == CONST){
+      get();
+    }
+    if(tok == SIGNED || tok == UNSIGNED) get();
+    if(tok == LONG || tok == SHORT) get();
+    if(tok == STRUCT){
+      get(); // get struct's type name
+      if(toktype != IDENTIFIER) 
+        error(ERR_FATAL, "Struct's type name expected.");
+    }
+    // if not a strut, then the var type has just been gotten
+    get();
+    if(tok == STAR){
+      while(tok == STAR) 
+        get();
+    }
+    else{
+      if(toktype != IDENTIFIER) 
+        error(ERR_FATAL, "Identifier expected in variable or function declaration.");
+    }
+    get(); // get semicolon, assignment, comma, or opening braces
+    if(tok == OPENING_PAREN){ //it must be a function declaration
+      return 1;
+    }
+    else{ // it must be a variable declaration
+      return 0;
+    }
+  }
+  return -1;
+}
+
 void pre_scan(void){
   char *tp;
   int struct_id;
+  i8 declaration_kind;
 
   prog = c_in;
   do{
@@ -463,42 +515,19 @@ void pre_scan(void){
       continue;
     }
 
-    if(tok == SIGNED || tok == UNSIGNED || 
-       tok == LONG   || tok == CONST    || 
-       tok == VOID   || tok == CHAR     ||
-       tok == INT    || tok == FLOAT    || 
-       tok == DOUBLE || tok == STRUCT   ||
-       tok == SHORT
-    ){
-      if(tok == CONST){
-        get();
-      }
-      if(tok == SIGNED || tok == UNSIGNED) get();
-      if(tok == LONG || tok == SHORT) get();
-      if(tok == STRUCT){
-        get(); // get struct's type name
-        if(toktype != IDENTIFIER) error(ERR_FATAL, "Struct's type name expected.");
-      }
-      // if not a strut, then the var type has just been gotten
-      get();
-      if(tok == STAR){
-        while(tok == STAR) get();
-      }
-      else{
-        if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected in variable or function declaration.");
-      }
-      get(); // get semicolon, assignment, comma, or opening braces
-      if(tok == OPENING_PAREN){ //it must be a function declaration
-        prog = tp;
-        declare_func();
-        skip_block();
-      }
-      else{ //it must be a variable declaration
-        prog = tp;
-        declare_global();
-      }
+    declaration_kind = type_detected();
+    if(declaration_kind == 0){
+      prog = tp;
+      declare_global();
     }
-    else error(ERR_FATAL, "Unexpected token during pre-scan phase: %s", token);
+    else if(declaration_kind == 1){
+      prog = tp;
+      declare_func();
+      skip_block();
+    }
+    else if(declaration_kind == -1){
+      error(ERR_FATAL, "Unexpected token during pre-scan phase: %s", token);
+    }
   } while(toktype != END);
 }
 
@@ -622,27 +651,33 @@ int declare_local(void){
   int struct_id;
   char temp[1024];
   int total_sp = 0;
+  int typedef_id;
   
   get();
-  new_var.type.is_constant = false;
-  new_var.is_static = false;
-  new_var.type.sign_modifier = SNESS_SIGNED; // set as signed by default
-  new_var.type.size_modifier = MOD_NORMAL;
-  while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == STATIC || tok == CONST){
-    if(tok == CONST) new_var.type.is_constant = true;
-    else if(tok == SIGNED) new_var.type.sign_modifier = SNESS_SIGNED;
-    else if(tok == UNSIGNED) new_var.type.sign_modifier = SNESS_UNSIGNED;
-    else if(tok == SHORT) new_var.type.size_modifier = MOD_SHORT;
-    else if(tok == LONG) new_var.type.size_modifier = MOD_LONG;
-    else if(tok == STATIC) new_var.is_static = true;
-    get();
+  if((typedef_id = search_typedef(token)) != -1){
+    new_var.type = typedef_table[typedef_id].type;
   }
-  new_var.type.primitive_type = get_primitive_type_from_tok();
-  new_var.type.struct_id = -1;
-  if(new_var.type.primitive_type == DT_STRUCT){ // check if this is a struct
-    get();
-    struct_id = search_struct(token);
-    if(struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+  else{
+    new_var.type.is_constant = false;
+    new_var.is_static = false;
+    new_var.type.sign_modifier = SNESS_SIGNED; // set as signed by default
+    new_var.type.size_modifier = MOD_NORMAL;
+    while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == STATIC || tok == CONST){
+      if(tok == CONST) new_var.type.is_constant = true;
+      else if(tok == SIGNED) new_var.type.sign_modifier = SNESS_SIGNED;
+      else if(tok == UNSIGNED) new_var.type.sign_modifier = SNESS_UNSIGNED;
+      else if(tok == SHORT) new_var.type.size_modifier = MOD_SHORT;
+      else if(tok == LONG) new_var.type.size_modifier = MOD_LONG;
+      else if(tok == STATIC) new_var.is_static = true;
+      get();
+    }
+    new_var.type.primitive_type = get_primitive_type_from_tok();
+    new_var.type.struct_id = -1;
+    if(new_var.type.primitive_type == DT_STRUCT){ // check if this is a struct
+      get();
+      struct_id = search_struct(token);
+      if(struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+    }
   }
 
   do{
@@ -786,25 +821,31 @@ void declare_global(void){
   char *temp_prog;
   int struct_id;
   t_type type;
+  int typedef_id;
 
   get(); 
-  type.sign_modifier = SNESS_SIGNED; // set as signed by default
-  type.size_modifier = MOD_NORMAL; 
-  type.is_constant = false; 
-  while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == CONST){
-    if(tok == CONST) type.is_constant = true;
-    else if(tok == SIGNED) type.sign_modifier = SNESS_SIGNED;
-    else if(tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;
-    else if(tok == SHORT) type.size_modifier = MOD_SHORT;
-    else if(tok == LONG) type.size_modifier = MOD_LONG;
-    get();
+  if((typedef_id = search_typedef(token)) != -1){
+    type = typedef_table[typedef_id].type;
   }
-  type.primitive_type = get_primitive_type_from_tok();
-  type.struct_id = -1;
-  if(type.primitive_type == DT_STRUCT){ // check if this is a struct
-    get();
-    struct_id = search_struct(token);
-    if(struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+  else{
+    type.sign_modifier = SNESS_SIGNED; // set as signed by default
+    type.size_modifier = MOD_NORMAL; 
+    type.is_constant = false; 
+    while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == CONST){
+      if(tok == CONST) type.is_constant = true;
+      else if(tok == SIGNED) type.sign_modifier = SNESS_SIGNED;
+      else if(tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;
+      else if(tok == SHORT) type.size_modifier = MOD_SHORT;
+      else if(tok == LONG) type.size_modifier = MOD_LONG;
+      get();
+    }
+    type.primitive_type = get_primitive_type_from_tok();
+    type.struct_id = -1;
+    if(type.primitive_type == DT_STRUCT){ // check if this is a struct
+      get();
+      struct_id = search_struct(token);
+      if(struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+    }
   }
 
   do{
@@ -1151,6 +1192,7 @@ void declare_func(void){
   char _inline;
   char add_argc_argv;
   int i = 0;
+  int typedef_id;
 
   add_argc_argv = false;
   is_main = false;
@@ -1164,28 +1206,35 @@ void declare_func(void){
     get();
   }
 
-  func->return_type.sign_modifier = SNESS_SIGNED; // set as signed by default
-  func->return_type.size_modifier = MOD_NORMAL; 
-  while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
-         if(tok == SIGNED)   func->return_type.sign_modifier = SNESS_SIGNED;
-    else if(tok == UNSIGNED) func->return_type.sign_modifier = SNESS_UNSIGNED;
-    else if(tok == SHORT)    func->return_type.size_modifier   = MOD_SHORT;
-    else if(tok == LONG)     func->return_type.size_modifier   = MOD_LONG;
+  if((typedef_id = search_typedef(token)) != -1){
+    func->return_type = typedef_table[typedef_id].type;
     get();
   }
-  func->return_type.primitive_type = get_primitive_type_from_tok();
-  func->return_type.struct_id = -1;
-  if(func->return_type.primitive_type == DT_STRUCT){ // check if this is a struct
+  else{
+    func->return_type.sign_modifier = SNESS_SIGNED; // set as signed by default
+    func->return_type.size_modifier = MOD_NORMAL; 
+    while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
+          if(tok == SIGNED)   func->return_type.sign_modifier = SNESS_SIGNED;
+      else if(tok == UNSIGNED) func->return_type.sign_modifier = SNESS_UNSIGNED;
+      else if(tok == SHORT)    func->return_type.size_modifier   = MOD_SHORT;
+      else if(tok == LONG)     func->return_type.size_modifier   = MOD_LONG;
+      get();
+    }
+    func->return_type.primitive_type = get_primitive_type_from_tok();
+    func->return_type.struct_id = -1;
+    if(func->return_type.primitive_type == DT_STRUCT){ // check if this is a struct
+      get();
+      func->return_type.struct_id = search_struct(token);
+      if(func->return_type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+    }
+
     get();
-    func->return_type.struct_id = search_struct(token);
-    if(func->return_type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+    while(tok == STAR){
+      func->return_type.ind_level++;
+      get();
+    }
   }
 
-  get();
-  while(tok == STAR){
-    func->return_type.ind_level++;
-    get();
-  }
   strcpy(func->name, token);
   if(!strcmp(token, "main")) is_main = true;
   get(); // gets past "("
@@ -1206,42 +1255,48 @@ void declare_func(void){
     //bp_offset = total_parameter_bytes + 4; // +4 to account for pc and bp in the stack
     prog = temp_prog;
     do{
-      // set as parameter so that we can tell that if a array is declared, the argument is also a pointer
-      // even though it may not be declared with any '*' tokens;
-      func->local_vars[func->local_var_tos].is_parameter = true;
-      temp_prog = prog;
-      get();
-      if(tok == VAR_ARG_DOTS){
-        func->has_var_args = true;
-        get();
-        break; // exit parameter loop as '...' has to be the last token in the param definition
-      }
-      if(tok == CONST){
-        func->local_vars[func->local_var_tos].type.is_constant = true;
+      if((typedef_id = search_typedef(token)) != -1){
+        func->local_vars[func->local_var_tos].type = typedef_table[typedef_id].type;
         get();
       }
-      func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
-      func->local_vars[func->local_var_tos].type.size_modifier = MOD_NORMAL; 
-      while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
-             if(tok == SIGNED)   func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_SIGNED;
-        else if(tok == UNSIGNED) func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_UNSIGNED;
-        else if(tok == SHORT)    func->local_vars[func->local_var_tos].type.size_modifier = MOD_SHORT;
-        else if(tok == LONG)     func->local_vars[func->local_var_tos].type.size_modifier = MOD_LONG;
+      else{
+        // set as parameter so that we can tell that if a array is declared, the argument is also a pointer
+        // even though it may not be declared with any '*' tokens;
+        func->local_vars[func->local_var_tos].is_parameter = true;
+        temp_prog = prog;
         get();
-      }
-      if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) error(ERR_FATAL, "Var type expected in argument declaration for function: %s", func->name);
-      // gets the parameter type
-      func->local_vars[func->local_var_tos].type.primitive_type = get_primitive_type_from_tok();
-      func->local_vars[func->local_var_tos].type.struct_id = -1;
-      if(func->local_vars[func->local_var_tos].type.primitive_type == DT_STRUCT){ // check if this is a struct
+        if(tok == VAR_ARG_DOTS){
+          func->has_var_args = true;
+          get();
+          break; // exit parameter loop as '...' has to be the last token in the param definition
+        }
+        if(tok == CONST){
+          func->local_vars[func->local_var_tos].type.is_constant = true;
+          get();
+        }
+        func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
+        func->local_vars[func->local_var_tos].type.size_modifier = MOD_NORMAL; 
+        while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
+              if(tok == SIGNED)   func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_SIGNED;
+          else if(tok == UNSIGNED) func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_UNSIGNED;
+          else if(tok == SHORT)    func->local_vars[func->local_var_tos].type.size_modifier = MOD_SHORT;
+          else if(tok == LONG)     func->local_vars[func->local_var_tos].type.size_modifier = MOD_LONG;
+          get();
+        }
+        if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) error(ERR_FATAL, "Var type expected in argument declaration for function: %s", func->name);
+        // gets the parameter type
+        func->local_vars[func->local_var_tos].type.primitive_type = get_primitive_type_from_tok();
+        func->local_vars[func->local_var_tos].type.struct_id = -1;
+        if(func->local_vars[func->local_var_tos].type.primitive_type == DT_STRUCT){ // check if this is a struct
+          get();
+          func->local_vars[func->local_var_tos].type.struct_id = search_struct(token);
+          if(func->local_vars[func->local_var_tos].type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+        }
         get();
-        func->local_vars[func->local_var_tos].type.struct_id = search_struct(token);
-        if(func->local_vars[func->local_var_tos].type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
-      }
-      get();
-      while(tok == STAR){
-        func->local_vars[func->local_var_tos].type.ind_level++;
-        get();
+        while(tok == STAR){
+          func->local_vars[func->local_var_tos].type.ind_level++;
+          get();
+        }
       }
       if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
       strcpy(func->local_vars[func->local_var_tos].name, token);
