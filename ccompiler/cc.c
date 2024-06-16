@@ -2196,11 +2196,14 @@ t_type parse_logical_or(void){
         // we can omit that and use just the high word of the second half of the OR (type2). 
         emitln("  sor a, b ; ||"); // result in B
         emitln("  push b");
-        emitln("  mov a, c");
         if(type_is_32bit(type1))
           emitln("  mov b, g");
         else 
           emitln("  mov b, 0");
+        if(type_is_32bit(type2))
+          emitln("  mov a, c");
+        else
+          emitln("  mov a, 0");
         emitln("  sor a, b ; ||"); // result in B
         emitln("  pop a"); 
         emitln("  sor a, b ; ||"); // final result in B
@@ -2222,23 +2225,24 @@ t_type parse_logical_and(void){
   expr_out = type1;
   if(tok == LOGICAL_AND){
     emitln("  push a");
-    if(type_is_32bit(type1))
-      emitln("  push g");
+    if(type_is_32bit(type1)) emitln("  push g");
     while(tok == LOGICAL_AND){
       emitln("  mov a, b");
-      if(type_is_32bit(type1))
-        emitln("  mov g, c");
+      if(type_is_32bit(type1)) emitln("  mov g, c");
       type2 = parse_bitwise_or();
       expr_out = cast(expr_out, type2);
       // or between ga and cb
       if(type_is_32bit(expr_out)){
         emitln("  sand a, b ; &&"); // result in B
         emitln("  push b");
-        emitln("  mov a, c");
         if(type_is_32bit(type1))
           emitln("  mov b, g");
         else 
           emitln("  mov b, $FF");
+        if(type_is_32bit(type2))
+          emitln("  mov a, c");
+        else
+          emitln("  mov a, $FF");
         emitln("  sand a, b ; ||"); // result in B
         emitln("  pop a"); 
         emitln("  sand a, b ; ||"); // final result in B
@@ -2246,8 +2250,7 @@ t_type parse_logical_and(void){
       else 
         emitln("  sand a, b ; &&");
     }
-    if(type_is_32bit(type1))
-      emitln("  pop g");
+    if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
   }
   return expr_out;
@@ -2260,13 +2263,33 @@ t_type parse_bitwise_or(void){
   expr_out = type1;
   if(tok == BITWISE_OR){
     emitln("  push a");
-    emitln("  mov a, b");
+    if(type_is_32bit(type1)) emitln("  push g");
     while(tok == BITWISE_OR){
+      emitln("  mov a, b");
+      if(type_is_32bit(type1)) emitln("  mov g, c");
       type2 = parse_bitwise_xor();
       expr_out = cast(expr_out, type2);
-      emitln("  or a, b ; &");
+      if(type_is_32bit(expr_out)){
+        emitln("  or a, b ; |");
+        emitln("  push a");
+        if(type_is_32bit(type1))
+          emitln("  mov a, g");
+        else
+          emitln("  mov a, 0");
+        if(type_is_32bit(type2))
+          emitln("  mov b, c");
+        else
+          emitln("  mov b, 0");
+        emitln("  or a, b ; |");
+        emitln("  mov c, a");
+        emitln("  pop b");
+      }
+      else{
+        emitln("  or a, b ; &");
+        emitln("  mov b, a");
+      }
     }
-    emitln("  mov b, a");
+    if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
   }
   return expr_out;
