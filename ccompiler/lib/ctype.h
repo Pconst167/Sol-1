@@ -1,6 +1,6 @@
 void include_ctype_lib(){
   asm{
-    .include "lib/ctype.asm"
+    .include "lib/asm/ctype.asm"
   }
 }
 

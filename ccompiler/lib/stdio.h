@@ -263,18 +263,6 @@ void print_unsigned(unsigned int num) {
   }
 }
 
-char rand(){
-  char sec;
-  asm{
-      mov al, 0
-      syscall sys_rtc					; get seconds
-      mov al, ah
-      addr mov d, sec
-      mov al, [d]
-  }
-  return sec;
-}
-
 void date(){
   asm{
     mov al, 0 ; print datetime
@@ -363,17 +351,6 @@ void fclose(struct FILE *fp){
   
 }
 
-// heap and heap_top are defined internally by the compiler
-// so that 'heap' is the last variable in memory and therefore can grow upwards
-// towards the stack
-char *alloc(int bytes){
-  heap_top = heap_top + bytes;
-  return heap_top - bytes;
-}
-
-char *free(int bytes){
-  return heap_top = heap_top - bytes;
-}
 
 
 void load_hex(char *destination){

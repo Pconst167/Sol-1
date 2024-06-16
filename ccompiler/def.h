@@ -80,7 +80,6 @@ typedef enum {
   IF,
   INCLUDE, 
   INCREMENT,
-  INLINE,
   INT,
   LESS_THAN,
   LESS_THAN_OR_EQUAL,
@@ -179,7 +178,6 @@ struct{
   "if",                      IF,
   "include",                 INCLUDE, 
   "increment",               INCREMENT,
-  "inline",                  INLINE,
   "int",                     INT,
   "less_than",               LESS_THAN, 
   "less_than_or_equal",      LESS_THAN_OR_EQUAL, 
@@ -334,7 +332,6 @@ struct _keyword_table{
   "ifdef",    DEF_IFDEF,
   "endif",    DEF_ENDIF,
   "asm",      ASM,
-  "inline",   INLINE,
 
   "register", REGISTER,
   "auto",     AUTO,
@@ -666,3 +663,4 @@ char token_not_a_const(void);
 u8 type_is_32bit(t_type type);
 i8 type_detected(void);
 i8 search_typedef(char *name);
+t_type get_type();

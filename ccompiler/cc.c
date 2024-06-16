@@ -309,10 +309,16 @@ void parse_functions(void){
 }
 
 void declare_define(){
+  char *p;
+
+  p = defines_table[defines_tos].content;
   get(); // get define's name
   strcpy(defines_table[defines_tos].name, token);
-  get(); // get definition
-  strcpy(defines_table[defines_tos].content, token);
+  // get value
+  while(*prog != '\n' && *prog != '\0'){
+    *p++ = *prog++;
+  }
+  *p = '\0';
   defines_tos++;
 }
 
@@ -442,14 +448,12 @@ i8 type_detected(void){
      tok == VOID   || tok == CHAR     ||
      tok == INT    || tok == FLOAT    || 
      tok == DOUBLE || tok == STRUCT   ||
-     tok == SHORT  ||
+     tok == SHORT  || tok == STATIC   ||
      search_typedef(token) != -1
   ){
-    if(tok == CONST){
+    while(tok == CONST || tok == STATIC || tok == SIGNED || tok == UNSIGNED){
       get();
     }
-    if(tok == SIGNED || tok == UNSIGNED) get();
-    if(tok == LONG || tok == SHORT) get();
     if(tok == STRUCT){
       get(); // get struct's type name
       if(toktype != IDENTIFIER) 
@@ -508,13 +512,6 @@ void pre_scan(void){
         get();
       }
     }
-    else if(tok == INLINE){ //it must be a function declaration
-      prog = tp;
-      declare_func();
-      skip_block();
-      continue;
-    }
-
     declaration_kind = type_detected();
     if(declaration_kind == 0){
       prog = tp;
@@ -531,6 +528,39 @@ void pre_scan(void){
   } while(toktype != END);
 }
 
+t_type get_type(){
+  t_type type;
+  int typedef_id;
+  int struct_id;
+  
+  get();                                                                       
+  if((typedef_id = search_typedef(token)) != -1){                              
+    type = typedef_table[typedef_id].type;                                     
+  }                                                                            
+  else{                                                                        
+    type.sign_modifier = SNESS_SIGNED; // set as signed by default             
+    type.size_modifier = MOD_NORMAL; // set as signed by default               
+    type.is_constant = false;
+    while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){    
+      if(tok == SIGNED)   type.sign_modifier = SNESS_SIGNED;         
+      else if(tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;            
+      else if(tok == SHORT)    type.size_modifier = MOD_SHORT;                 
+      else if(tok == LONG)     type.size_modifier = MOD_LONG;                  
+      get();                                                                   
+    }                                                                          
+    type.primitive_type = get_primitive_type_from_tok();                       
+    type.struct_id = -1;                                                       
+    if(type.primitive_type == DT_STRUCT){                                      
+      get();                                                                   
+      if((struct_id = search_struct(token)) == -1) 
+        error(ERR_FATAL, "Undeclared struct: %s", token);
+      type.struct_id = struct_id;
+    }
+  }
+
+  return type;
+}
+             
 /*
 struct t_shell_var{
   char varname[16];
@@ -547,6 +577,7 @@ int declare_struct(){
   t_struct new_struct;
   char *temp_prog;
   int struct_is_embedded = 0;
+  int typedef_id;
 
   if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error(ERR_FATAL, "Max number of struct declarations reached");
   
@@ -572,39 +603,46 @@ int declare_struct(){
   do{
     if(element_tos == MAX_STRUCT_ELEMENTS) error(ERR_FATAL, "Max number of struct elements reached");
     get();
-    new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
-    new_struct.elements[element_tos].type.size_modifier = MOD_NORMAL; // set as signed by default
-    while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
-           if(tok == SIGNED)   new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED;
-      else if(tok == UNSIGNED) new_struct.elements[element_tos].type.sign_modifier = SNESS_UNSIGNED;
-      else if(tok == SHORT)    new_struct.elements[element_tos].type.size_modifier   = MOD_SHORT;
-      else if(tok == LONG)     new_struct.elements[element_tos].type.size_modifier   = MOD_LONG;
+    if((typedef_id = search_typedef(token)) != -1){
+      new_struct.elements[element_tos].type = typedef_table[typedef_id].type;
       get();
     }
-    new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
-    new_struct.elements[element_tos].type.struct_id = -1;
-    if(new_struct.elements[element_tos].type.primitive_type == DT_STRUCT){
-      get();
-      if(tok == OPENING_BRACE){ // internal struct declaration!
-        back();
-        struct_id = declare_struct();
-        get(); // get element name
-      }
-      else{
-        if((struct_id = search_struct(token)) == -1) error(ERR_FATAL, "Undeclared struct");
+    else{
+      new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
+      new_struct.elements[element_tos].type.size_modifier = MOD_NORMAL; // set as signed by default
+      while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
+            if(tok == SIGNED)   new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED;
+        else if(tok == UNSIGNED) new_struct.elements[element_tos].type.sign_modifier = SNESS_UNSIGNED;
+        else if(tok == SHORT)    new_struct.elements[element_tos].type.size_modifier   = MOD_SHORT;
+        else if(tok == LONG)     new_struct.elements[element_tos].type.size_modifier   = MOD_LONG;
         get();
       }
-      new_struct.elements[element_tos].type.struct_id = struct_id;
+      new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
+      new_struct.elements[element_tos].type.struct_id = -1;
+      if(new_struct.elements[element_tos].type.primitive_type == DT_STRUCT){
+        get();
+        if(tok == OPENING_BRACE){ // internal struct declaration!
+          back();
+          struct_id = declare_struct();
+          get(); // get element name
+        }
+        else{
+          if((struct_id = search_struct(token)) == -1) error(ERR_FATAL, "Undeclared struct");
+          get();
+        }
+        new_struct.elements[element_tos].type.struct_id = struct_id;
+      }
+      else get();
+
+      new_struct.elements[element_tos].type.ind_level = 0;
+      while(tok == STAR){
+        new_struct.elements[element_tos].type.ind_level++;
+        get();
+      }
     }
-    else get();
-// **************** checks whether this is a pointer declaration *******************************
-    new_struct.elements[element_tos].type.ind_level = 0;
-    while(tok == STAR){
-      new_struct.elements[element_tos].type.ind_level++;
-      get();
-    }
-// *********************************************************************************************
-    if(new_struct.elements[element_tos].type.primitive_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) error(ERR_FATAL, "Invalid type in variable");
+
+    if(new_struct.elements[element_tos].type.primitive_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) 
+      error(ERR_FATAL, "Invalid type in variable");
 
     strcpy(new_struct.elements[element_tos].name, token);
     new_struct.elements[element_tos].type.dims[0] = 0;
@@ -648,43 +686,30 @@ int declare_struct(){
 int declare_local(void){                        
   t_var new_var;
   char *temp_prog;
-  int struct_id;
   char temp[1024];
   int total_sp = 0;
   int typedef_id;
+  u8 is_static, is_const;
   
+  is_static = 0;
+  is_const = 0;
   get();
-  if((typedef_id = search_typedef(token)) != -1){
-    new_var.type = typedef_table[typedef_id].type;
-  }
-  else{
-    new_var.type.is_constant = false;
-    new_var.is_static = false;
-    new_var.type.sign_modifier = SNESS_SIGNED; // set as signed by default
-    new_var.type.size_modifier = MOD_NORMAL;
-    while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == STATIC || tok == CONST){
-      if(tok == CONST) new_var.type.is_constant = true;
-      else if(tok == SIGNED) new_var.type.sign_modifier = SNESS_SIGNED;
-      else if(tok == UNSIGNED) new_var.type.sign_modifier = SNESS_UNSIGNED;
-      else if(tok == SHORT) new_var.type.size_modifier = MOD_SHORT;
-      else if(tok == LONG) new_var.type.size_modifier = MOD_LONG;
-      else if(tok == STATIC) new_var.is_static = true;
+  if(tok == STATIC || tok == CONST){
+    while(tok == STATIC || tok == CONST){
+      if(tok == STATIC) is_static = true;
+      else if(tok == CONST) is_const = true;
       get();
     }
-    new_var.type.primitive_type = get_primitive_type_from_tok();
-    new_var.type.struct_id = -1;
-    if(new_var.type.primitive_type == DT_STRUCT){ // check if this is a struct
-      get();
-      struct_id = search_struct(token);
-      if(struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
-    }
+    back();
   }
-
+  else back();
+  new_var.type = get_type();
   do{
     if(function_table[current_func_id].local_var_tos == MAX_LOCAL_VARS) error(ERR_FATAL, "Local var declaration limit reached");
     new_var.is_parameter = false;
+    new_var.is_static = is_static;
+    new_var.type.is_constant = is_const;
     new_var.function_id = current_func_id; // set variable owner function
-    new_var.type.struct_id = struct_id;
 // **************** checks whether this is a pointer declaration *******************************
     new_var.type.ind_level = 0;
     get();
@@ -822,35 +847,27 @@ void declare_global(void){
   int struct_id;
   t_type type;
   int typedef_id;
+  u8 is_static, is_const;
 
-  get(); 
-  if((typedef_id = search_typedef(token)) != -1){
-    type = typedef_table[typedef_id].type;
-  }
-  else{
-    type.sign_modifier = SNESS_SIGNED; // set as signed by default
-    type.size_modifier = MOD_NORMAL; 
-    type.is_constant = false; 
-    while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == CONST){
-      if(tok == CONST) type.is_constant = true;
-      else if(tok == SIGNED) type.sign_modifier = SNESS_SIGNED;
-      else if(tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;
-      else if(tok == SHORT) type.size_modifier = MOD_SHORT;
-      else if(tok == LONG) type.size_modifier = MOD_LONG;
+  is_static = 0;
+  is_const = 0;
+  get();
+  if(tok == STATIC || tok == CONST){
+    while(tok == STATIC || tok == CONST){
+      if(tok == STATIC) is_static = true;
+      else if(tok == CONST) is_const = true;
       get();
     }
-    type.primitive_type = get_primitive_type_from_tok();
-    type.struct_id = -1;
-    if(type.primitive_type == DT_STRUCT){ // check if this is a struct
-      get();
-      struct_id = search_struct(token);
-      if(struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
-    }
+    back();
   }
+  else back();
+  type = get_type();
 
   do{
     if(global_var_tos == MAX_GLOBAL_VARS) error(ERR_FATAL, "Max number of global variable declarations exceeded");
     global_var_table[global_var_tos].type = type;
+    global_var_table[global_var_tos].is_static = is_static;
+    global_var_table[global_var_tos].type.is_constant = is_const;
     get();
 // **************** checks whether this is a pointer declaration *******************************
     global_var_table[global_var_tos].type.ind_level = 0;
@@ -1185,7 +1202,7 @@ void declare_all_locals(int function_id){
 void declare_func(void){
   t_function *func; // variable to hold a pointer to the user function top of stack
   int bp_offset; // for each parameter, keep the running offset of that parameter.
-  char *temp_prog;
+  char *temp_prog, *prog_before_void_tok;
   int total_parameter_bytes;
   char param_name[ID_LEN];
   char is_main;
@@ -1201,10 +1218,6 @@ void declare_func(void){
   func = &function_table[function_table_tos];
 
   get();
-  if(tok == INLINE){
-    func->_inline = true;
-    get();
-  }
 
   if((typedef_id = search_typedef(token)) != -1){
     func->return_type = typedef_table[typedef_id].type;
@@ -1242,38 +1255,47 @@ void declare_func(void){
   func->has_var_args = false;
   func->local_var_tos = 0;
   func->num_fixed_args = 0;
+  prog_before_void_tok = prog;
   get();
-  if(tok == CLOSING_PAREN || tok == VOID){
-    if(tok == VOID) get();
+  if(tok == CLOSING_PAREN){
+    goto void_arguments;
   }
   else{
-    back();
-    temp_prog = prog;
+    if(tok == VOID){
+      get();
+      if(tok == CLOSING_PAREN){
+        goto void_arguments;
+      }
+      else{
+        prog = prog_before_error;
+      }
+    }
     total_parameter_bytes = get_total_func_fixed_param_size();
     func->total_parameter_size = total_parameter_bytes;
     bp_offset = 5; // +4 to account for pc and bp in the stack
     //bp_offset = total_parameter_bytes + 4; // +4 to account for pc and bp in the stack
-    prog = temp_prog;
+    prog = prog_before_void_tok;
     do{
+      // set as parameter so that we can tell that if a array is declared, the argument is also a pointer
+      // even though it may not be declared with any '*' tokens;
+      func->local_vars[func->local_var_tos].is_parameter = true;
+      temp_prog = prog;
+      get();
+      if(tok == VAR_ARG_DOTS){
+        func->has_var_args = true;
+        get();
+        break; // exit parameter loop as '...' has to be the last token in the param definition
+      }
+      if(tok == CONST){
+        func->local_vars[func->local_var_tos].type.is_constant = true;
+        get();
+      }
+
       if((typedef_id = search_typedef(token)) != -1){
         func->local_vars[func->local_var_tos].type = typedef_table[typedef_id].type;
         get();
       }
       else{
-        // set as parameter so that we can tell that if a array is declared, the argument is also a pointer
-        // even though it may not be declared with any '*' tokens;
-        func->local_vars[func->local_var_tos].is_parameter = true;
-        temp_prog = prog;
-        get();
-        if(tok == VAR_ARG_DOTS){
-          func->has_var_args = true;
-          get();
-          break; // exit parameter loop as '...' has to be the last token in the param definition
-        }
-        if(tok == CONST){
-          func->local_vars[func->local_var_tos].type.is_constant = true;
-          get();
-        }
         func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
         func->local_vars[func->local_var_tos].type.size_modifier = MOD_NORMAL; 
         while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
@@ -1283,7 +1305,8 @@ void declare_func(void){
           else if(tok == LONG)     func->local_vars[func->local_var_tos].type.size_modifier = MOD_LONG;
           get();
         }
-        if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) error(ERR_FATAL, "Var type expected in argument declaration for function: %s", func->name);
+        if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) 
+          error(ERR_FATAL, "Var type expected in argument declaration for function: %s", func->name);
         // gets the parameter type
         func->local_vars[func->local_var_tos].type.primitive_type = get_primitive_type_from_tok();
         func->local_vars[func->local_var_tos].type.struct_id = -1;
@@ -1298,6 +1321,7 @@ void declare_func(void){
           get();
         }
       }
+
       if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
       strcpy(func->local_vars[func->local_var_tos].name, token);
       // Check if this is main, and argc or argv are declared
@@ -1337,12 +1361,13 @@ void declare_func(void){
       func->local_var_tos++;
     } while(tok == COMMA);
   }
-  if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
-  func->code_location = prog; // sets the function starting point to  just after the "(" token
-  get(); // gets to the "{" token
-  if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening curly braces expected");
-  back(); // puts the "{" back so that it can be found by skip_block()
-  function_table_tos++;
+  void_arguments:
+    if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
+    func->code_location = prog; // sets the function starting point to  just after the "(" token
+    get(); // gets to the "{" token
+    if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening curly braces expected");
+    back(); // puts the "{" back so that it can be found by skip_block()
+    function_table_tos++;
 }
 
 void declare_goto_label(void){
