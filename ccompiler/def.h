@@ -664,3 +664,10 @@ u8 type_is_32bit(t_type type);
 i8 type_detected(void);
 i8 search_typedef(char *name);
 t_type get_type();
+
+
+char is_delimiter(char c);
+char is_hex_digit(char c);
+char is_digit(char c);
+char is_identifier_char(char c);
+char is_space(char c);

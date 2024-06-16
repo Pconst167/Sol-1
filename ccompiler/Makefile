@@ -26,11 +26,11 @@ else
 endif
 
 cc: cc.o 
-	@$(CC) $(CFLAGS) -o cc cc.o $(LIBS)
-	@rm cc.o
+	@$(CC) $(CFLAGS) -o cc cc.o  $(LIBS)
+	@rm cc.o 
 
-cc.o: cc.c def.h
-	@$(CC) $(CFLAGS) -c cc.c
+cc.o: cc.c 
+	@$(CC) $(CFLAGS) -c cc.c 
 
 clean:
-	@rm -f cc cc.o
+	@rm -f cc cc.o 
