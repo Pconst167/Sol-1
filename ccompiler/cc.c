@@ -2178,11 +2178,6 @@ t_type parse_ternary_op(void){
 t_type parse_logical_or(void){
   t_type type1, type2, expr_out;
 
-  type1.size_modifier = MOD_NORMAL;
-  type2.size_modifier = MOD_NORMAL;
-  type2.primitive_type = DT_CHAR;
-  type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
-
   type1 = parse_logical_and();
   expr_out = type1;
   if(tok == LOGICAL_OR){
@@ -2198,7 +2193,6 @@ t_type parse_logical_or(void){
       // or between ga and cb
       if(type_is_32bit(expr_out)){
         // if type1 was not a 32bit value, then we must clear the garbage from the registers used below
-
         // need to simplifiyti eas ftp1wsnot a 32bit word, then
         // we dont need to compare the high word of type1 in the code below for the OR.
         // we can omit that and use just the high word of the second half of the OR (type2). 
@@ -2226,11 +2220,8 @@ t_type parse_logical_or(void){
 t_type parse_logical_and(void){
   t_type type1, type2, expr_out;
 
-  type1.size_modifier = MOD_NORMAL;
-  type2.size_modifier = MOD_NORMAL;
   type1 = parse_bitwise_or();
-  type2.primitive_type = DT_CHAR;
-  type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
+  expr_out = type1;
   if(tok == LOGICAL_AND){
     emitln("  push a");
     if(type_is_32bit(type1))
@@ -2240,12 +2231,16 @@ t_type parse_logical_and(void){
       if(type_is_32bit(type1))
         emitln("  mov g, c");
       type2 = parse_bitwise_or();
+      expr_out = cast(expr_out, type2);
       // or between ga and cb
       if(type_is_32bit(type2)){
         emitln("  sand a, b ; &&"); // result in B
         emitln("  push b");
         emitln("  mov a, c");
-        emitln("  mov b, g");
+        if(type_is_32bit(type1))
+          emitln("  mov b, g");
+        else 
+          emitln("  mov b, $FF");
         emitln("  sand a, b ; ||"); // result in B
         emitln("  pop a"); 
         emitln("  sand a, b ; ||"); // final result in B
@@ -2257,73 +2252,63 @@ t_type parse_logical_and(void){
       emitln("  pop g");
     emitln("  pop a");
   }
-  expr_out = cast(type1, type2);
   return expr_out;
 }
 
 t_type parse_bitwise_or(void){
   t_type type1, type2, expr_out;
 
-  type1.size_modifier = MOD_NORMAL;
-  type2.size_modifier = MOD_NORMAL;
   type1 = parse_bitwise_xor();
-  type2.primitive_type = DT_CHAR;
-  type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
+  expr_out = type1;
   if(tok == BITWISE_OR){
     emitln("  push a");
     emitln("  mov a, b");
     while(tok == BITWISE_OR){
       type2 = parse_bitwise_xor();
+      expr_out = cast(expr_out, type2);
       emitln("  or a, b ; &");
     }
     emitln("  mov b, a");
     emitln("  pop a");
   }
-  expr_out = cast(type1, type2);
   return expr_out;
 }
 
 t_type parse_bitwise_xor(void){
   t_type type1, type2, expr_out;
 
-  type1.size_modifier = MOD_NORMAL;
-  type2.size_modifier = MOD_NORMAL;
   type1 = parse_bitwise_and();
-  type2.primitive_type = DT_CHAR;
-  type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
+  expr_out = type1;
   if(tok == BITWISE_XOR){
     emitln("  push a");
     emitln("  mov a, b");
     while(tok == BITWISE_XOR){
       type2 = parse_bitwise_and();
+      expr_out = cast(expr_out, type2);
       emitln("  xor a, b ; ^");
     }
     emitln("  mov b, a");
     emitln("  pop a");
   }
-  expr_out = cast(type1, type2);
   return expr_out;
 }
 
 t_type parse_bitwise_and(void){
   t_type type1, type2, expr_out;
 
-  type1.size_modifier = MOD_NORMAL;
-  type2.size_modifier = MOD_NORMAL;
   type1 = parse_relational();
-  type2.primitive_type = DT_CHAR;
-  type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
+  expr_out = type1;
   if(tok == AMPERSAND){
     emitln("  push a");
     emitln("  mov a, b");
     while(tok == AMPERSAND){
       type2 = parse_relational();
+      expr_out = cast(expr_out, type2);
       emitln("  and a, b ; &");
     }
     emitln("  mov b, a");
     emitln("  pop a");
   }
-  expr_out = cast(type1, type2);
   return expr_out;
 }
 
@@ -2331,11 +2316,10 @@ t_type parse_relational(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
-  type1.size_modifier = MOD_NORMAL;
-  type2.size_modifier = MOD_NORMAL;
 /* x = y > 1 && z<4 && y == 2 */
   temp_tok = TOK_UNDEF;
   type1 = parse_bitwise_shift();
+  expr_out = type1;
   
   if(tok == EQUAL              || tok == NOT_EQUAL    || tok == LESS_THAN ||
      tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL
@@ -2352,7 +2336,7 @@ t_type parse_relational(void){
       if(type_is_32bit(type1))
         emitln("  mov g, c");
       type2 = parse_bitwise_shift();
-      expr_out = cast(type1, type2); // convert to a common type
+      expr_out = cast(expr_out, type2);
       switch(temp_tok){
         case EQUAL:
           if(type_is_32bit(expr_out)){
@@ -2452,7 +2436,6 @@ t_type parse_relational(void){
     emitln("  pop a");
     emitln("; END RELATIONAL");
   }
-  expr_out = cast(type1, type2);
   return expr_out;
 }
 
@@ -2460,12 +2443,9 @@ t_type parse_bitwise_shift(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
-  type1.size_modifier = MOD_NORMAL;
-  type2.size_modifier = MOD_NORMAL;
   temp_tok = 0;
   type1 = parse_terms();
-  type2.primitive_type = DT_CHAR;
-  type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
+  expr_out = type1;
   if(tok == BITWISE_SHL || tok == BITWISE_SHR){
     emitln("; START SHIFT");
     emitln("  push a");
@@ -2473,6 +2453,7 @@ t_type parse_bitwise_shift(void){
     while(tok == BITWISE_SHL || tok == BITWISE_SHR){
       temp_tok = tok;
       type2 = parse_terms();
+      expr_out = cast(expr_out, type2);
       emitln("  mov c, b"); // using 16bit values even though only cl is needed, because 'mov cl, bl' is not implemented as an opcode
       if(temp_tok == BITWISE_SHL){
         if(type1.sign_modifier == SNESS_SIGNED) 
@@ -2491,7 +2472,6 @@ t_type parse_bitwise_shift(void){
     emitln("  pop a");
     emitln("; END SHIFT");
   }
-  expr_out = cast(type1, type2);
   return expr_out;
 }
 
@@ -2499,12 +2479,9 @@ t_type parse_terms(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
   
-  type1.size_modifier = MOD_NORMAL;
-  type2.size_modifier = MOD_NORMAL;
   temp_tok = TOK_UNDEF;
   type1 = parse_factors();
-  type2.primitive_type = DT_CHAR;
-  type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
+  expr_out = type1;
   if(tok == PLUS || tok == MINUS){
     emitln("; START TERMS");
     emitln("  push a");
@@ -2516,6 +2493,7 @@ t_type parse_terms(void){
       if(type_is_32bit(type1))
         emitln("  mov g, c");
       type2 = parse_factors();
+      expr_out = cast(expr_out, type2);
       // ga + cb
       if(temp_tok == PLUS){
         if(type_is_32bit(type1)){
@@ -2540,7 +2518,6 @@ t_type parse_terms(void){
     emitln("  pop a");
     emitln("; END TERMS");
   }
-  expr_out = cast(type1, type2);
   return expr_out;
 }
 
@@ -2548,13 +2525,10 @@ t_type parse_factors(void){
   t_token temp_tok;
   t_type type1, type2, expr_out;
 
-  type1.size_modifier = MOD_NORMAL;
-  type2.size_modifier = MOD_NORMAL;
 // if type1 is an INT and type2 is a char*, then the result should be a char* still
   temp_tok = TOK_UNDEF;
   type1 = parse_atomic();
-  type2.primitive_type = DT_CHAR;
-  type2.ind_level = 0; // initialize so that cast works even if 'while' below does not trigger
+  expr_out = type1;
   if(tok == STAR || tok == FSLASH || tok == MOD){
     emitln("; START FACTORS");
     emitln("  push a");
@@ -2562,6 +2536,7 @@ t_type parse_factors(void){
     while(tok == STAR || tok == FSLASH || tok == MOD){
       temp_tok = tok;
       type2 = parse_atomic();
+      expr_out = cast(expr_out, type2);
       if(temp_tok == STAR){
         emitln("  mul a, b ; *");
         emitln("  mov a, b");
@@ -2579,7 +2554,6 @@ t_type parse_factors(void){
     emitln("; END FACTORS");
   }
 
-  expr_out = cast(type1, type2);
   return expr_out;
 }
 

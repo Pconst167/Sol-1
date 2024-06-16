@@ -20,7 +20,7 @@ void setup() {
   int total_delay=0;
   //ESP.wdtEnable(1000);  // 1 second watchdog timeout
   Serial.begin(baud);
-  WiFi.begin("", "");
+  WiFi.begin("BT-7NF9Z2", "aJr6V4FaMkna4n");
   while (WiFi.status() != WL_CONNECTED){
     delay(1000);
   }
