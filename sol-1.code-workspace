@@ -9,7 +9,11 @@
 			"stdint.h": "c",
 			"stdint-gcc.h": "c",
 			"libgen.h": "c",
-			"features.h": "c"
+			"features.h": "c",
+			"unistd.h": "c",
+			"stdlib.h": "c",
+			"stddef.h": "c",
+			"stdio.h": "c"
 		}
 	}
 }

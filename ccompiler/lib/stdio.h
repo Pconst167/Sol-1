@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stddef.h>
 
 #define NULL 0
 #define ARG_BUFF 0x0000
@@ -161,27 +162,6 @@ int hex_to_int(char *hex_string) {
   return value;
 }
 
-int atoi(char *str) {
-    int result = 0;  // Initialize result
-    int sign = 1;    // Initialize sign as positive
-
-    // Skip leading whitespaces
-    while (*str == ' ') str++;
-
-    // Check for optional sign
-    if (*str == '-' || *str == '+') {
-        if (*str == '-') sign = -1;
-        str++;
-    }
-
-    // Loop through all digits of input string
-    while (*str >= '0' && *str <= '9') {
-        result = result * 10 + (*str - '0');
-        str++;
-    }
-
-    return sign * result;
-}
 
 int gets(char *s){
   asm{
@@ -395,11 +375,6 @@ char *free(int bytes){
   return heap_top = heap_top - bytes;
 }
 
-void exit(){
-  asm{
-    syscall sys_terminate_proc
-  }
-}
 
 void load_hex(char *destination){
   char *temp;

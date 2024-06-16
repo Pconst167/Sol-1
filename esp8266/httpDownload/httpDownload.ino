@@ -4,10 +4,6 @@
 #include <ESP8266HTTPClient.h>
 #include <LittleFS.h>
 
-// Wifi
-String    ssid = "";
-String    password = "";
-
 // Serial Port
 uint16_t len;
 uint16_t baud = 9600;
@@ -24,7 +20,6 @@ void setup() {
   int total_delay=0;
   //ESP.wdtEnable(1000);  // 1 second watchdog timeout
   Serial.begin(baud);
-  WiFi.begin("BT-7NF9Z2", "aJr6V4FaMkna4n");
   while (WiFi.status() != WL_CONNECTED){
     delay(1000);
     total_delay += 1000;
@@ -34,7 +29,6 @@ void setup() {
   }
 
   if(total_delay >= 60*1000){
-    WiFi.begin("Galaxy A12AB1E", "abcd1234");
     while (WiFi.status() != WL_CONNECTED){
       delay(1000);
     }
