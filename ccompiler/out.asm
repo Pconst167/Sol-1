@@ -1,4 +1,4 @@
-; --- FILENAME: test
+; --- FILENAME: ctestsuite/testsuite2
 .include "lib/asm/kernel.exp"
 .include "lib/asm/bios.exp"
 .org text_org
@@ -29,7 +29,7 @@ _for1_cond:
   lea d, [bp + -23] ; $nbr_tests
   mov b, [d]
   cmp a, b
-  slu ; <= (unsigned)
+  slt ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -58,6 +58,62 @@ _for1_update:
   pop b
   jmp _for1_cond
 _for1_exit:
+;; pass[0] = test0(); 
+  lea d, [bp + -19] ; $pass
+  push a
+  push d
+  mov b, $0
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  call test0
+  pop d
+  mov [d], b
+;; pass[1] = test1(); 
+  lea d, [bp + -19] ; $pass
+  push a
+  push d
+  mov b, $1
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  call test1
+  pop d
+  mov [d], b
+;; pass[2] = test2(); 
+  lea d, [bp + -19] ; $pass
+  push a
+  push d
+  mov b, $2
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  call test2
+  pop d
+  mov [d], b
+;; pass[3] = test3(st1); 
+  lea d, [bp + -19] ; $pass
+  push a
+  push d
+  mov b, $3
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov d, _st1_data ; $st1
+  mov b, d
+  sub sp, 13
+  mov si, b
+  lea d, [sp + 1]
+  mov di, d
+  mov c, 13
+  rep movsb
+  call test3
+  pop d
+  mov [d], b
 ;; for(i = 0; i < nbr_tests; i++){ 
 _for2_init:
   lea d, [bp + -21] ; $i
@@ -74,13 +130,13 @@ _for2_cond:
   lea d, [bp + -23] ; $nbr_tests
   mov b, [d]
   cmp a, b
-  slu ; <= (unsigned)
+  slt ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
   je _for2_exit
 _for2_block:
-;; printf("Test %d, Result: %u\n", i, pass[i]); 
+;; printf("Test %d, Result: %d\n", i, pass[i]); 
   lea d, [bp + -19] ; $pass
   push a
   push d
@@ -96,7 +152,7 @@ _for2_block:
   mov b, [d]
   swp b
   push b
-  mov b, __s0 ; "Test %d, Result: %u\n"
+  mov b, __s0 ; "Test %d, Result: %d\n"
   swp b
   push b
   call printf
@@ -1303,7 +1359,7 @@ _for18_cond:
   lea d, [bp + -6] ; $len
   mov b, [d]
   cmp a, b
-  slu ; <= (unsigned)
+  slt ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -1550,7 +1606,7 @@ _if21_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slu ; <= (unsigned)
+  slt ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -2494,11 +2550,1365 @@ include_stdio_asm:
 
   leave
   ret
+
+test0:
+  enter 0 ; (push bp; mov bp, sp)
+; $result 
+; $pass 
+  mov a, $1
+  mov [bp + -3], a
+; $c 
+; $i 
+; $ca 
+; $ia 
+  sub sp, 22
+;; c = 'A'; 
+  lea d, [bp + -4] ; $c
+  push d
+  mov b, $41
+  pop d
+  mov [d], bl
+;; i = 55; 
+  lea d, [bp + -6] ; $i
+  push d
+  mov b, $37
+  pop d
+  mov [d], b
+;; ca[0] = 'A'; 
+  lea d, [bp + -11] ; $ca
+  push a
+  push d
+  mov b, $0
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $41
+  pop d
+  mov [d], bl
+;; ca[1] = 'B'; 
+  lea d, [bp + -11] ; $ca
+  push a
+  push d
+  mov b, $1
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $42
+  pop d
+  mov [d], bl
+;; ca[2] = 'C'; 
+  lea d, [bp + -11] ; $ca
+  push a
+  push d
+  mov b, $2
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $43
+  pop d
+  mov [d], bl
+;; ca[3] = 'D'; 
+  lea d, [bp + -11] ; $ca
+  push a
+  push d
+  mov b, $3
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $44
+  pop d
+  mov [d], bl
+;; ca[4] = 'E'; 
+  lea d, [bp + -11] ; $ca
+  push a
+  push d
+  mov b, $4
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $45
+  pop d
+  mov [d], bl
+;; ia[0] = 0; 
+  lea d, [bp + -21] ; $ia
+  push a
+  push d
+  mov b, $0
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+;; ia[1] = 1; 
+  lea d, [bp + -21] ; $ia
+  push a
+  push d
+  mov b, $1
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $1
+  pop d
+  mov [d], b
+;; ia[2] = 2; 
+  lea d, [bp + -21] ; $ia
+  push a
+  push d
+  mov b, $2
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $2
+  pop d
+  mov [d], b
+;; ia[3] = 3; 
+  lea d, [bp + -21] ; $ia
+  push a
+  push d
+  mov b, $3
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $3
+  pop d
+  mov [d], b
+;; ia[4] = 4; 
+  lea d, [bp + -21] ; $ia
+  push a
+  push d
+  mov b, $4
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $4
+  pop d
+  mov [d], b
+;; pass = pass && test0_subTest0(c, i, ca, ia); 
+  lea d, [bp + -3] ; $pass
+  push d
+  lea d, [bp + -3] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -21] ; $ia
+  mov b, d
+  swp b
+  push b
+  lea d, [bp + -11] ; $ca
+  mov b, d
+  swp b
+  push b
+  lea d, [bp + -6] ; $i
+  mov b, [d]
+  swp b
+  push b
+  lea d, [bp + -4] ; $c
+  mov bl, [d]
+  mov bh, 0
+  push bl
+  call test0_subTest0
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; return pass; 
+  lea d, [bp + -3] ; $pass
+  mov b, [d]
+  leave
+  ret
+
+test0_subTest0:
+  enter 0 ; (push bp; mov bp, sp)
+; $pass 
+  mov a, $1
+  mov [bp + -1], a
+  sub sp, 2
+;; pass = pass && c == 'A'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + 5] ; $c
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $41
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && i == 55; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + 6] ; $i
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $37
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && ca[0] == 'A'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  mov b, [bp + 8] ; $ca
+  mov d, b
+  push a
+  push d
+  mov b, $0
+  pop d
+  add d, b
+  pop a
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $41
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && ca[1] == 'B'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  mov b, [bp + 8] ; $ca
+  mov d, b
+  push a
+  push d
+  mov b, $1
+  pop d
+  add d, b
+  pop a
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $42
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && ca[2] == 'C'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  mov b, [bp + 8] ; $ca
+  mov d, b
+  push a
+  push d
+  mov b, $2
+  pop d
+  add d, b
+  pop a
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $43
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && ca[3] == 'D'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  mov b, [bp + 8] ; $ca
+  mov d, b
+  push a
+  push d
+  mov b, $3
+  pop d
+  add d, b
+  pop a
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $44
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && ca[4] == 'E'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  mov b, [bp + 8] ; $ca
+  mov d, b
+  push a
+  push d
+  mov b, $4
+  pop d
+  add d, b
+  pop a
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $45
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && ia[0] == 0; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  mov b, [bp + 10] ; $ia
+  mov d, b
+  push a
+  push d
+  mov b, $0
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $0
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && ia[1] == 1; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  mov b, [bp + 10] ; $ia
+  mov d, b
+  push a
+  push d
+  mov b, $1
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $1
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && ia[2] == 2; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  mov b, [bp + 10] ; $ia
+  mov d, b
+  push a
+  push d
+  mov b, $2
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $2
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && ia[3] == 3; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  mov b, [bp + 10] ; $ia
+  mov d, b
+  push a
+  push d
+  mov b, $3
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $3
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && ia[4] == 4; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  mov b, [bp + 10] ; $ia
+  mov d, b
+  push a
+  push d
+  mov b, $4
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $4
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; return pass; 
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  leave
+  ret
+
+test1:
+  enter 0 ; (push bp; mov bp, sp)
+; $pass 
+  mov a, $1
+  mov [bp + -1], a
+; $ca 
+; $p 
+  sub sp, 9
+;; p = ca; 
+  lea d, [bp + -8] ; $p
+  push d
+  lea d, [bp + -6] ; $ca
+  mov b, d
+  pop d
+  mov [d], b
+;; ca[0] = 'A'; 
+  lea d, [bp + -6] ; $ca
+  push a
+  push d
+  mov b, $0
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $41
+  pop d
+  mov [d], bl
+;; ca[1] = 'B'; 
+  lea d, [bp + -6] ; $ca
+  push a
+  push d
+  mov b, $1
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $42
+  pop d
+  mov [d], bl
+;; ca[2] = 'C'; 
+  lea d, [bp + -6] ; $ca
+  push a
+  push d
+  mov b, $2
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $43
+  pop d
+  mov [d], bl
+;; ca[3] = 'D'; 
+  lea d, [bp + -6] ; $ca
+  push a
+  push d
+  mov b, $3
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $44
+  pop d
+  mov [d], bl
+;; ca[4] = 'E'; 
+  lea d, [bp + -6] ; $ca
+  push a
+  push d
+  mov b, $4
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $45
+  pop d
+  mov [d], bl
+;; pass = pass && *p == 'A'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -8] ; $p
+  mov b, [d]
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $41
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && *(p + 1) == 'B'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -8] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  mov b, $1
+  add b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $42
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && *(p + 2) == 'C'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -8] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  mov b, $2
+  add b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $43
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && *(p + 3) == 'D'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -8] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  mov b, $3
+  add b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $44
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && *(p + 4) == 'E'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -8] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  mov b, $4
+  add b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $45
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; return pass; 
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  leave
+  ret
+
+test2:
+  enter 0 ; (push bp; mov bp, sp)
+; $pass 
+  mov a, $1
+  mov [bp + -1], a
+; $ca 
+; $indices 
+; $p 
+  sub sp, 19
+;; p = ca; 
+  lea d, [bp + -18] ; $p
+  push d
+  lea d, [bp + -6] ; $ca
+  mov b, d
+  pop d
+  mov [d], b
+;; ca[0] = 'A'; 
+  lea d, [bp + -6] ; $ca
+  push a
+  push d
+  mov b, $0
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $41
+  pop d
+  mov [d], bl
+;; ca[1] = 'B'; 
+  lea d, [bp + -6] ; $ca
+  push a
+  push d
+  mov b, $1
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $42
+  pop d
+  mov [d], bl
+;; ca[2] = 'C'; 
+  lea d, [bp + -6] ; $ca
+  push a
+  push d
+  mov b, $2
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $43
+  pop d
+  mov [d], bl
+;; ca[3] = 'D'; 
+  lea d, [bp + -6] ; $ca
+  push a
+  push d
+  mov b, $3
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $44
+  pop d
+  mov [d], bl
+;; ca[4] = 'E'; 
+  lea d, [bp + -6] ; $ca
+  push a
+  push d
+  mov b, $4
+  pop d
+  add d, b
+  pop a
+  push d
+  mov b, $45
+  pop d
+  mov [d], bl
+;; indices[0] = 0; 
+  lea d, [bp + -16] ; $indices
+  push a
+  push d
+  mov b, $0
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+;; indices[1] = 1; 
+  lea d, [bp + -16] ; $indices
+  push a
+  push d
+  mov b, $1
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $1
+  pop d
+  mov [d], b
+;; indices[2] = 2; 
+  lea d, [bp + -16] ; $indices
+  push a
+  push d
+  mov b, $2
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $2
+  pop d
+  mov [d], b
+;; indices[3] = 3; 
+  lea d, [bp + -16] ; $indices
+  push a
+  push d
+  mov b, $3
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $3
+  pop d
+  mov [d], b
+;; indices[4] = 4; 
+  lea d, [bp + -16] ; $indices
+  push a
+  push d
+  mov b, $4
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $4
+  pop d
+  mov [d], b
+;; pass = pass && *(p + indices[0]) == 'A'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -18] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  lea d, [bp + -16] ; $indices
+  push a
+  push d
+  mov b, $0
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+  add b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $41
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && *(p + indices[1]) == 'B'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -18] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  lea d, [bp + -16] ; $indices
+  push a
+  push d
+  mov b, $1
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+  add b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $42
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && *(p + indices[2]) == 'C'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -18] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  lea d, [bp + -16] ; $indices
+  push a
+  push d
+  mov b, $2
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+  add b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $43
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && *(p + indices[3]) == 'D'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -18] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  lea d, [bp + -16] ; $indices
+  push a
+  push d
+  mov b, $3
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+  add b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $44
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && *(p + indices[4]) == 'E'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + -18] ; $p
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  lea d, [bp + -16] ; $indices
+  push a
+  push d
+  mov b, $4
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+  add b, a
+  pop a
+; END TERMS
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $45
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; return pass; 
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  leave
+  ret
+
+test3:
+  enter 0 ; (push bp; mov bp, sp)
+; $pass 
+  mov a, $1
+  mov [bp + -1], a
+  sub sp, 2
+;; st.c = 'A'; 
+  lea d, [bp + 5] ; $st
+  add d, 0
+  push d
+  mov b, $41
+  pop d
+  mov [d], bl
+;; st.i = 277; 
+  lea d, [bp + 5] ; $st
+  add d, 1
+  push d
+  mov b, $115
+  pop d
+  mov [d], b
+;; st.m[0] = 0; 
+  lea d, [bp + 5] ; $st
+  add d, 3
+  push a
+  push d
+  mov b, $0
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+;; st.m[1] = 1; 
+  lea d, [bp + 5] ; $st
+  add d, 3
+  push a
+  push d
+  mov b, $1
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $1
+  pop d
+  mov [d], b
+;; st.m[2] = 2; 
+  lea d, [bp + 5] ; $st
+  add d, 3
+  push a
+  push d
+  mov b, $2
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $2
+  pop d
+  mov [d], b
+;; st.m[3] = 3; 
+  lea d, [bp + 5] ; $st
+  add d, 3
+  push a
+  push d
+  mov b, $3
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $3
+  pop d
+  mov [d], b
+;; st.m[4] = 4; 
+  lea d, [bp + 5] ; $st
+  add d, 3
+  push a
+  push d
+  mov b, $4
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  push d
+  mov b, $4
+  pop d
+  mov [d], b
+;; pass = pass && st.c == 'A'; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + 5] ; $st
+  add d, 0
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $41
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && st.i == 277; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + 5] ; $st
+  add d, 1
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $115
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && st.m[0] == 0; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + 5] ; $st
+  add d, 3
+  push a
+  push d
+  mov b, $0
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $0
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && st.m[1] == 1; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + 5] ; $st
+  add d, 3
+  push a
+  push d
+  mov b, $1
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $1
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && st.m[2] == 2; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + 5] ; $st
+  add d, 3
+  push a
+  push d
+  mov b, $2
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $2
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && st.m[3] == 3; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + 5] ; $st
+  add d, 3
+  push a
+  push d
+  mov b, $3
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $3
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; pass = pass && st.m[4] == 4; 
+  lea d, [bp + -1] ; $pass
+  push d
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  push a
+  mov a, b
+  lea d, [bp + 5] ; $st
+  add d, 3
+  push a
+  push d
+  mov b, $4
+  pop d
+  mma 2 ; mov a, 2; mul a, b; add d, b
+  pop a
+  mov b, [d]
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $4
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], b
+;; return pass; 
+  lea d, [bp + -1] ; $pass
+  mov b, [d]
+  leave
+  ret
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
 _st1_data: .fill 13, 0
-__s0: .db "Test %d, Result: %u\n", 0
+__s0: .db "Test %d, Result: %d\n", 0
 __s1: .db "Unexpected format in printf.", 0
 __s2: .db "Error: Unknown argument type.\n", 0
 __s3: .db "\033[2J\033[H", 0

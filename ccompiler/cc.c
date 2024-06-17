@@ -2422,8 +2422,14 @@ t_type parse_relational(void){
             emitln("  ");
           }
           else{
-            emitln("  cmp a, b");
-            emitln("  slu ; <= (unsigned)");
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED){
+              emitln("  cmp a, b");
+              emitln("  slu ; <= (unsigned)");
+            }
+            else{
+              emitln("  cmp a, b");
+              emitln("  slt ; <= (signed)");
+            }
           }
 
           if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)

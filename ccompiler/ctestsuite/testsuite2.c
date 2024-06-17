@@ -15,9 +15,6 @@ void main(){
     pass[i] = -1;
   }
 
-  for(i = 0; i < nbr_tests; i++){
-    printf("Test %d, Result: %d\n", i, pass[i]);
-  }
   pass[0] = test0();
   pass[1] = test1();
   pass[2] = test2();
