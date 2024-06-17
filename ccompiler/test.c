@@ -1,20 +1,34 @@
 #include <stdio.h>
 
-struct t_structTest3{
-  char c;
-  int i;
-  int m[5];
-} st1;
+char currState[50][50];
 
 void main(){
-  int pass[10];
   int i;
-  int nbr_tests = 10;
-  for(i = 0; i < nbr_tests; i++){
-    pass[i] = -1;
-  }
+  int j;
+  int n;
 
-  for(i = 0; i < nbr_tests; i++){
-    printf("Test %d, Result: %u\n", i, pass[i]);
+  for(i=0;i<50;i++){
+    for(j=0;j<50;j++){
+      n = neighbours(i, j);
+      printf("%d\n", n);
+    }
   }
+}
+
+int neighbours(int i, int j){
+	int count;
+  
+	count = 0;
+
+	if(currState[i+-1][j] == '@')			count++;
+	if(currState[i+-1][j+-1] == '@') 	count++;
+	if(currState[i+-1][j+1] == '@') 	count++;
+	if(currState[i][j+-1] == '@') 		count++;
+	if(currState[i][j+1] == '@') 			count++;
+
+	if(currState[i+1][j+-1] == '@') 	count++;
+	if(currState[i+1][j] == '@') 			count++;
+	if(currState[i+1][j+1] == '@') 		count++;
+
+	return count;
 }

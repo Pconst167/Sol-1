@@ -109,13 +109,7 @@ _for1_exit:
 _for3_init:
 _for3_cond:
 _for3_block:
-;; puts("OK1"); 
-  mov b, __s0 ; "OK1"
-  swp b
-  push b
-  call puts
-  add sp, 2
-;; for(i = 1; i <   30     - 1; i++){ 
+;; for(i = 1; i <   30     +-1; i++){ 
 _for4_init:
   lea d, [bp + -1] ; $i
   push d
@@ -132,9 +126,8 @@ _for4_cond:
 ; START TERMS
   push a
   mov a, b
-  mov b, $1
-  sub a, b
-  mov b, a
+  mov b, $ffff
+  add b, a
   pop a
 ; END TERMS
   cmp a, b
@@ -144,13 +137,7 @@ _for4_cond:
   cmp b, 0
   je _for4_exit
 _for4_block:
-;; puts("OK2"); 
-  mov b, __s1 ; "OK2"
-  swp b
-  push b
-  call puts
-  add sp, 2
-;; for(j = 1; j <    40    - 1; j++){ 
+;; for(j = 1; j <    40    +-1; j++){ 
 _for5_init:
   lea d, [bp + -3] ; $j
   push d
@@ -167,9 +154,8 @@ _for5_cond:
 ; START TERMS
   push a
   mov a, b
-  mov b, $1
-  sub a, b
-  mov b, a
+  mov b, $ffff
+  add b, a
   pop a
 ; END TERMS
   cmp a, b
@@ -179,24 +165,10 @@ _for5_cond:
   cmp b, 0
   je _for5_exit
 _for5_block:
-;; puts("OK3"); 
-  mov b, __s2 ; "OK3"
-  swp b
-  push b
-  call puts
-  add sp, 2
-;; n = neighbours(i, j); 
+;; n = rand(); 
   lea d, [bp + -5] ; $n
   push d
-  lea d, [bp + -3] ; $j
-  mov b, [d]
-  swp b
-  push b
-  lea d, [bp + -1] ; $i
-  mov b, [d]
-  swp b
-  push b
-  call neighbours
+  call rand
   pop d
   mov [d], b
 ;; if(n < 2 || n > 3) nextState[i][j] = ' '; 
@@ -304,7 +276,7 @@ _for4_update:
   pop b
   jmp _for4_cond
 _for4_exit:
-;; for(i = 1; i <   30     - 1; i++){ 
+;; for(i = 1; i <   30     +-1; i++){ 
 _for8_init:
   lea d, [bp + -1] ; $i
   push d
@@ -321,9 +293,8 @@ _for8_cond:
 ; START TERMS
   push a
   mov a, b
-  mov b, $1
-  sub a, b
-  mov b, a
+  mov b, $ffff
+  add b, a
   pop a
 ; END TERMS
   cmp a, b
@@ -333,13 +304,7 @@ _for8_cond:
   cmp b, 0
   je _for8_exit
 _for8_block:
-;; puts("OK4"); 
-  mov b, __s3 ; "OK4"
-  swp b
-  push b
-  call puts
-  add sp, 2
-;; for(j = 1; j <    40    - 1; j++){ 
+;; for(j = 1; j <    40    +-1; j++){ 
 _for9_init:
   lea d, [bp + -3] ; $j
   push d
@@ -356,9 +321,8 @@ _for9_cond:
 ; START TERMS
   push a
   mov a, b
-  mov b, $1
-  sub a, b
-  mov b, a
+  mov b, $ffff
+  add b, a
   pop a
 ; END TERMS
   cmp a, b
@@ -368,12 +332,6 @@ _for9_cond:
   cmp b, 0
   je _for9_exit
 _for9_block:
-;; puts("OK5"); 
-  mov b, __s4 ; "OK5"
-  swp b
-  push b
-  call puts
-  add sp, 2
 ;; currState[i][j] = nextState[i][j]; 
   mov d, _currState_data ; $currState
   push a
@@ -435,7 +393,7 @@ _for8_exit:
 ;; show(); 
   call show
 ;; puts("\n\rPress CTRL+C to quit.\n\r"); 
-  mov b, __s5 ; "\n\rPress CTRL+C to quit.\n\r"
+  mov b, __s0 ; "\n\rPress CTRL+C to quit.\n\r"
   swp b
   push b
   call puts
@@ -3002,7 +2960,7 @@ _if44_true:
   jmp _if44_exit
 _if44_else:
 ;; err("Unexpected format in printf."); 
-  mov b, __s6 ; "Unexpected format in printf."
+  mov b, __s1 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -3156,7 +3114,7 @@ _switch41_case7:
   jmp _switch41_exit ; case break
 _switch41_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s7 ; "Error: Unknown argument type.\n"
+  mov b, __s2 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -4459,7 +4417,7 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s8 ; "\033[2J\033[H"
+  mov b, __s3 ; "\033[2J\033[H"
   swp b
   push b
   call print
@@ -4552,13 +4510,13 @@ _ternary64_cond:
   cmp b, 0
   je _ternary64_false
 _ternary64_true:
-  mov b, __s9 ; "@ "
+  mov b, __s4 ; "@ "
   swp b
   push b
   call printf
   jmp _ternary64_exit
 _ternary64_false:
-  mov b, __s10 ; ". "
+  mov b, __s5 ; ". "
   swp b
   push b
   call printf
@@ -5076,17 +5034,12 @@ _currState_data:
 .db $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,
 .db $20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,$20,
 .fill 400, 0
-__s0: .db "OK1", 0
-__s1: .db "OK2", 0
-__s2: .db "OK3", 0
-__s3: .db "OK4", 0
-__s4: .db "OK5", 0
-__s5: .db "\n\rPress CTRL+C to quit.\n\r", 0
-__s6: .db "Unexpected format in printf.", 0
-__s7: .db "Error: Unknown argument type.\n", 0
-__s8: .db "\033[2J\033[H", 0
-__s9: .db "@ ", 0
-__s10: .db ". ", 0
+__s0: .db "\n\rPress CTRL+C to quit.\n\r", 0
+__s1: .db "Unexpected format in printf.", 0
+__s2: .db "Error: Unknown argument type.\n", 0
+__s3: .db "\033[2J\033[H", 0
+__s4: .db "@ ", 0
+__s5: .db ". ", 0
 
 _heap_top: .dw _heap
 _heap: .db 0
