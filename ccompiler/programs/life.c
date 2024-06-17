@@ -75,15 +75,20 @@ int main(void){
 	}
 
 	for(;;){
-		for(i = 1; i < HEIGHT+-1; i++){
-			for(j = 1; j < WIDTH+-1; j++){
+		puts("OK1");
+		for(i = 1; i < HEIGHT- 1; i++){
+		puts("OK2");
+			for(j = 1; j < WIDTH- 1; j++){
+		puts("OK3");
         n = neighbours(i, j);
 				if(n < 2 || n > 3) nextState[i][j] = ' ';
 	      else if(n == 3) nextState[i][j] = '@';
 			}
     }
-		for(i = 1; i < HEIGHT+-1; i++){
-			for(j = 1; j < WIDTH+-1; j++){
+		for(i = 1; i < HEIGHT- 1; i++){
+		puts("OK4");
+			for(j = 1; j < WIDTH- 1; j++){
+		puts("OK5");
 				currState[i][j] = nextState[i][j];
 			}
     }
