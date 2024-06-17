@@ -64,15 +64,14 @@ int main(int argc, char *argv[]){
   data_block_p = data_block_asm; // data block pointer
 
   declare_heap();
-
   pre_processor();
   pre_scan();
+
   if((main_index = search_function("main")) != -1){
     if(search_function_parameter(main_index, "argc") != -1 && search_function_parameter(main_index, "argv") != -1){
       insert_runtime();
     }
   }
-
 
   emitln("; --- FILENAME: %s", argv[1]);
   if(include_kernel_exp) emitln(".include \"lib/asm/kernel.exp\"");
@@ -330,7 +329,8 @@ void pre_processor(void){
 
   prog = c_in; 
   do{
-    get(); back(); // So that we discard possible new line chars at end of lines
+    get(); 
+    back(); // So that we discard possible new line chars at end of lines
     temp_prog = prog;
     get();
     if(toktype == END) break;
@@ -390,7 +390,6 @@ void pre_processor(void){
       if((define_id = search_define(token)) != -1){
         delete(temp_prog, prog - temp_prog);
         insert(temp_prog, defines_table[define_id].content);
-        //prog = temp_prog; 
         continue;
       }
     }
