@@ -15,15 +15,16 @@ void main(){
     pass[i] = -1;
   }
 
+  for(i = 0; i < nbr_tests; i++){
+    printf("Test %d, Result: %d\n", i, pass[i]);
+  }
   pass[0] = test0();
   pass[1] = test1();
   pass[2] = test2();
   pass[3] = test3(st1);
 
   for(i = 0; i < nbr_tests; i++){
-    printf("Test "); printf(i); printf(" Result: ");
-    printf(pass[i]);
-    printf("\n");
+    printf("Test %d, Result: %d\n", i, pass[i]);
   }
 }
 
@@ -128,7 +129,6 @@ int test2(){
 int test3(struct t_structTest3 st){
   int pass = 1;
 
-  printf("part 1");
   st.c = 'A';
   st.i = 277;
   st.m[0] = 0;
@@ -137,17 +137,14 @@ int test3(struct t_structTest3 st){
   st.m[3] = 3;
   st.m[4] = 4;
 
-  printf("part 2");
   pass = pass && st.c == 'A';
   pass = pass && st.i == 277;
 
-  printf("part 3");
   pass = pass && st.m[0] == 0;
   pass = pass && st.m[1] == 1;
   pass = pass && st.m[2] == 2;
   pass = pass && st.m[3] == 3;
   pass = pass && st.m[4] == 4;
 
-  printf("part 4");
   return pass;
 }

@@ -268,10 +268,10 @@ typedef struct {
   t_primitive_type primitive_type;
   t_sign_modifier sign_modifier;
   t_size_modifier size_modifier;
-  char is_constant; // is it a constant?
-  int ind_level; // holds the pointer indirection level
-  int struct_id; // struct ID if var is a struct
-  int dims[MAX_MATRIX_DIMS];
+  u8 is_constant; // is it a constant?
+  u8 ind_level; // holds the pointer indirection level
+  u16 struct_id; // struct ID if var is a struct
+  u16 dims[MAX_MATRIX_DIMS];
 } t_type;
 
 
@@ -293,9 +293,9 @@ typedef struct {
   char name[ID_LEN];
   t_type type; // holds the type of data and the value itself
   _bool is_parameter;
-  char is_static;
+  u8 is_static;
   int bp_offset; // if var is local, this holds the offset of the var from BP.
-  int function_id; // the function does var belong to? (if it is a local var)
+  u16 function_id; // the function does var belong to? (if it is a local var)
 } t_var;
 
 typedef struct {
@@ -303,13 +303,12 @@ typedef struct {
   t_type return_type;
   char *code_location;
   t_var local_vars[MAX_LOCAL_VARS];
-  int local_var_tos;
-  int total_parameter_size;
+  u16 local_var_tos;
+  u16 total_parameter_size;
   char goto_labels_table[MAX_GOTO_LABELS_PER_FUNC][ID_LEN];
   int goto_labels_table_tos;
-  char _inline;
-  char has_var_args;
-  char num_fixed_args;
+  u8 has_var_args;
+  u8  num_fixed_args;
 } t_function;
 
 char *primitive_type_to_str_table[] = {

@@ -1175,7 +1175,6 @@ void declare_all_locals(int function_id){
 }
 
 void declare_func(void){
-  t_function *func; // variable to hold a pointer to the user function top of stack
   int bp_offset; // for each parameter, keep the running offset of that parameter.
   char *temp_prog, *prog_before_void_tok;
   int total_parameter_bytes;
@@ -1183,53 +1182,52 @@ void declare_func(void){
   char is_main;
   char _inline;
   char add_argc_argv;
-  int i = 0;
+  int dimension;
   int typedef_id;
 
   add_argc_argv = false;
   is_main = false;
 
   if(function_table_tos == MAX_USER_FUNC - 1) error(ERR_FATAL, "Maximum number of function declarations exceeded. Max: %d", MAX_USER_FUNC);
-  func = &function_table[function_table_tos];
 
   get();
 
   if((typedef_id = search_typedef(token)) != -1){
-    func->return_type = typedef_table[typedef_id].type;
+    function_table[function_table_tos].return_type = typedef_table[typedef_id].type;
     get();
   }
   else{
-    func->return_type.sign_modifier = SNESS_SIGNED; // set as signed by default
-    func->return_type.size_modifier = MOD_NORMAL; 
+    function_table[function_table_tos].return_type.sign_modifier = SNESS_SIGNED; // set as signed by default
+    function_table[function_table_tos].return_type.size_modifier = MOD_NORMAL; 
     while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
-          if(tok == SIGNED)   func->return_type.sign_modifier = SNESS_SIGNED;
-      else if(tok == UNSIGNED) func->return_type.sign_modifier = SNESS_UNSIGNED;
-      else if(tok == SHORT)    func->return_type.size_modifier   = MOD_SHORT;
-      else if(tok == LONG)     func->return_type.size_modifier   = MOD_LONG;
+          if(tok == SIGNED)   function_table[function_table_tos].return_type.sign_modifier = SNESS_SIGNED;
+      else if(tok == UNSIGNED) function_table[function_table_tos].return_type.sign_modifier = SNESS_UNSIGNED;
+      else if(tok == SHORT)    function_table[function_table_tos].return_type.size_modifier   = MOD_SHORT;
+      else if(tok == LONG)     function_table[function_table_tos].return_type.size_modifier   = MOD_LONG;
       get();
     }
-    func->return_type.primitive_type = get_primitive_type_from_tok();
-    func->return_type.struct_id = -1;
-    if(func->return_type.primitive_type == DT_STRUCT){ // check if this is a struct
+    function_table[function_table_tos].return_type.primitive_type = get_primitive_type_from_tok();
+    function_table[function_table_tos].return_type.struct_id = -1;
+    if(function_table[function_table_tos].return_type.primitive_type == DT_STRUCT){ // check if this is a struct
       get();
-      func->return_type.struct_id = search_struct(token);
-      if(func->return_type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+      function_table[function_table_tos].return_type.struct_id = search_struct(token);
+      if(function_table[function_table_tos].return_type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
     }
 
     get();
     while(tok == STAR){
-      func->return_type.ind_level++;
+      function_table[function_table_tos].return_type.ind_level++;
       get();
     }
   }
 
-  strcpy(func->name, token);
+  strcpy(function_table[function_table_tos].name, token);
   if(!strcmp(token, "main")) is_main = true;
   get(); // gets past "("
 
-  func->has_var_args = false;
-  func->local_var_tos = 0;
-  func->num_fixed_args = 0;
+  function_table[function_table_tos].has_var_args = false;
+  function_table[function_table_tos].local_var_tos = 0;
+  function_table[function_table_tos].num_fixed_args = 0;
   prog_before_void_tok = prog;
   get();
   if(tok == CLOSING_PAREN){
@@ -1242,63 +1240,64 @@ void declare_func(void){
         goto void_arguments;
       }
       else{
-        prog = prog_before_error;
+        prog = prog_before_void_tok;
       }
     }
     total_parameter_bytes = get_total_func_fixed_param_size();
-    func->total_parameter_size = total_parameter_bytes;
+    function_table[function_table_tos].total_parameter_size = total_parameter_bytes;
     bp_offset = 5; // +4 to account for pc and bp in the stack
     //bp_offset = total_parameter_bytes + 4; // +4 to account for pc and bp in the stack
     prog = prog_before_void_tok;
     do{
+      dimension = 0;
       // set as parameter so that we can tell that if a array is declared, the argument is also a pointer
       // even though it may not be declared with any '*' tokens;
-      func->local_vars[func->local_var_tos].is_parameter = true;
+      function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_parameter = true;
       temp_prog = prog;
       get();
       if(tok == VAR_ARG_DOTS){
-        func->has_var_args = true;
+        function_table[function_table_tos].has_var_args = true;
         get();
         break; // exit parameter loop as '...' has to be the last token in the param definition
       }
       if(tok == CONST){
-        func->local_vars[func->local_var_tos].type.is_constant = true;
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.is_constant = true;
         get();
       }
 
       if((typedef_id = search_typedef(token)) != -1){
-        func->local_vars[func->local_var_tos].type = typedef_table[typedef_id].type;
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type = typedef_table[typedef_id].type;
         get();
       }
       else{
-        func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
-        func->local_vars[func->local_var_tos].type.size_modifier = MOD_NORMAL; 
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_NORMAL; 
         while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
-              if(tok == SIGNED)   func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_SIGNED;
-          else if(tok == UNSIGNED) func->local_vars[func->local_var_tos].type.sign_modifier = SNESS_UNSIGNED;
-          else if(tok == SHORT)    func->local_vars[func->local_var_tos].type.size_modifier = MOD_SHORT;
-          else if(tok == LONG)     func->local_vars[func->local_var_tos].type.size_modifier = MOD_LONG;
+              if(tok == SIGNED)   function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_SIGNED;
+          else if(tok == UNSIGNED) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_UNSIGNED;
+          else if(tok == SHORT)    function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_SHORT;
+          else if(tok == LONG)     function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_LONG;
           get();
         }
         if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) 
-          error(ERR_FATAL, "Var type expected in argument declaration for function: %s", func->name);
+          error(ERR_FATAL, "Var type expected in argument declaration for function: %s", function_table[function_table_tos].name);
         // gets the parameter type
-        func->local_vars[func->local_var_tos].type.primitive_type = get_primitive_type_from_tok();
-        func->local_vars[func->local_var_tos].type.struct_id = -1;
-        if(func->local_vars[func->local_var_tos].type.primitive_type == DT_STRUCT){ // check if this is a struct
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type = get_primitive_type_from_tok();
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_id = -1;
+        if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type == DT_STRUCT){ // check if this is a struct
           get();
-          func->local_vars[func->local_var_tos].type.struct_id = search_struct(token);
-          if(func->local_vars[func->local_var_tos].type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+          function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_id = search_struct(token);
+          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
         }
         get();
         while(tok == STAR){
-          func->local_vars[func->local_var_tos].type.ind_level++;
+          function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.ind_level++;
           get();
         }
       }
 
       if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
-      strcpy(func->local_vars[func->local_var_tos].name, token);
+      strcpy(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].name, token);
       // Check if this is main, and argc or argv are declared
       // TODO: argc/argv need to be local to main but right now they are global
       if(is_main == true && (!strcmp(token, "argc") || !strcmp(token, "argv"))){
@@ -1306,39 +1305,39 @@ void declare_func(void){
       }
       // checks if this is a array declaration
       get();
-      func->local_vars[func->local_var_tos].type.dims[0] = 0; // in case its not a array, this signals that fact
+      function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.dims[0] = 0; // in case its not a array, this signals that fact
       if(tok == OPENING_BRACKET){
         while(tok == OPENING_BRACKET){
           get();
           if(tok == CLOSING_BRACKET){ // dummy dimension in case this dimension is variable
-            func->local_vars[func->local_var_tos].type.dims[i] = 1;
-            i++;
+            function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.dims[dimension] = 1;
+            dimension++;
             get();
             continue;
           }
           else{
-            func->local_vars[func->local_var_tos].type.dims[i] = atoi(token);
+            function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.dims[dimension] = (u16)atoi(token);
             get();
             if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing bracket expected");
-            i++;
+            dimension++;
             get();
           }
         }
-        func->local_vars[func->local_var_tos].type.dims[i] = 0; // sets the last variable dimention to 0, to mark the end of the list
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.dims[dimension] = 0; // sets the last variable dimention to 0, to mark the end of the list
       }
       prog = temp_prog;
       // assign the bp offset of this parameter
-      func->local_vars[func->local_var_tos].bp_offset = bp_offset;
+      function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].bp_offset = bp_offset;
       bp_offset += get_param_size();
 
       get();
-      func->num_fixed_args++;
-      func->local_var_tos++;
+      function_table[function_table_tos].num_fixed_args++;
+      function_table[function_table_tos].local_var_tos++;
     } while(tok == COMMA);
   }
   void_arguments:
     if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
-    func->code_location = prog; // sets the function starting point to  just after the "(" token
+    function_table[function_table_tos].code_location = prog; // sets the function starting point to  just after the "(" token
     get(); // gets to the "{" token
     if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening curly braces expected");
     back(); // puts the "{" back so that it can be found by skip_block()
@@ -4593,7 +4592,7 @@ void dbg_print_var_info(t_var *var){
 }
 
 void dbg_print_function_info(t_function *function){
-  int i;
+  int i, j;
 
   printf("function name: %s\n", function->name);
   printf("RETURN TYPE INFO:\n");
@@ -4605,6 +4604,11 @@ void dbg_print_function_info(t_function *function){
     printf("size modifier: %d\n", function->local_vars[i].type.size_modifier);
     printf("sign modifier: %d\n", function->local_vars[i].type.sign_modifier);
     printf("struct id: %d\n", function->local_vars[i].type.struct_id);
+    if(function->local_vars[i].type.dims[0]){
+      for(j = 0; function->local_vars[i].type.dims[j]; j++){
+        printf("Dim %d: %d\n", j, function->local_vars[i].type.dims[j]);
+      }
+    }
   }
   printf("*******************************************\n");
 }
