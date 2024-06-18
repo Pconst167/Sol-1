@@ -181,7 +181,7 @@ void emit_data(const char* format, ...){
   char *bufferp = tempbuffer;
   va_list args;
   va_start(args, format);
-  vsnprintf(tempbuffer, sizeof(tempbuffer), format, args);
+  vsnprintf(tempbuffer, ASM_SIZE, format, args);
   va_end(args);
   while (*bufferp) *data_block_p++ = *bufferp++;
 }
@@ -203,7 +203,7 @@ void emit(const char* format, ...){
   char *bufferp = tempbuffer;
   va_list args;
   va_start(args, format);
-  vsnprintf(tempbuffer, sizeof(tempbuffer), format, args);
+  vsnprintf(tempbuffer, ASM_SIZE, format, args);
   va_end(args);
   while (*bufferp) *asm_p++ = *bufferp++;
 }
@@ -212,7 +212,7 @@ void emitln(const char* format, ...){
   char *bufferp = tempbuffer;
   va_list args;
   va_start(args, format);
-  vsnprintf(tempbuffer, sizeof(tempbuffer), format, args);
+  vsnprintf(tempbuffer, ASM_SIZE, format, args);
   va_end(args);
   while (*bufferp) *asm_p++ = *bufferp++;
   *asm_p++ = '\n';
@@ -1598,7 +1598,7 @@ void parse_do(void){
   back();
   parse_block();  // parse block
 
-  emit_c_line();
+  emit_c_header_line();
   emitln("_do%d_cond:", current_label_index_do);
   get(); // get 'while'
   get();
@@ -1823,7 +1823,7 @@ void parse_case(void){
   } 
 }
 
-void emit_c_line(){
+void emit_c_header_line(){
   char *temp;
   char *s = string_const;
 
@@ -1866,35 +1866,35 @@ void parse_block(void){
         parse_asm();
         break;
       case GOTO:
-        emit_c_line();
+        emit_c_header_line();
         parse_goto();
         break;
       case IF:
-        emit_c_line();
+        emit_c_header_line();
         parse_if();
         break;
       case SWITCH:
-        emit_c_line();
+        emit_c_header_line();
         parse_switch();
         break;
       case FOR:
-        emit_c_line();
+        emit_c_header_line();
         parse_for();
         break;
       case WHILE:
-        emit_c_line();
+        emit_c_header_line();
         parse_while();
         break;
       case DO:
-        emit_c_line();
+        emit_c_header_line();
         parse_do();
         break;
       case BREAK:
-        emit_c_line();
+        emit_c_header_line();
         parse_break();
         break;
       case CONTINUE:
-        emit_c_line();
+        emit_c_header_line();
         parse_continue();
         break;
       case OPENING_BRACE:
@@ -1904,13 +1904,13 @@ void parse_block(void){
         braces--;
         break;
       case RETURN:
-        emit_c_line();
+        emit_c_header_line();
         parse_return();
         if(!override_return_is_last_statement) return_is_last_statement = 1; // only consider this return as a final return if we are not inside an IF statement.
         break;
       default:
         if(toktype == END) error(ERR_FATAL, "Closing brace expected");
-        emit_c_line();
+        emit_c_header_line();
         prog = temp_prog;
         get();
         if(toktype == IDENTIFIER){
@@ -3818,7 +3818,6 @@ int search_struct(char *name){
     if(!strcmp(struct_table[i].name, name)) return i;
   return -1;
 }
-
 
 void emit_global_var_initialization(t_var *var){
   char temp[512 + 8];

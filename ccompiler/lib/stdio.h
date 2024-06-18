@@ -4,6 +4,7 @@
 
 #define NULL 0
 #define ARG_BUFF 0x0000
+#define MAX_SCANF_STRING_SIZE 512
 
 struct FILE {
     int fd;            // file descriptor for the open file
@@ -33,27 +34,92 @@ void va_end(struct va_list_t *argp) {
   argp->current_arg = NULL;
 }
 
-void printf(char *format, ...){
-  char *p, *fp;
+void scanf(char *format, ...){
+  char *p, *format_p;
+  char c;
   int i;
+  char input_string[MAX_SCANF_STRING_SIZE];
 
-  fp = format;
+  format_p = format;
+  p = &format + 2;
+
+// scanf("%d %c %s", &a, &b, &c);
+  for(;;){
+    if(!*format_p) break;
+    else if(*format_p == '%'){
+      format_p++;
+      switch(*format_p){
+        case 'l':
+        case 'L':
+          format_p++;
+          if(*format_p == 'd' || *format_p == 'i');
+          else if(*format_p == 'u');
+          else if(*format_p == 'x');
+          else err("Unexpected format in printf.");
+          p = p + 4;
+          break;
+
+        case 'd':
+        case 'i':
+          i = scann();
+          **(int **)p = i;
+          p = p + 2;
+          break;
+
+        case 'u':
+          i = scann();
+          **(int **)p = i;
+          p = p + 2;
+          break;
+
+        case 'x':
+          p = p + 2;
+          break;
+
+        case 'c':
+          c = getchar();
+          **(char **)p = c;
+          p = p + 2;
+          break;
+
+        case 's':
+          gets(input_string);
+          strcpy(*(char **)p, input_string);
+          p = p + 2;
+          break;
+
+        default:
+          print("Error: Unknown argument type.\n");
+      }
+      format_p++;
+    }
+    else {
+      putchar(*format_p);
+      format_p++;
+    }
+  }
+}
+
+void printf(char *format, ...){
+  char *p, *format_p;
+
+  format_p = format;
   p = &format + 2;
 
 // printf("%i %d %d", 124, 1234, 65535);
   for(;;){
-    if(!*fp) break;
-    else if(*fp == '%'){
-      fp++;
-      switch(*fp){
+    if(!*format_p) break;
+    else if(*format_p == '%'){
+      format_p++;
+      switch(*format_p){
         case 'l':
         case 'L':
-          fp++;
-          if(*fp == 'd' || *fp == 'i')
+          format_p++;
+          if(*format_p == 'd' || *format_p == 'i')
             print_signed_long(*(long *)p);
-          else if(*fp == 'u')
+          else if(*format_p == 'u')
             print_unsigned_long(*(unsigned long *)p);
-          else if(*fp == 'x')
+          else if(*format_p == 'x')
             printx32(*(long int *)p);
           else err("Unexpected format in printf.");
           p = p + 4;
@@ -104,11 +170,11 @@ void printf(char *format, ...){
         default:
           print("Error: Unknown argument type.\n");
       }
-      fp++;
+      format_p++;
     }
     else {
-      putchar(*fp);
-      fp++;
+      putchar(*format_p);
+      format_p++;
     }
   }
 }
@@ -351,8 +417,6 @@ struct FILE *fopen(char *filename, char *mode){
 void fclose(struct FILE *fp){
   
 }
-
-
 
 void load_hex(char *destination){
   char *temp;

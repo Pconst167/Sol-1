@@ -18,6 +18,7 @@
 #define PROG_SIZE                  1024 * 1024
 #define STRING_CONST_SIZE          512
 #define STRING_TABLE_SIZE          256
+#define ASM_SIZE                   64 * 1024
 
 #define true 1
 #define false 0
@@ -459,12 +460,12 @@ int int_const;
 char *prog;                           // pointer to the current program position
 char c_in[PROG_SIZE];               // C program-in buffer
 char include_file_buffer[PROG_SIZE];     // buffer for reading in include files
-char asm_out[PROG_SIZE];             // ASM output
+char asm_out[ASM_SIZE];             // ASM output
 char *asm_p;
 char *data_p;
 char asm_line[2048];
 char includes_list_asm[1024];         // keeps a list of all included files
-char data_block_asm[PROG_SIZE];
+char data_block_asm[ASM_SIZE / 4];
 char *data_block_p;
 char tempbuffer[PROG_SIZE];
 char *prog_before_error;
@@ -538,7 +539,7 @@ int search_function(char *func_name);
 int search_function_parameter(int function_id, char *param_name);
 int enum_element_exists(char *element_name);
 
-void emit_c_line(void);
+void emit_c_header_line(void);
 void emit(const char* format, ...);
 void emitln(const char* format, ...);
 void emit_data(const char* format, ...);
