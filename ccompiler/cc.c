@@ -3172,7 +3172,7 @@ void parse_function_call(int func_id){
 
   emitln("  call %s", function_table[func_id].name);
   // the function's return value is in register B
-  if(function_table[func_id].total_parameter_size > 0)
+  if(current_func_call_total_arg_size > 0)
     emitln("  add sp, %d", current_func_call_total_arg_size); // clean stack of the arguments added to it
 
   // recover prog, placing it at the end of the function header

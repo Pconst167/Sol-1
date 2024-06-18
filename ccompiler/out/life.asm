@@ -165,10 +165,19 @@ _for5_cond:
   cmp b, 0
   je _for5_exit
 _for5_block:
-;; n = rand(); 
+;; n = neighbours(i, j); 
   lea d, [bp + -5] ; $n
   push d
-  call rand
+  lea d, [bp + -3] ; $j
+  mov b, [d]
+  swp b
+  push b
+  lea d, [bp + -1] ; $i
+  mov b, [d]
+  swp b
+  push b
+  call neighbours
+  add sp, 4
   pop d
   mov [d], b
 ;; if(n < 2 || n > 3) nextState[i][j] = ' '; 
@@ -390,6 +399,7 @@ _for8_exit:
   swp b
   push b
   call printf
+  add sp, 2
 ;; show(); 
   call show
 ;; puts("\n\rPress CTRL+C to quit.\n\r"); 
@@ -2964,6 +2974,7 @@ _if44_else:
   swp b
   push b
   call err
+  add sp, 2
 _if44_exit:
 _if43_exit:
 _if42_exit:
@@ -4514,12 +4525,14 @@ _ternary64_true:
   swp b
   push b
   call printf
+  add sp, 2
   jmp _ternary64_exit
 _ternary64_false:
   mov b, __s5 ; ". "
   swp b
   push b
   call printf
+  add sp, 2
 _ternary64_exit:
 _for63_update:
   lea d, [bp + -3] ; $j
