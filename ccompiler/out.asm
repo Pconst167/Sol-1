@@ -53,20 +53,6 @@ _for2_cond:
   cmp b, 0
   je _for2_exit
 _for2_block:
-;; n = neighbours(i, j); 
-  lea d, [bp + -5] ; $n
-  push d
-  lea d, [bp + -3] ; $j
-  mov b, [d]
-  swp b
-  push b
-  lea d, [bp + -1] ; $i
-  mov b, [d]
-  swp b
-  push b
-  call neighbours
-  pop d
-  mov [d], b
 ;; printf("%d\n", n); 
   lea d, [bp + -5] ; $n
   mov b, [d]

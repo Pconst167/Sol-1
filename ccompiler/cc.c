@@ -19,6 +19,7 @@
     * run syntax checker on a construct basis such that when executing a construct, say IF, check entire syntax for that construct and clear syntax
     * and thenparse semantics for that construct
 
+  TODO: after function call the stack is not being recovered from arguments pushed.
 */
 
 #include <stdio.h>
