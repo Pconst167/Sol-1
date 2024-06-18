@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#pragma once
+
 #define CONST_LEN                  128
 #define ID_LEN                     128
 #define MAX_DEFINES                128
@@ -133,6 +135,11 @@ typedef enum {
 } t_token_type;
 
 typedef struct{
+  char *keyword;
+  t_token key;
+} keyword_table_t;
+
+typedef struct{
   t_token_type type;
   t_token tok;
   char token[ID_LEN]; 
@@ -228,275 +235,6 @@ typedef struct {
   u8  num_fixed_args;
 } t_function;
 
-struct{
-  char *as_str;
-  t_token token;
-} token_to_str[] = {
-  "undefined",               TOK_UNDEF,
-  "ampersand = bitwise_and", AMPERSAND, 
-  "asm",                     ASM,
-  "assignment",              ASSIGNMENT,
-  "at",                      AT, 
-  "auto",                    AUTO,
-  "bitwise_not",             BITWISE_NOT, 
-  "bitwise_or",              BITWISE_OR, 
-  "bitwise_shl",             BITWISE_SHL,
-  "bitwise_shr",             BITWISE_SHR,
-  "bitwise_xor",             BITWISE_XOR, 
-  "break",                   BREAK,
-  "caret",                   CARET, 
-  "case",                    CASE,
-  "char",                    CHAR,
-  "closing_brace",           CLOSING_BRACE,
-  "closing_bracket",         CLOSING_BRACKET,
-  "closing_paren",           CLOSING_PAREN,
-  "colon",                   COLON,
-  "comma",                   COMMA,
-  "const",                   CONST,
-  "continue",                CONTINUE,
-  "decrement",               DECREMENT,
-  "default",                 DEFAULT,
-  "define",                  DEFINE,
-  "ifdef",                   DEF_IFDEF,
-  "endif",                   DEF_ENDIF,
-  "directive",               DIRECTIVE, 
-  "do",                      DO,
-  "dollar",                  DOLLAR, 
-  "double",                  DOUBLE,
-  "else",                    ELSE,
-  "enum",                    ENUM,
-  "equal",                   EQUAL, 
-  "extern",                  EXTERN,
-  "float",                   FLOAT,
-  "for",                     FOR,
-  "fslash",                  FSLASH,
-  "goto",                    GOTO,
-  "greater_than",            GREATER_THAN, 
-  "greater_than_or_equal",   GREATER_THAN_OR_EQUAL, 
-  "if",                      IF,
-  "include",                 INCLUDE, 
-  "increment",               INCREMENT,
-  "int",                     INT,
-  "less_than",               LESS_THAN, 
-  "less_than_or_equal",      LESS_THAN_OR_EQUAL, 
-  "logical_and",             LOGICAL_AND, 
-  "logical_not",             LOGICAL_NOT, 
-  "logical_or",              LOGICAL_OR, 
-  "long",                    LONG,
-  "minus",                   MINUS,
-  "mod",                     MOD,
-  "not_equal",               NOT_EQUAL, 
-  "opening_brace",           OPENING_BRACE,
-  "opening_bracket",         OPENING_BRACKET,
-  "opening_paren",           OPENING_PAREN,
-  "plus",                    PLUS,
-  "pragma",                  PRAGMA, 
-  "register",                REGISTER,
-  "return",                  RETURN,
-  "semicolon",               SEMICOLON,
-  "short",                   SHORT,
-  "signed",                  SIGNED,
-  "sizeof",                  SIZEOF,
-  "star",                    STAR,
-  "static",                  STATIC,
-  "struct",                  STRUCT,
-  "struct_arrow",            STRUCT_ARROW,
-  "struct_dot",              STRUCT_DOT,
-  "switch",                  SWITCH,
-  "ternary_op",              TERNARY_OP, 
-  "tok_undef",               TOK_UNDEF,                                            
-  "typedef",                 TYPEDEF,
-  "union",                   UNION,
-  "unsigned",                UNSIGNED,
-  "void",                    VOID,
-  "volatile",                VOLATILE,
-  "while",                   WHILE
-};
-
-char *primitive_type_to_str_table[] = {
-  "unused",
-  "void",
-  "char",
-  "int",
-  "float",
-  "double",
-  "struct"
-};
-
-struct _keyword_table{
-  char *keyword;
-  t_token key;
-} keyword_table[] = {
-  "include",  INCLUDE,
-  "pragma",   PRAGMA,
-  "define",   DEFINE,
-  "ifdef",    DEF_IFDEF,
-  "endif",    DEF_ENDIF,
-  "asm",      ASM,
-
-  "register", REGISTER,
-  "auto",     AUTO,
-  "volatile", VOLATILE,
-  "extern",   EXTERN,
-  "typedef",  TYPEDEF,
-  "static",   STATIC,
-  "const",    CONST,
-  "signed",   SIGNED,
-  "unsigned", UNSIGNED,
-  "long",     LONG,
-
-  "void",     VOID,
-  "char",     CHAR,
-  "int",      INT,
-  "float",    FLOAT,
-  "double",   DOUBLE,
-  "enum",     ENUM,
-  "union",    UNION,
-  "struct",   STRUCT,
-  "sizeof",   SIZEOF,
-
-  "if",       IF,
-  "else",     ELSE,
-  "for",      FOR,
-  "do",       DO,
-  "break",    BREAK,
-  "continue", CONTINUE,
-  "while",    WHILE,
-  "switch",   SWITCH,
-  "case",     CASE,
-  "default",  DEFAULT,
-  "goto",     GOTO,
-  "return",   RETURN,
-  "",         0
-};
-
-char *runtime_argc_argv_getter = "\n\n\
-  char *arg_p, *arg_line_p;\n\
-  char *psrc, *pdest;\n\
-  char arg[64];\n\
-  int arg_len;\n\
-\n\
-  argc = 0;\n\
-  arg_line_p = 0;\n\
-  for(;;){\n\
-    arg_p = arg;\n\
-    arg_len = 0;\n\
-    while(*arg_line_p == ' ' || *arg_line_p == '\\t') arg_line_p++;\n\
-    if(!*arg_line_p) break;\n\
-    while(*arg_line_p != ' ' && *arg_line_p != ';' && *arg_line_p){\n\
-      if(*arg_line_p == '\\\\') arg_line_p++;\n\
-      *arg_p++ = *arg_line_p++;\n\
-      arg_len++;\n\
-    }\n\
-    *arg_p = '\\0';\n\
-    argv[argc] = heap_top;\n\
-    heap_top = heap_top + arg_len + 1;\n\
-    psrc = arg;\n\
-    pdest = argv[argc];\n\
-    while(*psrc) *pdest++ = *psrc++;\n\
-    *pdest = '\\0';\n\
-    argc++;\n\
-  }\n";
-
-char libc_directory[] = "./lib/";
-
-char debug;
-
-struct{
-  char name[ID_LEN];
-  char content[MAX_DEFINE_LEN];
-} defines_table[MAX_DEFINES];
-
-struct{
-  char *as_str;
-  t_token_type toktype;
-} toktype_to_str[] = {
-  "char constant", CHAR_CONST, 
-  "delimiter", DELIMITER,
-  "double constant", DOUBLE_CONST,
-  "end", END,
-  "float constant", FLOAT_CONST, 
-  "identifier", IDENTIFIER, 
-  "integer constant", INTEGER_CONST, 
-  "reserved", RESERVED, 
-  "string constant", STRING_CONST, 
-  "undefined", TYPE_UNDEF
-};
-
-t_typedef typedef_table[MAX_TYPEDEFS];
-t_function function_table[MAX_USER_FUNC];
-t_enum enum_table[MAX_ENUM_DECLARATIONS];
-t_struct struct_table[MAX_STRUCT_DECLARATIONS];
-t_var global_var_table[MAX_GLOBAL_VARS];
-char string_table[STRING_TABLE_SIZE][STRING_CONST_SIZE];
-
-int override_return_is_last_statement; // used to indicate a return statement was found while executing an IF.
-                // i.e if a return is found but is inside an IF, then it is not a true final
-                // return statement inside a function.
-int current_function_var_bp_offset;  // this is used to position local variables correctly relative to BP.
-int current_func_id;
-int function_table_tos;
-int global_var_tos;
-int enum_table_tos;
-int struct_table_tos;
-int defines_tos;
-int typedef_table_tos;
-
-char *prog_stack[256];
-int prog_tos;
-
-char include_kernel_exp = 1;
-char org[64] = "text_org";
-int include_files_total_lines;
-char included_functions_table[512][ID_LEN];
-
-t_token_type toktype;
-t_token tok;
-char token[CONST_LEN];            // string token representation
-char string_const[STRING_CONST_SIZE];  // holds string and char constants without quotes and with escape sequences converted into the correct bytes
-t_size_modifier const_size_modifier;
-t_sign_modifier const_sign_modifier;
-int int_const;
-char *prog;                           // pointer to the current program position
-char c_in[PROG_SIZE];               // C program-in buffer
-char include_file_buffer[PROG_SIZE];     // buffer for reading in include files
-char asm_out[ASM_SIZE];             // ASM output
-char *asm_p;
-char *data_p;
-char asm_line[2048];
-char includes_list_asm[1024];         // keeps a list of all included files
-char data_block_asm[ASM_SIZE / 4];
-char *data_block_p;
-char tempbuffer[PROG_SIZE];
-char *prog_before_error;
-
-t_token return_is_last_statement;
-t_loop_type current_loop_type;      // is it a for, while, do, or switch?
-t_loop_type loop_type_stack[64];
-int loop_type_tos;
-
-int highest_label_index; // keeps the highest label index and always increases
-int current_label_index_if; 
-int current_label_index_ter; 
-int current_label_index_for; 
-int current_label_index_do; 
-int current_label_index_while; 
-int current_label_index_switch; 
-int cmp_label_index;
-int label_stack_if[64];
-int label_stack_ter[64];
-int label_stack_for[64];
-int label_stack_do[64];
-int label_stack_while[64];
-int label_stack_switch[64];
-int cmp_label_stack[64];
-int label_tos_if;
-int label_tos_ter;
-int label_tos_for;
-int label_tos_do;
-int label_tos_while;
-int label_tos_switch;
-int label_tos_cmp;
 
 
 // functions
@@ -656,7 +394,6 @@ char is_space(char c);
 char is_constant(char *varname);
 void dbg(char *s);
 int function_has_variable_arguments(int func_id);
-
 
 
 char token_not_a_const(void);

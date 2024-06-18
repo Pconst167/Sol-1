@@ -13,24 +13,20 @@ ifeq ($(FILE),)
 	@exit 1
 else
 	./cc $(FILE)
-	@echo
-	@wine tasm -1 -b out/$(BASENAME).asm out/obj/$(BASENAME).obj out/lst/$(BASENAME).lst
-	@echo
-	@xxd -ps out/obj/$(BASENAME).obj | sed -z 's/\n//g' | tr 'abcdef' 'ABCDEF' | xclip -selection c
-	@echo "> .obj copied to clipboard in intel-hex format"
-	
-	@echo
-	@echo -n "Object file size: "; ls -la out/obj/$(BASENAME).obj | awk '{printf "%d(0x%X)\n", $$5, $$5}'
-	@echo -n "Hex file size : "; ls -la out/obj/$(BASENAME).obj | awk '{printf "%d(0x%X)\n", $$5*2, $$5*2}'
-	@echo -n "Number of Assembly lines: "; wc -l out/$(BASENAME).asm
 endif
 
-cc: cc.o 
-	@$(CC) $(CFLAGS) -o cc cc.o  $(LIBS)
-	@rm cc.o 
+cc: cc.o char.o debug.o
+	@$(CC) $(CFLAGS) -o cc cc.o char.o debug.o $(LIBS)
+	@rm cc.o char.o debug.o
 
-cc.o: cc.c 
-	@$(CC) $(CFLAGS) -c cc.c 
+cc.o: cc.c definitions.h
+	@$(CC) $(CFLAGS) -c cc.c -o cc.o
+
+char.o: char.c char.h
+	@$(CC) $(CFLAGS) -c char.c -o char.o
+
+debug.o: debug.c debug.h
+	@$(CC) $(CFLAGS) -c debug.c -o debug.o
 
 clean:
-	@rm -f cc cc.o 
+	@rm -f cc cc.o char.o debug.o
