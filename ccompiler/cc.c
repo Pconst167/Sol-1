@@ -222,6 +222,7 @@ struct{
 defines_table_t defines_table[MAX_DEFINES];
 t_typedef typedef_table[MAX_TYPEDEFS];
 t_function function_table[MAX_USER_FUNC];
+t_function included_functions[MAX_USER_FUNC];
 t_enum enum_table[MAX_ENUM_DECLARATIONS];
 t_struct struct_table[MAX_STRUCT_DECLARATIONS];
 t_var global_var_table[MAX_GLOBAL_VARS];
@@ -260,8 +261,6 @@ char include_file_buffer[PROG_SIZE];     // buffer for reading in include files
 char asm_out[ASM_SIZE];             // ASM output
 char *asm_p;
 char *data_p;
-char asm_line[2048];
-char includes_list_asm[1024];         // keeps a list of all included files
 char data_block_asm[ASM_SIZE / 4];
 char *data_block_p;
 char tempbuffer[PROG_SIZE];
@@ -332,6 +331,7 @@ int main(int argc, char *argv[]){
   data_block_p = data_block_asm; // data block pointer
 
   declare_heap();
+expand_all_included_files();
   pre_processor();
   pre_scan();
 
@@ -4730,4 +4730,84 @@ void error(t_error_type error_type, const char* format, ...){
     prog = temp_prog;
   else
     exit(1);
+}
+
+void build_referenced_func_list(void){
+  u16 braces;
+}
+
+void expand_all_included_files(void){
+  FILE *fp;
+  int i, define_id;
+  char *p, *temp_prog, *temp_prog2;
+  char *pi;
+  char filename[256];
+  _bool found_include;
+
+  prog = c_in;
+  pi = include_file_buffer;
+
+  for(;;){
+    get(); 
+    back(); // So that we discard possible new line chars at end of lines
+    temp_prog2 = prog;
+    get();
+    if(toktype == END) break;
+    if(tok == DIRECTIVE){
+      get();
+      if(tok == INCLUDE){
+        get();
+        if(toktype == STRING_CONST) strcpy(filename, string_const);
+        else if(tok == LESS_THAN){
+          strcpy(filename, libc_directory);
+          for(;;){
+            get();
+            if(tok == GREATER_THAN) break;
+            strcat(filename, token);
+          }
+        }
+        else error(ERR_FATAL, "Syntax error in include directive.");
+        if((fp = fopen(filename, "rb")) == NULL){
+          printf("%s: Included source file not found.\n", filename);
+          exit(1);
+        }
+        delete(temp_prog2, prog - temp_prog2);
+        pi = include_file_buffer;
+        while(*pi) pi++;
+        do{
+          *pi = getc(fp);
+          if(*pi == '\n') include_files_total_lines++;
+          pi++;
+        } while(!feof(fp));
+        *(pi - 1) = '\0'; // overwrite the EOF char with NULL
+        fclose(fp);
+        prog = include_file_buffer;
+        found_include = false;
+        for(;;){
+          temp_prog = prog;
+          get();
+          if(toktype == END){
+            goto end_of_includes;
+          }
+          else if(tok == DIRECTIVE){
+            get();
+            if(tok == INCLUDE){
+              found_include = true;
+              prog = temp_prog;
+              break;
+            }
+          }
+        }
+        if(found_include == true) continue;
+        else break;
+      }
+    }
+  } 
+
+  end_of_includes:
+
+  printf("%s", include_file_buffer);
+  exit(1);
+
+  prog = c_in;
 }

@@ -413,3 +413,7 @@ char is_hex_digit(char c);
 char is_digit(char c);
 char is_identifier_char(char c);
 char is_space(char c);
+
+
+void build_referenced_func_list(void);
+void expand_all_included_files(void);
