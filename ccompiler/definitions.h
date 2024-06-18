@@ -140,6 +140,11 @@ typedef struct{
 } keyword_table_t;
 
 typedef struct{
+  char name[ID_LEN];
+  char content[MAX_DEFINE_LEN];
+} defines_table_t;
+
+typedef struct{
   t_token_type type;
   t_token tok;
   char token[ID_LEN]; 

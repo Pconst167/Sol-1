@@ -127,10 +127,7 @@ char *primitive_type_to_str_table[] = {
   "struct"
 };
 
-struct _keyword_table{
-  char *keyword;
-  t_token key;
-} keyword_table[] = {
+keyword_table_t keyword_table[] = {
   "include",  INCLUDE,
   "pragma",   PRAGMA,
   "define",   DEFINE,
@@ -207,11 +204,6 @@ char libc_directory[] = "./lib/";
 char debug;
 
 struct{
-  char name[ID_LEN];
-  char content[MAX_DEFINE_LEN];
-} defines_table[MAX_DEFINES];
-
-struct{
   char *as_str;
   t_token_type toktype;
 } toktype_to_str[] = {
@@ -227,6 +219,7 @@ struct{
   "undefined", TYPE_UNDEF
 };
 
+defines_table_t defines_table[MAX_DEFINES];
 t_typedef typedef_table[MAX_TYPEDEFS];
 t_function function_table[MAX_USER_FUNC];
 t_enum enum_table[MAX_ENUM_DECLARATIONS];
@@ -672,21 +665,6 @@ void pre_processor(void){
   } while(toktype != END);
 
   prog = c_in;
-}
-
-int search_define(char *name){
-  int i;
-  for(i = 0; i < defines_tos; i++)
-    if(!strcmp(defines_table[i].name, name)) return i;
-  return -1;
-}
-
-i8 search_typedef(char *name){
-  int i;
-  for(i = 0; i < typedef_table_tos; i++){
-    if(!strcmp(typedef_table[i].name, name)) return i;
-  }
-  return -1;
 }
 
 // -1 : not a type
@@ -1693,7 +1671,6 @@ int get_param_size(){
   
   return data_size;
 }
-
 
 int get_total_func_fixed_param_size(void){
   int total_bytes;
@@ -3673,15 +3650,6 @@ void emit_string_table_data(void){
   }
 }
 
-int search_string(char *str){
-  int i;
-
-  for(i = 0; i < STRING_TABLE_SIZE; i++) if(!strcmp(string_table[i], str)) 
-    return i;
-
-  return -1;
-}
-
 char *get_var_base_addr(char *dest, char *var_name){
   int var_id;
 
@@ -3901,6 +3869,25 @@ int get_struct_size(int id){
   return size;
 }
 
+t_primitive_type get_primitive_type_from_tok(){
+  switch(tok){
+    case VOID:
+      return DT_VOID;
+    case CHAR:
+      return DT_CHAR;
+    case INT:
+      return DT_INT;
+    case FLOAT:
+      return DT_FLOAT;
+    case DOUBLE:
+      return DT_DOUBLE;
+    case STRUCT:
+      return DT_STRUCT;
+    default:
+      error(ERR_FATAL, "Unknown data type.");
+  }
+}
+
 int get_data_size_for_indexing(t_type type){
   if(type.ind_level >= 2) 
     return 2;
@@ -3920,17 +3907,6 @@ int get_data_size_for_indexing(t_type type){
 int function_has_variable_arguments(int func_id){
   return function_table[func_id].has_var_args;
 }
-
-
-int search_global_var(char *var_name){
-  register int i;
-  
-  for(i = 0; i < global_var_tos; i++)
-    if(!strcmp(global_var_table[i].name, var_name)) return i;
-  
-  return -1;
-}
-
 
 void parse_struct_initialization_data(int struct_id, int array_size){
   int i, j, k, q;
@@ -4083,14 +4059,6 @@ int find_array_initialization_size(t_size_modifier size_modifier){
   } while(braces);
   expect(CLOSING_BRACE, "Closing braces expected");
   return len;
-}
-
-int search_struct(char *name){
-  int i;
-  
-  for(i = 0; i < struct_table_tos; i++)
-    if(!strcmp(struct_table[i].name, name)) return i;
-  return -1;
 }
 
 void emit_global_var_initialization(t_var *var){
@@ -4269,26 +4237,6 @@ void emit_data_dbdw(t_type type){
     emit_data(".dw ");
 }
 
-int search_function_parameter(int function_id, char *param_name){
-  int i;
-  for(i = 0; i < function_table[function_id].local_var_tos; i++){
-    if(!strcmp(function_table[function_id].local_vars[i].name, param_name)){
-      return i;
-    }
-  }
-  return -1;
-}
-
-int search_function(char *name){
-  register int i;
-  
-  for(i = 0; *function_table[i].name; i++)
-    if(!strcmp(function_table[i].name, name))
-      return i;
-  
-  return -1;
-}
-
 int global_var_exists(char *var_name){
   register int i;
 
@@ -4308,29 +4256,9 @@ int local_var_exists(char *var_name){
   return -1;
 }
 
-t_primitive_type get_primitive_type_from_tok(){
-  switch(tok){
-    case VOID:
-      return DT_VOID;
-    case CHAR:
-      return DT_CHAR;
-    case INT:
-      return DT_INT;
-    case FLOAT:
-      return DT_FLOAT;
-    case DOUBLE:
-      return DT_DOUBLE;
-    case STRUCT:
-      return DT_STRUCT;
-    default:
-      error(ERR_FATAL, "Unknown data type.");
-  }
-}
-
 char token_not_a_const(void){
   return toktype != CHAR_CONST && toktype != INTEGER_CONST && toktype != STRING_CONST;
 }
-
 
 t_var get_internal_var_ptr(char *var_name){
   register int i;
@@ -4352,47 +4280,6 @@ void expect(t_token _tok, char *message){
 
 void expect_type(t_token _tok, char *message){
   if(tok != _tok) error(ERR_FATAL, message);
-}
-
-void error(t_error_type error_type, const char* format, ...){
-  int line = 1;
-  char tempbuffer[1024];
-  char error_token[256];
-  char *temp_prog;
-  va_list args;
-
-  va_start(args, format);
-  vsnprintf(tempbuffer, sizeof(tempbuffer), format, args);
-  va_end(args);
-
-  temp_prog = prog;  
-  strcpy(error_token, token);
-
-  prog = c_in;
-  while(prog != prog_before_error){
-    if(*prog == '\n') line++;
-    prog++;
-  }
-
-  if(error_type == ERR_WARNING)
-    printf("\nWarning     : %s\n", tempbuffer);
-  else 
-    printf("\nError       : %s\n", tempbuffer);
-
-  printf("At line %d   : ", line - include_files_total_lines);
-  while(*prog != '\n' && prog != c_in) prog--;
-  prog++;
-  while(*prog != '\n') putchar(*prog++);
-  printf("\n");
-  printf("Token       : %s\n", error_token);
-  printf("Tok         : %s (%d)\n", token_to_str[tok].as_str, tok);
-  printf("Toktype     : %s\n\n", toktype_to_str[toktype].as_str);
-
-
-  if(error_type == ERR_WARNING)
-    prog = temp_prog;
-  else
-    exit(1);
 }
 
 // converts a literal string or char constant into constants with true escape sequences
@@ -4459,17 +4346,6 @@ void convert_constant(){
   
   *s = '\0';
 }
-
-
-int search_keyword(char *keyword){
-  register int i;
-  
-  for(i = 0; keyword_table[i].key; i++)
-    if (!strcmp(keyword_table[i].keyword, keyword)) return keyword_table[i].key;
-  
-  return -1;
-}
-
 
 void get(void){
   char *t;
@@ -4813,4 +4689,45 @@ void get_line(void){
 
   while(is_space(*prog)) prog++;
   *t = '\0';
+}
+
+void error(t_error_type error_type, const char* format, ...){
+  int line = 1;
+  char tempbuffer[1024];
+  char error_token[256];
+  char *temp_prog;
+  va_list args;
+
+  va_start(args, format);
+  vsnprintf(tempbuffer, sizeof(tempbuffer), format, args);
+  va_end(args);
+
+  temp_prog = prog;  
+  strcpy(error_token, token);
+
+  prog = c_in;
+  while(prog != prog_before_error){
+    if(*prog == '\n') line++;
+    prog++;
+  }
+
+  if(error_type == ERR_WARNING)
+    printf("\nWarning     : %s\n", tempbuffer);
+  else 
+    printf("\nError       : %s\n", tempbuffer);
+
+  printf("At line %d   : ", line - include_files_total_lines);
+  while(*prog != '\n' && prog != c_in) prog--;
+  prog++;
+  while(*prog != '\n') putchar(*prog++);
+  printf("\n");
+  printf("Token       : %s\n", error_token);
+  printf("Tok         : %s (%d)\n", token_to_str[tok].as_str, tok);
+  printf("Toktype     : %s\n\n", toktype_to_str[toktype].as_str);
+
+
+  if(error_type == ERR_WARNING)
+    prog = temp_prog;
+  else
+    exit(1);
 }
