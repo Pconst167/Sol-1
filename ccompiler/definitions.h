@@ -4,23 +4,22 @@
 
 #define CONST_LEN                  128
 #define ID_LEN                     128
-#define MAX_DEFINES                128
-#define MAX_DEFINE_LEN             8 * 1024
-#define MAX_ENUM_DECLARATIONS      128
-#define MAX_ENUM_ELEMENTS          128
-#define MAX_ERRORS                 4
-#define MAX_GLOBAL_VARS            128
+#define MAX_DEFINES                64
+#define MAX_DEFINE_LEN             1024
+#define MAX_ENUM_DECLARATIONS      32
+#define MAX_ENUM_ELEMENTS          64
+#define MAX_GLOBAL_VARS            64
 #define MAX_GOTO_LABELS_PER_FUNC   32
-#define MAX_LOCAL_VARS             128
-#define MAX_MATRIX_DIMS            10
-#define MAX_STRUCT_DECLARATIONS    128
+#define MAX_LOCAL_VARS             32
+#define MAX_MATRIX_DIMS            5
+#define MAX_STRUCT_DECLARATIONS    64
 #define MAX_STRUCT_ELEMENTS        32
-#define MAX_TYPEDEFS               128
+#define MAX_TYPEDEFS               64
 #define MAX_USER_FUNC              128
 #define PROG_SIZE                  1024 * 1024
 #define STRING_CONST_SIZE          512
 #define STRING_TABLE_SIZE          256
-#define ASM_SIZE                   64 * 1024
+#define ASM_SIZE                   1024 * 1024
 
 #define true 1
 #define false 0

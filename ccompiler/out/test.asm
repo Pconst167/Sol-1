@@ -7,43 +7,8 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; $s 
-; $i 
-  sub sp, 514
-;; scanf("Enter number: %d Enter String: %s", &i, s); 
-  lea d, [bp + -511] ; $s
-  mov b, d
-  swp b
-  push b
-  lea d, [bp + -513] ; $i
-  mov b, d
-  swp b
-  push b
-  mov b, __s0 ; "Enter number: %d Enter String: %s"
-  swp b
-  push b
-  call scanf
-  add sp, 6
-;; printf("Ok"); 
-  mov b, __s1 ; "Ok"
-  swp b
-  push b
-  call printf
-  add sp, 2
-;; printf("The number is: %d\nThe string is: %s", i, s); 
-  lea d, [bp + -511] ; $s
-  mov b, d
-  swp b
-  push b
-  lea d, [bp + -513] ; $i
-  mov b, [d]
-  swp b
-  push b
-  mov b, __s2 ; "The number is: %d\nThe string is: %s"
-  swp b
-  push b
-  call printf
-  add sp, 6
+;; test_globalvars(); 
+  call test_globalvars
   syscall sys_terminate_proc
 
 strcpy:
@@ -2572,7 +2537,7 @@ _if35_true:
   jmp _if35_exit
 _if35_else:
 ;; err("Unexpected format in printf."); 
-  mov b, __s3 ; "Unexpected format in printf."
+  mov b, __s0 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -2753,7 +2718,7 @@ _switch32_case7:
   jmp _switch32_exit ; case break
 _switch32_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s4 ; "Error: Unknown argument type.\n"
+  mov b, __s1 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -3016,7 +2981,7 @@ _if42_true:
   jmp _if42_exit
 _if42_else:
 ;; err("Unexpected format in printf."); 
-  mov b, __s3 ; "Unexpected format in printf."
+  mov b, __s0 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -3171,7 +3136,7 @@ _switch39_case7:
   jmp _switch39_exit ; case break
 _switch39_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s4 ; "Error: Unknown argument type.\n"
+  mov b, __s1 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -4474,7 +4439,7 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s5 ; "\033[2J\033[H"
+  mov b, __s2 ; "\033[2J\033[H"
   swp b
   push b
   call print
@@ -4491,17 +4456,123 @@ include_stdio_asm:
 
   leave
   ret
+
+test_globalvars:
+  enter 0 ; (push bp; mov bp, sp)
+; $pass 
+  mov al, $1
+  mov [bp + 0], al
+  sub sp, 1
+;; printf("testing global variables\n"); 
+  mov b, __s3 ; "testing global variables\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+;; printf("Set 'c0' to 'A'\n"); 
+  mov b, __s4 ; "Set 'c0' to 'A'\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+;; c0 = 'A'; 
+  mov d, _c0 ; $c0
+  push d
+  mov b, $41
+  pop d
+  mov [d], bl
+;; printf("c0 value: %c", c0); 
+  mov d, _c0 ; $c0
+  mov bl, [d]
+  mov bh, 0
+  push bl
+  mov b, __s5 ; "c0 value: %c"
+  swp b
+  push b
+  call printf
+  add sp, 3
+;; printf(" (%s)", c0 == 'A' ? "pass\n" : "fail\n"); 
+_ternary61_cond:
+  mov d, _c0 ; $c0
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $41
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  cmp b, 0
+  je _ternary61_false
+_ternary61_true:
+  mov b, __s6 ; "pass\n"
+  jmp _ternary61_exit
+_ternary61_false:
+  mov b, __s7 ; "fail\n"
+_ternary61_exit:
+  swp b
+  push b
+  mov b, __s8 ; " (%s)"
+  swp b
+  push b
+  call printf
+  add sp, 4
+;; pass = pass && c0 == 'A'; 
+  lea d, [bp + 0] ; $pass
+  push d
+  lea d, [bp + 0] ; $pass
+  mov bl, [d]
+  mov bh, 0
+  push a
+  mov a, b
+  mov d, _c0 ; $c0
+  mov bl, [d]
+  mov bh, 0
+; START RELATIONAL
+  push a
+  mov a, b
+  mov b, $41
+  cmp a, b
+  seq ; ==
+  pop a
+; END RELATIONAL
+  sand a, b ; &&
+  pop a
+  pop d
+  mov [d], bl
+  leave
+  ret
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
 _base64_table_data: .db "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", 0
 _base64_table: .dw _base64_table_data
-__s0: .db "Enter number: %d Enter String: %s", 0
-__s1: .db "Ok", 0
-__s2: .db "The number is: %d\nThe string is: %s", 0
-__s3: .db "Unexpected format in printf.", 0
-__s4: .db "Error: Unknown argument type.\n", 0
-__s5: .db "\033[2J\033[H", 0
+_c0: .fill 1, 0
+_i0: .fill 2, 0
+_c_array0_data: .fill 2, 0
+_i_array0_data: .fill 4, 0
+_cp_array0_data: .fill 4, 0
+_ip_array0_data: .fill 4, 0
+_cpp_array0_data: .fill 4, 0
+_ipp_array0_data: .fill 4, 0
+_cc_array0_data: .fill 4, 0
+_ii_array0_data: .fill 8, 0
+_ccp_array0_data: .fill 8, 0
+_iip_array0_data: .fill 8, 0
+_ccpp_array0_data: .fill 8, 0
+_iipp_array0_data: .fill 8, 0
+_st0_data: .fill 69, 0
+__s0: .db "Unexpected format in printf.", 0
+__s1: .db "Error: Unknown argument type.\n", 0
+__s2: .db "\033[2J\033[H", 0
+__s3: .db "testing global variables\n", 0
+__s4: .db "Set 'c0' to 'A'\n", 0
+__s5: .db "c0 value: %c", 0
+__s6: .db "pass\n", 0
+__s7: .db "fail\n", 0
+__s8: .db " (%s)", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

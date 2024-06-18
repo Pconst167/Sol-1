@@ -331,7 +331,6 @@ int main(int argc, char *argv[]){
   data_block_p = data_block_asm; // data block pointer
 
   declare_heap();
-expand_all_included_files();
   pre_processor();
   pre_scan();
 
