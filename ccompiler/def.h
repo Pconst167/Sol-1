@@ -3,6 +3,7 @@
 #define CONST_LEN                  128
 #define ID_LEN                     128
 #define MAX_DEFINES                128
+#define MAX_DEFINE_LEN             8 * 1024
 #define MAX_ENUM_DECLARATIONS      128
 #define MAX_ENUM_ELEMENTS          128
 #define MAX_ERRORS                 4
@@ -402,7 +403,7 @@ char debug;
 
 struct{
   char name[ID_LEN];
-  char content[256];
+  char content[MAX_DEFINE_LEN];
 } defines_table[MAX_DEFINES];
 
 struct{

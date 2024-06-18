@@ -294,6 +294,7 @@ void declare_define(){
     *p++ = *prog++;
   }
   *p = '\0';
+  if(*prog == '\0') error(ERR_FATAL, "Unterminated define.");
   defines_tos++;
 }
 
@@ -551,7 +552,6 @@ int declare_struct(){
   int curr_struct_id;
   int struct_id;
   t_struct new_struct;
-  char *temp_prog;
   int struct_is_embedded = 0;
   int typedef_id;
 
@@ -662,7 +662,6 @@ int declare_struct(){
 int declare_local(void){                        
   t_var new_var;
   char *temp_prog;
-  char temp[1024];
   int total_sp = 0;
   int typedef_id;
   u8 is_static, is_const;
@@ -818,15 +817,16 @@ int declare_local(void){
 } // declare_local
 
 void declare_global(void){
-  char temp[512 + 8];
   char *temp_prog;
-  int struct_id;
+  int dim;
   t_type type;
   int typedef_id;
   u8 is_static, is_const;
+  int fixed_part_size;
+  int initialization_size;
 
-  is_static = 0;
-  is_const = 0;
+  is_static = false;
+  is_const = false;
   get();
   if(tok == STATIC || tok == CONST){
     while(tok == STATIC || tok == CONST){
@@ -859,18 +859,16 @@ void declare_global(void){
     if(search_global_var(token) != -1) 
       error(ERR_FATAL, "Duplicate global variable: %s", token);
     
-    global_var_table[global_var_tos].type.struct_id = struct_id;
     global_var_table[global_var_tos].type.dims[0] = 0;
     strcpy(global_var_table[global_var_tos].name, token);
     get();
     // checks if this is a array declaration
-    int dim = 0;
+    dim = 0;
     if(tok == OPENING_BRACKET){
       while(tok == OPENING_BRACKET){
         get();
         if(tok == CLOSING_BRACKET){ // variable length array
-          int fixed_part_size = 1;
-          int initialization_size;
+          fixed_part_size = 1;
           temp_prog = prog;
           get();
           if(tok == OPENING_BRACKET){
@@ -902,15 +900,16 @@ void declare_global(void){
     // ind_level == 1 && data.primitive_type_char
     // var is a array (dims > 0)
     // checks for variable initialization
-    if(tok == ASSIGNMENT)
+    if(tok == ASSIGNMENT){
       emit_global_var_initialization(&global_var_table[global_var_tos]);
+    }
     else{ // no assignment!
       if(dim > 0 || (global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0)){
         emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
-        //emit_data("_%s: .dw _%s_data\n", global_var_table[global_var_tos].name, global_var_table[global_var_tos].name);
       }
-      else
+      else{
         emit_data("_%s: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
+      }
     }
     global_var_tos++;  
   } while(tok == COMMA);
@@ -954,7 +953,6 @@ void declare_enum(void){
 }
 
 void declare_typedef(void){
-  char temp[512 + 8];
   char *temp_prog;
   int struct_id;
   t_type type;
@@ -1042,7 +1040,6 @@ void declare_struct_global_vars(int struct_id){
   t_type type;
   int ind_level;
   char is_constant = false;
-  char temp[512 + 8];
   char *temp_prog;
 
   do{
@@ -1843,7 +1840,6 @@ void emit_c_line(){
 void parse_block(void){
   int braces = 0;
   char *temp_prog, *temp_prog2;
-  char *temp;
   
   do{
     temp_prog = prog;
@@ -2584,7 +2580,7 @@ t_type parse_factors(void){
 
 t_type parse_atomic(void){
   int var_id, func_id, string_id;
-  char temp_name[ID_LEN], temp[1024];
+  char temp_name[ID_LEN];
   t_type expr_in, expr_out;
   int ind_level = 0;
   t_sign_modifier sign_modifier;
@@ -3434,7 +3430,7 @@ char *get_var_base_addr(char *dest, char *var_name){
 
 t_type emit_var_addr_into_d(char *var_name){
   int dims, offset, struct_id, var_id;
-  char temp[64], element_name[ID_LEN], temp_name[ID_LEN];
+  char temp[128], element_name[ID_LEN], temp_name[ID_LEN];
   t_type type;
   t_var var;
 
@@ -3837,16 +3833,14 @@ void emit_global_var_initialization(t_var *var){
     braces = 1;
     for(;;){
       get();
-           if(tok == OPENING_BRACE) braces++;
+      if(tok == OPENING_BRACE) braces++;
       else if(tok == CLOSING_BRACE) braces--;
       else if(toktype == CHAR_CONST)
         emit_data("$%x,", string_const[0]);
       else if(toktype == INTEGER_CONST)
-        emit_data("%u,", (uint16_t)atoi(token));
+        emit_data("%x,", (uint16_t)int_const);
       else if(toktype == STRING_CONST){
-        int string_id;
-        string_id = add_string_data(string_const);
-        emit_data("__s%u, ", string_id);
+        emit_data("__s%u, ", add_string_data(string_const));
       }
       else error(ERR_FATAL, "Unknown data type");
       if(toktype == CHAR_CONST || toktype == INTEGER_CONST || toktype == STRING_CONST) j++;
@@ -3916,7 +3910,6 @@ void emit_global_var_initialization(t_var *var){
 }
 
 void emit_static_var_initialization(t_var *var){
-  char temp[1024];
   int j;
 
   if(is_array(var->type)){
