@@ -257,7 +257,7 @@ void print_info(const char* format, ...);
 void error(t_error_type error_type, const char* format, ...);
 void expect(t_tok _tok, char *message);
 
-void declare_enum(void);
+int declare_enum(void);
 void declare_typedef(void);
 int declare_struct(void);
 void declare_func(void);
@@ -359,6 +359,7 @@ int get_struct_element_offset(int struct_id, char *name);
 t_type get_struct_element_type(int struct_id, char *name);
 t_primitive_type get_primitive_type_from_tok(void);
 int is_struct(t_type type);
+int is_enum(t_type type);
 
 int find_array_initialization_size(t_size_modifier modifier);
 int is_array(t_type type);

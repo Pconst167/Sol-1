@@ -38,6 +38,7 @@
 #include "definitions.h"
 #include "char.h"
 #include "debug.h"
+#include "search.h"
 
 struct{
   char *as_str;
@@ -680,7 +681,7 @@ i8 type_detected(void){
      curr_token.tok == INT    || curr_token.tok == FLOAT    || 
      curr_token.tok == DOUBLE || curr_token.tok == STRUCT   ||
      curr_token.tok == SHORT  || curr_token.tok == STATIC   ||
-     search_typedef(curr_token.token_str) != -1
+     curr_token.tok == ENUM   || search_typedef(curr_token.token_str) != -1
   ){
     while(curr_token.tok == CONST || curr_token.tok == STATIC || curr_token.tok == SIGNED || curr_token.tok == UNSIGNED ||
           curr_token.tok == LONG || curr_token.tok == SHORT){
@@ -690,6 +691,11 @@ i8 type_detected(void){
       get(); // get struct's type name
       if(curr_token.tok_type != IDENTIFIER) 
         error(ERR_FATAL, "Struct's type name expected.");
+    }
+    else if(curr_token.tok == ENUM){
+      get(); // get enum's type name
+      if(curr_token.tok_type != IDENTIFIER) 
+        error(ERR_FATAL, "Enum's type name expected.");
     }
     // if not a strut, then the var type has just been gotten
     get();
@@ -728,8 +734,18 @@ void pre_scan(void){
       continue;
     }
     else if(curr_token.tok == ENUM){
-      declare_enum();
-      continue;
+      get();
+      get();
+      if(curr_token.tok == OPENING_BRACE){
+        prog = tp;
+        get(); // get 'enum'
+        struct_enum_id = declare_enum();
+        continue;
+      }
+      else{
+        prog = tp;
+        get();
+      }
     }
     else if(curr_token.tok == STRUCT){
       get();
@@ -786,6 +802,12 @@ t_type get_type(){
       get();                                                                   
       if((struct_enum_id = search_struct(curr_token.token_str)) == -1) 
         error(ERR_FATAL, "Undeclared struct: %s", curr_token.token_str);
+      type.struct_enum_id = struct_enum_id;
+    }
+    else if(type.primitive_type == DT_ENUM){                                      
+      get();                                                                   
+      if((struct_enum_id = search_enum(curr_token.token_str)) == -1) 
+        error(ERR_FATAL, "Undeclared enum: %s", curr_token.token_str);
       type.struct_enum_id = struct_enum_id;
     }
   }
@@ -1173,7 +1195,7 @@ void declare_global(void){
 }
 
 // enum my_enum {item1, item2, item3};
-void declare_enum(void){
+int declare_enum(void){
   int element_tos;
   int value;
 
@@ -1205,6 +1227,8 @@ void declare_enum(void){
   if(curr_token.tok != CLOSING_BRACE) error(ERR_FATAL, "Closing braces expected");
   get();
   if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+
+  return enum_table_tos - 1;
 }
 
 void declare_typedef(void){
@@ -1234,7 +1258,12 @@ void declare_typedef(void){
   if(type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
     struct_enum_id = search_struct(curr_token.token_str);
-    if(struct_enum_id == -1) error(ERR_FATAL, "Undeclared struct: %s", curr_token.token_str);
+    if(struct_enum_id == -1) error(ERR_FATAL, "Undeclared struct in typedef declaration: %s", curr_token.token_str);
+  }
+  else if(type.primitive_type == DT_ENUM){ // check if this is an enum 
+    get();
+    struct_enum_id = search_enum(curr_token.token_str);
+    if(struct_enum_id == -1) error(ERR_FATAL, "Undeclared enum in typedef declaration: %s", curr_token.token_str);
   }
 
   get();
@@ -3771,6 +3800,10 @@ int get_array_offset(char dim, t_type type){
     return 1 * get_primitive_type_size(type);
 }
 
+int is_enum(t_type type){
+  return type.primitive_type == DT_ENUM;
+}
+
 int is_struct(t_type type){
   return type.primitive_type == DT_STRUCT;
 }
@@ -3811,6 +3844,8 @@ int get_primitive_type_size(t_type type){
         return 2;
     case DT_STRUCT:
       return get_struct_size(type.struct_enum_id);
+    case DT_ENUM:
+      return 2;
   }
 }
 
@@ -3830,6 +3865,8 @@ int get_type_size_for_func_arg_parsing(t_type type){
         return 2;
     case DT_STRUCT:
       return get_struct_size(type.struct_enum_id);
+    case DT_ENUM:
+      return 2;
   }
 }
 
@@ -3857,6 +3894,9 @@ int get_struct_size(int id){
           break;
         case DT_STRUCT:
           size += array_size * get_struct_size(struct_table[id].elements[i].type.struct_enum_id);
+          break;
+        case DT_ENUM:
+          size += array_size * 2;
       }
   }
 
@@ -3877,6 +3917,8 @@ t_primitive_type get_primitive_type_from_tok(){
       return DT_DOUBLE;
     case STRUCT:
       return DT_STRUCT;
+    case ENUM:
+      return DT_ENUM;
     default:
       error(ERR_FATAL, "Unknown data type.");
   }
@@ -3895,6 +3937,8 @@ int get_data_size_for_indexing(t_type type){
         return 2;
     case DT_STRUCT:
       return get_struct_size(type.struct_enum_id);
+    case DT_ENUM:
+      return 2;
   }
 }
 
@@ -3994,8 +4038,6 @@ int get_struct_elements_count(int struct_enum_id){
   for(total = 0; *struct_table[struct_enum_id].elements[total].name; total++);
   return total;
 }
-
-
 
 int enum_element_exists(char *name){
   int i, j;
