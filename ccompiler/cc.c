@@ -1570,7 +1570,9 @@ void declare_func(void){
           else if(curr_token.tok == LONG)     function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_LONG;
           get();
         }
-        if(curr_token.tok != VOID && curr_token.tok != CHAR && curr_token.tok != INT && curr_token.tok != FLOAT && curr_token.tok != DOUBLE && curr_token.tok != STRUCT && curr_token.tok != ENUM) 
+        if(curr_token.tok != VOID   && curr_token.tok != CHAR   && 
+           curr_token.tok != INT    && curr_token.tok != FLOAT  && 
+           curr_token.tok != DOUBLE && curr_token.tok != STRUCT && curr_token.tok != ENUM) 
           error(ERR_FATAL, "unknown or undeclared type given in argument declaration for function: %s", function_table[function_table_tos].name);
         // gets the parameter type
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type = get_primitive_type_from_tok();
@@ -1578,12 +1580,14 @@ void declare_func(void){
         if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type == DT_STRUCT){ // check if this is a struct
           get();
           function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id = search_struct(curr_token.token_str);
-          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared struct: %s", curr_token.token_str);
+          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id == -1) 
+            error(ERR_FATAL, "Undeclared struct: %s", curr_token.token_str);
         }
         else if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type == DT_ENUM){ 
           get();
           function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id = search_enum(curr_token.token_str);
-          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared enum: %s", curr_token.token_str);
+          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id == -1) 
+            error(ERR_FATAL, "Undeclared enum: %s", curr_token.token_str);
         }
         get();
         while(curr_token.tok == STAR){
@@ -1661,10 +1665,10 @@ int get_param_size(){
 
   size_modifier = MOD_NORMAL;  
   get();
-  if(curr_token.tok == CONST) get();
-  if(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED) get();
-  
-  while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){
+  while(curr_token.tok == CONST  || curr_token.tok == STATIC   ||
+        curr_token.tok == SIGNED || curr_token.tok == UNSIGNED ||
+        curr_token.tok == SHORT  || curr_token.tok == LONG
+  ){
     if(curr_token.tok == LONG) size_modifier = MOD_LONG;
     get();
   }
@@ -1692,6 +1696,10 @@ int get_param_size(){
       get(); // get struct name
       struct_enum_id = search_struct(curr_token.token_str);
       data_size = get_struct_size(struct_enum_id);
+      break;
+    case ENUM:
+      get(); // get enum name
+      data_size = 2;
   }
 
   get(); // check for '*'

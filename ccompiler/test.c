@@ -18,6 +18,6 @@ enum_t someenum;
 void main(){
 }
 
-enum e1 f(enum e1 a1){
+enum e1 f(enum e1 eee, enum e1 aaa){
 
 }
