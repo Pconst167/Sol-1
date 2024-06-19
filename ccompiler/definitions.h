@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 #pragma once
-
+#define TOKEN_LEN                  1024 * 2
 #define CONST_LEN                  128
 #define ID_LEN                     128
 #define MAX_DEFINES                64
@@ -17,12 +17,15 @@
 #define MAX_TYPEDEFS               64
 #define MAX_USER_FUNC              128
 #define PROG_SIZE                  1024 * 1024
-#define STRING_CONST_SIZE          512
 #define STRING_TABLE_SIZE          256
 #define ASM_SIZE                   1024 * 1024
 
 #define true 1
 #define false 0
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 
 typedef int8_t i8;
 typedef int16_t i16;
@@ -35,6 +38,29 @@ typedef uint32_t u32;
 typedef uint64_t u64;
 
 typedef enum {ERR_WARNING, ERR_FATAL} t_error_type;
+
+typedef unsigned char _bool;
+
+typedef enum{
+  LOCAL = 0, GLOBAL
+} t_var_scope;
+
+typedef enum{
+  FOR_LOOP, WHILE_LOOP, DO_LOOP, SWITCH_CONSTRUCT
+} t_loop_type;
+
+// basic data types
+typedef enum {
+  DT_VOID = 1, DT_CHAR, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRUCT, DT_ENUM
+} t_primitive_type;
+
+typedef enum {
+  MOD_NORMAL, MOD_SHORT, MOD_LONG
+} t_size_modifier;
+
+typedef enum {
+  SNESS_SIGNED = 0, SNESS_UNSIGNED
+} t_sign_modifier;
 
 typedef enum {
   TOK_UNDEF = 0, 
@@ -118,7 +144,7 @@ typedef enum {
   VOID,
   VOLATILE,
   WHILE
-} t_token; // internal token representation
+} t_tok; // internal token representation
 
 typedef enum {
   CHAR_CONST, 
@@ -131,11 +157,11 @@ typedef enum {
   RESERVED, 
   STRING_CONST, 
   TYPE_UNDEF
-} t_token_type;
+} t_tok_type;
 
 typedef struct{
   char *keyword;
-  t_token key;
+  t_tok key;
 } keyword_table_t;
 
 typedef struct{
@@ -144,45 +170,15 @@ typedef struct{
 } defines_table_t;
 
 typedef struct{
-  t_token_type type;
-  t_token tok;
-  char token[ID_LEN]; 
-  char *addr;
+  t_tok_type tok_type;
+  t_tok tok;
+  char token_str[TOKEN_LEN];            // string token representation
+  char string_const[TOKEN_LEN];  // holds string and char constants without quotes and with escape sequences converted into the correct bytes
   int int_const;
-  char string_const[STRING_CONST_SIZE];
-  char c;
-} t_Token;
-
-typedef unsigned char _bool;
-
-typedef enum{
-  LOCAL = 0, GLOBAL
-} t_var_scope;
-
-typedef enum{
-  FOR_LOOP, WHILE_LOOP, DO_LOOP, SWITCH_CONSTRUCT
-} t_loop_type;
-
-typedef union {
-  char c;
-  short int i;
-  short int p; // pointer value. 2 bytes since Sol-1 integers/pointers are 2 bytes long
-  float f;
-  double d;
-} t_value;
-
-// basic data types
-typedef enum {
-  DT_VOID = 1, DT_CHAR, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRUCT
-} t_primitive_type;
-
-typedef enum {
-  MOD_NORMAL, MOD_SHORT, MOD_LONG
-} t_size_modifier;
-
-typedef enum {
-  SNESS_SIGNED = 0, SNESS_UNSIGNED
-} t_sign_modifier;
+  t_size_modifier const_size_modifier;
+  t_sign_modifier const_sign_modifier;
+  char *addr;
+} t_token;
 
 typedef struct{
   char name[ID_LEN]; // enum name
@@ -198,7 +194,7 @@ typedef struct {
   t_size_modifier size_modifier;
   u8 is_constant; // is it a constant?
   u8 ind_level; // holds the pointer indirection level
-  u16 struct_id; // struct ID if var is a struct
+  u16 struct_enum_id; // struct ID or enum ID if var is a struct or enum
   u16 dims[MAX_MATRIX_DIMS];
 } t_type;
 
@@ -259,7 +255,7 @@ void get_line(void);
 void back(void);
 void print_info(const char* format, ...);
 void error(t_error_type error_type, const char* format, ...);
-void expect(t_token _tok, char *message);
+void expect(t_tok _tok, char *message);
 
 void declare_enum(void);
 void declare_typedef(void);

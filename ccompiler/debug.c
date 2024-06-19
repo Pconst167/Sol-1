@@ -20,7 +20,7 @@ void print_typedef_table(){
 
     printf("Primitive type: %s\n", primitive_type_to_str_table[typedef_table[i].type.primitive_type]);
     printf("Indirection: %d\n", typedef_table[i].type.ind_level);
-    printf("Struct ID: %d\n", typedef_table[i].type.struct_id);
+    printf("Struct ID: %d\n", typedef_table[i].type.struct_enum_id);
 
     for(j = 0; typedef_table[i].type.dims[j]; j++){
       printf("Dims[%d]: %d\n", j, typedef_table[i].type.dims[j]);
@@ -44,7 +44,7 @@ void dbg_print_var_info(t_var *var){
   printf("Ind Level: %d\n", var->type.ind_level);
   printf("modifier: %d\n", var->type.size_modifier);
   printf("sign_modifier: %d\n", var->type.sign_modifier);
-  printf("Struct ID: %d\n", var->type.struct_id);
+  printf("Struct ID: %d\n", var->type.struct_enum_id);
   printf("*******************************************\n");
 }
 
@@ -60,7 +60,7 @@ void dbg_print_function_info(t_function *function){
     printf("ind level: %d\n", function->local_vars[i].type.ind_level);
     printf("size modifier: %d\n", function->local_vars[i].type.size_modifier);
     printf("sign modifier: %d\n", function->local_vars[i].type.sign_modifier);
-    printf("struct id: %d\n", function->local_vars[i].type.struct_id);
+    printf("struct id: %d\n", function->local_vars[i].type.struct_enum_id);
     if(function->local_vars[i].type.dims[0]){
       for(j = 0; function->local_vars[i].type.dims[j]; j++){
         printf("Dim %d: %d\n", j, function->local_vars[i].type.dims[j]);
@@ -79,6 +79,6 @@ void dbg_print_type_info(t_type *type){
   printf("ind level: %d\n", type->ind_level);
   printf("size modifier: %d\n", type->size_modifier);
   printf("sign modifier: %d\n", type->sign_modifier);
-  printf("struct id: %d\n", type->struct_id);
+  printf("struct id: %d\n", type->struct_enum_id);
   printf("*******************************************\n");
 }

@@ -34,7 +34,7 @@
 
 struct{
   char *as_str;
-  t_token token;
+  t_tok token;
 } token_to_str[] = {
   "undefined",               TOK_UNDEF,
   "ampersand = bitwise_and", AMPERSAND, 
@@ -205,8 +205,8 @@ char debug;
 
 struct{
   char *as_str;
-  t_token_type toktype;
-} toktype_to_str[] = {
+  t_tok_type tok_type;
+} tok_type_to_str[] = {
   "char constant", CHAR_CONST, 
   "delimiter", DELIMITER,
   "double constant", DOUBLE_CONST,
@@ -226,7 +226,7 @@ t_function included_functions[MAX_USER_FUNC];
 t_enum enum_table[MAX_ENUM_DECLARATIONS];
 t_struct struct_table[MAX_STRUCT_DECLARATIONS];
 t_var global_var_table[MAX_GLOBAL_VARS];
-char string_table[STRING_TABLE_SIZE][STRING_CONST_SIZE];
+char string_table[STRING_TABLE_SIZE][TOKEN_LEN];
 
 int override_return_is_last_statement; // used to indicate a return statement was found while executing an IF.
                                        // i.e if a return is found but is inside an IF, then it is not a true final
@@ -248,13 +248,9 @@ char org[64] = "text_org";
 int include_files_total_lines;
 char included_functions_table[512][ID_LEN];
 
-t_token_type toktype;
-t_token tok;
-char token[CONST_LEN];            // string token representation
-char string_const[STRING_CONST_SIZE];  // holds string and char constants without quotes and with escape sequences converted into the correct bytes
-t_size_modifier const_size_modifier;
-t_sign_modifier const_sign_modifier;
-int int_const;
+t_token curr_token;
+
+char token_str[CONST_LEN];            // string curr_token.token_str representation
 char *prog;                           // pointer to the current program position
 char c_in[PROG_SIZE];               // C program-in buffer
 char include_file_buffer[PROG_SIZE];     // buffer for reading in include files
@@ -266,7 +262,7 @@ char *data_block_p;
 char tempbuffer[PROG_SIZE];
 char *prog_before_error;
 
-t_token return_is_last_statement;
+t_tok return_is_last_statement;
 t_loop_type current_loop_type;      // is it a for, while, do, or switch?
 t_loop_type loop_type_stack[64];
 int loop_type_tos;
@@ -554,7 +550,7 @@ void declare_define(){
 
   p = defines_table[defines_tos].content;
   get(); // get define's name
-  strcpy(defines_table[defines_tos].name, token);
+  strcpy(defines_table[defines_tos].name, curr_token.token_str);
   // get value
   while(*prog != '\n' && *prog != '\0'){
     *p++ = *prog++;
@@ -601,33 +597,33 @@ void pre_processor(void){
     back(); // So that we discard possible new line chars at end of lines
     temp_prog = prog;
     get();
-    if(toktype == END) break;
+    if(curr_token.tok_type == END) break;
 
-    if(tok == DIRECTIVE){
+    if(curr_token.tok == DIRECTIVE){
       get();
-      if(tok == PRAGMA){
+      if(curr_token.tok == PRAGMA){
         get();
-        if(!strcmp(token, "org")){
+        if(!strcmp(curr_token.token_str, "org")){
           get();
-          if(toktype == STRING_CONST) strcpy(org, string_const);
-          else strcpy(org, token);
+          if(curr_token.tok_type == STRING_CONST) strcpy(org, curr_token.string_const);
+          else strcpy(org, curr_token.token_str);
           delete(temp_prog, prog - temp_prog);
         }
-        else if(!strcmp(token, "noinclude")){
+        else if(!strcmp(curr_token.token_str, "noinclude")){
           get();
-          if(!strcmp(string_const, "kernel.exp")) include_kernel_exp = 0;
+          if(!strcmp(curr_token.string_const, "kernel.exp")) include_kernel_exp = 0;
           delete(temp_prog, prog - temp_prog);
         }
       }
-      else if(tok == INCLUDE){
+      else if(curr_token.tok == INCLUDE){
         get();
-        if(toktype == STRING_CONST) strcpy(filename, string_const);
-        else if(tok == LESS_THAN){
+        if(curr_token.tok_type == STRING_CONST) strcpy(filename, curr_token.string_const);
+        else if(curr_token.tok == LESS_THAN){
           strcpy(filename, libc_directory);
           for(;;){
             get();
-            if(tok == GREATER_THAN) break;
-            strcat(filename, token);
+            if(curr_token.tok == GREATER_THAN) break;
+            strcat(filename, curr_token.token_str);
           }
         }
         else error(ERR_FATAL, "Syntax error in include directive.");
@@ -648,20 +644,20 @@ void pre_processor(void){
         prog = c_in;
         continue;
       }
-      else if(tok == DEFINE){
+      else if(curr_token.tok == DEFINE){
         declare_define();
         delete(temp_prog, prog - temp_prog);
         continue;
       }
     }
     else{
-      if((define_id = search_define(token)) != -1){
+      if((define_id = search_define(curr_token.token_str)) != -1){
         delete(temp_prog, prog - temp_prog);
         insert(temp_prog, defines_table[define_id].content);
         continue;
       }
     }
-  } while(toktype != END);
+  } while(curr_token.tok_type != END);
 
   prog = c_in;
 }
@@ -670,35 +666,35 @@ void pre_processor(void){
 //  0 : variable
 //  1 : function
 i8 type_detected(void){
-  if(tok == SIGNED || tok == UNSIGNED || 
-     tok == LONG   || tok == CONST    || 
-     tok == VOID   || tok == CHAR     ||
-     tok == INT    || tok == FLOAT    || 
-     tok == DOUBLE || tok == STRUCT   ||
-     tok == SHORT  || tok == STATIC   ||
-     search_typedef(token) != -1
+  if(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || 
+     curr_token.tok == LONG   || curr_token.tok == CONST    || 
+     curr_token.tok == VOID   || curr_token.tok == CHAR     ||
+     curr_token.tok == INT    || curr_token.tok == FLOAT    || 
+     curr_token.tok == DOUBLE || curr_token.tok == STRUCT   ||
+     curr_token.tok == SHORT  || curr_token.tok == STATIC   ||
+     search_typedef(curr_token.token_str) != -1
   ){
-    while(tok == CONST || tok == STATIC || tok == SIGNED || tok == UNSIGNED ||
-          tok == LONG || tok == SHORT){
+    while(curr_token.tok == CONST || curr_token.tok == STATIC || curr_token.tok == SIGNED || curr_token.tok == UNSIGNED ||
+          curr_token.tok == LONG || curr_token.tok == SHORT){
       get();
     }
-    if(tok == STRUCT){
+    if(curr_token.tok == STRUCT){
       get(); // get struct's type name
-      if(toktype != IDENTIFIER) 
+      if(curr_token.tok_type != IDENTIFIER) 
         error(ERR_FATAL, "Struct's type name expected.");
     }
     // if not a strut, then the var type has just been gotten
     get();
-    if(tok == STAR){
-      while(tok == STAR) 
+    if(curr_token.tok == STAR){
+      while(curr_token.tok == STAR) 
         get();
     }
     else{
-      if(toktype != IDENTIFIER) 
+      if(curr_token.tok_type != IDENTIFIER) 
         error(ERR_FATAL, "Identifier expected in variable or function declaration.");
     }
     get(); // get semicolon, assignment, comma, or opening braces
-    if(tok == OPENING_PAREN){ //it must be a function declaration
+    if(curr_token.tok == OPENING_PAREN){ //it must be a function declaration
       return 1;
     }
     else{ // it must be a variable declaration
@@ -710,29 +706,29 @@ i8 type_detected(void){
 
 void pre_scan(void){
   char *tp;
-  int struct_id;
+  int struct_enum_id;
   i8 declaration_kind;
 
   prog = c_in;
   do{
     tp = prog;
     get();
-    if(toktype == END) return;
+    if(curr_token.tok_type == END) return;
 
-    if(tok == TYPEDEF){
+    if(curr_token.tok == TYPEDEF){
       declare_typedef();
       continue;
     }
-    else if(tok == ENUM){
+    else if(curr_token.tok == ENUM){
       declare_enum();
       continue;
     }
-    else if(tok == STRUCT){
+    else if(curr_token.tok == STRUCT){
       get();
       get();
-      if(tok == OPENING_BRACE){
+      if(curr_token.tok == OPENING_BRACE){
         prog = tp;
-        struct_id = declare_struct();
+        struct_enum_id = declare_struct();
         continue;
       }
       else{
@@ -751,38 +747,38 @@ void pre_scan(void){
       skip_block();
     }
     else if(declaration_kind == -1){
-      error(ERR_FATAL, "Unexpected token during pre-scan phase: %s", token);
+      error(ERR_FATAL, "Unexpected curr_token.token_str during pre-scan phase: %s", curr_token.token_str);
     }
-  } while(toktype != END);
+  } while(curr_token.tok_type != END);
 }
 
 t_type get_type(){
   t_type type;
   int typedef_id;
-  int struct_id;
+  int struct_enum_id;
   
   get();                                                                       
-  if((typedef_id = search_typedef(token)) != -1){                              
+  if((typedef_id = search_typedef(curr_token.token_str)) != -1){                              
     type = typedef_table[typedef_id].type;                                     
   }                                                                            
   else{                                                                        
     type.sign_modifier = SNESS_SIGNED; // set as signed by default             
     type.size_modifier = MOD_NORMAL; // set as signed by default               
     type.is_constant = false;
-    while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){    
-      if(tok == SIGNED)   type.sign_modifier = SNESS_SIGNED;         
-      else if(tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;            
-      else if(tok == SHORT)    type.size_modifier = MOD_SHORT;                 
-      else if(tok == LONG)     type.size_modifier = MOD_LONG;                  
+    while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){    
+           if(curr_token.tok == SIGNED)   type.sign_modifier = SNESS_SIGNED;         
+      else if(curr_token.tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;            
+      else if(curr_token.tok == SHORT)    type.size_modifier = MOD_SHORT;                 
+      else if(curr_token.tok == LONG)     type.size_modifier = MOD_LONG;                  
       get();                                                                   
     }                                                                          
     type.primitive_type = get_primitive_type_from_tok();                       
-    type.struct_id = -1;                                                       
+    type.struct_enum_id = -1;                                                       
     if(type.primitive_type == DT_STRUCT){                                      
       get();                                                                   
-      if((struct_id = search_struct(token)) == -1) 
-        error(ERR_FATAL, "Undeclared struct: %s", token);
-      type.struct_id = struct_id;
+      if((struct_enum_id = search_struct(curr_token.token_str)) == -1) 
+        error(ERR_FATAL, "Undeclared struct: %s", curr_token.token_str);
+      type.struct_enum_id = struct_enum_id;
     }
   }
 
@@ -800,26 +796,26 @@ int vars_tos;
 */
 int declare_struct(){
   int element_tos;
-  int curr_struct_id;
-  int struct_id;
+  int curr_struct_enum_id;
+  int struct_enum_id;
   t_struct new_struct;
   int struct_is_embedded = 0;
   int typedef_id;
 
   if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error(ERR_FATAL, "Max number of struct declarations reached");
   
-  curr_struct_id = struct_table_tos;
+  curr_struct_enum_id = struct_table_tos;
   get(); // 'struct'
-  if(tok != OPENING_BRACE) get(); // try getting struct name, but only if the current token is not a brace, which means we are inside a struct declaration already and one of the members was an implicit struct that had no name, but is an elememnt of a previous struct
-  if(toktype == IDENTIFIER){
-    strcpy(new_struct.name, token);
-    strcpy(struct_table[struct_table_tos].name, token);
+  if(curr_token.tok != OPENING_BRACE) get(); // try getting struct name, but only if the current curr_token.token_str is not a brace, which means we are inside a struct declaration already and one of the members was an implicit struct that had no name, but is an elememnt of a previous struct
+  if(curr_token.tok_type == IDENTIFIER){
+    strcpy(new_struct.name, curr_token.token_str);
+    strcpy(struct_table[struct_table_tos].name, curr_token.token_str);
     get(); // '{'
-    if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
+    if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
     // Add the new struct to the struct table prematurely so that any elements in this struct that are pointers of this struct type can be recognized by a search
     struct_table_tos++;
   }
-  else if(tok == OPENING_BRACE){ // implicit struct declaration inside a struct itself
+  else if(curr_token.tok == OPENING_BRACE){ // implicit struct declaration inside a struct itself
     struct_is_embedded = 1;
   // assign a null string to the struct name then
     *new_struct.name = '\0'; // okay to do since we dont use struct names as the end point of search loops. we use 'struct_table_tos'
@@ -830,39 +826,39 @@ int declare_struct(){
   do{
     if(element_tos == MAX_STRUCT_ELEMENTS) error(ERR_FATAL, "Max number of struct elements reached");
     get();
-    if((typedef_id = search_typedef(token)) != -1){
+    if((typedef_id = search_typedef(curr_token.token_str)) != -1){
       new_struct.elements[element_tos].type = typedef_table[typedef_id].type;
       get();
     }
     else{
       new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
       new_struct.elements[element_tos].type.size_modifier = MOD_NORMAL; // set as signed by default
-      while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
-            if(tok == SIGNED)   new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED;
-        else if(tok == UNSIGNED) new_struct.elements[element_tos].type.sign_modifier = SNESS_UNSIGNED;
-        else if(tok == SHORT)    new_struct.elements[element_tos].type.size_modifier   = MOD_SHORT;
-        else if(tok == LONG)     new_struct.elements[element_tos].type.size_modifier   = MOD_LONG;
+      while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){
+            if(curr_token.tok == SIGNED)   new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED;
+        else if(curr_token.tok == UNSIGNED) new_struct.elements[element_tos].type.sign_modifier = SNESS_UNSIGNED;
+        else if(curr_token.tok == SHORT)    new_struct.elements[element_tos].type.size_modifier   = MOD_SHORT;
+        else if(curr_token.tok == LONG)     new_struct.elements[element_tos].type.size_modifier   = MOD_LONG;
         get();
       }
       new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
-      new_struct.elements[element_tos].type.struct_id = -1;
+      new_struct.elements[element_tos].type.struct_enum_id = -1;
       if(new_struct.elements[element_tos].type.primitive_type == DT_STRUCT){
         get();
-        if(tok == OPENING_BRACE){ // internal struct declaration!
+        if(curr_token.tok == OPENING_BRACE){ // internal struct declaration!
           back();
-          struct_id = declare_struct();
+          struct_enum_id = declare_struct();
           get(); // get element name
         }
         else{
-          if((struct_id = search_struct(token)) == -1) error(ERR_FATAL, "Undeclared struct");
+          if((struct_enum_id = search_struct(curr_token.token_str)) == -1) error(ERR_FATAL, "Undeclared struct");
           get();
         }
-        new_struct.elements[element_tos].type.struct_id = struct_id;
+        new_struct.elements[element_tos].type.struct_enum_id = struct_enum_id;
       }
       else get();
 
       new_struct.elements[element_tos].type.ind_level = 0;
-      while(tok == STAR){
+      while(curr_token.tok == STAR){
         new_struct.elements[element_tos].type.ind_level++;
         get();
       }
@@ -871,18 +867,18 @@ int declare_struct(){
     if(new_struct.elements[element_tos].type.primitive_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) 
       error(ERR_FATAL, "Invalid type in variable");
 
-    strcpy(new_struct.elements[element_tos].name, token);
+    strcpy(new_struct.elements[element_tos].name, curr_token.token_str);
     new_struct.elements[element_tos].type.dims[0] = 0;
     get();
     // checks if this is a array declaration
     int dim = 0;
-    if(tok == OPENING_BRACKET){
-      while(tok == OPENING_BRACKET){
+    if(curr_token.tok == OPENING_BRACKET){
+      while(curr_token.tok == OPENING_BRACKET){
         get();
-        if(toktype != INTEGER_CONST) error(ERR_FATAL, "Constant expected");
-        new_struct.elements[element_tos].type.dims[dim] = atoi(token);
+        if(curr_token.tok_type != INTEGER_CONST) error(ERR_FATAL, "Constant expected");
+        new_struct.elements[element_tos].type.dims[dim] = atoi(curr_token.token_str);
         get();
-        if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
+        if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
         get();
         dim++;
       }
@@ -890,24 +886,24 @@ int declare_struct(){
     }
     element_tos++;
     get();
-    if(tok != CLOSING_BRACE) back();
-  } while(tok != CLOSING_BRACE);
+    if(curr_token.tok != CLOSING_BRACE) back();
+  } while(curr_token.tok != CLOSING_BRACE);
   
   new_struct.elements[element_tos].name[0] = '\0'; // end elements list
-  struct_table[curr_struct_id] = new_struct; 
+  struct_table[curr_struct_enum_id] = new_struct; 
 
   get();
 
-  if(toktype == IDENTIFIER && struct_is_embedded){
+  if(curr_token.tok_type == IDENTIFIER && struct_is_embedded){
     back();
   }
-  else if (toktype == IDENTIFIER){ // declare variables if present
+  else if (curr_token.tok_type == IDENTIFIER){ // declare variables if present
     back();
-    declare_struct_global_vars(curr_struct_id);
+    declare_struct_global_vars(curr_struct_enum_id);
   }
-  else if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected after struct declaration.");
+  else if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected after struct declaration.");
 
-  return curr_struct_id; // return struct_id
+  return curr_struct_enum_id; // return struct_enum_id
 }
 
 int declare_local(void){                        
@@ -920,10 +916,10 @@ int declare_local(void){
   is_static = 0;
   is_const = 0;
   get();
-  if(tok == STATIC || tok == CONST){
-    while(tok == STATIC || tok == CONST){
-      if(tok == STATIC) is_static = true;
-      else if(tok == CONST) is_const = true;
+  if(curr_token.tok == STATIC || curr_token.tok == CONST){
+    while(curr_token.tok == STATIC || curr_token.tok == CONST){
+      if(curr_token.tok == STATIC) is_static = true;
+      else if(curr_token.tok == CONST) is_const = true;
       get();
     }
     back();
@@ -939,34 +935,34 @@ int declare_local(void){
 // **************** checks whether this is a pointer declaration *******************************
     new_var.type.ind_level = 0;
     get();
-    while(tok == STAR){
+    while(curr_token.tok == STAR){
       new_var.type.ind_level++;
       get();
     }    
 // *********************************************************************************************
-    if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
-    if(local_var_exists(token) != -1) error(ERR_FATAL, "Duplicate local variable: %s", token);
-    sprintf(new_var.name, "%s", token);
+    if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+    if(local_var_exists(curr_token.token_str) != -1) error(ERR_FATAL, "Duplicate local variable: %s", curr_token.token_str);
+    snprintf(new_var.name, sizeof(new_var.name), "%.125s", curr_token.token_str);
     get();
 
     // checks if this is a array declaration
     int dim = 0;
     new_var.type.dims[0] = 0; // in case its not a array, this signals that fact
-    if(tok == OPENING_BRACKET){
-      while(tok == OPENING_BRACKET){
+    if(curr_token.tok == OPENING_BRACKET){
+      while(curr_token.tok == OPENING_BRACKET){
         get();
-        if(tok == CLOSING_BRACKET){ // variable length array
+        if(curr_token.tok == CLOSING_BRACKET){ // variable length array
           int fixed_part_size = 1, initialization_size;
           temp_prog = prog;
           get();
-          if(tok == OPENING_BRACKET){
+          if(curr_token.tok == OPENING_BRACKET){
             do{
               get();
-              fixed_part_size = fixed_part_size * int_const;
+              fixed_part_size = fixed_part_size * curr_token.int_const;
               get();
               expect(CLOSING_BRACKET, "Closing brackets expected");
               get();
-            } while(tok == OPENING_BRACKET);
+            } while(curr_token.tok == OPENING_BRACKET);
           }
           back();
           initialization_size = find_array_initialization_size(new_var.type.size_modifier);
@@ -974,9 +970,9 @@ int declare_local(void){
           prog = temp_prog;
         }
         else{
-          new_var.type.dims[dim] = atoi(token);
+          new_var.type.dims[dim] = atoi(curr_token.token_str);
           get();
-          if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
+          if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
         }
         get();
         dim++;
@@ -985,7 +981,7 @@ int declare_local(void){
     }
 
     if(new_var.is_static){
-      if(tok == ASSIGNMENT)
+      if(curr_token.tok == ASSIGNMENT)
         emit_static_var_initialization(&new_var);
       else{
         if(new_var.type.dims[0] > 0 || new_var.type.primitive_type == DT_STRUCT){
@@ -1006,17 +1002,17 @@ int declare_local(void){
       total_sp += get_total_type_size(new_var.type);
       emitln("; $%s ", new_var.name);
       //emitln("  sub sp, %d ; $%s", get_total_type_size(new_var.type), new_var.name);
-      if(tok == ASSIGNMENT){
+      if(curr_token.tok == ASSIGNMENT){
         char isneg = 0;
         if(new_var.type.dims[0] > 0){
           error(ERR_WARNING, "Warning: Skipping initialization of local variable '%s' (not yet implemented).", new_var.name);
           do{
             get();
-          } while(tok != SEMICOLON);
+          } while(curr_token.tok != SEMICOLON);
         }
         else{
           get();
-          if(tok == MINUS){
+          if(curr_token.tok == MINUS){
             isneg = 1;
             get();
           }
@@ -1024,32 +1020,32 @@ int declare_local(void){
             error(ERR_FATAL, "Local variable initialization is non constant");
           }
           if(new_var.type.primitive_type == DT_INT || new_var.type.ind_level > 0){
-            if(toktype == CHAR_CONST){
-              emitln("  mov a, $%x", string_const[0]);
+            if(curr_token.tok_type == CHAR_CONST){
+              emitln("  mov a, $%x", curr_token.string_const[0]);
               emitln("  mov [bp + %d], a", new_var.bp_offset);
             }
-            else if(toktype == STRING_CONST){
-              if(toktype != STRING_CONST) error(ERR_FATAL, "String constant expected");
+            else if(curr_token.tok_type == STRING_CONST){
+              if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
               emit_data("_%s_data: ", new_var.name);
               emit_data_dbdw(new_var.type);
-              emit_data("%s, 0\n", token);
+              emit_data("%s, 0\n", curr_token.token_str);
               emit_data("_%s: .dw _%s_data\n", new_var.name, new_var.name);
 
               emitln("  mov a, _%s_data", new_var.name);
               emitln("  mov [bp + %d], a", new_var.bp_offset);
             }
             else{
-              emitln("  mov a, $%x", (isneg ? -atoi(token) : atoi(token)));
+              emitln("  mov a, $%x", (isneg ? -atoi(curr_token.token_str) : atoi(curr_token.token_str)));
               emitln("  mov [bp + %d], a", new_var.bp_offset);
             }
           }
           else if(new_var.type.primitive_type == DT_CHAR){
-            if(toktype == CHAR_CONST){
-              emitln("  mov al, $%x", string_const[0]);
+            if(curr_token.tok_type == CHAR_CONST){
+              emitln("  mov al, $%x", curr_token.string_const[0]);
               emitln("  mov [bp + %d], al", new_var.bp_offset);
             }
             else{
-              emitln("  mov al, $%x", (unsigned char)(isneg ? -atoi(token) : atoi(token)));
+              emitln("  mov al, $%x", (unsigned char)(isneg ? -atoi(curr_token.token_str) : atoi(curr_token.token_str)));
               emitln("  mov [bp + %d], al", new_var.bp_offset);
             }
           }
@@ -1060,9 +1056,9 @@ int declare_local(void){
     // assigns the new variable to the local stack
     function_table[current_func_id].local_vars[function_table[current_func_id].local_var_tos] = new_var;    
     function_table[current_func_id].local_var_tos++;
-  } while(tok == COMMA);
+  } while(curr_token.tok == COMMA);
 
-  if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+  if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 
   return total_sp;
 } // declare_local
@@ -1079,10 +1075,10 @@ void declare_global(void){
   is_static = false;
   is_const = false;
   get();
-  if(tok == STATIC || tok == CONST){
-    while(tok == STATIC || tok == CONST){
-      if(tok == STATIC) is_static = true;
-      else if(tok == CONST) is_const = true;
+  if(curr_token.tok == STATIC || curr_token.tok == CONST){
+    while(curr_token.tok == STATIC || curr_token.tok == CONST){
+      if(curr_token.tok == STATIC) is_static = true;
+      else if(curr_token.tok == CONST) is_const = true;
       get();
     }
     back();
@@ -1097,39 +1093,39 @@ void declare_global(void){
     get();
 // **************** checks whether this is a pointer declaration *******************************
     global_var_table[global_var_tos].type.ind_level = 0;
-    while(tok == STAR){
+    while(curr_token.tok == STAR){
       global_var_table[global_var_tos].type.ind_level++;
       get();
     }
 // *********************************************************************************************
-    if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+    if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
     if(global_var_table[global_var_tos].type.primitive_type == DT_VOID && global_var_table[global_var_tos].type.ind_level == 0) 
-      error(ERR_FATAL, "Invalid type in variable: %s", token);
+      error(ERR_FATAL, "Invalid type in variable: %s", curr_token.token_str);
 
     // checks if there is another global variable with the same name
-    if(search_global_var(token) != -1) 
-      error(ERR_FATAL, "Duplicate global variable: %s", token);
+    if(search_global_var(curr_token.token_str) != -1) 
+      error(ERR_FATAL, "Duplicate global variable: %s", curr_token.token_str);
     
     global_var_table[global_var_tos].type.dims[0] = 0;
-    strcpy(global_var_table[global_var_tos].name, token);
+    strcpy(global_var_table[global_var_tos].name, curr_token.token_str);
     get();
     // checks if this is a array declaration
     dim = 0;
-    if(tok == OPENING_BRACKET){
-      while(tok == OPENING_BRACKET){
+    if(curr_token.tok == OPENING_BRACKET){
+      while(curr_token.tok == OPENING_BRACKET){
         get();
-        if(tok == CLOSING_BRACKET){ // variable length array
+        if(curr_token.tok == CLOSING_BRACKET){ // variable length array
           fixed_part_size = 1;
           temp_prog = prog;
           get();
-          if(tok == OPENING_BRACKET){
+          if(curr_token.tok == OPENING_BRACKET){
             do{
               get();
-              fixed_part_size = fixed_part_size * int_const;
+              fixed_part_size = fixed_part_size * curr_token.int_const;
               get();
               expect(CLOSING_BRACKET, "Closing brackets expected");
               get();
-            } while(tok == OPENING_BRACKET);
+            } while(curr_token.tok == OPENING_BRACKET);
           }
           back();
           initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.size_modifier);
@@ -1137,9 +1133,9 @@ void declare_global(void){
           prog = temp_prog;
         }
         else{
-          global_var_table[global_var_tos].type.dims[dim] = atoi(token);
+          global_var_table[global_var_tos].type.dims[dim] = atoi(curr_token.token_str);
           get();
-          if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
+          if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
         }
         get();
         dim++;
@@ -1151,7 +1147,7 @@ void declare_global(void){
     // ind_level == 1 && data.primitive_type_char
     // var is a array (dims > 0)
     // checks for variable initialization
-    if(tok == ASSIGNMENT){
+    if(curr_token.tok == ASSIGNMENT){
       emit_global_var_initialization(&global_var_table[global_var_tos]);
     }
     else{ // no assignment!
@@ -1163,9 +1159,9 @@ void declare_global(void){
       }
     }
     global_var_tos++;  
-  } while(tok == COMMA);
+  } while(curr_token.tok == COMMA);
 
-  if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+  if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 }
 
 // enum my_enum {item1, item2, item3};
@@ -1176,36 +1172,36 @@ void declare_enum(void){
   if(enum_table_tos == MAX_ENUM_DECLARATIONS) error(ERR_FATAL, "Maximum number of enumeration declarations exceeded");
 
   get(); // get enum name
-  strcpy(enum_table[enum_table_tos].name, token);
+  strcpy(enum_table[enum_table_tos].name, curr_token.token_str);
   get(); // '{'
-  if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
+  if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
   element_tos = 0;
   value = 0;
 
   do{
     get();
-    if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
-    strcpy(enum_table[enum_table_tos].elements[element_tos].name, token);
+    if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+    strcpy(enum_table[enum_table_tos].elements[element_tos].name, curr_token.token_str);
     get();
-    if(tok == ASSIGNMENT){
+    if(curr_token.tok == ASSIGNMENT){
       get();
-      value = int_const;
+      value = curr_token.int_const;
     }
     enum_table[enum_table_tos].elements[element_tos].value = value;
     value++;
     element_tos++;  
-  } while(tok == COMMA);
+  } while(curr_token.tok == COMMA);
   
   enum_table_tos++;
 
-  if(tok != CLOSING_BRACE) error(ERR_FATAL, "Closing braces expected");
+  if(curr_token.tok != CLOSING_BRACE) error(ERR_FATAL, "Closing braces expected");
   get();
-  if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+  if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 }
 
 void declare_typedef(void){
   char *temp_prog;
-  int struct_id;
+  int struct_enum_id;
   t_type type;
 
   if(typedef_table_tos == MAX_TYPEDEFS) error(ERR_FATAL, "Maximum number of typedefs exceeded.");
@@ -1217,55 +1213,55 @@ void declare_typedef(void){
   get(); 
   type.sign_modifier = SNESS_SIGNED; // set as signed by default
   type.size_modifier = MOD_NORMAL; 
-  while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG || tok == CONST){
-    if(tok == CONST) type.is_constant = true;
-    else if(tok == SIGNED)   type.sign_modifier = SNESS_SIGNED;
-    else if(tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;
-    else if(tok == SHORT)    type.size_modifier = MOD_SHORT;
-    else if(tok == LONG)     type.size_modifier = MOD_LONG;
+  while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == SHORT || curr_token.tok == LONG || curr_token.tok == CONST){
+    if(curr_token.tok == CONST) type.is_constant = true;
+    else if(curr_token.tok == SIGNED)   type.sign_modifier = SNESS_SIGNED;
+    else if(curr_token.tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;
+    else if(curr_token.tok == SHORT)    type.size_modifier = MOD_SHORT;
+    else if(curr_token.tok == LONG)     type.size_modifier = MOD_LONG;
     get();
   }
   type.primitive_type = get_primitive_type_from_tok();
-  type.struct_id = -1;
+  type.struct_enum_id = -1;
   if(type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
-    struct_id = search_struct(token);
-    if(struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+    struct_enum_id = search_struct(curr_token.token_str);
+    if(struct_enum_id == -1) error(ERR_FATAL, "Undeclared struct: %s", curr_token.token_str);
   }
 
   get();
 // **************** checks whether this is a pointer declaration *******************************
   type.ind_level = 0;
-  while(tok == STAR){
+  while(curr_token.tok == STAR){
     type.ind_level++;
     get();
   }
 // *********************************************************************************************
-  if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
-  if(type.primitive_type == DT_VOID && type.ind_level == 0) error(ERR_FATAL, "Invalid type in variable: %s", token);
+  if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+  if(type.primitive_type == DT_VOID && type.ind_level == 0) error(ERR_FATAL, "Invalid type in variable: %s", curr_token.token_str);
 
-  type.struct_id = struct_id;
+  type.struct_enum_id = struct_enum_id;
   type.dims[0] = 0;
-  strcpy(typedef_table[typedef_table_tos].name, token);
+  strcpy(typedef_table[typedef_table_tos].name, curr_token.token_str);
   get();
   // checks if this is a array declaration
   int dim = 0;
-  if(tok == OPENING_BRACKET){
-    while(tok == OPENING_BRACKET){
+  if(curr_token.tok == OPENING_BRACKET){
+    while(curr_token.tok == OPENING_BRACKET){
       get();
-      if(tok == CLOSING_BRACKET){ // variable length array
+      if(curr_token.tok == CLOSING_BRACKET){ // variable length array
         int fixed_part_size = 1;
         int initialization_size;
         temp_prog = prog;
         get();
-        if(tok == OPENING_BRACKET){
+        if(curr_token.tok == OPENING_BRACKET){
           do{
             get();
-            fixed_part_size = fixed_part_size * int_const;
+            fixed_part_size = fixed_part_size * curr_token.int_const;
             get();
             expect(CLOSING_BRACKET, "Closing brackets expected");
             get();
-          } while(tok == OPENING_BRACKET);
+          } while(curr_token.tok == OPENING_BRACKET);
         }
         back();
         initialization_size = find_array_initialization_size(type.size_modifier);
@@ -1273,9 +1269,9 @@ void declare_typedef(void){
         prog = temp_prog;
       }
       else{
-        type.dims[dim] = atoi(token);
+        type.dims[dim] = atoi(curr_token.token_str);
         get();
-        if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
+        if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
       }
       get();
       dim++;
@@ -1299,51 +1295,51 @@ void declare_struct_global_vars(int struct_id){
     get();
 // **************** checks whether this is a pointer declaration *******************************
     ind_level = 0;
-    while(tok == STAR){
+    while(curr_token.tok == STAR){
       ind_level++;
       get();
     }
 // *********************************************************************************************
-    if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+    if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
 
     // checks if there is another global variable with the same name
-    if(search_global_var(token) != -1) error(ERR_FATAL, "Duplicate global variable");
+    if(search_global_var(curr_token.token_str) != -1) error(ERR_FATAL, "Duplicate global variable");
     
     global_var_table[global_var_tos].type.primitive_type = DT_STRUCT;
     global_var_table[global_var_tos].type.ind_level = ind_level;
-    global_var_table[global_var_tos].type.struct_id = struct_id;
+    global_var_table[global_var_tos].type.struct_enum_id = struct_id;
     global_var_table[global_var_tos].type.dims[0] = 0;
-    strcpy(global_var_table[global_var_tos].name, token);
+    strcpy(global_var_table[global_var_tos].name, curr_token.token_str);
     get();
     // checks if this is a array declaration
     int dim = 0;
-    if(tok == OPENING_BRACKET){
-      while(tok == OPENING_BRACKET){
+    if(curr_token.tok == OPENING_BRACKET){
+      while(curr_token.tok == OPENING_BRACKET){
         get();
-        if(tok == CLOSING_BRACKET){ // variable length array
+        if(curr_token.tok == CLOSING_BRACKET){ // variable length array
           int fixed_part_size = 1, initialization_size;
           temp_prog = prog;
           get();
-          if(tok == OPENING_BRACKET){
+          if(curr_token.tok == OPENING_BRACKET){
             do{
               get();
-              fixed_part_size = fixed_part_size * int_const;
+              fixed_part_size = fixed_part_size * curr_token.int_const;
               get();
               expect(CLOSING_BRACKET, "Closing brackets expected");
               get();
-            } while(tok == OPENING_BRACKET);
+            } while(curr_token.tok == OPENING_BRACKET);
           }
           back();
           initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.size_modifier);
           global_var_table[global_var_tos].type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
           get();
-          if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected.");
+          if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected.");
           break;
         }
         else{
-          global_var_table[global_var_tos].type.dims[dim] = atoi(token);
+          global_var_table[global_var_tos].type.dims[dim] = atoi(curr_token.token_str);
           get();
-          if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
+          if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
         }
         get();
         dim++;
@@ -1352,7 +1348,7 @@ void declare_struct_global_vars(int struct_id){
 
     }
 
-    if(tok == ASSIGNMENT){
+    if(curr_token.tok == ASSIGNMENT){
       int array_size = 1;
       array_size = get_num_array_elements(global_var_table[global_var_tos].type);
       get();
@@ -1372,7 +1368,7 @@ void declare_struct_global_vars(int struct_id){
     global_var_tos++;  
 
     get();
-  } while(tok == COMMA);
+  } while(curr_token.tok == COMMA);
   back();
 }
 
@@ -1389,31 +1385,31 @@ void declare_all_locals(int function_id){
     declare_all_locals_L0:
     temp_prog = prog;
     get();
-    if(tok == ASM){
+    if(curr_token.tok == ASM){
       for(;;){
         get();
-        if(tok == CLOSING_BRACE) goto declare_all_locals_L0;
-        if(toktype == END) error(ERR_FATAL, "Unterminated inline asm block.");
+        if(curr_token.tok == CLOSING_BRACE) goto declare_all_locals_L0;
+        if(curr_token.tok_type == END) error(ERR_FATAL, "Unterminated inline asm block.");
       }
     }
-    if(tok == OPENING_PAREN){ // skip expressions inside parenthesis as they can't be variable declarations.
+    if(curr_token.tok == OPENING_PAREN){ // skip expressions inside parenthesis as they can't be variable declarations.
       for(;;){
         get();
-        if(tok == CLOSING_PAREN) goto declare_all_locals_L0;
-        if(toktype == END) error(ERR_FATAL, "Unterminated parenthesized expression.");
+        if(curr_token.tok == CLOSING_PAREN) goto declare_all_locals_L0;
+        if(curr_token.tok_type == END) error(ERR_FATAL, "Unterminated parenthesized expression.");
       }
     }
-    if(tok == OPENING_BRACE) total_braces++;
-    if(tok == CLOSING_BRACE) total_braces--;
+    if(curr_token.tok == OPENING_BRACE) total_braces++;
+    if(curr_token.tok == CLOSING_BRACE) total_braces--;
     if(total_braces == 0) break;
-    if(tok == STATIC || tok == CONST || tok == UNSIGNED || tok == SIGNED || tok == LONG || tok == SHORT || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT){
-      while(tok == STATIC || tok == CONST || tok == UNSIGNED || tok == SIGNED || tok == LONG || tok == SHORT || tok == INT || tok == CHAR || tok == VOID || tok == STRUCT || tok == ENUM){
+    if(curr_token.tok == STATIC || curr_token.tok == CONST || curr_token.tok == UNSIGNED || curr_token.tok == SIGNED || curr_token.tok == LONG || curr_token.tok == SHORT || curr_token.tok == INT || curr_token.tok == CHAR || curr_token.tok == VOID || curr_token.tok == STRUCT){
+      while(curr_token.tok == STATIC || curr_token.tok == CONST || curr_token.tok == UNSIGNED || curr_token.tok == SIGNED || curr_token.tok == LONG || curr_token.tok == SHORT || curr_token.tok == INT || curr_token.tok == CHAR || curr_token.tok == VOID || curr_token.tok == STRUCT || curr_token.tok == ENUM){
         get();       
       }
-      while(tok == STAR) get();
+      while(curr_token.tok == STAR) get();
       get(); // get identifier
       get();
-      if(tok != OPENING_PAREN){
+      if(curr_token.tok != OPENING_PAREN){
         prog = temp_prog;
         total_sp += declare_local();
       }
@@ -1440,37 +1436,37 @@ void declare_func(void){
 
   get();
 
-  if((typedef_id = search_typedef(token)) != -1){
+  if((typedef_id = search_typedef(curr_token.token_str)) != -1){
     function_table[function_table_tos].return_type = typedef_table[typedef_id].type;
     get();
   }
   else{
     function_table[function_table_tos].return_type.sign_modifier = SNESS_SIGNED; // set as signed by default
     function_table[function_table_tos].return_type.size_modifier = MOD_NORMAL; 
-    while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
-          if(tok == SIGNED)   function_table[function_table_tos].return_type.sign_modifier = SNESS_SIGNED;
-      else if(tok == UNSIGNED) function_table[function_table_tos].return_type.sign_modifier = SNESS_UNSIGNED;
-      else if(tok == SHORT)    function_table[function_table_tos].return_type.size_modifier   = MOD_SHORT;
-      else if(tok == LONG)     function_table[function_table_tos].return_type.size_modifier   = MOD_LONG;
+    while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == SHORT || curr_token.tok == LONG){
+          if(curr_token.tok == SIGNED)   function_table[function_table_tos].return_type.sign_modifier = SNESS_SIGNED;
+      else if(curr_token.tok == UNSIGNED) function_table[function_table_tos].return_type.sign_modifier = SNESS_UNSIGNED;
+      else if(curr_token.tok == SHORT)    function_table[function_table_tos].return_type.size_modifier   = MOD_SHORT;
+      else if(curr_token.tok == LONG)     function_table[function_table_tos].return_type.size_modifier   = MOD_LONG;
       get();
     }
     function_table[function_table_tos].return_type.primitive_type = get_primitive_type_from_tok();
-    function_table[function_table_tos].return_type.struct_id = -1;
+    function_table[function_table_tos].return_type.struct_enum_id = -1;
     if(function_table[function_table_tos].return_type.primitive_type == DT_STRUCT){ // check if this is a struct
       get();
-      function_table[function_table_tos].return_type.struct_id = search_struct(token);
-      if(function_table[function_table_tos].return_type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+      function_table[function_table_tos].return_type.struct_enum_id = search_struct(curr_token.token_str);
+      if(function_table[function_table_tos].return_type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared struct: %s", curr_token.token_str);
     }
 
     get();
-    while(tok == STAR){
+    while(curr_token.tok == STAR){
       function_table[function_table_tos].return_type.ind_level++;
       get();
     }
   }
 
-  strcpy(function_table[function_table_tos].name, token);
-  if(!strcmp(token, "main")) is_main = true;
+  strcpy(function_table[function_table_tos].name, curr_token.token_str);
+  if(!strcmp(curr_token.token_str, "main")) is_main = true;
   get(); // gets past "("
 
   function_table[function_table_tos].has_var_args = false;
@@ -1478,13 +1474,13 @@ void declare_func(void){
   function_table[function_table_tos].num_fixed_args = 0;
   prog_before_void_tok = prog;
   get();
-  if(tok == CLOSING_PAREN){
+  if(curr_token.tok == CLOSING_PAREN){
     goto void_arguments;
   }
   else{
-    if(tok == VOID){
+    if(curr_token.tok == VOID){
       get();
-      if(tok == CLOSING_PAREN){
+      if(curr_token.tok == CLOSING_PAREN){
         goto void_arguments;
       }
       else{
@@ -1499,74 +1495,74 @@ void declare_func(void){
     do{
       dimension = 0;
       // set as parameter so that we can tell that if a array is declared, the argument is also a pointer
-      // even though it may not be declared with any '*' tokens;
+      // even though it may not be declared with any '*' curr_token.token_strs;
       function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_parameter = true;
       temp_prog = prog;
       get();
-      if(tok == VAR_ARG_DOTS){
+      if(curr_token.tok == VAR_ARG_DOTS){
         function_table[function_table_tos].has_var_args = true;
         get();
-        break; // exit parameter loop as '...' has to be the last token in the param definition
+        break; // exit parameter loop as '...' has to be the last curr_token.token_str in the param definition
       }
-      if(tok == CONST){
+      if(curr_token.tok == CONST){
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.is_constant = true;
         get();
       }
 
-      if((typedef_id = search_typedef(token)) != -1){
+      if((typedef_id = search_typedef(curr_token.token_str)) != -1){
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type = typedef_table[typedef_id].type;
         get();
       }
       else{
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_NORMAL; 
-        while(tok == SIGNED || tok == UNSIGNED || tok == SHORT || tok == LONG){
-              if(tok == SIGNED)   function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_SIGNED;
-          else if(tok == UNSIGNED) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_UNSIGNED;
-          else if(tok == SHORT)    function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_SHORT;
-          else if(tok == LONG)     function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_LONG;
+        while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == SHORT || curr_token.tok == LONG){
+              if(curr_token.tok == SIGNED)   function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_SIGNED;
+          else if(curr_token.tok == UNSIGNED) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_UNSIGNED;
+          else if(curr_token.tok == SHORT)    function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_SHORT;
+          else if(curr_token.tok == LONG)     function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_LONG;
           get();
         }
-        if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) 
+        if(curr_token.tok != VOID && curr_token.tok != CHAR && curr_token.tok != INT && curr_token.tok != FLOAT && curr_token.tok != DOUBLE && curr_token.tok != STRUCT) 
           error(ERR_FATAL, "unknown or undeclared type given in argument declaration for function: %s", function_table[function_table_tos].name);
         // gets the parameter type
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type = get_primitive_type_from_tok();
-        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_id = -1;
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id = -1;
         if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type == DT_STRUCT){ // check if this is a struct
           get();
-          function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_id = search_struct(token);
-          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_id == -1) error(ERR_FATAL, "Undeclared struct: %s", token);
+          function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id = search_struct(curr_token.token_str);
+          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared struct: %s", curr_token.token_str);
         }
         get();
-        while(tok == STAR){
+        while(curr_token.tok == STAR){
           function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.ind_level++;
           get();
         }
       }
 
-      if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
-      strcpy(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].name, token);
+      if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+      strcpy(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].name, curr_token.token_str);
       // Check if this is main, and argc or argv are declared
       // TODO: argc/argv need to be local to main but right now they are global
-      if(is_main == true && (!strcmp(token, "argc") || !strcmp(token, "argv"))){
+      if(is_main == true && (!strcmp(curr_token.token_str, "argc") || !strcmp(curr_token.token_str, "argv"))){
         add_argc_argv = true;
       }
       // checks if this is a array declaration
       get();
       function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.dims[0] = 0; // in case its not a array, this signals that fact
-      if(tok == OPENING_BRACKET){
-        while(tok == OPENING_BRACKET){
+      if(curr_token.tok == OPENING_BRACKET){
+        while(curr_token.tok == OPENING_BRACKET){
           get();
-          if(tok == CLOSING_BRACKET){ // dummy dimension in case this dimension is variable
+          if(curr_token.tok == CLOSING_BRACKET){ // dummy dimension in case this dimension is variable
             function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.dims[dimension] = 1;
             dimension++;
             get();
             continue;
           }
           else{
-            function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.dims[dimension] = (u16)atoi(token);
+            function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.dims[dimension] = (u16)atoi(curr_token.token_str);
             get();
-            if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing bracket expected");
+            if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing bracket expected");
             dimension++;
             get();
           }
@@ -1581,13 +1577,13 @@ void declare_func(void){
       get();
       function_table[function_table_tos].num_fixed_args++;
       function_table[function_table_tos].local_var_tos++;
-    } while(tok == COMMA);
+    } while(curr_token.tok == COMMA);
   }
   void_arguments:
-    if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
-    function_table[function_table_tos].code_location = prog; // sets the function starting point to  just after the "(" token
-    get(); // gets to the "{" token
-    if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening curly braces expected");
+    if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
+    function_table[function_table_tos].code_location = prog; // sets the function starting point to  just after the "(" curr_token.token_str
+    get(); // gets to the "{" curr_token.token_str
+    if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening curly braces expected");
     back(); // puts the "{" back so that it can be found by skip_block()
     function_table_tos++;
 }
@@ -1598,9 +1594,9 @@ void declare_goto_label(void){
   goto_tos = function_table[current_func_id].goto_labels_table_tos;
   get();
   for(i = 0; i < goto_tos; i++)
-    if(!strcmp(function_table[current_func_id].goto_labels_table[i], token)) 
-      error(ERR_FATAL, "Duplicate label: %s", token);
-  sprintf(function_table[current_func_id].goto_labels_table[goto_tos], "%s_%s", function_table[current_func_id].name, token);
+    if(!strcmp(function_table[current_func_id].goto_labels_table[i], curr_token.token_str)) 
+      error(ERR_FATAL, "Duplicate label: %s", curr_token.token_str);
+  sprintf(function_table[current_func_id].goto_labels_table[goto_tos], "%s_%s", function_table[current_func_id].name, curr_token.token_str);
   emitln("%s:", function_table[current_func_id].goto_labels_table[goto_tos]);
   function_table[current_func_id].goto_labels_table_tos++;
   get();
@@ -1608,20 +1604,20 @@ void declare_goto_label(void){
 
 int get_param_size(){
   int data_size;
-  int struct_id;
+  int struct_enum_id;
   t_size_modifier size_modifier;
 
   size_modifier = MOD_NORMAL;  
   get();
-  if(tok == CONST) get();
-  if(tok == SIGNED || tok == UNSIGNED) get();
+  if(curr_token.tok == CONST) get();
+  if(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED) get();
   
-  while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
-    if(tok == LONG) size_modifier = MOD_LONG;
+  while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){
+    if(curr_token.tok == LONG) size_modifier = MOD_LONG;
     get();
   }
 
-  switch(tok){
+  switch(curr_token.tok){
     case VAR_ARG_DOTS:
       data_size = 0; // assign zero here as the real size will be computed when the variable arguments are pushed
       break;
@@ -1642,22 +1638,22 @@ int get_param_size(){
       break;
     case STRUCT:
       get(); // get struct name
-      struct_id = search_struct(token);
-      data_size = get_struct_size(struct_id);
+      struct_enum_id = search_struct(curr_token.token_str);
+      data_size = get_struct_size(struct_enum_id);
   }
 
   get(); // check for '*'
-  if(tok == STAR){
+  if(curr_token.tok == STAR){
     data_size = 2;
-    while(tok == STAR) get();
+    while(curr_token.tok == STAR) get();
   }
 
   get(); // check for brackets
-  if(tok == OPENING_BRACKET){
+  if(curr_token.tok == OPENING_BRACKET){
     data_size = 2; // parameter is a pointer if it is an array
-    while(tok == OPENING_BRACKET){
+    while(curr_token.tok == OPENING_BRACKET){
       get();
-      if(tok == CLOSING_BRACKET){
+      if(curr_token.tok == CLOSING_BRACKET){
         get();
         continue;
       }
@@ -1678,7 +1674,7 @@ int get_total_func_fixed_param_size(void){
   do{
     total_bytes += get_param_size();
     get();
-  } while(tok == COMMA);
+  } while(curr_token.tok == COMMA);
 
   return total_bytes;
 }
@@ -1691,33 +1687,33 @@ void parse_asm(void){
   char *p, *t;
   
   get();
-  if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
+  if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
   emitln("\n; --- BEGIN INLINE ASM BLOCK");
   for(;;){
     while(is_space(*prog)) prog++;
     temp_prog = prog;
     get_line();
-    if(strchr(string_const, '}')) break;
-    else if(strchr(string_const, ':') 
-         || strstr(string_const, ".include") 
-         || strstr(string_const, ".db") 
-         || strstr(string_const, ".dw") 
-         || strstr(string_const, ".equ") 
-         || strstr(string_const, ".EQU")){
-      emitln(string_const);
+    if(strchr(curr_token.string_const, '}')) break;
+    else if(strchr(curr_token.string_const, ':') 
+         || strstr(curr_token.string_const, ".include") 
+         || strstr(curr_token.string_const, ".db") 
+         || strstr(curr_token.string_const, ".dw") 
+         || strstr(curr_token.string_const, ".equ") 
+         || strstr(curr_token.string_const, ".EQU")){
+      emitln(curr_token.string_const);
     } 
-    else if(strstr(string_const, "addr mov")){
+    else if(strstr(curr_token.string_const, "addr mov")){
       prog = temp_prog;
       get(); // get 'addr' operator
       get(); // get 'mov'
       get(); // get 'd' register
-      if(strcmp(token, "d") && strcmp(token, "D")) error(ERR_FATAL, "'d' register expected in 'addr mov' operation.");
-      get(); if(tok != COMMA) error(ERR_FATAL, "Comma expected.");
-      get(); if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected.");
-      emit_var_addr_into_d(token);
+      if(strcmp(curr_token.token_str, "d") && strcmp(curr_token.token_str, "D")) error(ERR_FATAL, "'d' register expected in 'addr mov' operation.");
+      get(); if(curr_token.tok != COMMA) error(ERR_FATAL, "Comma expected.");
+      get(); if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected.");
+      emit_var_addr_into_d(curr_token.token_str);
     }
     else{
-      emitln("  %s", string_const);
+      emitln("  %s", curr_token.string_const);
     }
   }
   emitln("; --- END INLINE ASM BLOCK\n");
@@ -1751,22 +1747,22 @@ void parse_for(void){
   current_label_index_for = highest_label_index;
 
   get();
-  if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
+  if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   emitln("_for%d_init:", current_label_index_for);
   get();
-  if(tok != SEMICOLON){
+  if(curr_token.tok != SEMICOLON){
     back();
     parse_expr();
   }
-  if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+  if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 
   emitln("_for%d_cond:", current_label_index_for);
   // checks for an empty condition, which means always true
   get();
-  if(tok != SEMICOLON){
+  if(curr_token.tok != SEMICOLON){
     back();
     parse_expr();
-    if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+    if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
     emitln("  cmp b, 0");
     emitln("  je _for%d_exit", current_label_index_for);
   }
@@ -1787,7 +1783,7 @@ void parse_for(void){
   prog = update_loc;
   // checks for an empty update expression
   get();
-  if(tok != CLOSING_PAREN){
+  if(curr_token.tok != CLOSING_PAREN){
     back();
     parse_expr();
   }
@@ -1815,9 +1811,9 @@ void parse_while(void){
 
   emitln("_while%d_cond:", current_label_index_while);
   get();
-  if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
+  if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
-  if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
+  if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
   emitln("  cmp b, 0");
   emitln("  je _while%d_exit", current_label_index_while);
   emitln("_while%d_block:", current_label_index_while);
@@ -1844,7 +1840,7 @@ void parse_do(void){
 
   emitln("_do%d_block:", current_label_index_do);
   get();
-  if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening brace expected in 'do' statement.");
+  if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening brace expected in 'do' statement.");
   back();
   parse_block();  // parse block
 
@@ -1852,16 +1848,16 @@ void parse_do(void){
   emitln("_do%d_cond:", current_label_index_do);
   get(); // get 'while'
   get();
-  if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
+  if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
-  if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
+  if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
   emitln("  cmp b, 1");
   emitln("  je _do%d_block", current_label_index_do);
 
   emitln("_do%d_exit:", current_label_index_do);
 
   get();
-  if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+  if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 
   label_tos_do--;
   current_label_index_do = label_stack_do[label_tos_do];
@@ -1875,17 +1871,17 @@ void parse_goto(void){
   char label[256];
 
   get();
-  if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+  if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
   for(i = 0; i < function_table[current_func_id].goto_labels_table_tos; i++){
-    sprintf(label, "%s_%s", function_table[current_func_id].name, token);
+    snprintf(label, sizeof(label), "%.125s_%.125s", function_table[current_func_id].name, curr_token.token_str);
     if(!strcmp(function_table[current_func_id].goto_labels_table[i], label)){
       emitln("  jmp %s", label);
       get();
-      if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+      if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
       return;
     }
   }
-  error(ERR_FATAL, "(parse_goto) Undeclared identifier: %s", token);
+  error(ERR_FATAL, "(parse_goto) Undeclared identifier: %s", curr_token.token_str);
 }
 
 void parse_if(void){
@@ -1899,22 +1895,22 @@ void parse_if(void){
 
   emitln("_if%d_cond:", current_label_index_if);
   get();
-  if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
+  if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
-  if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
+  if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
   emitln("  cmp b, 0");
   
   temp_p = prog;
   skip_statements(); // skip main IF block in order to check for ELSE block.
   get();
-  if(tok == ELSE) emitln("  je _if%d_else", current_label_index_if);
+  if(curr_token.tok == ELSE) emitln("  je _if%d_else", current_label_index_if);
   else emitln("  je _if%d_exit", current_label_index_if);
   prog = temp_p;
   emitln("_if%d_true:", current_label_index_if);
   parse_block();  // parse the positive condition block
   emitln("  jmp _if%d_exit", current_label_index_if);
   get(); // look for 'else'
-  if(tok == ELSE){
+  if(curr_token.tok == ELSE){
     emitln("_if%d_else:", current_label_index_if);
     parse_block();  // parse the positive condition block
   }
@@ -1929,7 +1925,7 @@ void parse_if(void){
 
 void parse_return(void){
   get();
-  if(tok != SEMICOLON){
+  if(curr_token.tok != SEMICOLON){
     back();
     parse_expr();  // return value in register B
   }
@@ -1942,16 +1938,16 @@ void parse_return(void){
 void skip_case(void){
   do{
     get();
-    if(tok == OPENING_BRACE){
+    if(curr_token.tok == OPENING_BRACE){
       back();
       skip_block();
       get();
     }
-  } while(tok != CASE && tok != DEFAULT && tok != CLOSING_BRACE);
+  } while(curr_token.tok != CASE && curr_token.tok != DEFAULT && curr_token.tok != CLOSING_BRACE);
 
-  if(tok == CASE){
+  if(curr_token.tok == CASE){
     back();
-    tok = CASE;
+    curr_token.tok = CASE;
   }
 }
 
@@ -1970,50 +1966,50 @@ void parse_switch(void){
 
   emitln("_switch%d_expr:", current_label_index_switch);
   get();
-  if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
+  if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
-  if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
+  if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
   emitln("_switch%d_comparisons:", current_label_index_switch);
 
   get();
-  if(tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
+  if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
 
   temp_p = prog;
   current_case_nbr = 0;
   // emit compares and jumps
   do{
     get();
-    if(tok != CASE) error(ERR_FATAL, "Case expected");
+    if(curr_token.tok != CASE) error(ERR_FATAL, "Case expected");
     get();
-    if(toktype == INTEGER_CONST){
-      emitln("  cmp b, %d", int_const);
+    if(curr_token.tok_type == INTEGER_CONST){
+      emitln("  cmp b, %d", curr_token.int_const);
       emitln("  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
       get();
-      if(tok != COLON) error(ERR_FATAL, "Colon expected");
+      if(curr_token.tok != COLON) error(ERR_FATAL, "Colon expected");
       skip_case();
     }
-    else if(toktype == CHAR_CONST){
-      emitln("  cmp bl, $%x", *string_const);
+    else if(curr_token.tok_type == CHAR_CONST){
+      emitln("  cmp bl, $%x", *curr_token.string_const);
       emitln("  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
       get();
-      if(tok != COLON) error(ERR_FATAL, "Colon expected");
+      if(curr_token.tok != COLON) error(ERR_FATAL, "Colon expected");
       skip_case();
     }
-    else if(toktype == IDENTIFIER){
-      if(enum_element_exists(token) != -1){
-        emitln("  cmp b, %d", get_enum_val(token));
+    else if(curr_token.tok_type == IDENTIFIER){
+      if(enum_element_exists(curr_token.token_str) != -1){
+        emitln("  cmp b, %d", get_enum_val(curr_token.token_str));
         emitln("  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
         get();
-        if(tok != COLON) error(ERR_FATAL, "Colon expected");
+        if(curr_token.tok != COLON) error(ERR_FATAL, "Colon expected");
         skip_case();
       }
     }
     else error(ERR_FATAL, "Constant expected");
     current_case_nbr++;
-  } while(tok == CASE);
+  } while(curr_token.tok == CASE);
 
   // generate default jump if it exists
-  if(tok == DEFAULT){
+  if(curr_token.tok == DEFAULT){
     emitln("  jmp _switch%d_default", current_label_index_switch);
     get(); // get default
     get(); // get ':'
@@ -2032,13 +2028,13 @@ void parse_switch(void){
     emitln("_switch%d_case%d:", current_label_index_switch, current_case_nbr);
     parse_case();
     current_case_nbr++;
-    if(tok == CASE){
+    if(curr_token.tok == CASE){
       back();
-      tok = CASE;
+      curr_token.tok = CASE;
     }
-  } while(tok == CASE);
+  } while(curr_token.tok == CASE);
 
-  if(tok == DEFAULT){
+  if(curr_token.tok == DEFAULT){
     get(); // get ':'
     emitln("_switch%d_default:", current_label_index_switch);
     parse_case();
@@ -2047,7 +2043,7 @@ void parse_switch(void){
   else back();
 
   get(); // get the final '}'
-  if(tok != CLOSING_BRACE) error(ERR_FATAL, "Closing braces expected");
+  if(curr_token.tok != CLOSING_BRACE) error(ERR_FATAL, "Closing braces expected");
   emitln("_switch%d_exit:", current_label_index_switch);
   
   label_tos_switch--;
@@ -2061,7 +2057,7 @@ void parse_switch(void){
 void parse_case(void){
   for(;;){
     get();
-    switch(tok){
+    switch(curr_token.tok){
       case CASE:
       case DEFAULT:
       case CLOSING_BRACE:
@@ -2075,7 +2071,7 @@ void parse_case(void){
 
 void emit_c_header_line(){
   char *temp;
-  char *s = string_const;
+  char *s = curr_token.string_const;
 
   temp = prog;
   back();
@@ -2083,7 +2079,7 @@ void emit_c_header_line(){
     *s++ = *prog++;
   }
   *s = '\0';
-  emitln(";; %s ", string_const);
+  emitln(";; %s ", curr_token.string_const);
   prog = temp;
 }
 
@@ -2094,8 +2090,8 @@ void parse_block(void){
   do{
     temp_prog = prog;
     get();
-    if(tok != CLOSING_BRACE) return_is_last_statement = 0;
-    switch(tok){
+    if(curr_token.tok != CLOSING_BRACE) return_is_last_statement = 0;
+    switch(curr_token.tok){
       case CONST:
       case STATIC:
       case SIGNED:
@@ -2110,7 +2106,7 @@ void parse_block(void){
       case STRUCT:
         do{
           get();
-        } while(tok != SEMICOLON);
+        } while(curr_token.tok != SEMICOLON);
         break;
       case ASM:
         parse_asm();
@@ -2159,13 +2155,13 @@ void parse_block(void){
         if(!override_return_is_last_statement) return_is_last_statement = 1; // only consider this return as a final return if we are not inside an IF statement.
         break;
       default:
-        if(toktype == END) error(ERR_FATAL, "Closing brace expected");
+        if(curr_token.tok_type == END) error(ERR_FATAL, "Closing brace expected");
         emit_c_header_line();
         prog = temp_prog;
         get();
-        if(toktype == IDENTIFIER){
+        if(curr_token.tok_type == IDENTIFIER){
           get();
-          if(tok == COLON){
+          if(curr_token.tok == COLON){
             prog = temp_prog;
             declare_goto_label();
             continue;
@@ -2173,7 +2169,7 @@ void parse_block(void){
         }
         prog = temp_prog;
         parse_expr();
-        if(tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+        if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
     }    
   } while(braces); // exits when it finds the last closing brace
 }
@@ -2183,14 +2179,14 @@ void skip_statements(void){
   int paren = 0;
 
   get();
-  switch(tok){
+  switch(curr_token.tok){
     case ASM:
       skip_statements();
       break;
     case IF:
       // skips the conditional expression between parenthesis
       get();
-      if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
+      if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
       paren = 1; // found the first parenthesis
       do{
              if(*prog == '(') paren++;
@@ -2200,7 +2196,7 @@ void skip_statements(void){
       if(!*prog) error(ERR_FATAL, "Closing parenthesis expected");
       skip_statements();
       get();
-      if(tok == ELSE) skip_statements();
+      if(curr_token.tok == ELSE) skip_statements();
       else back();
       break;
     case OPENING_BRACE: // if it's a block, then the block is skipped
@@ -2209,7 +2205,7 @@ void skip_statements(void){
       break;
     case FOR:
       get();
-      if(tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
+      if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
       paren = 1;
       do{
              if(*prog == '(') paren++;
@@ -2218,16 +2214,16 @@ void skip_statements(void){
       } while(paren && *prog);
       if(!*prog) error(ERR_FATAL, "Closing paren expected");
       get();
-      if(tok != SEMICOLON){
+      if(curr_token.tok != SEMICOLON){
         back();
         skip_statements();
       }
       break;
     default: // if it's not a keyword, then it must be an expression
-      back(); // puts the last token back, which might be a ";" token
-      while(tok != SEMICOLON && toktype != END) get();
+      back(); // puts the last curr_token.token_str back, which might be a ";" curr_token.token_str
+      while(curr_token.tok != SEMICOLON && curr_token.tok_type != END) get();
       //while(*prog++ != ';' && *prog);
-      if(toktype == END) error(ERR_FATAL, "Semicolon expected");
+      if(curr_token.tok_type == END) error(ERR_FATAL, "Semicolon expected");
   }
 }
 
@@ -2236,10 +2232,10 @@ void skip_block(void){
   
   do{
     get();
-    if(tok == OPENING_BRACE) braces++;
-    else if(tok == CLOSING_BRACE) braces--;
-  } while(braces && toktype != END);
-  if(braces && toktype == END) error(ERR_FATAL, "Closing braces expected");
+    if(curr_token.tok == OPENING_BRACE) braces++;
+    else if(curr_token.tok == CLOSING_BRACE) braces--;
+  } while(braces && curr_token.tok_type != END);
+  if(braces && curr_token.tok_type == END) error(ERR_FATAL, "Closing braces expected");
 }
 
 t_type parse_expr(){
@@ -2251,7 +2247,7 @@ t_type parse_expr(){
   type.sign_modifier = SNESS_SIGNED;
   type.size_modifier = MOD_NORMAL;
   get();
-  if(tok == SEMICOLON) 
+  if(curr_token.tok == SEMICOLON) 
     return type;
   else{
     back();
@@ -2267,23 +2263,23 @@ int is_assignment(){
   temp_prog = prog;
   for(;;){
     get();
-    if(paren == 0 && bracket == 0 && tok == ASSIGNMENT){
+    if(paren == 0 && bracket == 0 && curr_token.tok == ASSIGNMENT){
       found_assignment = 1;
       break;
     }
-    if(toktype == END) 
+    if(curr_token.tok_type == END) 
       error(ERR_FATAL, "Unterminated expression.");
-    if(tok == SEMICOLON) 
+    if(curr_token.tok == SEMICOLON) 
       break;
-    if(tok == OPENING_PAREN) 
+    if(curr_token.tok == OPENING_PAREN) 
       paren++;
-    else if(tok == CLOSING_PAREN){
+    else if(curr_token.tok == CLOSING_PAREN){
       if(paren == 0) break;
       else paren--;
     }
-    else if(tok == OPENING_BRACKET) 
+    else if(curr_token.tok == OPENING_BRACKET) 
       bracket++;
-    else if(tok == CLOSING_BRACKET){
+    else if(curr_token.tok == CLOSING_BRACKET){
       if(bracket == 0) break; 
       else bracket--;
     }
@@ -2308,10 +2304,10 @@ t_type parse_assignment(){
 
   // is assignment
   get();
-  if(toktype == IDENTIFIER){
-    if(is_constant(token)) 
-      error(ERR_FATAL, "assignment of read-only variable: %s", token);
-    strcpy(var_name, token);
+  if(curr_token.tok_type == IDENTIFIER){
+    if(is_constant(curr_token.token_str)) 
+      error(ERR_FATAL, "assignment of read-only variable: %s", curr_token.token_str);
+    strcpy(var_name, curr_token.token_str);
     expr_in = emit_var_addr_into_d(var_name);
     get();
     // past '=' here
@@ -2338,12 +2334,12 @@ t_type parse_assignment(){
     expr_out = expr_in;
     return expr_out;
   }
-  else if(tok == STAR){ // tests if this is a pointer assignment
+  else if(curr_token.tok == STAR){ // tests if this is a pointer assignment
     t_type pointer_expr;
     pointer_expr = parse_atomic(); // parse what comes after '*' (considered a pointer)
     emitln("  push b"); // pointer given in 'b'. push 'b' into stack to save it. we will retrieve it below into 'd' for the assignment address
-    // after evaluating the address expression, the token will be a "="
-    if(tok != ASSIGNMENT) 
+    // after evaluating the address expression, the curr_token.token_str will be a "="
+    if(curr_token.tok != ASSIGNMENT) 
       error(ERR_FATAL, "Syntax error: Assignment expected");
     parse_expr(); // evaluates the value to be assigned to the address, result in 'b'
     emitln("  pop d"); // now pop 'b' from before into 'd' so that we can recover the address for the assignment
@@ -2393,7 +2389,7 @@ t_type parse_ternary_op(void){
   temp_asm_p = asm_p; // save current assembly output pointer
   emitln("_ternary%d_cond:", highest_label_index + 1); // +1 because we are emitting the label ahead
   parse_logical_or(); // evaluate condition
-  if(tok != TERNARY_OP){
+  if(curr_token.tok != TERNARY_OP){
     prog = temp_prog;
     asm_p = temp_asm_p; // recover asm output pointer
     return parse_logical_or();
@@ -2408,7 +2404,7 @@ t_type parse_ternary_op(void){
   emitln("  je _ternary%d_false", current_label_index_ter);
   emitln("_ternary%d_true:", current_label_index_ter);
   type1 = parse_ternary_op(); // result in 'b'
-  if(tok != COLON) error(ERR_FATAL, "Colon expected");
+  if(curr_token.tok != COLON) error(ERR_FATAL, "Colon expected");
   emitln("  jmp _ternary%d_exit", current_label_index_ter);
   emitln("_ternary%d_false:", current_label_index_ter);
   type2 = parse_ternary_op(); // result in 'b'
@@ -2425,10 +2421,10 @@ t_type parse_logical_or(void){
 
   type1 = parse_logical_and();
   expr_out = type1;
-  if(tok == LOGICAL_OR){
+  if(curr_token.tok == LOGICAL_OR){
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
-    while(tok == LOGICAL_OR){
+    while(curr_token.tok == LOGICAL_OR){
       emitln("  mov a, b");
       if(type_is_32bit(type1)) emitln("  mov g, c");
       type2 = parse_logical_and();
@@ -2468,10 +2464,10 @@ t_type parse_logical_and(void){
 
   type1 = parse_bitwise_or();
   expr_out = type1;
-  if(tok == LOGICAL_AND){
+  if(curr_token.tok == LOGICAL_AND){
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
-    while(tok == LOGICAL_AND){
+    while(curr_token.tok == LOGICAL_AND){
       emitln("  mov a, b");
       if(type_is_32bit(type1)) emitln("  mov g, c");
       type2 = parse_bitwise_or();
@@ -2506,10 +2502,10 @@ t_type parse_bitwise_or(void){
 
   type1 = parse_bitwise_xor();
   expr_out = type1;
-  if(tok == BITWISE_OR){
+  if(curr_token.tok == BITWISE_OR){
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
-    while(tok == BITWISE_OR){
+    while(curr_token.tok == BITWISE_OR){
       emitln("  mov a, b");
       if(type_is_32bit(type1)) emitln("  mov g, c");
       type2 = parse_bitwise_xor();
@@ -2545,10 +2541,10 @@ t_type parse_bitwise_xor(void){
 
   type1 = parse_bitwise_and();
   expr_out = type1;
-  if(tok == BITWISE_XOR){
+  if(curr_token.tok == BITWISE_XOR){
     emitln("  push a");
     emitln("  mov a, b");
-    while(tok == BITWISE_XOR){
+    while(curr_token.tok == BITWISE_XOR){
       type2 = parse_bitwise_and();
       expr_out = cast(expr_out, type2);
       emitln("  xor a, b ; ^");
@@ -2564,10 +2560,10 @@ t_type parse_bitwise_and(void){
 
   type1 = parse_relational();
   expr_out = type1;
-  if(tok == AMPERSAND){
+  if(curr_token.tok == AMPERSAND){
     emitln("  push a");
     emitln("  mov a, b");
-    while(tok == AMPERSAND){
+    while(curr_token.tok == AMPERSAND){
       type2 = parse_relational();
       expr_out = cast(expr_out, type2);
       emitln("  and a, b ; &");
@@ -2579,7 +2575,7 @@ t_type parse_bitwise_and(void){
 }
 
 t_type parse_relational(void){
-  t_token temp_tok;
+  t_tok temp_tok;
   t_type type1, type2, expr_out;
 
 /* x = y > 1 && z<4 && y == 2 */
@@ -2587,14 +2583,14 @@ t_type parse_relational(void){
   type1 = parse_bitwise_shift();
   expr_out = type1;
   
-  if(tok == EQUAL              || tok == NOT_EQUAL    || tok == LESS_THAN ||
-     tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL){
+  if(curr_token.tok == EQUAL              || curr_token.tok == NOT_EQUAL    || curr_token.tok == LESS_THAN ||
+     curr_token.tok == LESS_THAN_OR_EQUAL || curr_token.tok == GREATER_THAN || curr_token.tok == GREATER_THAN_OR_EQUAL){
     emitln("; START RELATIONAL");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
-    while(tok == EQUAL              || tok == NOT_EQUAL    || tok == LESS_THAN || 
-          tok == LESS_THAN_OR_EQUAL || tok == GREATER_THAN || tok == GREATER_THAN_OR_EQUAL){
-      temp_tok = tok;
+    while(curr_token.tok == EQUAL              || curr_token.tok == NOT_EQUAL    || curr_token.tok == LESS_THAN || 
+          curr_token.tok == LESS_THAN_OR_EQUAL || curr_token.tok == GREATER_THAN || curr_token.tok == GREATER_THAN_OR_EQUAL){
+      temp_tok = curr_token.tok;
       emitln("  mov a, b");
       if(type_is_32bit(type1)) emitln("  mov g, c");
       type2 = parse_bitwise_shift();
@@ -2714,18 +2710,18 @@ t_type parse_relational(void){
 }
 
 t_type parse_bitwise_shift(void){
-  t_token temp_tok;
+  t_tok temp_tok;
   t_type type1, type2, expr_out;
 
   temp_tok = 0;
   type1 = parse_terms();
   expr_out = type1;
-  if(tok == BITWISE_SHL || tok == BITWISE_SHR){
+  if(curr_token.tok == BITWISE_SHL || curr_token.tok == BITWISE_SHR){
     emitln("; START SHIFT");
     emitln("  push a");
     emitln("  mov a, b");
-    while(tok == BITWISE_SHL || tok == BITWISE_SHR){
-      temp_tok = tok;
+    while(curr_token.tok == BITWISE_SHL || curr_token.tok == BITWISE_SHR){
+      temp_tok = curr_token.tok;
       type2 = parse_terms();
       expr_out = cast(expr_out, type2);
       emitln("  mov c, b"); // using 16bit values even though only cl is needed, because 'mov cl, bl' is not implemented as an opcode
@@ -2750,18 +2746,18 @@ t_type parse_bitwise_shift(void){
 }
 
 t_type parse_terms(void){
-  t_token temp_tok;
+  t_tok temp_tok;
   t_type type1, type2, expr_out;
   
   temp_tok = TOK_UNDEF;
   type1 = parse_factors();
   expr_out = type1;
-  if(tok == PLUS || tok == MINUS){
+  if(curr_token.tok == PLUS || curr_token.tok == MINUS){
     emitln("; START TERMS");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
-    while(tok == PLUS || tok == MINUS){
-      temp_tok = tok;
+    while(curr_token.tok == PLUS || curr_token.tok == MINUS){
+      temp_tok = curr_token.tok;
       emitln("  mov a, b");
       if(type_is_32bit(type1)) emitln("  mov g, c");
       type2 = parse_factors();
@@ -2793,19 +2789,19 @@ t_type parse_terms(void){
 }
 
 t_type parse_factors(void){
-  t_token temp_tok;
+  t_tok temp_tok;
   t_type type1, type2, expr_out;
 
 // if type1 is an INT and type2 is a char*, then the result should be a char* still
   temp_tok = TOK_UNDEF;
   type1 = parse_atomic();
   expr_out = type1;
-  if(tok == STAR || tok == FSLASH || tok == MOD){
+  if(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
     emitln("; START FACTORS");
     emitln("  push a");
     emitln("  mov a, b");
-    while(tok == STAR || tok == FSLASH || tok == MOD){
-      temp_tok = tok;
+    while(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
+      temp_tok = curr_token.tok;
       type2 = parse_atomic();
       expr_out = cast(expr_out, type2);
       if(temp_tok == STAR){
@@ -2838,43 +2834,43 @@ t_type parse_atomic(void){
   t_size_modifier size_modifier;
 
   get();
-  if(toktype == STRING_CONST)
+  if(curr_token.tok_type == STRING_CONST)
     expr_out = parse_string_const();
 
-  else if(toktype == INTEGER_CONST)
+  else if(curr_token.tok_type == INTEGER_CONST)
     expr_out = parse_integer_const();
 
-  else if(toktype == CHAR_CONST)
+  else if(curr_token.tok_type == CHAR_CONST)
     expr_out = parse_char_const();
 
-  else if(tok == SIZEOF)
+  else if(curr_token.tok == SIZEOF)
     expr_out = parse_sizeof();
 
-  else if(tok == STAR)
+  else if(curr_token.tok == STAR)
     expr_out = parse_dereferencing();
 
-  else if(tok == AMPERSAND)
+  else if(curr_token.tok == AMPERSAND)
     expr_out = parse_referencing();
 
-  else if(tok == MINUS)
+  else if(curr_token.tok == MINUS)
     expr_out = parse_unary_minus();
 
-  else if(tok == BITWISE_NOT)
+  else if(curr_token.tok == BITWISE_NOT)
     expr_out = parse_bitwise_not();
 
-  else if(tok == LOGICAL_NOT)
+  else if(curr_token.tok == LOGICAL_NOT)
     expr_out = parse_unary_logical_not();
 
-  else if(tok == INCREMENT)
+  else if(curr_token.tok == INCREMENT)
     expr_out = parse_pre_incrementing();
 
-  else if(tok == DECREMENT)
+  else if(curr_token.tok == DECREMENT)
     expr_out = parse_pre_decrementing();
 
-  else if(toktype == IDENTIFIER){
-    strcpy(temp_name, token);
+  else if(curr_token.tok_type == IDENTIFIER){
+    strcpy(temp_name, curr_token.token_str);
     get();
-    if(tok == OPENING_PAREN){ // function call      
+    if(curr_token.tok == OPENING_PAREN){ // function call      
       if((func_id = search_function(temp_name)) != -1){
         expr_out = function_table[func_id].return_type; // get function's return type
         parse_function_call(func_id);
@@ -2913,41 +2909,41 @@ t_type parse_atomic(void){
     }
   }
 
-  else if(tok == OPENING_PAREN){
+  else if(curr_token.tok == OPENING_PAREN){
     get();
-    if(tok != SIGNED && tok != UNSIGNED && tok != LONG && tok != SHORT && tok != INT && tok != CHAR && tok != VOID){
+    if(curr_token.tok != SIGNED && curr_token.tok != UNSIGNED && curr_token.tok != LONG && curr_token.tok != SHORT && curr_token.tok != INT && curr_token.tok != CHAR && curr_token.tok != VOID){
       back();
       expr_out = parse_expr();  // parses expression between parenthesis and result will be in B
-      if(tok != CLOSING_PAREN) error(ERR_FATAL, "Closing paren expected");
+      if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing paren expected");
     }
     else{
       sign_modifier = SNESS_SIGNED;
       size_modifier  = MOD_NORMAL;
 
-      while(tok == SIGNED || tok == UNSIGNED || tok == LONG || tok == SHORT){
-        if(tok == SIGNED)
+      while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){
+        if(curr_token.tok == SIGNED)
           sign_modifier = SNESS_SIGNED;
-        else if(tok == UNSIGNED)
+        else if(curr_token.tok == UNSIGNED)
           sign_modifier = SNESS_UNSIGNED;
-        else if(tok == SHORT)
+        else if(curr_token.tok == SHORT)
           size_modifier = MOD_SHORT;
-        else if(tok == LONG)
+        else if(curr_token.tok == LONG)
           size_modifier = MOD_LONG;
         get();
       }
 
-      if(tok == VOID){
+      if(curr_token.tok == VOID){
         primitive_type = DT_VOID;
       }
-      else if(tok == INT){
+      else if(curr_token.tok == INT){
         primitive_type = DT_INT;
       }
-      else if(tok == CHAR){
+      else if(curr_token.tok == CHAR){
         primitive_type = DT_CHAR;
       }
       ind_level = 0;
       get();
-      while(tok == STAR){
+      while(curr_token.tok == STAR){
         ind_level++;
         get();
       }
@@ -3000,9 +2996,9 @@ t_type parse_atomic(void){
 
 // Check for post ++/--
   get();
-  if(tok == INCREMENT)  // post increment. get value first, then do assignment
+  if(curr_token.tok == INCREMENT)  // post increment. get value first, then do assignment
     expr_out = parse_post_incrementing(expr_out, temp_name);
-  else if(tok == DECREMENT) // post decrement. get value first, then do assignment
+  else if(curr_token.tok == DECREMENT) // post decrement. get value first, then do assignment
     expr_out = parse_post_decrementing(expr_out, temp_name);
 
   return expr_out;
@@ -3015,25 +3011,25 @@ t_type parse_sizeof(){
   get();
   expect(OPENING_PAREN, "Opening parenthesis expected");
   get();
-  if(toktype == IDENTIFIER){
-    if(local_var_exists(token) != -1){ // is a local variable
-      var_id = local_var_exists(token);
+  if(curr_token.tok_type == IDENTIFIER){
+    if(local_var_exists(curr_token.token_str) != -1){ // is a local variable
+      var_id = local_var_exists(curr_token.token_str);
       emitln("  mov b, %d", get_total_type_size(function_table[current_func_id].local_vars[var_id].type));
     }
-    else if(global_var_exists(token) != -1){  // is a global variable
-      var_id = global_var_exists(token);
+    else if(global_var_exists(curr_token.token_str) != -1){  // is a global variable
+      var_id = global_var_exists(curr_token.token_str);
       emitln("  mov b, %d", get_total_type_size(global_var_table[var_id].type));
     }
     else{
-      error(ERR_FATAL, "(Parse atomic) Undeclared identifier: %s", token);
+      error(ERR_FATAL, "(Parse atomic) Undeclared identifier: %s", curr_token.token_str);
     }
     get();
   }
   else{
-    t_token temp_tok = tok;
+    t_tok temp_tok = curr_token.tok;
     get();
-    if(tok == STAR){
-      while(tok == STAR){
+    if(curr_token.tok == STAR){
+      while(curr_token.tok == STAR){
         get();
       }
       emitln("  mov b, 2");
@@ -3060,12 +3056,12 @@ t_type parse_string_const(){
   t_type expr_out;
   int string_id;
 
-  string_id = search_string(string_const);
+  string_id = search_string(curr_token.string_const);
   if(string_id == -1){
-    string_id = add_string_data(string_const);
+    string_id = add_string_data(curr_token.string_const);
   }
   // now emit the reference to this string into the ASM
-  emitln("  mov b, __s%d ; \"%s\"", string_id, string_const);
+  emitln("  mov b, __s%d ; \"%s\"", string_id, curr_token.string_const);
   expr_out.size_modifier = MOD_NORMAL;
   expr_out.primitive_type = DT_CHAR;
   expr_out.ind_level = 1;
@@ -3076,16 +3072,16 @@ t_type parse_string_const(){
 t_type parse_integer_const(){
   t_type expr_out;
 
-  if(const_size_modifier == MOD_LONG){
-    emitln("  mov b, %d", (uint16_t)(int_const & 0x0000FFFF));
-    emitln("  mov c, %d", (uint16_t)(int_const >> 16));
+  if(curr_token.const_size_modifier == MOD_LONG){
+    emitln("  mov b, %d", (uint16_t)(curr_token.int_const & 0x0000FFFF));
+    emitln("  mov c, %d", (uint16_t)(curr_token.int_const >> 16));
   }
   else{
-    emitln("  mov b, $%x", (uint16_t)int_const);
+    emitln("  mov b, $%x", (uint16_t)curr_token.int_const);
   }
 
-  expr_out.sign_modifier = const_sign_modifier;
-  expr_out.size_modifier = const_size_modifier;
+  expr_out.sign_modifier = curr_token.const_sign_modifier;
+  expr_out.size_modifier = curr_token.const_size_modifier;
   expr_out.primitive_type = DT_INT;
   expr_out.ind_level = 0;
 
@@ -3142,7 +3138,7 @@ t_type parse_unary_minus(){
 }
 t_type parse_char_const(){
   t_type expr_out;
-  emitln("  mov b, $%x", string_const[0]);
+  emitln("  mov b, $%x", curr_token.string_const[0]);
   expr_out.primitive_type = DT_CHAR; //TODO: int or char? 
   expr_out.ind_level = 0;
   expr_out.sign_modifier = SNESS_UNSIGNED;
@@ -3165,7 +3161,7 @@ t_type parse_post_decrementing(t_type expr_in, char *temp_name){
   emitln("  mov [d], b");
   emitln("  pop b");
   expr_out = expr_in;
-  get(); // gets the next token (it must be a delimiter)
+  get(); // gets the next curr_token.token_str (it must be a delimiter)
 
   return expr_out;
 }
@@ -3184,7 +3180,7 @@ t_type parse_post_incrementing(t_type expr_in, char *temp_name){
   emitln("  mov [d], b");
   emitln("  pop b");
   expr_out = expr_in;
-  get(); // gets the next token (it must be a delimiter)
+  get(); // gets the next curr_token.token_str (it must be a delimiter)
 
   return expr_out;
 }
@@ -3194,8 +3190,8 @@ t_type parse_pre_decrementing(){
   char temp_name[ID_LEN];
 
   get();
-  if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
-  strcpy(temp_name, token);
+  if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+  strcpy(temp_name, curr_token.token_str);
   expr_out = emit_var_addr_into_d(temp_name);
   emitln("  mov b, [d]");
   if(get_pointer_unit(expr_out) > 1) {
@@ -3222,8 +3218,8 @@ t_type parse_pre_incrementing(){
   char temp_name[ID_LEN];
 
   get();
-  if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
-  strcpy(temp_name, token);
+  if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+  strcpy(temp_name, curr_token.token_str);
   expr_out = emit_var_addr_into_d(temp_name);
   emitln("  mov b, [d]");
   if(get_pointer_unit(expr_out) > 1) {
@@ -3249,8 +3245,8 @@ t_type parse_referencing(){
   t_type expr_out;
 
   get(); // get variable name
-  if(toktype != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
-  expr_out = emit_var_addr_into_d(token);
+  if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+  expr_out = emit_var_addr_into_d(curr_token.token_str);
   emitln("  mov b, d");
   expr_out.ind_level++;
   return expr_out;
@@ -3316,7 +3312,7 @@ void parse_function_call(int func_id){
   char *prog_at_end_of_header;
 
   get();
-  if(tok == CLOSING_PAREN){
+  if(curr_token.tok == CLOSING_PAREN){
     if(function_table[func_id].num_fixed_args != 0)
       error(ERR_FATAL, "Incorrect number of arguments for function: %s. Expecting %d, detected: 0", function_table[func_id].name, function_table[func_id].num_fixed_args);
     else{
@@ -3332,9 +3328,9 @@ void parse_function_call(int func_id){
   paren_count = 1;
   do{
     get();
-    if(tok == COMMA) total_function_arguments++;
-    else if(tok == OPENING_PAREN) paren_count++;
-    else if(tok == CLOSING_PAREN) paren_count--;
+    if(curr_token.tok == COMMA) total_function_arguments++;
+    else if(curr_token.tok == OPENING_PAREN) paren_count++;
+    else if(curr_token.tok == CLOSING_PAREN) paren_count--;
   } while(paren_count > 0);
   prog_at_end_of_header = prog;
   
@@ -3343,7 +3339,7 @@ void parse_function_call(int func_id){
 
   parenthesis_count = 0;  
   curr_arg_num = total_function_arguments;
-  // now we are at the end of the function header, at the ')' token.
+  // now we are at the end of the function header, at the ')' curr_token.token_str.
   // go backwards finding one comma at a time, and then parsing the expression corresponding to that parameter.
   do{
     for(;;){
@@ -3425,7 +3421,6 @@ void parse_function_call(int func_id){
   prog = prog_at_end_of_header;
 }
 
-
 int get_struct_element_offset(int struct_id, char *name){
   int offset = 0;
 
@@ -3488,9 +3483,9 @@ t_type emit_array_arithmetic(t_type type){
     }
     else 
       emitln("  add d, b");
-    if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
+    if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
     get();
-    if(tok != OPENING_BRACKET){
+    if(curr_token.tok != OPENING_BRACKET){
       back();
       break;
     }
@@ -3670,7 +3665,7 @@ char *get_var_base_addr(char *dest, char *var_name){
 }
 
 t_type emit_var_addr_into_d(char *var_name){
-  int dims, offset, struct_id, var_id;
+  int dims, offset, struct_enum_id, var_id;
   char temp[128], element_name[ID_LEN], temp_name[ID_LEN];
   t_type type;
   t_var var;
@@ -3708,12 +3703,12 @@ t_type emit_var_addr_into_d(char *var_name){
   get();
   // emit base address for variable, whether struct or not
   // then look for '.' or '[]' in each cycle, if found, add offsets
-  if(tok == OPENING_BRACKET || tok == STRUCT_DOT || tok == STRUCT_ARROW){ // array operations
-    if(tok == OPENING_BRACKET && !is_array(type) && type.ind_level > 0 /*&& var.is_parameter*/){
+  if(curr_token.tok == OPENING_BRACKET || curr_token.tok == STRUCT_DOT || curr_token.tok == STRUCT_ARROW){ // array operations
+    if(curr_token.tok == OPENING_BRACKET && !is_array(type) && type.ind_level > 0 /*&& var.is_parameter*/){
       emitln("  mov d, [d]");
     }
     do{
-      if(tok == OPENING_BRACKET){
+      if(curr_token.tok == OPENING_BRACKET){
         if(is_array(type)){
           dims = array_dim_count(type); // gets the number of dimensions for this type
           type = emit_array_arithmetic(type); // emit type final address in 'd'
@@ -3724,31 +3719,31 @@ t_type emit_var_addr_into_d(char *var_name){
           emitln("  push d"); // save 'd' in case the expressions inside brackets use 'd' for addressing (likely)
           parse_expr(); // parse index expression, result in B
           emitln("  pop d");
-          if(tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
+          if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
           emitln("  mma %u ; mov a, %u; mul a b; add d, b", get_data_size_for_indexing(type), get_data_size_for_indexing(type)); // mov a, u16; mul a b; add d, b
           emitln("  pop a");
           type.ind_level--; // indexing reduces ind_level by 1
         }
         else error(ERR_FATAL, "Invalid indexing");
       }
-      else if(tok == STRUCT_DOT){
+      else if(curr_token.tok == STRUCT_DOT){
         get(); // get element name
-        strcpy(element_name, token);
-        offset = get_struct_element_offset(type.struct_id, element_name);
-        type = get_struct_element_type(type.struct_id, element_name);
+        strcpy(element_name, curr_token.token_str);
+        offset = get_struct_element_offset(type.struct_enum_id, element_name);
+        type = get_struct_element_type(type.struct_enum_id, element_name);
         emitln("  add d, %d", offset);
       }
-      else if(tok == STRUCT_ARROW){
+      else if(curr_token.tok == STRUCT_ARROW){
         get(); // get element name
-        strcpy(element_name, token);
-        offset = get_struct_element_offset(type.struct_id, element_name);
-        type = get_struct_element_type(type.struct_id, element_name);
+        strcpy(element_name, curr_token.token_str);
+        offset = get_struct_element_offset(type.struct_enum_id, element_name);
+        type = get_struct_element_type(type.struct_enum_id, element_name);
         get_var_base_addr(temp, var_name);
         emitln("  mov d, [d]");
         emitln("  add d, %d", offset);
       }
       get();
-    } while (tok == OPENING_BRACKET || tok == STRUCT_DOT || tok == STRUCT_ARROW);
+    } while (curr_token.tok == OPENING_BRACKET || curr_token.tok == STRUCT_DOT || curr_token.tok == STRUCT_ARROW);
     back();
   }
   else back();
@@ -3815,7 +3810,7 @@ int get_primitive_type_size(t_type type){
       else
         return 2;
     case DT_STRUCT:
-      return get_struct_size(type.struct_id);
+      return get_struct_size(type.struct_enum_id);
   }
 }
 
@@ -3834,7 +3829,7 @@ int get_type_size_for_func_arg_parsing(t_type type){
       else
         return 2;
     case DT_STRUCT:
-      return get_struct_size(type.struct_id);
+      return get_struct_size(type.struct_enum_id);
   }
 }
 
@@ -3861,7 +3856,7 @@ int get_struct_size(int id){
             size += array_size * 2;
           break;
         case DT_STRUCT:
-          size += array_size * get_struct_size(struct_table[id].elements[i].type.struct_id);
+          size += array_size * get_struct_size(struct_table[id].elements[i].type.struct_enum_id);
       }
   }
 
@@ -3869,7 +3864,7 @@ int get_struct_size(int id){
 }
 
 t_primitive_type get_primitive_type_from_tok(){
-  switch(tok){
+  switch(curr_token.tok){
     case VOID:
       return DT_VOID;
     case CHAR:
@@ -3899,7 +3894,7 @@ int get_data_size_for_indexing(t_type type){
       else
         return 2;
     case DT_STRUCT:
-      return get_struct_size(type.struct_id);
+      return get_struct_size(type.struct_enum_id);
   }
 }
 
@@ -3926,39 +3921,39 @@ void parse_struct_initialization_data(int struct_id, int array_size){
       // Read array elements
       for(k = 0; k < element_array_size; k++){
         get();
-        if(toktype == IDENTIFIER && enum_element_exists(token) != -1){ // obtain enum values if token is an enum element
-          int_const = get_enum_val(token);
-          toktype = INTEGER_CONST;
+        if(curr_token.tok_type == IDENTIFIER && enum_element_exists(curr_token.token_str) != -1){ // obtain enum values if curr_token.token_str is an enum element
+          curr_token.int_const = get_enum_val(curr_token.token_str);
+          curr_token.tok_type = INTEGER_CONST;
         }
         switch(struct_table[struct_id].elements[i].type.primitive_type){
           case DT_STRUCT:
             expect(OPENING_BRACE, "Opening braces expected for array or struct element initialization.");
-            parse_struct_initialization_data(struct_table[struct_id].elements[i].type.struct_id, 1);
+            parse_struct_initialization_data(struct_table[struct_id].elements[i].type.struct_enum_id, 1);
             break;
           case DT_VOID:
-            emit_data(".dw $%04x\n", int_const);
+            emit_data(".dw $%04x\n", curr_token.int_const);
             break;
           case DT_CHAR:
             if(struct_table[struct_id].elements[i].type.ind_level > 0){
-              switch(toktype){
+              switch(curr_token.tok_type){
                 case CHAR_CONST:
-                  emit_data(".dw %s\n", token);
+                  emit_data(".dw %s\n", curr_token.token_str);
                   break;
                 case INTEGER_CONST:
-                  emit_data(".dw $%04x\n", int_const);
+                  emit_data(".dw $%04x\n", curr_token.int_const);
                   break;
                 case STRING_CONST:
-                  int string_id = add_string_data(string_const);
+                  int string_id = add_string_data(curr_token.string_const);
                   emit_data(".dw __s%u\n", string_id);
               }
             }
             else{
-              switch(toktype){
+              switch(curr_token.tok_type){
                 case CHAR_CONST:
-                  emit_data(".db %s\n", token);
+                  emit_data(".db %s\n", curr_token.token_str);
                   break;
                 case INTEGER_CONST:
-                  emit_data(".db %d\n", (char)int_const);
+                  emit_data(".db %d\n", (char)curr_token.int_const);
                   break;
                 case STRING_CONST:
                   error(ERR_FATAL, "Incompatible data type for struct element in initialization.");
@@ -3966,15 +3961,15 @@ void parse_struct_initialization_data(int struct_id, int array_size){
             }
             break;
           case DT_INT:
-            switch(toktype){
+            switch(curr_token.tok_type){
               case CHAR_CONST:
-                emit_data(".dw %s\n", token);
+                emit_data(".dw %s\n", curr_token.token_str);
                 break;
               case INTEGER_CONST:
-                emit_data(".dw %d\n", int_const);
+                emit_data(".dw %d\n", curr_token.int_const);
                 break;
               case STRING_CONST:
-                int string_id = add_string_data(string_const);
+                int string_id = add_string_data(curr_token.string_const);
                 emit_data(".dw __s%u\n", string_id);
                 break;
             }
@@ -3982,21 +3977,21 @@ void parse_struct_initialization_data(int struct_id, int array_size){
         }
         if(is_array(struct_table[struct_id].elements[i].type)){
           get();
-          if(tok == CLOSING_BRACE) break;
-          else if(tok != COMMA) error(ERR_FATAL, "Comma expected in struct initialization.");
+          if(curr_token.tok == CLOSING_BRACE) break;
+          else if(curr_token.tok != COMMA) error(ERR_FATAL, "Comma expected in struct initialization.");
         }
       }
       get();
-      if(tok == CLOSING_BRACE) break;
-      else if(tok != COMMA) error(ERR_FATAL, "Comma expected in struct initialization.");
+      if(curr_token.tok == CLOSING_BRACE) break;
+      else if(curr_token.tok != COMMA) error(ERR_FATAL, "Comma expected in struct initialization.");
     }
-    if(tok == CLOSING_BRACE) break;
+    if(curr_token.tok == CLOSING_BRACE) break;
   }
 }
 
-int get_struct_elements_count(int struct_id){
+int get_struct_elements_count(int struct_enum_id){
   int total;
-  for(total = 0; *struct_table[struct_id].elements[total].name; total++);
+  for(total = 0; *struct_table[struct_enum_id].elements[total].name; total++);
   return total;
 }
 
@@ -4034,11 +4029,11 @@ int find_array_initialization_size(t_size_modifier size_modifier){
   braces = 1;
   do{
     get();
-    if(tok == OPENING_BRACE) braces++;
-    else if(tok == CLOSING_BRACE) braces--;
-    else if(tok == COMMA) continue;
+    if(curr_token.tok == OPENING_BRACE) braces++;
+    else if(curr_token.tok == CLOSING_BRACE) braces--;
+    else if(curr_token.tok == COMMA) continue;
     else{
-      switch(toktype){
+      switch(curr_token.tok_type){
         case CHAR_CONST:
           len += 1;
           break;
@@ -4073,20 +4068,20 @@ void emit_global_var_initialization(t_var *var){
     braces = 1;
     for(;;){
       get();
-      if(tok == OPENING_BRACE) braces++;
-      else if(tok == CLOSING_BRACE) braces--;
-      else if(toktype == CHAR_CONST)
-        emit_data("$%x,", string_const[0]);
-      else if(toktype == INTEGER_CONST)
-        emit_data("%x,", (uint16_t)int_const);
-      else if(toktype == STRING_CONST){
-        emit_data("__s%u, ", add_string_data(string_const));
+      if(curr_token.tok == OPENING_BRACE) braces++;
+      else if(curr_token.tok == CLOSING_BRACE) braces--;
+      else if(curr_token.tok_type == CHAR_CONST)
+        emit_data("$%x,", curr_token.string_const[0]);
+      else if(curr_token.tok_type == INTEGER_CONST)
+        emit_data("%x,", (uint16_t)curr_token.int_const);
+      else if(curr_token.tok_type == STRING_CONST){
+        emit_data("__s%u, ", add_string_data(curr_token.string_const));
       }
       else error(ERR_FATAL, "Unknown data type");
-      if(toktype == CHAR_CONST || toktype == INTEGER_CONST || toktype == STRING_CONST) j++;
+      if(curr_token.tok_type == CHAR_CONST || curr_token.tok_type == INTEGER_CONST || curr_token.tok_type == STRING_CONST) j++;
       if(braces == 0) break;
       get();
-      if(tok != COMMA) back();
+      if(curr_token.tok != COMMA) back();
       if(j % 30 == 0){ // split into multiple lines due to TASM limitation of how many items per .dw directive
         emit_data("\n");
         emit_data_dbdw(var->type);
@@ -4105,42 +4100,42 @@ void emit_global_var_initialization(t_var *var){
       case DT_VOID:
         emit_data("_%s: ", var->name);
         emit_data_dbdw(var->type);
-        emit_data("%u, ", atoi(token));
+        emit_data("%u, ", atoi(curr_token.token_str));
         break;
       case DT_CHAR:
         if(var->type.ind_level > 0){ // if is a string
-          if(toktype == IDENTIFIER){
-            get_var_base_addr(temp, token);
+          if(curr_token.tok_type == IDENTIFIER){
+            get_var_base_addr(temp, curr_token.token_str);
             emit_data("_%s: .dw _%s_data\n", var->name, temp);
           }
           else{
-            if(toktype != STRING_CONST) error(ERR_FATAL, "String constant expected");
+            if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
             emit_data("_%s_data: ", var->name);
             emit_data_dbdw(var->type);
-            emit_data("%s, 0\n", token);
+            emit_data("%s, 0\n", curr_token.token_str);
             emit_data("_%s: .dw _%s_data\n", var->name, var->name);
           }
         }
         else{
           emit_data("_%s: ", var->name);
           emit_data_dbdw(var->type);
-          if(toktype == CHAR_CONST)
-            emit_data("$%x\n", string_const[0]);
-          else if(toktype == INTEGER_CONST)
-            emit_data("%u\n", (char)atoi(token));
+          if(curr_token.tok_type == CHAR_CONST)
+            emit_data("$%x\n", curr_token.string_const[0]);
+          else if(curr_token.tok_type == INTEGER_CONST)
+            emit_data("%u\n", (char)atoi(curr_token.token_str));
         }
         break;
       case DT_INT:
         emit_data("_%s: ", var->name);
         emit_data_dbdw(var->type);
         if(var->type.ind_level > 0)
-            emit_data("%u\n", atoi(token));
+            emit_data("%u\n", atoi(curr_token.token_str));
         else
-          emit_data("%u\n", atoi(token));
+          emit_data("%u\n", atoi(curr_token.token_str));
         break;
       case DT_STRUCT:
-        if(toktype == IDENTIFIER){
-          get_var_base_addr(temp, token);
+        if(curr_token.tok_type == IDENTIFIER){
+          get_var_base_addr(temp, curr_token.token_str);
           emit_data("_%s: .dw _%s_data\n", var->name, temp);
         }
 
@@ -4160,24 +4155,24 @@ void emit_static_var_initialization(t_var *var){
     j = 0;
     do{
       get();
-      if(toktype == CHAR_CONST)
-        emit_data("$%x,", string_const[0]);
-      else if(toktype == INTEGER_CONST)
-        emit_data("%u,", (char)atoi(token));
-      else if(toktype == STRING_CONST){
+      if(curr_token.tok_type == CHAR_CONST)
+        emit_data("$%x,", curr_token.string_const[0]);
+      else if(curr_token.tok_type == INTEGER_CONST)
+        emit_data("%u,", (char)atoi(curr_token.token_str));
+      else if(curr_token.tok_type == STRING_CONST){
         int string_id;
-        string_id = add_string_data(string_const);
+        string_id = add_string_data(curr_token.string_const);
         emit_data("__s%u, ", string_id);
       }
       else 
         error(ERR_FATAL, "Unknown data type");
-      if(toktype == CHAR_CONST || toktype == INTEGER_CONST || toktype == STRING_CONST) j++;
+      if(curr_token.tok_type == CHAR_CONST || curr_token.tok_type == INTEGER_CONST || curr_token.tok_type == STRING_CONST) j++;
       get();
       if(j % 30 == 0){ // split into multiple lines due to TASM limitation of how many items per .dw directive
         emit_data("\n");
         emit_data_dbdw(var->type);
       }
-    } while(tok == COMMA);
+    } while(curr_token.tok == COMMA);
     // fill in the remaining unitialized array values with 0's 
     if(get_total_type_size(var->type) - j * get_primitive_type_size(var->type) > 0){
       emit_data(".fill %u, 0\n", get_total_type_size(var->type) - j * get_primitive_type_size(var->type));
@@ -4191,32 +4186,32 @@ void emit_static_var_initialization(t_var *var){
       case DT_VOID:
         emit_data("_static_%s_%s: ", function_table[current_func_id].name, var->name);
         emit_data_dbdw(var->type);
-        emit_data("%u, ", atoi(token));
+        emit_data("%u, ", atoi(curr_token.token_str));
         break;
       case DT_CHAR:
         if(var->type.ind_level > 0){ // if is a string
-          if(toktype != STRING_CONST) error(ERR_FATAL, "String constant expected");
+          if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
           emit_data("_static_%s_%s_data: ", function_table[current_func_id].name, var->name);
           emit_data_dbdw(var->type);
-          emit_data("%s, 0\n", token); // TODO: do not require char pointer initialization to be a string only!
+          emit_data("%s, 0\n", curr_token.token_str); // TODO: do not require char pointer initialization to be a string only!
           emit_data("_static_%s_%s: .dw _static_%s_%s_data\n", function_table[current_func_id].name, var->name, function_table[current_func_id].name, var->name);
         }
         else{
           emit_data("_static_%s_%s: ", function_table[current_func_id].name, var->name);
           emit_data_dbdw(var->type);
-          if(toktype == CHAR_CONST)
-            emit_data("$%x\n", string_const[0]);
-          else if(toktype == INTEGER_CONST)
-            emit_data("%u\n", (char)atoi(token));
+          if(curr_token.tok_type == CHAR_CONST)
+            emit_data("$%x\n", curr_token.string_const[0]);
+          else if(curr_token.tok_type == INTEGER_CONST)
+            emit_data("%u\n", (char)atoi(curr_token.token_str));
         }
         break;
       case DT_INT:
         emit_data("_static_%s_%s: ", function_table[current_func_id].name, var->name);
         emit_data_dbdw(var->type);
         if(var->type.ind_level > 0)
-            emit_data("%u\n", atoi(token));
+            emit_data("%u\n", atoi(curr_token.token_str));
         else
-          emit_data("%u\n", atoi(token));
+          emit_data("%u\n", atoi(curr_token.token_str));
         break;
     }
   }
@@ -4256,7 +4251,7 @@ int local_var_exists(char *var_name){
 }
 
 char token_not_a_const(void){
-  return toktype != CHAR_CONST && toktype != INTEGER_CONST && toktype != STRING_CONST;
+  return curr_token.tok_type != CHAR_CONST && curr_token.tok_type != INTEGER_CONST && curr_token.tok_type != STRING_CONST;
 }
 
 t_var get_internal_var_ptr(char *var_name){
@@ -4273,20 +4268,20 @@ t_var get_internal_var_ptr(char *var_name){
   error(ERR_FATAL, "Undeclared variable: %s", var_name);
 }
 
-void expect(t_token _tok, char *message){
-  if(tok != _tok) error(ERR_FATAL, message);
+void expect(t_tok tok, char *message){
+  if(curr_token.tok != tok) error(ERR_FATAL, message);
 }
 
-void expect_type(t_token _tok, char *message){
-  if(tok != _tok) error(ERR_FATAL, message);
+void expect_type(t_tok tok, char *message){
+  if(curr_token.tok != tok) error(ERR_FATAL, message);
 }
 
 // converts a literal string or char constant into constants with true escape sequences
 void convert_constant(){
-  char *s = string_const;
-  char *t = token;
+  char *s = curr_token.string_const;
+  char *t = curr_token.token_str;
   
-  if(toktype == CHAR_CONST){
+  if(curr_token.tok_type == CHAR_CONST){
     t++;
     if(*t == '\\'){
       t++;
@@ -4329,7 +4324,7 @@ void convert_constant(){
       *s++ = *t;
     }
   }
-  else if(toktype == STRING_CONST){
+  else if(curr_token.tok_type == STRING_CONST){
     t++;
     while(*t != '\"' && *t){
       if(*t == '\\' && *(t + 1) == '\"'){
@@ -4350,12 +4345,12 @@ void get(void){
   char *t;
   // skip blank spaces
 
-  *token = '\0';
-  tok = 0;
-  toktype = 0;
-  t = token;
+  *curr_token.token_str = '\0';
+  curr_token.tok = 0;
+  curr_token.tok_type = 0;
+  t = curr_token.token_str;
   
-  // Save the position of prog before getting a token. If an 'unexpected token' error occurs,
+  // Save the position of prog before getting a curr_token.token_str. If an 'unexpected curr_token.token_str' error occurs,
   // the position of prog before lines were skipped, will be known.  
   prog_before_error = prog;
 
@@ -4377,8 +4372,8 @@ void get(void){
     }
   } while(is_space(*prog) || (*prog == '/' && *(prog+1) == '/') || (*prog == '/' && *(prog+1) == '*'));
   if(*prog == '\0'){
-    toktype = END;
-    tok = END_OF_PROG;
+    curr_token.tok_type = END;
+    curr_token.tok = END_OF_PROG;
     return;
   }
   if(*prog == '\''){
@@ -4395,9 +4390,9 @@ void get(void){
       error(ERR_FATAL, "Single quotes expected");
     *t++ = '\'';
     prog++;
-    toktype = CHAR_CONST;
+    curr_token.tok_type = CHAR_CONST;
     *t = '\0';
-    convert_constant(); // converts this string token with quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
+    convert_constant(); // converts this string curr_token.token_str with quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
   }
   else if(*prog == '\"'){
     *t++ = *prog++;
@@ -4413,56 +4408,56 @@ void get(void){
     if(*prog != '\"') error(ERR_FATAL, "Double quotes expected");
     *t++ = *prog++;
     *t = '\0';
-    toktype = STRING_CONST;
-    convert_constant(); // converts this string token qith quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
+    curr_token.tok_type = STRING_CONST;
+    convert_constant(); // converts this string curr_token.token_str qith quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
   }
   else if(is_digit(*prog) || (*prog == '-' && is_digit(*(prog+1)))){
-    toktype = INTEGER_CONST;
-    const_size_modifier = MOD_NORMAL;
-    const_sign_modifier = SNESS_SIGNED;
+    curr_token.tok_type = INTEGER_CONST;
+    curr_token.const_size_modifier = MOD_NORMAL;
+    curr_token.const_sign_modifier = SNESS_SIGNED;
     if(*prog == '-') *t++ = *prog++;
     if(*prog == '0' && *(prog+1) == 'x'){
       *t++ = *prog++;
       *t++ = *prog++;
       while(is_hex_digit(*prog)) *t++ = *prog++;
       *t = '\0';
-      sscanf(token, "%x", &int_const);
+      sscanf(curr_token.token_str, "%x", &curr_token.int_const);
     }
     else{
       while(is_digit(*prog)){
         *t++ = *prog++;
       }
       *t = '\0';
-      sscanf(token, "%d", &int_const);
+      sscanf(curr_token.token_str, "%d", &curr_token.int_const);
     }
     if(*prog == 'L' || *prog == 'l' || *prog == 'u' || *prog == 'U'){
       while(*prog == 'L' || *prog == 'l' || *prog == 'u' || *prog == 'U'){
         if(*prog == 'L' || *prog == 'l'){
-          const_size_modifier = MOD_LONG;
+          curr_token.const_size_modifier = MOD_LONG;
         }
         else if(*prog == 'U' || *prog == 'u'){
-          const_sign_modifier = SNESS_UNSIGNED;
+          curr_token.const_sign_modifier = SNESS_UNSIGNED;
         }
         *t++ = *prog++;
         *t = '\0';
       }
     }
     else{
-      if(int_const > 32767 && int_const <= 65535)
-        const_sign_modifier = SNESS_UNSIGNED;
-      else if(int_const > 65535 && int_const <= 2147483647)
-        const_size_modifier = MOD_LONG;
-      else if(int_const > 2147483647){
-        const_size_modifier = MOD_LONG;
-        const_sign_modifier = SNESS_UNSIGNED;
+      if(curr_token.int_const > 32767 && curr_token.int_const <= 65535)
+        curr_token.const_sign_modifier = SNESS_UNSIGNED;
+      else if(curr_token.int_const > 65535 && curr_token.int_const <= 2147483647)
+        curr_token.const_size_modifier = MOD_LONG;
+      else if(curr_token.int_const > 2147483647){
+        curr_token.const_size_modifier = MOD_LONG;
+        curr_token.const_sign_modifier = SNESS_UNSIGNED;
       }
-      else if(int_const > 4294967295){
-        error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", int_const);
+      else if(curr_token.int_const > 4294967295){
+        error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", curr_token.int_const);
       }
-      else if(int_const < -32768 && int_const >= -2147483648)
-        const_size_modifier = MOD_LONG;
-      else if(int_const < -2147483648)
-        error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", int_const);
+      else if(curr_token.int_const < -32768 && curr_token.int_const >= -2147483648)
+        curr_token.const_size_modifier = MOD_LONG;
+      else if(curr_token.int_const < -2147483648)
+        error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", curr_token.int_const);
     }
     return; // return to avoid *t = '\0' line at the end of function
   }
@@ -4471,178 +4466,178 @@ void get(void){
       *t++ = *prog++;
     }
     *t = '\0';
-    if((tok = search_keyword(token)) != -1) 
-      toktype = RESERVED;
+    if((curr_token.tok = search_keyword(curr_token.token_str)) != -1) 
+      curr_token.tok_type = RESERVED;
     else 
-      toktype = IDENTIFIER;
+      curr_token.tok_type = IDENTIFIER;
   }
   else if(is_delimiter(*prog)){
-    toktype = DELIMITER;  
+    curr_token.tok_type = DELIMITER;  
     
     if(*prog == '#'){
       *t++ = *prog++;
-      tok = DIRECTIVE;
+      curr_token.tok = DIRECTIVE;
     }
     else if(*prog == '{'){
       *t++ = *prog++;
-      tok = OPENING_BRACE;
+      curr_token.tok = OPENING_BRACE;
     }
     else if(*prog == '}'){
       *t++ = *prog++;
-      tok = CLOSING_BRACE;
+      curr_token.tok = CLOSING_BRACE;
     }
     else if(*prog == '['){
       *t++ = *prog++;
-      tok = OPENING_BRACKET;
+      curr_token.tok = OPENING_BRACKET;
     }
     else if(*prog == ']'){
       *t++ = *prog++;
-      tok = CLOSING_BRACKET;
+      curr_token.tok = CLOSING_BRACKET;
     }
     else if(*prog == '='){
       *t++ = *prog++;
       if (*prog == '='){
         *t++ = *prog++;
-        tok = EQUAL;
+        curr_token.tok = EQUAL;
       }
       else 
-        tok = ASSIGNMENT;
+        curr_token.tok = ASSIGNMENT;
     }
     else if(*prog == '&'){
       *t++ = *prog++;
       if(*prog == '&'){
         *t++ = *prog++;
-        tok = LOGICAL_AND;
+        curr_token.tok = LOGICAL_AND;
       }
       else
-        tok = AMPERSAND;
+        curr_token.tok = AMPERSAND;
     }
     else if(*prog == '|'){
       *t++ = *prog++;
       if (*prog == '|'){
         *t++ = *prog++;
-        tok = LOGICAL_OR;
+        curr_token.tok = LOGICAL_OR;
       }
       else 
-        tok = BITWISE_OR;
+        curr_token.tok = BITWISE_OR;
     }
     else if(*prog == '~'){
       *t++ = *prog++;
-      tok = BITWISE_NOT;
+      curr_token.tok = BITWISE_NOT;
     }
     else if(*prog == '<'){
       *t++ = *prog++;
       if (*prog == '='){
         *t++ = *prog++;
-        tok = LESS_THAN_OR_EQUAL;
+        curr_token.tok = LESS_THAN_OR_EQUAL;
       }
       else if (*prog == '<'){
         *t++ = *prog++;
-        tok = BITWISE_SHL;
+        curr_token.tok = BITWISE_SHL;
       }
       else
-        tok = LESS_THAN;
+        curr_token.tok = LESS_THAN;
     }
     else if(*prog == '>'){
       *t++ = *prog++;
       if (*prog == '='){
         *t++ = *prog++;
-        tok = GREATER_THAN_OR_EQUAL;
+        curr_token.tok = GREATER_THAN_OR_EQUAL;
       }
       else if (*prog == '>'){
         *t++ = *prog++;
-        tok = BITWISE_SHR;
+        curr_token.tok = BITWISE_SHR;
       }
       else 
-        tok = GREATER_THAN;
+        curr_token.tok = GREATER_THAN;
     }
     else if(*prog == '!'){
       *t++ = *prog++;
       if(*prog == '='){
         *t++ = *prog++;
-        tok = NOT_EQUAL;
+        curr_token.tok = NOT_EQUAL;
       }
       else 
-        tok = LOGICAL_NOT;
+        curr_token.tok = LOGICAL_NOT;
     }
     else if(*prog == '?'){
       *t++ = *prog++;
-      tok = TERNARY_OP;
+      curr_token.tok = TERNARY_OP;
     }
     else if(*prog == '+'){
       *t++ = *prog++;
       if(*prog == '+'){
         *t++ = *prog++;
-        tok = INCREMENT;
+        curr_token.tok = INCREMENT;
       }
       else 
-        tok = PLUS;
+        curr_token.tok = PLUS;
     }
     else if(*prog == '-'){
       *t++ = *prog++;
       if(*prog == '-'){
         *t++ = *prog++;
-        tok = DECREMENT;
+        curr_token.tok = DECREMENT;
       }
       else if(*prog == '>'){
         *t++ = *prog++;
-        tok = STRUCT_ARROW;
+        curr_token.tok = STRUCT_ARROW;
       }
       else 
-        tok = MINUS;
+        curr_token.tok = MINUS;
     }
     else if(*prog == '$'){
       *t++ = *prog++;
-      tok = DOLLAR;
+      curr_token.tok = DOLLAR;
     }
     else if(*prog == '^'){
       *t++ = *prog++;
-      tok = BITWISE_XOR;
+      curr_token.tok = BITWISE_XOR;
     }
     else if(*prog == '@'){
       *t++ = *prog++;
-      tok = AT;
+      curr_token.tok = AT;
     }
     else if(*prog == '*'){
       *t++ = *prog++;
-      tok = STAR;
+      curr_token.tok = STAR;
     }
     else if(*prog == '/'){
       *t++ = *prog++;
-      tok = FSLASH;
+      curr_token.tok = FSLASH;
     }
     else if(*prog == '%'){
       *t++ = *prog++;
-      tok = MOD;
+      curr_token.tok = MOD;
     }
     else if(*prog == '('){
       *t++ = *prog++;
-      tok = OPENING_PAREN;
+      curr_token.tok = OPENING_PAREN;
     }
     else if(*prog == ')'){
       *t++ = *prog++;
-      tok = CLOSING_PAREN;
+      curr_token.tok = CLOSING_PAREN;
     }
     else if(*prog == ';'){
       *t++ = *prog++;
-      tok = SEMICOLON;
+      curr_token.tok = SEMICOLON;
     }
     else if(*prog == ':'){
       *t++ = *prog++;
-      tok = COLON;
+      curr_token.tok = COLON;
     }
     else if(*prog == ','){
       *t++ = *prog++;
-      tok = COMMA;
+      curr_token.tok = COMMA;
     }
     else if(*prog == '.'){
       *t++ = *prog++;
       if(*prog == '.' && *(prog+1) == '.'){
         *t++ = *prog++;
         *t++ = *prog++;
-        tok = VAR_ARG_DOTS;
+        curr_token.tok = VAR_ARG_DOTS;
       }
-      else tok = STRUCT_DOT;
+      else curr_token.tok = STRUCT_DOT;
     }
   }
 
@@ -4650,15 +4645,15 @@ void get(void){
 }
 
 void back(void){
-  char *t = token;
+  char *t = curr_token.token_str;
 
   while(*t){
     prog--;
     t++;
   }
-  tok = TOK_UNDEF;
-  toktype = TYPE_UNDEF;
-  token[0] = '\0';
+  curr_token.tok = TOK_UNDEF;
+  curr_token.tok_type = TYPE_UNDEF;
+  curr_token.token_str[0] = '\0';
 }
 
 void push_prog(){
@@ -4676,7 +4671,7 @@ void pop_prog(){
 void get_line(void){
   char *t;
 
-  t = string_const;
+  t = curr_token.string_const;
   *t = '\0';
   
   while(*prog != 0x0A && *prog && *prog != ';'){
@@ -4684,7 +4679,7 @@ void get_line(void){
   }
   if(*prog == ';') while(*prog != 0x0A && *prog) prog++;
 
-  if(*prog == '\0' && string_const[0] == '\0') error(ERR_FATAL, "Unexpected EOF");
+  if(*prog == '\0' && curr_token.string_const[0] == '\0') error(ERR_FATAL, "Unexpected EOF");
 
   while(is_space(*prog)) prog++;
   *t = '\0';
@@ -4702,7 +4697,7 @@ void error(t_error_type error_type, const char* format, ...){
   va_end(args);
 
   temp_prog = prog;  
-  strcpy(error_token, token);
+  strcpy(error_token, curr_token.token_str);
 
   prog = c_in;
   while(prog != prog_before_error){
@@ -4721,8 +4716,8 @@ void error(t_error_type error_type, const char* format, ...){
   while(*prog != '\n') putchar(*prog++);
   printf("\n");
   printf("Token       : %s\n", error_token);
-  printf("Tok         : %s (%d)\n", token_to_str[tok].as_str, tok);
-  printf("Toktype     : %s\n\n", toktype_to_str[toktype].as_str);
+  printf("Tok         : %s (%d)\n", token_to_str[curr_token.tok].as_str, curr_token.tok);
+  printf("curr_token.tok_type     : %s\n\n", tok_type_to_str[curr_token.tok_type].as_str);
 
 
   if(error_type == ERR_WARNING)
@@ -4751,18 +4746,18 @@ void expand_all_included_files(void){
     back(); // So that we discard possible new line chars at end of lines
     temp_prog2 = prog;
     get();
-    if(toktype == END) break;
-    if(tok == DIRECTIVE){
+    if(curr_token.tok_type == END) break;
+    if(curr_token.tok == DIRECTIVE){
       get();
-      if(tok == INCLUDE){
+      if(curr_token.tok == INCLUDE){
         get();
-        if(toktype == STRING_CONST) strcpy(filename, string_const);
-        else if(tok == LESS_THAN){
+        if(curr_token.tok_type == STRING_CONST) strcpy(filename, curr_token.string_const);
+        else if(curr_token.tok == LESS_THAN){
           strcpy(filename, libc_directory);
           for(;;){
             get();
-            if(tok == GREATER_THAN) break;
-            strcat(filename, token);
+            if(curr_token.tok == GREATER_THAN) break;
+            strcat(filename, curr_token.token_str);
           }
         }
         else error(ERR_FATAL, "Syntax error in include directive.");
@@ -4785,12 +4780,12 @@ void expand_all_included_files(void){
         for(;;){
           temp_prog = prog;
           get();
-          if(toktype == END){
+          if(curr_token.tok_type == END){
             goto end_of_includes;
           }
-          else if(tok == DIRECTIVE){
+          else if(curr_token.tok == DIRECTIVE){
             get();
-            if(tok == INCLUDE){
+            if(curr_token.tok == INCLUDE){
               found_include = true;
               prog = temp_prog;
               break;

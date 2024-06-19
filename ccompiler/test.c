@@ -1,8 +1,6 @@
 #include <stdio.h>
-
 #define ARRAY_SIZE 2
 
-enum e1_t {first, second, third, fourth, fifth};
 
 char c0;
 int i0;
@@ -46,10 +44,6 @@ void main(){
 
 int test_globalvars(){
   char pass = 1;
-  printf("testing global variables\n");
-  printf("Set 'c0' to 'A'\n");
   c0 = 'A';
-  printf("c0 value: %c", c0);
-  printf(" (%s)", c0 == 'A' ? "pass\n" : "fail\n");
   pass = pass && c0 == 'A';
 }

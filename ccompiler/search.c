@@ -9,7 +9,7 @@ extern t_typedef typedef_table[MAX_TYPEDEFS];
 extern int defines_tos;
 extern t_function function_table[MAX_USER_FUNC];
 extern int function_table_tos;
-extern char string_table[STRING_TABLE_SIZE][STRING_CONST_SIZE];
+extern char string_table[STRING_TABLE_SIZE][TOKEN_LEN];
 extern t_var global_var_table[MAX_GLOBAL_VARS];
 extern int global_var_tos;
 
