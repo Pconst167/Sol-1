@@ -56,18 +56,18 @@ void srand (unsigned int seed){
 }
 
 /* Allocate SIZE bytes of memory.  */
-void *malloc (size_t size){
+void *malloc (uint32_t size){
 
 }
 
 /* Allocate NMEMB elements of SIZE bytes each, all initialized to 0.  */
-void *calloc (size_t nmemb, size_t size){
+void *calloc (uint32_t nmemb, uint32_t size){
 
 }
 
 /* Re-allocate the previously allocated block
    in PTR, making the new block SIZE bytes long.  */
-void *realloc (void *ptr, size_t size){
+void *realloc (void *ptr, uint32_t size){
 
 }
 

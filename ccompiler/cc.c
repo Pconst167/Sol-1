@@ -1528,7 +1528,7 @@ void declare_func(void){
           get();
         }
         if(tok != VOID && tok != CHAR && tok != INT && tok != FLOAT && tok != DOUBLE && tok != STRUCT) 
-          error(ERR_FATAL, "Var type expected in argument declaration for function: %s", function_table[function_table_tos].name);
+          error(ERR_FATAL, "unknown or undeclared type given in argument declaration for function: %s", function_table[function_table_tos].name);
         // gets the parameter type
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type = get_primitive_type_from_tok();
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_id = -1;
