@@ -18,6 +18,13 @@
   OR:
     * run syntax checker on a construct basis such that when executing a construct, say IF, check entire syntax for that construct and clear syntax
     * and thenparse semantics for that construct
+    
+  
+  when parsing expressions, right now i am testing for 32bit basd on type1 in places, however type1 is related to the left
+  hand-side term of the 2-term expression, and that left-hand-side of the expression changes as the expression goes on,
+  however since the "left side" whic is kept in "ga", can change as the expression goes on, such as when the expression
+  meets a pointer, and then a 32bit number will become a 16bit pointer, and this test for type1 for 32bit is no longer
+  valid. therefore we need to test for expr_out instead as that is changing with the expression.
 */
 
 #include <stdio.h>
@@ -228,9 +235,11 @@ t_struct struct_table[MAX_STRUCT_DECLARATIONS];
 t_var global_var_table[MAX_GLOBAL_VARS];
 char string_table[STRING_TABLE_SIZE][TOKEN_LEN];
 
-int override_return_is_last_statement; // used to indicate a return statement was found while executing an IF.
+_bool return_is_last_statement;
+_bool override_return_is_last_statement; // used to indicate a return statement was found while executing an IF.
                                        // i.e if a return is found but is inside an IF, then it is not a true final
                                        // return statement inside a function.
+
 int current_function_var_bp_offset;    // this is used to position local variables correctly relative to BP.
 int current_func_id;
 int function_table_tos;
@@ -262,7 +271,6 @@ char *data_p;
 char *data_block_p;
 char *prog_before_error;
 
-u8 return_is_last_statement;
 t_loop_type current_loop_type;      // is it a for, while, do, or switch?
 t_loop_type loop_type_stack[64];
 int loop_type_tos;
@@ -518,7 +526,7 @@ void parse_functions(void){
       prog = function_table[i].code_location;
       parse_block(); // starts parsing the function block;
 
-      if(return_is_last_statement == 0){ // generate code for a 'return'
+      if(return_is_last_statement == false){ // generate code for a 'return'
         emitln("  syscall sys_terminate_proc");
       }
       break;
@@ -537,7 +545,7 @@ void parse_functions(void){
       current_func_id = i;
       prog = function_table[i].code_location;
       parse_block(); // starts parsing the function block;
-      if(return_is_last_statement == 0){ // generate code for a 'return'
+      if(return_is_last_statement == false){ // generate code for a 'return'
         emitln("  leave");
         emitln("  ret");
       }
@@ -1737,7 +1745,7 @@ void parse_continue(void){
 void parse_for(void){
   char *update_loc;
 
-  override_return_is_last_statement = 1;
+  override_return_is_last_statement = true;
   loop_type_stack[loop_type_tos] = current_loop_type;
   loop_type_tos++;
   current_loop_type = FOR_LOOP;
@@ -1796,11 +1804,11 @@ void parse_for(void){
   loop_type_tos--;
   current_loop_type = loop_type_stack[loop_type_tos];
 
-  override_return_is_last_statement = 0;
+  override_return_is_last_statement = false;
 }
 
 void parse_while(void){
-  override_return_is_last_statement = 1;
+  override_return_is_last_statement = true;
   loop_type_stack[loop_type_tos] = current_loop_type;
   loop_type_tos++;
   current_loop_type = WHILE_LOOP;
@@ -1825,11 +1833,11 @@ void parse_while(void){
   current_label_index_while = label_stack_while[label_tos_while];
   loop_type_tos--;
   current_loop_type = loop_type_stack[loop_type_tos];
-  override_return_is_last_statement = 0;
+  override_return_is_last_statement = false;
 }
 
 void parse_do(void){
-  override_return_is_last_statement = 1;
+  override_return_is_last_statement = true;
   loop_type_stack[loop_type_tos] = current_loop_type;
   loop_type_tos++;
   current_loop_type = DO_LOOP;
@@ -1863,7 +1871,7 @@ void parse_do(void){
   current_label_index_do = label_stack_do[label_tos_do];
   loop_type_tos--;
   current_loop_type = loop_type_stack[loop_type_tos];
-  override_return_is_last_statement = 0;
+  override_return_is_last_statement = false;
 }
 
 void parse_goto(void){
@@ -1887,7 +1895,7 @@ void parse_goto(void){
 void parse_if(void){
   char *temp_p;
 
-  override_return_is_last_statement = 1;
+  override_return_is_last_statement = true;
   highest_label_index++;
   label_stack_if[label_tos_if] = current_label_index_if;
   label_tos_if++;
@@ -1920,7 +1928,7 @@ void parse_if(void){
   label_tos_if--;
   current_label_index_if = label_stack_if[label_tos_if];
 
-  override_return_is_last_statement = 0;
+  override_return_is_last_statement = false;
 }
 
 void parse_return(void){
@@ -1955,7 +1963,7 @@ void parse_switch(void){
   char *temp_p;
   int current_case_nbr;
 
-  override_return_is_last_statement = 1;
+  override_return_is_last_statement = true;
   loop_type_stack[loop_type_tos] = current_loop_type;
   loop_type_tos++;
   current_loop_type = SWITCH_CONSTRUCT;
@@ -2051,7 +2059,7 @@ void parse_switch(void){
   loop_type_tos--;
   current_loop_type = loop_type_stack[loop_type_tos];
 
-  override_return_is_last_statement = 0;
+  override_return_is_last_statement = false;
 }
 
 void parse_case(void){
@@ -2090,7 +2098,7 @@ void parse_block(void){
   do{
     temp_prog = prog;
     get();
-    if(curr_token.tok != CLOSING_BRACE) return_is_last_statement = 0;
+    if(curr_token.tok != CLOSING_BRACE) return_is_last_statement = false;
     switch(curr_token.tok){
       case CONST:
       case STATIC:
@@ -2152,7 +2160,7 @@ void parse_block(void){
       case RETURN:
         emit_c_header_line();
         parse_return();
-        if(!override_return_is_last_statement) return_is_last_statement = 1; // only consider this return as a final return if we are not inside an IF statement.
+        if(!override_return_is_last_statement) return_is_last_statement = true; // only consider this return as a final return if we are not inside an IF statement.
         break;
       default:
         if(curr_token.tok_type == END) error(ERR_FATAL, "Closing brace expected");
@@ -2431,10 +2439,6 @@ t_type parse_logical_or(void){
       expr_out = cast(expr_out, type2);
       // or between ga and cb
       if(type_is_32bit(expr_out)){
-        // if type1 was not a 32bit value, then we must clear the garbage from the registers used below
-        // need to simplifiyti eas ftp1wsnot a 32bit word, then
-        // we dont need to compare the high word of type1 in the code below for the OR.
-        // we can omit that and use just the high word of the second half of the OR (type2). 
         emitln("  sor a, b ; ||"); // result in B
         emitln("  push b");
         if(type_is_32bit(type1))
@@ -2473,20 +2477,37 @@ t_type parse_logical_and(void){
       type2 = parse_bitwise_or();
       expr_out = cast(expr_out, type2);
       // or between ga and cb
+      // (b!=0 or c!=0) and (a!=0 or g!=0)
+      // (~b==0 or ~c==0) and (~a==0 or ~g==0) : ~(b==0 && c==0) and ~(a==0 && g==0)
+    
       if(type_is_32bit(expr_out)){
-        emitln("  sand a, b ; &&"); // result in B
-        emitln("  push b");
-        if(type_is_32bit(type1))
-          emitln("  mov b, g");
-        else 
-          emitln("  mov b, $FF");
-        if(type_is_32bit(type2))
-          emitln("  mov a, c");
-        else
-          emitln("  mov a, $FF");
-        emitln("  sand a, b ; ||"); // result in B
-        emitln("  pop a"); 
-        emitln("  sand a, b ; ||"); // final result in B
+        emitln("  push a");
+        emitln("  push g");
+
+        emitln("  cmp b, 0");
+        emitln("  sneq");
+        emitln("  push bl");
+        emitln("  cmp c, 0");
+        emitln("  sneq");
+        emitln("  pop al");
+        emitln("  or al, bl"); // point A
+
+        emitln("  pop c"); // recover g
+        emitln("  pop b"); // recover a
+
+        emitln("  push al"); // pushing the value from point A above
+
+        emitln("  cmp b, 0");
+        emitln("  sneq");
+        emitln("  push bl");
+        emitln("  cmp c, 0");
+        emitln("  sneq");
+        emitln("  pop al");
+        emitln("  or al, bl");
+
+        emitln("  pop bl");
+        emitln("  mov ah, 0"); // no need to move 0 to bh as well because sneq sets bh to 0
+        emitln("  sand a, b"); // result in b
       }
       else 
         emitln("  sand a, b ; &&");
@@ -2526,8 +2547,7 @@ t_type parse_bitwise_or(void){
         emitln("  pop b");
       }
       else{
-        emitln("  or a, b ; &");
-        emitln("  mov b, a");
+        emitln("  or b, a ; &");
       }
     }
     if(type_is_32bit(type1)) emitln("  pop g");

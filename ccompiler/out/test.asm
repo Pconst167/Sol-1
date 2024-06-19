@@ -7,8 +7,109 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; test_globalvars(); 
-  call test_globalvars
+; $a 
+; $b 
+  sub sp, 8
+;; a = 0xF0000000; 
+  lea d, [bp + -3] ; $a
+  push d
+  mov b, 0
+  mov c, 61440
+  pop d
+  mov [d], b
+  mov b, c
+  mov [d + 2], b
+;; b = 1; 
+  lea d, [bp + -7] ; $b
+  push d
+  mov b, $1
+  pop d
+  mov [d], b
+  mov b, c
+  mov [d + 2], b
+;; printf("Result: %d\n", a || b); 
+  lea d, [bp + -3] ; $a
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+  push a
+  push g
+  mov a, b
+  mov g, c
+  lea d, [bp + -7] ; $b
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+  sor a, b ; ||
+  push b
+  mov b, g
+  mov a, c
+  sor a, b ; ||
+  pop a
+  sor a, b ; ||
+  pop g
+  pop a
+  mov g, b
+  mov b, c
+  swp b
+  push b
+  mov b, g
+  swp b
+  push b
+  mov b, __s0 ; "Result: %d\n"
+  swp b
+  push b
+  call printf
+  add sp, 6
+;; printf("Result: %d\n", a && b); 
+  lea d, [bp + -3] ; $a
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+  push a
+  push g
+  mov a, b
+  mov g, c
+  lea d, [bp + -7] ; $b
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+  push a
+  push g
+  cmp b, 0
+  sneq
+  push bl
+  cmp c, 0
+  sneq
+  pop al
+  or al, bl
+  pop c
+  pop b
+  push al
+  cmp b, 0
+  sneq
+  push bl
+  cmp c, 0
+  sneq
+  pop al
+  or al, bl
+  pop bl
+  mov ah, 0
+  sand a, b
+  pop g
+  pop a
+  mov g, b
+  mov b, c
+  swp b
+  push b
+  mov b, g
+  swp b
+  push b
+  mov b, __s0 ; "Result: %d\n"
+  swp b
+  push b
+  call printf
+  add sp, 6
   syscall sys_terminate_proc
 
 strcpy:
@@ -509,7 +610,7 @@ _if11_true:
   jmp _if11_exit
 _if11_else:
 ;; err("Unexpected format in printf."); 
-  mov b, __s0 ; "Unexpected format in printf."
+  mov b, __s1 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -690,7 +791,7 @@ _switch8_case7:
   jmp _switch8_exit ; case break
 _switch8_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s1 ; "Error: Unknown argument type.\n"
+  mov b, __s2 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -953,7 +1054,7 @@ _if18_true:
   jmp _if18_exit
 _if18_else:
 ;; err("Unexpected format in printf."); 
-  mov b, __s0 ; "Unexpected format in printf."
+  mov b, __s1 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -1108,7 +1209,7 @@ _switch15_case7:
   jmp _switch15_exit ; case break
 _switch15_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s1 ; "Error: Unknown argument type.\n"
+  mov b, __s2 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -2309,7 +2410,7 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s2 ; "\033[2J\033[H"
+  mov b, __s3 ; "\033[2J\033[H"
   swp b
   push b
   call print
@@ -2324,44 +2425,6 @@ include_stdio_asm:
 .include "lib/asm/stdio.asm"
 ; --- END INLINE ASM BLOCK
 
-  leave
-  ret
-
-test_globalvars:
-  enter 0 ; (push bp; mov bp, sp)
-; $pass 
-  mov al, $1
-  mov [bp + 0], al
-  sub sp, 1
-;; c0 = 'A'; 
-  mov d, _c0 ; $c0
-  push d
-  mov b, $41
-  pop d
-  mov [d], bl
-;; pass = pass && c0 == 'A'; 
-  lea d, [bp + 0] ; $pass
-  push d
-  lea d, [bp + 0] ; $pass
-  mov bl, [d]
-  mov bh, 0
-  push a
-  mov a, b
-  mov d, _c0 ; $c0
-  mov bl, [d]
-  mov bh, 0
-; START RELATIONAL
-  push a
-  mov a, b
-  mov b, $41
-  cmp a, b
-  seq ; ==
-  pop a
-; END RELATIONAL
-  sand a, b ; &&
-  pop a
-  pop d
-  mov [d], bl
   leave
   ret
 ; --- END TEXT BLOCK
@@ -2382,9 +2445,10 @@ _iip_array0_data: .fill 8, 0
 _ccpp_array0_data: .fill 8, 0
 _iipp_array0_data: .fill 8, 0
 _st0_data: .fill 69, 0
-__s0: .db "Unexpected format in printf.", 0
-__s1: .db "Error: Unknown argument type.\n", 0
-__s2: .db "\033[2J\033[H", 0
+__s0: .db "Result: %d\n", 0
+__s1: .db "Unexpected format in printf.", 0
+__s2: .db "Error: Unknown argument type.\n", 0
+__s3: .db "\033[2J\033[H", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

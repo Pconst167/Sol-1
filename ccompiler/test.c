@@ -1,6 +1,6 @@
 #include <stdio.h>
-#define ARRAY_SIZE 2
 
+#define ARRAY_SIZE 2
 
 char c0;
 int i0;
@@ -39,11 +39,10 @@ struct st0_t{
 } st0;
 
 void main(){
-  test_globalvars();
-}
+  long int a, b;
 
-int test_globalvars(){
-  char pass = 1;
-  c0 = 'A';
-  pass = pass && c0 == 'A';
+  a = 0xF0000000;
+  b = 1;
+  printf("Result: %d\n", a || b);
+  printf("Result: %d\n", a && b);
 }
