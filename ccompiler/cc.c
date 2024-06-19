@@ -25,6 +25,9 @@
   however since the "left side" whic is kept in "ga", can change as the expression goes on, such as when the expression
   meets a pointer, and then a 32bit number will become a 16bit pointer, and this test for type1 for 32bit is no longer
   valid. therefore we need to test for expr_out instead as that is changing with the expression.
+
+
+  loook at cast() function for improvements.
 */
 
 #include <stdio.h>
@@ -45,7 +48,7 @@ struct{
   t_tok token;
 } token_to_str[] = {
   "undefined",               TOK_UNDEF,
-  "ampersand = bitwise_and", AMPERSAND, 
+  "ampersand",               AMPERSAND, 
   "asm",                     ASM,
   "assignment",              ASSIGNMENT,
   "at",                      AT, 
@@ -179,6 +182,22 @@ keyword_table_t keyword_table[] = {
   "",         0
 };
 
+struct{
+  char *as_str;
+  t_tok_type tok_type;
+} tok_type_to_str[] = {
+  "char constant", CHAR_CONST, 
+  "delimiter", DELIMITER,
+  "double constant", DOUBLE_CONST,
+  "end", END,
+  "float constant", FLOAT_CONST, 
+  "identifier", IDENTIFIER, 
+  "integer constant", INTEGER_CONST, 
+  "reserved", RESERVED, 
+  "string constant", STRING_CONST, 
+  "undefined", TYPE_UNDEF
+};
+
 char *runtime_argc_argv_getter = "\n\n\
   char *arg_p, *arg_line_p;\n\
   char *psrc, *pdest;\n\
@@ -208,24 +227,7 @@ char *runtime_argc_argv_getter = "\n\n\
   }\n";
 
 char libc_directory[] = "./lib/";
-
 char debug;
-
-struct{
-  char *as_str;
-  t_tok_type tok_type;
-} tok_type_to_str[] = {
-  "char constant", CHAR_CONST, 
-  "delimiter", DELIMITER,
-  "double constant", DOUBLE_CONST,
-  "end", END,
-  "float constant", FLOAT_CONST, 
-  "identifier", IDENTIFIER, 
-  "integer constant", INTEGER_CONST, 
-  "reserved", RESERVED, 
-  "string constant", STRING_CONST, 
-  "undefined", TYPE_UNDEF
-};
 
 defines_table_t defines_table[MAX_DEFINES];
 t_typedef typedef_table[MAX_TYPEDEFS];
