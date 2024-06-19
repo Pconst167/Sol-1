@@ -2434,7 +2434,7 @@ t_type parse_logical_or(void){
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == LOGICAL_OR){
       emitln("  mov a, b");
-      if(type_is_32bit(type1)) emitln("  mov g, c");
+      if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_logical_and();
       expr_out = cast(expr_out, type2);
       // or between ga and cb
@@ -3543,36 +3543,29 @@ t_type cast(t_type t1, t_type t2){
       switch(t2.primitive_type){
         case DT_CHAR:
           if(t1.ind_level > 0){
-            type.primitive_type = DT_CHAR;
-            type.ind_level  = t1.ind_level;
-            type.sign_modifier = t1.sign_modifier;
+            type = t1;
           }
           else if(t2.ind_level > 0){
-            type.primitive_type = DT_CHAR;
-            type.ind_level  = t2.ind_level;
-            type.sign_modifier = t2.sign_modifier;
+            type = t2;
           }
           else{
             type.primitive_type = DT_INT;
             type.ind_level  = 0;
             type.sign_modifier = SNESS_SIGNED;
+            type.dims[0] = 0;
+            type.size_modifier = MOD_NORMAL;
+            type.struct_enum_id = -1;
           }
           break;
         case DT_INT:
           if(t1.ind_level > 0){
-            type.primitive_type = DT_CHAR;
-            type.ind_level  = t1.ind_level;
-            type.sign_modifier = t1.sign_modifier;
+            type = t1;
           }
           else if(t2.ind_level > 0){
-            type.primitive_type = DT_INT;
-            type.ind_level  = t2.ind_level;
-            type.sign_modifier = t2.sign_modifier;
+            type = t2;
           }
           else{
-            type.primitive_type = DT_INT;
-            type.ind_level  = 0;
-            type.sign_modifier = t2.sign_modifier; // assign whatever the int's sign_modifier is
+            type = t2;
           }
       }
       break;
@@ -3580,35 +3573,24 @@ t_type cast(t_type t1, t_type t2){
       switch(t2.primitive_type){
         case DT_CHAR:
           if(t1.ind_level > 0){
-            type.primitive_type = DT_INT;
-            type.ind_level  = t1.ind_level;
-            type.sign_modifier = t1.sign_modifier; // assign whatever the int's signednss is
+            type = t1;
           }
           else if(t2.ind_level > 0){
-            type.primitive_type = DT_CHAR;
-            type.ind_level  = t2.ind_level;
-            type.sign_modifier = t2.sign_modifier; // assign whatever the char* sign_modifier is
+            type = t2;
           }
           else{
-            type.primitive_type = DT_INT;
-            type.ind_level  = 0;
-            type.sign_modifier = t1.sign_modifier; // assign whatever the int's sign_modifier is
+            type = t1;
           }
           break;
         case DT_INT:
           if(t1.ind_level > 0){
-            type.primitive_type = DT_INT;
-            type.ind_level  = t1.ind_level;
-            type.sign_modifier = t1.sign_modifier;
+            type = t1;
           }
           else if(t2.ind_level > 0){
-            type.primitive_type = DT_INT;
-            type.ind_level  = t2.ind_level;
-            type.sign_modifier = t2.sign_modifier;
+            type = t2;
           }
           else{
-            type.primitive_type = DT_INT;
-            type.ind_level  = 0;
+            type = t2;
             if(t1.sign_modifier == SNESS_UNSIGNED || t2.sign_modifier == SNESS_UNSIGNED)
               type.sign_modifier = SNESS_UNSIGNED;
             else
