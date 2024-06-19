@@ -2,6 +2,8 @@
 
 #define ARRAY_SIZE 2
 
+enum e1_t {first, second, third, fourth, fifth};
+
 char c0;
 int i0;
 
