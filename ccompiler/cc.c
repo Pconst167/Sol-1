@@ -2473,13 +2473,11 @@ t_type parse_logical_and(void){
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == LOGICAL_AND){
       emitln("  mov a, b");
-      if(type_is_32bit(type1)) emitln("  mov g, c");
+      if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_bitwise_or();
       expr_out = cast(expr_out, type2);
       // or between ga and cb
       // (b!=0 or c!=0) and (a!=0 or g!=0)
-      // (~b==0 or ~c==0) and (~a==0 or ~g==0) : ~(b==0 && c==0) and ~(a==0 && g==0)
-    
       if(type_is_32bit(expr_out)){
         emitln("  push a");
         emitln("  push g");
@@ -2528,7 +2526,7 @@ t_type parse_bitwise_or(void){
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == BITWISE_OR){
       emitln("  mov a, b");
-      if(type_is_32bit(type1)) emitln("  mov g, c");
+      if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_bitwise_xor();
       expr_out = cast(expr_out, type2);
       if(type_is_32bit(expr_out)){
@@ -2612,7 +2610,7 @@ t_type parse_relational(void){
           curr_token.tok == LESS_THAN_OR_EQUAL || curr_token.tok == GREATER_THAN || curr_token.tok == GREATER_THAN_OR_EQUAL){
       temp_tok = curr_token.tok;
       emitln("  mov a, b");
-      if(type_is_32bit(type1)) emitln("  mov g, c");
+      if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_bitwise_shift();
       expr_out = cast(expr_out, type2);
       switch(temp_tok){
@@ -2779,7 +2777,7 @@ t_type parse_terms(void){
     while(curr_token.tok == PLUS || curr_token.tok == MINUS){
       temp_tok = curr_token.tok;
       emitln("  mov a, b");
-      if(type_is_32bit(type1)) emitln("  mov g, c");
+      if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_factors();
       expr_out = cast(expr_out, type2);
       // ga + cb
