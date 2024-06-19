@@ -379,7 +379,7 @@ MOV G,B                         79FD  2    NOP      1
 MOV G,C                         7AFD  2    NOP      1
 MOV G,D                         7BFD  2    NOP      1
 MOV G,SI                        7CFD  2    NOP      1
-MOV G,DI                        7DFD  2    NOP      1
+MOV G,DI                        7EFD  2    NOP      1
 
 STI ""                          0CFD  2    NOP      1
 CLI ""                          0DFD  2    NOP      1
