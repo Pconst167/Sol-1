@@ -240,6 +240,7 @@ int struct_table_tos;
 int defines_tos;
 int typedef_table_tos;
 
+char *prog;                           // pointer to the current program position
 char *prog_stack[256];
 int prog_tos;
 
@@ -250,19 +251,18 @@ char included_functions_table[512][ID_LEN];
 
 t_token curr_token;
 
-char token_str[CONST_LEN];            // string curr_token.token_str representation
-char *prog;                           // pointer to the current program position
 char c_in[PROG_SIZE];               // C program-in buffer
 char include_file_buffer[PROG_SIZE];     // buffer for reading in include files
 char asm_out[ASM_SIZE];             // ASM output
+char data_block_asm[ASM_SIZE / 4];
+char tempbuffer[PROG_SIZE];
+
 char *asm_p;
 char *data_p;
-char data_block_asm[ASM_SIZE / 4];
 char *data_block_p;
-char tempbuffer[PROG_SIZE];
 char *prog_before_error;
 
-t_tok return_is_last_statement;
+u8 return_is_last_statement;
 t_loop_type current_loop_type;      // is it a for, while, do, or switch?
 t_loop_type loop_type_stack[64];
 int loop_type_tos;
