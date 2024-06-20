@@ -17863,7 +17863,7 @@
   }
 }
 
-0xAF, "cmp a, i16"{
+0xAF, "cmp a, i16 -  cmp32 ga, cb"{
   0{
     next=next_offset
     offset=1
@@ -17933,9 +17933,1034 @@
     marh_wrt=true
     mar_in_src=pc
   }
+
+  16{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=0
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=1
+	alu_mode=1
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=0
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=0
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
 }
 
-0xB0, "cmp a, b"{
+17{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=1
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=1
+	alu_mode=1
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=0
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=0
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+18{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=0
+	alu_a_src_1=0
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=0
+	alu_op_0=0
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=0
+	alu_mode=0
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=1
+	zf_in_src_0=1
+	zf_in_src_1=0
+	alu_cf_out_inv=0
+	cf_in_src_0=1
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=1
+	alu_b_src_2=1
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+19{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=1
+	alu_a_src_1=0
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=0
+	alu_op_0=0
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=0
+	alu_mode=0
+
+	alu_cf_in_src_0=1
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=1
+	alu_cf_out_inv=0
+	cf_in_src_0=1
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=1
+	alu_b_src_1=1
+	alu_b_src_2=1
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+20{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=0
+	alu_a_src_1=0
+	alu_a_src_2=1
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=1
+	alu_mode=1
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=0
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=0
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+21{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=1
+	alu_a_src_1=0
+	alu_a_src_2=1
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=1
+	alu_mode=1
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=0
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=0
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+22{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=0
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=1
+	alu_op_0=0
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=0
+	alu_mode=0
+
+	alu_cf_in_src_0=1
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=1
+	alu_cf_out_inv=0
+	cf_in_src_0=1
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=1
+	alu_b_src_2=1
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+23{
+	next_0=0
+	next_1=1
+	offset_0=0
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=1
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=1
+	alu_op_0=0
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=0
+	alu_mode=0
+
+	alu_cf_in_src_0=1
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=1
+	alu_cf_out_inv=0
+	cf_in_src_0=1
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=1
+	sf_in_src_1=0
+	of_in_src_0=1
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=1
+	alu_b_src_1=1
+	alu_b_src_2=1
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+}
+
+0xB0, "cmp a, b - cmp32 ga, i32"{
   0{
     next=next_offset
     offset=1
@@ -17972,6 +18997,1543 @@
     of_in_src=alu_of
     alu_y=tdrh
   }
+
+  16{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=1
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=0
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=1
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=0
+	alu_op_2=0
+	alu_op_3=1
+	alu_mode=0
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=1
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=1
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=1
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=0
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=0
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=1
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+17{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=1
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=1
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=0
+	alu_op_2=0
+	alu_op_3=1
+	alu_mode=0
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=1
+	alu_cf_in_inv=1
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=0
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=0
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+18{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=1
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=0
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=1
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=0
+	alu_op_2=0
+	alu_op_3=1
+	alu_mode=0
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=1
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=1
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=1
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=0
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=0
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=0
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=1
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+19{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=1
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=1
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=0
+	alu_op_2=0
+	alu_op_3=1
+	alu_mode=0
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=1
+	alu_cf_in_inv=1
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=0
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=0
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=0
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+20{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=0
+	alu_a_src_1=0
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=0
+	alu_op_0=0
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=0
+	alu_mode=0
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=1
+	zf_in_src_0=1
+	zf_in_src_1=0
+	alu_cf_out_inv=0
+	cf_in_src_0=1
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=1
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+21{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=1
+	alu_a_src_1=0
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=0
+	alu_op_0=0
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=0
+	alu_mode=0
+
+	alu_cf_in_src_0=1
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=1
+	alu_cf_out_inv=0
+	cf_in_src_0=1
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=1
+	alu_b_src_1=0
+	alu_b_src_2=1
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=0
+
+	marh_wrt=0
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=1
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+22{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=1
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=0
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=1
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=0
+	alu_op_2=0
+	alu_op_3=1
+	alu_mode=0
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=1
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=1
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=1
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=0
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=0
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=1
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+23{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=1
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=1
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=0
+	alu_op_2=0
+	alu_op_3=1
+	alu_mode=0
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=1
+	alu_cf_in_inv=1
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=0
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=0
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+24{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=1
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=0
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=1
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=0
+	alu_op_2=0
+	alu_op_3=1
+	alu_mode=0
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=1
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=1
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=1
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=0
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=0
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=0
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=1
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+25{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=1
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=1
+	alu_a_src_5=0
+	alu_op_0=1
+	alu_op_1=0
+	alu_op_2=0
+	alu_op_3=1
+	alu_mode=0
+
+	alu_cf_in_src_0=0
+	alu_cf_in_src_1=1
+	alu_cf_in_inv=1
+	zf_in_src_0=0
+	zf_in_src_1=0
+	alu_cf_out_inv=0
+	cf_in_src_0=0
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=0
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=0
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=0
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+26{
+	next_0=0
+	next_1=0
+	offset_0=1
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=0
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=1
+	alu_op_0=0
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=0
+	alu_mode=0
+
+	alu_cf_in_src_0=1
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=1
+	alu_cf_out_inv=0
+	cf_in_src_0=1
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=0
+	sf_in_src_1=0
+	of_in_src_0=0
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=0
+	alu_b_src_1=0
+	alu_b_src_2=1
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=1
+
+	marh_wrt=1
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=0
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
+27{
+	next_0=0
+	next_1=1
+	offset_0=0
+	offset_1=0
+	offset_2=0
+	offset_3=0
+	offset_4=0
+	offset_5=0
+
+	offset_6=0
+	cond_inv=0
+	cond_flags_src=0
+	cond_sel_0=0
+	cond_sel_1=0
+	cond_sel_2=0
+	cond_sel_3=0
+	ESCAPE=0
+
+	uzf_in_src_0=0
+	uzf_in_src_1=0
+	ucf_in_src_0=0
+	ucf_in_src_1=0
+	usf_in_src=0
+	uof_in_src=0
+	ir_wrt=1
+	status_wrt=1
+
+	shift_src_0=0
+	shift_src_1=0
+	shift_src_2=0
+	zbus_out_src_0=0
+	zbus_out_src_1=0
+	alu_a_src_0=1
+	alu_a_src_1=1
+	alu_a_src_2=0
+
+	alu_a_src_3=0
+	alu_a_src_4=0
+	alu_a_src_5=1
+	alu_op_0=0
+	alu_op_1=1
+	alu_op_2=1
+	alu_op_3=0
+	alu_mode=0
+
+	alu_cf_in_src_0=1
+	alu_cf_in_src_1=0
+	alu_cf_in_inv=0
+	zf_in_src_0=0
+	zf_in_src_1=1
+	alu_cf_out_inv=0
+	cf_in_src_0=1
+	cf_in_src_1=0
+
+	cf_in_src_2=0
+	sf_in_src_0=1
+	sf_in_src_1=0
+	of_in_src_0=1
+	of_in_src_1=0
+	of_in_src_2=0
+	rd=0
+	wr=0
+
+	alu_b_src_0=1
+	alu_b_src_1=0
+	alu_b_src_2=1
+	display_reg_load=0
+	dl_wrt=1
+	dh_wrt=1
+	cl_wrt=1
+	ch_wrt=1
+
+	bl_wrt=1
+	bh_wrt=1
+	al_wrt=1
+	ah_wrt=1
+	mdr_in_src=0
+	mdr_out_src=0
+	mdr_out_en=0
+	mdrl_wrt=1
+
+	mdrh_wrt=1
+	tdrl_wrt=1
+	tdrh_wrt=1
+	dil_wrt=1
+	dih_wrt=1
+	sil_wrt=1
+	sih_wrt=1
+	marl_wrt=0
+
+	marh_wrt=0
+	bpl_wrt=1
+	bph_wrt=1
+	pcl_wrt=1
+	pch_wrt=1
+	spl_wrt=1
+	sph_wrt=1
+	unused=1
+
+	unused=1
+	irq_vector_wrt=1
+	irq_masks_wrt=1
+	mar_in_src=1
+	irq_ack=0
+	clear_all_irqs=0
+	ptb_wrt=1
+	pagetable_we=0
+
+	mdr_to_pagetable_buff_en=0
+	force_user_ptb=0
+	unused=0
+	unused=0
+	unused=0
+	unused=0
+	gl_wrt=1
+	gh_wrt=1
+
+	imm_0=0
+	imm_1=0
+	imm_2=0
+	imm_3=0
+	imm_4=0
+	imm_5=0
+	imm_6=0
+	imm_7=0
+}
+
 }
 
 0xB1, "cmp a, c"{
