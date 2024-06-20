@@ -2495,19 +2495,12 @@ t_type parse_logical_or(void){
       type2 = parse_logical_and();
       // or between ga and cb
       if(type_is_32bit(cast(expr_out, type2))){
-        emitln("  sor a, b ; ||"); // result in B
-        emitln("  push b");
-        if(type_is_32bit(expr_out))
-          emitln("  mov b, g");
-        else 
-          emitln("  mov b, 0");
-        if(type_is_32bit(type2))
-          emitln("  mov a, c");
-        else
-          emitln("  mov a, 0");
-        emitln("  sor a, b ; ||"); // result in B
-        emitln("  pop a"); 
-        emitln("  sor a, b ; ||"); // final result in B
+        if(!type_is_32bit(type1)) 
+          emitln("  mov g, 0");
+        if(!type_is_32bit(type2))
+          emitln("  mov c, 0");
+
+        emitln("  sor32 ga, cb"); // result in b
       }
       else
         emitln("  sor a, b ; ||");
@@ -2536,37 +2529,12 @@ t_type parse_logical_and(void){
       // or between ga and cb
       // (b!=0 or c!=0) and (a!=0 or g!=0)
       if(type_is_32bit(cast(expr_out, type2))){
-        emitln("  push a");
-        if(type_is_32bit(type1)) emitln("  push g");
+        if(!type_is_32bit(type1)) 
+          emitln("  mov g, 0");
+        if(!type_is_32bit(type2))
+          emitln("  mov c, 0");
 
-        emitln("  cmp b, 0");
-        emitln("  sneq");
-        emitln("  push bl");
-        if(type_is_32bit(type2)){
-          emitln("  cmp c, 0");
-          emitln("  sneq");
-        }
-        else emitln("  mov b, 0");
-        emitln("  pop al");
-        emitln("  or al, bl"); // point A
-
-        if(type_is_32bit(type2)) emitln("  pop c"); // recover g
-        else emitln("  mov c, 0"); // so that c == 0 if the type is not 32bit
-        emitln("  pop b"); // recover 'A' register into reg 'B'
-
-        emitln("  push al"); // pushing the value from point A above
-
-        emitln("  cmp b, 0");
-        emitln("  sneq");
-        emitln("  push bl");
-        emitln("  cmp c, 0");
-        emitln("  sneq");
-        emitln("  pop al");
-        emitln("  or al, bl");
-
-        emitln("  pop bl");
-        emitln("  mov ah, 0"); // no need to move 0 to bh as well because sneq sets bh to 0
-        emitln("  sand a, b"); // result in b
+        emitln("  sand32 ga, cb"); // result in b
       }
       else 
         emitln("  sand a, b");
@@ -2758,90 +2726,63 @@ t_type parse_relational(void){
         // check if g < c. save result. check that c==g && a < b. save result. or both results together save result
         // check if g_a == c_b. save result. or both results together
           if(type_is_32bit(cast(expr_out, type2))){
-            emitln("  mov si, a"); 
-            emitln("  mov a, b"); 
-            emitln("  mov di, a");
+            if(!type_is_32bit(type1)) 
+              emitln("  mov g, 0");
+            if(!type_is_32bit(type2))
+              emitln("  mov c, 0");
 
-            if(type_is_32bit(type1))
-              emitln("  mov a, g");
-            else
-              emitln("  mov a, 0");
-            if(type_is_32bit(type2))
-              emitln("  mov b, c");
-            else
-              emitln("  mov b, 0");
-            emitln("  mov push g"); 
-            emitln("  mov push c");  // save g and c, for use in the EQUALS section
-            emitln("  cmp a, b");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
-              emitln("  slu ; <");  // test if g < c, result in b
+              emitln("  sleu ga, cb"); // result in b
             else
-              emitln("  slt ; <");  // test if g < c, result in b
-            emitln("  push b");   // save partial result
-
-            emitln("  mov b, c"); // recover b. 'a' register (with value = g) is still intact 
-            emitln("  seq ; =="); // test if c == g
-            emitln("  push b");   // save partial result
-
-            emitln("  mov a, di");
-            emitln("  mov b, a");
-            emitln("  mov a, si");
-            emitln("  cmp a, b");
-            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
-              emitln("  slu ; <"); // test if a < b, result in b
-            else
-              emitln("  slt ; <"); // test if a < b, result in b
-
-            emitln("  pop a");
-            emitln("  and b, a"); // result here: c == g and a < b
-            emitln("  pop a");
-            emitln("  or b, a"); // result here: (c == g and a < b) || g < c    (SECTION B)
-
-            // now do EQUALS part
-            emitln("  pop c");
-            emitln("  pop g"); // recover g and c from stack
-
-            emitln("  push b"); // push first part (less than) (result from section B above)
-
-            emitln("  mov a, c");
-            emitln("  mov b, g");
-            emitln("  cmp a, b");
-            emitln("  seq"); // compare c and g
-            emitln("  push b");   // save partial result
-
-            emitln("  mov a, di");
-            emitln("  mov b, a");
-            emitln("  mov a, si");
-            emitln("  cmp a, b");
-            emitln("  seq"); // compare a and b
-
-            emitln("  pop a");
-            emitln("  or b, a"); // result here: (c == g and a < b) || g < c
+              emitln("  sle ga, cb"); // result in b
           }
           else{
-            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED){
-              emitln("  cmp a, b");
+            emitln("  cmp a, b");
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
               emitln("  slu ; <= (unsigned)");
-            }
-            else{
-              emitln("  cmp a, b");
+            else
               emitln("  slt ; <= (signed)");
-            }
           }
           break;
         case GREATER_THAN:
-          emitln("  cmp a, b");
-          if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
-            emitln("  sgu ; > (unsigned)");
-          else
-            emitln("  sgt ; >");
+          if(type_is_32bit(cast(expr_out, type2))){
+            if(!type_is_32bit(type1)) 
+              emitln("  mov g, 0");
+            if(!type_is_32bit(type2))
+              emitln("  mov c, 0");
+
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+              emitln("  sgu32 ga, cb"); // result in b
+            else
+              emitln("  sgt32 ga, cb"); // result in b
+          }
+          else{
+            emitln("  cmp a, b");
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+              emitln("  sgu ; > (unsigned)");
+            else
+              emitln("  sgt ; >");
+          }
           break;
         case GREATER_THAN_OR_EQUAL:
-          emitln("  cmp a, b");
-          if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
-            emitln("  sgeu ; >= (unsigned)");
-          else
-            emitln("  sge ; >=");
+          if(type_is_32bit(cast(expr_out, type2))){
+            if(!type_is_32bit(type1)) 
+              emitln("  mov g, 0");
+            if(!type_is_32bit(type2))
+              emitln("  mov c, 0");
+
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+              emitln("  sgeu32 ga, cb"); // result in b
+            else
+              emitln("  sge32 ga, cb"); // result in b
+          }
+          else{
+            emitln("  cmp a, b");
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+              emitln("  sgeu ; >= (unsigned)");
+            else
+              emitln("  sge ; >=");
+          }
       }
       expr_out = cast(expr_out, type2);
     }

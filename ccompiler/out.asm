@@ -1275,7 +1275,7 @@ _for19_cond:
   lea d, [bp + -6] ; $len
   mov b, [d]
   cmp a, b
-  slt ; <= (signed)
+  slt ; < (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -1522,7 +1522,7 @@ _if22_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slt ; <= (signed)
+  slt ; < (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -1700,27 +1700,9 @@ _if26_cond:
   mov a, b
   mov g, c
   mov b, $0
-  mov si, a
-  mov a, b
-  mov di, a
-  mov a, g
-  mov b, 0
-  cmp a, b
+  mov c, 0
+  cmp32 ga, cb
   slt ; <
-  push b
-  mov b, c
-  seq ; ==
-  push b
-  mov a, di
-  mov b, a
-  mov a, si
-  cmp a, b
-  slt ; <
-  pop a
-  and b, a
-  pop a
-  or b, a
-  
   pop g
   pop a
 ; END RELATIONAL
@@ -1758,15 +1740,9 @@ _if27_cond:
   mov a, b
   mov g, c
   mov b, $0
-  cmp a, b
+  mov c, 0
+  cmp32 ga, cb
   seq ; ==
-  push b
-  mov a, 0
-  mov b, g
-  cmp a, b
-  seq ; ==
-  pop a
-  sand a, b
   pop g
   pop a
 ; END RELATIONAL
@@ -1796,8 +1772,8 @@ _while28_cond:
   mov a, b
   mov g, c
   mov b, $0
-  cmp a, b
-  sgt ; >
+  mov c, 0
+  sgt32 ga, cb
   pop g
   pop a
 ; END RELATIONAL
@@ -1936,15 +1912,9 @@ _if30_cond:
   mov a, b
   mov g, c
   mov b, $0
-  cmp a, b
+  mov c, 0
+  cmp32 ga, cb
   seq ; ==
-  push b
-  mov a, 0
-  mov b, g
-  cmp a, b
-  seq ; ==
-  pop a
-  sand a, b
   pop g
   pop a
 ; END RELATIONAL
@@ -1973,8 +1943,8 @@ _while31_cond:
   mov a, b
   mov g, c
   mov b, $0
-  cmp a, b
-  sgu ; > (unsigned)
+  mov c, 0
+  sgu32 ga, cb
   pop g
   pop a
 ; END RELATIONAL
