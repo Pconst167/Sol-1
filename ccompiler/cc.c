@@ -3286,7 +3286,7 @@ t_type parse_pre_decrementing(){
   else 
     emitln("  dec b");
 
-  emit_var_addr_into_d(temp_name);
+  //emit_var_addr_into_d(temp_name);
 
   if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT)
     emitln("  mov [d], b");
@@ -3314,7 +3314,7 @@ t_type parse_pre_incrementing(){
   else 
     emitln("  inc b");
 
-  emit_var_addr_into_d(temp_name);
+  //emit_var_addr_into_d(temp_name);
 
   if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT)
     emitln("  mov [d], b");
