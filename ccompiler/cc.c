@@ -2495,7 +2495,7 @@ t_type parse_logical_or(void){
       type2 = parse_logical_and();
       // or between ga and cb
       if(type_is_32bit(cast(expr_out, type2))){
-        if(!type_is_32bit(type1)) 
+        if(!type_is_32bit(expr_out)) 
           emitln("  mov g, 0");
         if(!type_is_32bit(type2))
           emitln("  mov c, 0");
@@ -2529,7 +2529,7 @@ t_type parse_logical_and(void){
       // or between ga and cb
       // (b!=0 or c!=0) and (a!=0 or g!=0)
       if(type_is_32bit(cast(expr_out, type2))){
-        if(!type_is_32bit(type1)) 
+        if(!type_is_32bit(expr_out)) 
           emitln("  mov g, 0");
         if(!type_is_32bit(type2))
           emitln("  mov c, 0");
@@ -2668,7 +2668,7 @@ t_type parse_relational(void){
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(type2))
               emitln("  mov c, 0");
-            if(!type_is_32bit(type1))
+            if(!type_is_32bit(expr_out))
               emitln("  mov g, 0");
             emitln("  cmp32 ga, cb");
             emitln("  seq ; ==");
@@ -2682,7 +2682,7 @@ t_type parse_relational(void){
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(type2))
               emitln("  mov c, 0");
-            if(!type_is_32bit(type1))
+            if(!type_is_32bit(expr_out))
               emitln("  mov g, 0");
             emitln("  cmp32 ga, cb");
             emitln("  sneq ; !=");
@@ -2701,7 +2701,7 @@ t_type parse_relational(void){
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(type2))
               emitln("  mov c, 0");
-            if(!type_is_32bit(type1))
+            if(!type_is_32bit(expr_out))
               emitln("  mov g, 0");
             emitln("  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
@@ -2726,7 +2726,7 @@ t_type parse_relational(void){
         // check if g < c. save result. check that c==g && a < b. save result. or both results together save result
         // check if g_a == c_b. save result. or both results together
           if(type_is_32bit(cast(expr_out, type2))){
-            if(!type_is_32bit(type1)) 
+            if(!type_is_32bit(expr_out)) 
               emitln("  mov g, 0");
             if(!type_is_32bit(type2))
               emitln("  mov c, 0");
@@ -2746,7 +2746,7 @@ t_type parse_relational(void){
           break;
         case GREATER_THAN:
           if(type_is_32bit(cast(expr_out, type2))){
-            if(!type_is_32bit(type1)) 
+            if(!type_is_32bit(expr_out)) 
               emitln("  mov g, 0");
             if(!type_is_32bit(type2))
               emitln("  mov c, 0");
@@ -2766,7 +2766,7 @@ t_type parse_relational(void){
           break;
         case GREATER_THAN_OR_EQUAL:
           if(type_is_32bit(cast(expr_out, type2))){
-            if(!type_is_32bit(type1)) 
+            if(!type_is_32bit(expr_out)) 
               emitln("  mov g, 0");
             if(!type_is_32bit(type2))
               emitln("  mov c, 0");
