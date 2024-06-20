@@ -1773,7 +1773,7 @@ _while28_cond:
   mov g, c
   mov b, $0
   mov c, 0
-  sgt32 ga, cb
+  sgt
   pop g
   pop a
 ; END RELATIONAL
@@ -1944,7 +1944,7 @@ _while31_cond:
   mov g, c
   mov b, $0
   mov c, 0
-  sgu32 ga, cb
+  sgu
   pop g
   pop a
 ; END RELATIONAL

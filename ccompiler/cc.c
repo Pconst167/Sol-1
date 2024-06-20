@@ -2732,9 +2732,9 @@ t_type parse_relational(void){
               emitln("  mov c, 0");
 
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
-              emitln("  sleu ga, cb"); // result in b
+              emitln("  sleu"); // result in b
             else
-              emitln("  sle ga, cb"); // result in b
+              emitln("  sle"); // result in b
           }
           else{
             emitln("  cmp a, b");
@@ -2752,9 +2752,9 @@ t_type parse_relational(void){
               emitln("  mov c, 0");
 
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
-              emitln("  sgu32 ga, cb"); // result in b
+              emitln("  sgu"); // result in b
             else
-              emitln("  sgt32 ga, cb"); // result in b
+              emitln("  sgt"); // result in b
           }
           else{
             emitln("  cmp a, b");
@@ -2772,9 +2772,9 @@ t_type parse_relational(void){
               emitln("  mov c, 0");
 
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
-              emitln("  sgeu32 ga, cb"); // result in b
+              emitln("  sgeu"); // result in b
             else
-              emitln("  sge32 ga, cb"); // result in b
+              emitln("  sge"); // result in b
           }
           else{
             emitln("  cmp a, b");

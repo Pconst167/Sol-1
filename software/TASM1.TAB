@@ -278,6 +278,10 @@ MUL A,C                         ACFD  2    NOP      1
 MUL AL,BL                       AD    1    NOP      1
 MMA @                           13FD  4    NOP      1
 DIV A,B                         AE    1    NOP      1
+
+CMP32 GA,CB                     AFFD  1    NOP      1
+CMP32 GA,@                      B0FD  5    NOP      1
+
 CMP A,B                         B0    1    NOP      1
 CMP A,C                         B1    1    NOP      1
 CMP A,D                         B2    1    NOP      1
