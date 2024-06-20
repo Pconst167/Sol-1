@@ -27,7 +27,7 @@
   valid. therefore we need to test for expr_out instead as that is changing with the expression.
 
 
-  loook at cast() function for improvements.
+  look at cast() function for improvements.
 */
 
 #include <stdio.h>
@@ -2478,6 +2478,9 @@ t_type parse_ternary_op(void){
   return expr_out;
 }
 
+// 'A' || 0xFFFFAAAA || 0xFFFFFFFF
+// 0xFFFFFFFF || 'A' || 0xFFFFFFFF
+// 'A' || 'B' || 0xFFFFFFFF
 t_type parse_logical_or(void){
   t_type type1, type2, expr_out;
 
@@ -2490,12 +2493,11 @@ t_type parse_logical_or(void){
       emitln("  mov a, b");
       if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_logical_and();
-      expr_out = cast(expr_out, type2);
       // or between ga and cb
-      if(type_is_32bit(expr_out)){
+      if(type_is_32bit(cast(expr_out, type2))){
         emitln("  sor a, b ; ||"); // result in B
         emitln("  push b");
-        if(type_is_32bit(type1))
+        if(type_is_32bit(expr_out))
           emitln("  mov b, g");
         else 
           emitln("  mov b, 0");
@@ -2509,6 +2511,8 @@ t_type parse_logical_or(void){
       }
       else
         emitln("  sor a, b ; ||");
+
+      expr_out = cast(expr_out, type2);
     }
     if(type_is_32bit(type1))
       emitln("  pop g");
@@ -2529,23 +2533,26 @@ t_type parse_logical_and(void){
       emitln("  mov a, b");
       if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_bitwise_or();
-      expr_out = cast(expr_out, type2);
       // or between ga and cb
       // (b!=0 or c!=0) and (a!=0 or g!=0)
-      if(type_is_32bit(expr_out)){
+      if(type_is_32bit(cast(expr_out, type2))){
         emitln("  push a");
-        emitln("  push g");
+        if(type_is_32bit(type1)) emitln("  push g");
 
         emitln("  cmp b, 0");
         emitln("  sneq");
         emitln("  push bl");
-        emitln("  cmp c, 0");
-        emitln("  sneq");
+        if(type_is_32bit(type2)){
+          emitln("  cmp c, 0");
+          emitln("  sneq");
+        }
+        else emitln("  mov b, 0");
         emitln("  pop al");
         emitln("  or al, bl"); // point A
 
-        emitln("  pop c"); // recover g
-        emitln("  pop b"); // recover a
+        if(type_is_32bit(type2)) emitln("  pop c"); // recover g
+        else emitln("  mov c, 0"); // so that c == 0 if the type is not 32bit
+        emitln("  pop b"); // recover 'A' register into reg 'B'
 
         emitln("  push al"); // pushing the value from point A above
 
@@ -2562,7 +2569,9 @@ t_type parse_logical_and(void){
         emitln("  sand a, b"); // result in b
       }
       else 
-        emitln("  sand a, b ; &&");
+        emitln("  sand a, b");
+
+      expr_out = cast(expr_out, type2);
     }
     if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
@@ -2582,11 +2591,10 @@ t_type parse_bitwise_or(void){
       emitln("  mov a, b");
       if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_bitwise_xor();
-      expr_out = cast(expr_out, type2);
-      if(type_is_32bit(expr_out)){
+      if(type_is_32bit(cast(expr_out, type2))){
         emitln("  or a, b ; |");
         emitln("  push a");
-        if(type_is_32bit(type1))
+        if(type_is_32bit(expr_out))
           emitln("  mov a, g");
         else
           emitln("  mov a, 0");
@@ -2599,8 +2607,9 @@ t_type parse_bitwise_or(void){
         emitln("  pop b");
       }
       else{
-        emitln("  or b, a ; &");
+        emitln("  or b, a ; |");
       }
+      expr_out = cast(expr_out, type2);
     }
     if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
@@ -2608,6 +2617,7 @@ t_type parse_bitwise_or(void){
   return expr_out;
 }
 
+// todo: implement with long ints
 t_type parse_bitwise_xor(void){
   t_type type1, type2, expr_out;
 
@@ -2634,13 +2644,32 @@ t_type parse_bitwise_and(void){
   expr_out = type1;
   if(curr_token.tok == AMPERSAND){
     emitln("  push a");
-    emitln("  mov a, b");
+    if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == AMPERSAND){
+      emitln("  mov a, b");
+      if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_relational();
+      if(type_is_32bit(cast(expr_out, type2))){
+        emitln("  and a, b ; |");
+        emitln("  push a");
+        if(type_is_32bit(expr_out))
+          emitln("  mov a, g");
+        else
+          emitln("  mov a, 0");
+        if(type_is_32bit(type2))
+          emitln("  mov b, c");
+        else
+          emitln("  mov b, 0");
+        emitln("  and a, b ; |");
+        emitln("  mov c, a");
+        emitln("  pop b");
+      }
+      else{
+        emitln("  and b, a ; &");
+      }
       expr_out = cast(expr_out, type2);
-      emitln("  and a, b ; &");
     }
-    emitln("  mov b, a");
+    if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
   }
   return expr_out;
@@ -2666,15 +2695,20 @@ t_type parse_relational(void){
       emitln("  mov a, b");
       if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_bitwise_shift();
-      expr_out = cast(expr_out, type2);
       switch(temp_tok){
         case EQUAL:
-          if(type_is_32bit(expr_out)){
+          if(type_is_32bit(cast(expr_out, type2))){
             emitln("  cmp a, b");
             emitln("  seq ; ==");
             emitln("  push b");
-            emitln("  mov a, c");
-            emitln("  mov b, g");
+            if(type_is_32bit(type2))
+              emitln("  mov a, c");
+            else
+              emitln("  mov a, 0");
+            if(type_is_32bit(type1))
+              emitln("  mov b, g");
+            else
+              emitln("  mov b, 0");
             emitln("  cmp a, b");
             emitln("  seq ; ==");
             emitln("  pop a"); 
@@ -2686,12 +2720,18 @@ t_type parse_relational(void){
           }
           break;
         case NOT_EQUAL:
-          if(type_is_32bit(expr_out)){
+          if(type_is_32bit(cast(expr_out, type2))){
             emitln("  cmp a, b");
             emitln("  sneq ; !=");
             emitln("  push b");
-            emitln("  mov a, c");
-            emitln("  mov b, g");
+            if(type_is_32bit(type2))
+              emitln("  mov a, c");
+            else
+              emitln("  mov a, 0");
+            if(type_is_32bit(type1))
+              emitln("  mov b, g");
+            else
+              emitln("  mov b, 0");
             emitln("  cmp a, b");
             emitln("  sneq ; !=");
             emitln("  pop a"); 
@@ -2708,18 +2748,27 @@ t_type parse_relational(void){
         // g_a < c_b         if(g < c || (c==g && a < b)) then LESS_THAN == 1    
         // cb is the current parsed long.  ga is the previously parsed long.   
         // check if g < c. save result. check that c==g && a < b. save result. or both results together
-          if(type_is_32bit(expr_out)){
+          if(type_is_32bit(cast(expr_out, type2))){
             emitln("  mov si, a"); 
             emitln("  mov a, b"); 
             emitln("  mov di, a");
 
-            emitln("  mov a, g");
-            emitln("  mov b, c");
+            if(type_is_32bit(type1))
+              emitln("  mov a, g");
+            else
+              emitln("  mov a, 0");
+            if(type_is_32bit(type2))
+              emitln("  mov b, c");
+            else
+              emitln("  mov b, 0");
             emitln("  cmp a, b");
-            emitln("  slu ; <");  // test if g < c, result in b
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+              emitln("  slu ; <");  // test if g < c, result in b
+            else
+              emitln("  slt ; <");  // test if g < c, result in b
             emitln("  push b");   // save partial result
 
-            emitln("  mov b, c"); // recover b
+            emitln("  mov b, c"); // recover b. 'a' register (with value = g) is still intact 
             emitln("  seq ; =="); // test if c == g
             emitln("  push b");   // save partial result
 
@@ -2727,7 +2776,10 @@ t_type parse_relational(void){
             emitln("  mov b, a");
             emitln("  mov a, si");
             emitln("  cmp a, b");
-            emitln("  slu ; <"); // test if a < b, result in b
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+              emitln("  slu ; <"); // test if a < b, result in b
+            else
+              emitln("  slt ; <"); // test if a < b, result in b
 
             emitln("  pop a");
             emitln("  and b, a"); // result here: c == g and a < b
@@ -2745,18 +2797,86 @@ t_type parse_relational(void){
               emitln("  slt ; <= (signed)");
             }
           }
-
-          if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
-            ;
-          else
-            ;
           break;
         case LESS_THAN_OR_EQUAL:
-          emitln("  cmp a, b");
-          if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
-            emitln("  sleu ; <= (unsigned)");
-          else
-            emitln("  sle ; <=");
+        //    ga <= cb      00000000_00000000 < 00000000_00000000
+        //                    g       a           c         b
+        // g_a < c_b         if(g < c || (c==g && a < b)) then LESS_THAN == 1    
+        // g_a == c_b
+        // cb is the current parsed long.  ga is the previously parsed long.   
+        // check if g < c. save result. check that c==g && a < b. save result. or both results together save result
+        // check if g_a == c_b. save result. or both results together
+          if(type_is_32bit(cast(expr_out, type2))){
+            emitln("  mov si, a"); 
+            emitln("  mov a, b"); 
+            emitln("  mov di, a");
+
+            if(type_is_32bit(type1))
+              emitln("  mov a, g");
+            else
+              emitln("  mov a, 0");
+            if(type_is_32bit(type2))
+              emitln("  mov b, c");
+            else
+              emitln("  mov b, 0");
+            emitln("  mov push g"); 
+            emitln("  mov push c");  // save g and c, for use in the EQUALS section
+            emitln("  cmp a, b");
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+              emitln("  slu ; <");  // test if g < c, result in b
+            else
+              emitln("  slt ; <");  // test if g < c, result in b
+            emitln("  push b");   // save partial result
+
+            emitln("  mov b, c"); // recover b. 'a' register (with value = g) is still intact 
+            emitln("  seq ; =="); // test if c == g
+            emitln("  push b");   // save partial result
+
+            emitln("  mov a, di");
+            emitln("  mov b, a");
+            emitln("  mov a, si");
+            emitln("  cmp a, b");
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+              emitln("  slu ; <"); // test if a < b, result in b
+            else
+              emitln("  slt ; <"); // test if a < b, result in b
+
+            emitln("  pop a");
+            emitln("  and b, a"); // result here: c == g and a < b
+            emitln("  pop a");
+            emitln("  or b, a"); // result here: (c == g and a < b) || g < c    (SECTION B)
+
+            // now do EQUALS part
+            emitln("  pop c");
+            emitln("  pop g"); // recover g and c from stack
+
+            emitln("  push b"); // push first part (less than) (result from section B above)
+
+            emitln("  mov a, c");
+            emitln("  mov b, g");
+            emitln("  cmp a, b");
+            emitln("  seq"); // compare c and g
+            emitln("  push b");   // save partial result
+
+            emitln("  mov a, di");
+            emitln("  mov b, a");
+            emitln("  mov a, si");
+            emitln("  cmp a, b");
+            emitln("  seq"); // compare a and b
+
+            emitln("  pop a");
+            emitln("  or b, a"); // result here: (c == g and a < b) || g < c
+          }
+          else{
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED){
+              emitln("  cmp a, b");
+              emitln("  slu ; <= (unsigned)");
+            }
+            else{
+              emitln("  cmp a, b");
+              emitln("  slt ; <= (signed)");
+            }
+          }
           break;
         case GREATER_THAN:
           emitln("  cmp a, b");
@@ -2772,8 +2892,9 @@ t_type parse_relational(void){
           else
             emitln("  sge ; >=");
       }
+      expr_out = cast(expr_out, type2);
     }
-    if(type_is_32bit(expr_out))
+    if(type_is_32bit(type1))
       emitln("  pop g");
     emitln("  pop a");
     emitln("; END RELATIONAL");

@@ -7,6 +7,48 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
+;; il0 = 0x80000000L; 
+  mov d, _il0 ; $il0
+  push d
+  mov b, 0
+  mov c, 32768
+  pop d
+  mov [d], b
+  mov b, c
+  mov [d + 2], b
+;; il1 = 0x00000001L; 
+  mov d, _il1 ; $il1
+  push d
+  mov b, 1
+  mov c, 0
+  pop d
+  mov [d], b
+  mov b, c
+  mov [d + 2], b
+;; i0 = 0x8000; 
+  mov d, _i0 ; $i0
+  push d
+  mov b, $8000
+  pop d
+  mov [d], b
+;; i1 = 0x0001; 
+  mov d, _i1 ; $i1
+  push d
+  mov b, $1
+  pop d
+  mov [d], b
+;; c0 = 'A'; 
+  mov d, _c0 ; $c0
+  push d
+  mov b, $41
+  pop d
+  mov [d], bl
+;; c1 = 'Z'; 
+  mov d, _c1 ; $c1
+  push d
+  mov b, $5a
+  pop d
+  mov [d], bl
   syscall sys_terminate_proc
 
 strcpy:
@@ -99,7 +141,7 @@ _while2_cond:
   seq ; ==
   pop a
 ; END RELATIONAL
-  sand a, b ; &&
+  sand a, b
   pop a
   cmp b, 0
   je _while2_exit
@@ -1278,10 +1320,10 @@ _if20_cond:
   mov a, b
   mov b, $66
   cmp a, b
-  sle ; <=
+  slt ; <= (signed)
   pop a
 ; END RELATIONAL
-  sand a, b ; &&
+  sand a, b
   pop a
   cmp b, 0
   je _if20_else
@@ -1347,10 +1389,10 @@ _if21_cond:
   mov a, b
   mov b, $46
   cmp a, b
-  sle ; <=
+  slt ; <= (signed)
   pop a
 ; END RELATIONAL
-  sand a, b ; &&
+  sand a, b
   pop a
   cmp b, 0
   je _if21_else
@@ -1662,9 +1704,9 @@ _if26_cond:
   mov a, b
   mov di, a
   mov a, g
-  mov b, c
+  mov b, 0
   cmp a, b
-  slu ; <
+  slt ; <
   push b
   mov b, c
   seq ; ==
@@ -1673,7 +1715,7 @@ _if26_cond:
   mov b, a
   mov a, si
   cmp a, b
-  slu ; <
+  slt ; <
   pop a
   and b, a
   pop a
@@ -1719,7 +1761,7 @@ _if27_cond:
   cmp a, b
   seq ; ==
   push b
-  mov a, c
+  mov a, 0
   mov b, g
   cmp a, b
   seq ; ==
@@ -1897,7 +1939,7 @@ _if30_cond:
   cmp a, b
   seq ; ==
   push b
-  mov a, c
+  mov a, 0
   mov b, g
   cmp a, b
   seq ; ==
@@ -2327,6 +2369,12 @@ include_stdio_asm:
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
+_il0: .fill 4, 0
+_il1: .fill 4, 0
+_i0: .fill 2, 0
+_i1: .fill 2, 0
+_c0: .fill 1, 0
+_c1: .fill 1, 0
 __s0: .db "Unexpected format in printf.", 0
 __s1: .db "Error: Unknown argument type.\n", 0
 __s2: .db "\033[2J\033[H", 0
