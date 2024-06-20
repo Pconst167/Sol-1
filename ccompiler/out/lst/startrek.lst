@@ -1,0 +1,4108 @@
+0001   0000             ; --- FILENAME: games/startrek
+0002   0000             .include "lib/asm/kernel.exp"
+0001+  0000             text_org    .EQU  $0400
+0002+  0000             sys_bkpt         .EQU  $0000
+0003+  0000             sys_rtc          .EQU  $0001
+0004+  0000             sys_ide          .EQU  $0002
+0005+  0000             sys_io           .EQU  $0003
+0006+  0000             sys_filesystem   .EQU  $0004
+0007+  0000             sys_spawn_proc   .EQU  $0005
+0008+  0000             sys_list         .EQU  $0006
+0009+  0000             sys_datetime     .EQU  $0007
+0010+  0000             sys_reboot       .EQU  $0008
+0011+  0000             sys_pause_proc   .EQU  $0009
+0012+  0000             sys_resume_proc  .EQU  $000a
+0013+  0000             sys_terminate_proc .EQU  $000b
+0014+  0000             sys_system       .EQU  $000c
+0015+  0000             sys_boot_install .EQU  $000d
+0003   0000             .include "lib/asm/bios.exp"
+0001+  0000             BIOS_RESET_VECTOR .EQU  $01c0
+0002+  0000             IDE_buffer       .EQU  $8204
+0003+  0000             boot_origin      .EQU  $8004
+0004+  0000             bios_uart        .EQU  $0002
+0005+  0000             bios_ide         .EQU  $0003
+0004   0400             .org text_org
+0005   0400             
+0006   0400             ; --- BEGIN TEXT BLOCK
+0007   0400             strcpy:
+0008   0400 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0009   0403             ; $psrc 
+0010   0403             ; $pdest 
+0011   0403 52 04 00      sub sp, 4
+0012   0406             ;; psrc = src; 
+0013   0406 FA FF FF      lea d, [bp + -1] ; $psrc
+0014   0409 DA            push d
+0015   040A FA 07 00      lea d, [bp + 7] ; $src
+0016   040D 2A            mov b, [d]
+0017   040E E7            pop d
+0018   040F FD 43         mov [d], b
+0019   0411             ;; pdest = dest; 
+0020   0411 FA FD FF      lea d, [bp + -3] ; $pdest
+0021   0414 DA            push d
+0022   0415 FA 05 00      lea d, [bp + 5] ; $dest
+0023   0418 2A            mov b, [d]
+0024   0419 E7            pop d
+0025   041A FD 43         mov [d], b
+0026   041C             ;; while(*psrc) *pdest++ = *psrc++; 
+0027   041C             _while1_cond:
+0028   041C FA FF FF      lea d, [bp + -1] ; $psrc
+0029   041F 2A            mov b, [d]
+0030   0420 74            mov d, b
+0031   0421 32            mov bl, [d]
+0032   0422 A7 00         mov bh, 0
+0033   0424 C0 00 00      cmp b, 0
+0034   0427 C6 4F 04      je _while1_exit
+0035   042A             _while1_block:
+0036   042A             ;; *pdest++ = *psrc++; 
+0037   042A FA FD FF      lea d, [bp + -3] ; $pdest
+0038   042D 2A            mov b, [d]
+0039   042E D8            push b
+0040   042F FD 77         inc b
+0041   0431 FA FD FF      lea d, [bp + -3] ; $pdest
+0042   0434 FD 43         mov [d], b
+0043   0436 E5            pop b
+0044   0437 D8            push b
+0045   0438 FA FF FF      lea d, [bp + -1] ; $psrc
+0046   043B 2A            mov b, [d]
+0047   043C D8            push b
+0048   043D FD 77         inc b
+0049   043F FA FF FF      lea d, [bp + -1] ; $psrc
+0050   0442 FD 43         mov [d], b
+0051   0444 E5            pop b
+0052   0445 74            mov d, b
+0053   0446 32            mov bl, [d]
+0054   0447 A7 00         mov bh, 0
+0055   0449 E7            pop d
+0056   044A FD 3E         mov [d], bl
+0057   044C 0A 1C 04      jmp _while1_cond
+0058   044F             _while1_exit:
+0059   044F             ;; *pdest = '\0'; 
+0060   044F FA FD FF      lea d, [bp + -3] ; $pdest
+0061   0452 2A            mov b, [d]
+0062   0453 D8            push b
+0063   0454 26 00 00      mov b, $0
+0064   0457 E7            pop d
+0065   0458 FD 3E         mov [d], bl
+0066   045A F9            leave
+0067   045B 09            ret
+0068   045C             
+0069   045C             strcmp:
+0070   045C F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0071   045F             ;; while (*s1 && (*s1 == *s2)) { 
+0072   045F             _while2_cond:
+0073   045F FA 05 00      lea d, [bp + 5] ; $s1
+0074   0462 2A            mov b, [d]
+0075   0463 74            mov d, b
+0076   0464 32            mov bl, [d]
+0077   0465 A7 00         mov bh, 0
+0078   0467 D7            push a
+0079   0468 11            mov a, b
+0080   0469 FA 05 00      lea d, [bp + 5] ; $s1
+0081   046C 2A            mov b, [d]
+0082   046D 74            mov d, b
+0083   046E 32            mov bl, [d]
+0084   046F A7 00         mov bh, 0
+0085   0471             ; START RELATIONAL
+0086   0471 D7            push a
+0087   0472 11            mov a, b
+0088   0473 FA 07 00      lea d, [bp + 7] ; $s2
+0089   0476 2A            mov b, [d]
+0090   0477 74            mov d, b
+0091   0478 32            mov bl, [d]
+0092   0479 A7 00         mov bh, 0
+0093   047B B0            cmp a, b
+0094   047C FD 71         seq ; ==
+0095   047E E4            pop a
+0096   047F             ; END RELATIONAL
+0097   047F FD A7         sand a, b
+0098   0481 E4            pop a
+0099   0482 C0 00 00      cmp b, 0
+0100   0485 C6 A5 04      je _while2_exit
+0101   0488             _while2_block:
+0102   0488             ;; s1++; 
+0103   0488 FA 05 00      lea d, [bp + 5] ; $s1
+0104   048B 2A            mov b, [d]
+0105   048C D8            push b
+0106   048D FD 77         inc b
+0107   048F FA 05 00      lea d, [bp + 5] ; $s1
+0108   0492 FD 43         mov [d], b
+0109   0494 E5            pop b
+0110   0495             ;; s2++; 
+0111   0495 FA 07 00      lea d, [bp + 7] ; $s2
+0112   0498 2A            mov b, [d]
+0113   0499 D8            push b
+0114   049A FD 77         inc b
+0115   049C FA 07 00      lea d, [bp + 7] ; $s2
+0116   049F FD 43         mov [d], b
+0117   04A1 E5            pop b
+0118   04A2 0A 5F 04      jmp _while2_cond
+0119   04A5             _while2_exit:
+0120   04A5             ;; return *s1 - *s2; 
+0121   04A5 FA 05 00      lea d, [bp + 5] ; $s1
+0122   04A8 2A            mov b, [d]
+0123   04A9 74            mov d, b
+0124   04AA 32            mov bl, [d]
+0125   04AB A7 00         mov bh, 0
+0126   04AD             ; START TERMS
+0127   04AD D7            push a
+0128   04AE 11            mov a, b
+0129   04AF FA 07 00      lea d, [bp + 7] ; $s2
+0130   04B2 2A            mov b, [d]
+0131   04B3 74            mov d, b
+0132   04B4 32            mov bl, [d]
+0133   04B5 A7 00         mov bh, 0
+0134   04B7 60            sub a, b
+0135   04B8 27            mov b, a
+0136   04B9 E4            pop a
+0137   04BA             ; END TERMS
+0138   04BA F9            leave
+0139   04BB 09            ret
+0140   04BC             
+0141   04BC             strcat:
+0142   04BC F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0143   04BF             ; $dest_len 
+0144   04BF             ; $i 
+0145   04BF 52 04 00      sub sp, 4
+0146   04C2             ;; dest_len = strlen(dest); 
+0147   04C2 FA FF FF      lea d, [bp + -1] ; $dest_len
+0148   04C5 DA            push d
+0149   04C6 FA 05 00      lea d, [bp + 5] ; $dest
+0150   04C9 2A            mov b, [d]
+0151   04CA FD AB         swp b
+0152   04CC D8            push b
+0153   04CD 07 6F 05      call strlen
+0154   04D0 51 02 00      add sp, 2
+0155   04D3 E7            pop d
+0156   04D4 FD 43         mov [d], b
+0157   04D6             ;; for (i = 0; src[i] != 0; i=i+1) { 
+0158   04D6             _for3_init:
+0159   04D6 FA FD FF      lea d, [bp + -3] ; $i
+0160   04D9 DA            push d
+0161   04DA 26 00 00      mov b, $0
+0162   04DD E7            pop d
+0163   04DE FD 43         mov [d], b
+0164   04E0             _for3_cond:
+0165   04E0 FA 07 00      lea d, [bp + 7] ; $src
+0166   04E3 FD 2A         mov d, [d]
+0167   04E5 D7            push a
+0168   04E6 DA            push d
+0169   04E7 FA FD FF      lea d, [bp + -3] ; $i
+0170   04EA 2A            mov b, [d]
+0171   04EB E7            pop d
+0172   04EC FD 13 01 00   mma 1 ; mov a, 1; mul a b; add d, b
+0173   04F0 E4            pop a
+0174   04F1 32            mov bl, [d]
+0175   04F2 A7 00         mov bh, 0
+0176   04F4             ; START RELATIONAL
+0177   04F4 D7            push a
+0178   04F5 11            mov a, b
+0179   04F6 26 00 00      mov b, $0
+0180   04F9 B0            cmp a, b
+0181   04FA FD 72         sneq ; !=
+0182   04FC E4            pop a
+0183   04FD             ; END RELATIONAL
+0184   04FD C0 00 00      cmp b, 0
+0185   0500 C6 49 05      je _for3_exit
+0186   0503             _for3_block:
+0187   0503             ;; dest[dest_len + i] = src[i]; 
+0188   0503 FA 05 00      lea d, [bp + 5] ; $dest
+0189   0506 FD 2A         mov d, [d]
+0190   0508 D7            push a
+0191   0509 DA            push d
+0192   050A FA FF FF      lea d, [bp + -1] ; $dest_len
+0193   050D 2A            mov b, [d]
+0194   050E             ; START TERMS
+0195   050E D7            push a
+0196   050F 11            mov a, b
+0197   0510 FA FD FF      lea d, [bp + -3] ; $i
+0198   0513 2A            mov b, [d]
+0199   0514 56            add b, a
+0200   0515 E4            pop a
+0201   0516             ; END TERMS
+0202   0516 E7            pop d
+0203   0517 FD 13 01 00   mma 1 ; mov a, 1; mul a b; add d, b
+0204   051B E4            pop a
+0205   051C DA            push d
+0206   051D FA 07 00      lea d, [bp + 7] ; $src
+0207   0520 FD 2A         mov d, [d]
+0208   0522 D7            push a
+0209   0523 DA            push d
+0210   0524 FA FD FF      lea d, [bp + -3] ; $i
+0211   0527 2A            mov b, [d]
+0212   0528 E7            pop d
+0213   0529 FD 13 01 00   mma 1 ; mov a, 1; mul a b; add d, b
+0214   052D E4            pop a
+0215   052E 32            mov bl, [d]
+0216   052F A7 00         mov bh, 0
+0217   0531 E7            pop d
+0218   0532 FD 3E         mov [d], bl
+0219   0534             _for3_update:
+0220   0534 FA FD FF      lea d, [bp + -3] ; $i
+0221   0537 DA            push d
+0222   0538 FA FD FF      lea d, [bp + -3] ; $i
+0223   053B 2A            mov b, [d]
+0224   053C             ; START TERMS
+0225   053C D7            push a
+0226   053D 11            mov a, b
+0227   053E 26 01 00      mov b, $1
+0228   0541 56            add b, a
+0229   0542 E4            pop a
+0230   0543             ; END TERMS
+0231   0543 E7            pop d
+0232   0544 FD 43         mov [d], b
+0233   0546 0A E0 04      jmp _for3_cond
+0234   0549             _for3_exit:
+0235   0549             ;; dest[dest_len + i] = 0; 
+0236   0549 FA 05 00      lea d, [bp + 5] ; $dest
+0237   054C FD 2A         mov d, [d]
+0238   054E D7            push a
+0239   054F DA            push d
+0240   0550 FA FF FF      lea d, [bp + -1] ; $dest_len
+0241   0553 2A            mov b, [d]
+0242   0554             ; START TERMS
+0243   0554 D7            push a
+0244   0555 11            mov a, b
+0245   0556 FA FD FF      lea d, [bp + -3] ; $i
+0246   0559 2A            mov b, [d]
+0247   055A 56            add b, a
+0248   055B E4            pop a
+0249   055C             ; END TERMS
+0250   055C E7            pop d
+0251   055D FD 13 01 00   mma 1 ; mov a, 1; mul a b; add d, b
+0252   0561 E4            pop a
+0253   0562 DA            push d
+0254   0563 26 00 00      mov b, $0
+0255   0566 E7            pop d
+0256   0567 FD 3E         mov [d], bl
+0257   0569             ;; return dest; 
+0258   0569 FA 05 00      lea d, [bp + 5] ; $dest
+0259   056C 2A            mov b, [d]
+0260   056D F9            leave
+0261   056E 09            ret
+0262   056F             
+0263   056F             strlen:
+0264   056F F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0265   0572             ; $length 
+0266   0572 52 02 00      sub sp, 2
+0267   0575             ;; length = 0; 
+0268   0575 FA FF FF      lea d, [bp + -1] ; $length
+0269   0578 DA            push d
+0270   0579 26 00 00      mov b, $0
+0271   057C E7            pop d
+0272   057D FD 43         mov [d], b
+0273   057F             ;; while (str[length] != 0) { 
+0274   057F             _while4_cond:
+0275   057F FA 05 00      lea d, [bp + 5] ; $str
+0276   0582 FD 2A         mov d, [d]
+0277   0584 D7            push a
+0278   0585 DA            push d
+0279   0586 FA FF FF      lea d, [bp + -1] ; $length
+0280   0589 2A            mov b, [d]
+0281   058A E7            pop d
+0282   058B FD 13 01 00   mma 1 ; mov a, 1; mul a b; add d, b
+0283   058F E4            pop a
+0284   0590 32            mov bl, [d]
+0285   0591 A7 00         mov bh, 0
+0286   0593             ; START RELATIONAL
+0287   0593 D7            push a
+0288   0594 11            mov a, b
+0289   0595 26 00 00      mov b, $0
+0290   0598 B0            cmp a, b
+0291   0599 FD 72         sneq ; !=
+0292   059B E4            pop a
+0293   059C             ; END RELATIONAL
+0294   059C C0 00 00      cmp b, 0
+0295   059F C6 B2 05      je _while4_exit
+0296   05A2             _while4_block:
+0297   05A2             ;; length++; 
+0298   05A2 FA FF FF      lea d, [bp + -1] ; $length
+0299   05A5 2A            mov b, [d]
+0300   05A6 D8            push b
+0301   05A7 FD 77         inc b
+0302   05A9 FA FF FF      lea d, [bp + -1] ; $length
+0303   05AC FD 43         mov [d], b
+0304   05AE E5            pop b
+0305   05AF 0A 7F 05      jmp _while4_cond
+0306   05B2             _while4_exit:
+0307   05B2             ;; return length; 
+0308   05B2 FA FF FF      lea d, [bp + -1] ; $length
+0309   05B5 2A            mov b, [d]
+0310   05B6 F9            leave
+0311   05B7 09            ret
+0312   05B8             
+0313   05B8             scanf:
+0314   05B8 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0315   05BB             ; $p 
+0316   05BB             ; $format_p 
+0317   05BB             ; $c 
+0318   05BB             ; $i 
+0319   05BB             ; $input_string 
+0320   05BB 52 07 02      sub sp, 519
+0321   05BE             ;; format_p = format; 
+0322   05BE FA FD FF      lea d, [bp + -3] ; $format_p
+0323   05C1 DA            push d
+0324   05C2 FA 05 00      lea d, [bp + 5] ; $format
+0325   05C5 2A            mov b, [d]
+0326   05C6 E7            pop d
+0327   05C7 FD 43         mov [d], b
+0328   05C9             ;; p = &format + 2; 
+0329   05C9 FA FF FF      lea d, [bp + -1] ; $p
+0330   05CC DA            push d
+0331   05CD FA 05 00      lea d, [bp + 5] ; $format
+0332   05D0 2D            mov b, d
+0333   05D1             ; START TERMS
+0334   05D1 D7            push a
+0335   05D2 11            mov a, b
+0336   05D3 26 02 00      mov b, $2
+0337   05D6 56            add b, a
+0338   05D7 E4            pop a
+0339   05D8             ; END TERMS
+0340   05D8 E7            pop d
+0341   05D9 FD 43         mov [d], b
+0342   05DB             ;; for(;;){ 
+0343   05DB             _for5_init:
+0344   05DB             _for5_cond:
+0345   05DB             _for5_block:
+0346   05DB             ;; if(!*format_p) break; 
+0347   05DB             _if6_cond:
+0348   05DB FA FD FF      lea d, [bp + -3] ; $format_p
+0349   05DE 2A            mov b, [d]
+0350   05DF 74            mov d, b
+0351   05E0 32            mov bl, [d]
+0352   05E1 A7 00         mov bh, 0
+0353   05E3 C0 00 00      cmp b, 0
+0354   05E6 FD 71         seq ; !
+0355   05E8 C0 00 00      cmp b, 0
+0356   05EB C6 F4 05      je _if6_else
+0357   05EE             _if6_true:
+0358   05EE             ;; break; 
+0359   05EE 0A F1 07      jmp _for5_exit ; for break
+0360   05F1 0A EE 07      jmp _if6_exit
+0361   05F4             _if6_else:
+0362   05F4             ;; if(*format_p == '%'){ 
+0363   05F4             _if7_cond:
+0364   05F4 FA FD FF      lea d, [bp + -3] ; $format_p
+0365   05F7 2A            mov b, [d]
+0366   05F8 74            mov d, b
+0367   05F9 32            mov bl, [d]
+0368   05FA A7 00         mov bh, 0
+0369   05FC             ; START RELATIONAL
+0370   05FC D7            push a
+0371   05FD 11            mov a, b
+0372   05FE 26 25 00      mov b, $25
+0373   0601 B0            cmp a, b
+0374   0602 FD 71         seq ; ==
+0375   0604 E4            pop a
+0376   0605             ; END RELATIONAL
+0377   0605 C0 00 00      cmp b, 0
+0378   0608 C6 D2 07      je _if7_else
+0379   060B             _if7_true:
+0380   060B             ;; format_p++; 
+0381   060B FA FD FF      lea d, [bp + -3] ; $format_p
+0382   060E 2A            mov b, [d]
+0383   060F D8            push b
+0384   0610 FD 77         inc b
+0385   0612 FA FD FF      lea d, [bp + -3] ; $format_p
+0386   0615 FD 43         mov [d], b
+0387   0617 E5            pop b
+0388   0618             ;; switch(*format_p){ 
+0389   0618             _switch8_expr:
+0390   0618 FA FD FF      lea d, [bp + -3] ; $format_p
+0391   061B 2A            mov b, [d]
+0392   061C 74            mov d, b
+0393   061D 32            mov bl, [d]
+0394   061E A7 00         mov bh, 0
+0395   0620             _switch8_comparisons:
+0396   0620 C1 6C         cmp bl, $6c
+0397   0622 C6 4E 06      je _switch8_case0
+0398   0625 C1 4C         cmp bl, $4c
+0399   0627 C6 4E 06      je _switch8_case1
+0400   062A C1 64         cmp bl, $64
+0401   062C C6 E0 06      je _switch8_case2
+0402   062F C1 69         cmp bl, $69
+0403   0631 C6 E0 06      je _switch8_case3
+0404   0634 C1 75         cmp bl, $75
+0405   0636 C6 0D 07      je _switch8_case4
+0406   0639 C1 78         cmp bl, $78
+0407   063B C6 3A 07      je _switch8_case5
+0408   063E C1 63         cmp bl, $63
+0409   0640 C6 4F 07      je _switch8_case6
+0410   0643 C1 73         cmp bl, $73
+0411   0645 C6 7E 07      je _switch8_case7
+0412   0648 0A B6 07      jmp _switch8_default
+0413   064B 0A C2 07      jmp _switch8_exit
+0414   064E             _switch8_case0:
+0415   064E             _switch8_case1:
+0416   064E             ;; format_p++; 
+0417   064E FA FD FF      lea d, [bp + -3] ; $format_p
+0418   0651 2A            mov b, [d]
+0419   0652 D8            push b
+0420   0653 FD 77         inc b
+0421   0655 FA FD FF      lea d, [bp + -3] ; $format_p
+0422   0658 FD 43         mov [d], b
+0423   065A E5            pop b
+0424   065B             ;; if(*format_p == 'd' || *format_p == 'i'); 
+0425   065B             _if9_cond:
+0426   065B FA FD FF      lea d, [bp + -3] ; $format_p
+0427   065E 2A            mov b, [d]
+0428   065F 74            mov d, b
+0429   0660 32            mov bl, [d]
+0430   0661 A7 00         mov bh, 0
+0431   0663             ; START RELATIONAL
+0432   0663 D7            push a
+0433   0664 11            mov a, b
+0434   0665 26 64 00      mov b, $64
+0435   0668 B0            cmp a, b
+0436   0669 FD 71         seq ; ==
+0437   066B E4            pop a
+0438   066C             ; END RELATIONAL
+0439   066C D7            push a
+0440   066D 11            mov a, b
+0441   066E FA FD FF      lea d, [bp + -3] ; $format_p
+0442   0671 2A            mov b, [d]
+0443   0672 74            mov d, b
+0444   0673 32            mov bl, [d]
+0445   0674 A7 00         mov bh, 0
+0446   0676             ; START RELATIONAL
+0447   0676 D7            push a
+0448   0677 11            mov a, b
+0449   0678 26 69 00      mov b, $69
+0450   067B B0            cmp a, b
+0451   067C FD 71         seq ; ==
+0452   067E E4            pop a
+0453   067F             ; END RELATIONAL
+0454   067F FD A8         sor a, b ; ||
+0455   0681 E4            pop a
+0456   0682 C0 00 00      cmp b, 0
+0457   0685 C6 8B 06      je _if9_else
+0458   0688             _if9_true:
+0459   0688             ;; ; 
+0460   0688 0A CB 06      jmp _if9_exit
+0461   068B             _if9_else:
+0462   068B             ;; if(*format_p == 'u'); 
+0463   068B             _if10_cond:
+0464   068B FA FD FF      lea d, [bp + -3] ; $format_p
+0465   068E 2A            mov b, [d]
+0466   068F 74            mov d, b
+0467   0690 32            mov bl, [d]
+0468   0691 A7 00         mov bh, 0
+0469   0693             ; START RELATIONAL
+0470   0693 D7            push a
+0471   0694 11            mov a, b
+0472   0695 26 75 00      mov b, $75
+0473   0698 B0            cmp a, b
+0474   0699 FD 71         seq ; ==
+0475   069B E4            pop a
+0476   069C             ; END RELATIONAL
+0477   069C C0 00 00      cmp b, 0
+0478   069F C6 A5 06      je _if10_else
+0479   06A2             _if10_true:
+0480   06A2             ;; ; 
+0481   06A2 0A CB 06      jmp _if10_exit
+0482   06A5             _if10_else:
+0483   06A5             ;; if(*format_p == 'x'); 
+0484   06A5             _if11_cond:
+0485   06A5 FA FD FF      lea d, [bp + -3] ; $format_p
+0486   06A8 2A            mov b, [d]
+0487   06A9 74            mov d, b
+0488   06AA 32            mov bl, [d]
+0489   06AB A7 00         mov bh, 0
+0490   06AD             ; START RELATIONAL
+0491   06AD D7            push a
+0492   06AE 11            mov a, b
+0493   06AF 26 78 00      mov b, $78
+0494   06B2 B0            cmp a, b
+0495   06B3 FD 71         seq ; ==
+0496   06B5 E4            pop a
+0497   06B6             ; END RELATIONAL
+0498   06B6 C0 00 00      cmp b, 0
+0499   06B9 C6 BF 06      je _if11_else
+0500   06BC             _if11_true:
+0501   06BC             ;; ; 
+0502   06BC 0A CB 06      jmp _if11_exit
+0503   06BF             _if11_else:
+0504   06BF             ;; err("Unexpected format in printf."); 
+0505   06BF 26 A4 1C      mov b, __s24 ; "Unexpected format in printf."
+0506   06C2 FD AB         swp b
+0507   06C4 D8            push b
+0508   06C5 07 3A 0A      call err
+0509   06C8 51 02 00      add sp, 2
+0510   06CB             _if11_exit:
+0511   06CB             _if10_exit:
+0512   06CB             _if9_exit:
+0513   06CB             ;; p = p + 4; 
+0514   06CB FA FF FF      lea d, [bp + -1] ; $p
+0515   06CE DA            push d
+0516   06CF FA FF FF      lea d, [bp + -1] ; $p
+0517   06D2 2A            mov b, [d]
+0518   06D3             ; START TERMS
+0519   06D3 D7            push a
+0520   06D4 11            mov a, b
+0521   06D5 26 04 00      mov b, $4
+0522   06D8 56            add b, a
+0523   06D9 E4            pop a
+0524   06DA             ; END TERMS
+0525   06DA E7            pop d
+0526   06DB FD 43         mov [d], b
+0527   06DD             ;; break; 
+0528   06DD 0A C2 07      jmp _switch8_exit ; case break
+0529   06E0             _switch8_case2:
+0530   06E0             _switch8_case3:
+0531   06E0             ;; i = scann(); 
+0532   06E0 FA FA FF      lea d, [bp + -6] ; $i
+0533   06E3 DA            push d
+0534   06E4 07 E7 12      call scann
+0535   06E7 E7            pop d
+0536   06E8 FD 43         mov [d], b
+0537   06EA             ;; **(int **)p = i; 
+0538   06EA FA FF FF      lea d, [bp + -1] ; $p
+0539   06ED 2A            mov b, [d]
+0540   06EE 74            mov d, b
+0541   06EF 2A            mov b, [d]
+0542   06F0 D8            push b
+0543   06F1 FA FA FF      lea d, [bp + -6] ; $i
+0544   06F4 2A            mov b, [d]
+0545   06F5 E7            pop d
+0546   06F6 FD 43         mov [d], b
+0547   06F8             ;; p = p + 2; 
+0548   06F8 FA FF FF      lea d, [bp + -1] ; $p
+0549   06FB DA            push d
+0550   06FC FA FF FF      lea d, [bp + -1] ; $p
+0551   06FF 2A            mov b, [d]
+0552   0700             ; START TERMS
+0553   0700 D7            push a
+0554   0701 11            mov a, b
+0555   0702 26 02 00      mov b, $2
+0556   0705 56            add b, a
+0557   0706 E4            pop a
+0558   0707             ; END TERMS
+0559   0707 E7            pop d
+0560   0708 FD 43         mov [d], b
+0561   070A             ;; break; 
+0562   070A 0A C2 07      jmp _switch8_exit ; case break
+0563   070D             _switch8_case4:
+0564   070D             ;; i = scann(); 
+0565   070D FA FA FF      lea d, [bp + -6] ; $i
+0566   0710 DA            push d
+0567   0711 07 E7 12      call scann
+0568   0714 E7            pop d
+0569   0715 FD 43         mov [d], b
+0570   0717             ;; **(int **)p = i; 
+0571   0717 FA FF FF      lea d, [bp + -1] ; $p
+0572   071A 2A            mov b, [d]
+0573   071B 74            mov d, b
+0574   071C 2A            mov b, [d]
+0575   071D D8            push b
+0576   071E FA FA FF      lea d, [bp + -6] ; $i
+0577   0721 2A            mov b, [d]
+0578   0722 E7            pop d
+0579   0723 FD 43         mov [d], b
+0580   0725             ;; p = p + 2; 
+0581   0725 FA FF FF      lea d, [bp + -1] ; $p
+0582   0728 DA            push d
+0583   0729 FA FF FF      lea d, [bp + -1] ; $p
+0584   072C 2A            mov b, [d]
+0585   072D             ; START TERMS
+0586   072D D7            push a
+0587   072E 11            mov a, b
+0588   072F 26 02 00      mov b, $2
+0589   0732 56            add b, a
+0590   0733 E4            pop a
+0591   0734             ; END TERMS
+0592   0734 E7            pop d
+0593   0735 FD 43         mov [d], b
+0594   0737             ;; break; 
+0595   0737 0A C2 07      jmp _switch8_exit ; case break
+0596   073A             _switch8_case5:
+0597   073A             ;; p = p + 2; 
+0598   073A FA FF FF      lea d, [bp + -1] ; $p
+0599   073D DA            push d
+0600   073E FA FF FF      lea d, [bp + -1] ; $p
+0601   0741 2A            mov b, [d]
+0602   0742             ; START TERMS
+0603   0742 D7            push a
+0604   0743 11            mov a, b
+0605   0744 26 02 00      mov b, $2
+0606   0747 56            add b, a
+0607   0748 E4            pop a
+0608   0749             ; END TERMS
+0609   0749 E7            pop d
+0610   074A FD 43         mov [d], b
+0611   074C             ;; break; 
+0612   074C 0A C2 07      jmp _switch8_exit ; case break
+0613   074F             _switch8_case6:
+0614   074F             ;; c = getchar(); 
+0615   074F FA FC FF      lea d, [bp + -4] ; $c
+0616   0752 DA            push d
+0617   0753 07 D1 12      call getchar
+0618   0756 E7            pop d
+0619   0757 FD 3E         mov [d], bl
+0620   0759             ;; **(char **)p = c; 
+0621   0759 FA FF FF      lea d, [bp + -1] ; $p
+0622   075C 2A            mov b, [d]
+0623   075D 74            mov d, b
+0624   075E 2A            mov b, [d]
+0625   075F D8            push b
+0626   0760 FA FC FF      lea d, [bp + -4] ; $c
+0627   0763 32            mov bl, [d]
+0628   0764 A7 00         mov bh, 0
+0629   0766 E7            pop d
+0630   0767 FD 43         mov [d], b
+0631   0769             ;; p = p + 2; 
+0632   0769 FA FF FF      lea d, [bp + -1] ; $p
+0633   076C DA            push d
+0634   076D FA FF FF      lea d, [bp + -1] ; $p
+0635   0770 2A            mov b, [d]
+0636   0771             ; START TERMS
+0637   0771 D7            push a
+0638   0772 11            mov a, b
+0639   0773 26 02 00      mov b, $2
+0640   0776 56            add b, a
+0641   0777 E4            pop a
+0642   0778             ; END TERMS
+0643   0778 E7            pop d
+0644   0779 FD 43         mov [d], b
+0645   077B             ;; break; 
+0646   077B 0A C2 07      jmp _switch8_exit ; case break
+0647   077E             _switch8_case7:
+0648   077E             ;; gets(input_string); 
+0649   077E FA FA FD      lea d, [bp + -518] ; $input_string
+0650   0781 2D            mov b, d
+0651   0782 FD AB         swp b
+0652   0784 D8            push b
+0653   0785 07 B9 0B      call gets
+0654   0788 51 02 00      add sp, 2
+0655   078B             ;; strcpy(*(char **)p, input_string); 
+0656   078B FA FA FD      lea d, [bp + -518] ; $input_string
+0657   078E 2D            mov b, d
+0658   078F FD AB         swp b
+0659   0791 D8            push b
+0660   0792 FA FF FF      lea d, [bp + -1] ; $p
+0661   0795 2A            mov b, [d]
+0662   0796 74            mov d, b
+0663   0797 2A            mov b, [d]
+0664   0798 FD AB         swp b
+0665   079A D8            push b
+0666   079B 07 00 04      call strcpy
+0667   079E 51 04 00      add sp, 4
+0668   07A1             ;; p = p + 2; 
+0669   07A1 FA FF FF      lea d, [bp + -1] ; $p
+0670   07A4 DA            push d
+0671   07A5 FA FF FF      lea d, [bp + -1] ; $p
+0672   07A8 2A            mov b, [d]
+0673   07A9             ; START TERMS
+0674   07A9 D7            push a
+0675   07AA 11            mov a, b
+0676   07AB 26 02 00      mov b, $2
+0677   07AE 56            add b, a
+0678   07AF E4            pop a
+0679   07B0             ; END TERMS
+0680   07B0 E7            pop d
+0681   07B1 FD 43         mov [d], b
+0682   07B3             ;; break; 
+0683   07B3 0A C2 07      jmp _switch8_exit ; case break
+0684   07B6             _switch8_default:
+0685   07B6             ;; print("Error: Unknown argument type.\n"); 
+0686   07B6 26 C1 1C      mov b, __s25 ; "Error: Unknown argument type.\n"
+0687   07B9 FD AB         swp b
+0688   07BB D8            push b
+0689   07BC 07 0C 13      call print
+0690   07BF 51 02 00      add sp, 2
+0691   07C2             _switch8_exit:
+0692   07C2             ;; format_p++; 
+0693   07C2 FA FD FF      lea d, [bp + -3] ; $format_p
+0694   07C5 2A            mov b, [d]
+0695   07C6 D8            push b
+0696   07C7 FD 77         inc b
+0697   07C9 FA FD FF      lea d, [bp + -3] ; $format_p
+0698   07CC FD 43         mov [d], b
+0699   07CE E5            pop b
+0700   07CF 0A EE 07      jmp _if7_exit
+0701   07D2             _if7_else:
+0702   07D2             ;; putchar(*format_p); 
+0703   07D2 FA FD FF      lea d, [bp + -3] ; $format_p
+0704   07D5 2A            mov b, [d]
+0705   07D6 74            mov d, b
+0706   07D7 32            mov bl, [d]
+0707   07D8 A7 00         mov bh, 0
+0708   07DA DD            push bl
+0709   07DB 07 C4 12      call putchar
+0710   07DE 51 01 00      add sp, 1
+0711   07E1             ;; format_p++; 
+0712   07E1 FA FD FF      lea d, [bp + -3] ; $format_p
+0713   07E4 2A            mov b, [d]
+0714   07E5 D8            push b
+0715   07E6 FD 77         inc b
+0716   07E8 FA FD FF      lea d, [bp + -3] ; $format_p
+0717   07EB FD 43         mov [d], b
+0718   07ED E5            pop b
+0719   07EE             _if7_exit:
+0720   07EE             _if6_exit:
+0721   07EE             _for5_update:
+0722   07EE 0A DB 05      jmp _for5_cond
+0723   07F1             _for5_exit:
+0724   07F1 F9            leave
+0725   07F2 09            ret
+0726   07F3             
+0727   07F3             printf:
+0728   07F3 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0729   07F6             ; $p 
+0730   07F6             ; $format_p 
+0731   07F6 52 04 00      sub sp, 4
+0732   07F9             ;; format_p = format; 
+0733   07F9 FA FD FF      lea d, [bp + -3] ; $format_p
+0734   07FC DA            push d
+0735   07FD FA 05 00      lea d, [bp + 5] ; $format
+0736   0800 2A            mov b, [d]
+0737   0801 E7            pop d
+0738   0802 FD 43         mov [d], b
+0739   0804             ;; p = &format + 2; 
+0740   0804 FA FF FF      lea d, [bp + -1] ; $p
+0741   0807 DA            push d
+0742   0808 FA 05 00      lea d, [bp + 5] ; $format
+0743   080B 2D            mov b, d
+0744   080C             ; START TERMS
+0745   080C D7            push a
+0746   080D 11            mov a, b
+0747   080E 26 02 00      mov b, $2
+0748   0811 56            add b, a
+0749   0812 E4            pop a
+0750   0813             ; END TERMS
+0751   0813 E7            pop d
+0752   0814 FD 43         mov [d], b
+0753   0816             ;; for(;;){ 
+0754   0816             _for12_init:
+0755   0816             _for12_cond:
+0756   0816             _for12_block:
+0757   0816             ;; if(!*format_p) break; 
+0758   0816             _if13_cond:
+0759   0816 FA FD FF      lea d, [bp + -3] ; $format_p
+0760   0819 2A            mov b, [d]
+0761   081A 74            mov d, b
+0762   081B 32            mov bl, [d]
+0763   081C A7 00         mov bh, 0
+0764   081E C0 00 00      cmp b, 0
+0765   0821 FD 71         seq ; !
+0766   0823 C0 00 00      cmp b, 0
+0767   0826 C6 2F 08      je _if13_else
+0768   0829             _if13_true:
+0769   0829             ;; break; 
+0770   0829 0A 38 0A      jmp _for12_exit ; for break
+0771   082C 0A 35 0A      jmp _if13_exit
+0772   082F             _if13_else:
+0773   082F             ;; if(*format_p == '%'){ 
+0774   082F             _if14_cond:
+0775   082F FA FD FF      lea d, [bp + -3] ; $format_p
+0776   0832 2A            mov b, [d]
+0777   0833 74            mov d, b
+0778   0834 32            mov bl, [d]
+0779   0835 A7 00         mov bh, 0
+0780   0837             ; START RELATIONAL
+0781   0837 D7            push a
+0782   0838 11            mov a, b
+0783   0839 26 25 00      mov b, $25
+0784   083C B0            cmp a, b
+0785   083D FD 71         seq ; ==
+0786   083F E4            pop a
+0787   0840             ; END RELATIONAL
+0788   0840 C0 00 00      cmp b, 0
+0789   0843 C6 19 0A      je _if14_else
+0790   0846             _if14_true:
+0791   0846             ;; format_p++; 
+0792   0846 FA FD FF      lea d, [bp + -3] ; $format_p
+0793   0849 2A            mov b, [d]
+0794   084A D8            push b
+0795   084B FD 77         inc b
+0796   084D FA FD FF      lea d, [bp + -3] ; $format_p
+0797   0850 FD 43         mov [d], b
+0798   0852 E5            pop b
+0799   0853             ;; switch(*format_p){ 
+0800   0853             _switch15_expr:
+0801   0853 FA FD FF      lea d, [bp + -3] ; $format_p
+0802   0856 2A            mov b, [d]
+0803   0857 74            mov d, b
+0804   0858 32            mov bl, [d]
+0805   0859 A7 00         mov bh, 0
+0806   085B             _switch15_comparisons:
+0807   085B C1 6C         cmp bl, $6c
+0808   085D C6 89 08      je _switch15_case0
+0809   0860 C1 4C         cmp bl, $4c
+0810   0862 C6 89 08      je _switch15_case1
+0811   0865 C1 64         cmp bl, $64
+0812   0867 C6 59 09      je _switch15_case2
+0813   086A C1 69         cmp bl, $69
+0814   086C C6 59 09      je _switch15_case3
+0815   086F C1 75         cmp bl, $75
+0816   0871 C6 7D 09      je _switch15_case4
+0817   0874 C1 78         cmp bl, $78
+0818   0876 C6 A1 09      je _switch15_case5
+0819   0879 C1 63         cmp bl, $63
+0820   087B C6 BF 09      je _switch15_case6
+0821   087E C1 73         cmp bl, $73
+0822   0880 C6 DE 09      je _switch15_case7
+0823   0883 0A FD 09      jmp _switch15_default
+0824   0886 0A 09 0A      jmp _switch15_exit
+0825   0889             _switch15_case0:
+0826   0889             _switch15_case1:
+0827   0889             ;; format_p++; 
+0828   0889 FA FD FF      lea d, [bp + -3] ; $format_p
+0829   088C 2A            mov b, [d]
+0830   088D D8            push b
+0831   088E FD 77         inc b
+0832   0890 FA FD FF      lea d, [bp + -3] ; $format_p
+0833   0893 FD 43         mov [d], b
+0834   0895 E5            pop b
+0835   0896             ;; if(*format_p == 'd' || *format_p == 'i') 
+0836   0896             _if16_cond:
+0837   0896 FA FD FF      lea d, [bp + -3] ; $format_p
+0838   0899 2A            mov b, [d]
+0839   089A 74            mov d, b
+0840   089B 32            mov bl, [d]
+0841   089C A7 00         mov bh, 0
+0842   089E             ; START RELATIONAL
+0843   089E D7            push a
+0844   089F 11            mov a, b
+0845   08A0 26 64 00      mov b, $64
+0846   08A3 B0            cmp a, b
+0847   08A4 FD 71         seq ; ==
+0848   08A6 E4            pop a
+0849   08A7             ; END RELATIONAL
+0850   08A7 D7            push a
+0851   08A8 11            mov a, b
+0852   08A9 FA FD FF      lea d, [bp + -3] ; $format_p
+0853   08AC 2A            mov b, [d]
+0854   08AD 74            mov d, b
+0855   08AE 32            mov bl, [d]
+0856   08AF A7 00         mov bh, 0
+0857   08B1             ; START RELATIONAL
+0858   08B1 D7            push a
+0859   08B2 11            mov a, b
+0860   08B3 26 69 00      mov b, $69
+0861   08B6 B0            cmp a, b
+0862   08B7 FD 71         seq ; ==
+0863   08B9 E4            pop a
+0864   08BA             ; END RELATIONAL
+0865   08BA FD A8         sor a, b ; ||
+0866   08BC E4            pop a
+0867   08BD C0 00 00      cmp b, 0
+0868   08C0 C6 D7 08      je _if16_else
+0869   08C3             _if16_true:
+0870   08C3             ;; print_signed_long(*(long *)p); 
+0871   08C3 FD 79         mov g, b
+0872   08C5 28            mov b, c
+0873   08C6 FD AB         swp b
+0874   08C8 D8            push b
+0875   08C9 FD 27         mov b, g
+0876   08CB FD AB         swp b
+0877   08CD D8            push b
+0878   08CE 07 C3 0C      call print_signed_long
+0879   08D1 51 04 00      add sp, 4
+0880   08D4 0A 44 09      jmp _if16_exit
+0881   08D7             _if16_else:
+0882   08D7             ;; if(*format_p == 'u') 
+0883   08D7             _if17_cond:
+0884   08D7 FA FD FF      lea d, [bp + -3] ; $format_p
+0885   08DA 2A            mov b, [d]
+0886   08DB 74            mov d, b
+0887   08DC 32            mov bl, [d]
+0888   08DD A7 00         mov bh, 0
+0889   08DF             ; START RELATIONAL
+0890   08DF D7            push a
+0891   08E0 11            mov a, b
+0892   08E1 26 75 00      mov b, $75
+0893   08E4 B0            cmp a, b
+0894   08E5 FD 71         seq ; ==
+0895   08E7 E4            pop a
+0896   08E8             ; END RELATIONAL
+0897   08E8 C0 00 00      cmp b, 0
+0898   08EB C6 02 09      je _if17_else
+0899   08EE             _if17_true:
+0900   08EE             ;; print_unsigned_long(*(unsigned long *)p); 
+0901   08EE FD 79         mov g, b
+0902   08F0 28            mov b, c
+0903   08F1 FD AB         swp b
+0904   08F3 D8            push b
+0905   08F4 FD 27         mov b, g
+0906   08F6 FD AB         swp b
+0907   08F8 D8            push b
+0908   08F9 07 FC 0F      call print_unsigned_long
+0909   08FC 51 04 00      add sp, 4
+0910   08FF 0A 44 09      jmp _if17_exit
+0911   0902             _if17_else:
+0912   0902             ;; if(*format_p == 'x') 
+0913   0902             _if18_cond:
+0914   0902 FA FD FF      lea d, [bp + -3] ; $format_p
+0915   0905 2A            mov b, [d]
+0916   0906 74            mov d, b
+0917   0907 32            mov bl, [d]
+0918   0908 A7 00         mov bh, 0
+0919   090A             ; START RELATIONAL
+0920   090A D7            push a
+0921   090B 11            mov a, b
+0922   090C 26 78 00      mov b, $78
+0923   090F B0            cmp a, b
+0924   0910 FD 71         seq ; ==
+0925   0912 E4            pop a
+0926   0913             ; END RELATIONAL
+0927   0913 C0 00 00      cmp b, 0
+0928   0916 C6 38 09      je _if18_else
+0929   0919             _if18_true:
+0930   0919             ;; printx32(*(long int *)p); 
+0931   0919 FA FF FF      lea d, [bp + -1] ; $p
+0932   091C 2A            mov b, [d]
+0933   091D 74            mov d, b
+0934   091E 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+0935   0921 FD 39         mov c, b ; And place it into C
+0936   0923 2A            mov b, [d] ; Lower Word in B
+0937   0924 FD 79         mov g, b
+0938   0926 28            mov b, c
+0939   0927 FD AB         swp b
+0940   0929 D8            push b
+0941   092A FD 27         mov b, g
+0942   092C FD AB         swp b
+0943   092E D8            push b
+0944   092F 07 4C 0A      call printx32
+0945   0932 51 04 00      add sp, 4
+0946   0935 0A 44 09      jmp _if18_exit
+0947   0938             _if18_else:
+0948   0938             ;; err("Unexpected format in printf."); 
+0949   0938 26 A4 1C      mov b, __s24 ; "Unexpected format in printf."
+0950   093B FD AB         swp b
+0951   093D D8            push b
+0952   093E 07 3A 0A      call err
+0953   0941 51 02 00      add sp, 2
+0954   0944             _if18_exit:
+0955   0944             _if17_exit:
+0956   0944             _if16_exit:
+0957   0944             ;; p = p + 4; 
+0958   0944 FA FF FF      lea d, [bp + -1] ; $p
+0959   0947 DA            push d
+0960   0948 FA FF FF      lea d, [bp + -1] ; $p
+0961   094B 2A            mov b, [d]
+0962   094C             ; START TERMS
+0963   094C D7            push a
+0964   094D 11            mov a, b
+0965   094E 26 04 00      mov b, $4
+0966   0951 56            add b, a
+0967   0952 E4            pop a
+0968   0953             ; END TERMS
+0969   0953 E7            pop d
+0970   0954 FD 43         mov [d], b
+0971   0956             ;; break; 
+0972   0956 0A 09 0A      jmp _switch15_exit ; case break
+0973   0959             _switch15_case2:
+0974   0959             _switch15_case3:
+0975   0959             ;; print_signed(*(int*)p); 
+0976   0959 FA FF FF      lea d, [bp + -1] ; $p
+0977   095C 2A            mov b, [d]
+0978   095D 74            mov d, b
+0979   095E 2A            mov b, [d]
+0980   095F FD AB         swp b
+0981   0961 D8            push b
+0982   0962 07 D3 0B      call print_signed
+0983   0965 51 02 00      add sp, 2
+0984   0968             ;; p = p + 2; 
+0985   0968 FA FF FF      lea d, [bp + -1] ; $p
+0986   096B DA            push d
+0987   096C FA FF FF      lea d, [bp + -1] ; $p
+0988   096F 2A            mov b, [d]
+0989   0970             ; START TERMS
+0990   0970 D7            push a
+0991   0971 11            mov a, b
+0992   0972 26 02 00      mov b, $2
+0993   0975 56            add b, a
+0994   0976 E4            pop a
+0995   0977             ; END TERMS
+0996   0977 E7            pop d
+0997   0978 FD 43         mov [d], b
+0998   097A             ;; break; 
+0999   097A 0A 09 0A      jmp _switch15_exit ; case break
+1000   097D             _switch15_case4:
+1001   097D             ;; print_unsigned(*(unsigned int*)p); 
+1002   097D FA FF FF      lea d, [bp + -1] ; $p
+1003   0980 2A            mov b, [d]
+1004   0981 74            mov d, b
+1005   0982 2A            mov b, [d]
+1006   0983 FD AB         swp b
+1007   0985 D8            push b
+1008   0986 07 F4 11      call print_unsigned
+1009   0989 51 02 00      add sp, 2
+1010   098C             ;; p = p + 2; 
+1011   098C FA FF FF      lea d, [bp + -1] ; $p
+1012   098F DA            push d
+1013   0990 FA FF FF      lea d, [bp + -1] ; $p
+1014   0993 2A            mov b, [d]
+1015   0994             ; START TERMS
+1016   0994 D7            push a
+1017   0995 11            mov a, b
+1018   0996 26 02 00      mov b, $2
+1019   0999 56            add b, a
+1020   099A E4            pop a
+1021   099B             ; END TERMS
+1022   099B E7            pop d
+1023   099C FD 43         mov [d], b
+1024   099E             ;; break; 
+1025   099E 0A 09 0A      jmp _switch15_exit ; case break
+1026   09A1             _switch15_case5:
+1027   09A1             
+1028   09A1             ; --- BEGIN INLINE ASM BLOCK
+1029   09A1 FA FF FF      lea d, [bp + -1] ; $p
+1030   09A4 FD 2A         mov d, [d]
+1031   09A6 2A            mov b, [d]
+1032   09A7 07 D2 15      call print_u16x
+1033   09AA             ; --- END INLINE ASM BLOCK
+1034   09AA             
+1035   09AA             ;; p = p + 2; 
+1036   09AA FA FF FF      lea d, [bp + -1] ; $p
+1037   09AD DA            push d
+1038   09AE FA FF FF      lea d, [bp + -1] ; $p
+1039   09B1 2A            mov b, [d]
+1040   09B2             ; START TERMS
+1041   09B2 D7            push a
+1042   09B3 11            mov a, b
+1043   09B4 26 02 00      mov b, $2
+1044   09B7 56            add b, a
+1045   09B8 E4            pop a
+1046   09B9             ; END TERMS
+1047   09B9 E7            pop d
+1048   09BA FD 43         mov [d], b
+1049   09BC             ;; break; 
+1050   09BC 0A 09 0A      jmp _switch15_exit ; case break
+1051   09BF             _switch15_case6:
+1052   09BF             
+1053   09BF             ; --- BEGIN INLINE ASM BLOCK
+1054   09BF FA FF FF      lea d, [bp + -1] ; $p
+1055   09C2 FD 2A         mov d, [d]
+1056   09C4 1E            mov al, [d]
+1057   09C5 23            mov ah, al
+1058   09C6 07 30 14      call _putchar
+1059   09C9             ; --- END INLINE ASM BLOCK
+1060   09C9             
+1061   09C9             ;; p = p + 2; 
+1062   09C9 FA FF FF      lea d, [bp + -1] ; $p
+1063   09CC DA            push d
+1064   09CD FA FF FF      lea d, [bp + -1] ; $p
+1065   09D0 2A            mov b, [d]
+1066   09D1             ; START TERMS
+1067   09D1 D7            push a
+1068   09D2 11            mov a, b
+1069   09D3 26 02 00      mov b, $2
+1070   09D6 56            add b, a
+1071   09D7 E4            pop a
+1072   09D8             ; END TERMS
+1073   09D8 E7            pop d
+1074   09D9 FD 43         mov [d], b
+1075   09DB             ;; break; 
+1076   09DB 0A 09 0A      jmp _switch15_exit ; case break
+1077   09DE             _switch15_case7:
+1078   09DE             
+1079   09DE             ; --- BEGIN INLINE ASM BLOCK
+1080   09DE FA FF FF      lea d, [bp + -1] ; $p
+1081   09E1 FD 2A         mov d, [d]
+1082   09E3 FD 2A         mov d, [d]
+1083   09E5 07 7A 15      call _puts
+1084   09E8             ; --- END INLINE ASM BLOCK
+1085   09E8             
+1086   09E8             ;; p = p + 2; 
+1087   09E8 FA FF FF      lea d, [bp + -1] ; $p
+1088   09EB DA            push d
+1089   09EC FA FF FF      lea d, [bp + -1] ; $p
+1090   09EF 2A            mov b, [d]
+1091   09F0             ; START TERMS
+1092   09F0 D7            push a
+1093   09F1 11            mov a, b
+1094   09F2 26 02 00      mov b, $2
+1095   09F5 56            add b, a
+1096   09F6 E4            pop a
+1097   09F7             ; END TERMS
+1098   09F7 E7            pop d
+1099   09F8 FD 43         mov [d], b
+1100   09FA             ;; break; 
+1101   09FA 0A 09 0A      jmp _switch15_exit ; case break
+1102   09FD             _switch15_default:
+1103   09FD             ;; print("Error: Unknown argument type.\n"); 
+1104   09FD 26 C1 1C      mov b, __s25 ; "Error: Unknown argument type.\n"
+1105   0A00 FD AB         swp b
+1106   0A02 D8            push b
+1107   0A03 07 0C 13      call print
+1108   0A06 51 02 00      add sp, 2
+1109   0A09             _switch15_exit:
+1110   0A09             ;; format_p++; 
+1111   0A09 FA FD FF      lea d, [bp + -3] ; $format_p
+1112   0A0C 2A            mov b, [d]
+1113   0A0D D8            push b
+1114   0A0E FD 77         inc b
+1115   0A10 FA FD FF      lea d, [bp + -3] ; $format_p
+1116   0A13 FD 43         mov [d], b
+1117   0A15 E5            pop b
+1118   0A16 0A 35 0A      jmp _if14_exit
+1119   0A19             _if14_else:
+1120   0A19             ;; putchar(*format_p); 
+1121   0A19 FA FD FF      lea d, [bp + -3] ; $format_p
+1122   0A1C 2A            mov b, [d]
+1123   0A1D 74            mov d, b
+1124   0A1E 32            mov bl, [d]
+1125   0A1F A7 00         mov bh, 0
+1126   0A21 DD            push bl
+1127   0A22 07 C4 12      call putchar
+1128   0A25 51 01 00      add sp, 1
+1129   0A28             ;; format_p++; 
+1130   0A28 FA FD FF      lea d, [bp + -3] ; $format_p
+1131   0A2B 2A            mov b, [d]
+1132   0A2C D8            push b
+1133   0A2D FD 77         inc b
+1134   0A2F FA FD FF      lea d, [bp + -3] ; $format_p
+1135   0A32 FD 43         mov [d], b
+1136   0A34 E5            pop b
+1137   0A35             _if14_exit:
+1138   0A35             _if13_exit:
+1139   0A35             _for12_update:
+1140   0A35 0A 16 08      jmp _for12_cond
+1141   0A38             _for12_exit:
+1142   0A38 F9            leave
+1143   0A39 09            ret
+1144   0A3A             
+1145   0A3A             err:
+1146   0A3A F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1147   0A3D             ;; print(e); 
+1148   0A3D FA 05 00      lea d, [bp + 5] ; $e
+1149   0A40 2A            mov b, [d]
+1150   0A41 FD AB         swp b
+1151   0A43 D8            push b
+1152   0A44 07 0C 13      call print
+1153   0A47 51 02 00      add sp, 2
+1154   0A4A F9            leave
+1155   0A4B 09            ret
+1156   0A4C             
+1157   0A4C             printx32:
+1158   0A4C F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1159   0A4F             
+1160   0A4F             ; --- BEGIN INLINE ASM BLOCK
+1161   0A4F FA 05 00      lea d, [bp + 5] ; $hex
+1162   0A52 2B 02 00      mov b, [d+2]
+1163   0A55 07 D2 15      call print_u16x
+1164   0A58 2A            mov b, [d]
+1165   0A59 07 D2 15      call print_u16x
+1166   0A5C             ; --- END INLINE ASM BLOCK
+1167   0A5C             
+1168   0A5C F9            leave
+1169   0A5D 09            ret
+1170   0A5E             
+1171   0A5E             printx16:
+1172   0A5E F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1173   0A61             
+1174   0A61             ; --- BEGIN INLINE ASM BLOCK
+1175   0A61 FA 05 00      lea d, [bp + 5] ; $hex
+1176   0A64 2A            mov b, [d]
+1177   0A65 07 D2 15      call print_u16x
+1178   0A68             ; --- END INLINE ASM BLOCK
+1179   0A68             
+1180   0A68 F9            leave
+1181   0A69 09            ret
+1182   0A6A             
+1183   0A6A             printx8:
+1184   0A6A F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1185   0A6D             
+1186   0A6D             ; --- BEGIN INLINE ASM BLOCK
+1187   0A6D FA 05 00      lea d, [bp + 5] ; $hex
+1188   0A70 32            mov bl, [d]
+1189   0A71 07 16 16      call print_u8x
+1190   0A74             ; --- END INLINE ASM BLOCK
+1191   0A74             
+1192   0A74 F9            leave
+1193   0A75 09            ret
+1194   0A76             
+1195   0A76             hex_str_to_int:
+1196   0A76 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1197   0A79             ; $value 
+1198   0A79 10 00 00      mov a, $0
+1199   0A7C 45 FF FF      mov [bp + -1], a
+1200   0A7F             ; $i 
+1201   0A7F             ; $hex_char 
+1202   0A7F             ; $len 
+1203   0A7F 52 07 00      sub sp, 7
+1204   0A82             ;; len = strlen(hex_string); 
+1205   0A82 FA FA FF      lea d, [bp + -6] ; $len
+1206   0A85 DA            push d
+1207   0A86 FA 05 00      lea d, [bp + 5] ; $hex_string
+1208   0A89 2A            mov b, [d]
+1209   0A8A FD AB         swp b
+1210   0A8C D8            push b
+1211   0A8D 07 6F 05      call strlen
+1212   0A90 51 02 00      add sp, 2
+1213   0A93 E7            pop d
+1214   0A94 FD 43         mov [d], b
+1215   0A96             ;; for (i = 0; i < len; i++) { 
+1216   0A96             _for19_init:
+1217   0A96 FA FD FF      lea d, [bp + -3] ; $i
+1218   0A99 DA            push d
+1219   0A9A 26 00 00      mov b, $0
+1220   0A9D E7            pop d
+1221   0A9E FD 43         mov [d], b
+1222   0AA0             _for19_cond:
+1223   0AA0 FA FD FF      lea d, [bp + -3] ; $i
+1224   0AA3 2A            mov b, [d]
+1225   0AA4             ; START RELATIONAL
+1226   0AA4 D7            push a
+1227   0AA5 11            mov a, b
+1228   0AA6 FA FA FF      lea d, [bp + -6] ; $len
+1229   0AA9 2A            mov b, [d]
+1230   0AAA B0            cmp a, b
+1231   0AAB FD 73         slt ; < (signed)
+1232   0AAD E4            pop a
+1233   0AAE             ; END RELATIONAL
+1234   0AAE C0 00 00      cmp b, 0
+1235   0AB1 C6 B3 0B      je _for19_exit
+1236   0AB4             _for19_block:
+1237   0AB4             ;; hex_char = hex_string[i]; 
+1238   0AB4 FA FC FF      lea d, [bp + -4] ; $hex_char
+1239   0AB7 DA            push d
+1240   0AB8 FA 05 00      lea d, [bp + 5] ; $hex_string
+1241   0ABB FD 2A         mov d, [d]
+1242   0ABD D7            push a
+1243   0ABE DA            push d
+1244   0ABF FA FD FF      lea d, [bp + -3] ; $i
+1245   0AC2 2A            mov b, [d]
+1246   0AC3 E7            pop d
+1247   0AC4 FD 13 01 00   mma 1 ; mov a, 1; mul a b; add d, b
+1248   0AC8 E4            pop a
+1249   0AC9 32            mov bl, [d]
+1250   0ACA A7 00         mov bh, 0
+1251   0ACC E7            pop d
+1252   0ACD FD 3E         mov [d], bl
+1253   0ACF             ;; if (hex_char >= 'a' && hex_char <= 'f')  
+1254   0ACF             _if20_cond:
+1255   0ACF FA FC FF      lea d, [bp + -4] ; $hex_char
+1256   0AD2 32            mov bl, [d]
+1257   0AD3 A7 00         mov bh, 0
+1258   0AD5             ; START RELATIONAL
+1259   0AD5 D7            push a
+1260   0AD6 11            mov a, b
+1261   0AD7 26 61 00      mov b, $61
+1262   0ADA B0            cmp a, b
+1263   0ADB FD 80         sge ; >=
+1264   0ADD E4            pop a
+1265   0ADE             ; END RELATIONAL
+1266   0ADE D7            push a
+1267   0ADF 11            mov a, b
+1268   0AE0 FA FC FF      lea d, [bp + -4] ; $hex_char
+1269   0AE3 32            mov bl, [d]
+1270   0AE4 A7 00         mov bh, 0
+1271   0AE6             ; START RELATIONAL
+1272   0AE6 D7            push a
+1273   0AE7 11            mov a, b
+1274   0AE8 26 66 00      mov b, $66
+1275   0AEB B0            cmp a, b
+1276   0AEC FD 73         slt ; <= (signed)
+1277   0AEE E4            pop a
+1278   0AEF             ; END RELATIONAL
+1279   0AEF FD A7         sand a, b
+1280   0AF1 E4            pop a
+1281   0AF2 C0 00 00      cmp b, 0
+1282   0AF5 C6 26 0B      je _if20_else
+1283   0AF8             _if20_true:
+1284   0AF8             ;; value = (value * 16) + (hex_char - 'a' + 10); 
+1285   0AF8 FA FF FF      lea d, [bp + -1] ; $value
+1286   0AFB DA            push d
+1287   0AFC FA FF FF      lea d, [bp + -1] ; $value
+1288   0AFF 2A            mov b, [d]
+1289   0B00             ; START FACTORS
+1290   0B00 D7            push a
+1291   0B01 11            mov a, b
+1292   0B02 26 10 00      mov b, $10
+1293   0B05 AC            mul a, b ; *
+1294   0B06 11            mov a, b
+1295   0B07 27            mov b, a
+1296   0B08 E4            pop a
+1297   0B09             ; END FACTORS
+1298   0B09             ; START TERMS
+1299   0B09 D7            push a
+1300   0B0A 11            mov a, b
+1301   0B0B FA FC FF      lea d, [bp + -4] ; $hex_char
+1302   0B0E 32            mov bl, [d]
+1303   0B0F A7 00         mov bh, 0
+1304   0B11             ; START TERMS
+1305   0B11 D7            push a
+1306   0B12 11            mov a, b
+1307   0B13 26 61 00      mov b, $61
+1308   0B16 60            sub a, b
+1309   0B17 27            mov b, a
+1310   0B18 11            mov a, b
+1311   0B19 26 0A 00      mov b, $a
+1312   0B1C 56            add b, a
+1313   0B1D E4            pop a
+1314   0B1E             ; END TERMS
+1315   0B1E 56            add b, a
+1316   0B1F E4            pop a
+1317   0B20             ; END TERMS
+1318   0B20 E7            pop d
+1319   0B21 FD 43         mov [d], b
+1320   0B23 0A A3 0B      jmp _if20_exit
+1321   0B26             _if20_else:
+1322   0B26             ;; if (hex_char >= 'A' && hex_char <= 'F')  
+1323   0B26             _if21_cond:
+1324   0B26 FA FC FF      lea d, [bp + -4] ; $hex_char
+1325   0B29 32            mov bl, [d]
+1326   0B2A A7 00         mov bh, 0
+1327   0B2C             ; START RELATIONAL
+1328   0B2C D7            push a
+1329   0B2D 11            mov a, b
+1330   0B2E 26 41 00      mov b, $41
+1331   0B31 B0            cmp a, b
+1332   0B32 FD 80         sge ; >=
+1333   0B34 E4            pop a
+1334   0B35             ; END RELATIONAL
+1335   0B35 D7            push a
+1336   0B36 11            mov a, b
+1337   0B37 FA FC FF      lea d, [bp + -4] ; $hex_char
+1338   0B3A 32            mov bl, [d]
+1339   0B3B A7 00         mov bh, 0
+1340   0B3D             ; START RELATIONAL
+1341   0B3D D7            push a
+1342   0B3E 11            mov a, b
+1343   0B3F 26 46 00      mov b, $46
+1344   0B42 B0            cmp a, b
+1345   0B43 FD 73         slt ; <= (signed)
+1346   0B45 E4            pop a
+1347   0B46             ; END RELATIONAL
+1348   0B46 FD A7         sand a, b
+1349   0B48 E4            pop a
+1350   0B49 C0 00 00      cmp b, 0
+1351   0B4C C6 7D 0B      je _if21_else
+1352   0B4F             _if21_true:
+1353   0B4F             ;; value = (value * 16) + (hex_char - 'A' + 10); 
+1354   0B4F FA FF FF      lea d, [bp + -1] ; $value
+1355   0B52 DA            push d
+1356   0B53 FA FF FF      lea d, [bp + -1] ; $value
+1357   0B56 2A            mov b, [d]
+1358   0B57             ; START FACTORS
+1359   0B57 D7            push a
+1360   0B58 11            mov a, b
+1361   0B59 26 10 00      mov b, $10
+1362   0B5C AC            mul a, b ; *
+1363   0B5D 11            mov a, b
+1364   0B5E 27            mov b, a
+1365   0B5F E4            pop a
+1366   0B60             ; END FACTORS
+1367   0B60             ; START TERMS
+1368   0B60 D7            push a
+1369   0B61 11            mov a, b
+1370   0B62 FA FC FF      lea d, [bp + -4] ; $hex_char
+1371   0B65 32            mov bl, [d]
+1372   0B66 A7 00         mov bh, 0
+1373   0B68             ; START TERMS
+1374   0B68 D7            push a
+1375   0B69 11            mov a, b
+1376   0B6A 26 41 00      mov b, $41
+1377   0B6D 60            sub a, b
+1378   0B6E 27            mov b, a
+1379   0B6F 11            mov a, b
+1380   0B70 26 0A 00      mov b, $a
+1381   0B73 56            add b, a
+1382   0B74 E4            pop a
+1383   0B75             ; END TERMS
+1384   0B75 56            add b, a
+1385   0B76 E4            pop a
+1386   0B77             ; END TERMS
+1387   0B77 E7            pop d
+1388   0B78 FD 43         mov [d], b
+1389   0B7A 0A A3 0B      jmp _if21_exit
+1390   0B7D             _if21_else:
+1391   0B7D             ;; value = (value * 16) + (hex_char - '0'); 
+1392   0B7D FA FF FF      lea d, [bp + -1] ; $value
+1393   0B80 DA            push d
+1394   0B81 FA FF FF      lea d, [bp + -1] ; $value
+1395   0B84 2A            mov b, [d]
+1396   0B85             ; START FACTORS
+1397   0B85 D7            push a
+1398   0B86 11            mov a, b
+1399   0B87 26 10 00      mov b, $10
+1400   0B8A AC            mul a, b ; *
+1401   0B8B 11            mov a, b
+1402   0B8C 27            mov b, a
+1403   0B8D E4            pop a
+1404   0B8E             ; END FACTORS
+1405   0B8E             ; START TERMS
+1406   0B8E D7            push a
+1407   0B8F 11            mov a, b
+1408   0B90 FA FC FF      lea d, [bp + -4] ; $hex_char
+1409   0B93 32            mov bl, [d]
+1410   0B94 A7 00         mov bh, 0
+1411   0B96             ; START TERMS
+1412   0B96 D7            push a
+1413   0B97 11            mov a, b
+1414   0B98 26 30 00      mov b, $30
+1415   0B9B 60            sub a, b
+1416   0B9C 27            mov b, a
+1417   0B9D E4            pop a
+1418   0B9E             ; END TERMS
+1419   0B9E 56            add b, a
+1420   0B9F E4            pop a
+1421   0BA0             ; END TERMS
+1422   0BA0 E7            pop d
+1423   0BA1 FD 43         mov [d], b
+1424   0BA3             _if21_exit:
+1425   0BA3             _if20_exit:
+1426   0BA3             _for19_update:
+1427   0BA3 FA FD FF      lea d, [bp + -3] ; $i
+1428   0BA6 2A            mov b, [d]
+1429   0BA7 D8            push b
+1430   0BA8 FD 77         inc b
+1431   0BAA FA FD FF      lea d, [bp + -3] ; $i
+1432   0BAD FD 43         mov [d], b
+1433   0BAF E5            pop b
+1434   0BB0 0A A0 0A      jmp _for19_cond
+1435   0BB3             _for19_exit:
+1436   0BB3             ;; return value; 
+1437   0BB3 FA FF FF      lea d, [bp + -1] ; $value
+1438   0BB6 2A            mov b, [d]
+1439   0BB7 F9            leave
+1440   0BB8 09            ret
+1441   0BB9             
+1442   0BB9             gets:
+1443   0BB9 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1444   0BBC             
+1445   0BBC             ; --- BEGIN INLINE ASM BLOCK
+1446   0BBC FA 05 00      lea d, [bp + 5] ; $s
+1447   0BBF 15            mov a, [d]
+1448   0BC0 3C            mov d, a
+1449   0BC1 07 37 14      call _gets
+1450   0BC4             ; --- END INLINE ASM BLOCK
+1451   0BC4             
+1452   0BC4             ;; return strlen(s); 
+1453   0BC4 FA 05 00      lea d, [bp + 5] ; $s
+1454   0BC7 2A            mov b, [d]
+1455   0BC8 FD AB         swp b
+1456   0BCA D8            push b
+1457   0BCB 07 6F 05      call strlen
+1458   0BCE 51 02 00      add sp, 2
+1459   0BD1 F9            leave
+1460   0BD2 09            ret
+1461   0BD3             
+1462   0BD3             print_signed:
+1463   0BD3 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1464   0BD6             ; $digits 
+1465   0BD6             ; $i 
+1466   0BD6 10 00 00      mov a, $0
+1467   0BD9 45 FA FF      mov [bp + -6], a
+1468   0BDC 52 07 00      sub sp, 7
+1469   0BDF             ;; if (num < 0) { 
+1470   0BDF             _if22_cond:
+1471   0BDF FA 05 00      lea d, [bp + 5] ; $num
+1472   0BE2 2A            mov b, [d]
+1473   0BE3             ; START RELATIONAL
+1474   0BE3 D7            push a
+1475   0BE4 11            mov a, b
+1476   0BE5 26 00 00      mov b, $0
+1477   0BE8 B0            cmp a, b
+1478   0BE9 FD 73         slt ; < (signed)
+1479   0BEB E4            pop a
+1480   0BEC             ; END RELATIONAL
+1481   0BEC C0 00 00      cmp b, 0
+1482   0BEF C6 0C 0C      je _if22_else
+1483   0BF2             _if22_true:
+1484   0BF2             ;; putchar('-'); 
+1485   0BF2 26 2D 00      mov b, $2d
+1486   0BF5 DD            push bl
+1487   0BF6 07 C4 12      call putchar
+1488   0BF9 51 01 00      add sp, 1
+1489   0BFC             ;; num = -num; 
+1490   0BFC FA 05 00      lea d, [bp + 5] ; $num
+1491   0BFF DA            push d
+1492   0C00 FA 05 00      lea d, [bp + 5] ; $num
+1493   0C03 2A            mov b, [d]
+1494   0C04 FD 97         neg b
+1495   0C06 E7            pop d
+1496   0C07 FD 43         mov [d], b
+1497   0C09 0A 2E 0C      jmp _if22_exit
+1498   0C0C             _if22_else:
+1499   0C0C             ;; if (num == 0) { 
+1500   0C0C             _if23_cond:
+1501   0C0C FA 05 00      lea d, [bp + 5] ; $num
+1502   0C0F 2A            mov b, [d]
+1503   0C10             ; START RELATIONAL
+1504   0C10 D7            push a
+1505   0C11 11            mov a, b
+1506   0C12 26 00 00      mov b, $0
+1507   0C15 B0            cmp a, b
+1508   0C16 FD 71         seq ; ==
+1509   0C18 E4            pop a
+1510   0C19             ; END RELATIONAL
+1511   0C19 C0 00 00      cmp b, 0
+1512   0C1C C6 2E 0C      je _if23_exit
+1513   0C1F             _if23_true:
+1514   0C1F             ;; putchar('0'); 
+1515   0C1F 26 30 00      mov b, $30
+1516   0C22 DD            push bl
+1517   0C23 07 C4 12      call putchar
+1518   0C26 51 01 00      add sp, 1
+1519   0C29             ;; return; 
+1520   0C29 F9            leave
+1521   0C2A 09            ret
+1522   0C2B 0A 2E 0C      jmp _if23_exit
+1523   0C2E             _if23_exit:
+1524   0C2E             _if22_exit:
+1525   0C2E             ;; while (num > 0) { 
+1526   0C2E             _while24_cond:
+1527   0C2E FA 05 00      lea d, [bp + 5] ; $num
+1528   0C31 2A            mov b, [d]
+1529   0C32             ; START RELATIONAL
+1530   0C32 D7            push a
+1531   0C33 11            mov a, b
+1532   0C34 26 00 00      mov b, $0
+1533   0C37 B0            cmp a, b
+1534   0C38 FD 7F         sgt ; >
+1535   0C3A E4            pop a
+1536   0C3B             ; END RELATIONAL
+1537   0C3B C0 00 00      cmp b, 0
+1538   0C3E C6 88 0C      je _while24_exit
+1539   0C41             _while24_block:
+1540   0C41             ;; digits[i] = '0' + (num % 10); 
+1541   0C41 FA FC FF      lea d, [bp + -4] ; $digits
+1542   0C44 D7            push a
+1543   0C45 DA            push d
+1544   0C46 FA FA FF      lea d, [bp + -6] ; $i
+1545   0C49 2A            mov b, [d]
+1546   0C4A E7            pop d
+1547   0C4B 5A            add d, b
+1548   0C4C E4            pop a
+1549   0C4D DA            push d
+1550   0C4E 26 30 00      mov b, $30
+1551   0C51             ; START TERMS
+1552   0C51 D7            push a
+1553   0C52 11            mov a, b
+1554   0C53 FA 05 00      lea d, [bp + 5] ; $num
+1555   0C56 2A            mov b, [d]
+1556   0C57             ; START FACTORS
+1557   0C57 D7            push a
+1558   0C58 11            mov a, b
+1559   0C59 26 0A 00      mov b, $a
+1560   0C5C AE            div a, b ; 
+1561   0C5D 11            mov a, b
+1562   0C5E 27            mov b, a
+1563   0C5F E4            pop a
+1564   0C60             ; END FACTORS
+1565   0C60 56            add b, a
+1566   0C61 E4            pop a
+1567   0C62             ; END TERMS
+1568   0C62 E7            pop d
+1569   0C63 FD 3E         mov [d], bl
+1570   0C65             ;; num = num / 10; 
+1571   0C65 FA 05 00      lea d, [bp + 5] ; $num
+1572   0C68 DA            push d
+1573   0C69 FA 05 00      lea d, [bp + 5] ; $num
+1574   0C6C 2A            mov b, [d]
+1575   0C6D             ; START FACTORS
+1576   0C6D D7            push a
+1577   0C6E 11            mov a, b
+1578   0C6F 26 0A 00      mov b, $a
+1579   0C72 AE            div a, b
+1580   0C73 27            mov b, a
+1581   0C74 E4            pop a
+1582   0C75             ; END FACTORS
+1583   0C75 E7            pop d
+1584   0C76 FD 43         mov [d], b
+1585   0C78             ;; i++; 
+1586   0C78 FA FA FF      lea d, [bp + -6] ; $i
+1587   0C7B 2A            mov b, [d]
+1588   0C7C D8            push b
+1589   0C7D FD 77         inc b
+1590   0C7F FA FA FF      lea d, [bp + -6] ; $i
+1591   0C82 FD 43         mov [d], b
+1592   0C84 E5            pop b
+1593   0C85 0A 2E 0C      jmp _while24_cond
+1594   0C88             _while24_exit:
+1595   0C88             ;; while (i > 0) { 
+1596   0C88             _while25_cond:
+1597   0C88 FA FA FF      lea d, [bp + -6] ; $i
+1598   0C8B 2A            mov b, [d]
+1599   0C8C             ; START RELATIONAL
+1600   0C8C D7            push a
+1601   0C8D 11            mov a, b
+1602   0C8E 26 00 00      mov b, $0
+1603   0C91 B0            cmp a, b
+1604   0C92 FD 7F         sgt ; >
+1605   0C94 E4            pop a
+1606   0C95             ; END RELATIONAL
+1607   0C95 C0 00 00      cmp b, 0
+1608   0C98 C6 C1 0C      je _while25_exit
+1609   0C9B             _while25_block:
+1610   0C9B             ;; i--; 
+1611   0C9B FA FA FF      lea d, [bp + -6] ; $i
+1612   0C9E 2A            mov b, [d]
+1613   0C9F D8            push b
+1614   0CA0 FD 7D         dec b
+1615   0CA2 FA FA FF      lea d, [bp + -6] ; $i
+1616   0CA5 FD 43         mov [d], b
+1617   0CA7 E5            pop b
+1618   0CA8             ;; putchar(digits[i]); 
+1619   0CA8 FA FC FF      lea d, [bp + -4] ; $digits
+1620   0CAB D7            push a
+1621   0CAC DA            push d
+1622   0CAD FA FA FF      lea d, [bp + -6] ; $i
+1623   0CB0 2A            mov b, [d]
+1624   0CB1 E7            pop d
+1625   0CB2 5A            add d, b
+1626   0CB3 E4            pop a
+1627   0CB4 32            mov bl, [d]
+1628   0CB5 A7 00         mov bh, 0
+1629   0CB7 DD            push bl
+1630   0CB8 07 C4 12      call putchar
+1631   0CBB 51 01 00      add sp, 1
+1632   0CBE 0A 88 0C      jmp _while25_cond
+1633   0CC1             _while25_exit:
+1634   0CC1 F9            leave
+1635   0CC2 09            ret
+1636   0CC3             
+1637   0CC3             print_signed_long:
+1638   0CC3 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1639   0CC6             ; $digits 
+1640   0CC6             ; $i 
+1641   0CC6 10 00 00      mov a, $0
+1642   0CC9 45 F5 FF      mov [bp + -11], a
+1643   0CCC 52 0C 00      sub sp, 12
+1644   0CCF             ;; if (num < 0) { 
+1645   0CCF             _if26_cond:
+1646   0CCF FA 05 00      lea d, [bp + 5] ; $num
+1647   0CD2 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1648   0CD5 FD 39         mov c, b ; And place it into C
+1649   0CD7 2A            mov b, [d] ; Lower Word in B
+1650   0CD8             ; START RELATIONAL
+1651   0CD8 D7            push a
+1652   0CD9 FD D8         push g
+1653   0CDB 11            mov a, b
+1654   0CDC FD 7A         mov g, c
+1655   0CDE 26 00 00      mov b, $0
+1656   0CE1 38 00 00      mov c, 0
+1657   0CE4 FD AF 00 00   cmp32 ga, cb
+1657   0CE8 00 00 00 00 
+1657   0CEC 00 00 00 00 
+1657   0CF0 00 00 00 00 
+1657   0CF4 00 00 00 00 
+1657   0CF8 00 00 00 00 
+1657   0CFC 00 00 00 00 
+1657   0D00 00 00 00 00 
+1657   0D04 00 00 00 00 
+1657   0D08 00 00 00 00 
+1657   0D0C 00 00 00 00 
+1657   0D10 00 00 00 00 
+1657   0D14 00 00 00 00 
+1657   0D18 00 00 00 00 
+1657   0D1C 00 00 00 00 
+1657   0D20 00 00 00 00 
+1657   0D24 00 00 00 00 
+1657   0D28 00 00 00 00 
+1657   0D2C 00 00 00 00 
+1657   0D30 00 00 00 00 
+1657   0D34 00 00 00 00 
+1657   0D38 00 00 00 00 
+1657   0D3C 00 00 00 00 
+1657   0D40 00 00 00 00 
+1657   0D44 00 00 00 00 
+1657   0D48 00 00 00 00 
+1657   0D4C 00 00 00 00 
+1657   0D50 00 00 00 00 
+1657   0D54 00 00 00 00 
+1657   0D58 00 00 00 00 
+1657   0D5C 00 00 00 00 
+1657   0D60 00 00 00 00 
+1657   0D64 00 00 00 00 
+1657   0D68 00 00 00 00 
+1657   0D6C 00 00 00 00 
+1657   0D70 00 00 00 00 
+1657   0D74 00 00 00 00 
+1657   0D78 00 00 00 00 
+1657   0D7C 00 00 00 00 
+1657   0D80 00 00 00 00 
+1657   0D84 00 00 00 00 
+1657   0D88 00 00 00 00 
+1657   0D8C 00 00 00 00 
+1657   0D90 00 00 00 00 
+1657   0D94 00 00 00 00 
+1657   0D98 00 00 00 00 
+1657   0D9C 00 00 00 00 
+1657   0DA0 00 00 00 00 
+1657   0DA4 00 00 00 00 
+1657   0DA8 00 00 00 00 
+1657   0DAC 00 00 00 00 
+1657   0DB0 00 00 00 00 
+1657   0DB4 00 00 00 00 
+1657   0DB8 00 00 00 00 
+1657   0DBC 00 00 00 00 
+1657   0DC0 00 00 00 00 
+1657   0DC4 00 00 00 00 
+1657   0DC8 00 00 00 00 
+1657   0DCC 00 00 00 00 
+1657   0DD0 00 00 00 00 
+1657   0DD4 00 00 00 00 
+1657   0DD8 00 00 00 00 
+1657   0DDC 00 00 00 00 
+1657   0DE0 00 00 00 00 
+1657   0DE4 00 
+1658   0DE5 FD 73         slt ; <
+1659   0DE7 FD F1         pop g
+1660   0DE9 E4            pop a
+1661   0DEA             ; END RELATIONAL
+1662   0DEA C0 00 00      cmp b, 0
+1663   0DED C6 14 0E      je _if26_else
+1664   0DF0             _if26_true:
+1665   0DF0             ;; putchar('-'); 
+1666   0DF0 26 2D 00      mov b, $2d
+1667   0DF3 DD            push bl
+1668   0DF4 07 C4 12      call putchar
+1669   0DF7 51 01 00      add sp, 1
+1670   0DFA             ;; num = -num; 
+1671   0DFA FA 05 00      lea d, [bp + 5] ; $num
+1672   0DFD DA            push d
+1673   0DFE FA 05 00      lea d, [bp + 5] ; $num
+1674   0E01 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1675   0E04 FD 39         mov c, b ; And place it into C
+1676   0E06 2A            mov b, [d] ; Lower Word in B
+1677   0E07 FD 97         neg b
+1678   0E09 E7            pop d
+1679   0E0A FD 43         mov [d], b
+1680   0E0C 28            mov b, c
+1681   0E0D FD 44 02 00   mov [d + 2], b
+1682   0E11 0A 44 0F      jmp _if26_exit
+1683   0E14             _if26_else:
+1684   0E14             ;; if (num == 0) { 
+1685   0E14             _if27_cond:
+1686   0E14 FA 05 00      lea d, [bp + 5] ; $num
+1687   0E17 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1688   0E1A FD 39         mov c, b ; And place it into C
+1689   0E1C 2A            mov b, [d] ; Lower Word in B
+1690   0E1D             ; START RELATIONAL
+1691   0E1D D7            push a
+1692   0E1E FD D8         push g
+1693   0E20 11            mov a, b
+1694   0E21 FD 7A         mov g, c
+1695   0E23 26 00 00      mov b, $0
+1696   0E26 38 00 00      mov c, 0
+1697   0E29 FD AF 00 00   cmp32 ga, cb
+1697   0E2D 00 00 00 00 
+1697   0E31 00 00 00 00 
+1697   0E35 00 00 00 00 
+1697   0E39 00 00 00 00 
+1697   0E3D 00 00 00 00 
+1697   0E41 00 00 00 00 
+1697   0E45 00 00 00 00 
+1697   0E49 00 00 00 00 
+1697   0E4D 00 00 00 00 
+1697   0E51 00 00 00 00 
+1697   0E55 00 00 00 00 
+1697   0E59 00 00 00 00 
+1697   0E5D 00 00 00 00 
+1697   0E61 00 00 00 00 
+1697   0E65 00 00 00 00 
+1697   0E69 00 00 00 00 
+1697   0E6D 00 00 00 00 
+1697   0E71 00 00 00 00 
+1697   0E75 00 00 00 00 
+1697   0E79 00 00 00 00 
+1697   0E7D 00 00 00 00 
+1697   0E81 00 00 00 00 
+1697   0E85 00 00 00 00 
+1697   0E89 00 00 00 00 
+1697   0E8D 00 00 00 00 
+1697   0E91 00 00 00 00 
+1697   0E95 00 00 00 00 
+1697   0E99 00 00 00 00 
+1697   0E9D 00 00 00 00 
+1697   0EA1 00 00 00 00 
+1697   0EA5 00 00 00 00 
+1697   0EA9 00 00 00 00 
+1697   0EAD 00 00 00 00 
+1697   0EB1 00 00 00 00 
+1697   0EB5 00 00 00 00 
+1697   0EB9 00 00 00 00 
+1697   0EBD 00 00 00 00 
+1697   0EC1 00 00 00 00 
+1697   0EC5 00 00 00 00 
+1697   0EC9 00 00 00 00 
+1697   0ECD 00 00 00 00 
+1697   0ED1 00 00 00 00 
+1697   0ED5 00 00 00 00 
+1697   0ED9 00 00 00 00 
+1697   0EDD 00 00 00 00 
+1697   0EE1 00 00 00 00 
+1697   0EE5 00 00 00 00 
+1697   0EE9 00 00 00 00 
+1697   0EED 00 00 00 00 
+1697   0EF1 00 00 00 00 
+1697   0EF5 00 00 00 00 
+1697   0EF9 00 00 00 00 
+1697   0EFD 00 00 00 00 
+1697   0F01 00 00 00 00 
+1697   0F05 00 00 00 00 
+1697   0F09 00 00 00 00 
+1697   0F0D 00 00 00 00 
+1697   0F11 00 00 00 00 
+1697   0F15 00 00 00 00 
+1697   0F19 00 00 00 00 
+1697   0F1D 00 00 00 00 
+1697   0F21 00 00 00 00 
+1697   0F25 00 00 00 00 
+1697   0F29 00 
+1698   0F2A FD 71         seq ; ==
+1699   0F2C FD F1         pop g
+1700   0F2E E4            pop a
+1701   0F2F             ; END RELATIONAL
+1702   0F2F C0 00 00      cmp b, 0
+1703   0F32 C6 44 0F      je _if27_exit
+1704   0F35             _if27_true:
+1705   0F35             ;; putchar('0'); 
+1706   0F35 26 30 00      mov b, $30
+1707   0F38 DD            push bl
+1708   0F39 07 C4 12      call putchar
+1709   0F3C 51 01 00      add sp, 1
+1710   0F3F             ;; return; 
+1711   0F3F F9            leave
+1712   0F40 09            ret
+1713   0F41 0A 44 0F      jmp _if27_exit
+1714   0F44             _if27_exit:
+1715   0F44             _if26_exit:
+1716   0F44             ;; while (num > 0) { 
+1717   0F44             _while28_cond:
+1718   0F44 FA 05 00      lea d, [bp + 5] ; $num
+1719   0F47 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1720   0F4A FD 39         mov c, b ; And place it into C
+1721   0F4C 2A            mov b, [d] ; Lower Word in B
+1722   0F4D             ; START RELATIONAL
+1723   0F4D D7            push a
+1724   0F4E FD D8         push g
+1725   0F50 11            mov a, b
+1726   0F51 FD 7A         mov g, c
+1727   0F53 26 00 00      mov b, $0
+1728   0F56 38 00 00      mov c, 0
+1729   0F59 FD 7F         sgt
+1730   0F5B FD F1         pop g
+1731   0F5D E4            pop a
+1732   0F5E             ; END RELATIONAL
+1733   0F5E C0 00 00      cmp b, 0
+1734   0F61 C6 C1 0F      je _while28_exit
+1735   0F64             _while28_block:
+1736   0F64             ;; digits[i] = '0' + (num % 10); 
+1737   0F64 FA F7 FF      lea d, [bp + -9] ; $digits
+1738   0F67 D7            push a
+1739   0F68 DA            push d
+1740   0F69 FA F5 FF      lea d, [bp + -11] ; $i
+1741   0F6C 2A            mov b, [d]
+1742   0F6D E7            pop d
+1743   0F6E 5A            add d, b
+1744   0F6F E4            pop a
+1745   0F70 DA            push d
+1746   0F71 26 30 00      mov b, $30
+1747   0F74             ; START TERMS
+1748   0F74 D7            push a
+1749   0F75 11            mov a, b
+1750   0F76 FA 05 00      lea d, [bp + 5] ; $num
+1751   0F79 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1752   0F7C FD 39         mov c, b ; And place it into C
+1753   0F7E 2A            mov b, [d] ; Lower Word in B
+1754   0F7F             ; START FACTORS
+1755   0F7F D7            push a
+1756   0F80 11            mov a, b
+1757   0F81 26 0A 00      mov b, $a
+1758   0F84 AE            div a, b ; 
+1759   0F85 11            mov a, b
+1760   0F86 27            mov b, a
+1761   0F87 E4            pop a
+1762   0F88             ; END FACTORS
+1763   0F88 54            add a, b
+1764   0F89 D7            push a
+1765   0F8A FD 12         mov a, g
+1766   0F8C 28            mov b, c
+1767   0F8D 5C            adc a, b
+1768   0F8E 39            mov c, a
+1769   0F8F E5            pop b
+1770   0F90 E4            pop a
+1771   0F91             ; END TERMS
+1772   0F91 E7            pop d
+1773   0F92 FD 3E         mov [d], bl
+1774   0F94             ;; num = num / 10; 
+1775   0F94 FA 05 00      lea d, [bp + 5] ; $num
+1776   0F97 DA            push d
+1777   0F98 FA 05 00      lea d, [bp + 5] ; $num
+1778   0F9B 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1779   0F9E FD 39         mov c, b ; And place it into C
+1780   0FA0 2A            mov b, [d] ; Lower Word in B
+1781   0FA1             ; START FACTORS
+1782   0FA1 D7            push a
+1783   0FA2 11            mov a, b
+1784   0FA3 26 0A 00      mov b, $a
+1785   0FA6 AE            div a, b
+1786   0FA7 27            mov b, a
+1787   0FA8 E4            pop a
+1788   0FA9             ; END FACTORS
+1789   0FA9 E7            pop d
+1790   0FAA FD 43         mov [d], b
+1791   0FAC 28            mov b, c
+1792   0FAD FD 44 02 00   mov [d + 2], b
+1793   0FB1             ;; i++; 
+1794   0FB1 FA F5 FF      lea d, [bp + -11] ; $i
+1795   0FB4 2A            mov b, [d]
+1796   0FB5 D8            push b
+1797   0FB6 FD 77         inc b
+1798   0FB8 FA F5 FF      lea d, [bp + -11] ; $i
+1799   0FBB FD 43         mov [d], b
+1800   0FBD E5            pop b
+1801   0FBE 0A 44 0F      jmp _while28_cond
+1802   0FC1             _while28_exit:
+1803   0FC1             ;; while (i > 0) { 
+1804   0FC1             _while29_cond:
+1805   0FC1 FA F5 FF      lea d, [bp + -11] ; $i
+1806   0FC4 2A            mov b, [d]
+1807   0FC5             ; START RELATIONAL
+1808   0FC5 D7            push a
+1809   0FC6 11            mov a, b
+1810   0FC7 26 00 00      mov b, $0
+1811   0FCA B0            cmp a, b
+1812   0FCB FD 7F         sgt ; >
+1813   0FCD E4            pop a
+1814   0FCE             ; END RELATIONAL
+1815   0FCE C0 00 00      cmp b, 0
+1816   0FD1 C6 FA 0F      je _while29_exit
+1817   0FD4             _while29_block:
+1818   0FD4             ;; i--; 
+1819   0FD4 FA F5 FF      lea d, [bp + -11] ; $i
+1820   0FD7 2A            mov b, [d]
+1821   0FD8 D8            push b
+1822   0FD9 FD 7D         dec b
+1823   0FDB FA F5 FF      lea d, [bp + -11] ; $i
+1824   0FDE FD 43         mov [d], b
+1825   0FE0 E5            pop b
+1826   0FE1             ;; putchar(digits[i]); 
+1827   0FE1 FA F7 FF      lea d, [bp + -9] ; $digits
+1828   0FE4 D7            push a
+1829   0FE5 DA            push d
+1830   0FE6 FA F5 FF      lea d, [bp + -11] ; $i
+1831   0FE9 2A            mov b, [d]
+1832   0FEA E7            pop d
+1833   0FEB 5A            add d, b
+1834   0FEC E4            pop a
+1835   0FED 32            mov bl, [d]
+1836   0FEE A7 00         mov bh, 0
+1837   0FF0 DD            push bl
+1838   0FF1 07 C4 12      call putchar
+1839   0FF4 51 01 00      add sp, 1
+1840   0FF7 0A C1 0F      jmp _while29_cond
+1841   0FFA             _while29_exit:
+1842   0FFA F9            leave
+1843   0FFB 09            ret
+1844   0FFC             
+1845   0FFC             print_unsigned_long:
+1846   0FFC F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1847   0FFF             ; $digits 
+1848   0FFF             ; $i 
+1849   0FFF 52 0C 00      sub sp, 12
+1850   1002             ;; i = 0; 
+1851   1002 FA F5 FF      lea d, [bp + -11] ; $i
+1852   1005 DA            push d
+1853   1006 26 00 00      mov b, $0
+1854   1009 E7            pop d
+1855   100A FD 43         mov [d], b
+1856   100C             ;; if(num == 0){ 
+1857   100C             _if30_cond:
+1858   100C FA 05 00      lea d, [bp + 5] ; $num
+1859   100F 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1860   1012 FD 39         mov c, b ; And place it into C
+1861   1014 2A            mov b, [d] ; Lower Word in B
+1862   1015             ; START RELATIONAL
+1863   1015 D7            push a
+1864   1016 FD D8         push g
+1865   1018 11            mov a, b
+1866   1019 FD 7A         mov g, c
+1867   101B 26 00 00      mov b, $0
+1868   101E 38 00 00      mov c, 0
+1869   1021 FD AF 00 00   cmp32 ga, cb
+1869   1025 00 00 00 00 
+1869   1029 00 00 00 00 
+1869   102D 00 00 00 00 
+1869   1031 00 00 00 00 
+1869   1035 00 00 00 00 
+1869   1039 00 00 00 00 
+1869   103D 00 00 00 00 
+1869   1041 00 00 00 00 
+1869   1045 00 00 00 00 
+1869   1049 00 00 00 00 
+1869   104D 00 00 00 00 
+1869   1051 00 00 00 00 
+1869   1055 00 00 00 00 
+1869   1059 00 00 00 00 
+1869   105D 00 00 00 00 
+1869   1061 00 00 00 00 
+1869   1065 00 00 00 00 
+1869   1069 00 00 00 00 
+1869   106D 00 00 00 00 
+1869   1071 00 00 00 00 
+1869   1075 00 00 00 00 
+1869   1079 00 00 00 00 
+1869   107D 00 00 00 00 
+1869   1081 00 00 00 00 
+1869   1085 00 00 00 00 
+1869   1089 00 00 00 00 
+1869   108D 00 00 00 00 
+1869   1091 00 00 00 00 
+1869   1095 00 00 00 00 
+1869   1099 00 00 00 00 
+1869   109D 00 00 00 00 
+1869   10A1 00 00 00 00 
+1869   10A5 00 00 00 00 
+1869   10A9 00 00 00 00 
+1869   10AD 00 00 00 00 
+1869   10B1 00 00 00 00 
+1869   10B5 00 00 00 00 
+1869   10B9 00 00 00 00 
+1869   10BD 00 00 00 00 
+1869   10C1 00 00 00 00 
+1869   10C5 00 00 00 00 
+1869   10C9 00 00 00 00 
+1869   10CD 00 00 00 00 
+1869   10D1 00 00 00 00 
+1869   10D5 00 00 00 00 
+1869   10D9 00 00 00 00 
+1869   10DD 00 00 00 00 
+1869   10E1 00 00 00 00 
+1869   10E5 00 00 00 00 
+1869   10E9 00 00 00 00 
+1869   10ED 00 00 00 00 
+1869   10F1 00 00 00 00 
+1869   10F5 00 00 00 00 
+1869   10F9 00 00 00 00 
+1869   10FD 00 00 00 00 
+1869   1101 00 00 00 00 
+1869   1105 00 00 00 00 
+1869   1109 00 00 00 00 
+1869   110D 00 00 00 00 
+1869   1111 00 00 00 00 
+1869   1115 00 00 00 00 
+1869   1119 00 00 00 00 
+1869   111D 00 00 00 00 
+1869   1121 00 
+1870   1122 FD 71         seq ; ==
+1871   1124 FD F1         pop g
+1872   1126 E4            pop a
+1873   1127             ; END RELATIONAL
+1874   1127 C0 00 00      cmp b, 0
+1875   112A C6 3C 11      je _if30_exit
+1876   112D             _if30_true:
+1877   112D             ;; putchar('0'); 
+1878   112D 26 30 00      mov b, $30
+1879   1130 DD            push bl
+1880   1131 07 C4 12      call putchar
+1881   1134 51 01 00      add sp, 1
+1882   1137             ;; return; 
+1883   1137 F9            leave
+1884   1138 09            ret
+1885   1139 0A 3C 11      jmp _if30_exit
+1886   113C             _if30_exit:
+1887   113C             ;; while (num > 0) { 
+1888   113C             _while31_cond:
+1889   113C FA 05 00      lea d, [bp + 5] ; $num
+1890   113F 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1891   1142 FD 39         mov c, b ; And place it into C
+1892   1144 2A            mov b, [d] ; Lower Word in B
+1893   1145             ; START RELATIONAL
+1894   1145 D7            push a
+1895   1146 FD D8         push g
+1896   1148 11            mov a, b
+1897   1149 FD 7A         mov g, c
+1898   114B 26 00 00      mov b, $0
+1899   114E 38 00 00      mov c, 0
+1900   1151 FD 81         sgu
+1901   1153 FD F1         pop g
+1902   1155 E4            pop a
+1903   1156             ; END RELATIONAL
+1904   1156 C0 00 00      cmp b, 0
+1905   1159 C6 B9 11      je _while31_exit
+1906   115C             _while31_block:
+1907   115C             ;; digits[i] = '0' + (num % 10); 
+1908   115C FA F7 FF      lea d, [bp + -9] ; $digits
+1909   115F D7            push a
+1910   1160 DA            push d
+1911   1161 FA F5 FF      lea d, [bp + -11] ; $i
+1912   1164 2A            mov b, [d]
+1913   1165 E7            pop d
+1914   1166 5A            add d, b
+1915   1167 E4            pop a
+1916   1168 DA            push d
+1917   1169 26 30 00      mov b, $30
+1918   116C             ; START TERMS
+1919   116C D7            push a
+1920   116D 11            mov a, b
+1921   116E FA 05 00      lea d, [bp + 5] ; $num
+1922   1171 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1923   1174 FD 39         mov c, b ; And place it into C
+1924   1176 2A            mov b, [d] ; Lower Word in B
+1925   1177             ; START FACTORS
+1926   1177 D7            push a
+1927   1178 11            mov a, b
+1928   1179 26 0A 00      mov b, $a
+1929   117C AE            div a, b ; 
+1930   117D 11            mov a, b
+1931   117E 27            mov b, a
+1932   117F E4            pop a
+1933   1180             ; END FACTORS
+1934   1180 54            add a, b
+1935   1181 D7            push a
+1936   1182 FD 12         mov a, g
+1937   1184 28            mov b, c
+1938   1185 5C            adc a, b
+1939   1186 39            mov c, a
+1940   1187 E5            pop b
+1941   1188 E4            pop a
+1942   1189             ; END TERMS
+1943   1189 E7            pop d
+1944   118A FD 3E         mov [d], bl
+1945   118C             ;; num = num / 10; 
+1946   118C FA 05 00      lea d, [bp + 5] ; $num
+1947   118F DA            push d
+1948   1190 FA 05 00      lea d, [bp + 5] ; $num
+1949   1193 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1950   1196 FD 39         mov c, b ; And place it into C
+1951   1198 2A            mov b, [d] ; Lower Word in B
+1952   1199             ; START FACTORS
+1953   1199 D7            push a
+1954   119A 11            mov a, b
+1955   119B 26 0A 00      mov b, $a
+1956   119E AE            div a, b
+1957   119F 27            mov b, a
+1958   11A0 E4            pop a
+1959   11A1             ; END FACTORS
+1960   11A1 E7            pop d
+1961   11A2 FD 43         mov [d], b
+1962   11A4 28            mov b, c
+1963   11A5 FD 44 02 00   mov [d + 2], b
+1964   11A9             ;; i++; 
+1965   11A9 FA F5 FF      lea d, [bp + -11] ; $i
+1966   11AC 2A            mov b, [d]
+1967   11AD D8            push b
+1968   11AE FD 77         inc b
+1969   11B0 FA F5 FF      lea d, [bp + -11] ; $i
+1970   11B3 FD 43         mov [d], b
+1971   11B5 E5            pop b
+1972   11B6 0A 3C 11      jmp _while31_cond
+1973   11B9             _while31_exit:
+1974   11B9             ;; while (i > 0) { 
+1975   11B9             _while32_cond:
+1976   11B9 FA F5 FF      lea d, [bp + -11] ; $i
+1977   11BC 2A            mov b, [d]
+1978   11BD             ; START RELATIONAL
+1979   11BD D7            push a
+1980   11BE 11            mov a, b
+1981   11BF 26 00 00      mov b, $0
+1982   11C2 B0            cmp a, b
+1983   11C3 FD 7F         sgt ; >
+1984   11C5 E4            pop a
+1985   11C6             ; END RELATIONAL
+1986   11C6 C0 00 00      cmp b, 0
+1987   11C9 C6 F2 11      je _while32_exit
+1988   11CC             _while32_block:
+1989   11CC             ;; i--; 
+1990   11CC FA F5 FF      lea d, [bp + -11] ; $i
+1991   11CF 2A            mov b, [d]
+1992   11D0 D8            push b
+1993   11D1 FD 7D         dec b
+1994   11D3 FA F5 FF      lea d, [bp + -11] ; $i
+1995   11D6 FD 43         mov [d], b
+1996   11D8 E5            pop b
+1997   11D9             ;; putchar(digits[i]); 
+1998   11D9 FA F7 FF      lea d, [bp + -9] ; $digits
+1999   11DC D7            push a
+2000   11DD DA            push d
+2001   11DE FA F5 FF      lea d, [bp + -11] ; $i
+2002   11E1 2A            mov b, [d]
+2003   11E2 E7            pop d
+2004   11E3 5A            add d, b
+2005   11E4 E4            pop a
+2006   11E5 32            mov bl, [d]
+2007   11E6 A7 00         mov bh, 0
+2008   11E8 DD            push bl
+2009   11E9 07 C4 12      call putchar
+2010   11EC 51 01 00      add sp, 1
+2011   11EF 0A B9 11      jmp _while32_cond
+2012   11F2             _while32_exit:
+2013   11F2 F9            leave
+2014   11F3 09            ret
+2015   11F4             
+2016   11F4             print_unsigned:
+2017   11F4 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2018   11F7             ; $digits 
+2019   11F7             ; $i 
+2020   11F7 52 07 00      sub sp, 7
+2021   11FA             ;; i = 0; 
+2022   11FA FA FA FF      lea d, [bp + -6] ; $i
+2023   11FD DA            push d
+2024   11FE 26 00 00      mov b, $0
+2025   1201 E7            pop d
+2026   1202 FD 43         mov [d], b
+2027   1204             ;; if(num == 0){ 
+2028   1204             _if33_cond:
+2029   1204 FA 05 00      lea d, [bp + 5] ; $num
+2030   1207 2A            mov b, [d]
+2031   1208             ; START RELATIONAL
+2032   1208 D7            push a
+2033   1209 11            mov a, b
+2034   120A 26 00 00      mov b, $0
+2035   120D B0            cmp a, b
+2036   120E FD 71         seq ; ==
+2037   1210 E4            pop a
+2038   1211             ; END RELATIONAL
+2039   1211 C0 00 00      cmp b, 0
+2040   1214 C6 26 12      je _if33_exit
+2041   1217             _if33_true:
+2042   1217             ;; putchar('0'); 
+2043   1217 26 30 00      mov b, $30
+2044   121A DD            push bl
+2045   121B 07 C4 12      call putchar
+2046   121E 51 01 00      add sp, 1
+2047   1221             ;; return; 
+2048   1221 F9            leave
+2049   1222 09            ret
+2050   1223 0A 26 12      jmp _if33_exit
+2051   1226             _if33_exit:
+2052   1226             ;; while (num > 0) { 
+2053   1226             _while34_cond:
+2054   1226 FA 05 00      lea d, [bp + 5] ; $num
+2055   1229 2A            mov b, [d]
+2056   122A             ; START RELATIONAL
+2057   122A D7            push a
+2058   122B 11            mov a, b
+2059   122C 26 00 00      mov b, $0
+2060   122F B0            cmp a, b
+2061   1230 FD 81         sgu ; > (unsigned)
+2062   1232 E4            pop a
+2063   1233             ; END RELATIONAL
+2064   1233 C0 00 00      cmp b, 0
+2065   1236 C6 80 12      je _while34_exit
+2066   1239             _while34_block:
+2067   1239             ;; digits[i] = '0' + (num % 10); 
+2068   1239 FA FC FF      lea d, [bp + -4] ; $digits
+2069   123C D7            push a
+2070   123D DA            push d
+2071   123E FA FA FF      lea d, [bp + -6] ; $i
+2072   1241 2A            mov b, [d]
+2073   1242 E7            pop d
+2074   1243 5A            add d, b
+2075   1244 E4            pop a
+2076   1245 DA            push d
+2077   1246 26 30 00      mov b, $30
+2078   1249             ; START TERMS
+2079   1249 D7            push a
+2080   124A 11            mov a, b
+2081   124B FA 05 00      lea d, [bp + 5] ; $num
+2082   124E 2A            mov b, [d]
+2083   124F             ; START FACTORS
+2084   124F D7            push a
+2085   1250 11            mov a, b
+2086   1251 26 0A 00      mov b, $a
+2087   1254 AE            div a, b ; 
+2088   1255 11            mov a, b
+2089   1256 27            mov b, a
+2090   1257 E4            pop a
+2091   1258             ; END FACTORS
+2092   1258 56            add b, a
+2093   1259 E4            pop a
+2094   125A             ; END TERMS
+2095   125A E7            pop d
+2096   125B FD 3E         mov [d], bl
+2097   125D             ;; num = num / 10; 
+2098   125D FA 05 00      lea d, [bp + 5] ; $num
+2099   1260 DA            push d
+2100   1261 FA 05 00      lea d, [bp + 5] ; $num
+2101   1264 2A            mov b, [d]
+2102   1265             ; START FACTORS
+2103   1265 D7            push a
+2104   1266 11            mov a, b
+2105   1267 26 0A 00      mov b, $a
+2106   126A AE            div a, b
+2107   126B 27            mov b, a
+2108   126C E4            pop a
+2109   126D             ; END FACTORS
+2110   126D E7            pop d
+2111   126E FD 43         mov [d], b
+2112   1270             ;; i++; 
+2113   1270 FA FA FF      lea d, [bp + -6] ; $i
+2114   1273 2A            mov b, [d]
+2115   1274 D8            push b
+2116   1275 FD 77         inc b
+2117   1277 FA FA FF      lea d, [bp + -6] ; $i
+2118   127A FD 43         mov [d], b
+2119   127C E5            pop b
+2120   127D 0A 26 12      jmp _while34_cond
+2121   1280             _while34_exit:
+2122   1280             ;; while (i > 0) { 
+2123   1280             _while35_cond:
+2124   1280 FA FA FF      lea d, [bp + -6] ; $i
+2125   1283 2A            mov b, [d]
+2126   1284             ; START RELATIONAL
+2127   1284 D7            push a
+2128   1285 11            mov a, b
+2129   1286 26 00 00      mov b, $0
+2130   1289 B0            cmp a, b
+2131   128A FD 7F         sgt ; >
+2132   128C E4            pop a
+2133   128D             ; END RELATIONAL
+2134   128D C0 00 00      cmp b, 0
+2135   1290 C6 B9 12      je _while35_exit
+2136   1293             _while35_block:
+2137   1293             ;; i--; 
+2138   1293 FA FA FF      lea d, [bp + -6] ; $i
+2139   1296 2A            mov b, [d]
+2140   1297 D8            push b
+2141   1298 FD 7D         dec b
+2142   129A FA FA FF      lea d, [bp + -6] ; $i
+2143   129D FD 43         mov [d], b
+2144   129F E5            pop b
+2145   12A0             ;; putchar(digits[i]); 
+2146   12A0 FA FC FF      lea d, [bp + -4] ; $digits
+2147   12A3 D7            push a
+2148   12A4 DA            push d
+2149   12A5 FA FA FF      lea d, [bp + -6] ; $i
+2150   12A8 2A            mov b, [d]
+2151   12A9 E7            pop d
+2152   12AA 5A            add d, b
+2153   12AB E4            pop a
+2154   12AC 32            mov bl, [d]
+2155   12AD A7 00         mov bh, 0
+2156   12AF DD            push bl
+2157   12B0 07 C4 12      call putchar
+2158   12B3 51 01 00      add sp, 1
+2159   12B6 0A 80 12      jmp _while35_cond
+2160   12B9             _while35_exit:
+2161   12B9 F9            leave
+2162   12BA 09            ret
+2163   12BB             
+2164   12BB             date:
+2165   12BB F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2166   12BE             
+2167   12BE             ; --- BEGIN INLINE ASM BLOCK
+2168   12BE 19 00         mov al, 0 
+2169   12C0 05 07         syscall sys_datetime
+2170   12C2             ; --- END INLINE ASM BLOCK
+2171   12C2             
+2172   12C2 F9            leave
+2173   12C3 09            ret
+2174   12C4             
+2175   12C4             putchar:
+2176   12C4 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2177   12C7             
+2178   12C7             ; --- BEGIN INLINE ASM BLOCK
+2179   12C7 FA 05 00      lea d, [bp + 5] ; $c
+2180   12CA 1E            mov al, [d]
+2181   12CB 23            mov ah, al
+2182   12CC 07 30 14      call _putchar
+2183   12CF             ; --- END INLINE ASM BLOCK
+2184   12CF             
+2185   12CF F9            leave
+2186   12D0 09            ret
+2187   12D1             
+2188   12D1             getchar:
+2189   12D1 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2190   12D4             ; $c 
+2191   12D4 52 01 00      sub sp, 1
+2192   12D7             
+2193   12D7             ; --- BEGIN INLINE ASM BLOCK
+2194   12D7 07 29 14      call getch
+2195   12DA 1A            mov al, ah
+2196   12DB FA 00 00      lea d, [bp + 0] ; $c
+2197   12DE 3E            mov [d], al
+2198   12DF             ; --- END INLINE ASM BLOCK
+2199   12DF             
+2200   12DF             ;; return c; 
+2201   12DF FA 00 00      lea d, [bp + 0] ; $c
+2202   12E2 32            mov bl, [d]
+2203   12E3 A7 00         mov bh, 0
+2204   12E5 F9            leave
+2205   12E6 09            ret
+2206   12E7             
+2207   12E7             scann:
+2208   12E7 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2209   12EA             ; $m 
+2210   12EA 52 02 00      sub sp, 2
+2211   12ED             
+2212   12ED             ; --- BEGIN INLINE ASM BLOCK
+2213   12ED 07 74 16      call scan_u16d
+2214   12F0 FA FF FF      lea d, [bp + -1] ; $m
+2215   12F3 43            mov [d], a
+2216   12F4             ; --- END INLINE ASM BLOCK
+2217   12F4             
+2218   12F4             ;; return m; 
+2219   12F4 FA FF FF      lea d, [bp + -1] ; $m
+2220   12F7 2A            mov b, [d]
+2221   12F8 F9            leave
+2222   12F9 09            ret
+2223   12FA             
+2224   12FA             puts:
+2225   12FA F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2226   12FD             
+2227   12FD             ; --- BEGIN INLINE ASM BLOCK
+2228   12FD FA 05 00      lea d, [bp + 5] ; $s
+2229   1300 15            mov a, [d]
+2230   1301 3C            mov d, a
+2231   1302 07 7A 15      call _puts
+2232   1305 10 00 0A      mov a, $0A00
+2233   1308 05 03         syscall sys_io
+2234   130A             ; --- END INLINE ASM BLOCK
+2235   130A             
+2236   130A F9            leave
+2237   130B 09            ret
+2238   130C             
+2239   130C             print:
+2240   130C F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2241   130F             
+2242   130F             ; --- BEGIN INLINE ASM BLOCK
+2243   130F FA 05 00      lea d, [bp + 5] ; $s
+2244   1312 FD 2A         mov d, [d]
+2245   1314 07 7A 15      call _puts
+2246   1317             ; --- END INLINE ASM BLOCK
+2247   1317             
+2248   1317 F9            leave
+2249   1318 09            ret
+2250   1319             
+2251   1319             getparam:
+2252   1319 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2253   131C             ; $data 
+2254   131C 52 01 00      sub sp, 1
+2255   131F             
+2256   131F             ; --- BEGIN INLINE ASM BLOCK
+2257   131F 19 04         mov al, 4
+2258   1321 FA 05 00      lea d, [bp + 5] ; $address
+2259   1324 FD 2A         mov d, [d]
+2260   1326 05 0C         syscall sys_system
+2261   1328 FA 00 00      lea d, [bp + 0] ; $data
+2262   132B FD 3E         mov [d], bl
+2263   132D             ; --- END INLINE ASM BLOCK
+2264   132D             
+2265   132D             ;; return data; 
+2266   132D FA 00 00      lea d, [bp + 0] ; $data
+2267   1330 32            mov bl, [d]
+2268   1331 A7 00         mov bh, 0
+2269   1333 F9            leave
+2270   1334 09            ret
+2271   1335             
+2272   1335             clear:
+2273   1335 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2274   1338             ;; print("\033[2J\033[H"); 
+2275   1338 26 E0 1C      mov b, __s26 ; "\033[2J\033[H"
+2276   133B FD AB         swp b
+2277   133D D8            push b
+2278   133E 07 0C 13      call print
+2279   1341 51 02 00      add sp, 2
+2280   1344 F9            leave
+2281   1345 09            ret
+2282   1346             
+2283   1346             include_stdio_asm:
+2284   1346 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2285   1349             
+2286   1349             ; --- BEGIN INLINE ASM BLOCK
+2287   1349             .include "lib/asm/stdio.asm"
+0001+  1349             ;-----------------------------------------------------------------------------
+0002+  1349             ; stdio.s
+0003+  1349             ;-----------------------------------------------------------------------------
+0004+  1349             .include "lib/asm/string.asm"
+0001++ 1349             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0002++ 1349             ; string.s
+0003++ 1349             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0004++ 1349             
+0005++ 1349             
+0006++ 1349             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0007++ 1349             ; _strrev
+0008++ 1349             ; reverse a string
+0009++ 1349             ; D = string address
+0010++ 1349             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0011++ 1349             ; 01234
+0012++ 1349             _strrev:
+0013++ 1349 4B          	pusha
+0014++ 134A 07 90 13    	call _strlen	; length in C
+0015++ 134D 12          	mov a, c
+0016++ 134E AF 01 00    	cmp a, 1
+0017++ 1351 D0 6B 13    	jleu _strrev_end	; check string length. string len must be > 1
+0018++ 1354 7D          	dec a
+0019++ 1355 FD 4E       	mov si, d	; beginning of string
+0020++ 1357 FD 50       	mov di, d	; beginning of string (for destinations)
+0021++ 1359 59          	add d, a	; end of string
+0022++ 135A 12          	mov a, c
+0023++ 135B FD 9B       	shr a		; divide by 2
+0024++ 135D 39          	mov c, a	; C now counts the steps
+0025++ 135E             _strrev_L0:
+0026++ 135E 32          	mov bl, [d]	; save load right-side char into BL
+0027++ 135F F6          	lodsb		; load left-side char into AL; increase SI
+0028++ 1360 3E          	mov [d], al	; store left char into right side
+0029++ 1361 1B          	mov al, bl
+0030++ 1362 F7          	stosb		; store right-side char into left-side; increase DI
+0031++ 1363 7E          	dec c
+0032++ 1364 7F          	dec d
+0033++ 1365 C2 00 00    	cmp c, 0
+0034++ 1368 C7 5E 13    	jne _strrev_L0
+0035++ 136B             _strrev_end:
+0036++ 136B 4C          	popa
+0037++ 136C 09          	ret
+0038++ 136D             	
+0039++ 136D             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0040++ 136D             ; _strchr
+0041++ 136D             ; search string in D for char in AL
+0042++ 136D             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0043++ 136D             _strchr:
+0044++ 136D             _strchr_L0:
+0045++ 136D 32          	mov bl, [d]
+0046++ 136E C1 00       	cmp bl, 0
+0047++ 1370 C6 7B 13    	je _strchr_end
+0048++ 1373 BA          	cmp al, bl
+0049++ 1374 C6 7B 13    	je _strchr_end
+0050++ 1377 79          	inc d
+0051++ 1378 0A 6D 13    	jmp _strchr_L0
+0052++ 137B             _strchr_end:
+0053++ 137B 1B          	mov al, bl
+0054++ 137C 09          	ret
+0055++ 137D             
+0056++ 137D             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0057++ 137D             ; _strstr
+0058++ 137D             ; find sub-string
+0059++ 137D             ; str1 in SI
+0060++ 137D             ; str2 in DI
+0061++ 137D             ; SI points to end of source string
+0062++ 137D             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0063++ 137D             _strstr:
+0064++ 137D DB          	push al
+0065++ 137E DA          	push d
+0066++ 137F E3          	push di
+0067++ 1380             _strstr_loop:
+0068++ 1380 F3          	cmpsb					; compare a byte of the strings
+0069++ 1381 C7 8C 13    	jne _strstr_ret
+0070++ 1384 FC 00 00    	lea d, [di + 0]
+0071++ 1387 BD 00       	cmp byte[d], 0				; check if at end of string (null)
+0072++ 1389 C7 80 13    	jne _strstr_loop				; equal chars but not at end
+0073++ 138C             _strstr_ret:
+0074++ 138C F0          	pop di
+0075++ 138D E7          	pop d
+0076++ 138E E8          	pop al
+0077++ 138F 09          	ret
+0078++ 1390             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0079++ 1390             ; length of null terminated string
+0080++ 1390             ; result in C
+0081++ 1390             ; pointer in D
+0082++ 1390             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0083++ 1390             _strlen:
+0084++ 1390 DA          	push d
+0085++ 1391 38 00 00    	mov c, 0
+0086++ 1394             _strlen_L1:
+0087++ 1394 BD 00       	cmp byte [d], 0
+0088++ 1396 C6 9E 13    	je _strlen_ret
+0089++ 1399 79          	inc d
+0090++ 139A 78          	inc c
+0091++ 139B 0A 94 13    	jmp _strlen_L1
+0092++ 139E             _strlen_ret:
+0093++ 139E E7          	pop d
+0094++ 139F 09          	ret
+0095++ 13A0             
+0096++ 13A0             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0097++ 13A0             ; STRCMP
+0098++ 13A0             ; compare two strings
+0099++ 13A0             ; str1 in SI
+0100++ 13A0             ; str2 in DI
+0101++ 13A0             ; CREATE A STRING COMPAIRON INSTRUCION ?????
+0102++ 13A0             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0103++ 13A0             _strcmp:
+0104++ 13A0 DB          	push al
+0105++ 13A1 DA          	push d
+0106++ 13A2 E3          	push di
+0107++ 13A3 E2          	push si
+0108++ 13A4             _strcmp_loop:
+0109++ 13A4 F3          	cmpsb					; compare a byte of the strings
+0110++ 13A5 C7 B0 13    	jne _strcmp_ret
+0111++ 13A8 FB FF FF    	lea d, [si +- 1]
+0112++ 13AB BD 00       	cmp byte[d], 0				; check if at end of string (null)
+0113++ 13AD C7 A4 13    	jne _strcmp_loop				; equal chars but not at end
+0114++ 13B0             _strcmp_ret:
+0115++ 13B0 EF          	pop si
+0116++ 13B1 F0          	pop di
+0117++ 13B2 E7          	pop d
+0118++ 13B3 E8          	pop al
+0119++ 13B4 09          	ret
+0120++ 13B5             
+0121++ 13B5             
+0122++ 13B5             ; STRCPY
+0123++ 13B5             ; copy null terminated string from SI to DI
+0124++ 13B5             ; source in SI
+0125++ 13B5             ; destination in DI
+0126++ 13B5             _strcpy:
+0127++ 13B5 E2          	push si
+0128++ 13B6 E3          	push di
+0129++ 13B7 DB          	push al
+0130++ 13B8             _strcpy_L1:
+0131++ 13B8 F6          	lodsb
+0132++ 13B9 F7          	stosb
+0133++ 13BA B9 00       	cmp al, 0
+0134++ 13BC C7 B8 13    	jne _strcpy_L1
+0135++ 13BF             _strcpy_end:
+0136++ 13BF E8          	pop al
+0137++ 13C0 F0          	pop di
+0138++ 13C1 EF          	pop si
+0139++ 13C2 09          	ret
+0140++ 13C3             
+0141++ 13C3             ; STRCAT
+0142++ 13C3             ; concatenate a NULL terminated string into string at DI, from string at SI
+0143++ 13C3             ; source in SI
+0144++ 13C3             ; destination in DI
+0145++ 13C3             _strcat:
+0146++ 13C3 E2          	push si
+0147++ 13C4 E3          	push di
+0148++ 13C5 D7          	push a
+0149++ 13C6 DA          	push d
+0150++ 13C7 50          	mov a, di
+0151++ 13C8 3C          	mov d, a
+0152++ 13C9             _strcat_goto_end_L1:
+0153++ 13C9 BD 00       	cmp byte[d], 0
+0154++ 13CB C6 D2 13    	je _strcat_start
+0155++ 13CE 79          	inc d
+0156++ 13CF 0A C9 13    	jmp _strcat_goto_end_L1
+0157++ 13D2             _strcat_start:
+0158++ 13D2 FD 50       	mov di, d
+0159++ 13D4             _strcat_L1:
+0160++ 13D4 F6          	lodsb
+0161++ 13D5 F7          	stosb
+0162++ 13D6 B9 00       	cmp al, 0
+0163++ 13D8 C7 D4 13    	jne _strcat_L1
+0164++ 13DB             _strcat_end:
+0165++ 13DB E7          	pop d
+0166++ 13DC E4          	pop a
+0167++ 13DD F0          	pop di
+0168++ 13DE EF          	pop si
+0169++ 13DF 09          	ret
+0170++ 13E0             
+0171++ 13E0             
+0005+  13E0             
+0006+  13E0             ;-----------------------------------------------------------------------------
+0007+  13E0             ; CONVERT ASCII 'O'..'F' TO INTEGER 0..15
+0008+  13E0             ; ASCII in BL
+0009+  13E0             ; result in AL
+0010+  13E0             ; ascii for F = 0100 0110
+0011+  13E0             ; ascii for 9 = 0011 1001
+0012+  13E0             ;-----------------------------------------------------------------------------
+0013+  13E0             hex_ascii_encode:
+0014+  13E0 1B            mov al, bl
+0015+  13E1 93 40         test al, $40        ; test if letter or number
+0016+  13E3 C7 E9 13      jnz hex_letter
+0017+  13E6 87 0F         and al, $0F        ; get number
+0018+  13E8 09            ret
+0019+  13E9             hex_letter:
+0020+  13E9 87 0F         and al, $0F        ; get letter
+0021+  13EB 6A 09         add al, 9
+0022+  13ED 09            ret
+0023+  13EE             
+0024+  13EE             ;-----------------------------------------------------------------------------
+0025+  13EE             ; ATOI
+0026+  13EE             ; 2 letter hex string in B
+0027+  13EE             ; 8bit integer returned in AL
+0028+  13EE             ;-----------------------------------------------------------------------------
+0029+  13EE             _atoi:
+0030+  13EE D8            push b
+0031+  13EF 07 E0 13      call hex_ascii_encode      ; convert BL to 4bit code in AL
+0032+  13F2 30            mov bl, bh
+0033+  13F3 DB            push al          ; save a
+0034+  13F4 07 E0 13      call hex_ascii_encode
+0035+  13F7 EA            pop bl  
+0036+  13F8 FD 9E 04      shl al, 4
+0037+  13FB 8C            or al, bl
+0038+  13FC E5            pop b
+0039+  13FD 09            ret  
+0040+  13FE             
+0041+  13FE             
+0042+  13FE             ;-----------------------------------------------------------------------------
+0043+  13FE             ; ITOA
+0044+  13FE             ; 8bit value in BL
+0045+  13FE             ; 2 byte ASCII result in A
+0046+  13FE             ;-----------------------------------------------------------------------------
+0047+  13FE             _itoa:
+0048+  13FE DA            push d
+0049+  13FF D8            push b
+0050+  1400 A7 00         mov bh, 0
+0051+  1402 FD A4 04      shr bl, 4  
+0052+  1405 74            mov d, b
+0053+  1406 1F AE 16      mov al, [d + s_hex_digits]
+0054+  1409 23            mov ah, al
+0055+  140A               
+0056+  140A E5            pop b
+0057+  140B D8            push b
+0058+  140C A7 00         mov bh, 0
+0059+  140E FD 87 0F      and bl, $0F
+0060+  1411 74            mov d, b
+0061+  1412 1F AE 16      mov al, [d + s_hex_digits]
+0062+  1415 E5            pop b
+0063+  1416 E7            pop d
+0064+  1417 09            ret
+0065+  1418             
+0066+  1418             ;-----------------------------------------------------------------------------
+0067+  1418             ; HEX STRING TO BINARY
+0068+  1418             ; di = destination address
+0069+  1418             ; si = source
+0070+  1418             ;-----------------------------------------------------------------------------
+0071+  1418             _hex_to_int:
+0072+  1418             _hex_to_int_L1:
+0073+  1418 F6            lodsb          ; load from [SI] to AL
+0074+  1419 B9 00         cmp al, 0        ; check if ASCII 0
+0075+  141B C6 28 14      jz _hex_to_int_ret
+0076+  141E 36            mov bh, al
+0077+  141F F6            lodsb
+0078+  1420 2F            mov bl, al
+0079+  1421 07 EE 13      call _atoi        ; convert ASCII byte in B to int (to AL)
+0080+  1424 F7            stosb          ; store AL to [DI]
+0081+  1425 0A 18 14      jmp _hex_to_int_L1
+0082+  1428             _hex_to_int_ret:
+0083+  1428 09            ret    
+0084+  1429             
+0085+  1429             ;-----------------------------------------------------------------------------
+0086+  1429             ; GETCHAR
+0087+  1429             ; char in ah
+0088+  1429             ;-----------------------------------------------------------------------------
+0089+  1429             getch:
+0090+  1429 DB            push al
+0091+  142A             getch_retry:
+0092+  142A 19 01         mov al, 1
+0093+  142C 05 03         syscall sys_io      ; receive in AH
+0094+  142E E8            pop al
+0095+  142F 09            ret
+0096+  1430             
+0097+  1430             ;-----------------------------------------------------------------------------
+0098+  1430             ; PUTCHAR
+0099+  1430             ; char in ah
+0100+  1430             ;-----------------------------------------------------------------------------
+0101+  1430             _putchar:
+0102+  1430 D7            push a
+0103+  1431 19 00         mov al, 0
+0104+  1433 05 03         syscall sys_io      ; char in AH
+0105+  1435 E4            pop a
+0106+  1436 09            ret
+0107+  1437             
+0108+  1437             ;-----------------------------------------------------------------------------
+0109+  1437             ;; INPUT A STRING
+0110+  1437             ;; terminates with null
+0111+  1437             ;; pointer in D
+0112+  1437             ;-----------------------------------------------------------------------------
+0113+  1437             _gets:
+0114+  1437 D7            push a
+0115+  1438 DA            push d
+0116+  1439             _gets_loop:
+0117+  1439 19 01         mov al, 1
+0118+  143B 05 03         syscall sys_io      ; receive in AH
+0119+  143D B9 00         cmp al, 0        ; check error code (AL)
+0120+  143F C6 39 14      je _gets_loop      ; if no char received, retry
+0121+  1442             
+0122+  1442 76 1B         cmp ah, 27
+0123+  1444 C6 65 14      je _gets_ansi_esc
+0124+  1447 76 0A         cmp ah, $0A        ; LF
+0125+  1449 C6 D0 14      je _gets_end
+0126+  144C 76 0D         cmp ah, $0D        ; CR
+0127+  144E C6 D0 14      je _gets_end
+0128+  1451 76 5C         cmp ah, $5C        ; '\\'
+0129+  1453 C6 91 14      je _gets_escape
+0130+  1456               
+0131+  1456 76 08         cmp ah, $08      ; check for backspace
+0132+  1458 C6 61 14      je _gets_backspace
+0133+  145B             
+0134+  145B 1A            mov al, ah
+0135+  145C 3E            mov [d], al
+0136+  145D 79            inc d
+0137+  145E 0A 39 14      jmp _gets_loop
+0138+  1461             _gets_backspace:
+0139+  1461 7F            dec d
+0140+  1462 0A 39 14      jmp _gets_loop
+0141+  1465             _gets_ansi_esc:
+0142+  1465 19 01         mov al, 1
+0143+  1467 05 03         syscall sys_io        ; receive in AH without echo
+0144+  1469 B9 00         cmp al, 0          ; check error code (AL)
+0145+  146B C6 65 14      je _gets_ansi_esc    ; if no char received, retry
+0146+  146E 76 5B         cmp ah, '['
+0147+  1470 C7 39 14      jne _gets_loop
+0148+  1473             _gets_ansi_esc_2:
+0149+  1473 19 01         mov al, 1
+0150+  1475 05 03         syscall sys_io          ; receive in AH without echo
+0151+  1477 B9 00         cmp al, 0            ; check error code (AL)
+0152+  1479 C6 73 14      je _gets_ansi_esc_2  ; if no char received, retry
+0153+  147C 76 44         cmp ah, 'D'
+0154+  147E C6 89 14      je _gets_left_arrow
+0155+  1481 76 43         cmp ah, 'C'
+0156+  1483 C6 8D 14      je _gets_right_arrow
+0157+  1486 0A 39 14      jmp _gets_loop
+0158+  1489             _gets_left_arrow:
+0159+  1489 7F            dec d
+0160+  148A 0A 39 14      jmp _gets_loop
+0161+  148D             _gets_right_arrow:
+0162+  148D 79            inc d
+0163+  148E 0A 39 14      jmp _gets_loop
+0164+  1491             _gets_escape:
+0165+  1491 19 01         mov al, 1
+0166+  1493 05 03         syscall sys_io      ; receive in AH
+0167+  1495 B9 00         cmp al, 0        ; check error code (AL)
+0168+  1497 C6 91 14      je _gets_escape      ; if no char received, retry
+0169+  149A 76 6E         cmp ah, 'n'
+0170+  149C C6 BB 14      je _gets_LF
+0171+  149F 76 72         cmp ah, 'r'
+0172+  14A1 C6 C2 14      je _gets_CR
+0173+  14A4 76 30         cmp ah, '0'
+0174+  14A6 C6 C9 14      je _gets_NULL
+0175+  14A9 76 5C         cmp ah, $5C  ; '\'
+0176+  14AB C6 B4 14      je _gets_slash
+0177+  14AE 1A            mov al, ah        ; if not a known escape, it is just a normal letter
+0178+  14AF 3E            mov [d], al
+0179+  14B0 79            inc d
+0180+  14B1 0A 39 14      jmp _gets_loop
+0181+  14B4             _gets_slash:
+0182+  14B4 19 5C         mov al, $5C
+0183+  14B6 3E            mov [d], al
+0184+  14B7 79            inc d
+0185+  14B8 0A 39 14      jmp _gets_loop
+0186+  14BB             _gets_LF:
+0187+  14BB 19 0A         mov al, $0A
+0188+  14BD 3E            mov [d], al
+0189+  14BE 79            inc d
+0190+  14BF 0A 39 14      jmp _gets_loop
+0191+  14C2             _gets_CR:
+0192+  14C2 19 0D         mov al, $0D
+0193+  14C4 3E            mov [d], al
+0194+  14C5 79            inc d
+0195+  14C6 0A 39 14      jmp _gets_loop
+0196+  14C9             _gets_NULL:
+0197+  14C9 19 00         mov al, $00
+0198+  14CB 3E            mov [d], al
+0199+  14CC 79            inc d
+0200+  14CD 0A 39 14      jmp _gets_loop
+0201+  14D0             _gets_end:
+0202+  14D0 19 00         mov al, 0
+0203+  14D2 3E            mov [d], al        ; terminate string
+0204+  14D3 E7            pop d
+0205+  14D4 E4            pop a
+0206+  14D5 09            ret
+0207+  14D6             
+0208+  14D6             ;-----------------------------------------------------------------------------
+0209+  14D6             ;; INPUT TEXT
+0210+  14D6             ;; terminated with CTRL+D
+0211+  14D6             ;; pointer in D
+0212+  14D6             ;-----------------------------------------------------------------------------
+0213+  14D6             _gettxt:
+0214+  14D6 D7            push a
+0215+  14D7 DA            push d
+0216+  14D8             _gettxt_loop:
+0217+  14D8 19 01         mov al, 1
+0218+  14DA 05 03         syscall sys_io      ; receive in AH
+0219+  14DC B9 00         cmp al, 0        ; check error code (AL)
+0220+  14DE C6 D8 14      je _gettxt_loop    ; if no char received, retry
+0221+  14E1 76 04         cmp ah, 4      ; EOT
+0222+  14E3 C6 21 15      je _gettxt_end
+0223+  14E6 76 08         cmp ah, $08      ; check for backspace
+0224+  14E8 C6 1D 15      je _gettxt_backspace
+0225+  14EB 76 5C         cmp ah, $5C        ; '\'
+0226+  14ED C6 F6 14      je _gettxt_escape
+0227+  14F0 1A            mov al, ah
+0228+  14F1 3E            mov [d], al
+0229+  14F2 79            inc d
+0230+  14F3 0A D8 14      jmp _gettxt_loop
+0231+  14F6             _gettxt_escape:
+0232+  14F6 19 01         mov al, 1
+0233+  14F8 05 03         syscall sys_io      ; receive in AH
+0234+  14FA B9 00         cmp al, 0        ; check error code (AL)
+0235+  14FC C6 F6 14      je _gettxt_escape    ; if no char received, retry
+0236+  14FF 76 6E         cmp ah, 'n'
+0237+  1501 C6 0F 15      je _gettxt_LF
+0238+  1504 76 72         cmp ah, 'r'
+0239+  1506 C6 16 15      je _gettxt_CR
+0240+  1509 1A            mov al, ah        ; if not a known escape, it is just a normal letter
+0241+  150A 3E            mov [d], al
+0242+  150B 79            inc d
+0243+  150C 0A D8 14      jmp _gettxt_loop
+0244+  150F             _gettxt_LF:
+0245+  150F 19 0A         mov al, $0A
+0246+  1511 3E            mov [d], al
+0247+  1512 79            inc d
+0248+  1513 0A D8 14      jmp _gettxt_loop
+0249+  1516             _gettxt_CR:
+0250+  1516 19 0D         mov al, $0D
+0251+  1518 3E            mov [d], al
+0252+  1519 79            inc d
+0253+  151A 0A D8 14      jmp _gettxt_loop
+0254+  151D             _gettxt_backspace:
+0255+  151D 7F            dec d
+0256+  151E 0A D8 14      jmp _gettxt_loop
+0257+  1521             _gettxt_end:
+0258+  1521 19 00         mov al, 0
+0259+  1523 3E            mov [d], al        ; terminate string
+0260+  1524 E7            pop d
+0261+  1525 E4            pop a
+0262+  1526 09            ret
+0263+  1527             
+0264+  1527             ;-----------------------------------------------------------------------------
+0265+  1527             ; PRINT NEW LINE
+0266+  1527             ;-----------------------------------------------------------------------------
+0267+  1527             printnl:
+0268+  1527 D7            push a
+0269+  1528 10 00 0A      mov a, $0A00
+0270+  152B 05 03         syscall sys_io
+0271+  152D 10 00 0D      mov a, $0D00
+0272+  1530 05 03         syscall sys_io
+0273+  1532 E4            pop a
+0274+  1533 09            ret
+0275+  1534             
+0276+  1534             ;-----------------------------------------------------------------------------
+0277+  1534             ; _strtoint
+0278+  1534             ; 4 digit hex string number in d
+0279+  1534             ; integer returned in A
+0280+  1534             ;-----------------------------------------------------------------------------
+0281+  1534             _strtointx:
+0282+  1534 D8            push b
+0283+  1535 32            mov bl, [d]
+0284+  1536 37            mov bh, bl
+0285+  1537 33 01 00      mov bl, [d + 1]
+0286+  153A 07 EE 13      call _atoi        ; convert to int in AL
+0287+  153D 23            mov ah, al        ; move to AH
+0288+  153E 33 02 00      mov bl, [d + 2]
+0289+  1541 37            mov bh, bl
+0290+  1542 33 03 00      mov bl, [d + 3]
+0291+  1545 07 EE 13      call _atoi        ; convert to int in AL
+0292+  1548 E5            pop b
+0293+  1549 09            ret
+0294+  154A             
+0295+  154A             ;-----------------------------------------------------------------------------
+0296+  154A             ; _strtoint
+0297+  154A             ; 5 digit base10 string number in d
+0298+  154A             ; integer returned in A
+0299+  154A             ;-----------------------------------------------------------------------------
+0300+  154A             _strtoint:
+0301+  154A E2            push si
+0302+  154B D8            push b
+0303+  154C D9            push c
+0304+  154D DA            push d
+0305+  154E 07 90 13      call _strlen      ; get string length in C
+0306+  1551 7E            dec c
+0307+  1552 FD 4E         mov si, d
+0308+  1554 12            mov a, c
+0309+  1555 FD 99         shl a
+0310+  1557 3B C6 16      mov d, table_power
+0311+  155A 59            add d, a
+0312+  155B 38 00 00      mov c, 0
+0313+  155E             _strtoint_L0:
+0314+  155E F6            lodsb      ; load ASCII to al
+0315+  155F B9 00         cmp al, 0
+0316+  1561 C6 74 15      je _strtoint_end
+0317+  1564 6F 30         sub al, $30    ; make into integer
+0318+  1566 22 00         mov ah, 0
+0319+  1568 2A            mov b, [d]
+0320+  1569 AC            mul a, b      ; result in B since it fits in 16bits
+0321+  156A 11            mov a, b
+0322+  156B 28            mov b, c
+0323+  156C 54            add a, b
+0324+  156D 39            mov c, a
+0325+  156E 63 02 00      sub d, 2
+0326+  1571 0A 5E 15      jmp _strtoint_L0
+0327+  1574             _strtoint_end:
+0328+  1574 12            mov a, c
+0329+  1575 E7            pop d
+0330+  1576 E6            pop c
+0331+  1577 E5            pop b
+0332+  1578 EF            pop si
+0333+  1579 09            ret
+0334+  157A             
+0335+  157A             ;-----------------------------------------------------------------------------
+0336+  157A             ; PRINT NULL TERMINATED STRING
+0337+  157A             ; pointer in D
+0338+  157A             ;-----------------------------------------------------------------------------
+0339+  157A             _puts:
+0340+  157A D7            push a
+0341+  157B DA            push d
+0342+  157C             _puts_L1:
+0343+  157C 1E            mov al, [d]
+0344+  157D B9 00         cmp al, 0
+0345+  157F C6 8B 15      jz _puts_END
+0346+  1582 23            mov ah, al
+0347+  1583 19 00         mov al, 0
+0348+  1585 05 03         syscall sys_io
+0349+  1587 79            inc d
+0350+  1588 0A 7C 15      jmp _puts_L1
+0351+  158B             _puts_END:
+0352+  158B E7            pop d
+0353+  158C E4            pop a
+0354+  158D 09            ret
+0355+  158E             
+0356+  158E             ;-----------------------------------------------------------------------------
+0357+  158E             ; PRINT N SIZE STRING
+0358+  158E             ; pointer in D
+0359+  158E             ; size in C
+0360+  158E             ;-----------------------------------------------------------------------------
+0361+  158E             _putsn:
+0362+  158E DB            push al
+0363+  158F DA            push d
+0364+  1590 D9            push c
+0365+  1591             _putsn_L0:
+0366+  1591 1E            mov al, [d]
+0367+  1592 23            mov ah, al
+0368+  1593 19 00         mov al, 0
+0369+  1595 05 03         syscall sys_io
+0370+  1597 79            inc d
+0371+  1598 7E            dec c  
+0372+  1599 C2 00 00      cmp c, 0
+0373+  159C C7 91 15      jne _putsn_L0
+0374+  159F             _putsn_end:
+0375+  159F E6            pop c
+0376+  15A0 E7            pop d
+0377+  15A1 E8            pop al
+0378+  15A2 09            ret
+0379+  15A3             
+0380+  15A3             ;-----------------------------------------------------------------------------
+0381+  15A3             ; print 16bit decimal number
+0382+  15A3             ; input number in A
+0383+  15A3             ;-----------------------------------------------------------------------------
+0384+  15A3             print_u16d:
+0385+  15A3 D7            push a
+0386+  15A4 D8            push b
+0387+  15A5 26 10 27      mov b, 10000
+0388+  15A8 AE            div a, b      ; get 10000's coeff.
+0389+  15A9 07 CB 15      call print_number
+0390+  15AC 11            mov a, b
+0391+  15AD 26 E8 03      mov b, 1000
+0392+  15B0 AE            div a, b      ; get 1000's coeff.
+0393+  15B1 07 CB 15      call print_number
+0394+  15B4 11            mov a, b
+0395+  15B5 26 64 00      mov b, 100
+0396+  15B8 AE            div a, b
+0397+  15B9 07 CB 15      call print_number
+0398+  15BC 11            mov a, b
+0399+  15BD 26 0A 00      mov b, 10
+0400+  15C0 AE            div a, b
+0401+  15C1 07 CB 15      call print_number
+0402+  15C4 1B            mov al, bl      ; 1's coeff in bl
+0403+  15C5 07 CB 15      call print_number
+0404+  15C8 E5            pop b
+0405+  15C9 E4            pop a
+0406+  15CA 09            ret
+0407+  15CB             
+0408+  15CB             ;-----------------------------------------------------------------------------
+0409+  15CB             ; print AL
+0410+  15CB             ;-----------------------------------------------------------------------------
+0411+  15CB             print_number:
+0412+  15CB 6A 30         add al, $30
+0413+  15CD 23            mov ah, al
+0414+  15CE 07 30 14      call _putchar
+0415+  15D1 09            ret
+0416+  15D2             
+0417+  15D2             ;-----------------------------------------------------------------------------
+0418+  15D2             ; PRINT 16BIT HEX INTEGER
+0419+  15D2             ; integer value in reg B
+0420+  15D2             ;-----------------------------------------------------------------------------
+0421+  15D2             print_u16x:
+0422+  15D2 D7            push a
+0423+  15D3 D8            push b
+0424+  15D4 DD            push bl
+0425+  15D5 30            mov bl, bh
+0426+  15D6 07 FE 13      call _itoa        ; convert bh to char in A
+0427+  15D9 2F            mov bl, al        ; save al
+0428+  15DA 19 00         mov al, 0
+0429+  15DC 05 03         syscall sys_io        ; display AH
+0430+  15DE 24            mov ah, bl        ; retrieve al
+0431+  15DF 19 00         mov al, 0
+0432+  15E1 05 03         syscall sys_io        ; display AL
+0433+  15E3             
+0434+  15E3 EA            pop bl
+0435+  15E4 07 FE 13      call _itoa        ; convert bh to char in A
+0436+  15E7 2F            mov bl, al        ; save al
+0437+  15E8 19 00         mov al, 0
+0438+  15EA 05 03         syscall sys_io        ; display AH
+0439+  15EC 24            mov ah, bl        ; retrieve al
+0440+  15ED 19 00         mov al, 0
+0441+  15EF 05 03         syscall sys_io        ; display AL
+0442+  15F1             
+0443+  15F1 E5            pop b
+0444+  15F2 E4            pop a
+0445+  15F3 09            ret
+0446+  15F4             
+0447+  15F4             ;-----------------------------------------------------------------------------
+0448+  15F4             ; INPUT 16BIT HEX INTEGER
+0449+  15F4             ; read 16bit integer into A
+0450+  15F4             ;-----------------------------------------------------------------------------
+0451+  15F4             scan_u16x:
+0452+  15F4 F8 10 00      enter 16
+0453+  15F7 D8            push b
+0454+  15F8 DA            push d
+0455+  15F9             
+0456+  15F9 FA F1 FF      lea d, [bp + -15]
+0457+  15FC 07 37 14      call _gets        ; get number
+0458+  15FF             
+0459+  15FF 32            mov bl, [d]
+0460+  1600 37            mov bh, bl
+0461+  1601 33 01 00      mov bl, [d + 1]
+0462+  1604 07 EE 13      call _atoi        ; convert to int in AL
+0463+  1607 23            mov ah, al        ; move to AH
+0464+  1608             
+0465+  1608 33 02 00      mov bl, [d + 2]
+0466+  160B 37            mov bh, bl
+0467+  160C 33 03 00      mov bl, [d + 3]
+0468+  160F 07 EE 13      call _atoi        ; convert to int in AL
+0469+  1612             
+0470+  1612 E7            pop d
+0471+  1613 E5            pop b
+0472+  1614 F9            leave
+0473+  1615 09            ret
+0474+  1616             
+0475+  1616             ;-----------------------------------------------------------------------------
+0476+  1616             ; PRINT 8bit HEX INTEGER
+0477+  1616             ; integer value in reg bl
+0478+  1616             ;-----------------------------------------------------------------------------
+0479+  1616             print_u8x:
+0480+  1616 D7            push a
+0481+  1617 DD            push bl
+0482+  1618             
+0483+  1618 07 FE 13      call _itoa        ; convert bl to char in A
+0484+  161B 2F            mov bl, al        ; save al
+0485+  161C 19 00         mov al, 0
+0486+  161E 05 03         syscall sys_io        ; display AH
+0487+  1620 24            mov ah, bl        ; retrieve al
+0488+  1621 19 00         mov al, 0
+0489+  1623 05 03         syscall sys_io        ; display AL
+0490+  1625             
+0491+  1625 EA            pop bl
+0492+  1626 E4            pop a
+0493+  1627 09            ret
+0494+  1628             
+0495+  1628             ;-----------------------------------------------------------------------------
+0496+  1628             ; print 8bit decimal unsigned number
+0497+  1628             ; input number in AL
+0498+  1628             ;-----------------------------------------------------------------------------
+0499+  1628             print_u8d:
+0500+  1628 D7            push a
+0501+  1629 D8            push b
+0502+  162A             
+0503+  162A 22 00         mov ah, 0
+0504+  162C 26 64 00      mov b, 100
+0505+  162F AE            div a, b
+0506+  1630 D8            push b      ; save remainder
+0507+  1631 B9 00         cmp al, 0
+0508+  1633 C6 3D 16      je skip100
+0509+  1636 6A 30         add al, $30
+0510+  1638 23            mov ah, al
+0511+  1639 19 00         mov al, 0
+0512+  163B 05 03         syscall sys_io  ; print coeff
+0513+  163D             skip100:
+0514+  163D E4            pop a
+0515+  163E 22 00         mov ah, 0
+0516+  1640 26 0A 00      mov b, 10
+0517+  1643 AE            div a, b
+0518+  1644 D8            push b      ; save remainder
+0519+  1645 B9 00         cmp al, 0
+0520+  1647 C6 51 16      je skip10
+0521+  164A 6A 30         add al, $30
+0522+  164C 23            mov ah, al
+0523+  164D 19 00         mov al, 0
+0524+  164F 05 03         syscall sys_io  ; print coeff
+0525+  1651             skip10:
+0526+  1651 E4            pop a
+0527+  1652 1B            mov al, bl
+0528+  1653 6A 30         add al, $30
+0529+  1655 23            mov ah, al
+0530+  1656 19 00         mov al, 0
+0531+  1658 05 03         syscall sys_io  ; print coeff
+0532+  165A E5            pop b
+0533+  165B E4            pop a
+0534+  165C 09            ret
+0535+  165D             
+0536+  165D             ;-----------------------------------------------------------------------------
+0537+  165D             ; INPUT 8BIT HEX INTEGER
+0538+  165D             ; read 8bit integer into AL
+0539+  165D             ;-----------------------------------------------------------------------------
+0540+  165D             scan_u8x:
+0541+  165D F8 04 00      enter 4
+0542+  1660 D8            push b
+0543+  1661 DA            push d
+0544+  1662             
+0545+  1662 FA FD FF      lea d, [bp + -3]
+0546+  1665 07 37 14      call _gets        ; get number
+0547+  1668             
+0548+  1668 32            mov bl, [d]
+0549+  1669 37            mov bh, bl
+0550+  166A 33 01 00      mov bl, [d + 1]
+0551+  166D 07 EE 13      call _atoi        ; convert to int in AL
+0552+  1670             
+0553+  1670 E7            pop d
+0554+  1671 E5            pop b
+0555+  1672 F9            leave
+0556+  1673 09            ret
+0557+  1674             
+0558+  1674             ;-----------------------------------------------------------------------------
+0559+  1674             ; input decimal number
+0560+  1674             ; result in A
+0561+  1674             ; 655'\0'
+0562+  1674             ; low--------high
+0563+  1674             ;-----------------------------------------------------------------------------
+0564+  1674             scan_u16d:
+0565+  1674 F8 08 00      enter 8
+0566+  1677 E2            push si
+0567+  1678 D8            push b
+0568+  1679 D9            push c
+0569+  167A DA            push d
+0570+  167B FA F9 FF      lea d, [bp +- 7]
+0571+  167E 07 37 14      call _gets
+0572+  1681 07 90 13      call _strlen      ; get string length in C
+0573+  1684 7E            dec c
+0574+  1685 FD 4E         mov si, d
+0575+  1687 12            mov a, c
+0576+  1688 FD 99         shl a
+0577+  168A 3B C6 16      mov d, table_power
+0578+  168D 59            add d, a
+0579+  168E 38 00 00      mov c, 0
+0580+  1691             mul_loop:
+0581+  1691 F6            lodsb      ; load ASCII to al
+0582+  1692 B9 00         cmp al, 0
+0583+  1694 C6 A7 16      je mul_exit
+0584+  1697 6F 30         sub al, $30    ; make into integer
+0585+  1699 22 00         mov ah, 0
+0586+  169B 2A            mov b, [d]
+0587+  169C AC            mul a, b      ; result in B since it fits in 16bits
+0588+  169D 11            mov a, b
+0589+  169E 28            mov b, c
+0590+  169F 54            add a, b
+0591+  16A0 39            mov c, a
+0592+  16A1 63 02 00      sub d, 2
+0593+  16A4 0A 91 16      jmp mul_loop
+0594+  16A7             mul_exit:
+0595+  16A7 12            mov a, c
+0596+  16A8 E7            pop d
+0597+  16A9 E6            pop c
+0598+  16AA E5            pop b
+0599+  16AB EF            pop si
+0600+  16AC F9            leave
+0601+  16AD 09            ret
+0602+  16AE             
+0603+  16AE 30 31 32 33 s_hex_digits:    .db "0123456789ABCDEF"  
+0603+  16B2 34 35 36 37 
+0603+  16B6 38 39 41 42 
+0603+  16BA 43 44 45 46 
+0604+  16BE 1B 5B 32 4A s_telnet_clear:  .db "\033[2J\033[H", 0
+0604+  16C2 1B 5B 48 00 
+0605+  16C6             
+0606+  16C6             table_power:
+0607+  16C6 01 00         .dw 1
+0608+  16C8 0A 00         .dw 10
+0609+  16CA 64 00         .dw 100
+0610+  16CC E8 03         .dw 1000
+0611+  16CE 10 27         .dw 100002288   16D0             ; --- END INLINE ASM BLOCK
+2289   16D0             
+2290   16D0 F9            leave
+2291   16D1 09            ret
+2292   16D2             
+2293   16D2             exit:
+2294   16D2 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2295   16D5             
+2296   16D5             ; --- BEGIN INLINE ASM BLOCK
+2297   16D5 05 0B         syscall sys_terminate_proc
+2298   16D7             ; --- END INLINE ASM BLOCK
+2299   16D7             
+2300   16D7 F9            leave
+2301   16D8 09            ret
+2302   16D9             
+2303   16D9             atoi:
+2304   16D9 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2305   16DC             ; $result 
+2306   16DC 10 00 00      mov a, $0
+2307   16DF 45 FF FF      mov [bp + -1], a
+2308   16E2             ; $sign 
+2309   16E2 10 01 00      mov a, $1
+2310   16E5 45 FD FF      mov [bp + -3], a
+2311   16E8 52 04 00      sub sp, 4
+2312   16EB             ;; while (*str == ' ') str++; 
+2313   16EB             _while36_cond:
+2314   16EB FA 05 00      lea d, [bp + 5] ; $str
+2315   16EE 2A            mov b, [d]
+2316   16EF 74            mov d, b
+2317   16F0 32            mov bl, [d]
+2318   16F1 A7 00         mov bh, 0
+2319   16F3             ; START RELATIONAL
+2320   16F3 D7            push a
+2321   16F4 11            mov a, b
+2322   16F5 26 20 00      mov b, $20
+2323   16F8 B0            cmp a, b
+2324   16F9 FD 71         seq ; ==
+2325   16FB E4            pop a
+2326   16FC             ; END RELATIONAL
+2327   16FC C0 00 00      cmp b, 0
+2328   16FF C6 12 17      je _while36_exit
+2329   1702             _while36_block:
+2330   1702             ;; str++; 
+2331   1702 FA 05 00      lea d, [bp + 5] ; $str
+2332   1705 2A            mov b, [d]
+2333   1706 D8            push b
+2334   1707 FD 77         inc b
+2335   1709 FA 05 00      lea d, [bp + 5] ; $str
+2336   170C FD 43         mov [d], b
+2337   170E E5            pop b
+2338   170F 0A EB 16      jmp _while36_cond
+2339   1712             _while36_exit:
+2340   1712             ;; if (*str == '-' || *str == '+') { 
+2341   1712             _if37_cond:
+2342   1712 FA 05 00      lea d, [bp + 5] ; $str
+2343   1715 2A            mov b, [d]
+2344   1716 74            mov d, b
+2345   1717 32            mov bl, [d]
+2346   1718 A7 00         mov bh, 0
+2347   171A             ; START RELATIONAL
+2348   171A D7            push a
+2349   171B 11            mov a, b
+2350   171C 26 2D 00      mov b, $2d
+2351   171F B0            cmp a, b
+2352   1720 FD 71         seq ; ==
+2353   1722 E4            pop a
+2354   1723             ; END RELATIONAL
+2355   1723 D7            push a
+2356   1724 11            mov a, b
+2357   1725 FA 05 00      lea d, [bp + 5] ; $str
+2358   1728 2A            mov b, [d]
+2359   1729 74            mov d, b
+2360   172A 32            mov bl, [d]
+2361   172B A7 00         mov bh, 0
+2362   172D             ; START RELATIONAL
+2363   172D D7            push a
+2364   172E 11            mov a, b
+2365   172F 26 2B 00      mov b, $2b
+2366   1732 B0            cmp a, b
+2367   1733 FD 71         seq ; ==
+2368   1735 E4            pop a
+2369   1736             ; END RELATIONAL
+2370   1736 FD A8         sor a, b ; ||
+2371   1738 E4            pop a
+2372   1739 C0 00 00      cmp b, 0
+2373   173C C6 73 17      je _if37_exit
+2374   173F             _if37_true:
+2375   173F             ;; if (*str == '-') sign = -1; 
+2376   173F             _if38_cond:
+2377   173F FA 05 00      lea d, [bp + 5] ; $str
+2378   1742 2A            mov b, [d]
+2379   1743 74            mov d, b
+2380   1744 32            mov bl, [d]
+2381   1745 A7 00         mov bh, 0
+2382   1747             ; START RELATIONAL
+2383   1747 D7            push a
+2384   1748 11            mov a, b
+2385   1749 26 2D 00      mov b, $2d
+2386   174C B0            cmp a, b
+2387   174D FD 71         seq ; ==
+2388   174F E4            pop a
+2389   1750             ; END RELATIONAL
+2390   1750 C0 00 00      cmp b, 0
+2391   1753 C6 63 17      je _if38_exit
+2392   1756             _if38_true:
+2393   1756             ;; sign = -1; 
+2394   1756 FA FD FF      lea d, [bp + -3] ; $sign
+2395   1759 DA            push d
+2396   175A 26 FF FF      mov b, $ffff
+2397   175D E7            pop d
+2398   175E FD 43         mov [d], b
+2399   1760 0A 63 17      jmp _if38_exit
+2400   1763             _if38_exit:
+2401   1763             ;; str++; 
+2402   1763 FA 05 00      lea d, [bp + 5] ; $str
+2403   1766 2A            mov b, [d]
+2404   1767 D8            push b
+2405   1768 FD 77         inc b
+2406   176A FA 05 00      lea d, [bp + 5] ; $str
+2407   176D FD 43         mov [d], b
+2408   176F E5            pop b
+2409   1770 0A 73 17      jmp _if37_exit
+2410   1773             _if37_exit:
+2411   1773             ;; while (*str >= '0' && *str <= '9') { 
+2412   1773             _while39_cond:
+2413   1773 FA 05 00      lea d, [bp + 5] ; $str
+2414   1776 2A            mov b, [d]
+2415   1777 74            mov d, b
+2416   1778 32            mov bl, [d]
+2417   1779 A7 00         mov bh, 0
+2418   177B             ; START RELATIONAL
+2419   177B D7            push a
+2420   177C 11            mov a, b
+2421   177D 26 30 00      mov b, $30
+2422   1780 B0            cmp a, b
+2423   1781 FD 82         sgeu ; >= (unsigned)
+2424   1783 E4            pop a
+2425   1784             ; END RELATIONAL
+2426   1784 D7            push a
+2427   1785 11            mov a, b
+2428   1786 FA 05 00      lea d, [bp + 5] ; $str
+2429   1789 2A            mov b, [d]
+2430   178A 74            mov d, b
+2431   178B 32            mov bl, [d]
+2432   178C A7 00         mov bh, 0
+2433   178E             ; START RELATIONAL
+2434   178E D7            push a
+2435   178F 11            mov a, b
+2436   1790 26 39 00      mov b, $39
+2437   1793 B0            cmp a, b
+2438   1794 FD 75         slu ; <= (unsigned)
+2439   1796 E4            pop a
+2440   1797             ; END RELATIONAL
+2441   1797 FD A7         sand a, b
+2442   1799 E4            pop a
+2443   179A C0 00 00      cmp b, 0
+2444   179D C6 D8 17      je _while39_exit
+2445   17A0             _while39_block:
+2446   17A0             ;; result = result * 10 + (*str - '0'); 
+2447   17A0 FA FF FF      lea d, [bp + -1] ; $result
+2448   17A3 DA            push d
+2449   17A4 FA FF FF      lea d, [bp + -1] ; $result
+2450   17A7 2A            mov b, [d]
+2451   17A8             ; START FACTORS
+2452   17A8 D7            push a
+2453   17A9 11            mov a, b
+2454   17AA 26 0A 00      mov b, $a
+2455   17AD AC            mul a, b ; *
+2456   17AE 11            mov a, b
+2457   17AF 27            mov b, a
+2458   17B0 E4            pop a
+2459   17B1             ; END FACTORS
+2460   17B1             ; START TERMS
+2461   17B1 D7            push a
+2462   17B2 11            mov a, b
+2463   17B3 FA 05 00      lea d, [bp + 5] ; $str
+2464   17B6 2A            mov b, [d]
+2465   17B7 74            mov d, b
+2466   17B8 32            mov bl, [d]
+2467   17B9 A7 00         mov bh, 0
+2468   17BB             ; START TERMS
+2469   17BB D7            push a
+2470   17BC 11            mov a, b
+2471   17BD 26 30 00      mov b, $30
+2472   17C0 60            sub a, b
+2473   17C1 27            mov b, a
+2474   17C2 E4            pop a
+2475   17C3             ; END TERMS
+2476   17C3 56            add b, a
+2477   17C4 E4            pop a
+2478   17C5             ; END TERMS
+2479   17C5 E7            pop d
+2480   17C6 FD 43         mov [d], b
+2481   17C8             ;; str++; 
+2482   17C8 FA 05 00      lea d, [bp + 5] ; $str
+2483   17CB 2A            mov b, [d]
+2484   17CC D8            push b
+2485   17CD FD 77         inc b
+2486   17CF FA 05 00      lea d, [bp + 5] ; $str
+2487   17D2 FD 43         mov [d], b
+2488   17D4 E5            pop b
+2489   17D5 0A 73 17      jmp _while39_cond
+2490   17D8             _while39_exit:
+2491   17D8             ;; return sign * result; 
+2492   17D8 FA FD FF      lea d, [bp + -3] ; $sign
+2493   17DB 2A            mov b, [d]
+2494   17DC             ; START FACTORS
+2495   17DC D7            push a
+2496   17DD 11            mov a, b
+2497   17DE FA FF FF      lea d, [bp + -1] ; $result
+2498   17E1 2A            mov b, [d]
+2499   17E2 AC            mul a, b ; *
+2500   17E3 11            mov a, b
+2501   17E4 27            mov b, a
+2502   17E5 E4            pop a
+2503   17E6             ; END FACTORS
+2504   17E6 F9            leave
+2505   17E7 09            ret
+2506   17E8             
+2507   17E8             rand:
+2508   17E8 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2509   17EB             ; $sec 
+2510   17EB 52 02 00      sub sp, 2
+2511   17EE             
+2512   17EE             ; --- BEGIN INLINE ASM BLOCK
+2513   17EE 19 00         mov al, 0
+2514   17F0 05 01         syscall sys_rtc					
+2515   17F2 1A            mov al, ah
+2516   17F3 FA FF FF      lea d, [bp + -1] ; $sec
+2517   17F6 1E            mov al, [d]
+2518   17F7 22 00         mov ah, 0
+2519   17F9             ; --- END INLINE ASM BLOCK
+2520   17F9             
+2521   17F9             ;; return sec; 
+2522   17F9 FA FF FF      lea d, [bp + -1] ; $sec
+2523   17FC 2A            mov b, [d]
+2524   17FD F9            leave
+2525   17FE 09            ret
+2526   17FF             
+2527   17FF             alloc:
+2528   17FF F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2529   1802             ;; heap_top = heap_top + bytes; 
+2530   1802 3B E8 1C      mov d, _heap_top ; $heap_top
+2531   1805 DA            push d
+2532   1806 3B E8 1C      mov d, _heap_top ; $heap_top
+2533   1809 2A            mov b, [d]
+2534   180A             ; START TERMS
+2535   180A D7            push a
+2536   180B 11            mov a, b
+2537   180C FA 05 00      lea d, [bp + 5] ; $bytes
+2538   180F 2A            mov b, [d]
+2539   1810 56            add b, a
+2540   1811 E4            pop a
+2541   1812             ; END TERMS
+2542   1812 E7            pop d
+2543   1813 FD 43         mov [d], b
+2544   1815             ;; return heap_top - bytes; 
+2545   1815 3B E8 1C      mov d, _heap_top ; $heap_top
+2546   1818 2A            mov b, [d]
+2547   1819             ; START TERMS
+2548   1819 D7            push a
+2549   181A 11            mov a, b
+2550   181B FA 05 00      lea d, [bp + 5] ; $bytes
+2551   181E 2A            mov b, [d]
+2552   181F 60            sub a, b
+2553   1820 27            mov b, a
+2554   1821 E4            pop a
+2555   1822             ; END TERMS
+2556   1822 F9            leave
+2557   1823 09            ret
+2558   1824             
+2559   1824             free:
+2560   1824 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2561   1827             ;; return heap_top = heap_top - bytes; 
+2562   1827 3B E8 1C      mov d, _heap_top ; $heap_top
+2563   182A DA            push d
+2564   182B 3B E8 1C      mov d, _heap_top ; $heap_top
+2565   182E 2A            mov b, [d]
+2566   182F             ; START TERMS
+2567   182F D7            push a
+2568   1830 11            mov a, b
+2569   1831 FA 05 00      lea d, [bp + 5] ; $bytes
+2570   1834 2A            mov b, [d]
+2571   1835 60            sub a, b
+2572   1836 27            mov b, a
+2573   1837 E4            pop a
+2574   1838             ; END TERMS
+2575   1838 E7            pop d
+2576   1839 FD 43         mov [d], b
+2577   183B F9            leave
+2578   183C 09            ret
+2579   183D             
+2580   183D             TO_FIXED:
+2581   183D F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2582   1840             ;; return x * 10;} 
+2583   1840 FA 05 00      lea d, [bp + 5] ; $x
+2584   1843 2A            mov b, [d]
+2585   1844             ; START FACTORS
+2586   1844 D7            push a
+2587   1845 11            mov a, b
+2588   1846 26 0A 00      mov b, $a
+2589   1849 AC            mul a, b ; *
+2590   184A 11            mov a, b
+2591   184B 27            mov b, a
+2592   184C E4            pop a
+2593   184D             ; END FACTORS
+2594   184D F9            leave
+2595   184E 09            ret
+2596   184F             
+2597   184F             FROM_FIXED:
+2598   184F F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2599   1852             ;; return x / 10;} 
+2600   1852 FA 05 00      lea d, [bp + 5] ; $x
+2601   1855 2A            mov b, [d]
+2602   1856             ; START FACTORS
+2603   1856 D7            push a
+2604   1857 11            mov a, b
+2605   1858 26 0A 00      mov b, $a
+2606   185B AE            div a, b
+2607   185C 27            mov b, a
+2608   185D E4            pop a
+2609   185E             ; END FACTORS
+2610   185E F9            leave
+2611   185F 09            ret
+2612   1860             
+2613   1860             TO_FIXED00:
+2614   1860 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2615   1863             ;; return x * 100;} 
+2616   1863 FA 05 00      lea d, [bp + 5] ; $x
+2617   1866 2A            mov b, [d]
+2618   1867             ; START FACTORS
+2619   1867 D7            push a
+2620   1868 11            mov a, b
+2621   1869 26 64 00      mov b, $64
+2622   186C AC            mul a, b ; *
+2623   186D 11            mov a, b
+2624   186E 27            mov b, a
+2625   186F E4            pop a
+2626   1870             ; END FACTORS
+2627   1870 F9            leave
+2628   1871 09            ret
+2629   1872             
+2630   1872             FROM_FIXED00:
+2631   1872 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2632   1875             ;; return x / 100;} 
+2633   1875 FA 05 00      lea d, [bp + 5] ; $x
+2634   1878 2A            mov b, [d]
+2635   1879             ; START FACTORS
+2636   1879 D7            push a
+2637   187A 11            mov a, b
+2638   187B 26 64 00      mov b, $64
+2639   187E AE            div a, b
+2640   187F 27            mov b, a
+2641   1880 E4            pop a
+2642   1881             ; END FACTORS
+2643   1881 F9            leave
+2644   1882 09            ret
+2645   1883             
+2646   1883             get_rand:
+2647   1883 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2648   1886             ; $r 
+2649   1886 52 02 00      sub sp, 2
+2650   1889             ;; r = rand(); 
+2651   1889 FA FF FF      lea d, [bp + -1] ; $r
+2652   188C DA            push d
+2653   188D 07 E8 17      call rand
+2654   1890 E7            pop d
+2655   1891 FD 43         mov [d], b
+2656   1893             ;; r = (r >> 8) | (r << 8); 
+2657   1893 FA FF FF      lea d, [bp + -1] ; $r
+2658   1896 DA            push d
+2659   1897 FA FF FF      lea d, [bp + -1] ; $r
+2660   189A 2A            mov b, [d]
+2661   189B             ; START SHIFT
+2662   189B D7            push a
+2663   189C 11            mov a, b
+2664   189D 26 08 00      mov b, $8
+2665   18A0 FD 39         mov c, b
+2666   18A2 A1            shr a, cl
+2667   18A3 27            mov b, a
+2668   18A4 E4            pop a
+2669   18A5             ; END SHIFT
+2670   18A5 D7            push a
+2671   18A6 11            mov a, b
+2672   18A7 FA FF FF      lea d, [bp + -1] ; $r
+2673   18AA 2A            mov b, [d]
+2674   18AB             ; START SHIFT
+2675   18AB D7            push a
+2676   18AC 11            mov a, b
+2677   18AD 26 08 00      mov b, $8
+2678   18B0 FD 39         mov c, b
+2679   18B2 9D            shl a, cl
+2680   18B3 27            mov b, a
+2681   18B4 E4            pop a
+2682   18B5             ; END SHIFT
+2683   18B5 FD 70         or b, a ; |
+2684   18B7 E4            pop a
+2685   18B8 E7            pop d
+2686   18B9 FD 43         mov [d], b
+2687   18BB             ;; return ((r % spread) + 1); 
+2688   18BB FA FF FF      lea d, [bp + -1] ; $r
+2689   18BE 2A            mov b, [d]
+2690   18BF             ; START FACTORS
+2691   18BF D7            push a
+2692   18C0 11            mov a, b
+2693   18C1 FA 05 00      lea d, [bp + 5] ; $spread
+2694   18C4 2A            mov b, [d]
+2695   18C5 AE            div a, b ; 
+2696   18C6 11            mov a, b
+2697   18C7 27            mov b, a
+2698   18C8 E4            pop a
+2699   18C9             ; END FACTORS
+2700   18C9             ; START TERMS
+2701   18C9 D7            push a
+2702   18CA 11            mov a, b
+2703   18CB 26 01 00      mov b, $1
+2704   18CE 56            add b, a
+2705   18CF E4            pop a
+2706   18D0             ; END TERMS
+2707   18D0 F9            leave
+2708   18D1 09            ret
+2709   18D2             
+2710   18D2             rand8:
+2711   18D2 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2712   18D5             ;; return (get_rand(8)); 
+2713   18D5 26 08 00      mov b, $8
+2714   18D8 FD AB         swp b
+2715   18DA D8            push b
+2716   18DB 07 83 18      call get_rand
+2717   18DE 51 02 00      add sp, 2
+2718   18E1 F9            leave
+2719   18E2 09            ret
+2720   18E3             
+2721   18E3             input:
+2722   18E3 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2723   18E6             ; $c 
+2724   18E6 52 02 00      sub sp, 2
+2725   18E9             ;; while((c = getchar()) != '\n') { 
+2726   18E9             _while40_cond:
+2727   18E9 FA FF FF      lea d, [bp + -1] ; $c
+2728   18EC DA            push d
+2729   18ED 07 D1 12      call getchar
+2730   18F0 E7            pop d
+2731   18F1 FD 43         mov [d], b
+2732   18F3             ; START RELATIONAL
+2733   18F3 D7            push a
+2734   18F4 11            mov a, b
+2735   18F5 26 0A 00      mov b, $a
+2736   18F8 B0            cmp a, b
+2737   18F9 FD 72         sneq ; !=
+2738   18FB E4            pop a
+2739   18FC             ; END RELATIONAL
+2740   18FC C0 00 00      cmp b, 0
+2741   18FF C6 5A 19      je _while40_exit
+2742   1902             _while40_block:
+2743   1902             ;; if (c == -1) 
+2744   1902             _if41_cond:
+2745   1902 FA FF FF      lea d, [bp + -1] ; $c
+2746   1905 2A            mov b, [d]
+2747   1906             ; START RELATIONAL
+2748   1906 D7            push a
+2749   1907 11            mov a, b
+2750   1908 26 FF FF      mov b, $ffff
+2751   190B B0            cmp a, b
+2752   190C FD 71         seq ; ==
+2753   190E E4            pop a
+2754   190F             ; END RELATIONAL
+2755   190F C0 00 00      cmp b, 0
+2756   1912 C6 1B 19      je _if41_exit
+2757   1915             _if41_true:
+2758   1915             ;; exit(); 
+2759   1915 07 D2 16      call exit
+2760   1918 0A 1B 19      jmp _if41_exit
+2761   191B             _if41_exit:
+2762   191B             ;; if (l > 1) { 
+2763   191B             _if42_cond:
+2764   191B FA 07 00      lea d, [bp + 7] ; $l
+2765   191E 32            mov bl, [d]
+2766   191F A7 00         mov bh, 0
+2767   1921             ; START RELATIONAL
+2768   1921 D7            push a
+2769   1922 11            mov a, b
+2770   1923 26 01 00      mov b, $1
+2771   1926 B0            cmp a, b
+2772   1927 FD 81         sgu ; > (unsigned)
+2773   1929 E4            pop a
+2774   192A             ; END RELATIONAL
+2775   192A C0 00 00      cmp b, 0
+2776   192D C6 57 19      je _if42_exit
+2777   1930             _if42_true:
+2778   1930             ;; *b++ = c; 
+2779   1930 FA 05 00      lea d, [bp + 5] ; $b
+2780   1933 2A            mov b, [d]
+2781   1934 D8            push b
+2782   1935 FD 77         inc b
+2783   1937 FA 05 00      lea d, [bp + 5] ; $b
+2784   193A FD 43         mov [d], b
+2785   193C E5            pop b
+2786   193D D8            push b
+2787   193E FA FF FF      lea d, [bp + -1] ; $c
+2788   1941 2A            mov b, [d]
+2789   1942 E7            pop d
+2790   1943 FD 3E         mov [d], bl
+2791   1945             ;; l--; 
+2792   1945 FA 07 00      lea d, [bp + 7] ; $l
+2793   1948 32            mov bl, [d]
+2794   1949 A7 00         mov bh, 0
+2795   194B D8            push b
+2796   194C FD 7D         dec b
+2797   194E FA 07 00      lea d, [bp + 7] ; $l
+2798   1951 FD 43         mov [d], b
+2799   1953 E5            pop b
+2800   1954 0A 57 19      jmp _if42_exit
+2801   1957             _if42_exit:
+2802   1957 0A E9 18      jmp _while40_cond
+2803   195A             _while40_exit:
+2804   195A             ;; *b = 0; 
+2805   195A FA 05 00      lea d, [bp + 5] ; $b
+2806   195D 2A            mov b, [d]
+2807   195E D8            push b
+2808   195F 26 00 00      mov b, $0
+2809   1962 E7            pop d
+2810   1963 FD 3E         mov [d], bl
+2811   1965 F9            leave
+2812   1966 09            ret
+2813   1967             
+2814   1967             yesno:
+2815   1967 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2816   196A             ; $b 
+2817   196A 52 02 00      sub sp, 2
+2818   196D             ;; input(b,2); 
+2819   196D 26 02 00      mov b, $2
+2820   1970 DD            push bl
+2821   1971 FA FF FF      lea d, [bp + -1] ; $b
+2822   1974 2D            mov b, d
+2823   1975 FD AB         swp b
+2824   1977 D8            push b
+2825   1978 07 E3 18      call input
+2826   197B 51 03 00      add sp, 3
+2827   197E             ;; if (tolower(*b) == 'y') 
+2828   197E             _if43_cond:
+2829   197E FA FF FF      lea d, [bp + -1] ; $b
+2830   1981 2D            mov b, d
+2831   1982 74            mov d, b
+2832   1983 32            mov bl, [d]
+2833   1984 A7 00         mov bh, 0
+2834   1986 FD AB         swp b
+2835   1988 D8            push b
+2836   1989 07 AB 19      call tolower
+2837   198C 51 02 00      add sp, 2
+2838   198F             ; START RELATIONAL
+2839   198F D7            push a
+2840   1990 11            mov a, b
+2841   1991 26 79 00      mov b, $79
+2842   1994 B0            cmp a, b
+2843   1995 FD 71         seq ; ==
+2844   1997 E4            pop a
+2845   1998             ; END RELATIONAL
+2846   1998 C0 00 00      cmp b, 0
+2847   199B C6 A6 19      je _if43_exit
+2848   199E             _if43_true:
+2849   199E             ;; return 1; 
+2850   199E 26 01 00      mov b, $1
+2851   19A1 F9            leave
+2852   19A2 09            ret
+2853   19A3 0A A6 19      jmp _if43_exit
+2854   19A6             _if43_exit:
+2855   19A6             ;; return 0; 
+2856   19A6 26 00 00      mov b, $0
+2857   19A9 F9            leave
+2858   19AA 09            ret
+2859   19AB             
+2860   19AB             tolower:
+2861   19AB F8 00 00      enter 0 ; (push bp; mov bp, sp)
+2862   19AE F9            leave
+2863   19AF 09            ret
+2864   19B0             ; --- END TEXT BLOCK
+2865   19B0             
+2866   19B0             ; --- BEGIN DATA BLOCK
+2867   19B0 00          _starbases: .fill 1, 0
+2868   19B1 00          _base_y: .fill 1, 0
+2869   19B2 00          _base_x: .fill 1, 0
+2870   19B3 00          _starbases_left: .fill 1, 0
+2871   19B4             _c_data: 
+2872   19B4 00          .db 
+2873   19B5 00 00 00 FF .db $0,$0,$0,$ffff,$ffff,$ffff,$0,$1,$1,$1,$0,$1,$1,$1,$0,$ffff,$ffff,$ffff,$0,$1,$1,
+2873   19B9 FF FF 00 01 
+2873   19BD 01 01 00 01 
+2873   19C1 01 01 00 FF 
+2873   19C5 FF FF 00 01 
+2873   19C9 01 
+2874   19CA 00 00 00 00 .fill 9, 0
+2874   19CE 00 00 00 00 
+2874   19D2 00 
+2875   19D3 00          _docked: .fill 1, 0
+2876   19D4 00 00       _energy: .fill 2, 0
+2877   19D6 B8 0B       _energy0: .dw 3000
+2878   19D8 00 00 00 00 _map_data: .fill 162, 0
+2878   19DC 00 00 00 00 
+2878   19E0 00 00 00 00 
+2878   19E4 00 00 00 00 
+2878   19E8 00 00 00 00 
+2878   19EC 00 00 00 00 
+2878   19F0 00 00 00 00 
+2878   19F4 00 00 00 00 
+2878   19F8 00 00 00 00 
+2878   19FC 00 00 00 00 
+2878   1A00 00 00 00 00 
+2878   1A04 00 00 00 00 
+2878   1A08 00 00 00 00 
+2878   1A0C 00 00 00 00 
+2878   1A10 00 00 00 00 
+2878   1A14 00 00 00 00 
+2878   1A18 00 00 00 00 
+2878   1A1C 00 00 00 00 
+2878   1A20 00 00 00 00 
+2878   1A24 00 00 00 00 
+2878   1A28 00 00 00 00 
+2878   1A2C 00 00 00 00 
+2878   1A30 00 00 00 00 
+2878   1A34 00 00 00 00 
+2878   1A38 00 00 00 00 
+2878   1A3C 00 00 00 00 
+2878   1A40 00 00 00 00 
+2878   1A44 00 00 00 00 
+2878   1A48 00 00 00 00 
+2878   1A4C 00 00 00 00 
+2878   1A50 00 00 00 00 
+2878   1A54 00 00 00 00 
+2878   1A58 00 00 00 00 
+2878   1A5C 00 00 00 00 
+2878   1A60 00 00 00 00 
+2878   1A64 00 00 00 00 
+2878   1A68 00 00 00 00 
+2878   1A6C 00 00 00 00 
+2878   1A70 00 00 00 00 
+2878   1A74 00 00 00 00 
+2878   1A78 00 00 
+2879   1A7A 00 00 00 00 _kdata_data: .fill 12, 0
+2879   1A7E 00 00 00 00 
+2879   1A82 00 00 00 00 
+2880   1A86 00          _klingons: .fill 1, 0
+2881   1A87 00          _total_klingons: .fill 1, 0
+2882   1A88 00          _klingons_left: .fill 1, 0
+2883   1A89 00          _torps: .fill 1, 0
+2884   1A8A 0A          _torps0: .db 10
+2885   1A8B 00 00       _quad_y: .fill 2, 0
+2886   1A8D 00 00       _quad_x: .fill 2, 0
+2887   1A8F 00 00       _shield: .fill 2, 0
+2888   1A91 00          _stars: .fill 1, 0
+2889   1A92 00 00       _time_start: .fill 2, 0
+2890   1A94 00 00       _time_up: .fill 2, 0
+2891   1A96 00 00 00 00 _damage_data: .fill 18, 0
+2891   1A9A 00 00 00 00 
+2891   1A9E 00 00 00 00 
+2891   1AA2 00 00 00 00 
+2891   1AA6 00 00 
+2892   1AA8 00 00       _d4: .fill 2, 0
+2893   1AAA 00 00       _ship_y: .fill 2, 0
+2894   1AAC 00 00       _ship_x: .fill 2, 0
+2895   1AAE 00 00       _stardate: .fill 2, 0
+2896   1AB0 00 00 00 00 _quad_data: .fill 64, 0
+2896   1AB4 00 00 00 00 
+2896   1AB8 00 00 00 00 
+2896   1ABC 00 00 00 00 
+2896   1AC0 00 00 00 00 
+2896   1AC4 00 00 00 00 
+2896   1AC8 00 00 00 00 
+2896   1ACC 00 00 00 00 
+2896   1AD0 00 00 00 00 
+2896   1AD4 00 00 00 00 
+2896   1AD8 00 00 00 00 
+2896   1ADC 00 00 00 00 
+2896   1AE0 00 00 00 00 
+2896   1AE4 00 00 00 00 
+2896   1AE8 00 00 00 00 
+2896   1AEC 00 00 00 00 
+2897   1AF0 00 00 00 00 _quadname_data: .fill 12, 0
+2897   1AF4 00 00 00 00 
+2897   1AF8 00 00 00 00 
+2898   1AFC 72 65 70 6F _inc_1_data: .db "reports:\n  Incorrect course data, sir!\n", 0
+2898   1B00 72 74 73 3A 
+2898   1B04 0A 20 20 49 
+2898   1B08 6E 63 6F 72 
+2898   1B0C 72 65 63 74 
+2898   1B10 20 63 6F 75 
+2898   1B14 72 73 65 20 
+2898   1B18 64 61 74 61 
+2898   1B1C 2C 20 73 69 
+2898   1B20 72 21 0A 00 
+2899   1B24 FC 1A       _inc_1: .dw _inc_1_data
+2900   1B26             _quad_name_data: 
+2901   1B26 A7 1B A7 1B .dw __s0, __s0, __s1, __s2, __s3, __s4, __s5, __s6, __s7, __s8, __s9, __s10, __s11, __s12, __s13, __s14, __s15, 
+2901   1B2A AF 1B B5 1B 
+2901   1B2E BD 1B C2 1B 
+2901   1B32 CA 1B D1 1B 
+2901   1B36 DD 1B E4 1B 
+2901   1B3A EB 1B F1 1B 
+2901   1B3E F9 1B 04 1C 
+2901   1B42 0E 1C 16 1C 
+2901   1B46 1F 1C 
+2902   1B48 00 00 00 00 .fill 34, 0
+2902   1B4C 00 00 00 00 
+2902   1B50 00 00 00 00 
+2902   1B54 00 00 00 00 
+2902   1B58 00 00 00 00 
+2902   1B5C 00 00 00 00 
+2902   1B60 00 00 00 00 
+2902   1B64 00 00 00 00 
+2902   1B68 00 00 
+2903   1B6A             _device_name_data: 
+2904   1B6A 25 1C 25 1C .dw __s16, __s16, __s17, __s18, __s19, __s20, __s21, __s22, __s23, 
+2904   1B6E 32 1C 46 1C 
+2904   1B72 59 1C 68 1C 
+2904   1B76 75 1C 84 1C 
+2904   1B7A 93 1C 
+2905   1B7C 00 00 00 00 .fill 18, 0
+2905   1B80 00 00 00 00 
+2905   1B84 00 00 00 00 
+2905   1B88 00 00 00 00 
+2905   1B8C 00 00 
+2906   1B8E 44 61 6D 61 _dcr_1_data: .db "Damage Control report:", 0
+2906   1B92 67 65 20 43 
+2906   1B96 6F 6E 74 72 
+2906   1B9A 6F 6C 20 72 
+2906   1B9E 65 70 6F 72 
+2906   1BA2 74 3A 00 
+2907   1BA5 8E 1B       _dcr_1: .dw _dcr_1_data
+2908   1BA7 41 6E 74 61 __s0: .db "Antares", 0
+2908   1BAB 72 65 73 00 
+2909   1BAF 52 69 67 65 __s1: .db "Rigel", 0
+2909   1BB3 6C 00 
+2910   1BB5 50 72 6F 63 __s2: .db "Procyon", 0
+2910   1BB9 79 6F 6E 00 
+2911   1BBD 56 65 67 61 __s3: .db "Vega", 0
+2911   1BC1 00 
+2912   1BC2 43 61 6E 6F __s4: .db "Canopus", 0
+2912   1BC6 70 75 73 00 
+2913   1BCA 41 6C 74 61 __s5: .db "Altair", 0
+2913   1BCE 69 72 00 
+2914   1BD1 53 61 67 69 __s6: .db "Sagittarius", 0
+2914   1BD5 74 74 61 72 
+2914   1BD9 69 75 73 00 
+2915   1BDD 50 6F 6C 6C __s7: .db "Pollux", 0
+2915   1BE1 75 78 00 
+2916   1BE4 53 69 72 69 __s8: .db "Sirius", 0
+2916   1BE8 75 73 00 
+2917   1BEB 44 65 6E 65 __s9: .db "Deneb", 0
+2917   1BEF 62 00 
+2918   1BF1 43 61 70 65 __s10: .db "Capella", 0
+2918   1BF5 6C 6C 61 00 
+2919   1BF9 42 65 74 65 __s11: .db "Betelgeuse", 0
+2919   1BFD 6C 67 65 75 
+2919   1C01 73 65 00 
+2920   1C04 41 6C 64 65 __s12: .db "Aldebaran", 0
+2920   1C08 62 61 72 61 
+2920   1C0C 6E 00 
+2921   1C0E 52 65 67 75 __s13: .db "Regulus", 0
+2921   1C12 6C 75 73 00 
+2922   1C16 41 72 63 74 __s14: .db "Arcturus", 0
+2922   1C1A 75 72 75 73 
+2922   1C1E 00 
+2923   1C1F 53 70 69 63 __s15: .db "Spica", 0
+2923   1C23 61 00 
+2924   1C25 57 61 72 70 __s16: .db "Warp engines", 0
+2924   1C29 20 65 6E 67 
+2924   1C2D 69 6E 65 73 
+2924   1C31 00 
+2925   1C32 53 68 6F 72 __s17: .db "Short range sensors", 0
+2925   1C36 74 20 72 61 
+2925   1C3A 6E 67 65 20 
+2925   1C3E 73 65 6E 73 
+2925   1C42 6F 72 73 00 
+2926   1C46 4C 6F 6E 67 __s18: .db "Long range sensors", 0
+2926   1C4A 20 72 61 6E 
+2926   1C4E 67 65 20 73 
+2926   1C52 65 6E 73 6F 
+2926   1C56 72 73 00 
+2927   1C59 50 68 61 73 __s19: .db "Phaser control", 0
+2927   1C5D 65 72 20 63 
+2927   1C61 6F 6E 74 72 
+2927   1C65 6F 6C 00 
+2928   1C68 50 68 6F 74 __s20: .db "Photon tubes", 0
+2928   1C6C 6F 6E 20 74 
+2928   1C70 75 62 65 73 
+2928   1C74 00 
+2929   1C75 44 61 6D 61 __s21: .db "Damage control", 0
+2929   1C79 67 65 20 63 
+2929   1C7D 6F 6E 74 72 
+2929   1C81 6F 6C 00 
+2930   1C84 53 68 69 65 __s22: .db "Shield control", 0
+2930   1C88 6C 64 20 63 
+2930   1C8C 6F 6E 74 72 
+2930   1C90 6F 6C 00 
+2931   1C93 4C 69 62 72 __s23: .db "Library computer", 0
+2931   1C97 61 72 79 20 
+2931   1C9B 63 6F 6D 70 
+2931   1C9F 75 74 65 72 
+2931   1CA3 00 
+2932   1CA4 55 6E 65 78 __s24: .db "Unexpected format in printf.", 0
+2932   1CA8 70 65 63 74 
+2932   1CAC 65 64 20 66 
+2932   1CB0 6F 72 6D 61 
+2932   1CB4 74 20 69 6E 
+2932   1CB8 20 70 72 69 
+2932   1CBC 6E 74 66 2E 
+2932   1CC0 00 
+2933   1CC1 45 72 72 6F __s25: .db "Error: Unknown argument type.\n", 0
+2933   1CC5 72 3A 20 55 
+2933   1CC9 6E 6B 6E 6F 
+2933   1CCD 77 6E 20 61 
+2933   1CD1 72 67 75 6D 
+2933   1CD5 65 6E 74 20 
+2933   1CD9 74 79 70 65 
+2933   1CDD 2E 0A 00 
+2934   1CE0 1B 5B 32 4A __s26: .db "\033[2J\033[H", 0
+2934   1CE4 1B 5B 48 00 
+2935   1CE8             
+2936   1CE8 EA 1C       _heap_top: .dw _heap
+2937   1CEA 00          _heap: .db 0
+2938   1CEB             ; --- END DATA BLOCK
+2939   1CEB             
+2940   1CEB             .end
+tasm: Number of errors = 0

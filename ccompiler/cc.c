@@ -253,7 +253,7 @@ int defines_tos;
 int typedef_table_tos;
 
 char *prog;                           // pointer to the current program position
-char *prog_stack[256];
+char *prog_stack[1024];
 int prog_tos;
 
 char include_kernel_exp = 1;
@@ -266,7 +266,7 @@ t_token curr_token;
 char c_in[PROG_SIZE];               // C program-in buffer
 char include_file_buffer[PROG_SIZE];     // buffer for reading in include files
 char asm_out[ASM_SIZE];             // ASM output
-char data_block_asm[ASM_SIZE / 4];
+char data_block_asm[ASM_SIZE];
 char tempbuffer[PROG_SIZE];
 
 char *asm_p;
@@ -275,7 +275,7 @@ char *data_block_p;
 char *prog_before_error;
 
 t_loop_type current_loop_type;      // is it a for, while, do, or switch?
-t_loop_type loop_type_stack[64];
+t_loop_type loop_type_stack[256];
 int loop_type_tos;
 
 int highest_label_index; // keeps the highest label index and always increases
@@ -4153,7 +4153,7 @@ void emit_global_var_initialization(t_var *var){
       else if(curr_token.tok_type == CHAR_CONST)
         emit_data("$%x,", curr_token.string_const[0]);
       else if(curr_token.tok_type == INTEGER_CONST)
-        emit_data("%x,", (uint16_t)curr_token.int_const);
+        emit_data("$%x,", (uint16_t)curr_token.int_const);
       else if(curr_token.tok_type == STRING_CONST){
         emit_data("__s%u, ", add_string_data(curr_token.string_const));
       }
