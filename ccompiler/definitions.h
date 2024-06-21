@@ -16,9 +16,9 @@
 #define MAX_STRUCT_ELEMENTS        32
 #define MAX_TYPEDEFS               128
 #define MAX_USER_FUNC              512
-#define PROG_SIZE                  1024 * 1024
+#define PROG_SIZE                  128 * 1024
 #define STRING_TABLE_SIZE          1024
-#define ASM_SIZE                   1024 * 1024
+#define ASM_SIZE                   128 * 1024
 
 #define true 1
 #define false 0

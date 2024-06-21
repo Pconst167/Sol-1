@@ -1438,9 +1438,12 @@ void klingons_move(void)
 
 void klingons_shoot(void)
 {
+					uint8_t r;
 	uint32_t h;
 	uint8_t i;
-	struct klingon *k = kdata;
+	struct klingon *k;
+	uint32_t ratio;
+	k = &kdata;
 
 	if (klingons <= 0)
 		return;
@@ -1474,17 +1477,17 @@ void klingons_shoot(void)
 				/* The check in basic is float and is h/s >.02. We
 				   have to use 32bit values here to avoid an overflow
 				   FIXME: use a better algorithm perhaps ? */
-				uint32_t ratio = ((uint32_t)h)/shield;
+					//ratio = ((uint32_t)h)/shield;
+					ratio = ((int)h)/shield;
 				if (get_rand(10) <= 6 && ratio > 2) {
-					uint8_t r = rand8();
+					 r = rand8();
 					/* The original basic code computed h/s in
 					   float form the C conversion broke this. We correct it in the fixed
 					   point change */
-					damage[r] -= ratio + get_rand(50);
+					damage[r] =damage[r] - ratio + get_rand(50);
 
 					/* FIXME: can we use dcr_1 here ?? */
-					printf("Damage Control reports\n"
-					       "   '%s' damaged by hit\n\n", get_device_name(r));
+					printf("Damage Control reports\n'%s' damaged by hit\n\n", get_device_name(r));
 				}
 			}
 		}
@@ -1519,12 +1522,13 @@ void repair_damage(uint16_t warp)
 		}
 	}
 
+		uint8_t r;
 	if (get_rand(10) <= 2) {
-		uint8_t r = rand8();
+		 r = rand8();
 
 		if (get_rand(10) < 6) {
 			/* Working in 1/100ths */
-			damage[r] -= (get_rand(500) + 100);
+			damage[r] =damage[r]- (get_rand(500) + 100);
 			puts(dcr_1);
 			printf("    %s damaged\n\n", get_device_name(r));
 		} else {
@@ -1546,8 +1550,8 @@ void find_set_empty_place(uint8_t t, uint8_t *z1, uint8_t *z2)
 	do {
 		r1 = rand8();
 		r2 = rand8();
-	} while (quad[r1-1][r2-1] != Q_SPACE );
-	quad[r1-1][r2-1] = t;
+	} while (quad[r1+-1][r2+-1] != Q_SPACE );
+	quad[r1+-1][r2+-1] = t;
 	if (z1)
 		*z1 = r1;
 	if (z2)
@@ -1593,15 +1597,18 @@ void quadrant_name(uint8_t small, uint8_t y, uint8_t x)
    repeatedly until we find the right one */
 int16_t isqrt(int16_t i)
 {
-	uint16_t b = 0x4000, q = 0, r = i, t;
+	uint16_t b, q, r, t;
+	b = 0x4000;
+	 q = 0;
+	 r = i;
 	while (b) {
 		t = q + b;
-		q >>= 1;
+		q =q>> 1;
 		if (r >= t) {
-			r -= t;
+			r =r- t;
 			q = q + b;
 		}
-		b >>= 2;
+		b =b>> 2;
 	}
 	return q;
 }
@@ -1645,7 +1652,7 @@ int cint100(int16_t d)
 
 void showfile(char *filename)
 {
-	FILE *fp;
+	/*FILE *fp;
 	char buffer[MAXCOL];
 	int row = 0;
 
@@ -1662,5 +1669,6 @@ void showfile(char *filename)
 		}
 	}
 	fclose(fp);
+	*/
 }
 
