@@ -18248,6 +18248,8 @@
     mar_in_src=pc
   }
 
+// if cb == 0 or ga == 0 then b = 0, else b = 1
+// if a!=0 || g!=0 && c!=0 || b!=0 then b = 1, else b = 0
   16{
     next=next_offset
     offset=1
