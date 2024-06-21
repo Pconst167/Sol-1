@@ -18365,6 +18365,7 @@
     mar_in_src=pc
   }
 
+  // test a and b
   16{
     next=next_offset
     offset=1
@@ -18399,6 +18400,42 @@
     alu_mode=logic
     uzf_in_src=alu_zf_and_uzf
   }
+  // test c and g
+  16{
+    next=next_offset
+    offset=1
+    alu_x=gl
+    alu_op=x
+    alu_mode=logic
+    tdrl_wrt=true
+  }
+  17{
+    next=next_offset
+    offset=1
+    alu_x=gh
+    alu_op=x
+    alu_mode=logic
+    tdrh_wrt=true
+  }
+  18{
+    next=next_offset
+    offset=1
+    alu_x=cl
+    alu_y=tdrl
+    alu_op=or
+    alu_mode=logic
+    uzf_in_src=alu_zf_and_uzf
+  }
+  19{
+    next=next_offset
+    offset=1
+    alu_x=ch
+    alu_y=tdrh
+    alu_op=or
+    alu_mode=logic
+    uzf_in_src=alu_zf_and_uzf
+  }
+  // now use flags register to set b
   20{
     next=next_branch
     offset=2
