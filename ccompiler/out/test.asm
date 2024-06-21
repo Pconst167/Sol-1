@@ -7,11 +7,11 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; &k->energy; 
+;; k->energy; 
   mov d, _k ; $k
   mov d, [d]
   add d, 1
-  mov b, d
+  mov b, [d]
   syscall sys_terminate_proc
 ; --- END TEXT BLOCK
 

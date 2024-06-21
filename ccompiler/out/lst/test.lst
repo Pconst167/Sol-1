@@ -27,11 +27,11 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408             ;; &k->energy; 
+0010   0408             ;; k->energy; 
 0011   0408 3B 16 04      mov d, _k ; $k
 0012   040B FD 2A         mov d, [d]
 0013   040D 58 01 00      add d, 1
-0014   0410 2D            mov b, d
+0014   0410 2A            mov b, [d]
 0015   0411 05 0B         syscall sys_terminate_proc
 0016   0413             ; --- END TEXT BLOCK
 0017   0413             

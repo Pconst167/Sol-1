@@ -378,6 +378,7 @@ STOSB ""                        F7    1    NOP      1
 REP MOVSB                       F5FD  2    NOP      1
 REP STOSB                       F7FD  2    NOP      1
 
+MOV G,@                         22FD  4    NOP      1
 MOV G,A                         78FD  2    NOP      1
 MOV G,B                         79FD  2    NOP      1
 MOV G,C                         7AFD  2    NOP      1
@@ -463,3 +464,6 @@ SGU  ""                         81FD  2    NOP      1
 SGEU ""                         82FD  2    NOP      1                  
 SAND A,B                        A7FD  2    NOP      1              
 SOR  A,B                        A8FD  2    NOP      1                
+
+SAND32 GA,CB                    B1FD  6    NOP      1              
+SOR32  GA,CB                    B2FD  6    NOP      1                

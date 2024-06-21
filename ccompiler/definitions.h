@@ -1,11 +1,11 @@
 #include <stdint.h>
 
 #pragma once
-#define TOKEN_LEN                  1024 * 2
-#define CONST_LEN                  1024
+#define TOKEN_LEN                  4096
+#define CONST_LEN                  4096
 #define ID_LEN                     512
-#define MAX_DEFINES                64
-#define MAX_DEFINE_LEN             1024
+#define MAX_DEFINES                512
+#define MAX_DEFINE_LEN             4096
 #define MAX_ENUM_DECLARATIONS      32
 #define MAX_ENUM_ELEMENTS          64
 #define MAX_GLOBAL_VARS            512
@@ -16,9 +16,9 @@
 #define MAX_STRUCT_ELEMENTS        32
 #define MAX_TYPEDEFS               128
 #define MAX_USER_FUNC              512
-#define PROG_SIZE                  128 * 1024
-#define STRING_TABLE_SIZE          1024
-#define ASM_SIZE                   128 * 1024
+#define PROG_SIZE                  512 * 1024
+#define STRING_TABLE_SIZE          4096
+#define ASM_SIZE                   512 * 1024
 
 #define true 1
 #define false 0
@@ -26,20 +26,7 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
-
-typedef int8_t i8;
-typedef int16_t i16;
-typedef int32_t i32;
-typedef int64_t i64;
-
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-
 typedef enum {ERR_WARNING, ERR_FATAL} t_error_type;
-
-typedef unsigned char _bool;
 
 typedef enum{
   LOCAL = 0, GLOBAL
@@ -170,14 +157,14 @@ typedef struct{
 } defines_table_t;
 
 typedef struct{
-  t_tok_type tok_type;
-  t_tok tok;
-  char token_str[TOKEN_LEN];            // string token representation
-  char string_const[TOKEN_LEN];  // holds string and char constants without quotes and with escape sequences converted into the correct bytes
-  int int_const;
+  t_tok_type      tok_type;
+  t_tok           tok;
+  char            token_str[TOKEN_LEN];            // string token representation
+  char            string_const[TOKEN_LEN];  // holds string and char constants without quotes and with escape sequences converted into the correct bytes
+  long int        int_const;
   t_size_modifier const_size_modifier;
   t_sign_modifier const_sign_modifier;
-  char *addr;
+  char            *addr;
 } t_token;
 
 typedef struct{
@@ -190,14 +177,13 @@ typedef struct{
 
 typedef struct {
   t_primitive_type primitive_type;
-  t_sign_modifier sign_modifier;
-  t_size_modifier size_modifier;
-  u8 is_constant; // is it a constant?
-  u8 ind_level; // holds the pointer indirection level
-  u16 struct_enum_id; // struct ID or enum ID if var is a struct or enum
-  u16 dims[MAX_MATRIX_DIMS];
+  t_sign_modifier  sign_modifier;
+  t_size_modifier  size_modifier;
+  uint8_t          is_constant; // is it a constant?
+  uint8_t          ind_level; // holds the pointer indirection level
+  int16_t          struct_enum_id; // struct ID or enum ID if var is a struct or enum
+  uint16_t         dims[MAX_MATRIX_DIMS];
 } t_type;
-
 
 typedef struct{
   char name[ID_LEN];
@@ -214,25 +200,25 @@ typedef struct{
 
 
 typedef struct {
-  char name[ID_LEN];
-  t_type type; // holds the type of data and the value itself
-  _bool is_parameter;
-  u8 is_static;
-  int bp_offset; // if var is local, this holds the offset of the var from BP.
-  u16 function_id; // the function does var belong to? (if it is a local var)
+  char    name[ID_LEN];
+  t_type  type; // holds the type of data and the value itself
+  uint8_t is_parameter;
+  uint8_t is_static;
+  int     bp_offset; // if var is local, this holds the offset of the var from BP.
+  int     function_id; // the function does var belong to? (if it is a local var)
 } t_var;
 
 typedef struct {
-  char name[ID_LEN];
-  t_type return_type;
-  char *code_location;
-  t_var local_vars[MAX_LOCAL_VARS];
-  u16 local_var_tos;
-  u16 total_parameter_size;
-  char goto_labels_table[MAX_GOTO_LABELS_PER_FUNC][ID_LEN];
-  int goto_labels_table_tos;
-  u8 has_var_args;
-  u8  num_fixed_args;
+  char     name[ID_LEN];
+  t_type   return_type;
+  char     *code_location;
+  t_var    local_vars[MAX_LOCAL_VARS];
+  uint16_t local_var_tos;
+  uint16_t total_parameter_size;
+  char     goto_labels_table[MAX_GOTO_LABELS_PER_FUNC][ID_LEN];
+  int      goto_labels_table_tos;
+  uint8_t  has_var_args;
+  uint8_t  num_fixed_args;
 } t_function;
 
 
@@ -240,7 +226,6 @@ typedef struct {
 // functions
 char is_delimiter(char c);
 char is_identifier_char(char c);
-int search_keyword(char *keyword);
 int local_var_exists(char *var_name);
 int global_var_exists(char *var_name);
 void load_program(char *filename);
@@ -269,12 +254,6 @@ void parse_struct_initialization_data(int struct_id, int array_size);
 void declare_goto_label(void);
 void declare_define(void);
 
-int search_global_var(char *var_name);
-int search_struct(char *name);
-int search_string(char *str);
-int search_define(char *name);
-int search_function(char *func_name);
-int search_function_parameter(int function_id, char *param_name);
 int enum_element_exists(char *element_name);
 
 void emit_c_header_line(void);
@@ -398,9 +377,8 @@ int function_has_variable_arguments(int func_id);
 
 
 char token_not_a_const(void);
-u8 type_is_32bit(t_type type);
-i8 type_detected(void);
-i8 search_typedef(char *name);
+uint8_t type_is_32bit(t_type type);
+int8_t type_detected(void);
 t_type get_type();
 
 

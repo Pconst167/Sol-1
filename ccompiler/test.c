@@ -12,7 +12,7 @@ struct klingon *k;
 
 void main(){
 
-	&k->energy;
+	k->energy;
 
 
 }

@@ -51,85 +51,85 @@ struct{
   char *as_str;
   t_tok token;
 } token_to_str[] = {
-  "undefined",               TOK_UNDEF,
-  "ampersand",               AMPERSAND, 
-  "asm",                     ASM,
-  "assignment",              ASSIGNMENT,
-  "at",                      AT, 
-  "auto",                    AUTO,
-  "bitwise_not",             BITWISE_NOT, 
-  "bitwise_or",              BITWISE_OR, 
-  "bitwise_shl",             BITWISE_SHL,
-  "bitwise_shr",             BITWISE_SHR,
-  "bitwise_xor",             BITWISE_XOR, 
-  "break",                   BREAK,
-  "caret",                   CARET, 
-  "case",                    CASE,
-  "char",                    CHAR,
-  "closing_brace",           CLOSING_BRACE,
-  "closing_bracket",         CLOSING_BRACKET,
-  "closing_paren",           CLOSING_PAREN,
-  "colon",                   COLON,
-  "comma",                   COMMA,
-  "const",                   CONST,
-  "continue",                CONTINUE,
-  "decrement",               DECREMENT,
-  "default",                 DEFAULT,
-  "define",                  DEFINE,
-  "ifdef",                   DEF_IFDEF,
-  "endif",                   DEF_ENDIF,
-  "directive",               DIRECTIVE, 
-  "do",                      DO,
-  "dollar",                  DOLLAR, 
-  "double",                  DOUBLE,
-  "else",                    ELSE,
-  "enum",                    ENUM,
-  "equal",                   EQUAL, 
-  "extern",                  EXTERN,
-  "float",                   FLOAT,
-  "for",                     FOR,
-  "fslash",                  FSLASH,
-  "goto",                    GOTO,
-  "greater_than",            GREATER_THAN, 
-  "greater_than_or_equal",   GREATER_THAN_OR_EQUAL, 
-  "if",                      IF,
-  "include",                 INCLUDE, 
-  "increment",               INCREMENT,
-  "int",                     INT,
-  "less_than",               LESS_THAN, 
-  "less_than_or_equal",      LESS_THAN_OR_EQUAL, 
-  "logical_and",             LOGICAL_AND, 
-  "logical_not",             LOGICAL_NOT, 
-  "logical_or",              LOGICAL_OR, 
-  "long",                    LONG,
-  "minus",                   MINUS,
-  "mod",                     MOD,
-  "not_equal",               NOT_EQUAL, 
-  "opening_brace",           OPENING_BRACE,
-  "opening_bracket",         OPENING_BRACKET,
-  "opening_paren",           OPENING_PAREN,
-  "plus",                    PLUS,
-  "pragma",                  PRAGMA, 
-  "register",                REGISTER,
-  "return",                  RETURN,
-  "semicolon",               SEMICOLON,
-  "short",                   SHORT,
-  "signed",                  SIGNED,
-  "sizeof",                  SIZEOF,
-  "star",                    STAR,
-  "static",                  STATIC,
-  "struct",                  STRUCT,
-  "struct_arrow",            STRUCT_ARROW,
-  "struct_dot",              STRUCT_DOT,
-  "switch",                  SWITCH,
-  "ternary_op",              TERNARY_OP, 
-  "tok_undef",               TOK_UNDEF,                                            
-  "typedef",                 TYPEDEF,
-  "union",                   UNION,
-  "unsigned",                UNSIGNED,
-  "void",                    VOID,
-  "volatile",                VOLATILE,
-  "while",                   WHILE
+  {"undefined",               TOK_UNDEF},
+  {"ampersand",               AMPERSAND}, 
+  {"asm",                     ASM},
+  {"assignment",              ASSIGNMENT},
+  {"at",                      AT}, 
+  {"auto",                    AUTO},
+  {"bitwise_not",             BITWISE_NOT}, 
+  {"bitwise_or",              BITWISE_OR}, 
+  {"bitwise_shl",             BITWISE_SHL},
+  {"bitwise_shr",             BITWISE_SHR},
+  {"bitwise_xor",             BITWISE_XOR}, 
+  {"break",                   BREAK},
+  {"caret",                   CARET}, 
+  {"case",                    CASE},
+  {"char",                    CHAR},
+  {"closing_brace",           CLOSING_BRACE},
+  {"closing_bracket",         CLOSING_BRACKET},
+  {"closing_paren",           CLOSING_PAREN},
+  {"colon",                   COLON},
+  {"comma",                   COMMA},
+  {"const",                   CONST},
+  {"continue",                CONTINUE},
+  {"decrement",               DECREMENT},
+  {"default",                 DEFAULT},
+  {"define",                  DEFINE},
+  {"ifdef",                   DEF_IFDEF},
+  {"endif",                   DEF_ENDIF},
+  {"directive",               DIRECTIVE}, 
+  {"do",                      DO},
+  {"dollar",                  DOLLAR}, 
+  {"double",                  DOUBLE},
+  {"else",                    ELSE},
+  {"enum",                    ENUM},
+  {"equal",                   EQUAL}, 
+  {"extern",                  EXTERN},
+  {"float",                   FLOAT},
+  {"for",                     FOR},
+  {"fslash",                  FSLASH},
+  {"goto",                    GOTO},
+  {"greater_than",            GREATER_THAN}, 
+  {"greater_than_or_equal",   GREATER_THAN_OR_EQUAL}, 
+  {"if",                      IF},
+  {"include",                 INCLUDE}, 
+  {"increment",               INCREMENT},
+  {"int",                     INT},
+  {"less_than",               LESS_THAN}, 
+  {"less_than_or_equal",      LESS_THAN_OR_EQUAL}, 
+  {"logical_and",             LOGICAL_AND}, 
+  {"logical_not",             LOGICAL_NOT}, 
+  {"logical_or",              LOGICAL_OR}, 
+  {"long",                    LONG},
+  {"minus",                   MINUS},
+  {"mod",                     MOD},
+  {"not_equal",               NOT_EQUAL}, 
+  {"opening_brace",           OPENING_BRACE},
+  {"opening_bracket",         OPENING_BRACKET},
+  {"opening_paren",           OPENING_PAREN},
+  {"plus",                    PLUS},
+  {"pragma",                  PRAGMA}, 
+  {"register",                REGISTER},
+  {"return",                  RETURN},
+  {"semicolon",               SEMICOLON},
+  {"short",                   SHORT},
+  {"signed",                  SIGNED},
+  {"sizeof",                  SIZEOF},
+  {"star",                    STAR},
+  {"static",                  STATIC},
+  {"struct",                  STRUCT},
+  {"struct_arrow",            STRUCT_ARROW},
+  {"struct_dot",              STRUCT_DOT},
+  {"switch",                  SWITCH},
+  {"ternary_op",              TERNARY_OP}, 
+  {"tok_undef",               TOK_UNDEF},                 
+  {"typedef",                 TYPEDEF},
+  {"union",                   UNION},
+  {"unsigned",                UNSIGNED},
+  {"void",                    VOID},
+  {"volatile",                VOLATILE},
+  {"while",                   WHILE}
 };
 
 char *primitive_type_to_str_table[] = {
@@ -143,63 +143,63 @@ char *primitive_type_to_str_table[] = {
 };
 
 keyword_table_t keyword_table[] = {
-  "include",  INCLUDE,
-  "pragma",   PRAGMA,
-  "define",   DEFINE,
-  "ifdef",    DEF_IFDEF,
-  "endif",    DEF_ENDIF,
-  "asm",      ASM,
+  {"include",  INCLUDE},
+  {"pragma",   PRAGMA},
+  {"define",   DEFINE},
+  {"ifdef",    DEF_IFDEF},
+  {"endif",    DEF_ENDIF},
+  {"asm",      ASM},
 
-  "register", REGISTER,
-  "auto",     AUTO,
-  "volatile", VOLATILE,
-  "extern",   EXTERN,
-  "typedef",  TYPEDEF,
-  "static",   STATIC,
-  "const",    CONST,
-  "signed",   SIGNED,
-  "unsigned", UNSIGNED,
-  "long",     LONG,
+  {"register", REGISTER},
+  {"auto",     AUTO},
+  {"volatile", VOLATILE},
+  {"extern",   EXTERN},
+  {"typedef",  TYPEDEF},
+  {"static",   STATIC},
+  {"const",    CONST},
+  {"signed",   SIGNED},
+  {"unsigned", UNSIGNED},
+  {"long",     LONG},
 
-  "void",     VOID,
-  "char",     CHAR,
-  "int",      INT,
-  "float",    FLOAT,
-  "double",   DOUBLE,
-  "enum",     ENUM,
-  "union",    UNION,
-  "struct",   STRUCT,
-  "sizeof",   SIZEOF,
+  {"void",     VOID},
+  {"char",     CHAR},
+  {"int",      INT},
+  {"float",    FLOAT},
+  {"double",   DOUBLE},
+  {"enum",     ENUM},
+  {"union",    UNION},
+  {"struct",   STRUCT},
+  {"sizeof",   SIZEOF},
 
-  "if",       IF,
-  "else",     ELSE,
-  "for",      FOR,
-  "do",       DO,
-  "break",    BREAK,
-  "continue", CONTINUE,
-  "while",    WHILE,
-  "switch",   SWITCH,
-  "case",     CASE,
-  "default",  DEFAULT,
-  "goto",     GOTO,
-  "return",   RETURN,
-  "",         0
+  {"if",       IF},
+  {"else",     ELSE},
+  {"for",      FOR},
+  {"do",       DO},
+  {"break",    BREAK},
+  {"continue", CONTINUE},
+  {"while",    WHILE},
+  {"switch",   SWITCH},
+  {"case",     CASE},
+  {"default",  DEFAULT},
+  {"goto",     GOTO},
+  {"return",   RETURN},
+  {"",         0}
 };
 
 struct{
   char *as_str;
   t_tok_type tok_type;
 } tok_type_to_str[] = {
-  "char constant", CHAR_CONST, 
-  "delimiter", DELIMITER,
-  "double constant", DOUBLE_CONST,
-  "end", END,
-  "float constant", FLOAT_CONST, 
-  "identifier", IDENTIFIER, 
-  "integer constant", INTEGER_CONST, 
-  "reserved", RESERVED, 
-  "string constant", STRING_CONST, 
-  "undefined", TYPE_UNDEF
+  {"char constant", CHAR_CONST},
+  {"delimiter", DELIMITER},
+  {"double constant", DOUBLE_CONST},
+  {"end", END},
+  {"float constant", FLOAT_CONST}, 
+  {"identifier", IDENTIFIER}, 
+  {"integer constant", INTEGER_CONST}, 
+  {"reserved", RESERVED}, 
+  {"string constant", STRING_CONST}, 
+  {"undefined", TYPE_UNDEF}
 };
 /*
 char *runtime_argc_argv_getter = "\n\n\
@@ -242,8 +242,8 @@ t_struct struct_table[MAX_STRUCT_DECLARATIONS];
 t_var global_var_table[MAX_GLOBAL_VARS];
 char string_table[STRING_TABLE_SIZE][TOKEN_LEN];
 
-_bool return_is_last_statement;
-_bool override_return_is_last_statement; // used to indicate a return statement was found while executing an IF.
+uint8_t return_is_last_statement;
+uint8_t override_return_is_last_statement; // used to indicate a return statement was found while executing an IF.
                                        // i.e if a return is found but is inside an IF, then it is not a true final
                                        // return statement inside a function.
 
@@ -331,7 +331,7 @@ int main(int argc, char *argv[]){
   }
 
   filename_no_ext = basename(argv[1]);
-  for(int i = 0; i < strlen(filename_no_ext); i++){
+  for(size_t i = 0; i < strlen(filename_no_ext); i++){
     if(filename_no_ext[i] == '.'){
       filename_no_ext[i] = '\0';
       break;
@@ -604,7 +604,7 @@ void insert(char *text, char *new_text){
 
 void pre_processor(void){
   FILE *fp;
-  int i, define_id;
+  int define_id;
   char *p, *temp_prog;
   char filename[256];
 
@@ -682,7 +682,7 @@ void pre_processor(void){
 // -1 : not a type
 //  0 : variable
 //  1 : function
-i8 type_detected(void){
+int8_t type_detected(void){
   if(
     curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || 
     curr_token.tok == LONG   || curr_token.tok == CONST    || 
@@ -733,8 +733,7 @@ i8 type_detected(void){
 
 void pre_scan(void){
   char *tp;
-  int struct_enum_id;
-  i8 declaration_kind;
+  int8_t declaration_kind;
 
   prog = c_in;
   do{
@@ -752,7 +751,7 @@ void pre_scan(void){
       if(curr_token.tok == OPENING_BRACE){
         prog = tp;
         get(); // get 'enum'
-        struct_enum_id = declare_enum();
+        declare_enum();
         continue;
       }
       else{
@@ -765,7 +764,7 @@ void pre_scan(void){
       get();
       if(curr_token.tok == OPENING_BRACE){
         prog = tp;
-        struct_enum_id = declare_struct();
+        declare_struct();
         continue;
       }
       else{
@@ -784,7 +783,7 @@ void pre_scan(void){
       skip_block();
     }
     else if(declaration_kind == -1){
-      error(ERR_FATAL, "Unexpected curr_token.token_str during pre-scan phase: %s", curr_token.token_str);
+      error(ERR_FATAL, "Unexpected token during pre-scan phase: %s", curr_token.token_str);
     }
   } while(curr_token.tok_type != END);
 }
@@ -953,8 +952,7 @@ int declare_local(void){
   t_var new_var;
   char *temp_prog;
   int total_sp = 0;
-  int typedef_id;
-  u8 is_static, is_const;
+  uint8_t is_static, is_const;
   
   is_static = 0;
   is_const = 0;
@@ -1028,11 +1026,11 @@ int declare_local(void){
         emit_static_var_initialization(&new_var);
       else{
         if(new_var.type.dims[0] > 0 || new_var.type.primitive_type == DT_STRUCT){
-          emit_data("_static_%s_%s_data: .fill %u, 0\n", function_table[current_func_id].name, new_var.name, get_total_type_size(new_var.type));
-          //emit_data("_static_%s_%s_: .dw _static_%s_%s_data\n", function_table[current_func_id].name, new_var.name, function_table[current_func_id].name, new_var.name);
+          emit_data("st_%s_%s_dt: .fill %u, 0\n", function_table[current_func_id].name, new_var.name, get_total_type_size(new_var.type));
+          //emit_data("st_%s_%s_: .dw st_%s_%s_dt\n", function_table[current_func_id].name, new_var.name, function_table[current_func_id].name, new_var.name);
         }
         else
-          emit_data("_static_%s_%s: .fill %u, 0\n", function_table[current_func_id].name, new_var.name, get_total_type_size(new_var.type));
+          emit_data("st_%s_%s: .fill %u, 0\n", function_table[current_func_id].name, new_var.name, get_total_type_size(new_var.type));
       }
     }
     else{
@@ -1110,8 +1108,7 @@ void declare_global(void){
   char *temp_prog;
   int dim;
   t_type type;
-  int typedef_id;
-  u8 is_static, is_const;
+  uint8_t is_static, is_const;
   int fixed_part_size;
   int initialization_size;
 
@@ -1246,7 +1243,6 @@ int declare_enum(void){
 
 void declare_typedef(void){
   char *temp_prog;
-  int struct_enum_id;
   t_type type;
 
   if(typedef_table_tos == MAX_TYPEDEFS) error(ERR_FATAL, "Maximum number of typedefs exceeded.");
@@ -1270,13 +1266,13 @@ void declare_typedef(void){
   type.struct_enum_id = -1;
   if(type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
-    struct_enum_id = search_struct(curr_token.token_str);
-    if(struct_enum_id == -1) error(ERR_FATAL, "Undeclared struct in typedef declaration: %s", curr_token.token_str);
+    type.struct_enum_id = search_struct(curr_token.token_str);
+    if(type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared struct in typedef declaration: %s", curr_token.token_str);
   }
   else if(type.primitive_type == DT_ENUM){ // check if this is an enum 
     get();
-    struct_enum_id = search_enum(curr_token.token_str);
-    if(struct_enum_id == -1) error(ERR_FATAL, "Undeclared enum in typedef declaration: %s", curr_token.token_str);
+    type.struct_enum_id = search_enum(curr_token.token_str);
+    if(type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared enum in typedef declaration: %s", curr_token.token_str);
   }
 
   get();
@@ -1290,7 +1286,6 @@ void declare_typedef(void){
   if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
   if(type.primitive_type == DT_VOID && type.ind_level == 0) error(ERR_FATAL, "Invalid type in variable: %s", curr_token.token_str);
 
-  type.struct_enum_id = struct_enum_id;
   type.dims[0] = 0;
   strcpy(typedef_table[typedef_table_tos].name, curr_token.token_str);
   get();
@@ -1334,10 +1329,8 @@ void declare_typedef(void){
 
 // declare struct variables right after struct declaration
 void declare_struct_global_vars(int struct_id){
-  t_type type;
   int ind_level;
   char is_constant = false;
-  char *temp_prog;
 
   do{
     if(global_var_tos == MAX_GLOBAL_VARS) error(ERR_FATAL, "Global variable declaration limit exceeded");
@@ -1368,7 +1361,6 @@ void declare_struct_global_vars(int struct_id){
         get();
         if(curr_token.tok == CLOSING_BRACKET){ // variable length array
           int fixed_part_size = 1, initialization_size;
-          temp_prog = prog;
           get();
           if(curr_token.tok == OPENING_BRACKET){
             do{
@@ -1408,7 +1400,7 @@ void declare_struct_global_vars(int struct_id){
       get();
     }
     else{
-      if(dim > 0 || global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0){
+      if(dim > 0 || (global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0)){
         emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
       }
       else
@@ -1472,9 +1464,7 @@ void declare_func(void){
   int bp_offset; // for each parameter, keep the running offset of that parameter.
   char *temp_prog, *prog_before_void_tok;
   int total_parameter_bytes;
-  char param_name[ID_LEN];
   char is_main;
-  char _inline;
   char add_argc_argv;
   int dimension;
   int typedef_id;
@@ -1624,7 +1614,7 @@ void declare_func(void){
             continue;
           }
           else{
-            function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.dims[dimension] = (u16)atoi(curr_token.token_str);
+            function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.dims[dimension] = (uint16_t)atoi(curr_token.token_str);
             get();
             if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing bracket expected");
             dimension++;
@@ -1654,13 +1644,15 @@ void declare_func(void){
 
 void declare_goto_label(void){
   int i, goto_tos;
-
+  size_t buffer_size = sizeof(function_table[current_func_id].goto_labels_table[0]);
+  
   goto_tos = function_table[current_func_id].goto_labels_table_tos;
   get();
   for(i = 0; i < goto_tos; i++)
-    if(!strcmp(function_table[current_func_id].goto_labels_table[i], curr_token.token_str)) 
+    if(!strcmp(function_table[current_func_id].goto_labels_table[i], curr_token.token_str))
       error(ERR_FATAL, "Duplicate label: %s", curr_token.token_str);
-  sprintf(function_table[current_func_id].goto_labels_table[goto_tos], "%s_%s", function_table[current_func_id].name, curr_token.token_str);
+  
+  snprintf(function_table[current_func_id].goto_labels_table[goto_tos], buffer_size, "%s_%s", function_table[current_func_id].name, curr_token.token_str);
   emitln("%s:", function_table[current_func_id].goto_labels_table[goto_tos]);
   function_table[current_func_id].goto_labels_table_tos++;
   get();
@@ -1671,6 +1663,8 @@ int get_param_size(){
   int struct_enum_id;
   t_size_modifier size_modifier;
 
+  data_size = 0;
+  struct_enum_id = -1;
   size_modifier = MOD_NORMAL;  
   get();
   while(curr_token.tok == CONST  || curr_token.tok == STATIC   ||
@@ -1708,6 +1702,9 @@ int get_param_size(){
     case ENUM:
       get(); // get enum name
       data_size = 2;
+      break;
+    default:
+      error(ERR_FATAL, "(get_param_size): unknown data type token");
   }
 
   get(); // check for '*'
@@ -1749,10 +1746,7 @@ int get_total_func_fixed_param_size(void){
 
 // > asgn d, shell_path
 void parse_asm(void){
-  char *temp_prog, *temp_prog2;
-  char var_name[ID_LEN];
-  char label_name[ID_LEN];
-  char *p, *t;
+  char *temp_prog;
   
   get();
   if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
@@ -2153,7 +2147,7 @@ void emit_c_header_line(){
 
 void parse_block(void){
   int braces = 0;
-  char *temp_prog, *temp_prog2;
+  char *temp_prog;
   
   do{
     temp_prog = prog;
@@ -2358,7 +2352,6 @@ int is_assignment(){
 
 t_type parse_assignment(){
   char var_name[ID_LEN];
-  char *temp_prog, *temp_asm_p;
   t_type expr_in, expr_out;
   int found_assignment;
 
@@ -2446,6 +2439,7 @@ char is_constant(char *varname){
     return global_var_table[var_id].type.is_constant;
   else 
     error(ERR_FATAL, "Undeclared variable: %s", varname);
+  return 0;
 }
 
 // A = cond1 ? true_val : false_val;
@@ -2916,9 +2910,9 @@ t_type parse_factors(void){
 }
 
 t_type parse_atomic(void){
-  int var_id, func_id, string_id;
+  int func_id;
   char temp_name[ID_LEN];
-  t_type expr_in, expr_out;
+  t_type expr_out;
   int ind_level = 0;
   t_sign_modifier sign_modifier;
   t_primitive_type primitive_type;
@@ -3023,6 +3017,7 @@ t_type parse_atomic(void){
         get();
       }
 
+      primitive_type = DT_INT;
       if(curr_token.tok == VOID){
         primitive_type = DT_VOID;
       }
@@ -3060,7 +3055,7 @@ t_type parse_atomic(void){
             emitln("  snex b"); // sign extend b
             emitln("  mov c, b"); // sign extend c
           }
-          else if(sign_modifier == SNESS_UNSIGNED && ind_level == 0 && (expr_out.primitive_type == DT_CHAR || expr_out.primitive_type == DT_INT)){
+          else if((sign_modifier == SNESS_UNSIGNED && ind_level == 0 && (expr_out.primitive_type == DT_CHAR) || expr_out.primitive_type == DT_INT)){
             emitln("  mov bh, 0"); // zero extend b
             emitln("  mov c, 0"); // zero extend c
           }
@@ -3570,7 +3565,7 @@ t_type emit_array_arithmetic(t_type type){
     parse_expr(); // result in 'b'
     emitln("  pop d");
     if(get_array_offset(i, type) > 1){ // optimize it so there's no multiplication if not needed
-      emitln("  mma %u ; mov a, %u; mul a, b; add d, b", get_array_offset(i, type), get_array_offset(i, type)); // mov a, u16; mul a, b; add d, b
+      emitln("  mma %u ; mov a, %u; mul a, b; add d, b", get_array_offset(i, type), get_array_offset(i, type)); // mov a, uint16_t; mul a, b; add d, b
     }
     else 
       emitln("  add d, b");
@@ -3738,18 +3733,17 @@ char *get_var_base_addr(char *dest, char *var_name){
 }
 
 t_type emit_var_addr_into_d(char *var_name){
-  int dims, offset, struct_enum_id, var_id;
-  char temp[128], element_name[ID_LEN], temp_name[ID_LEN];
+  int dims, offset, var_id;
+  char temp[128], element_name[ID_LEN];
   t_type type;
-  t_var var;
 
   if((var_id = local_var_exists(var_name)) != -1){ // is a local variable
     type = function_table[current_func_id].local_vars[var_id].type;
     if(function_table[current_func_id].local_vars[var_id].is_static){
       if(is_array(function_table[current_func_id].local_vars[var_id].type) || (function_table[current_func_id].local_vars[var_id].type.primitive_type == DT_STRUCT && function_table[current_func_id].local_vars[var_id].type.ind_level == 0))
-        emitln("  mov d, _static_%s_%s_data ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
+        emitln("  mov d, st_%s_%s_dt ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
       else
-        emitln("  mov d, _static_%s_%s ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
+        emitln("  mov d, st_%s_%s ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
     }
     else{
       get_var_base_addr(temp, var_name);
@@ -3772,12 +3766,11 @@ t_type emit_var_addr_into_d(char *var_name){
   }
   else error(ERR_FATAL, "(emit_var_addr_into_d) Undeclared identifier: %s", var_name);
 
-  var = get_internal_var_ptr(var_name);
   get();
   // emit base address for variable, whether struct or not
   // then look for '.' or '[]' in each cycle, if found, add offsets
   if(curr_token.tok == OPENING_BRACKET || curr_token.tok == STRUCT_DOT || curr_token.tok == STRUCT_ARROW){ // array operations
-    if(curr_token.tok == OPENING_BRACKET && !is_array(type) && type.ind_level > 0 /*&& var.is_parameter*/){
+    if(curr_token.tok == OPENING_BRACKET && !is_array(type) && type.ind_level > 0){
       emitln("  mov d, [d]");
     }
     do{
@@ -3793,7 +3786,7 @@ t_type emit_var_addr_into_d(char *var_name){
           parse_expr(); // parse index expression, result in B
           emitln("  pop d");
           if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
-          emitln("  mma %u ; mov a, %u; mul a b; add d, b", get_data_size_for_indexing(type), get_data_size_for_indexing(type)); // mov a, u16; mul a b; add d, b
+          emitln("  mma %u ; mov a, %u; mul a b; add d, b", get_data_size_for_indexing(type), get_data_size_for_indexing(type)); // mov a, uint16_t; mul a b; add d, b
           emitln("  pop a");
           type.ind_level--; // indexing reduces ind_level by 1
         }
@@ -3991,7 +3984,7 @@ int function_has_variable_arguments(int func_id){
 }
 
 void parse_struct_initialization_data(int struct_id, int array_size){
-  int i, j, k, q;
+  int i, j, k;
   int element_array_size, total_elements;
 
   total_elements = get_struct_elements_count(struct_id);
@@ -4105,7 +4098,6 @@ int get_enum_val(char *name){
 }
 
 int find_array_initialization_size(t_size_modifier size_modifier){
-  char *temp_prog = prog; // save starting prog position
   int len = 0;
   int braces;
   get();
@@ -4236,7 +4228,7 @@ void emit_static_var_initialization(t_var *var){
   if(is_array(var->type)){
     get();
     expect(OPENING_BRACE, "Opening braces expected");
-    emit_data("_static_%s_%s_data: \n", function_table[current_func_id].name, var->name);
+    emit_data("st_%s_%s_dt: \n", function_table[current_func_id].name, var->name);
     emit_data_dbdw(var->type);
     j = 0;
     do{
@@ -4263,27 +4255,27 @@ void emit_static_var_initialization(t_var *var){
     if(get_total_type_size(var->type) - j * get_primitive_type_size(var->type) > 0){
       emit_data(".fill %u, 0\n", get_total_type_size(var->type) - j * get_primitive_type_size(var->type));
     }
-    emit_data("_static_%s: .dw _static_%s_%s_data\n", function_table[current_func_id].name, var->name, var->name);
+    emit_data("st_%s: .dw st_%s_%s_dt\n", function_table[current_func_id].name, var->name, var->name);
     expect(CLOSING_BRACE, "Closing braces expected");
   }
   else{
     get();
     switch(var->type.primitive_type){
       case DT_VOID:
-        emit_data("_static_%s_%s: ", function_table[current_func_id].name, var->name);
+        emit_data("st_%s_%s: ", function_table[current_func_id].name, var->name);
         emit_data_dbdw(var->type);
         emit_data("%u, ", atoi(curr_token.token_str));
         break;
       case DT_CHAR:
         if(var->type.ind_level > 0){ // if is a string
           if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
-          emit_data("_static_%s_%s_data: ", function_table[current_func_id].name, var->name);
+          emit_data("st_%s_%s_dt: ", function_table[current_func_id].name, var->name);
           emit_data_dbdw(var->type);
           emit_data("%s, 0\n", curr_token.token_str); // TODO: do not require char pointer initialization to be a string only!
-          emit_data("_static_%s_%s: .dw _static_%s_%s_data\n", function_table[current_func_id].name, var->name, function_table[current_func_id].name, var->name);
+          emit_data("st_%s_%s: .dw st_%s_%s_dt\n", function_table[current_func_id].name, var->name, function_table[current_func_id].name, var->name);
         }
         else{
-          emit_data("_static_%s_%s: ", function_table[current_func_id].name, var->name);
+          emit_data("st_%s_%s: ", function_table[current_func_id].name, var->name);
           emit_data_dbdw(var->type);
           if(curr_token.tok_type == CHAR_CONST)
             emit_data("$%x\n", curr_token.string_const[0]);
@@ -4292,7 +4284,7 @@ void emit_static_var_initialization(t_var *var){
         }
         break;
       case DT_INT:
-        emit_data("_static_%s_%s: ", function_table[current_func_id].name, var->name);
+        emit_data("st_%s_%s: ", function_table[current_func_id].name, var->name);
         emit_data_dbdw(var->type);
         if(var->type.ind_level > 0)
             emit_data("%u\n", atoi(curr_token.token_str));
@@ -4304,7 +4296,7 @@ void emit_static_var_initialization(t_var *var){
   get();
 }
 
-u8 type_is_32bit(t_type type){
+uint8_t type_is_32bit(t_type type){
   return type.primitive_type == DT_INT && type.ind_level == 0 && type.size_modifier == MOD_LONG;
 }
 
@@ -4507,14 +4499,14 @@ void get(void){
       *t++ = *prog++;
       while(is_hex_digit(*prog)) *t++ = *prog++;
       *t = '\0';
-      sscanf(curr_token.token_str, "%x", &curr_token.int_const);
+      sscanf(curr_token.token_str, "%lx", &curr_token.int_const);
     }
     else{
       while(is_digit(*prog)){
         *t++ = *prog++;
       }
       *t = '\0';
-      sscanf(curr_token.token_str, "%d", &curr_token.int_const);
+      sscanf(curr_token.token_str, "%ld", &curr_token.int_const);
     }
     if(*prog == 'L' || *prog == 'l' || *prog == 'u' || *prog == 'U'){
       while(*prog == 'L' || *prog == 'l' || *prog == 'u' || *prog == 'U'){
@@ -4547,11 +4539,12 @@ void get(void){
     }
     return; // return to avoid *t = '\0' line at the end of function
   }
-  else if(is_identifier_char(*prog)){
-    while(is_identifier_char(*prog) || is_digit(*prog)){
+  else if(isalpha(*prog) || *prog == '_'){
+    while(isalpha(*prog) || *prog == '_' || is_digit(*prog)){
       *t++ = *prog++;
     }
     *t = '\0';
+
     if((curr_token.tok = search_keyword(curr_token.token_str)) != -1) 
       curr_token.tok_type = RESERVED;
     else 
@@ -4813,7 +4806,7 @@ void error(t_error_type error_type, const char* format, ...){
 }
 
 void build_referenced_func_list(void){
-  u16 braces;
+  uint16_t braces;
 }
 
 void expand_all_included_files(void){
@@ -4822,7 +4815,7 @@ void expand_all_included_files(void){
   char *p, *temp_prog, *temp_prog2;
   char *pi;
   char filename[256];
-  _bool found_include;
+  uint8_t found_include;
 
   prog = c_in;
   pi = include_file_buffer;

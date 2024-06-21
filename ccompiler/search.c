@@ -77,7 +77,7 @@ int search_define(char *name){
   return -1;
 }
 
-i8 search_typedef(char *name){
+int search_typedef(char *name){
   int i;
   for(i = 0; i < typedef_table_tos; i++){
     if(!strcmp(typedef_table[i].name, name)) return i;

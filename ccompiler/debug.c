@@ -55,7 +55,7 @@ void dbg_print_function_info(t_function *function){
   printf("RETURN TYPE INFO:\n");
   dbg_print_type_info(&function->return_type);
   printf("PARAMETER LIST:\n");
-  for(i = 0; function->local_vars[i].name && function->local_vars[i].is_parameter ; i++){
+  for(i = 0; i < function->local_var_tos && function->local_vars[i].is_parameter ; i++){
     printf("parameter[%d] Name: %s\n", i, function->local_vars[i].name);
     printf("ind level: %d\n", function->local_vars[i].type.ind_level);
     printf("size modifier: %d\n", function->local_vars[i].type.size_modifier);
