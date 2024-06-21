@@ -1643,20 +1643,34 @@ void declare_func(void){
     function_table_tos++;
 }
 
-void declare_goto_label(void){
-  int i, goto_tos;
-  size_t buffer_size = sizeof(function_table[current_func_id].goto_labels_table[0]);
-  
-  goto_tos = function_table[current_func_id].goto_labels_table_tos;
-  get();
-  for(i = 0; i < goto_tos; i++)
-    if(!strcmp(function_table[current_func_id].goto_labels_table[i], curr_token.token_str))
-      error(ERR_FATAL, "Duplicate label: %s", curr_token.token_str);
-  
-  snprintf(function_table[current_func_id].goto_labels_table[goto_tos], buffer_size, "%s_%s", function_table[current_func_id].name, curr_token.token_str);
-  emitln("%s:", function_table[current_func_id].goto_labels_table[goto_tos]);
-  function_table[current_func_id].goto_labels_table_tos++;
-  get();
+void declare_goto_label(void) {
+    int i, goto_tos;
+    size_t buffer_size = sizeof(function_table[current_func_id].goto_labels_table[0]);
+    
+    goto_tos = function_table[current_func_id].goto_labels_table_tos;
+    get();
+    
+    for (i = 0; i < goto_tos; i++) {
+        if (!strcmp(function_table[current_func_id].goto_labels_table[i], curr_token.token_str)) {
+            error(ERR_FATAL, "Duplicate label: %s", curr_token.token_str);
+            return;
+        }
+    }
+
+    size_t name_len = strlen(function_table[current_func_id].name);
+    size_t token_len = strlen(curr_token.token_str);
+
+    // Ensure the concatenated string fits in the buffer
+    if (name_len + 1 + token_len + 1 > buffer_size) {  // +1 for '_' and +1 for '\0'
+        error(ERR_FATAL, "Label buffer overflow: %s", curr_token.token_str);
+        return;
+    }
+
+    // Use snprintf safely
+    snprintf(function_table[current_func_id].goto_labels_table[goto_tos], buffer_size, "%s_%s", function_table[current_func_id].name, curr_token.token_str);
+    emitln("%s:", function_table[current_func_id].goto_labels_table[goto_tos]);
+    function_table[current_func_id].goto_labels_table_tos++;
+    get();
 }
 
 int get_param_size(){

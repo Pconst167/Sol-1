@@ -19,16 +19,16 @@ cc: cc.o char.o debug.o search.o
 	@rm cc.o char.o debug.o search.o
 
 cc.o: cc.c definitions.h
-	$(CC) $(CFLAGS) -c cc.c -o cc.o
+	@$(CC) $(CFLAGS) -c cc.c -o cc.o
 
 char.o: char.c char.h
-	$(CC) $(CFLAGS) -c char.c -o char.o
+	@$(CC) $(CFLAGS) -c char.c -o char.o
 
 debug.o: debug.c debug.h
-	$(CC) $(CFLAGS) -c debug.c -o debug.o
+	@$(CC) $(CFLAGS) -c debug.c -o debug.o
 
 search.o: search.c search.h
-	$(CC) $(CFLAGS) -c search.c -o search.o
+	@$(CC) $(CFLAGS) -c search.c -o search.o
 
 clean:
 	@rm -f cc cc.o char.o debug.o search.o
