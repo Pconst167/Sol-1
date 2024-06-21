@@ -27,73 +27,7 @@ void va_end(struct va_list_t *argp) {
 }
 */
 
-void scanf(char *format, ...){
-  char *p, *format_p;
-  char c;
-  int i;
-  char input_string[MAX_SCANF_STRING_SIZE];
-
-  format_p = format;
-  p = &format + 2;
-
-// scanf("%d %c %s", &a, &b, &c);
-  for(;;){
-    if(!*format_p) break;
-    else if(*format_p == '%'){
-      format_p++;
-      switch(*format_p){
-        case 'l':
-        case 'L':
-          format_p++;
-          if(*format_p == 'd' || *format_p == 'i');
-          else if(*format_p == 'u');
-          else if(*format_p == 'x');
-          else err("Unexpected format in printf.");
-          p = p + 4;
-          break;
-
-        case 'd':
-        case 'i':
-          i = scann();
-          **(int **)p = i;
-          p = p + 2;
-          break;
-
-        case 'u':
-          i = scann();
-          **(int **)p = i;
-          p = p + 2;
-          break;
-
-        case 'x':
-          p = p + 2;
-          break;
-
-        case 'c':
-          c = getchar();
-          **(char **)p = c;
-          p = p + 2;
-          break;
-
-        case 's':
-          gets(input_string);
-          strcpy(*(char **)p, input_string);
-          p = p + 2;
-          break;
-
-        default:
-          print("Error: Unknown argument type.\n");
-      }
-      format_p++;
-    }
-    else {
-      putchar(*format_p);
-      format_p++;
-    }
-  }
-}
-
-void printf(char *format, ...){
+void printf(const char *format, ...){
   char *p, *format_p;
 
   format_p = format;
@@ -157,6 +91,72 @@ void printf(char *format, ...){
             mov d, [d]
             call _puts
           }
+          p = p + 2;
+          break;
+
+        default:
+          print("Error: Unknown argument type.\n");
+      }
+      format_p++;
+    }
+    else {
+      putchar(*format_p);
+      format_p++;
+    }
+  }
+}
+
+void scanf(const char *format, ...){
+  char *p, *format_p;
+  char c;
+  int i;
+  char input_string[MAX_SCANF_STRING_SIZE];
+
+  format_p = format;
+  p = &format + 2;
+
+// scanf("%d %c %s", &a, &b, &c);
+  for(;;){
+    if(!*format_p) break;
+    else if(*format_p == '%'){
+      format_p++;
+      switch(*format_p){
+        case 'l':
+        case 'L':
+          format_p++;
+          if(*format_p == 'd' || *format_p == 'i');
+          else if(*format_p == 'u');
+          else if(*format_p == 'x');
+          else err("Unexpected format in printf.");
+          p = p + 4;
+          break;
+
+        case 'd':
+        case 'i':
+          i = scann();
+          **(int **)p = i;
+          p = p + 2;
+          break;
+
+        case 'u':
+          i = scann();
+          **(int **)p = i;
+          p = p + 2;
+          break;
+
+        case 'x':
+          p = p + 2;
+          break;
+
+        case 'c':
+          c = getchar();
+          **(char **)p = c;
+          p = p + 2;
+          break;
+
+        case 's':
+          gets(input_string);
+          strcpy(*(char **)p, input_string);
           p = p + 2;
           break;
 
