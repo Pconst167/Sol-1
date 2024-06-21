@@ -483,8 +483,7 @@ void course_control(void)
 	warp = input_f00();
 
 	if (damage[1] < 0 && warp > 20) {
-		printf("Warp Engines are damaged. "
-		       "Maximum speed = Warp 0.2.\n\n");
+		printf("Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n");
 		return;
 	}
 
@@ -492,8 +491,7 @@ void course_control(void)
 		return;
 
 	if (warp > 800) {
-		printf("Chief Engineer Scott reports:\n"
-		       "  The engines won't take warp %s!\n\n", print100(warp));
+		printf("Chief Engineer Scott reports:\n  The engines won't take warp %s!\n\n", print100(warp));
 		return;
 	}
 
@@ -503,13 +501,10 @@ void course_control(void)
 
 	/* FIXME: should be  s + e - n > 0 iff shield control undamaged */
 	if (energy - n < 0) {
-		printf("Engineering reports:\n"
-		       "  Insufficient energy available for maneuvering"
-		       " at warp %s!\n\n", print100(warp));
+		printf("Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n", print100(warp));
 
 		if (shield >= n && damage[7] >= 0) {
-			printf("Deflector Control Room acknowledges:\n"
-			       "  %d units of energy presently deployed to shields.\n", shield);
+			printf("Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n", shield);
 		}
 
 		return;
@@ -605,14 +600,7 @@ void course_control(void)
 
 			if (outside == 1) {
 				/* Mostly showfile ? FIXME */
-				printf("LT. Uhura reports:\n"
-		       "  Message from Starfleet Command:\n\n"
-		       "  Permission to attempt crossing of galactic perimeter\n"
-		       "  is hereby *denied*. Shut down your engines.\n\n"
-		       "Chief Engineer Scott reports:\n"
-		       "  Warp Engines shut down at sector %d, "
-		       "%d of quadrant %d, %d.\n\n",
-				       FROM_FIXED00(ship_y),
+				printf("LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n", FROM_FIXED00(ship_y),
 				       FROM_FIXED00(ship_x), quad_y, quad_x);
 			}
 			maneuver_energy(n);
@@ -638,8 +626,7 @@ void course_control(void)
 		if (quad[z1+-1][z2+-1] != Q_SPACE) {	/* Sector not empty */
 			ship_y = ship_y - x1;
 			ship_x = ship_x - x2;
-			printf("Warp Engines shut down at sector "
-			       "%d, %d due to bad navigation.\n\n", z1, z2);
+			printf("Warp Engines shut down at sector %d, %d due to bad navigation.\n\n", z1, z2);
 			i = n + 1;
 		}
 	}
@@ -802,8 +789,7 @@ void long_range_scan(void)
 uint8_t no_klingon(void)
 {
 	if (klingons <= 0) {
-		puts("Science Officer Spock reports:\n"
-		     "  'Sensors show no enemy ships in this quadrant'\n");
+		puts("Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n");
 		return 1;
 	}
 	return 0;
@@ -833,9 +819,7 @@ void phaser_control(void)
 	if (damage[8] < 0)
 		puts("Computer failure hampers accuracy.");
 
-	printf("Phasers locked on target;\n"
-	       "Energy available = %d units\n\n"
-	       "Number of units to fire: ", energy);
+	printf("Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: ", energy);
 
 	phaser_energy = input_int();
 
@@ -868,13 +852,11 @@ void phaser_control(void)
 			h1 =h1/ distance_to(k);
 
 			if (h1 <= 15 * k->energy) {	/* was 0.15 */
-				printf("Sensors show no damage to enemy at "
-				       "%d, %d\n\n", k->y, k->x);
+				printf("Sensors show no damage to enemy at %d, %d\n\n", k->y, k->x);
 			} else {
 				h = FROM_FIXED00(h1);
 				k->energy = k->energy - h;
-				printf("%d unit hit on Klingon at sector "
-				       "%d, %d\n",
+				printf("%d unit hit on Klingon at sector %d, %d\n",
 					h, k->y, k->x);
 				if (k->energy <= 0) {
 					puts("*** Klingon Destroyed ***\n");
@@ -1008,8 +990,7 @@ void torpedo_hit(uint8_t yp, uint8_t xp)
 			resign_commision();
 		}
 
-		puts("Starfleet Command reviewing your record to consider\n"
-		     "court martial!\n");
+		puts("Starfleet Command reviewing your record to consider\n court martial!\n");
 
 		docked = 0;		/* Undock */
 		map[quad_y][quad_x] =map[quad_y][quad_x] - 0x10;
@@ -1039,9 +1020,7 @@ void damage_control(void)
 			if (repair_cost >= 100)
 				repair_cost = 90;	/* 0.9 */
 
-			printf("\nTechnicians standing by to effect repairs to your"
-			       "ship;\nEstimated time to repair: %s stardates.\n"
-			       "Will you authorize the repair order (y/N)? ", print100(repair_cost));
+			printf("\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ", print100(repair_cost));
 
 			if (yesno()) {
 				for (i = 1; i <= 8; i++)
@@ -1076,8 +1055,7 @@ void shield_control(void)
 	if (inoperable(7))
 		return;
 
-	printf("Energy available = %d\n\n"
-	       "Input number of units to shields: ", energy + shield);
+	printf("Energy available = %d\n\n Input number of units to shields: ", energy + shield);
 
 	i = input_int();
 
@@ -1088,16 +1066,14 @@ unchanged:
 	}
 
 	if (i >= energy + shield) {
-		puts("Shield Control Reports:\n"
-		     "  'This is not the Federation Treasury.'");
+		puts("Shield Control Reports:\n  'This is not the Federation Treasury.'");
 		goto unchanged;
 	}
 
 	energy = energy + shield - i;
 	shield = i;
 
-	printf("Deflector Control Room report:\n"
-	       "  'Shields now at %d units per your command.'\n\n", shield);
+	printf("Deflector Control Room report:\n  'Shields now at %d units per your command.'\n\n", shield);
 }
 
 void library_computer(void)
@@ -1132,13 +1108,13 @@ void library_computer(void)
 			break;
 		default:
 			/* FIXME: showfile */
-			puts("Functions available from Library-Computer:\n\n"
-			     "   0 = Cumulative Galactic Record\n"
-			     "   1 = Status Report\n"
-			     "   2 = Photon Torpedo Data\n"
-			     "   3 = Starbase Nav Data\n"
-			     "   4 = Direction/Distance Calculator\n"
-			     "   5 = Galaxy 'Region Name' Map\n");
+			puts("Functions available from Library-Computer:\n\n");
+			     puts("   0 = Cumulative Galactic Record\n");
+			     puts("   1 = Status Report\n");
+			     puts("   2 = Photon Torpedo Data\n");
+			     puts("   3 = Starbase Nav Data\n");
+			     puts("   4 = Direction/Distance Calculator\n");
+			     puts("   5 = Galaxy 'Region Name' Map\n");
 	}
 }
 
@@ -1183,14 +1159,12 @@ void status_report(void)
 		plural = str_s;
 
 	/* Assumes fixed point is single digit fixed */
-	printf("Klingon%s Left: %d\n"
-	       "Mission must be completed in %d.%d stardates\n",
+	printf("Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n",
 		plural, klingons_left,
 		FROM_FIXED(left), left%10);
 
 	if (starbases_left < 1) {
-		puts("Your stupidity has left you on your own in the galaxy\n"
-		     " -- you have no starbases left!\n");
+		puts("Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n");
 	} else {
 		plural = str_s;
 		if (starbases_left < 2)
@@ -1230,8 +1204,7 @@ void torpedo_data(void)
 void nav_data(void)
 {
 	if (starbases <= 0) {
-		puts("Mr. Spock reports,\n"
-		     "  'Sensors show no starbases in this quadrant.'\n");
+		puts("Mr. Spock reports,\n  'Sensors show no starbases in this quadrant.'\n");
 		return;
 	}
 	compute_vector(TO_FIXED00(base_y), TO_FIXED00(base_x), ship_y, ship_x);
@@ -1241,9 +1214,7 @@ void nav_data(void)
 void dirdist_calc(void)
 {
 	int16_t c1, a, w1, x;
-	printf("Direction/Distance Calculator\n"
-	       "You are at quadrant %d,%d sector %d,%d\n\n"
-	       "Please enter initial X coordinate: ",
+	printf("Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: ",
 	       quad_y, quad_x,
 	       FROM_FIXED00(ship_y), FROM_FIXED00(ship_x));
 
@@ -1366,8 +1337,7 @@ estimate1:
 }
 void ship_destroyed(void)
 {
-	puts("The Enterprise has been destroyed. "
-	     "The Federation will be conquered.\n");
+	puts("The Enterprise has been destroyed. The Federation will be conquered.\n");
 
 	end_of_time();
 }
@@ -1381,16 +1351,14 @@ void end_of_time(void)
 
 void resign_commision(void)
 {
-	printf("There were %d Klingon Battlecruisers left at the"
-	       " end of your mission.\n\n", klingons_left);
+	printf("There were %d Klingon Battlecruisers left at the end of your mission.\n\n", klingons_left);
 
 	end_of_game();
 }
 
 void won_game(void)
 {
-	puts("Congratulations, Captain!  The last Klingon Battle Cruiser\n"
-	     "menacing the Federation has been destoyed.\n");
+	puts("Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n");
 
 	if (FROM_FIXED(stardate) - time_start > 0)
 		printf("Your efficiency rating is %s\n",
@@ -1404,10 +1372,10 @@ void end_of_game(void)
 	char x[4];
 	if (starbases_left > 0) {
 		/* FIXME: showfile ? */
-		puts("The Federation is in need of a new starship commander"
-		     " for a similar mission.\n"
-		     "If there is a volunteer, let him step forward and"
-		     " enter 'aye': ");
+		puts("The Federation is in need of a new starship commander");
+		     puts(" for a similar mission.\n");
+		     puts("If there is a volunteer, let him step forward and");
+		     puts(" enter 'aye': ");
 
 		input(x,4);
 		if (!strncmp(x, "aye", 3))
@@ -1463,8 +1431,7 @@ void klingons_shoot(void)
 
 			k->energy = (k->energy * 100) / (300 + get_rand(100));
 
-			printf("%d unit hit on Enterprise from sector "
-			       "%d, %d\n", (unsigned)FROM_FIXED00(h), k->y, k->x);
+			printf("%d unit hit on Enterprise from sector %d, %d\n", (unsigned)FROM_FIXED00(h), k->y, k->x);
 
 			if (shield <= 0) {
 				putchar('\n');
