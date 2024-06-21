@@ -20,14 +20,18 @@
     * and thenparse semantics for that construct
     
   
-  when parsing expressions, right now i am testing for 32bit basd on type1 in places, however type1 is related to the left
+  ** when parsing expressions, right now i am testing for 32bit basd on type1 in places, however type1 is related to the left
   hand-side term of the 2-term expression, and that left-hand-side of the expression changes as the expression goes on,
   however since the "left side" whic is kept in "ga", can change as the expression goes on, such as when the expression
   meets a pointer, and then a 32bit number will become a 16bit pointer, and this test for type1 for 32bit is no longer
   valid. therefore we need to test for expr_out instead as that is changing with the expression.
 
 
-  look at cast() function for improvements.
+  ** look at cast() function for improvements.
+
+  ** implement parsing of concatenated string constants such as "strng 1" "string2" ... etc 
+
+  ** implement 'register' keyworded type local variables  
 */
 
 #include <stdio.h>
@@ -197,7 +201,7 @@ struct{
   "string constant", STRING_CONST, 
   "undefined", TYPE_UNDEF
 };
-
+/*
 char *runtime_argc_argv_getter = "\n\n\
   char *arg_p, *arg_line_p;\n\
   char *psrc, *pdest;\n\
@@ -225,7 +229,7 @@ char *runtime_argc_argv_getter = "\n\n\
     *pdest = '\\0';\n\
     argc++;\n\
   }\n";
-
+*/
 char libc_directory[] = "./lib/";
 char debug;
 
@@ -396,6 +400,7 @@ char find_cmdline_switch(int argc, char **argv, char *_switch){
   // 
   // for calculating argc, we need to write assembly that will count space separated arguments.
 void insert_runtime() {
+  /*
   int i;
   int main_index;
   char *loc;
@@ -412,6 +417,7 @@ void insert_runtime() {
   loc = function_table[main_index].code_location;
   while(*loc != '{') loc++;
   insert(loc, runtime_argc_argv_getter);
+  */
 }
 
 int is_register(char *name){

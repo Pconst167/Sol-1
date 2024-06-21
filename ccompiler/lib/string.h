@@ -16,6 +16,10 @@ int strcmp(char *s1, char *s2) {
   return *s1 - *s2;
 }
 
+int strncmp(char *s1, char *s2, int n){
+
+}
+
 char *strcat(char *dest, char *src) {
     int dest_len;
     int i;

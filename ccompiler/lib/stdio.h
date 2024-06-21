@@ -398,6 +398,10 @@ void clear(){
   print("\033[2J\033[H");
 }
 
+int abs(int i){
+  return i < 0 ? -i : i;
+}
+
 void include_stdio_asm(){
   asm{
     .include "lib/asm/stdio.asm"

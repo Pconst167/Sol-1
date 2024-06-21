@@ -11,6 +11,14 @@ void exit(){
   }
 }
 
+void *memset(char *s, char c, int size){
+  int i;
+  for(i = 0; i < size; i++){
+    *(s+i) = c;
+  }
+  return s;
+}
+
 int atoi(char *str) {
     int result = 0;  // Initialize result
     int sign = 1;    // Initialize sign as positive
