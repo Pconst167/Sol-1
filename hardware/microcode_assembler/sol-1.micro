@@ -18207,7 +18207,7 @@
   }
 }
 
-0xB1, "cmp a, c"{
+0xB1, "cmp a, c - sand32 ga, cb"{
   0{
     next=next_offset
     offset=1
@@ -18247,9 +18247,84 @@
     marh_wrt=true
     mar_in_src=pc
   }
+
+  16{
+    next=next_offset
+    offset=1
+    alu_x=al
+    alu_y=immediate
+    alu_op=minus
+    alu_cf_in_inv=true
+    immediate=0
+    uzf_in_src=alu_zf
+    ucf_in_src=alu_final_cf
+  }
+  17{
+    next=next_offset
+    offset=1
+    alu_x=ah
+    alu_y=immediate
+    alu_op=minus
+    immediate=0
+    alu_cf_in=ucf
+    uzf_in_src=alu_zf_and_uzf
+  }
+  18{
+    next=next_branch
+    offset=5
+    cond_flags_src=micro_flags
+  }
+  19{
+    next=next_offset
+    offset=1
+    alu_x=bl
+    alu_y=immediate
+    alu_op=minus
+    alu_cf_in_inv=true
+    immediate=0
+    uzf_in_src=alu_zf
+    ucf_in_src=alu_final_cf
+  }
+  20{
+    next=next_offset
+    offset=1
+    alu_x=bh
+    alu_y=immediate
+    alu_op=minus
+    immediate=0
+    alu_cf_in=ucf
+    uzf_in_src=alu_zf_and_uzf
+  }
+  21{
+    next=next_branch
+    offset=2
+    cond_flags_src=micro_flags
+    alu_y=immediate
+    alu_op=y
+    alu_mode=logic
+    immediate=0
+    bh_wrt=true
+  }
+  22{
+    next=next_fetch
+    alu_y=immediate
+    alu_op=y
+    alu_mode=logic
+    bl_wrt=true
+    immediate=1
+  }
+  23{
+    next=next_fetch
+    alu_y=immediate
+    alu_op=y
+    alu_mode=logic
+    bl_wrt=true
+    bh_wrt=true
+    immediate=0
+  }
 }
 
-0xB2, "cmp a, d"{
+0xB2, "cmp a, d - sor32 ga, cb"{
   0{
     next=next_offset
     offset=1
@@ -18288,6 +18363,69 @@
     marl_wrt=true
     marh_wrt=true
     mar_in_src=pc
+  }
+
+  16{
+    next=next_offset
+    offset=1
+    alu_x=bl
+    alu_op=x
+    alu_mode=logic
+    tdrl_wrt=true
+  }
+  17{
+    next=next_offset
+    offset=1
+    alu_x=bh
+    alu_op=x
+    alu_mode=logic
+    tdrh_wrt=true
+  }
+  18{
+    next=next_offset
+    offset=1
+    alu_x=al
+    alu_y=tdrl
+    alu_op=or
+    alu_mode=logic
+    uzf_in_src=alu_zf
+  }
+  19{
+    next=next_offset
+    offset=1
+    alu_x=ah
+    alu_y=tdrh
+    alu_op=or
+    alu_mode=logic
+    uzf_in_src=alu_zf_and_uzf
+  }
+  20{
+    next=next_branch
+    offset=2
+    condition=zf
+    cond_flags_src=micro_flags
+    condition_inv=true
+    alu_y=immediate
+    alu_op=y
+    alu_mode=logic
+    immediate=0
+    bh_wrt=true
+  }
+  21{
+    next=next_fetch
+    alu_y=immediate
+    alu_op=y
+    alu_mode=logic
+    bl_wrt=true
+    immediate=0
+  }
+  22{
+    next=next_fetch
+    alu_y=immediate
+    alu_op=y
+    alu_mode=logic
+    bl_wrt=true
+    immediate=1
   }
 }
 
