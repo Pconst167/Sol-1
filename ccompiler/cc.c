@@ -1532,6 +1532,7 @@ void declare_func(void){
         prog = prog_before_void_tok;
       }
     }
+    else back();
     total_parameter_bytes = get_total_func_fixed_param_size();
     function_table[function_table_tos].total_parameter_size = total_parameter_bytes;
     bp_offset = 5; // +4 to account for pc and bp in the stack
