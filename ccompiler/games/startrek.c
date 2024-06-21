@@ -1337,21 +1337,21 @@ estimate2:
 			return;
 		} else if (x != 0){
 			c1 = 500;
-			goto estimate1;
+			//goto estimate1;
 			return;
 		} else {
 			c1 = 700;
-			goto estimate2;
+			//goto estimate2;
 		}
 	} else if (a < 0) {
 		c1 = 700;
-		goto estimate2;
+		//goto estimate2;
 	} else if (x > 0) {
 		c1 = 100;
-		goto estimate1;
+		//goto estimate1;
 	} else if (a == 0) {
 		c1 = 500;
-		goto estimate1;
+		//goto estimate1;
 	} else {
 		c1 = 100;
 estimate1:
@@ -1413,19 +1413,20 @@ void end_of_game(void)
 		if (!strncmp(x, "aye", 3))
 			new_game();
 	}
-	exit(0);
+	exit();
 }
 
 void klingons_move(void)
 {
 	int i;
-	struct klingon *k = kdata;
+	struct klingon *k;
+	k = &kdata;
 
 	for (i = 0; i <= 2; i++) {
 		if (k->energy > 0) {
 			wipe_klingon(k);
 
-			find_set_empty_place(Q_KLINGON, &k->y, &k->x);
+			find_set_empty_place(Q_KLINGON, k->y, k->x);
 		}
 		k++;
 	}

@@ -3811,7 +3811,7 @@ t_type emit_var_addr_into_d(char *var_name){
         strcpy(element_name, curr_token.token_str);
         offset = get_struct_element_offset(type.struct_enum_id, element_name);
         type = get_struct_element_type(type.struct_enum_id, element_name);
-        get_var_base_addr(temp, var_name);
+        //get_var_base_addr(temp, var_name);
         emitln("  mov d, [d]");
         emitln("  add d, %d", offset);
       }
