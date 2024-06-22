@@ -31,17 +31,15 @@
 0011   040A             ; --- END TEXT BLOCK
 0012   040A             
 0013   040A             ; --- BEGIN DATA BLOCK
-0014   040A 48 65 6C 6C _s_data: .db "Hello 1634035807 World", 0
-0014   040E 6F 20 31 36 
-0014   0412 33 34 30 33 
-0014   0416 35 38 30 37 
-0014   041A 20 57 6F 72 
-0014   041E 6C 64 00 
-0015   0421 0A 04       _s: .dw _s_data
-0016   0423             
-0017   0423 25 04       _heap_top: .dw _heap
-0018   0425 00          _heap: .db 0
-0019   0426             ; --- END DATA BLOCK
-0020   0426             
-0021   0426             .end
+0014   040A 48 65 6C 6C _s_data: .db "Hello %s World", 0
+0014   040E 6F 20 25 73 
+0014   0412 20 57 6F 72 
+0014   0416 6C 64 00 
+0015   0419 0A 04       _s: .dw _s_data
+0016   041B             
+0017   041B 1D 04       _heap_top: .dw _heap
+0018   041D 00          _heap: .db 0
+0019   041E             ; --- END DATA BLOCK
+0020   041E             
+0021   041E             .end
 tasm: Number of errors = 0

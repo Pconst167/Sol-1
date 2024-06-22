@@ -1,4 +1,4 @@
-char *s="Hello %d World";
+char *s="Hello %s World";
 
 void main(){
 

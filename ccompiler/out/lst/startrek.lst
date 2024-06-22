@@ -1,5 +1,3 @@
-out/startrek.asm line 14871: Maximum number of args exceeded. ("LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n",0)
-out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ",0)
 0001   0000             ; --- FILENAME: games/startrek
 0002   0000             .include "lib/asm/kernel.exp"
 0001+  0000             text_org    .EQU  $0400
@@ -3646,9 +3644,13 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 2647   18AB             alloc:
 2648   18AB F8 00 00      enter 0 ; (push bp; mov bp, sp)
 2649   18AE             ;; heap_top = heap_top + bytes; 
-2650   18AE 3B 8A 74      mov d, _heap_top ; $heap_top
+out/startrek.asm line 2650: Label not found: (_heap_top)
+out/startrek.asm line 2650: Unused data in MS byte of argument. (2)
+2650   18AE 3B 00 00      mov d, _heap_top ; $heap_top
 2651   18B1 DA            push d
-2652   18B2 3B 8A 74      mov d, _heap_top ; $heap_top
+out/startrek.asm line 2652: Label not found: (_heap_top)
+out/startrek.asm line 2652: Unused data in MS byte of argument. (2)
+2652   18B2 3B 00 00      mov d, _heap_top ; $heap_top
 2653   18B5 2A            mov b, [d]
 2654   18B6             ; START TERMS
 2655   18B6 D7            push a
@@ -3661,7 +3663,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 2662   18BE E7            pop d
 2663   18BF FD 43         mov [d], b
 2664   18C1             ;; return heap_top - bytes; 
-2665   18C1 3B 8A 74      mov d, _heap_top ; $heap_top
+out/startrek.asm line 2665: Label not found: (_heap_top)
+out/startrek.asm line 2665: Unused data in MS byte of argument. (2)
+2665   18C1 3B 00 00      mov d, _heap_top ; $heap_top
 2666   18C4 2A            mov b, [d]
 2667   18C5             ; START TERMS
 2668   18C5 D7            push a
@@ -3678,9 +3682,13 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 2679   18D0             free:
 2680   18D0 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 2681   18D3             ;; return heap_top = heap_top - bytes; 
-2682   18D3 3B 8A 74      mov d, _heap_top ; $heap_top
+out/startrek.asm line 2682: Label not found: (_heap_top)
+out/startrek.asm line 2682: Unused data in MS byte of argument. (2)
+2682   18D3 3B 00 00      mov d, _heap_top ; $heap_top
 2683   18D6 DA            push d
-2684   18D7 3B 8A 74      mov d, _heap_top ; $heap_top
+out/startrek.asm line 2684: Label not found: (_heap_top)
+out/startrek.asm line 2684: Unused data in MS byte of argument. (2)
+2684   18D7 3B 00 00      mov d, _heap_top ; $heap_top
 2685   18DA 2A            mov b, [d]
 2686   18DB             ; START TERMS
 2687   18DB D7            push a
@@ -7261,7 +7269,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 6111   2D20 51 02 00      add sp, 2
 6112   2D23 FD AB         swp b
 6113   2D25 D8            push b
-6114   2D26 26 16 67      mov b, __s71 ; "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n"
+out/startrek.asm line 6114: Label not found: (__s71)
+out/startrek.asm line 6114: Unused data in MS byte of argument. (2)
+6114   2D26 26 00 00      mov b, __s71 ; "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n"
 6115   2D29 FD AB         swp b
 6116   2D2B D8            push b
 6117   2D2C 07 D1 05      call printf
@@ -7307,7 +7317,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 6157   2D66 2A            mov b, [d]
 6158   2D67 FD AB         swp b
 6159   2D69 D8            push b
-6160   2D6A 26 69 67      mov b, __s72 ; "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n"
+out/startrek.asm line 6160: Label not found: (__s72)
+out/startrek.asm line 6160: Unused data in MS byte of argument. (2)
+6160   2D6A 26 00 00      mov b, __s72 ; "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n"
 6161   2D6D FD AB         swp b
 6162   2D6F D8            push b
 6163   2D70 07 D1 05      call printf
@@ -8175,7 +8187,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7025   321C 51 02 00      add sp, 2
 7026   321F FD AB         swp b
 7027   3221 D8            push b
-7028   3222 26 C3 67      mov b, __s73 ; "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n"
+out/startrek.asm line 7028: Label not found: (__s73)
+out/startrek.asm line 7028: Unused data in MS byte of argument. (2)
+7028   3222 26 00 00      mov b, __s73 ; "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n"
 7029   3225 FD AB         swp b
 7030   3227 D8            push b
 7031   3228 07 D1 05      call printf
@@ -8375,7 +8389,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7225   3336 2A            mov b, [d]
 7226   3337 FD AB         swp b
 7227   3339 D8            push b
-7228   333A 26 C4 67      mov b, __s74 ; "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n"
+out/startrek.asm line 7228: Label not found: (__s74)
+out/startrek.asm line 7228: Unused data in MS byte of argument. (2)
+7228   333A 26 00 00      mov b, __s74 ; "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n"
 7229   333D FD AB         swp b
 7230   333F D8            push b
 7231   3340 07 D1 05      call printf
@@ -8569,7 +8585,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7419   3451 0A 54 34      jmp _if114_exit
 7420   3454             _if114_exit:
 7421   3454             ;; puts("Shield Control supplies energy to complete maneuver.\n"); 
-7422   3454 26 05 68      mov b, __s75 ; "Shield Control supplies energy to complete maneuver.\n"
+out/startrek.asm line 7422: Label not found: (__s75)
+out/startrek.asm line 7422: Unused data in MS byte of argument. (2)
+7422   3454 26 00 00      mov b, __s75 ; "Shield Control supplies energy to complete maneuver.\n"
 7423   3457 FD AB         swp b
 7424   3459 D8            push b
 7425   345A 07 31 13      call puts
@@ -8656,7 +8674,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7506   34C7             ;; sC = "YELLOW"; 
 7507   34C7 FA FB FF      lea d, [bp + -5] ; $sC
 7508   34CA DA            push d
-7509   34CB 26 3B 68      mov b, __s76 ; "YELLOW"
+out/startrek.asm line 7509: Label not found: (__s76)
+out/startrek.asm line 7509: Unused data in MS byte of argument. (2)
+7509   34CB 26 00 00      mov b, __s76 ; "YELLOW"
 7510   34CE E7            pop d
 7511   34CF FD 43         mov [d], b
 7512   34D1 0A D4 34      jmp _if116_exit
@@ -8680,7 +8700,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7530   34E9             ;; sC = "*RED*"; 
 7531   34E9 FA FB FF      lea d, [bp + -5] ; $sC
 7532   34EC DA            push d
-7533   34ED 26 42 68      mov b, __s77 ; "*RED*"
+out/startrek.asm line 7533: Label not found: (__s77)
+out/startrek.asm line 7533: Unused data in MS byte of argument. (2)
+7533   34ED 26 00 00      mov b, __s77 ; "*RED*"
 7534   34F0 E7            pop d
 7535   34F1 FD 43         mov [d], b
 7536   34F3 0A F6 34      jmp _if117_exit
@@ -8887,7 +8909,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7737   3605             ;; sC = "DOCKED"; 
 7738   3605 FA FB FF      lea d, [bp + -5] ; $sC
 7739   3608 DA            push d
-7740   3609 26 48 68      mov b, __s78 ; "DOCKED"
+out/startrek.asm line 7740: Label not found: (__s78)
+out/startrek.asm line 7740: Unused data in MS byte of argument. (2)
+7740   3609 26 00 00      mov b, __s78 ; "DOCKED"
 7741   360C E7            pop d
 7742   360D FD 43         mov [d], b
 7743   360F             ;; energy = energy0; 
@@ -8906,7 +8930,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7756   3624 E7            pop d
 7757   3625 FD 3E         mov [d], bl
 7758   3627             ;; puts("Shields dropped for docking purposes."); 
-7759   3627 26 4F 68      mov b, __s79 ; "Shields dropped for docking purposes."
+out/startrek.asm line 7759: Label not found: (__s79)
+out/startrek.asm line 7759: Unused data in MS byte of argument. (2)
+7759   3627 26 00 00      mov b, __s79 ; "Shields dropped for docking purposes."
 7760   362A FD AB         swp b
 7761   362C D8            push b
 7762   362D 07 31 13      call puts
@@ -8963,7 +8989,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7813   367E C6 92 36      je _if122_exit
 7814   3681             _if122_true:
 7815   3681             ;; puts("\n*** Short Range Sensors are out ***"); 
-7816   3681 26 75 68      mov b, __s80 ; "\n*** Short Range Sensors are out ***"
+out/startrek.asm line 7816: Label not found: (__s80)
+out/startrek.asm line 7816: Unused data in MS byte of argument. (2)
+7816   3681 26 00 00      mov b, __s80 ; "\n*** Short Range Sensors are out ***"
 7817   3684 FD AB         swp b
 7818   3686 D8            push b
 7819   3687 07 31 13      call puts
@@ -9083,7 +9111,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7933   3734 51 02 00      add sp, 2
 7934   3737 FD AB         swp b
 7935   3739 D8            push b
-7936   373A 26 9A 68      mov b, __s81 ; "    Stardate            %d\n"
+out/startrek.asm line 7936: Label not found: (__s81)
+out/startrek.asm line 7936: Unused data in MS byte of argument. (2)
+7936   373A 26 00 00      mov b, __s81 ; "    Stardate            %d\n"
 7937   373D FD AB         swp b
 7938   373F D8            push b
 7939   3740 07 D1 05      call printf
@@ -9110,7 +9140,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7960   375F 2A            mov b, [d]
 7961   3760 FD AB         swp b
 7962   3762 D8            push b
-7963   3763 26 B6 68      mov b, __s82 ; "    Condition           %s\n"
+out/startrek.asm line 7963: Label not found: (__s82)
+out/startrek.asm line 7963: Unused data in MS byte of argument. (2)
+7963   3763 26 00 00      mov b, __s82 ; "    Condition           %s\n"
 7964   3766 FD AB         swp b
 7965   3768 D8            push b
 7966   3769 07 D1 05      call printf
@@ -9141,7 +9173,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 7991   378F 2A            mov b, [d]
 7992   3790 FD AB         swp b
 7993   3792 D8            push b
-7994   3793 26 D2 68      mov b, __s83 ; "    Quadrant            %d, %d\n"
+out/startrek.asm line 7994: Label not found: (__s83)
+out/startrek.asm line 7994: Unused data in MS byte of argument. (2)
+7994   3793 26 00 00      mov b, __s83 ; "    Quadrant            %d, %d\n"
 7995   3796 FD AB         swp b
 7996   3798 D8            push b
 7997   3799 07 D1 05      call printf
@@ -9180,7 +9214,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8030   37CF 51 02 00      add sp, 2
 8031   37D2 FD AB         swp b
 8032   37D4 D8            push b
-8033   37D5 26 F2 68      mov b, __s84 ; "    Sector              %d, %d\n"
+out/startrek.asm line 8033: Label not found: (__s84)
+out/startrek.asm line 8033: Unused data in MS byte of argument. (2)
+8033   37D5 26 00 00      mov b, __s84 ; "    Sector              %d, %d\n"
 8034   37D8 FD AB         swp b
 8035   37DA D8            push b
 8036   37DB 07 D1 05      call printf
@@ -9207,7 +9243,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8057   37FA 32            mov bl, [d]
 8058   37FB A7 00         mov bh, 0
 8059   37FD DD            push bl
-8060   37FE 26 12 69      mov b, __s85 ; "    Photon Torpedoes    %d\n"
+out/startrek.asm line 8060: Label not found: (__s85)
+out/startrek.asm line 8060: Unused data in MS byte of argument. (2)
+8060   37FE 26 00 00      mov b, __s85 ; "    Photon Torpedoes    %d\n"
 8061   3801 FD AB         swp b
 8062   3803 D8            push b
 8063   3804 07 D1 05      call printf
@@ -9242,7 +9280,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8092   382C             ; END TERMS
 8093   382C FD AB         swp b
 8094   382E D8            push b
-8095   382F 26 2E 69      mov b, __s86 ; "    Total Energy        %d\n"
+out/startrek.asm line 8095: Label not found: (__s86)
+out/startrek.asm line 8095: Unused data in MS byte of argument. (2)
+8095   382F 26 00 00      mov b, __s86 ; "    Total Energy        %d\n"
 8096   3832 FD AB         swp b
 8097   3834 D8            push b
 8098   3835 07 D1 05      call printf
@@ -9269,7 +9309,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8119   3854 2A            mov b, [d]
 8120   3855 FD AB         swp b
 8121   3857 D8            push b
-8122   3858 26 4A 69      mov b, __s87 ; "    Shields             %d\n"
+out/startrek.asm line 8122: Label not found: (__s87)
+out/startrek.asm line 8122: Unused data in MS byte of argument. (2)
+8122   3858 26 00 00      mov b, __s87 ; "    Shields             %d\n"
 8123   385B FD AB         swp b
 8124   385D D8            push b
 8125   385E 07 D1 05      call printf
@@ -9296,7 +9338,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8146   387D 32            mov bl, [d]
 8147   387E A7 00         mov bh, 0
 8148   3880 DD            push bl
-8149   3881 26 66 69      mov b, __s88 ; "    Klingons Remaining  %d\n"
+out/startrek.asm line 8149: Label not found: (__s88)
+out/startrek.asm line 8149: Unused data in MS byte of argument. (2)
+8149   3881 26 00 00      mov b, __s88 ; "    Klingons Remaining  %d\n"
 8150   3884 FD AB         swp b
 8151   3886 D8            push b
 8152   3887 07 D1 05      call printf
@@ -9430,7 +9474,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8280   3946 2A            mov b, [d]
 8281   3947 FD AB         swp b
 8282   3949 D8            push b
-8283   394A 26 82 69      mov b, __s89 ; "Long Range Scan for Quadrant %d, %d\n\n"
+out/startrek.asm line 8283: Label not found: (__s89)
+out/startrek.asm line 8283: Unused data in MS byte of argument. (2)
+8283   394A 26 00 00      mov b, __s89 ; "Long Range Scan for Quadrant %d, %d\n\n"
 8284   394D FD AB         swp b
 8285   394F D8            push b
 8286   3950 07 D1 05      call printf
@@ -9478,7 +9524,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8328   3987 2A            mov b, [d]
 8329   3988 FD AB         swp b
 8330   398A D8            push b
-8331   398B 26 A8 69      mov b, __s90 ; "%s:"
+out/startrek.asm line 8331: Label not found: (__s90)
+out/startrek.asm line 8331: Unused data in MS byte of argument. (2)
+8331   398B 26 00 00      mov b, __s90 ; "%s:"
 8332   398E FD AB         swp b
 8333   3990 D8            push b
 8334   3991 07 D1 05      call printf
@@ -9637,14 +9685,18 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8487   3A76 0A 85 3A      jmp _if136_exit
 8488   3A79             _if136_else:
 8489   3A79             ;; puts("***"); 
-8490   3A79 26 AC 69      mov b, __s91 ; "***"
+out/startrek.asm line 8490: Label not found: (__s91)
+out/startrek.asm line 8490: Unused data in MS byte of argument. (2)
+8490   3A79 26 00 00      mov b, __s91 ; "***"
 8491   3A7C FD AB         swp b
 8492   3A7E D8            push b
 8493   3A7F 07 31 13      call puts
 8494   3A82 51 02 00      add sp, 2
 8495   3A85             _if136_exit:
 8496   3A85             ;; puts(" :"); 
-8497   3A85 26 B0 69      mov b, __s92 ; " :"
+out/startrek.asm line 8497: Label not found: (__s92)
+out/startrek.asm line 8497: Unused data in MS byte of argument. (2)
+8497   3A85 26 00 00      mov b, __s92 ; " :"
 8498   3A88 FD AB         swp b
 8499   3A8A D8            push b
 8500   3A8B 07 31 13      call puts
@@ -9679,7 +9731,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8529   3ABE 2A            mov b, [d]
 8530   3ABF FD AB         swp b
 8531   3AC1 D8            push b
-8532   3AC2 26 B3 69      mov b, __s93 ; "%s\n"
+out/startrek.asm line 8532: Label not found: (__s93)
+out/startrek.asm line 8532: Unused data in MS byte of argument. (2)
+8532   3AC2 26 00 00      mov b, __s93 ; "%s\n"
 8533   3AC5 FD AB         swp b
 8534   3AC7 D8            push b
 8535   3AC8 07 D1 05      call printf
@@ -9706,7 +9760,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8556   3AE5 C6 FC 3A      je _if137_exit
 8557   3AE8             _if137_true:
 8558   3AE8             ;; puts("Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"); 
-8559   3AE8 26 B7 69      mov b, __s94 ; "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"
+out/startrek.asm line 8559: Label not found: (__s94)
+out/startrek.asm line 8559: Unused data in MS byte of argument. (2)
+8559   3AE8 26 00 00      mov b, __s94 ; "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"
 8560   3AEB FD AB         swp b
 8561   3AED D8            push b
 8562   3AEE 07 31 13      call puts
@@ -9827,7 +9883,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8677   3B8E C6 A0 3B      je _if140_exit
 8678   3B91             _if140_true:
 8679   3B91             ;; puts("Computer failure hampers accuracy."); 
-8680   3B91 26 08 6A      mov b, __s95 ; "Computer failure hampers accuracy."
+out/startrek.asm line 8680: Label not found: (__s95)
+out/startrek.asm line 8680: Unused data in MS byte of argument. (2)
+8680   3B91 26 00 00      mov b, __s95 ; "Computer failure hampers accuracy."
 8681   3B94 FD AB         swp b
 8682   3B96 D8            push b
 8683   3B97 07 31 13      call puts
@@ -9839,7 +9897,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8689   3BA3 2A            mov b, [d]
 8690   3BA4 FD AB         swp b
 8691   3BA6 D8            push b
-8692   3BA7 26 2B 6A      mov b, __s96 ; "Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: "
+out/startrek.asm line 8692: Label not found: (__s96)
+out/startrek.asm line 8692: Unused data in MS byte of argument. (2)
+8692   3BA7 26 00 00      mov b, __s96 ; "Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: "
 8693   3BAA FD AB         swp b
 8694   3BAC D8            push b
 8695   3BAD 07 D1 05      call printf
@@ -9972,7 +10032,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 8758   3D0E C6 22 3D      je _if142_exit
 8759   3D11             _if142_true:
 8760   3D11             ;; puts("Not enough energy available.\n"); 
-8761   3D11 26 7E 6A      mov b, __s97 ; "Not enough energy available.\n"
+out/startrek.asm line 8761: Label not found: (__s97)
+out/startrek.asm line 8761: Unused data in MS byte of argument. (2)
+8761   3D11 26 00 00      mov b, __s97 ; "Not enough energy available.\n"
 8762   3D14 FD AB         swp b
 8763   3D16 D8            push b
 8764   3D17 07 31 13      call puts
@@ -10227,7 +10289,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9013   3E8E 32            mov bl, [d]
 9014   3E8F A7 00         mov bh, 0
 9015   3E91 DD            push bl
-9016   3E92 26 9C 6A      mov b, __s98 ; "Sensors show no damage to enemy at %d, %d\n\n"
+out/startrek.asm line 9016: Label not found: (__s98)
+out/startrek.asm line 9016: Unused data in MS byte of argument. (2)
+9016   3E92 26 00 00      mov b, __s98 ; "Sensors show no damage to enemy at %d, %d\n\n"
 9017   3E95 FD AB         swp b
 9018   3E97 D8            push b
 9019   3E98 07 D1 05      call printf
@@ -10284,7 +10348,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9070   3EF3 2A            mov b, [d]
 9071   3EF4 FD AB         swp b
 9072   3EF6 D8            push b
-9073   3EF7 26 C8 6A      mov b, __s99 ; "%d unit hit on Klingon at sector %d, %d\n"
+out/startrek.asm line 9073: Label not found: (__s99)
+out/startrek.asm line 9073: Unused data in MS byte of argument. (2)
+9073   3EF7 26 00 00      mov b, __s99 ; "%d unit hit on Klingon at sector %d, %d\n"
 9074   3EFA FD AB         swp b
 9075   3EFC D8            push b
 9076   3EFD 07 D1 05      call printf
@@ -10307,7 +10373,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9093   3F18 C6 BE 3F      je _if147_else
 9094   3F1B             _if147_true:
 9095   3F1B             ;; puts("*** Klingon Destroyed ***\n"); 
-9096   3F1B 26 F1 6A      mov b, __s100 ; "*** Klingon Destroyed ***\n"
+out/startrek.asm line 9096: Label not found: (__s100)
+out/startrek.asm line 9096: Unused data in MS byte of argument. (2)
+9096   3F1B 26 00 00      mov b, __s100 ; "*** Klingon Destroyed ***\n"
 9097   3F1E FD AB         swp b
 9098   3F20 D8            push b
 9099   3F21 07 31 13      call puts
@@ -10413,7 +10481,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9199   3FC6 2A            mov b, [d]
 9200   3FC7 FD AB         swp b
 9201   3FC9 D8            push b
-9202   3FCA 26 0C 6B      mov b, __s101 ; "   (Sensors show %d units remaining.)\n\n"
+out/startrek.asm line 9202: Label not found: (__s101)
+out/startrek.asm line 9202: Unused data in MS byte of argument. (2)
+9202   3FCA 26 00 00      mov b, __s101 ; "   (Sensors show %d units remaining.)\n\n"
 9203   3FCD FD AB         swp b
 9204   3FCF D8            push b
 9205   3FD0 07 D1 05      call printf
@@ -10477,7 +10547,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9263   4015 C6 29 40      je _if149_exit
 9264   4018             _if149_true:
 9265   4018             ;; puts("All photon torpedoes expended"); 
-9266   4018 26 34 6B      mov b, __s102 ; "All photon torpedoes expended"
+out/startrek.asm line 9266: Label not found: (__s102)
+out/startrek.asm line 9266: Unused data in MS byte of argument. (2)
+9266   4018 26 00 00      mov b, __s102 ; "All photon torpedoes expended"
 9267   401B FD AB         swp b
 9268   401D D8            push b
 9269   401E 07 31 13      call puts
@@ -10570,7 +10642,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9356   409C 2A            mov b, [d]
 9357   409D FD AB         swp b
 9358   409F D8            push b
-9359   40A0 26 52 6B      mov b, __s103 ; "Ensign Chekov%s"
+out/startrek.asm line 9359: Label not found: (__s103)
+out/startrek.asm line 9359: Unused data in MS byte of argument. (2)
+9359   40A0 26 00 00      mov b, __s103 ; "Ensign Chekov%s"
 9360   40A3 FD AB         swp b
 9361   40A5 D8            push b
 9362   40A6 07 D1 05      call printf
@@ -10860,7 +10934,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9646   4237 E7            pop d
 9647   4238 FD 43         mov [d], b
 9648   423A             ;; puts("Torpedo Track:"); 
-9649   423A 26 62 6B      mov b, __s104 ; "Torpedo Track:"
+out/startrek.asm line 9649: Label not found: (__s104)
+out/startrek.asm line 9649: Unused data in MS byte of argument. (2)
+9649   423A 26 00 00      mov b, __s104 ; "Torpedo Track:"
 9650   423D FD AB         swp b
 9651   423F D8            push b
 9652   4240 07 31 13      call puts
@@ -10927,7 +11003,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9713   4295 2A            mov b, [d]
 9714   4296 FD AB         swp b
 9715   4298 D8            push b
-9716   4299 26 71 6B      mov b, __s105 ; "    %d, %d\n"
+out/startrek.asm line 9716: Label not found: (__s105)
+out/startrek.asm line 9716: Unused data in MS byte of argument. (2)
+9716   4299 26 00 00      mov b, __s105 ; "    %d, %d\n"
 9717   429C FD AB         swp b
 9718   429E D8            push b
 9719   429F 07 D1 05      call printf
@@ -11068,7 +11146,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9854   4362 0A 46 42      jmp _while153_cond
 9855   4365             _while153_exit:
 9856   4365             ;; puts("Torpedo Missed\n"); 
-9857   4365 26 7D 6B      mov b, __s106 ; "Torpedo Missed\n"
+out/startrek.asm line 9857: Label not found: (__s106)
+out/startrek.asm line 9857: Unused data in MS byte of argument. (2)
+9857   4365 26 00 00      mov b, __s106 ; "Torpedo Missed\n"
 9858   4368 FD AB         swp b
 9859   436A D8            push b
 9860   436B 07 31 13      call puts
@@ -11134,7 +11214,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9920   43C6 32            mov bl, [d]
 9921   43C7 A7 00         mov bh, 0
 9922   43C9 DD            push bl
-9923   43CA 26 8D 6B      mov b, __s107 ; "Star at %d, %d absorbed torpedo energy.\n\n"
+out/startrek.asm line 9923: Label not found: (__s107)
+out/startrek.asm line 9923: Unused data in MS byte of argument. (2)
+9923   43CA 26 00 00      mov b, __s107 ; "Star at %d, %d absorbed torpedo energy.\n\n"
 9924   43CD FD AB         swp b
 9925   43CF D8            push b
 9926   43D0 07 D1 05      call printf
@@ -11144,7 +11226,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 9930   43D7 09            ret
 9931   43D8             _switch155_case1:
 9932   43D8             ;; puts("*** Klingon Destroyed ***\n"); 
-9933   43D8 26 F1 6A      mov b, __s100 ; "*** Klingon Destroyed ***\n"
+out/startrek.asm line 9933: Label not found: (__s100)
+out/startrek.asm line 9933: Unused data in MS byte of argument. (2)
+9933   43D8 26 00 00      mov b, __s100 ; "*** Klingon Destroyed ***\n"
 9934   43DB FD AB         swp b
 9935   43DD D8            push b
 9936   43DE 07 31 13      call puts
@@ -11326,7 +11410,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10112  44EE 0A EC 45      jmp _switch155_exit ; case break
 10113  44F1             _switch155_case2:
 10114  44F1             ;; puts("*** Starbase Destroyed ***"); 
-10115  44F1 26 B7 6B      mov b, __s108 ; "*** Starbase Destroyed ***"
+out/startrek.asm line 10115: Label not found: (__s108)
+out/startrek.asm line 10115: Unused data in MS byte of argument. (2)
+10115  44F1 26 00 00      mov b, __s108 ; "*** Starbase Destroyed ***"
 10116  44F4 FD AB         swp b
 10117  44F6 D8            push b
 10118  44F7 07 31 13      call puts
@@ -11400,25 +11486,33 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10186  455B C6 94 45      je _if159_exit
 10187  455E             _if159_true:
 10188  455E             ;; puts("That does it, Captain!!"); 
-10189  455E 26 D2 6B      mov b, __s109 ; "That does it, Captain!!"
+out/startrek.asm line 10189: Label not found: (__s109)
+out/startrek.asm line 10189: Unused data in MS byte of argument. (2)
+10189  455E 26 00 00      mov b, __s109 ; "That does it, Captain!!"
 10190  4561 FD AB         swp b
 10191  4563 D8            push b
 10192  4564 07 31 13      call puts
 10193  4567 51 02 00      add sp, 2
 10194  456A             ;; puts("You are hereby relieved of command\n"); 
-10195  456A 26 EA 6B      mov b, __s110 ; "You are hereby relieved of command\n"
+out/startrek.asm line 10195: Label not found: (__s110)
+out/startrek.asm line 10195: Unused data in MS byte of argument. (2)
+10195  456A 26 00 00      mov b, __s110 ; "You are hereby relieved of command\n"
 10196  456D FD AB         swp b
 10197  456F D8            push b
 10198  4570 07 31 13      call puts
 10199  4573 51 02 00      add sp, 2
 10200  4576             ;; puts("and sentenced to 99 stardates of hard"); 
-10201  4576 26 0E 6C      mov b, __s111 ; "and sentenced to 99 stardates of hard"
+out/startrek.asm line 10201: Label not found: (__s111)
+out/startrek.asm line 10201: Unused data in MS byte of argument. (2)
+10201  4576 26 00 00      mov b, __s111 ; "and sentenced to 99 stardates of hard"
 10202  4579 FD AB         swp b
 10203  457B D8            push b
 10204  457C 07 31 13      call puts
 10205  457F 51 02 00      add sp, 2
 10206  4582             ;; puts("labor on Cygnus 12!!\n"); 
-10207  4582 26 34 6C      mov b, __s112 ; "labor on Cygnus 12!!\n"
+out/startrek.asm line 10207: Label not found: (__s112)
+out/startrek.asm line 10207: Unused data in MS byte of argument. (2)
+10207  4582 26 00 00      mov b, __s112 ; "labor on Cygnus 12!!\n"
 10208  4585 FD AB         swp b
 10209  4587 D8            push b
 10210  4588 07 31 13      call puts
@@ -11428,7 +11522,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10214  4591 0A 94 45      jmp _if159_exit
 10215  4594             _if159_exit:
 10216  4594             ;; puts("Starfleet Command reviewing your record to consider\n court martial!\n"); 
-10217  4594 26 4A 6C      mov b, __s113 ; "Starfleet Command reviewing your record to consider\n court martial!\n"
+out/startrek.asm line 10217: Label not found: (__s113)
+out/startrek.asm line 10217: Unused data in MS byte of argument. (2)
+10217  4594 26 00 00      mov b, __s113 ; "Starfleet Command reviewing your record to consider\n court martial!\n"
 10218  4597 FD AB         swp b
 10219  4599 D8            push b
 10220  459A 07 31 13      call puts
@@ -11547,7 +11643,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10333  4644 C6 56 46      je _if160_exit
 10334  4647             _if160_true:
 10335  4647             ;; puts("Damage Control report not available."); 
-10336  4647 26 8F 6C      mov b, __s114 ; "Damage Control report not available."
+out/startrek.asm line 10336: Label not found: (__s114)
+out/startrek.asm line 10336: Unused data in MS byte of argument. (2)
+10336  4647 26 00 00      mov b, __s114 ; "Damage Control report not available."
 10337  464A FD AB         swp b
 10338  464C D8            push b
 10339  464D 07 31 13      call puts
@@ -11691,7 +11789,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10477  4714 51 02 00      add sp, 2
 10478  4717 FD AB         swp b
 10479  4719 D8            push b
-10480  471A 26 B4 6C      mov b, __s115 ; "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? "
+out/startrek.asm line 10480: Label not found: (__s115)
+out/startrek.asm line 10480: Unused data in MS byte of argument. (2)
+10480  471A 26 00 00      mov b, __s115 ; "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? "
 10481  471D FD AB         swp b
 10482  471F D8            push b
 10483  4720 07 D1 05      call printf
@@ -11839,7 +11939,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10625  47E6 0A E9 47      jmp _if169_exit
 10626  47E9             _if169_exit:
 10627  47E9             ;; puts("Device            State of Repair"); 
-10628  47E9 26 B5 6C      mov b, __s116 ; "Device            State of Repair"
+out/startrek.asm line 10628: Label not found: (__s116)
+out/startrek.asm line 10628: Unused data in MS byte of argument. (2)
+10628  47E9 26 00 00      mov b, __s116 ; "Device            State of Repair"
 10629  47EC FD AB         swp b
 10630  47EE D8            push b
 10631  47EF 07 31 13      call puts
@@ -11889,7 +11991,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10675  4838 51 02 00      add sp, 2
 10676  483B FD AB         swp b
 10677  483D D8            push b
-10678  483E 26 D7 6C      mov b, __s117 ; "%-25s%6s\n"
+out/startrek.asm line 10678: Label not found: (__s117)
+out/startrek.asm line 10678: Unused data in MS byte of argument. (2)
+10678  483E 26 00 00      mov b, __s117 ; "%-25s%6s\n"
 10679  4841 FD AB         swp b
 10680  4843 D8            push b
 10681  4844 07 D1 05      call printf
@@ -11905,7 +12009,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10691  4857 0A FF 47      jmp _for170_cond
 10692  485A             _for170_exit:
 10693  485A             ;; printf("\n"); 
-10694  485A 26 E1 6C      mov b, __s118 ; "\n"
+out/startrek.asm line 10694: Label not found: (__s118)
+out/startrek.asm line 10694: Unused data in MS byte of argument. (2)
+10694  485A 26 00 00      mov b, __s118 ; "\n"
 10695  485D FD AB         swp b
 10696  485F D8            push b
 10697  4860 07 D1 05      call printf
@@ -11944,7 +12050,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10730  488F             ; END TERMS
 10731  488F FD AB         swp b
 10732  4891 D8            push b
-10733  4892 26 E3 6C      mov b, __s119 ; "Energy available = %d\n\n Input number of units to shields: "
+out/startrek.asm line 10733: Label not found: (__s119)
+out/startrek.asm line 10733: Unused data in MS byte of argument. (2)
+10733  4892 26 00 00      mov b, __s119 ; "Energy available = %d\n\n Input number of units to shields: "
 10734  4895 FD AB         swp b
 10735  4897 D8            push b
 10736  4898 07 D1 05      call printf
@@ -11986,7 +12094,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10772  48CB C6 DF 48      je _if172_exit
 10773  48CE             _if172_true:
 10774  48CE             ;; puts("<Shields Unchanged>\n"); 
-10775  48CE 26 1E 6D      mov b, __s120 ; "<Shields Unchanged>\n"
+out/startrek.asm line 10775: Label not found: (__s120)
+out/startrek.asm line 10775: Unused data in MS byte of argument. (2)
+10775  48CE 26 00 00      mov b, __s120 ; "<Shields Unchanged>\n"
 10776  48D1 FD AB         swp b
 10777  48D3 D8            push b
 10778  48D4 07 31 13      call puts
@@ -12021,7 +12131,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10807  48F8 C6 0A 49      je _if173_exit
 10808  48FB             _if173_true:
 10809  48FB             ;; puts("Shield Control Reports:\n  This is not the Federation Treasury."); 
-10810  48FB 26 33 6D      mov b, __s121 ; "Shield Control Reports:\n  This is not the Federation Treasury."
+out/startrek.asm line 10810: Label not found: (__s121)
+out/startrek.asm line 10810: Unused data in MS byte of argument. (2)
+10810  48FB 26 00 00      mov b, __s121 ; "Shield Control Reports:\n  This is not the Federation Treasury."
 10811  48FE FD AB         swp b
 10812  4900 D8            push b
 10813  4901 07 31 13      call puts
@@ -12060,7 +12172,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10846  4932 2A            mov b, [d]
 10847  4933 FD AB         swp b
 10848  4935 D8            push b
-10849  4936 26 72 6D      mov b, __s122 ; "Deflector Control Room report:\n  Shields now at %d units per your command.\n\n"
+out/startrek.asm line 10849: Label not found: (__s122)
+out/startrek.asm line 10849: Unused data in MS byte of argument. (2)
+10849  4936 26 00 00      mov b, __s122 ; "Deflector Control Room report:\n  Shields now at %d units per your command.\n\n"
 10850  4939 FD AB         swp b
 10851  493B D8            push b
 10852  493C 07 D1 05      call printf
@@ -12085,7 +12199,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10871  4959 0A 5C 49      jmp _if174_exit
 10872  495C             _if174_exit:
 10873  495C             ;; puts("Computer active and awating command: "); 
-10874  495C 26 BF 6D      mov b, __s123 ; "Computer active and awating command: "
+out/startrek.asm line 10874: Label not found: (__s123)
+out/startrek.asm line 10874: Unused data in MS byte of argument. (2)
+10874  495C 26 00 00      mov b, __s123 ; "Computer active and awating command: "
 10875  495F FD AB         swp b
 10876  4961 D8            push b
 10877  4962 07 31 13      call puts
@@ -12145,43 +12261,57 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10931  49BF 0A 16 4A      jmp _switch175_exit ; case break
 10932  49C2             _switch175_default:
 10933  49C2             ;; puts("Functions available from Library-Computer:\n\n"); 
-10934  49C2 26 E5 6D      mov b, __s124 ; "Functions available from Library-Computer:\n\n"
+out/startrek.asm line 10934: Label not found: (__s124)
+out/startrek.asm line 10934: Unused data in MS byte of argument. (2)
+10934  49C2 26 00 00      mov b, __s124 ; "Functions available from Library-Computer:\n\n"
 10935  49C5 FD AB         swp b
 10936  49C7 D8            push b
 10937  49C8 07 31 13      call puts
 10938  49CB 51 02 00      add sp, 2
 10939  49CE             ;; puts("   0 = Cumulative Galactic Record\n"); 
-10940  49CE 26 12 6E      mov b, __s125 ; "   0 = Cumulative Galactic Record\n"
+out/startrek.asm line 10940: Label not found: (__s125)
+out/startrek.asm line 10940: Unused data in MS byte of argument. (2)
+10940  49CE 26 00 00      mov b, __s125 ; "   0 = Cumulative Galactic Record\n"
 10941  49D1 FD AB         swp b
 10942  49D3 D8            push b
 10943  49D4 07 31 13      call puts
 10944  49D7 51 02 00      add sp, 2
 10945  49DA             ;; puts("   1 = Status Report\n"); 
-10946  49DA 26 35 6E      mov b, __s126 ; "   1 = Status Report\n"
+out/startrek.asm line 10946: Label not found: (__s126)
+out/startrek.asm line 10946: Unused data in MS byte of argument. (2)
+10946  49DA 26 00 00      mov b, __s126 ; "   1 = Status Report\n"
 10947  49DD FD AB         swp b
 10948  49DF D8            push b
 10949  49E0 07 31 13      call puts
 10950  49E3 51 02 00      add sp, 2
 10951  49E6             ;; puts("   2 = Photon Torpedo Data\n"); 
-10952  49E6 26 4B 6E      mov b, __s127 ; "   2 = Photon Torpedo Data\n"
+out/startrek.asm line 10952: Label not found: (__s127)
+out/startrek.asm line 10952: Unused data in MS byte of argument. (2)
+10952  49E6 26 00 00      mov b, __s127 ; "   2 = Photon Torpedo Data\n"
 10953  49E9 FD AB         swp b
 10954  49EB D8            push b
 10955  49EC 07 31 13      call puts
 10956  49EF 51 02 00      add sp, 2
 10957  49F2             ;; puts("   3 = Starbase Nav Data\n"); 
-10958  49F2 26 67 6E      mov b, __s128 ; "   3 = Starbase Nav Data\n"
+out/startrek.asm line 10958: Label not found: (__s128)
+out/startrek.asm line 10958: Unused data in MS byte of argument. (2)
+10958  49F2 26 00 00      mov b, __s128 ; "   3 = Starbase Nav Data\n"
 10959  49F5 FD AB         swp b
 10960  49F7 D8            push b
 10961  49F8 07 31 13      call puts
 10962  49FB 51 02 00      add sp, 2
 10963  49FE             ;; puts("   4 = Direction/Distance Calculator\n"); 
-10964  49FE 26 81 6E      mov b, __s129 ; "   4 = Direction/Distance Calculator\n"
+out/startrek.asm line 10964: Label not found: (__s129)
+out/startrek.asm line 10964: Unused data in MS byte of argument. (2)
+10964  49FE 26 00 00      mov b, __s129 ; "   4 = Direction/Distance Calculator\n"
 10965  4A01 FD AB         swp b
 10966  4A03 D8            push b
 10967  4A04 07 31 13      call puts
 10968  4A07 51 02 00      add sp, 2
 10969  4A0A             ;; puts("   5 = Galaxy Region Name Map\n"); 
-10970  4A0A 26 A7 6E      mov b, __s130 ; "   5 = Galaxy Region Name Map\n"
+out/startrek.asm line 10970: Label not found: (__s130)
+out/startrek.asm line 10970: Unused data in MS byte of argument. (2)
+10970  4A0A 26 00 00      mov b, __s130 ; "   5 = Galaxy Region Name Map\n"
 10971  4A0D FD AB         swp b
 10972  4A0F D8            push b
 10973  4A10 07 31 13      call puts
@@ -12204,13 +12334,17 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 10990  4A28 2A            mov b, [d]
 10991  4A29 FD AB         swp b
 10992  4A2B D8            push b
-10993  4A2C 26 C6 6E      mov b, __s131 ; "\n     Computer Record of Galaxy for Quadrant %d,%d\n\n"
+out/startrek.asm line 10993: Label not found: (__s131)
+out/startrek.asm line 10993: Unused data in MS byte of argument. (2)
+10993  4A2C 26 00 00      mov b, __s131 ; "\n     Computer Record of Galaxy for Quadrant %d,%d\n\n"
 10994  4A2F FD AB         swp b
 10995  4A31 D8            push b
 10996  4A32 07 D1 05      call printf
 10997  4A35 51 06 00      add sp, 6
 10998  4A38             ;; puts("     1     2     3     4     5     6     7     8"); 
-10999  4A38 26 FB 6E      mov b, __s132 ; "     1     2     3     4     5     6     7     8"
+out/startrek.asm line 10999: Label not found: (__s132)
+out/startrek.asm line 10999: Unused data in MS byte of argument. (2)
+10999  4A38 26 00 00      mov b, __s132 ; "     1     2     3     4     5     6     7     8"
 11000  4A3B FD AB         swp b
 11001  4A3D D8            push b
 11002  4A3E 07 31 13      call puts
@@ -12245,7 +12379,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11031  4A6B 2A            mov b, [d]
 11032  4A6C FD AB         swp b
 11033  4A6E D8            push b
-11034  4A6F 26 2C 6F      mov b, __s133 ; "%s%d"
+out/startrek.asm line 11034: Label not found: (__s133)
+out/startrek.asm line 11034: Unused data in MS byte of argument. (2)
+11034  4A6F 26 00 00      mov b, __s133 ; "%s%d"
 11035  4A72 FD AB         swp b
 11036  4A74 D8            push b
 11037  4A75 07 D1 05      call printf
@@ -12323,7 +12459,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11109  4AEF 0A FE 4A      jmp _if178_exit
 11110  4AF2             _if178_else:
 11111  4AF2             ;; printf("***"); 
-11112  4AF2 26 AC 69      mov b, __s91 ; "***"
+out/startrek.asm line 11112: Label not found: (__s91)
+out/startrek.asm line 11112: Unused data in MS byte of argument. (2)
+11112  4AF2 26 00 00      mov b, __s91 ; "***"
 11113  4AF5 FD AB         swp b
 11114  4AF7 D8            push b
 11115  4AF8 07 D1 05      call printf
@@ -12359,7 +12497,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11145  4B2B 2A            mov b, [d]
 11146  4B2C FD AB         swp b
 11147  4B2E D8            push b
-11148  4B2F 26 B3 69      mov b, __s93 ; "%s\n"
+out/startrek.asm line 11148: Label not found: (__s93)
+out/startrek.asm line 11148: Unused data in MS byte of argument. (2)
+11148  4B2F 26 00 00      mov b, __s93 ; "%s\n"
 11149  4B32 FD AB         swp b
 11150  4B34 D8            push b
 11151  4B35 07 D1 05      call printf
@@ -12415,7 +12555,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11201  4B77 E7            pop d
 11202  4B78 FD 43         mov [d], b
 11203  4B7A             ;; puts("   Status Report:\n"); 
-11204  4B7A 26 31 6F      mov b, __s134 ; "   Status Report:\n"
+out/startrek.asm line 11204: Label not found: (__s134)
+out/startrek.asm line 11204: Unused data in MS byte of argument. (2)
+11204  4B7A 26 00 00      mov b, __s134 ; "   Status Report:\n"
 11205  4B7D FD AB         swp b
 11206  4B7F D8            push b
 11207  4B80 07 31 13      call puts
@@ -12475,7 +12617,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11261  4BD3 2A            mov b, [d]
 11262  4BD4 FD AB         swp b
 11263  4BD6 D8            push b
-11264  4BD7 26 44 6F      mov b, __s135 ; "Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n"
+out/startrek.asm line 11264: Label not found: (__s135)
+out/startrek.asm line 11264: Unused data in MS byte of argument. (2)
+11264  4BD7 26 00 00      mov b, __s135 ; "Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n"
 11265  4BDA FD AB         swp b
 11266  4BDC D8            push b
 11267  4BDD 07 D1 05      call printf
@@ -12497,7 +12641,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11283  4BF5 C6 07 4C      je _if180_else
 11284  4BF8             _if180_true:
 11285  4BF8             ;; puts("Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"); 
-11286  4BF8 26 86 6F      mov b, __s136 ; "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"
+out/startrek.asm line 11286: Label not found: (__s136)
+out/startrek.asm line 11286: Unused data in MS byte of argument. (2)
+11286  4BF8 26 00 00      mov b, __s136 ; "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"
 11287  4BFB FD AB         swp b
 11288  4BFD D8            push b
 11289  4BFE 07 31 13      call puts
@@ -12546,7 +12692,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11332  4C41 32            mov bl, [d]
 11333  4C42 A7 00         mov bh, 0
 11334  4C44 DD            push bl
-11335  4C45 26 DD 6F      mov b, __s137 ; "The Federation is maintaining %d starbase%s in the galaxy\n\n"
+out/startrek.asm line 11335: Label not found: (__s137)
+out/startrek.asm line 11335: Unused data in MS byte of argument. (2)
+11335  4C45 26 00 00      mov b, __s137 ; "The Federation is maintaining %d starbase%s in the galaxy\n\n"
 11336  4C48 FD AB         swp b
 11337  4C4A D8            push b
 11338  4C4B 07 D1 05      call printf
@@ -12617,7 +12765,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11403  4CA1 2A            mov b, [d]
 11404  4CA2 FD AB         swp b
 11405  4CA4 D8            push b
-11406  4CA5 26 19 70      mov b, __s138 ; "From Enterprise to Klingon battlecriuser%s:\n\n"
+out/startrek.asm line 11406: Label not found: (__s138)
+out/startrek.asm line 11406: Unused data in MS byte of argument. (2)
+11406  4CA5 26 00 00      mov b, __s138 ; "From Enterprise to Klingon battlecriuser%s:\n\n"
 11407  4CA8 FD AB         swp b
 11408  4CAA D8            push b
 11409  4CAB 07 D1 05      call printf
@@ -12743,7 +12893,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11529  4D6C C6 80 4D      je _if186_exit
 11530  4D6F             _if186_true:
 11531  4D6F             ;; puts("Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"); 
-11532  4D6F 26 47 70      mov b, __s139 ; "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"
+out/startrek.asm line 11532: Label not found: (__s139)
+out/startrek.asm line 11532: Unused data in MS byte of argument. (2)
+11532  4D6F 26 00 00      mov b, __s139 ; "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"
 11533  4D72 FD AB         swp b
 11534  4D74 D8            push b
 11535  4D75 07 31 13      call puts
@@ -12817,7 +12969,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11603  4DEA 2A            mov b, [d]
 11604  4DEB FD AB         swp b
 11605  4DED D8            push b
-11606  4DEE 26 89 70      mov b, __s140 ; "Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: "
+out/startrek.asm line 11606: Label not found: (__s140)
+out/startrek.asm line 11606: Unused data in MS byte of argument. (2)
+11606  4DEE 26 00 00      mov b, __s140 ; "Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: "
 11607  4DF1 FD AB         swp b
 11608  4DF3 D8            push b
 11609  4DF4 07 D1 05      call printf
@@ -12867,7 +13021,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11653  4E34 0A 37 4E      jmp _if187_exit
 11654  4E37             _if187_exit:
 11655  4E37             ;; puts("Please enter initial Y coordinate: "); 
-11656  4E37 26 F5 70      mov b, __s141 ; "Please enter initial Y coordinate: "
+out/startrek.asm line 11656: Label not found: (__s141)
+out/startrek.asm line 11656: Unused data in MS byte of argument. (2)
+11656  4E37 26 00 00      mov b, __s141 ; "Please enter initial Y coordinate: "
 11657  4E3A FD AB         swp b
 11658  4E3C D8            push b
 11659  4E3D 07 31 13      call puts
@@ -12917,7 +13073,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11703  4E7D 0A 80 4E      jmp _if188_exit
 11704  4E80             _if188_exit:
 11705  4E80             ;; puts("Please enter final X coordinate: "); 
-11706  4E80 26 19 71      mov b, __s142 ; "Please enter final X coordinate: "
+out/startrek.asm line 11706: Label not found: (__s142)
+out/startrek.asm line 11706: Unused data in MS byte of argument. (2)
+11706  4E80 26 00 00      mov b, __s142 ; "Please enter final X coordinate: "
 11707  4E83 FD AB         swp b
 11708  4E85 D8            push b
 11709  4E86 07 31 13      call puts
@@ -12967,7 +13125,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11753  4EC6 0A C9 4E      jmp _if189_exit
 11754  4EC9             _if189_exit:
 11755  4EC9             ;; puts("Please enter final Y coordinate: "); 
-11756  4EC9 26 3B 71      mov b, __s143 ; "Please enter final Y coordinate: "
+out/startrek.asm line 11756: Label not found: (__s143)
+out/startrek.asm line 11756: Unused data in MS byte of argument. (2)
+11756  4EC9 26 00 00      mov b, __s143 ; "Please enter final Y coordinate: "
 11757  4ECC FD AB         swp b
 11758  4ECE D8            push b
 11759  4ECF 07 31 13      call puts
@@ -13045,13 +13205,17 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11831  4F39             ; $j0 
 11832  4F39 52 06 00      sub sp, 6
 11833  4F3C             ;; printf("\n                   The Galaxy\n\n"); 
-11834  4F3C 26 5D 71      mov b, __s144 ; "\n                   The Galaxy\n\n"
+out/startrek.asm line 11834: Label not found: (__s144)
+out/startrek.asm line 11834: Unused data in MS byte of argument. (2)
+11834  4F3C 26 00 00      mov b, __s144 ; "\n                   The Galaxy\n\n"
 11835  4F3F FD AB         swp b
 11836  4F41 D8            push b
 11837  4F42 07 D1 05      call printf
 11838  4F45 51 02 00      add sp, 2
 11839  4F48             ;; printf("    1     2     3     4     5     6     7     8\n"); 
-11840  4F48 26 7E 71      mov b, __s145 ; "    1     2     3     4     5     6     7     8\n"
+out/startrek.asm line 11840: Label not found: (__s145)
+out/startrek.asm line 11840: Unused data in MS byte of argument. (2)
+11840  4F48 26 00 00      mov b, __s145 ; "    1     2     3     4     5     6     7     8\n"
 11841  4F4B FD AB         swp b
 11842  4F4D D8            push b
 11843  4F4E 07 D1 05      call printf
@@ -13086,7 +13250,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 11872  4F7B 2A            mov b, [d]
 11873  4F7C FD AB         swp b
 11874  4F7E D8            push b
-11875  4F7F 26 AF 71      mov b, __s146 ; "%s%d "
+out/startrek.asm line 11875: Label not found: (__s146)
+out/startrek.asm line 11875: Unused data in MS byte of argument. (2)
+11875  4F7F 26 00 00      mov b, __s146 ; "%s%d "
 11876  4F82 FD AB         swp b
 11877  4F84 D8            push b
 11878  4F85 07 D1 05      call printf
@@ -13345,7 +13511,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12131  510B             ; $al 
 12132  510B 52 08 00      sub sp, 8
 12133  510E             ;; puts("  DIRECTION = "); 
-12134  510E 26 B5 71      mov b, __s147 ; "  DIRECTION = "
+out/startrek.asm line 12134: Label not found: (__s147)
+out/startrek.asm line 12134: Unused data in MS byte of argument. (2)
+12134  510E 26 00 00      mov b, __s147 ; "  DIRECTION = "
 12135  5111 FD AB         swp b
 12136  5113 D8            push b
 12137  5114 07 31 13      call puts
@@ -13511,7 +13679,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12297  51FC 51 02 00      add sp, 2
 12298  51FF FD AB         swp b
 12299  5201 D8            push b
-12300  5202 26 C4 71      mov b, __s148 ; "%s"
+out/startrek.asm line 12300: Label not found: (__s148)
+out/startrek.asm line 12300: Unused data in MS byte of argument. (2)
+12300  5202 26 00 00      mov b, __s148 ; "%s"
 12301  5205 FD AB         swp b
 12302  5207 D8            push b
 12303  5208 07 D1 05      call printf
@@ -13586,7 +13756,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12372  5263 51 02 00      add sp, 2
 12373  5266 FD AB         swp b
 12374  5268 D8            push b
-12375  5269 26 C4 71      mov b, __s148 ; "%s"
+out/startrek.asm line 12375: Label not found: (__s148)
+out/startrek.asm line 12375: Unused data in MS byte of argument. (2)
+12375  5269 26 00 00      mov b, __s148 ; "%s"
 12376  526C FD AB         swp b
 12377  526E D8            push b
 12378  526F 07 D1 05      call printf
@@ -13810,7 +13982,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12596  53A3 51 02 00      add sp, 2
 12597  53A6 FD AB         swp b
 12598  53A8 D8            push b
-12599  53A9 26 C4 71      mov b, __s148 ; "%s"
+out/startrek.asm line 12599: Label not found: (__s148)
+out/startrek.asm line 12599: Unused data in MS byte of argument. (2)
+12599  53A9 26 00 00      mov b, __s148 ; "%s"
 12600  53AC FD AB         swp b
 12601  53AE D8            push b
 12602  53AF 07 D1 05      call printf
@@ -13885,7 +14059,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12671  540A 51 02 00      add sp, 2
 12672  540D FD AB         swp b
 12673  540F D8            push b
-12674  5410 26 C4 71      mov b, __s148 ; "%s"
+out/startrek.asm line 12674: Label not found: (__s148)
+out/startrek.asm line 12674: Unused data in MS byte of argument. (2)
+12674  5410 26 00 00      mov b, __s148 ; "%s"
 12675  5413 FD AB         swp b
 12676  5415 D8            push b
 12677  5416 07 D1 05      call printf
@@ -13946,7 +14122,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12732  546F             ship_destroyed:
 12733  546F F8 00 00      enter 0 ; (push bp; mov bp, sp)
 12734  5472             ;; puts("The Enterprise has been destroyed. The Federation will be conquered.\n"); 
-12735  5472 26 C7 71      mov b, __s149 ; "The Enterprise has been destroyed. The Federation will be conquered.\n"
+out/startrek.asm line 12735: Label not found: (__s149)
+out/startrek.asm line 12735: Unused data in MS byte of argument. (2)
+12735  5472 26 00 00      mov b, __s149 ; "The Enterprise has been destroyed. The Federation will be conquered.\n"
 12736  5475 FD AB         swp b
 12737  5477 D8            push b
 12738  5478 07 31 13      call puts
@@ -13967,7 +14145,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12753  5490 51 02 00      add sp, 2
 12754  5493 FD AB         swp b
 12755  5495 D8            push b
-12756  5496 26 0D 72      mov b, __s150 ; "It is stardate %d.\n\n"
+out/startrek.asm line 12756: Label not found: (__s150)
+out/startrek.asm line 12756: Unused data in MS byte of argument. (2)
+12756  5496 26 00 00      mov b, __s150 ; "It is stardate %d.\n\n"
 12757  5499 FD AB         swp b
 12758  549B D8            push b
 12759  549C 07 D1 05      call printf
@@ -13984,7 +14164,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12770  54AD 32            mov bl, [d]
 12771  54AE A7 00         mov bh, 0
 12772  54B0 DD            push bl
-12773  54B1 26 22 72      mov b, __s151 ; "There were %d Klingon Battlecruisers left at the end of your mission.\n\n"
+out/startrek.asm line 12773: Label not found: (__s151)
+out/startrek.asm line 12773: Unused data in MS byte of argument. (2)
+12773  54B1 26 00 00      mov b, __s151 ; "There were %d Klingon Battlecruisers left at the end of your mission.\n\n"
 12774  54B4 FD AB         swp b
 12775  54B6 D8            push b
 12776  54B7 07 D1 05      call printf
@@ -13997,7 +14179,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12783  54C2             won_game:
 12784  54C2 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 12785  54C5             ;; puts("Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"); 
-12786  54C5 26 6A 72      mov b, __s152 ; "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"
+out/startrek.asm line 12786: Label not found: (__s152)
+out/startrek.asm line 12786: Unused data in MS byte of argument. (2)
+12786  54C5 26 00 00      mov b, __s152 ; "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"
 12787  54C8 FD AB         swp b
 12788  54CA D8            push b
 12789  54CB 07 31 13      call puts
@@ -14070,7 +14254,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12856  552F 51 02 00      add sp, 2
 12857  5532 FD AB         swp b
 12858  5534 D8            push b
-12859  5535 26 D2 72      mov b, __s153 ; "Your efficiency rating is %s\n"
+out/startrek.asm line 12859: Label not found: (__s153)
+out/startrek.asm line 12859: Unused data in MS byte of argument. (2)
+12859  5535 26 00 00      mov b, __s153 ; "Your efficiency rating is %s\n"
 12860  5538 FD AB         swp b
 12861  553A D8            push b
 12862  553B 07 D1 05      call printf
@@ -14103,25 +14289,33 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12889  5561 C6 D2 55      je _if213_exit
 12890  5564             _if213_true:
 12891  5564             ;; puts("The Federation is in need of a new starship commander"); 
-12892  5564 26 F0 72      mov b, __s154 ; "The Federation is in need of a new starship commander"
+out/startrek.asm line 12892: Label not found: (__s154)
+out/startrek.asm line 12892: Unused data in MS byte of argument. (2)
+12892  5564 26 00 00      mov b, __s154 ; "The Federation is in need of a new starship commander"
 12893  5567 FD AB         swp b
 12894  5569 D8            push b
 12895  556A 07 31 13      call puts
 12896  556D 51 02 00      add sp, 2
 12897  5570             ;; puts(" for a similar mission.\n"); 
-12898  5570 26 26 73      mov b, __s155 ; " for a similar mission.\n"
+out/startrek.asm line 12898: Label not found: (__s155)
+out/startrek.asm line 12898: Unused data in MS byte of argument. (2)
+12898  5570 26 00 00      mov b, __s155 ; " for a similar mission.\n"
 12899  5573 FD AB         swp b
 12900  5575 D8            push b
 12901  5576 07 31 13      call puts
 12902  5579 51 02 00      add sp, 2
 12903  557C             ;; puts("If there is a volunteer, let him step forward and"); 
-12904  557C 26 3F 73      mov b, __s156 ; "If there is a volunteer, let him step forward and"
+out/startrek.asm line 12904: Label not found: (__s156)
+out/startrek.asm line 12904: Unused data in MS byte of argument. (2)
+12904  557C 26 00 00      mov b, __s156 ; "If there is a volunteer, let him step forward and"
 12905  557F FD AB         swp b
 12906  5581 D8            push b
 12907  5582 07 31 13      call puts
 12908  5585 51 02 00      add sp, 2
 12909  5588             ;; puts(" enter aye: "); 
-12910  5588 26 71 73      mov b, __s157 ; " enter aye: "
+out/startrek.asm line 12910: Label not found: (__s157)
+out/startrek.asm line 12910: Unused data in MS byte of argument. (2)
+12910  5588 26 00 00      mov b, __s157 ; " enter aye: "
 12911  558B FD AB         swp b
 12912  558D D8            push b
 12913  558E 07 31 13      call puts
@@ -14140,7 +14334,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 12926  55A5 26 03 00      mov b, $3
 12927  55A8 FD AB         swp b
 12928  55AA D8            push b
-12929  55AB 26 7E 73      mov b, __s158 ; "aye"
+out/startrek.asm line 12929: Label not found: (__s158)
+out/startrek.asm line 12929: Unused data in MS byte of argument. (2)
+12929  55AB 26 00 00      mov b, __s158 ; "aye"
 12930  55AE FD AB         swp b
 12931  55B0 D8            push b
 12932  55B1 FA FD FF      lea d, [bp + -3] ; $x
@@ -14312,7 +14508,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 13098  56AB C6 BF 56      je _if218_exit
 13099  56AE             _if218_true:
 13100  56AE             ;; puts("Starbase shields protect the Enterprise\n"); 
-13101  56AE 26 82 73      mov b, __s159 ; "Starbase shields protect the Enterprise\n"
+out/startrek.asm line 13101: Label not found: (__s159)
+out/startrek.asm line 13101: Unused data in MS byte of argument. (2)
+13101  56AE 26 00 00      mov b, __s159 ; "Starbase shields protect the Enterprise\n"
 13102  56B1 FD AB         swp b
 13103  56B3 D8            push b
 13104  56B4 07 31 13      call puts
@@ -14526,7 +14724,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 13312  57F1 2A            mov b, [d] ; Lower Word in B
 13313  57F2 FD AB         swp b
 13314  57F4 D8            push b
-13315  57F5 26 AB 73      mov b, __s160 ; "%d unit hit on Enterprise from sector %d, %d\n"
+out/startrek.asm line 13315: Label not found: (__s160)
+out/startrek.asm line 13315: Unused data in MS byte of argument. (2)
+13315  57F5 26 00 00      mov b, __s160 ; "%d unit hit on Enterprise from sector %d, %d\n"
 13316  57F8 FD AB         swp b
 13317  57FA D8            push b
 13318  57FB 07 D1 05      call printf
@@ -14560,7 +14760,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 13346  5827 2A            mov b, [d]
 13347  5828 FD AB         swp b
 13348  582A D8            push b
-13349  582B 26 D9 73      mov b, __s161 ; "    <Shields down to %d units>\n\n"
+out/startrek.asm line 13349: Label not found: (__s161)
+out/startrek.asm line 13349: Unused data in MS byte of argument. (2)
+13349  582B 26 00 00      mov b, __s161 ; "    <Shields down to %d units>\n\n"
 13350  582E FD AB         swp b
 13351  5830 D8            push b
 13352  5831 07 D1 05      call printf
@@ -14708,7 +14910,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 13493  5919 51 02 00      add sp, 2
 13494  591C FD AB         swp b
 13495  591E D8            push b
-13496  591F 26 FA 73      mov b, __s162 ; "Damage Control reports\n%s damaged by hit\n\n"
+out/startrek.asm line 13496: Label not found: (__s162)
+out/startrek.asm line 13496: Unused data in MS byte of argument. (2)
+13496  591F 26 00 00      mov b, __s162 ; "Damage Control reports\n%s damaged by hit\n\n"
 13497  5922 FD AB         swp b
 13498  5924 D8            push b
 13499  5925 07 D1 05      call printf
@@ -14974,7 +15178,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 13759  5AA4 51 02 00      add sp, 2
 13760  5AA7 FD AB         swp b
 13761  5AA9 D8            push b
-13762  5AAA 26 25 74      mov b, __s163 ; "    %s repair completed\n\n"
+out/startrek.asm line 13762: Label not found: (__s163)
+out/startrek.asm line 13762: Unused data in MS byte of argument. (2)
+13762  5AAA 26 00 00      mov b, __s163 ; "    %s repair completed\n\n"
 13763  5AAD FD AB         swp b
 13764  5AAF D8            push b
 13765  5AB0 07 D1 05      call printf
@@ -15108,7 +15314,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 13893  5B7A 51 02 00      add sp, 2
 13894  5B7D FD AB         swp b
 13895  5B7F D8            push b
-13896  5B80 26 3F 74      mov b, __s164 ; "    %s damaged\n\n"
+out/startrek.asm line 13896: Label not found: (__s164)
+out/startrek.asm line 13896: Unused data in MS byte of argument. (2)
+13896  5B80 26 00 00      mov b, __s164 ; "    %s damaged\n\n"
 13897  5B83 FD AB         swp b
 13898  5B85 D8            push b
 13899  5B86 07 D1 05      call printf
@@ -15169,7 +15377,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 13954  5BE4 51 02 00      add sp, 2
 13955  5BE7 FD AB         swp b
 13956  5BE9 D8            push b
-13957  5BEA 26 50 74      mov b, __s165 ; "    %s state of repair improved\n\n"
+out/startrek.asm line 13957: Label not found: (__s165)
+out/startrek.asm line 13957: Unused data in MS byte of argument. (2)
+13957  5BEA 26 00 00      mov b, __s165 ; "    %s state of repair improved\n\n"
 13958  5BED FD AB         swp b
 13959  5BEF D8            push b
 13960  5BF0 07 D1 05      call printf
@@ -15430,7 +15640,9 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 14215  5D4D C6 66 5D      je _if236_exit
 14216  5D50             _if236_true:
 14217  5D50             ;; strcpy(quadname, "Unknown"); 
-14218  5D50 26 82 74      mov b, __s170 ; "Unknown"
+out/startrek.asm line 14218: Label not found: (__s170)
+out/startrek.asm line 14218: Unused data in MS byte of argument. (2)
+14218  5D50 26 00 00      mov b, __s170 ; "Unknown"
 14219  5D53 FD AB         swp b
 14220  5D55 D8            push b
 14221  5D56 3B 50 61      mov d, _quadname_data ; $quadname
@@ -16162,15 +16374,25 @@ out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians st
 14793  62EC 4E 00 
 14794  62EE E8 62       _sC: .dw _sC_data
 14795  62F0             st_quadrant_name_sect_name_dt: 
+out/startrek.asm line 14796: Label not found: (__s166)
+out/startrek.asm line 14796: Label not found: (__s166)
+out/startrek.asm line 14796: Label not found: (__s166)
+out/startrek.asm line 14796: Label not found: (__s166)
+out/startrek.asm line 14796: Label not found: (__s167)
+out/startrek.asm line 14796: Label not found: (__s167)
+out/startrek.asm line 14796: Label not found: (__s168)
+out/startrek.asm line 14796: Label not found: (__s168)
+out/startrek.asm line 14796: Label not found: (__s169)
+out/startrek.asm line 14796: Label not found: (__s169)
 out/startrek.asm line 14796: Unknown token: (.)
 out/startrek.asm line 14796: Unknown token.    
 out/startrek.asm line 14796: Label not found: (fill10)
 out/startrek.asm line 14796: Unknown token: (.)
 out/startrek.asm line 14796: Unknown token.    
 out/startrek.asm line 14796: Label not found: (fill10)
-14796  62F0 72 74 72 74 .dw __s166, __s166, __s167, __s168, __s169, .fill 10, 0
-14796  62F4 75 74 79 74 
-14796  62F8 7E 74 00 00 
+14796  62F0 00 00 00 00 .dw __s166, __s166, __s167, __s168, __s169, .fill 10, 0
+14796  62F4 00 00 00 00 
+14796  62F8 00 00 00 00 
 14796  62FC 00 00 
 out/startrek.asm line 14797: Label not found: (st_sect_name_sect_name_dt)
 out/startrek.asm line 14797: Label not found: (st_sect_name_sect_name_dt)
@@ -16439,7 +16661,8 @@ out/startrek.asm line 14797: Label not found: (st_sect_name_sect_name_dt)
 14867  66CB 72 70 20 30 
 14867  66CF 2E 32 2E 0A 
 14867  66D3 0A 00 
-14868  66D5 43 68 69 65 __s70: .db "Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n", 0
+out/startrek.asm line 14868: No terminating quote: ("Chief Engineer Scott reports:\n  The engi; --- END DATA BLOCK)
+14868  66D5 43 68 69 65 __s70: .db "Chief Engineer Scott reports:\n  The engi; --- END DATA BLOCK
 14868  66D9 66 20 45 6E 
 14868  66DD 67 69 6E 65 
 14868  66E1 65 72 20 53 
@@ -16449,917 +16672,11 @@ out/startrek.asm line 14797: Label not found: (st_sect_name_sect_name_dt)
 14868  66F1 3A 0A 20 20 
 14868  66F5 54 68 65 20 
 14868  66F9 65 6E 67 69 
-14868  66FD 6E 65 73 20 
-14868  6701 77 6F 6E 74 
-14868  6705 20 74 61 6B 
-14868  6709 65 20 77 61 
-14868  670D 72 70 20 25 
-14868  6711 73 21 0A 0A 
-14868  6715 00 
-14869  6716 45 6E 67 69 __s71: .db "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n", 0
-14869  671A 6E 65 65 72 
-14869  671E 69 6E 67 20 
-14869  6722 72 65 70 6F 
-14869  6726 72 74 73 3A 
-14869  672A 0A 20 20 49 
-14869  672E 6E 73 75 66 
-14869  6732 66 69 63 69 
-14869  6736 65 6E 74 20 
-14869  673A 65 6E 65 72 
-14869  673E 67 79 20 61 
-14869  6742 76 61 69 6C 
-14869  6746 61 62 6C 65 
-14869  674A 20 66 6F 72 
-14869  674E 20 6D 61 6E 
-14869  6752 65 75 76 65 
-14869  6756 72 69 6E 67 
-14869  675A 20 61 74 20 
-14869  675E 77 61 72 70 
-14869  6762 20 25 73 21 
-14869  6766 0A 0A 00 
-14870  6769 44 65 66 6C __s72: .db "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n", 0
-14870  676D 65 63 74 6F 
-14870  6771 72 20 43 6F 
-14870  6775 6E 74 72 6F 
-14870  6779 6C 20 52 6F 
-14870  677D 6F 6D 20 61 
-14870  6781 63 6B 6E 6F 
-14870  6785 77 6C 65 64 
-14870  6789 67 65 73 3A 
-14870  678D 0A 20 20 25 
-14870  6791 64 20 75 6E 
-14870  6795 69 74 73 20 
-14870  6799 6F 66 20 65 
-14870  679D 6E 65 72 67 
-14870  67A1 79 20 70 72 
-14870  67A5 65 73 65 6E 
-14870  67A9 74 6C 79 20 
-14870  67AD 64 65 70 6C 
-14870  67B1 6F 79 65 64 
-14870  67B5 20 74 6F 20 
-14870  67B9 73 68 69 65 
-14870  67BD 6C 64 73 2E 
-14870  67C1 0A 00 
-out/startrek.asm line 14871: Maximum number of args exceeded. ("LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n",0)
-14871  67C3 00          __s73: .db "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n", 0
-14872  67C4 57 61 72 70 __s74: .db "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n", 0
-14872  67C8 20 45 6E 67 
-14872  67CC 69 6E 65 73 
-14872  67D0 20 73 68 75 
-14872  67D4 74 20 64 6F 
-14872  67D8 77 6E 20 61 
-14872  67DC 74 20 73 65 
-14872  67E0 63 74 6F 72 
-14872  67E4 20 25 64 2C 
-14872  67E8 20 25 64 20 
-14872  67EC 64 75 65 20 
-14872  67F0 74 6F 20 62 
-14872  67F4 61 64 20 6E 
-14872  67F8 61 76 69 67 
-14872  67FC 61 74 69 6F 
-14872  6800 6E 2E 0A 0A 
-14872  6804 00 
-14873  6805 53 68 69 65 __s75: .db "Shield Control supplies energy to complete maneuver.\n", 0
-14873  6809 6C 64 20 43 
-14873  680D 6F 6E 74 72 
-14873  6811 6F 6C 20 73 
-14873  6815 75 70 70 6C 
-14873  6819 69 65 73 20 
-14873  681D 65 6E 65 72 
-14873  6821 67 79 20 74 
-14873  6825 6F 20 63 6F 
-14873  6829 6D 70 6C 65 
-14873  682D 74 65 20 6D 
-14873  6831 61 6E 65 75 
-14873  6835 76 65 72 2E 
-14873  6839 0A 00 
-14874  683B 59 45 4C 4C __s76: .db "YELLOW", 0
-14874  683F 4F 57 00 
-14875  6842 2A 52 45 44 __s77: .db "*RED*", 0
-14875  6846 2A 00 
-14876  6848 44 4F 43 4B __s78: .db "DOCKED", 0
-14876  684C 45 44 00 
-14877  684F 53 68 69 65 __s79: .db "Shields dropped for docking purposes.", 0
-14877  6853 6C 64 73 20 
-14877  6857 64 72 6F 70 
-14877  685B 70 65 64 20 
-14877  685F 66 6F 72 20 
-14877  6863 64 6F 63 6B 
-14877  6867 69 6E 67 20 
-14877  686B 70 75 72 70 
-14877  686F 6F 73 65 73 
-14877  6873 2E 00 
-14878  6875 0A 2A 2A 2A __s80: .db "\n*** Short Range Sensors are out ***", 0
-14878  6879 20 53 68 6F 
-14878  687D 72 74 20 52 
-14878  6881 61 6E 67 65 
-14878  6885 20 53 65 6E 
-14878  6889 73 6F 72 73 
-14878  688D 20 61 72 65 
-14878  6891 20 6F 75 74 
-14878  6895 20 2A 2A 2A 
-14878  6899 00 
-14879  689A 20 20 20 20 __s81: .db "    Stardate            %d\n", 0
-14879  689E 53 74 61 72 
-14879  68A2 64 61 74 65 
-14879  68A6 20 20 20 20 
-14879  68AA 20 20 20 20 
-14879  68AE 20 20 20 20 
-14879  68B2 25 64 0A 00 
-14880  68B6 20 20 20 20 __s82: .db "    Condition           %s\n", 0
-14880  68BA 43 6F 6E 64 
-14880  68BE 69 74 69 6F 
-14880  68C2 6E 20 20 20 
-14880  68C6 20 20 20 20 
-14880  68CA 20 20 20 20 
-14880  68CE 25 73 0A 00 
-14881  68D2 20 20 20 20 __s83: .db "    Quadrant            %d, %d\n", 0
-14881  68D6 51 75 61 64 
-14881  68DA 72 61 6E 74 
-14881  68DE 20 20 20 20 
-14881  68E2 20 20 20 20 
-14881  68E6 20 20 20 20 
-14881  68EA 25 64 2C 20 
-14881  68EE 25 64 0A 00 
-14882  68F2 20 20 20 20 __s84: .db "    Sector              %d, %d\n", 0
-14882  68F6 53 65 63 74 
-14882  68FA 6F 72 20 20 
-14882  68FE 20 20 20 20 
-14882  6902 20 20 20 20 
-14882  6906 20 20 20 20 
-14882  690A 25 64 2C 20 
-14882  690E 25 64 0A 00 
-14883  6912 20 20 20 20 __s85: .db "    Photon Torpedoes    %d\n", 0
-14883  6916 50 68 6F 74 
-14883  691A 6F 6E 20 54 
-14883  691E 6F 72 70 65 
-14883  6922 64 6F 65 73 
-14883  6926 20 20 20 20 
-14883  692A 25 64 0A 00 
-14884  692E 20 20 20 20 __s86: .db "    Total Energy        %d\n", 0
-14884  6932 54 6F 74 61 
-14884  6936 6C 20 45 6E 
-14884  693A 65 72 67 79 
-14884  693E 20 20 20 20 
-14884  6942 20 20 20 20 
-14884  6946 25 64 0A 00 
-14885  694A 20 20 20 20 __s87: .db "    Shields             %d\n", 0
-14885  694E 53 68 69 65 
-14885  6952 6C 64 73 20 
-14885  6956 20 20 20 20 
-14885  695A 20 20 20 20 
-14885  695E 20 20 20 20 
-14885  6962 25 64 0A 00 
-14886  6966 20 20 20 20 __s88: .db "    Klingons Remaining  %d\n", 0
-14886  696A 4B 6C 69 6E 
-14886  696E 67 6F 6E 73 
-14886  6972 20 52 65 6D 
-14886  6976 61 69 6E 69 
-14886  697A 6E 67 20 20 
-14886  697E 25 64 0A 00 
-14887  6982 4C 6F 6E 67 __s89: .db "Long Range Scan for Quadrant %d, %d\n\n", 0
-14887  6986 20 52 61 6E 
-14887  698A 67 65 20 53 
-14887  698E 63 61 6E 20 
-14887  6992 66 6F 72 20 
-14887  6996 51 75 61 64 
-14887  699A 72 61 6E 74 
-14887  699E 20 25 64 2C 
-14887  69A2 20 25 64 0A 
-14887  69A6 0A 00 
-14888  69A8 25 73 3A 00 __s90: .db "%s:", 0
-14889  69AC 2A 2A 2A 00 __s91: .db "***", 0
-14890  69B0 20 3A 00    __s92: .db " :", 0
-14891  69B3 25 73 0A 00 __s93: .db "%s\n", 0
-14892  69B7 53 63 69 65 __s94: .db "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n", 0
-14892  69BB 6E 63 65 20 
-14892  69BF 4F 66 66 69 
-14892  69C3 63 65 72 20 
-14892  69C7 53 70 6F 63 
-14892  69CB 6B 20 72 65 
-14892  69CF 70 6F 72 74 
-14892  69D3 73 3A 0A 20 
-14892  69D7 20 27 53 65 
-14892  69DB 6E 73 6F 72 
-14892  69DF 73 20 73 68 
-14892  69E3 6F 77 20 6E 
-14892  69E7 6F 20 65 6E 
-14892  69EB 65 6D 79 20 
-14892  69EF 73 68 69 70 
-14892  69F3 73 20 69 6E 
-14892  69F7 20 74 68 69 
-14892  69FB 73 20 71 75 
-14892  69FF 61 64 72 61 
-14892  6A03 6E 74 27 0A 
-14892  6A07 00 
-14893  6A08 43 6F 6D 70 __s95: .db "Computer failure hampers accuracy.", 0
-14893  6A0C 75 74 65 72 
-14893  6A10 20 66 61 69 
-14893  6A14 6C 75 72 65 
-14893  6A18 20 68 61 6D 
-14893  6A1C 70 65 72 73 
-14893  6A20 20 61 63 63 
-14893  6A24 75 72 61 63 
-14893  6A28 79 2E 00 
-14894  6A2B 50 68 61 73 __s96: .db "Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: ", 0
-14894  6A2F 65 72 73 20 
-14894  6A33 6C 6F 63 6B 
-14894  6A37 65 64 20 6F 
-14894  6A3B 6E 20 74 61 
-14894  6A3F 72 67 65 74 
-14894  6A43 3B 0A 20 45 
-14894  6A47 6E 65 72 67 
-14894  6A4B 79 20 61 76 
-14894  6A4F 61 69 6C 61 
-14894  6A53 62 6C 65 20 
-14894  6A57 3D 20 25 64 
-14894  6A5B 20 75 6E 69 
-14894  6A5F 74 73 0A 0A 
-14894  6A63 20 4E 75 6D 
-14894  6A67 62 65 72 20 
-14894  6A6B 6F 66 20 75 
-14894  6A6F 6E 69 74 73 
-14894  6A73 20 74 6F 20 
-14894  6A77 66 69 72 65 
-14894  6A7B 3A 20 00 
-14895  6A7E 4E 6F 74 20 __s97: .db "Not enough energy available.\n", 0
-14895  6A82 65 6E 6F 75 
-14895  6A86 67 68 20 65 
-14895  6A8A 6E 65 72 67 
-14895  6A8E 79 20 61 76 
-14895  6A92 61 69 6C 61 
-14895  6A96 62 6C 65 2E 
-14895  6A9A 0A 00 
-14896  6A9C 53 65 6E 73 __s98: .db "Sensors show no damage to enemy at %d, %d\n\n", 0
-14896  6AA0 6F 72 73 20 
-14896  6AA4 73 68 6F 77 
-14896  6AA8 20 6E 6F 20 
-14896  6AAC 64 61 6D 61 
-14896  6AB0 67 65 20 74 
-14896  6AB4 6F 20 65 6E 
-14896  6AB8 65 6D 79 20 
-14896  6ABC 61 74 20 25 
-14896  6AC0 64 2C 20 25 
-14896  6AC4 64 0A 0A 00 
-14897  6AC8 25 64 20 75 __s99: .db "%d unit hit on Klingon at sector %d, %d\n", 0
-14897  6ACC 6E 69 74 20 
-14897  6AD0 68 69 74 20 
-14897  6AD4 6F 6E 20 4B 
-14897  6AD8 6C 69 6E 67 
-14897  6ADC 6F 6E 20 61 
-14897  6AE0 74 20 73 65 
-14897  6AE4 63 74 6F 72 
-14897  6AE8 20 25 64 2C 
-14897  6AEC 20 25 64 0A 
-14897  6AF0 00 
-14898  6AF1 2A 2A 2A 20 __s100: .db "*** Klingon Destroyed ***\n", 0
-14898  6AF5 4B 6C 69 6E 
-14898  6AF9 67 6F 6E 20 
-14898  6AFD 44 65 73 74 
-14898  6B01 72 6F 79 65 
-14898  6B05 64 20 2A 2A 
-14898  6B09 2A 0A 00 
-14899  6B0C 20 20 20 28 __s101: .db "   (Sensors show %d units remaining.)\n\n", 0
-14899  6B10 53 65 6E 73 
-14899  6B14 6F 72 73 20 
-14899  6B18 73 68 6F 77 
-14899  6B1C 20 25 64 20 
-14899  6B20 75 6E 69 74 
-14899  6B24 73 20 72 65 
-14899  6B28 6D 61 69 6E 
-14899  6B2C 69 6E 67 2E 
-14899  6B30 29 0A 0A 00 
-14900  6B34 41 6C 6C 20 __s102: .db "All photon torpedoes expended", 0
-14900  6B38 70 68 6F 74 
-14900  6B3C 6F 6E 20 74 
-14900  6B40 6F 72 70 65 
-14900  6B44 64 6F 65 73 
-14900  6B48 20 65 78 70 
-14900  6B4C 65 6E 64 65 
-14900  6B50 64 00 
-14901  6B52 45 6E 73 69 __s103: .db "Ensign Chekov%s", 0
-14901  6B56 67 6E 20 43 
-14901  6B5A 68 65 6B 6F 
-14901  6B5E 76 25 73 00 
-14902  6B62 54 6F 72 70 __s104: .db "Torpedo Track:", 0
-14902  6B66 65 64 6F 20 
-14902  6B6A 54 72 61 63 
-14902  6B6E 6B 3A 00 
-14903  6B71 20 20 20 20 __s105: .db "    %d, %d\n", 0
-14903  6B75 25 64 2C 20 
-14903  6B79 25 64 0A 00 
-14904  6B7D 54 6F 72 70 __s106: .db "Torpedo Missed\n", 0
-14904  6B81 65 64 6F 20 
-14904  6B85 4D 69 73 73 
-14904  6B89 65 64 0A 00 
-14905  6B8D 53 74 61 72 __s107: .db "Star at %d, %d absorbed torpedo energy.\n\n", 0
-14905  6B91 20 61 74 20 
-14905  6B95 25 64 2C 20 
-14905  6B99 25 64 20 61 
-14905  6B9D 62 73 6F 72 
-14905  6BA1 62 65 64 20 
-14905  6BA5 74 6F 72 70 
-14905  6BA9 65 64 6F 20 
-14905  6BAD 65 6E 65 72 
-14905  6BB1 67 79 2E 0A 
-14905  6BB5 0A 00 
-14906  6BB7 2A 2A 2A 20 __s108: .db "*** Starbase Destroyed ***", 0
-14906  6BBB 53 74 61 72 
-14906  6BBF 62 61 73 65 
-14906  6BC3 20 44 65 73 
-14906  6BC7 74 72 6F 79 
-14906  6BCB 65 64 20 2A 
-14906  6BCF 2A 2A 00 
-14907  6BD2 54 68 61 74 __s109: .db "That does it, Captain!!", 0
-14907  6BD6 20 64 6F 65 
-14907  6BDA 73 20 69 74 
-14907  6BDE 2C 20 43 61 
-14907  6BE2 70 74 61 69 
-14907  6BE6 6E 21 21 00 
-14908  6BEA 59 6F 75 20 __s110: .db "You are hereby relieved of command\n", 0
-14908  6BEE 61 72 65 20 
-14908  6BF2 68 65 72 65 
-14908  6BF6 62 79 20 72 
-14908  6BFA 65 6C 69 65 
-14908  6BFE 76 65 64 20 
-14908  6C02 6F 66 20 63 
-14908  6C06 6F 6D 6D 61 
-14908  6C0A 6E 64 0A 00 
-14909  6C0E 61 6E 64 20 __s111: .db "and sentenced to 99 stardates of hard", 0
-14909  6C12 73 65 6E 74 
-14909  6C16 65 6E 63 65 
-14909  6C1A 64 20 74 6F 
-14909  6C1E 20 39 39 20 
-14909  6C22 73 74 61 72 
-14909  6C26 64 61 74 65 
-14909  6C2A 73 20 6F 66 
-14909  6C2E 20 68 61 72 
-14909  6C32 64 00 
-14910  6C34 6C 61 62 6F __s112: .db "labor on Cygnus 12!!\n", 0
-14910  6C38 72 20 6F 6E 
-14910  6C3C 20 43 79 67 
-14910  6C40 6E 75 73 20 
-14910  6C44 31 32 21 21 
-14910  6C48 0A 00 
-14911  6C4A 53 74 61 72 __s113: .db "Starfleet Command reviewing your record to consider\n court martial!\n", 0
-14911  6C4E 66 6C 65 65 
-14911  6C52 74 20 43 6F 
-14911  6C56 6D 6D 61 6E 
-14911  6C5A 64 20 72 65 
-14911  6C5E 76 69 65 77 
-14911  6C62 69 6E 67 20 
-14911  6C66 79 6F 75 72 
-14911  6C6A 20 72 65 63 
-14911  6C6E 6F 72 64 20 
-14911  6C72 74 6F 20 63 
-14911  6C76 6F 6E 73 69 
-14911  6C7A 64 65 72 0A 
-14911  6C7E 20 63 6F 75 
-14911  6C82 72 74 20 6D 
-14911  6C86 61 72 74 69 
-14911  6C8A 61 6C 21 0A 
-14911  6C8E 00 
-14912  6C8F 44 61 6D 61 __s114: .db "Damage Control report not available.", 0
-14912  6C93 67 65 20 43 
-14912  6C97 6F 6E 74 72 
-14912  6C9B 6F 6C 20 72 
-14912  6C9F 65 70 6F 72 
-14912  6CA3 74 20 6E 6F 
-14912  6CA7 74 20 61 76 
-14912  6CAB 61 69 6C 61 
-14912  6CAF 62 6C 65 2E 
-14912  6CB3 00 
-out/startrek.asm line 14913: Maximum number of args exceeded. ("\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ",0)
-14913  6CB4 00          __s115: .db "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ", 0
-14914  6CB5 44 65 76 69 __s116: .db "Device            State of Repair", 0
-14914  6CB9 63 65 20 20 
-14914  6CBD 20 20 20 20 
-14914  6CC1 20 20 20 20 
-14914  6CC5 20 20 53 74 
-14914  6CC9 61 74 65 20 
-14914  6CCD 6F 66 20 52 
-14914  6CD1 65 70 61 69 
-14914  6CD5 72 00 
-14915  6CD7 25 2D 32 35 __s117: .db "%-25s%6s\n", 0
-14915  6CDB 73 25 36 73 
-14915  6CDF 0A 00 
-14916  6CE1 0A 00       __s118: .db "\n", 0
-14917  6CE3 45 6E 65 72 __s119: .db "Energy available = %d\n\n Input number of units to shields: ", 0
-14917  6CE7 67 79 20 61 
-14917  6CEB 76 61 69 6C 
-14917  6CEF 61 62 6C 65 
-14917  6CF3 20 3D 20 25 
-14917  6CF7 64 0A 0A 20 
-14917  6CFB 49 6E 70 75 
-14917  6CFF 74 20 6E 75 
-14917  6D03 6D 62 65 72 
-14917  6D07 20 6F 66 20 
-14917  6D0B 75 6E 69 74 
-14917  6D0F 73 20 74 6F 
-14917  6D13 20 73 68 69 
-14917  6D17 65 6C 64 73 
-14917  6D1B 3A 20 00 
-14918  6D1E 3C 53 68 69 __s120: .db "<Shields Unchanged>\n", 0
-14918  6D22 65 6C 64 73 
-14918  6D26 20 55 6E 63 
-14918  6D2A 68 61 6E 67 
-14918  6D2E 65 64 3E 0A 
-14918  6D32 00 
-14919  6D33 53 68 69 65 __s121: .db "Shield Control Reports:\n  This is not the Federation Treasury.", 0
-14919  6D37 6C 64 20 43 
-14919  6D3B 6F 6E 74 72 
-14919  6D3F 6F 6C 20 52 
-14919  6D43 65 70 6F 72 
-14919  6D47 74 73 3A 0A 
-14919  6D4B 20 20 54 68 
-14919  6D4F 69 73 20 69 
-14919  6D53 73 20 6E 6F 
-14919  6D57 74 20 74 68 
-14919  6D5B 65 20 46 65 
-14919  6D5F 64 65 72 61 
-14919  6D63 74 69 6F 6E 
-14919  6D67 20 54 72 65 
-14919  6D6B 61 73 75 72 
-14919  6D6F 79 2E 00 
-14920  6D72 44 65 66 6C __s122: .db "Deflector Control Room report:\n  Shields now at %d units per your command.\n\n", 0
-14920  6D76 65 63 74 6F 
-14920  6D7A 72 20 43 6F 
-14920  6D7E 6E 74 72 6F 
-14920  6D82 6C 20 52 6F 
-14920  6D86 6F 6D 20 72 
-14920  6D8A 65 70 6F 72 
-14920  6D8E 74 3A 0A 20 
-14920  6D92 20 53 68 69 
-14920  6D96 65 6C 64 73 
-14920  6D9A 20 6E 6F 77 
-14920  6D9E 20 61 74 20 
-14920  6DA2 25 64 20 75 
-14920  6DA6 6E 69 74 73 
-14920  6DAA 20 70 65 72 
-14920  6DAE 20 79 6F 75 
-14920  6DB2 72 20 63 6F 
-14920  6DB6 6D 6D 61 6E 
-14920  6DBA 64 2E 0A 0A 
-14920  6DBE 00 
-14921  6DBF 43 6F 6D 70 __s123: .db "Computer active and awating command: ", 0
-14921  6DC3 75 74 65 72 
-14921  6DC7 20 61 63 74 
-14921  6DCB 69 76 65 20 
-14921  6DCF 61 6E 64 20 
-14921  6DD3 61 77 61 74 
-14921  6DD7 69 6E 67 20 
-14921  6DDB 63 6F 6D 6D 
-14921  6DDF 61 6E 64 3A 
-14921  6DE3 20 00 
-14922  6DE5 46 75 6E 63 __s124: .db "Functions available from Library-Computer:\n\n", 0
-14922  6DE9 74 69 6F 6E 
-14922  6DED 73 20 61 76 
-14922  6DF1 61 69 6C 61 
-14922  6DF5 62 6C 65 20 
-14922  6DF9 66 72 6F 6D 
-14922  6DFD 20 4C 69 62 
-14922  6E01 72 61 72 79 
-14922  6E05 2D 43 6F 6D 
-14922  6E09 70 75 74 65 
-14922  6E0D 72 3A 0A 0A 
-14922  6E11 00 
-14923  6E12 20 20 20 30 __s125: .db "   0 = Cumulative Galactic Record\n", 0
-14923  6E16 20 3D 20 43 
-14923  6E1A 75 6D 75 6C 
-14923  6E1E 61 74 69 76 
-14923  6E22 65 20 47 61 
-14923  6E26 6C 61 63 74 
-14923  6E2A 69 63 20 52 
-14923  6E2E 65 63 6F 72 
-14923  6E32 64 0A 00 
-14924  6E35 20 20 20 31 __s126: .db "   1 = Status Report\n", 0
-14924  6E39 20 3D 20 53 
-14924  6E3D 74 61 74 75 
-14924  6E41 73 20 52 65 
-14924  6E45 70 6F 72 74 
-14924  6E49 0A 00 
-14925  6E4B 20 20 20 32 __s127: .db "   2 = Photon Torpedo Data\n", 0
-14925  6E4F 20 3D 20 50 
-14925  6E53 68 6F 74 6F 
-14925  6E57 6E 20 54 6F 
-14925  6E5B 72 70 65 64 
-14925  6E5F 6F 20 44 61 
-14925  6E63 74 61 0A 00 
-14926  6E67 20 20 20 33 __s128: .db "   3 = Starbase Nav Data\n", 0
-14926  6E6B 20 3D 20 53 
-14926  6E6F 74 61 72 62 
-14926  6E73 61 73 65 20 
-14926  6E77 4E 61 76 20 
-14926  6E7B 44 61 74 61 
-14926  6E7F 0A 00 
-14927  6E81 20 20 20 34 __s129: .db "   4 = Direction/Distance Calculator\n", 0
-14927  6E85 20 3D 20 44 
-14927  6E89 69 72 65 63 
-14927  6E8D 74 69 6F 6E 
-14927  6E91 2F 44 69 73 
-14927  6E95 74 61 6E 63 
-14927  6E99 65 20 43 61 
-14927  6E9D 6C 63 75 6C 
-14927  6EA1 61 74 6F 72 
-14927  6EA5 0A 00 
-14928  6EA7 20 20 20 35 __s130: .db "   5 = Galaxy Region Name Map\n", 0
-14928  6EAB 20 3D 20 47 
-14928  6EAF 61 6C 61 78 
-14928  6EB3 79 20 52 65 
-14928  6EB7 67 69 6F 6E 
-14928  6EBB 20 4E 61 6D 
-14928  6EBF 65 20 4D 61 
-14928  6EC3 70 0A 00 
-14929  6EC6 0A 20 20 20 __s131: .db "\n     Computer Record of Galaxy for Quadrant %d,%d\n\n", 0
-14929  6ECA 20 20 43 6F 
-14929  6ECE 6D 70 75 74 
-14929  6ED2 65 72 20 52 
-14929  6ED6 65 63 6F 72 
-14929  6EDA 64 20 6F 66 
-14929  6EDE 20 47 61 6C 
-14929  6EE2 61 78 79 20 
-14929  6EE6 66 6F 72 20 
-14929  6EEA 51 75 61 64 
-14929  6EEE 72 61 6E 74 
-14929  6EF2 20 25 64 2C 
-14929  6EF6 25 64 0A 0A 
-14929  6EFA 00 
-14930  6EFB 20 20 20 20 __s132: .db "     1     2     3     4     5     6     7     8", 0
-14930  6EFF 20 31 20 20 
-14930  6F03 20 20 20 32 
-14930  6F07 20 20 20 20 
-14930  6F0B 20 33 20 20 
-14930  6F0F 20 20 20 34 
-14930  6F13 20 20 20 20 
-14930  6F17 20 35 20 20 
-14930  6F1B 20 20 20 36 
-14930  6F1F 20 20 20 20 
-14930  6F23 20 37 20 20 
-14930  6F27 20 20 20 38 
-14930  6F2B 00 
-14931  6F2C 25 73 25 64 __s133: .db "%s%d", 0
-14931  6F30 00 
-14932  6F31 20 20 20 53 __s134: .db "   Status Report:\n", 0
-14932  6F35 74 61 74 75 
-14932  6F39 73 20 52 65 
-14932  6F3D 70 6F 72 74 
-14932  6F41 3A 0A 00 
-14933  6F44 4B 6C 69 6E __s135: .db "Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n", 0
-14933  6F48 67 6F 6E 25 
-14933  6F4C 73 20 4C 65 
-14933  6F50 66 74 3A 20 
-14933  6F54 25 64 0A 20 
-14933  6F58 4D 69 73 73 
-14933  6F5C 69 6F 6E 20 
-14933  6F60 6D 75 73 74 
-14933  6F64 20 62 65 20 
-14933  6F68 63 6F 6D 70 
-14933  6F6C 6C 65 74 65 
-14933  6F70 64 20 69 6E 
-14933  6F74 20 25 64 2E 
-14933  6F78 25 64 20 73 
-14933  6F7C 74 61 72 64 
-14933  6F80 61 74 65 73 
-14933  6F84 0A 00 
-14934  6F86 59 6F 75 72 __s136: .db "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n", 0
-14934  6F8A 20 73 74 75 
-14934  6F8E 70 69 64 69 
-14934  6F92 74 79 20 68 
-14934  6F96 61 73 20 6C 
-14934  6F9A 65 66 74 20 
-14934  6F9E 79 6F 75 20 
-14934  6FA2 6F 6E 20 79 
-14934  6FA6 6F 75 72 20 
-14934  6FAA 6F 77 6E 20 
-14934  6FAE 69 6E 20 74 
-14934  6FB2 68 65 20 67 
-14934  6FB6 61 6C 61 78 
-14934  6FBA 79 0A 20 2D 
-14934  6FBE 2D 20 79 6F 
-14934  6FC2 75 20 68 61 
-14934  6FC6 76 65 20 6E 
-14934  6FCA 6F 20 73 74 
-14934  6FCE 61 72 62 61 
-14934  6FD2 73 65 73 20 
-14934  6FD6 6C 65 66 74 
-14934  6FDA 21 0A 00 
-14935  6FDD 54 68 65 20 __s137: .db "The Federation is maintaining %d starbase%s in the galaxy\n\n", 0
-14935  6FE1 46 65 64 65 
-14935  6FE5 72 61 74 69 
-14935  6FE9 6F 6E 20 69 
-14935  6FED 73 20 6D 61 
-14935  6FF1 69 6E 74 61 
-14935  6FF5 69 6E 69 6E 
-14935  6FF9 67 20 25 64 
-14935  6FFD 20 73 74 61 
-14935  7001 72 62 61 73 
-14935  7005 65 25 73 20 
-14935  7009 69 6E 20 74 
-14935  700D 68 65 20 67 
-14935  7011 61 6C 61 78 
-14935  7015 79 0A 0A 00 
-14936  7019 46 72 6F 6D __s138: .db "From Enterprise to Klingon battlecriuser%s:\n\n", 0
-14936  701D 20 45 6E 74 
-14936  7021 65 72 70 72 
-14936  7025 69 73 65 20 
-14936  7029 74 6F 20 4B 
-14936  702D 6C 69 6E 67 
-14936  7031 6F 6E 20 62 
-14936  7035 61 74 74 6C 
-14936  7039 65 63 72 69 
-14936  703D 75 73 65 72 
-14936  7041 25 73 3A 0A 
-14936  7045 0A 00 
-14937  7047 4D 72 2E 20 __s139: .db "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n", 0
-14937  704B 53 70 6F 63 
-14937  704F 6B 20 72 65 
-14937  7053 70 6F 72 74 
-14937  7057 73 2C 0A 20 
-14937  705B 20 53 65 6E 
-14937  705F 73 6F 72 73 
-14937  7063 20 73 68 6F 
-14937  7067 77 20 6E 6F 
-14937  706B 20 73 74 61 
-14937  706F 72 62 61 73 
-14937  7073 65 73 20 69 
-14937  7077 6E 20 74 68 
-14937  707B 69 73 20 71 
-14937  707F 75 61 64 72 
-14937  7083 61 6E 74 2E 
-14937  7087 0A 00 
-14938  7089 44 69 72 65 __s140: .db "Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: ", 0
-14938  708D 63 74 69 6F 
-14938  7091 6E 2F 44 69 
-14938  7095 73 74 61 6E 
-14938  7099 63 65 20 43 
-14938  709D 61 6C 63 75 
-14938  70A1 6C 61 74 6F 
-14938  70A5 72 0A 20 59 
-14938  70A9 6F 75 20 61 
-14938  70AD 72 65 20 61 
-14938  70B1 74 20 71 75 
-14938  70B5 61 64 72 61 
-14938  70B9 6E 74 20 25 
-14938  70BD 64 2C 25 64 
-14938  70C1 20 73 65 63 
-14938  70C5 74 6F 72 20 
-14938  70C9 25 64 2C 25 
-14938  70CD 64 0A 0A 20 
-14938  70D1 50 6C 65 61 
-14938  70D5 73 65 20 65 
-14938  70D9 6E 74 65 72 
-14938  70DD 20 69 6E 69 
-14938  70E1 74 69 61 6C 
-14938  70E5 20 58 20 63 
-14938  70E9 6F 6F 72 64 
-14938  70ED 69 6E 61 74 
-14938  70F1 65 3A 20 00 
-14939  70F5 50 6C 65 61 __s141: .db "Please enter initial Y coordinate: ", 0
-14939  70F9 73 65 20 65 
-14939  70FD 6E 74 65 72 
-14939  7101 20 69 6E 69 
-14939  7105 74 69 61 6C 
-14939  7109 20 59 20 63 
-14939  710D 6F 6F 72 64 
-14939  7111 69 6E 61 74 
-14939  7115 65 3A 20 00 
-14940  7119 50 6C 65 61 __s142: .db "Please enter final X coordinate: ", 0
-14940  711D 73 65 20 65 
-14940  7121 6E 74 65 72 
-14940  7125 20 66 69 6E 
-14940  7129 61 6C 20 58 
-14940  712D 20 63 6F 6F 
-14940  7131 72 64 69 6E 
-14940  7135 61 74 65 3A 
-14940  7139 20 00 
-14941  713B 50 6C 65 61 __s143: .db "Please enter final Y coordinate: ", 0
-14941  713F 73 65 20 65 
-14941  7143 6E 74 65 72 
-14941  7147 20 66 69 6E 
-14941  714B 61 6C 20 59 
-14941  714F 20 63 6F 6F 
-14941  7153 72 64 69 6E 
-14941  7157 61 74 65 3A 
-14941  715B 20 00 
-14942  715D 0A 20 20 20 __s144: .db "\n                   The Galaxy\n\n", 0
-14942  7161 20 20 20 20 
-14942  7165 20 20 20 20 
-14942  7169 20 20 20 20 
-14942  716D 20 20 20 20 
-14942  7171 54 68 65 20 
-14942  7175 47 61 6C 61 
-14942  7179 78 79 0A 0A 
-14942  717D 00 
-14943  717E 20 20 20 20 __s145: .db "    1     2     3     4     5     6     7     8\n", 0
-14943  7182 31 20 20 20 
-14943  7186 20 20 32 20 
-14943  718A 20 20 20 20 
-14943  718E 33 20 20 20 
-14943  7192 20 20 34 20 
-14943  7196 20 20 20 20 
-14943  719A 35 20 20 20 
-14943  719E 20 20 36 20 
-14943  71A2 20 20 20 20 
-14943  71A6 37 20 20 20 
-14943  71AA 20 20 38 0A 
-14943  71AE 00 
-14944  71AF 25 73 25 64 __s146: .db "%s%d ", 0
-14944  71B3 20 00 
-14945  71B5 20 20 44 49 __s147: .db "  DIRECTION = ", 0
-14945  71B9 52 45 43 54 
-14945  71BD 49 4F 4E 20 
-14945  71C1 3D 20 00 
-14946  71C4 25 73 00    __s148: .db "%s", 0
-14947  71C7 54 68 65 20 __s149: .db "The Enterprise has been destroyed. The Federation will be conquered.\n", 0
-14947  71CB 45 6E 74 65 
-14947  71CF 72 70 72 69 
-14947  71D3 73 65 20 68 
-14947  71D7 61 73 20 62 
-14947  71DB 65 65 6E 20 
-14947  71DF 64 65 73 74 
-14947  71E3 72 6F 79 65 
-14947  71E7 64 2E 20 54 
-14947  71EB 68 65 20 46 
-14947  71EF 65 64 65 72 
-14947  71F3 61 74 69 6F 
-14947  71F7 6E 20 77 69 
-14947  71FB 6C 6C 20 62 
-14947  71FF 65 20 63 6F 
-14947  7203 6E 71 75 65 
-14947  7207 72 65 64 2E 
-14947  720B 0A 00 
-14948  720D 49 74 20 69 __s150: .db "It is stardate %d.\n\n", 0
-14948  7211 73 20 73 74 
-14948  7215 61 72 64 61 
-14948  7219 74 65 20 25 
-14948  721D 64 2E 0A 0A 
-14948  7221 00 
-14949  7222 54 68 65 72 __s151: .db "There were %d Klingon Battlecruisers left at the end of your mission.\n\n", 0
-14949  7226 65 20 77 65 
-14949  722A 72 65 20 25 
-14949  722E 64 20 4B 6C 
-14949  7232 69 6E 67 6F 
-14949  7236 6E 20 42 61 
-14949  723A 74 74 6C 65 
-14949  723E 63 72 75 69 
-14949  7242 73 65 72 73 
-14949  7246 20 6C 65 66 
-14949  724A 74 20 61 74 
-14949  724E 20 74 68 65 
-14949  7252 20 65 6E 64 
-14949  7256 20 6F 66 20 
-14949  725A 79 6F 75 72 
-14949  725E 20 6D 69 73 
-14949  7262 73 69 6F 6E 
-14949  7266 2E 0A 0A 00 
-14950  726A 43 6F 6E 67 __s152: .db "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n", 0
-14950  726E 72 61 74 75 
-14950  7272 6C 61 74 69 
-14950  7276 6F 6E 73 2C 
-14950  727A 20 43 61 70 
-14950  727E 74 61 69 6E 
-14950  7282 21 20 20 54 
-14950  7286 68 65 20 6C 
-14950  728A 61 73 74 20 
-14950  728E 4B 6C 69 6E 
-14950  7292 67 6F 6E 20 
-14950  7296 42 61 74 74 
-14950  729A 6C 65 20 43 
-14950  729E 72 75 69 73 
-14950  72A2 65 72 0A 20 
-14950  72A6 6D 65 6E 61 
-14950  72AA 63 69 6E 67 
-14950  72AE 20 74 68 65 
-14950  72B2 20 46 65 64 
-14950  72B6 65 72 61 74 
-14950  72BA 69 6F 6E 20 
-14950  72BE 68 61 73 20 
-14950  72C2 62 65 65 6E 
-14950  72C6 20 64 65 73 
-14950  72CA 74 6F 79 65 
-14950  72CE 64 2E 0A 00 
-14951  72D2 59 6F 75 72 __s153: .db "Your efficiency rating is %s\n", 0
-14951  72D6 20 65 66 66 
-14951  72DA 69 63 69 65 
-14951  72DE 6E 63 79 20 
-14951  72E2 72 61 74 69 
-14951  72E6 6E 67 20 69 
-14951  72EA 73 20 25 73 
-14951  72EE 0A 00 
-14952  72F0 54 68 65 20 __s154: .db "The Federation is in need of a new starship commander", 0
-14952  72F4 46 65 64 65 
-14952  72F8 72 61 74 69 
-14952  72FC 6F 6E 20 69 
-14952  7300 73 20 69 6E 
-14952  7304 20 6E 65 65 
-14952  7308 64 20 6F 66 
-14952  730C 20 61 20 6E 
-14952  7310 65 77 20 73 
-14952  7314 74 61 72 73 
-14952  7318 68 69 70 20 
-14952  731C 63 6F 6D 6D 
-14952  7320 61 6E 64 65 
-14952  7324 72 00 
-14953  7326 20 66 6F 72 __s155: .db " for a similar mission.\n", 0
-14953  732A 20 61 20 73 
-14953  732E 69 6D 69 6C 
-14953  7332 61 72 20 6D 
-14953  7336 69 73 73 69 
-14953  733A 6F 6E 2E 0A 
-14953  733E 00 
-14954  733F 49 66 20 74 __s156: .db "If there is a volunteer, let him step forward and", 0
-14954  7343 68 65 72 65 
-14954  7347 20 69 73 20 
-14954  734B 61 20 76 6F 
-14954  734F 6C 75 6E 74 
-14954  7353 65 65 72 2C 
-14954  7357 20 6C 65 74 
-14954  735B 20 68 69 6D 
-14954  735F 20 73 74 65 
-14954  7363 70 20 66 6F 
-14954  7367 72 77 61 72 
-14954  736B 64 20 61 6E 
-14954  736F 64 00 
-14955  7371 20 65 6E 74 __s157: .db " enter aye: ", 0
-14955  7375 65 72 20 61 
-14955  7379 79 65 3A 20 
-14955  737D 00 
-14956  737E 61 79 65 00 __s158: .db "aye", 0
-14957  7382 53 74 61 72 __s159: .db "Starbase shields protect the Enterprise\n", 0
-14957  7386 62 61 73 65 
-14957  738A 20 73 68 69 
-14957  738E 65 6C 64 73 
-14957  7392 20 70 72 6F 
-14957  7396 74 65 63 74 
-14957  739A 20 74 68 65 
-14957  739E 20 45 6E 74 
-14957  73A2 65 72 70 72 
-14957  73A6 69 73 65 0A 
-14957  73AA 00 
-14958  73AB 25 64 20 75 __s160: .db "%d unit hit on Enterprise from sector %d, %d\n", 0
-14958  73AF 6E 69 74 20 
-14958  73B3 68 69 74 20 
-14958  73B7 6F 6E 20 45 
-14958  73BB 6E 74 65 72 
-14958  73BF 70 72 69 73 
-14958  73C3 65 20 66 72 
-14958  73C7 6F 6D 20 73 
-14958  73CB 65 63 74 6F 
-14958  73CF 72 20 25 64 
-14958  73D3 2C 20 25 64 
-14958  73D7 0A 00 
-14959  73D9 20 20 20 20 __s161: .db "    <Shields down to %d units>\n\n", 0
-14959  73DD 3C 53 68 69 
-14959  73E1 65 6C 64 73 
-14959  73E5 20 64 6F 77 
-14959  73E9 6E 20 74 6F 
-14959  73ED 20 25 64 20 
-14959  73F1 75 6E 69 74 
-14959  73F5 73 3E 0A 0A 
-14959  73F9 00 
-14960  73FA 44 61 6D 61 __s162: .db "Damage Control reports\n%s damaged by hit\n\n", 0
-14960  73FE 67 65 20 43 
-14960  7402 6F 6E 74 72 
-14960  7406 6F 6C 20 72 
-14960  740A 65 70 6F 72 
-14960  740E 74 73 0A 25 
-14960  7412 73 20 64 61 
-14960  7416 6D 61 67 65 
-14960  741A 64 20 62 79 
-14960  741E 20 68 69 74 
-14960  7422 0A 0A 00 
-14961  7425 20 20 20 20 __s163: .db "    %s repair completed\n\n", 0
-14961  7429 25 73 20 72 
-14961  742D 65 70 61 69 
-14961  7431 72 20 63 6F 
-14961  7435 6D 70 6C 65 
-14961  7439 74 65 64 0A 
-14961  743D 0A 00 
-14962  743F 20 20 20 20 __s164: .db "    %s damaged\n\n", 0
-14962  7443 25 73 20 64 
-14962  7447 61 6D 61 67 
-14962  744B 65 64 0A 0A 
-14962  744F 00 
-14963  7450 20 20 20 20 __s165: .db "    %s state of repair improved\n\n", 0
-14963  7454 25 73 20 73 
-14963  7458 74 61 74 65 
-14963  745C 20 6F 66 20 
-14963  7460 72 65 70 61 
-14963  7464 69 72 20 69 
-14963  7468 6D 70 72 6F 
-14963  746C 76 65 64 0A 
-14963  7470 0A 00 
-14964  7472 20 49 00    __s166: .db " I", 0
-14965  7475 20 49 49 00 __s167: .db " II", 0
-14966  7479 20 49 49 49 __s168: .db " III", 0
-14966  747D 00 
-14967  747E 20 49 56 00 __s169: .db " IV", 0
-14968  7482 55 6E 6B 6E __s170: .db "Unknown", 0
-14968  7486 6F 77 6E 00 
-14969  748A             
-14970  748A 8C 74       _heap_top: .dw _heap
-14971  748C 00          _heap: .db 0
-14972  748D             ; --- END DATA BLOCK
-14973  748D             
-14974  748D             .end
-tasm: Number of errors = 12
+14868  66FD 3B 20 2D 2D 
+14868  6701 2D 20 45 4E 
+14868  6705 44 20 44 41 
+14868  6709 54 41 20 42 
+14868  670D 4C 4F 43 4B 
+14869  6711             
+14870  6711             .end
+tasm: Number of errors = 233

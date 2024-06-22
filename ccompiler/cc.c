@@ -1072,7 +1072,7 @@ int declare_local(void){
               if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
               emit_data("_%s_data: ", new_var.name);
               emit_data_dbdw(new_var.type);
-              emit_data("%s, 0\n", curr_token.token_str);
+              emit_data("%s, 0\n", replace_percent(curr_token.token_str));
               emit_data("_%s: .dw _%s_data\n", new_var.name, new_var.name);
 
               emitln("  mov a, _%s_data", new_var.name);
@@ -3675,7 +3675,7 @@ unsigned int add_string_data(char *str){
 
 void emit_string_table_data(void){
   int i, j;
-  char temp[512];
+  char temp[4096];
   char *p;
 
   for(i = 0; string_table[i][0]; i++){
@@ -4012,7 +4012,7 @@ void parse_struct_initialization_data(int struct_id, int array_size){
             else{
               switch(curr_token.tok_type){
                 case CHAR_CONST:
-                  emit_data(".db %s\n", curr_token.token_str);
+                  emit_data(".db %s\n", replace_percent(curr_token.token_str));
                   break;
                 case INTEGER_CONST:
                   emit_data(".db %d\n", (char)curr_token.int_const);
@@ -4171,7 +4171,7 @@ void emit_global_var_initialization(t_var *var){
             if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
             emit_data("_%s_data: ", var->name);
             emit_data_dbdw(var->type);
-            emit_data("%s, 0\n", curr_token.token_str);
+            emit_data("%s, 0\n", replace_percent(curr_token.token_str));
             emit_data("_%s: .dw _%s_data\n", var->name, var->name);
           }
         }
@@ -4252,7 +4252,7 @@ void emit_static_var_initialization(t_var *var){
           if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
           emit_data("st_%s_%s_dt: ", function_table[current_func_id].name, var->name);
           emit_data_dbdw(var->type);
-          emit_data("%s, 0\n", curr_token.token_str); // TODO: do not require char pointer initialization to be a string only!
+          emit_data("%s, 0\n", replace_percent(curr_token.token_str)); // TODO: do not require char pointer initialization to be a string only!
           emit_data("st_%s_%s: .dw st_%s_%s_dt\n", function_table[current_func_id].name, var->name, function_table[current_func_id].name, var->name);
         }
         else{
@@ -4870,4 +4870,42 @@ void expand_all_included_files(void){
   exit(1);
 
   prog = c_in;
+}
+
+char *replace_percent(const char* input_str) {
+    if (input_str == NULL) {
+        return NULL;
+    }
+
+    size_t length = strlen(input_str);
+    size_t new_length = length;
+
+    // Calculate the new length considering each '%' will be replaced by '%%'
+    for (size_t i = 0; i < length; ++i) {
+        if (input_str[i] == '%') {
+            new_length++;
+        }
+    }
+
+    // Allocate memory for the new string
+    char *new_str = (char *)malloc(new_length + 1);
+    if (new_str == NULL) {
+        perror("Failed to allocate memory");
+        exit(EXIT_FAILURE);
+    }
+
+    size_t j = 0;
+    // Replace '%' with '%%' in the new string
+    for (size_t i = 0; i < length; ++i) {
+        if (input_str[i] == '%') {
+            new_str[j++] = '%';
+            new_str[j++] = '%';
+        } else {
+            new_str[j++] = input_str[i];
+        }
+    }
+
+    new_str[new_length] = '\0';
+
+    return new_str;
 }

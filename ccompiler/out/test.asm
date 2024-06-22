@@ -11,7 +11,7 @@ main:
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
-_s_data: .db "Hello 1634035807 World", 0
+_s_data: .db "Hello %s World", 0
 _s: .dw _s_data
 
 _heap_top: .dw _heap
