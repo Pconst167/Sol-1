@@ -707,12 +707,14 @@ int8_t type_detected(void){
     curr_token.tok == INT    || curr_token.tok == FLOAT    || 
     curr_token.tok == DOUBLE || curr_token.tok == STRUCT   ||
     curr_token.tok == SHORT  || curr_token.tok == STATIC   ||
-    curr_token.tok == ENUM   || search_typedef(curr_token.token_str) != -1
+    curr_token.tok == ENUM   || curr_token.tok == REGISTER ||
+    search_typedef(curr_token.token_str) != -1 
   ){
     while(
-      curr_token.tok == CONST  || curr_token.tok == STATIC || 
+      curr_token.tok == CONST  || curr_token.tok == STATIC   || 
       curr_token.tok == SIGNED || curr_token.tok == UNSIGNED ||
-      curr_token.tok == LONG   || curr_token.tok == SHORT
+      curr_token.tok == LONG   || curr_token.tok == SHORT    ||
+      curr_token.tok == REGISTER
     ){
       get();
     }
@@ -969,14 +971,16 @@ int declare_local(void){
   t_var new_var;
   char *temp_prog;
   int total_sp = 0;
-  uint8_t is_static, is_const;
+  uint8_t is_static, is_const, is_register;
   
-  is_static = 0;
-  is_const = 0;
+  is_register = 0;
+  is_static  = 0;
+  is_const   = 0;
   get();
-  if(curr_token.tok == STATIC || curr_token.tok == CONST){
-    while(curr_token.tok == STATIC || curr_token.tok == CONST){
-      if(curr_token.tok == STATIC) is_static = true;
+  if(curr_token.tok == STATIC || curr_token.tok == CONST || curr_token.tok == REGISTER){
+    while(curr_token.tok == STATIC || curr_token.tok == CONST || curr_token.tok == REGISTER){
+      if(curr_token.tok == REGISTER) is_register = true;
+      else if(curr_token.tok == STATIC) is_static = true;
       else if(curr_token.tok == CONST) is_const = true;
       get();
     }
@@ -988,6 +992,7 @@ int declare_local(void){
     if(function_table[current_func_id].local_var_tos == MAX_LOCAL_VARS) error(ERR_FATAL, "Local var declaration limit reached");
     new_var.is_parameter = false;
     new_var.is_static = is_static;
+    new_var.is_register = is_register;
     new_var.type.is_constant = is_const;
     new_var.function_id = current_func_id; // set variable owner function
 // **************** checks whether this is a pointer declaration *******************************
@@ -1461,8 +1466,20 @@ void declare_all_locals(int function_id){
     if(curr_token.tok == OPENING_BRACE) total_braces++;
     if(curr_token.tok == CLOSING_BRACE) total_braces--;
     if(total_braces == 0) break;
-    if(curr_token.tok == STATIC || curr_token.tok == CONST || curr_token.tok == UNSIGNED || curr_token.tok == SIGNED || curr_token.tok == LONG || curr_token.tok == SHORT || curr_token.tok == INT || curr_token.tok == CHAR || curr_token.tok == VOID || curr_token.tok == STRUCT){
-      while(curr_token.tok == STATIC || curr_token.tok == CONST || curr_token.tok == UNSIGNED || curr_token.tok == SIGNED || curr_token.tok == LONG || curr_token.tok == SHORT || curr_token.tok == INT || curr_token.tok == CHAR || curr_token.tok == VOID || curr_token.tok == STRUCT || curr_token.tok == ENUM){
+    if(curr_token.tok == STATIC   || curr_token.tok == CONST  || 
+       curr_token.tok == UNSIGNED || curr_token.tok == SIGNED || 
+       curr_token.tok == LONG     || curr_token.tok == SHORT  || 
+       curr_token.tok == INT      || curr_token.tok == CHAR   || 
+       curr_token.tok == VOID     || curr_token.tok == STRUCT || 
+       search_typedef(curr_token.token_str) != -1
+      ){
+      while(curr_token.tok == STATIC   || curr_token.tok == CONST  || 
+            curr_token.tok == UNSIGNED || curr_token.tok == SIGNED || 
+            curr_token.tok == LONG     || curr_token.tok == SHORT  || 
+            curr_token.tok == INT      || curr_token.tok == CHAR   || 
+            curr_token.tok == VOID     || curr_token.tok == STRUCT || 
+            curr_token.tok == ENUM     || search_typedef(curr_token.token_str) != -1
+      ){
         get();       
       }
       while(curr_token.tok == STAR) get();
@@ -1492,10 +1509,8 @@ void declare_func(void){
   if(function_table_tos == MAX_USER_FUNC - 1) error(ERR_FATAL, "Maximum number of function declarations exceeded. Max: %d", MAX_USER_FUNC);
 
   get();
-
   if((typedef_id = search_typedef(curr_token.token_str)) != -1){
     function_table[function_table_tos].return_type = typedef_table[typedef_id].type;
-    get();
   }
   else{
     function_table[function_table_tos].return_type.sign_modifier = SNESS_SIGNED; // set as signed by default
@@ -1519,12 +1534,12 @@ void declare_func(void){
       function_table[function_table_tos].return_type.struct_enum_id = search_enum(curr_token.token_str);
       if(function_table[function_table_tos].return_type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared enum '%s' in function return type", curr_token.token_str);
     }
+  }
 
+  get();
+  while(curr_token.tok == STAR){
+    function_table[function_table_tos].return_type.ind_level++;
     get();
-    while(curr_token.tok == STAR){
-      function_table[function_table_tos].return_type.ind_level++;
-      get();
-    }
   }
 
   strcpy(function_table[function_table_tos].name, curr_token.token_str);
@@ -2158,8 +2173,15 @@ void parse_block(void){
     temp_prog = prog;
     get();
     if(curr_token.tok != CLOSING_BRACE) return_is_last_statement = false;
+    if(search_typedef(curr_token.token_str) != -1){
+      do{
+        get();
+      } while(curr_token.tok != SEMICOLON);
+      get();
+    }
     switch(curr_token.tok){
       case CONST:
+      case REGISTER:
       case STATIC:
       case SIGNED:
       case UNSIGNED:

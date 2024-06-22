@@ -205,6 +205,7 @@ typedef struct {
   t_type  type; // holds the type of data and the value itself
   uint8_t is_parameter;
   uint8_t is_static;
+  uint8_t is_register;
   int     bp_offset; // if var is local, this holds the offset of the var from BP.
   int     function_id; // the function does var belong to? (if it is a local var)
 } t_var;
@@ -221,8 +222,6 @@ typedef struct {
   uint8_t  has_var_args;
   uint8_t  num_fixed_args;
 } t_function;
-
-
 
 // functions
 char is_delimiter(char c);

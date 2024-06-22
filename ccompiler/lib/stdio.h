@@ -5,6 +5,18 @@
 #define ARG_BUFF 0x0000
 #define MAX_SCANF_STRING_SIZE 512
 
+struct _FILE{
+  int handle;
+  uint8_t filename[256];
+  uint8_t mode; // 0: RD, 1: WR, 2: RW, 3: APPEND
+  uint8_t loc; // position of seek head
+};
+
+typedef struct _FILE FILE;
+
+FILE *fopen(char *filename, uint8_t mode){
+
+}
 
 /*
 struct va_list_t{
