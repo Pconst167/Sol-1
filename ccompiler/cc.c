@@ -484,7 +484,10 @@ void emit(const char* format, ...){
   va_start(args, format);
   vsnprintf(tempbuffer, ASM_SIZE, format, args);
   va_end(args);
-  while (*bufferp) *asm_p++ = *bufferp++;
+  while (*bufferp){
+    putchar(*asm_p);
+    *asm_p++ = *bufferp++;
+  }
 }
 
 void emitln(const char* format, ...){
@@ -493,7 +496,10 @@ void emitln(const char* format, ...){
   va_start(args, format);
   vsnprintf(tempbuffer, ASM_SIZE, format, args);
   va_end(args);
-  while (*bufferp) *asm_p++ = *bufferp++;
+  while (*bufferp){
+    putchar(*asm_p);
+    *asm_p++ = *bufferp++;
+  }
   *asm_p++ = '\n';
 }
 

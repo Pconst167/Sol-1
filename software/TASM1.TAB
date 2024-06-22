@@ -83,7 +83,7 @@ MOV B,G                         27FD  2    NOP      1
 MOV B,[D]                       2A    1    NOP      1
 MOV B,[D+@]                     2B    3    NOP      1
 MOV B,[BP+@]                    2C    3    NOP      1
-MOV B,[BP+D]                    2D    1    NOP      1
+MOV B,[BP+D]                    26FD  1    NOP      1
 MOV B,[SP+@]                    2CFD  4    NOP      1
 MOV B,[@]                       29    3    NOP      1
 MOV B,@                         26    3    NOP      1
