@@ -3133,6 +3133,12 @@ t_type parse_sizeof(){
     }
     get();
   }
+  else{
+    back();
+    type = get_type();
+    emitln("  mov b, %d", get_total_type_size(type));
+    get();
+  }
   type.primitive_type = DT_INT;
   type.ind_level = 0;
   type.sign_modifier = SNESS_SIGNED;
