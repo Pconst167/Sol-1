@@ -805,7 +805,7 @@ void pre_scan(void){
 }
 
 t_type get_type(){
-  t_type type;
+  t_type type = {0};
   int typedef_id;
   int struct_enum_id;
   
@@ -1095,7 +1095,6 @@ int declare_local(void){
           emit_var_addr_into_d(new_var.name);
           emitln("  push d");
           init_expr = parse_expr();
-          puts("after expression");
           emitln("  pop d");
           if(init_expr.ind_level > 0)
             emitln("  mov [d], b");
@@ -1121,7 +1120,9 @@ int declare_local(void){
   } while(curr_token.tok == COMMA);
   if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 /*
-  dbg(curr_token.token_str);
+  for creating local variables created with commas such as int a, b, c
+  by decreasing SP with the total offset.
+  commented out in favour of the oither way of doing it by subtrckng SP indivisually for each instance. 
 
   emit("  sub sp, %d ; ", total_sp, new_var.name);
   for(int i = 0; var_names[i][0]; i++){
@@ -2285,6 +2286,7 @@ t_type parse_expr(){
   }
 }
 
+// int a = 9, b = a;
 int is_assignment(){
   char *temp_prog;
   int paren = 0, bracket = 0;
@@ -2299,7 +2301,7 @@ int is_assignment(){
     }
     if(curr_token.tok_type == END) 
       error(ERR_FATAL, "Unterminated expression.");
-    if(curr_token.tok == SEMICOLON) 
+    if(curr_token.tok == SEMICOLON || curr_token.tok == COMMA) 
       break;
     if(curr_token.tok == OPENING_PAREN) 
       paren++;
@@ -2333,7 +2335,6 @@ t_type parse_assignment(){
 
   // is assignment
   get();
-  puts("OK");
   if(curr_token.tok_type == IDENTIFIER){
     if(is_constant(curr_token.token_str)) 
       error(ERR_FATAL, "assignment of read-only variable: %s", curr_token.token_str);
@@ -3816,7 +3817,7 @@ int is_array(t_type type){
 }
 
 int array_dim_count(t_type type){
-  int i;
+  int i = 0;
   
   for(i = 0; type.dims[i]; i++);
   return i;
@@ -3827,8 +3828,9 @@ int get_total_type_size(t_type type){
   int size = 1;
 
   // if it is a array, return its number of dimensions * type size
-  for(i = 0; i < array_dim_count(type); i++)
+  for(i = 0; i < array_dim_count(type); i++){
     size = size * type.dims[i];
+  }
   
   // if it is not a array, it will return 1 * the data size
   return size * get_primitive_type_size(type);

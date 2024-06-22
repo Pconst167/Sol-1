@@ -18,7 +18,7 @@ typedef struct _FILE FILE;
 FILE *fopen(char *filename, uint8_t mode){
   FILE *fp;
 
-  fp = alloc(sizeof(struct _FILE));
+  fp = alloc(sizeof(int));
 }
 
 /*
