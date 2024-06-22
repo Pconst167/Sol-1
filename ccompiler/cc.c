@@ -3687,15 +3687,26 @@ unsigned int add_string_data(char *str){
 void emit_string_table_data(void){
   int i, j;
   char *p;
-  int n = 0;
 
+    //emit_data("_s%d: .db \"%s\", 0\n", i, string_table[i]);
   for(i = 0; i < string_table_tos; i++){
     emit_data("_s%d: .db \"", i); // emit string header
-    for(j = 0; string_table; j++){
-
+    for(j = 0; ; j++){
+      if(string_table[i][j] == '\0'){
+        emit_data("\", 0\n");
+        break;
+      }
+      emit_data("%c", string_table[i][j]);
+      if((j + 1) % 128 == 0){
+        if(string_table[i][j+1]){
+          emit_data("\"\n.db \"");
+        }
+        else{
+          emit_data("\", 0\n");
+          break;
+        }
+      }
     }
-
-    emit_data("_s%d: .db \"%s\", 0\n", i, string_table[i]);
   }
 }
 
@@ -4240,9 +4251,10 @@ void emit_static_var_initialization(t_var *var){
     } while(curr_token.tok == COMMA);
     // fill in the remaining unitialized array values with 0's 
     if(get_total_type_size(var->type) - j * get_primitive_type_size(var->type) > 0){
+      emit_data("\n");
       emit_data(".fill %u, 0\n", get_total_type_size(var->type) - j * get_primitive_type_size(var->type));
     }
-    emit_data("st_%s: .dw st_%s_%s_dt\n", function_table[current_func_id].name, var->name, var->name);
+    emit_data("st_%s_%s: .dw st_%s_%s_dt\n", function_table[current_func_id].name, var->name, function_table[current_func_id].name, var->name);
     expect(CLOSING_BRACE, "Closing braces expected");
   }
   else{

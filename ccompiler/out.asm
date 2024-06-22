@@ -14849,8 +14849,9 @@ st_print100_buf_dt: .fill 16, 0
 _sC_data: .db "GREEN", 0
 _sC: .dw _sC_data
 st_quadrant_name_sect_name_dt: 
-.dw _s0, _s171, _s172, _s173, _s174, .fill 10, 0
-st_quadrant_name: .dw st_sect_name_sect_name_dt
+.dw _s0, _s171, _s172, _s173, _s174, 
+.fill 10, 0
+st_quadrant_name_sect_name: .dw st_quadrant_name_sect_name_dt
 _s0: .db "", 0
 _s1: .db "Antares", 0
 _s2: .db "Rigel", 0
@@ -14929,7 +14930,8 @@ _s74: .db "Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n", 0
 _s75: .db "Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n", 0
 _s76: .db "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n", 0
 _s77: .db "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n", 0
-_s78: .db "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n", 0
+_s78: .db "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denie"
+.db "d*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n", 0
 _s79: .db "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n", 0
 _s80: .db "Shield Control supplies energy to complete maneuver.\n", 0
 _s81: .db "YELLOW", 0
@@ -14971,7 +14973,8 @@ _s116: .db "and sentenced to 99 stardates of hard", 0
 _s117: .db "labor on Cygnus 12!!\n", 0
 _s118: .db "Starfleet Command reviewing your record to consider\n court martial!\n", 0
 _s119: .db "Damage Control report not available.", 0
-_s120: .db "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ", 0
+_s120: .db "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repa"
+.db "ir order (y/N)? ", 0
 _s121: .db "Device            State of Repair", 0
 _s122: .db "%-25s%6s\n", 0
 _s123: .db "\n", 0

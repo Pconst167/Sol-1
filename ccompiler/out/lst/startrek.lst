@@ -1,5 +1,3 @@
-out/startrek.asm line 14932: Maximum number of args exceeded. ("LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n",0)
-out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ",0)
 0001   0000             ; --- FILENAME: games/startrek
 0002   0000             .include "lib/asm/kernel.exp"
 0001+  0000             text_org    .EQU  $0400
@@ -587,7 +585,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 0565   0731 0A 40 07      jmp _if11_exit
 0566   0734             _if11_else:
 0567   0734             ;; err("Unexpected format in printf."); 
-0568   0734 26 74 64      mov b, _s30 ; "Unexpected format in printf."
+0568   0734 26 7A 64      mov b, _s30 ; "Unexpected format in printf."
 0569   0737 FD AB         swp b
 0570   0739 D8            push b
 0571   073A 07 71 0A      call err
@@ -742,7 +740,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 0720   07F6 0A 05 08      jmp _switch8_exit ; case break
 0721   07F9             _switch8_default:
 0722   07F9             ;; print("Error: Unknown argument type.\n"); 
-0723   07F9 26 91 64      mov b, _s31 ; "Error: Unknown argument type.\n"
+0723   07F9 26 97 64      mov b, _s31 ; "Error: Unknown argument type.\n"
 0724   07FC FD AB         swp b
 0725   07FE D8            push b
 0726   07FF 07 43 13      call print
@@ -975,7 +973,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 0953   093A 0A 49 09      jmp _if18_exit
 0954   093D             _if18_else:
 0955   093D             ;; err("Unexpected format in printf."); 
-0956   093D 26 74 64      mov b, _s30 ; "Unexpected format in printf."
+0956   093D 26 7A 64      mov b, _s30 ; "Unexpected format in printf."
 0957   0940 FD AB         swp b
 0958   0942 D8            push b
 0959   0943 07 71 0A      call err
@@ -1156,7 +1154,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 1134   0A31 0A 40 0A      jmp _switch15_exit ; case break
 1135   0A34             _switch15_default:
 1136   0A34             ;; print("Error: Unknown argument type.\n"); 
-1137   0A34 26 91 64      mov b, _s31 ; "Error: Unknown argument type.\n"
+1137   0A34 26 97 64      mov b, _s31 ; "Error: Unknown argument type.\n"
 1138   0A37 FD AB         swp b
 1139   0A39 D8            push b
 1140   0A3A 07 43 13      call print
@@ -2519,7 +2517,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 2305   136C             clear:
 2306   136C F8 00 00      enter 0 ; (push bp; mov bp, sp)
 2307   136F             ;; print("\033[2J\033[H"); 
-2308   136F 26 B0 64      mov b, _s32 ; "\033[2J\033[H"
+2308   136F 26 B6 64      mov b, _s32 ; "\033[2J\033[H"
 2309   1372 FD AB         swp b
 2310   1374 D8            push b
 2311   1375 07 43 13      call print
@@ -3646,9 +3644,9 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 2647   18AB             alloc:
 2648   18AB F8 00 00      enter 0 ; (push bp; mov bp, sp)
 2649   18AE             ;; heap_top = heap_top + bytes; 
-2650   18AE 3B 05 76      mov d, _heap_top ; $heap_top
+2650   18AE 3B 8E 77      mov d, _heap_top ; $heap_top
 2651   18B1 DA            push d
-2652   18B2 3B 05 76      mov d, _heap_top ; $heap_top
+2652   18B2 3B 8E 77      mov d, _heap_top ; $heap_top
 2653   18B5 2A            mov b, [d]
 2654   18B6             ; START TERMS
 2655   18B6 D7            push a
@@ -3661,7 +3659,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 2662   18BE E7            pop d
 2663   18BF FD 43         mov [d], b
 2664   18C1             ;; return heap_top - bytes; 
-2665   18C1 3B 05 76      mov d, _heap_top ; $heap_top
+2665   18C1 3B 8E 77      mov d, _heap_top ; $heap_top
 2666   18C4 2A            mov b, [d]
 2667   18C5             ; START TERMS
 2668   18C5 D7            push a
@@ -3678,9 +3676,9 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 2679   18D0             free:
 2680   18D0 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 2681   18D3             ;; return heap_top = heap_top - bytes; 
-2682   18D3 3B 05 76      mov d, _heap_top ; $heap_top
+2682   18D3 3B 8E 77      mov d, _heap_top ; $heap_top
 2683   18D6 DA            push d
-2684   18D7 3B 05 76      mov d, _heap_top ; $heap_top
+2684   18D7 3B 8E 77      mov d, _heap_top ; $heap_top
 2685   18DA 2A            mov b, [d]
 2686   18DB             ; START TERMS
 2687   18DB D7            push a
@@ -5174,10 +5172,10 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4024   207E C0 00 00      cmp b, 0
 4025   2081 C6 8A 20      je _ternary59_false
 4026   2084             _ternary59_true:
-4027   2084 26 B8 64      mov b, _s33 ; "are"
+4027   2084 26 BE 64      mov b, _s33 ; "are"
 4028   2087 0A 8D 20      jmp _ternary59_exit
 4029   208A             _ternary59_false:
-4030   208A 26 BC 64      mov b, _s34 ; "is"
+4030   208A 26 C2 64      mov b, _s34 ; "is"
 4031   208D             _ternary59_exit:
 4032   208D FD AB         swp b
 4033   208F D8            push b
@@ -5190,7 +5188,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4040   209C 51 02 00      add sp, 2
 4041   209F FD AB         swp b
 4042   20A1 D8            push b
-4043   20A2 26 BF 64      mov b, _s35 ; "%s %s inoperable.\n"
+4043   20A2 26 C5 64      mov b, _s35 ; "%s %s inoperable.\n"
 4044   20A5 FD AB         swp b
 4045   20A7 D8            push b
 4046   20A8 07 D1 05      call printf
@@ -5209,7 +5207,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4059   20BB             intro:
 4060   20BB F8 00 00      enter 0 ; (push bp; mov bp, sp)
 4061   20BE             ;; showfile("startrek.intro"); 
-4062   20BE 26 D2 64      mov b, _s36 ; "startrek.intro"
+4062   20BE 26 D8 64      mov b, _s36 ; "startrek.intro"
 4063   20C1 FD AB         swp b
 4064   20C3 D8            push b
 4065   20C4 07 6D 60      call showfile
@@ -5221,7 +5219,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4071   20D0 C6 E2 20      je _if60_exit
 4072   20D3             _if60_true:
 4073   20D3             ;; showfile("startrek.doc"); 
-4074   20D3 26 E1 64      mov b, _s37 ; "startrek.doc"
+4074   20D3 26 E7 64      mov b, _s37 ; "startrek.doc"
 4075   20D6 FD AB         swp b
 4076   20D8 D8            push b
 4077   20D9 07 6D 60      call showfile
@@ -5229,7 +5227,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4079   20DF 0A E2 20      jmp _if60_exit
 4080   20E2             _if60_exit:
 4081   20E2             ;; showfile("startrek.logo"); 
-4082   20E2 26 EE 64      mov b, _s38 ; "startrek.logo"
+4082   20E2 26 F4 64      mov b, _s38 ; "startrek.logo"
 4083   20E5 FD AB         swp b
 4084   20E7 D8            push b
 4085   20E8 07 6D 60      call showfile
@@ -5341,7 +5339,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4191   217B C6 90 21      je _if62_exit
 4192   217E             _if62_true:
 4193   217E             ;; showfile("startrek.fatal"); 
-4194   217E 26 FC 64      mov b, _s39 ; "startrek.fatal"
+4194   217E 26 02 65      mov b, _s39 ; "startrek.fatal"
 4195   2181 FD AB         swp b
 4196   2183 D8            push b
 4197   2184 07 6D 60      call showfile
@@ -5351,7 +5349,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4201   218D 0A 90 21      jmp _if62_exit
 4202   2190             _if62_exit:
 4203   2190             ;; puts("Command? "); 
-4204   2190 26 0B 65      mov b, _s40 ; "Command? "
+4204   2190 26 11 65      mov b, _s40 ; "Command? "
 4205   2193 FD AB         swp b
 4206   2195 D8            push b
 4207   2196 07 31 13      call puts
@@ -5375,7 +5373,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4225   21B7 26 03 00      mov b, $3
 4226   21BA FD AB         swp b
 4227   21BC D8            push b
-4228   21BD 26 15 65      mov b, _s41 ; "nav"
+4228   21BD 26 1B 65      mov b, _s41 ; "nav"
 4229   21C0 FD AB         swp b
 4230   21C2 D8            push b
 4231   21C3 FA FD FF      lea d, [bp + -3] ; $cmd
@@ -5398,7 +5396,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4248   21E1 26 03 00      mov b, $3
 4249   21E4 FD AB         swp b
 4250   21E6 D8            push b
-4251   21E7 26 19 65      mov b, _s42 ; "srs"
+4251   21E7 26 1F 65      mov b, _s42 ; "srs"
 4252   21EA FD AB         swp b
 4253   21EC D8            push b
 4254   21ED FA FD FF      lea d, [bp + -3] ; $cmd
@@ -5421,7 +5419,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4271   220B 26 03 00      mov b, $3
 4272   220E FD AB         swp b
 4273   2210 D8            push b
-4274   2211 26 1D 65      mov b, _s43 ; "lrs"
+4274   2211 26 23 65      mov b, _s43 ; "lrs"
 4275   2214 FD AB         swp b
 4276   2216 D8            push b
 4277   2217 FA FD FF      lea d, [bp + -3] ; $cmd
@@ -5444,7 +5442,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4294   2235 26 03 00      mov b, $3
 4295   2238 FD AB         swp b
 4296   223A D8            push b
-4297   223B 26 21 65      mov b, _s44 ; "pha"
+4297   223B 26 27 65      mov b, _s44 ; "pha"
 4298   223E FD AB         swp b
 4299   2240 D8            push b
 4300   2241 FA FD FF      lea d, [bp + -3] ; $cmd
@@ -5467,7 +5465,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4317   225F 26 03 00      mov b, $3
 4318   2262 FD AB         swp b
 4319   2264 D8            push b
-4320   2265 26 25 65      mov b, _s45 ; "tor"
+4320   2265 26 2B 65      mov b, _s45 ; "tor"
 4321   2268 FD AB         swp b
 4322   226A D8            push b
 4323   226B FA FD FF      lea d, [bp + -3] ; $cmd
@@ -5490,7 +5488,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4340   2289 26 03 00      mov b, $3
 4341   228C FD AB         swp b
 4342   228E D8            push b
-4343   228F 26 29 65      mov b, _s46 ; "shi"
+4343   228F 26 2F 65      mov b, _s46 ; "shi"
 4344   2292 FD AB         swp b
 4345   2294 D8            push b
 4346   2295 FA FD FF      lea d, [bp + -3] ; $cmd
@@ -5513,7 +5511,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4363   22B3 26 03 00      mov b, $3
 4364   22B6 FD AB         swp b
 4365   22B8 D8            push b
-4366   22B9 26 2D 65      mov b, _s47 ; "dam"
+4366   22B9 26 33 65      mov b, _s47 ; "dam"
 4367   22BC FD AB         swp b
 4368   22BE D8            push b
 4369   22BF FA FD FF      lea d, [bp + -3] ; $cmd
@@ -5536,7 +5534,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4386   22DD 26 03 00      mov b, $3
 4387   22E0 FD AB         swp b
 4388   22E2 D8            push b
-4389   22E3 26 31 65      mov b, _s48 ; "com"
+4389   22E3 26 37 65      mov b, _s48 ; "com"
 4390   22E6 FD AB         swp b
 4391   22E8 D8            push b
 4392   22E9 FA FD FF      lea d, [bp + -3] ; $cmd
@@ -5559,7 +5557,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4409   2307 26 03 00      mov b, $3
 4410   230A FD AB         swp b
 4411   230C D8            push b
-4412   230D 26 35 65      mov b, _s49 ; "xxx"
+4412   230D 26 3B 65      mov b, _s49 ; "xxx"
 4413   2310 FD AB         swp b
 4414   2312 D8            push b
 4415   2313 FA FD FF      lea d, [bp + -3] ; $cmd
@@ -5578,61 +5576,61 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 4428   232E 0A A9 23      jmp _if71_exit
 4429   2331             _if71_else:
 4430   2331             ;; puts("Enter one of the following:\n"); 
-4431   2331 26 39 65      mov b, _s50 ; "Enter one of the following:\n"
+4431   2331 26 3F 65      mov b, _s50 ; "Enter one of the following:\n"
 4432   2334 FD AB         swp b
 4433   2336 D8            push b
 4434   2337 07 31 13      call puts
 4435   233A 51 02 00      add sp, 2
 4436   233D             ;; puts("  nav - To Set Course"); 
-4437   233D 26 56 65      mov b, _s51 ; "  nav - To Set Course"
+4437   233D 26 5C 65      mov b, _s51 ; "  nav - To Set Course"
 4438   2340 FD AB         swp b
 4439   2342 D8            push b
 4440   2343 07 31 13      call puts
 4441   2346 51 02 00      add sp, 2
 4442   2349             ;; puts("  srs - Short Range Sensors"); 
-4443   2349 26 6C 65      mov b, _s52 ; "  srs - Short Range Sensors"
+4443   2349 26 72 65      mov b, _s52 ; "  srs - Short Range Sensors"
 4444   234C FD AB         swp b
 4445   234E D8            push b
 4446   234F 07 31 13      call puts
 4447   2352 51 02 00      add sp, 2
 4448   2355             ;; puts("  lrs - Long Range Sensors"); 
-4449   2355 26 88 65      mov b, _s53 ; "  lrs - Long Range Sensors"
+4449   2355 26 8E 65      mov b, _s53 ; "  lrs - Long Range Sensors"
 4450   2358 FD AB         swp b
 4451   235A D8            push b
 4452   235B 07 31 13      call puts
 4453   235E 51 02 00      add sp, 2
 4454   2361             ;; puts("  pha - Phasers"); 
-4455   2361 26 A3 65      mov b, _s54 ; "  pha - Phasers"
+4455   2361 26 A9 65      mov b, _s54 ; "  pha - Phasers"
 4456   2364 FD AB         swp b
 4457   2366 D8            push b
 4458   2367 07 31 13      call puts
 4459   236A 51 02 00      add sp, 2
 4460   236D             ;; puts("  tor - Photon Torpedoes"); 
-4461   236D 26 B3 65      mov b, _s55 ; "  tor - Photon Torpedoes"
+4461   236D 26 B9 65      mov b, _s55 ; "  tor - Photon Torpedoes"
 4462   2370 FD AB         swp b
 4463   2372 D8            push b
 4464   2373 07 31 13      call puts
 4465   2376 51 02 00      add sp, 2
 4466   2379             ;; puts("  shi - Shield Control"); 
-4467   2379 26 CC 65      mov b, _s56 ; "  shi - Shield Control"
+4467   2379 26 D2 65      mov b, _s56 ; "  shi - Shield Control"
 4468   237C FD AB         swp b
 4469   237E D8            push b
 4470   237F 07 31 13      call puts
 4471   2382 51 02 00      add sp, 2
 4472   2385             ;; puts("  dam - Damage Control"); 
-4473   2385 26 E3 65      mov b, _s57 ; "  dam - Damage Control"
+4473   2385 26 E9 65      mov b, _s57 ; "  dam - Damage Control"
 4474   2388 FD AB         swp b
 4475   238A D8            push b
 4476   238B 07 31 13      call puts
 4477   238E 51 02 00      add sp, 2
 4478   2391             ;; puts("  com - Library Computer"); 
-4479   2391 26 FA 65      mov b, _s58 ; "  com - Library Computer"
+4479   2391 26 00 66      mov b, _s58 ; "  com - Library Computer"
 4480   2394 FD AB         swp b
 4481   2396 D8            push b
 4482   2397 07 31 13      call puts
 4483   239A 51 02 00      add sp, 2
 4484   239D             ;; puts("  xxx - Resign Command\n"); 
-4485   239D 26 13 66      mov b, _s59 ; "  xxx - Resign Command\n"
+4485   239D 26 19 66      mov b, _s59 ; "  xxx - Resign Command\n"
 4486   23A0 FD AB         swp b
 4487   23A2 D8            push b
 4488   23A3 07 31 13      call puts
@@ -6298,7 +6296,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5148   2774 C6 A0 27      je _if82_exit
 5149   2777             _if82_true:
 5150   2777             ;; strcpy(plural_2, "s"); 
-5151   2777 26 2B 66      mov b, _s60 ; "s"
+5151   2777 26 31 66      mov b, _s60 ; "s"
 5152   277A FD AB         swp b
 5153   277C D8            push b
 5154   277D 3B 69 62      mov d, _plural_2_data ; $plural_2
@@ -6308,7 +6306,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5158   2784 07 14 04      call strcpy
 5159   2787 51 04 00      add sp, 4
 5160   278A             ;; strcpy(plural, "are"); 
-5161   278A 26 B8 64      mov b, _s33 ; "are"
+5161   278A 26 BE 64      mov b, _s33 ; "are"
 5162   278D FD AB         swp b
 5163   278F D8            push b
 5164   2790 3B 6B 62      mov d, _plural_data ; $plural
@@ -6324,13 +6322,13 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5174   27A3 32            mov bl, [d]
 5175   27A4 A7 00         mov bh, 0
 5176   27A6 DD            push bl
-5177   27A7 26 2D 66      mov b, _s61 ; "Your orders are as follows:\nDestroy the %d Klingon warships which have"
+5177   27A7 26 33 66      mov b, _s61 ; "Your orders are as follows:\nDestroy the %d Klingon warships which have"
 5178   27AA FD AB         swp b
 5179   27AC D8            push b
 5180   27AD 07 D1 05      call printf
 5181   27B0 51 03 00      add sp, 3
 5182   27B3             ;; printf("invaded\n the galaxy before they can attack Federation Headquarters\n"); 
-5183   27B3 26 74 66      mov b, _s62 ; "invaded\n the galaxy before they can attack Federation Headquarters\n"
+5183   27B3 26 7A 66      mov b, _s62 ; "invaded\n the galaxy before they can attack Federation Headquarters\n"
 5184   27B6 FD AB         swp b
 5185   27B8 D8            push b
 5186   27B9 07 D1 05      call printf
@@ -6364,13 +6362,13 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5214   27E7             ; END TERMS
 5215   27E7 FD AB         swp b
 5216   27E9 D8            push b
-5217   27EA 26 B8 66      mov b, _s63 ; " on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy"
+5217   27EA 26 BE 66      mov b, _s63 ; " on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy"
 5218   27ED FD AB         swp b
 5219   27EF D8            push b
 5220   27F0 07 D1 05      call printf
 5221   27F3 51 0B 00      add sp, 11
 5222   27F6             ;; printf(" for resupplying your ship.\n\n Hit any key to accept command. "); 
-5223   27F6 26 07 67      mov b, _s64 ; " for resupplying your ship.\n\n Hit any key to accept command. "
+5223   27F6 26 0D 67      mov b, _s64 ; " for resupplying your ship.\n\n Hit any key to accept command. "
 5224   27F9 FD AB         swp b
 5225   27FB D8            push b
 5226   27FC 07 D1 05      call printf
@@ -6601,7 +6599,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5451   294D 2D            mov b, d
 5452   294E FD AB         swp b
 5453   2950 D8            push b
-5454   2951 26 45 67      mov b, _s65 ; "Now entering %s quadrant...\n\n"
+5454   2951 26 4B 67      mov b, _s65 ; "Now entering %s quadrant...\n\n"
 5455   2954 FD AB         swp b
 5456   2956 D8            push b
 5457   2957 07 D1 05      call printf
@@ -6609,7 +6607,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5459   295D 0A 7F 29      jmp _if84_exit
 5460   2960             _if84_else:
 5461   2960             ;; puts("\nYour mission begins with your starship located"); 
-5462   2960 26 63 67      mov b, _s66 ; "\nYour mission begins with your starship located"
+5462   2960 26 69 67      mov b, _s66 ; "\nYour mission begins with your starship located"
 5463   2963 FD AB         swp b
 5464   2965 D8            push b
 5465   2966 07 31 13      call puts
@@ -6619,7 +6617,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5469   296F 2D            mov b, d
 5470   2970 FD AB         swp b
 5471   2972 D8            push b
-5472   2973 26 93 67      mov b, _s67 ; "in the galactic quadrant %s.\n\n"
+5472   2973 26 99 67      mov b, _s67 ; "in the galactic quadrant %s.\n\n"
 5473   2976 FD AB         swp b
 5474   2978 D8            push b
 5475   2979 07 D1 05      call printf
@@ -6717,7 +6715,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5567   2A02 C6 36 2A      je _if85_exit
 5568   2A05             _if85_true:
 5569   2A05             ;; printf("Combat Area  Condition Red\n"); 
-5570   2A05 26 B2 67      mov b, _s68 ; "Combat Area  Condition Red\n"
+5570   2A05 26 B8 67      mov b, _s68 ; "Combat Area  Condition Red\n"
 5571   2A08 FD AB         swp b
 5572   2A0A D8            push b
 5573   2A0B 07 D1 05      call printf
@@ -6738,7 +6736,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5588   2A21 C6 33 2A      je _if86_exit
 5589   2A24             _if86_true:
 5590   2A24             ;; printf("Shields Dangerously Low\n"); 
-5591   2A24 26 CE 67      mov b, _s69 ; "Shields Dangerously Low\n"
+5591   2A24 26 D4 67      mov b, _s69 ; "Shields Dangerously Low\n"
 5592   2A27 FD AB         swp b
 5593   2A29 D8            push b
 5594   2A2A 07 D1 05      call printf
@@ -7030,7 +7028,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5880   2BE0             ; $quad_x_old 
 5881   2BE0 52 1D 00      sub sp, 29
 5882   2BE3             ;; puts("Course (0-9): " ); 
-5883   2BE3 26 E7 67      mov b, _s70 ; "Course (0-9): "
+5883   2BE3 26 ED 67      mov b, _s70 ; "Course (0-9): "
 5884   2BE6 FD AB         swp b
 5885   2BE8 D8            push b
 5886   2BE9 07 31 13      call puts
@@ -7098,7 +7096,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5948   2C41 2A            mov b, [d]
 5949   2C42 FD AB         swp b
 5950   2C44 D8            push b
-5951   2C45 26 F6 67      mov b, _s71 ; "Lt. Sulu%s"
+5951   2C45 26 FC 67      mov b, _s71 ; "Lt. Sulu%s"
 5952   2C48 FD AB         swp b
 5953   2C4A D8            push b
 5954   2C4B 07 D1 05      call printf
@@ -7130,7 +7128,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5980   2C71 C6 8A 2C      je _if94_exit
 5981   2C74             _if94_true:
 5982   2C74             ;; strcpy(warpmax, "0.2"); 
-5983   2C74 26 01 68      mov b, _s72 ; "0.2"
+5983   2C74 26 07 68      mov b, _s72 ; "0.2"
 5984   2C77 FD AB         swp b
 5985   2C79 D8            push b
 5986   2C7A 3B 6F 62      mov d, _warpmax_data ; $warpmax
@@ -7146,7 +7144,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 5996   2C8D 2D            mov b, d
 5997   2C8E FD AB         swp b
 5998   2C90 D8            push b
-5999   2C91 26 05 68      mov b, _s73 ; "Warp Factor (0-%s): "
+5999   2C91 26 0B 68      mov b, _s73 ; "Warp Factor (0-%s): "
 6000   2C94 FD AB         swp b
 6001   2C96 D8            push b
 6002   2C97 07 D1 05      call printf
@@ -7193,7 +7191,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 6043   2CD4 C6 E8 2C      je _if95_exit
 6044   2CD7             _if95_true:
 6045   2CD7             ;; printf("Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n"); 
-6046   2CD7 26 1A 68      mov b, _s74 ; "Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n"
+6046   2CD7 26 20 68      mov b, _s74 ; "Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n"
 6047   2CDA FD AB         swp b
 6048   2CDC D8            push b
 6049   2CDD 07 D1 05      call printf
@@ -7247,7 +7245,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 6097   2D1D 51 02 00      add sp, 2
 6098   2D20 FD AB         swp b
 6099   2D22 D8            push b
-6100   2D23 26 50 68      mov b, _s75 ; "Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n"
+6100   2D23 26 56 68      mov b, _s75 ; "Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n"
 6101   2D26 FD AB         swp b
 6102   2D28 D8            push b
 6103   2D29 07 D1 05      call printf
@@ -7317,7 +7315,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 6167   2D82 51 02 00      add sp, 2
 6168   2D85 FD AB         swp b
 6169   2D87 D8            push b
-6170   2D88 26 91 68      mov b, _s76 ; "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n"
+6170   2D88 26 97 68      mov b, _s76 ; "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n"
 6171   2D8B FD AB         swp b
 6172   2D8D D8            push b
 6173   2D8E 07 D1 05      call printf
@@ -7363,7 +7361,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 6213   2DC8 2A            mov b, [d]
 6214   2DC9 FD AB         swp b
 6215   2DCB D8            push b
-6216   2DCC 26 E4 68      mov b, _s77 ; "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n"
+6216   2DCC 26 EA 68      mov b, _s77 ; "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n"
 6217   2DCF FD AB         swp b
 6218   2DD1 D8            push b
 6219   2DD2 07 D1 05      call printf
@@ -8231,7 +8229,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 7081   327E 51 02 00      add sp, 2
 7082   3281 FD AB         swp b
 7083   3283 D8            push b
-7084   3284 26 3E 69      mov b, _s78 ; "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n"
+7084   3284 26 44 69      mov b, _s78 ; "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n"
 7085   3287 FD AB         swp b
 7086   3289 D8            push b
 7087   328A 07 D1 05      call printf
@@ -8431,7 +8429,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 7281   3398 2A            mov b, [d]
 7282   3399 FD AB         swp b
 7283   339B D8            push b
-7284   339C 26 3F 69      mov b, _s79 ; "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n"
+7284   339C 26 3B 6A      mov b, _s79 ; "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n"
 7285   339F FD AB         swp b
 7286   33A1 D8            push b
 7287   33A2 07 D1 05      call printf
@@ -8625,7 +8623,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 7475   34B3 0A B6 34      jmp _if114_exit
 7476   34B6             _if114_exit:
 7477   34B6             ;; puts("Shield Control supplies energy to complete maneuver.\n"); 
-7478   34B6 26 80 69      mov b, _s80 ; "Shield Control supplies energy to complete maneuver.\n"
+7478   34B6 26 7C 6A      mov b, _s80 ; "Shield Control supplies energy to complete maneuver.\n"
 7479   34B9 FD AB         swp b
 7480   34BB D8            push b
 7481   34BC 07 31 13      call puts
@@ -8712,7 +8710,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 7562   3529             ;; sC = "YELLOW"; 
 7563   3529 FA FB FF      lea d, [bp + -5] ; $sC
 7564   352C DA            push d
-7565   352D 26 B6 69      mov b, _s81 ; "YELLOW"
+7565   352D 26 B2 6A      mov b, _s81 ; "YELLOW"
 7566   3530 E7            pop d
 7567   3531 FD 43         mov [d], b
 7568   3533 0A 36 35      jmp _if116_exit
@@ -8736,7 +8734,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 7586   354B             ;; sC = "*RED*"; 
 7587   354B FA FB FF      lea d, [bp + -5] ; $sC
 7588   354E DA            push d
-7589   354F 26 BD 69      mov b, _s82 ; "*RED*"
+7589   354F 26 B9 6A      mov b, _s82 ; "*RED*"
 7590   3552 E7            pop d
 7591   3553 FD 43         mov [d], b
 7592   3555 0A 58 35      jmp _if117_exit
@@ -8943,7 +8941,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 7793   3667             ;; sC = "DOCKED"; 
 7794   3667 FA FB FF      lea d, [bp + -5] ; $sC
 7795   366A DA            push d
-7796   366B 26 C3 69      mov b, _s83 ; "DOCKED"
+7796   366B 26 BF 6A      mov b, _s83 ; "DOCKED"
 7797   366E E7            pop d
 7798   366F FD 43         mov [d], b
 7799   3671             ;; energy = energy0; 
@@ -8962,7 +8960,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 7812   3686 E7            pop d
 7813   3687 FD 3E         mov [d], bl
 7814   3689             ;; puts("Shields dropped for docking purposes."); 
-7815   3689 26 CA 69      mov b, _s84 ; "Shields dropped for docking purposes."
+7815   3689 26 C6 6A      mov b, _s84 ; "Shields dropped for docking purposes."
 7816   368C FD AB         swp b
 7817   368E D8            push b
 7818   368F 07 31 13      call puts
@@ -9019,7 +9017,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 7869   36E0 C6 F4 36      je _if122_exit
 7870   36E3             _if122_true:
 7871   36E3             ;; puts("\n*** Short Range Sensors are out ***"); 
-7872   36E3 26 F0 69      mov b, _s85 ; "\n*** Short Range Sensors are out ***"
+7872   36E3 26 EC 6A      mov b, _s85 ; "\n*** Short Range Sensors are out ***"
 7873   36E6 FD AB         swp b
 7874   36E8 D8            push b
 7875   36E9 07 31 13      call puts
@@ -9139,7 +9137,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 7989   3796 51 02 00      add sp, 2
 7990   3799 FD AB         swp b
 7991   379B D8            push b
-7992   379C 26 15 6A      mov b, _s86 ; "    Stardate            %d\n"
+7992   379C 26 11 6B      mov b, _s86 ; "    Stardate            %d\n"
 7993   379F FD AB         swp b
 7994   37A1 D8            push b
 7995   37A2 07 D1 05      call printf
@@ -9166,7 +9164,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8016   37C1 2A            mov b, [d]
 8017   37C2 FD AB         swp b
 8018   37C4 D8            push b
-8019   37C5 26 31 6A      mov b, _s87 ; "    Condition           %s\n"
+8019   37C5 26 2D 6B      mov b, _s87 ; "    Condition           %s\n"
 8020   37C8 FD AB         swp b
 8021   37CA D8            push b
 8022   37CB 07 D1 05      call printf
@@ -9197,7 +9195,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8047   37F1 2A            mov b, [d]
 8048   37F2 FD AB         swp b
 8049   37F4 D8            push b
-8050   37F5 26 4D 6A      mov b, _s88 ; "    Quadrant            %d, %d\n"
+8050   37F5 26 49 6B      mov b, _s88 ; "    Quadrant            %d, %d\n"
 8051   37F8 FD AB         swp b
 8052   37FA D8            push b
 8053   37FB 07 D1 05      call printf
@@ -9236,7 +9234,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8086   3831 51 02 00      add sp, 2
 8087   3834 FD AB         swp b
 8088   3836 D8            push b
-8089   3837 26 6D 6A      mov b, _s89 ; "    Sector              %d, %d\n"
+8089   3837 26 69 6B      mov b, _s89 ; "    Sector              %d, %d\n"
 8090   383A FD AB         swp b
 8091   383C D8            push b
 8092   383D 07 D1 05      call printf
@@ -9263,7 +9261,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8113   385C 32            mov bl, [d]
 8114   385D A7 00         mov bh, 0
 8115   385F DD            push bl
-8116   3860 26 8D 6A      mov b, _s90 ; "    Photon Torpedoes    %d\n"
+8116   3860 26 89 6B      mov b, _s90 ; "    Photon Torpedoes    %d\n"
 8117   3863 FD AB         swp b
 8118   3865 D8            push b
 8119   3866 07 D1 05      call printf
@@ -9298,7 +9296,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8148   388E             ; END TERMS
 8149   388E FD AB         swp b
 8150   3890 D8            push b
-8151   3891 26 A9 6A      mov b, _s91 ; "    Total Energy        %d\n"
+8151   3891 26 A5 6B      mov b, _s91 ; "    Total Energy        %d\n"
 8152   3894 FD AB         swp b
 8153   3896 D8            push b
 8154   3897 07 D1 05      call printf
@@ -9325,7 +9323,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8175   38B6 2A            mov b, [d]
 8176   38B7 FD AB         swp b
 8177   38B9 D8            push b
-8178   38BA 26 C5 6A      mov b, _s92 ; "    Shields             %d\n"
+8178   38BA 26 C1 6B      mov b, _s92 ; "    Shields             %d\n"
 8179   38BD FD AB         swp b
 8180   38BF D8            push b
 8181   38C0 07 D1 05      call printf
@@ -9352,7 +9350,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8202   38DF 32            mov bl, [d]
 8203   38E0 A7 00         mov bh, 0
 8204   38E2 DD            push bl
-8205   38E3 26 E1 6A      mov b, _s93 ; "    Klingons Remaining  %d\n"
+8205   38E3 26 DD 6B      mov b, _s93 ; "    Klingons Remaining  %d\n"
 8206   38E6 FD AB         swp b
 8207   38E8 D8            push b
 8208   38E9 07 D1 05      call printf
@@ -9486,7 +9484,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8336   39A8 2A            mov b, [d]
 8337   39A9 FD AB         swp b
 8338   39AB D8            push b
-8339   39AC 26 FD 6A      mov b, _s94 ; "Long Range Scan for Quadrant %d, %d\n\n"
+8339   39AC 26 F9 6B      mov b, _s94 ; "Long Range Scan for Quadrant %d, %d\n\n"
 8340   39AF FD AB         swp b
 8341   39B1 D8            push b
 8342   39B2 07 D1 05      call printf
@@ -9534,7 +9532,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8384   39E9 2A            mov b, [d]
 8385   39EA FD AB         swp b
 8386   39EC D8            push b
-8387   39ED 26 23 6B      mov b, _s95 ; "%s:"
+8387   39ED 26 1F 6C      mov b, _s95 ; "%s:"
 8388   39F0 FD AB         swp b
 8389   39F2 D8            push b
 8390   39F3 07 D1 05      call printf
@@ -9693,14 +9691,14 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8543   3AD8 0A E7 3A      jmp _if136_exit
 8544   3ADB             _if136_else:
 8545   3ADB             ;; puts("***"); 
-8546   3ADB 26 27 6B      mov b, _s96 ; "***"
+8546   3ADB 26 23 6C      mov b, _s96 ; "***"
 8547   3ADE FD AB         swp b
 8548   3AE0 D8            push b
 8549   3AE1 07 31 13      call puts
 8550   3AE4 51 02 00      add sp, 2
 8551   3AE7             _if136_exit:
 8552   3AE7             ;; puts(" :"); 
-8553   3AE7 26 2B 6B      mov b, _s97 ; " :"
+8553   3AE7 26 27 6C      mov b, _s97 ; " :"
 8554   3AEA FD AB         swp b
 8555   3AEC D8            push b
 8556   3AED 07 31 13      call puts
@@ -9735,7 +9733,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8585   3B20 2A            mov b, [d]
 8586   3B21 FD AB         swp b
 8587   3B23 D8            push b
-8588   3B24 26 2E 6B      mov b, _s98 ; "%s\n"
+8588   3B24 26 2A 6C      mov b, _s98 ; "%s\n"
 8589   3B27 FD AB         swp b
 8590   3B29 D8            push b
 8591   3B2A 07 D1 05      call printf
@@ -9762,7 +9760,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8612   3B47 C6 5E 3B      je _if137_exit
 8613   3B4A             _if137_true:
 8614   3B4A             ;; puts("Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"); 
-8615   3B4A 26 32 6B      mov b, _s99 ; "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"
+8615   3B4A 26 2E 6C      mov b, _s99 ; "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"
 8616   3B4D FD AB         swp b
 8617   3B4F D8            push b
 8618   3B50 07 31 13      call puts
@@ -9883,7 +9881,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8733   3BF0 C6 02 3C      je _if140_exit
 8734   3BF3             _if140_true:
 8735   3BF3             ;; puts("Computer failure hampers accuracy."); 
-8736   3BF3 26 83 6B      mov b, _s100 ; "Computer failure hampers accuracy."
+8736   3BF3 26 7F 6C      mov b, _s100 ; "Computer failure hampers accuracy."
 8737   3BF6 FD AB         swp b
 8738   3BF8 D8            push b
 8739   3BF9 07 31 13      call puts
@@ -9895,7 +9893,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8745   3C05 2A            mov b, [d]
 8746   3C06 FD AB         swp b
 8747   3C08 D8            push b
-8748   3C09 26 A6 6B      mov b, _s101 ; "Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: "
+8748   3C09 26 A2 6C      mov b, _s101 ; "Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: "
 8749   3C0C FD AB         swp b
 8750   3C0E D8            push b
 8751   3C0F 07 D1 05      call printf
@@ -10028,7 +10026,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 8814   3D70 C6 84 3D      je _if142_exit
 8815   3D73             _if142_true:
 8816   3D73             ;; puts("Not enough energy available.\n"); 
-8817   3D73 26 F9 6B      mov b, _s102 ; "Not enough energy available.\n"
+8817   3D73 26 F5 6C      mov b, _s102 ; "Not enough energy available.\n"
 8818   3D76 FD AB         swp b
 8819   3D78 D8            push b
 8820   3D79 07 31 13      call puts
@@ -10283,7 +10281,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9069   3EF0 32            mov bl, [d]
 9070   3EF1 A7 00         mov bh, 0
 9071   3EF3 DD            push bl
-9072   3EF4 26 17 6C      mov b, _s103 ; "Sensors show no damage to enemy at %d, %d\n\n"
+9072   3EF4 26 13 6D      mov b, _s103 ; "Sensors show no damage to enemy at %d, %d\n\n"
 9073   3EF7 FD AB         swp b
 9074   3EF9 D8            push b
 9075   3EFA 07 D1 05      call printf
@@ -10340,7 +10338,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9126   3F55 2A            mov b, [d]
 9127   3F56 FD AB         swp b
 9128   3F58 D8            push b
-9129   3F59 26 43 6C      mov b, _s104 ; "%d unit hit on Klingon at sector %d, %d\n"
+9129   3F59 26 3F 6D      mov b, _s104 ; "%d unit hit on Klingon at sector %d, %d\n"
 9130   3F5C FD AB         swp b
 9131   3F5E D8            push b
 9132   3F5F 07 D1 05      call printf
@@ -10363,7 +10361,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9149   3F7A C6 20 40      je _if147_else
 9150   3F7D             _if147_true:
 9151   3F7D             ;; puts("*** Klingon Destroyed ***\n"); 
-9152   3F7D 26 6C 6C      mov b, _s105 ; "*** Klingon Destroyed ***\n"
+9152   3F7D 26 68 6D      mov b, _s105 ; "*** Klingon Destroyed ***\n"
 9153   3F80 FD AB         swp b
 9154   3F82 D8            push b
 9155   3F83 07 31 13      call puts
@@ -10469,7 +10467,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9255   4028 2A            mov b, [d]
 9256   4029 FD AB         swp b
 9257   402B D8            push b
-9258   402C 26 87 6C      mov b, _s106 ; "   (Sensors show %d units remaining.)\n\n"
+9258   402C 26 83 6D      mov b, _s106 ; "   (Sensors show %d units remaining.)\n\n"
 9259   402F FD AB         swp b
 9260   4031 D8            push b
 9261   4032 07 D1 05      call printf
@@ -10533,7 +10531,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9319   4077 C6 8B 40      je _if149_exit
 9320   407A             _if149_true:
 9321   407A             ;; puts("All photon torpedoes expended"); 
-9322   407A 26 AF 6C      mov b, _s107 ; "All photon torpedoes expended"
+9322   407A 26 AB 6D      mov b, _s107 ; "All photon torpedoes expended"
 9323   407D FD AB         swp b
 9324   407F D8            push b
 9325   4080 07 31 13      call puts
@@ -10558,7 +10556,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9344   409D 0A A0 40      jmp _if150_exit
 9345   40A0             _if150_exit:
 9346   40A0             ;; puts("Course (0-9): "); 
-9347   40A0 26 E7 67      mov b, _s70 ; "Course (0-9): "
+9347   40A0 26 ED 67      mov b, _s70 ; "Course (0-9): "
 9348   40A3 FD AB         swp b
 9349   40A5 D8            push b
 9350   40A6 07 31 13      call puts
@@ -10626,7 +10624,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9412   40FE 2A            mov b, [d]
 9413   40FF FD AB         swp b
 9414   4101 D8            push b
-9415   4102 26 CD 6C      mov b, _s108 ; "Ensign Chekov%s"
+9415   4102 26 C9 6D      mov b, _s108 ; "Ensign Chekov%s"
 9416   4105 FD AB         swp b
 9417   4107 D8            push b
 9418   4108 07 D1 05      call printf
@@ -10916,7 +10914,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9702   4299 E7            pop d
 9703   429A FD 43         mov [d], b
 9704   429C             ;; puts("Torpedo Track:"); 
-9705   429C 26 DD 6C      mov b, _s109 ; "Torpedo Track:"
+9705   429C 26 D9 6D      mov b, _s109 ; "Torpedo Track:"
 9706   429F FD AB         swp b
 9707   42A1 D8            push b
 9708   42A2 07 31 13      call puts
@@ -10983,7 +10981,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9769   42F7 2A            mov b, [d]
 9770   42F8 FD AB         swp b
 9771   42FA D8            push b
-9772   42FB 26 EC 6C      mov b, _s110 ; "    %d, %d\n"
+9772   42FB 26 E8 6D      mov b, _s110 ; "    %d, %d\n"
 9773   42FE FD AB         swp b
 9774   4300 D8            push b
 9775   4301 07 D1 05      call printf
@@ -11124,7 +11122,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9910   43C4 0A A8 42      jmp _while153_cond
 9911   43C7             _while153_exit:
 9912   43C7             ;; puts("Torpedo Missed\n"); 
-9913   43C7 26 F8 6C      mov b, _s111 ; "Torpedo Missed\n"
+9913   43C7 26 F4 6D      mov b, _s111 ; "Torpedo Missed\n"
 9914   43CA FD AB         swp b
 9915   43CC D8            push b
 9916   43CD 07 31 13      call puts
@@ -11190,7 +11188,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9976   4428 32            mov bl, [d]
 9977   4429 A7 00         mov bh, 0
 9978   442B DD            push bl
-9979   442C 26 08 6D      mov b, _s112 ; "Star at %d, %d absorbed torpedo energy.\n\n"
+9979   442C 26 04 6E      mov b, _s112 ; "Star at %d, %d absorbed torpedo energy.\n\n"
 9980   442F FD AB         swp b
 9981   4431 D8            push b
 9982   4432 07 D1 05      call printf
@@ -11200,7 +11198,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 9986   4439 09            ret
 9987   443A             _switch155_case1:
 9988   443A             ;; puts("*** Klingon Destroyed ***\n"); 
-9989   443A 26 6C 6C      mov b, _s105 ; "*** Klingon Destroyed ***\n"
+9989   443A 26 68 6D      mov b, _s105 ; "*** Klingon Destroyed ***\n"
 9990   443D FD AB         swp b
 9991   443F D8            push b
 9992   4440 07 31 13      call puts
@@ -11382,7 +11380,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10168  4550 0A 4E 46      jmp _switch155_exit ; case break
 10169  4553             _switch155_case2:
 10170  4553             ;; puts("*** Starbase Destroyed ***"); 
-10171  4553 26 32 6D      mov b, _s113 ; "*** Starbase Destroyed ***"
+10171  4553 26 2E 6E      mov b, _s113 ; "*** Starbase Destroyed ***"
 10172  4556 FD AB         swp b
 10173  4558 D8            push b
 10174  4559 07 31 13      call puts
@@ -11456,25 +11454,25 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10242  45BD C6 F6 45      je _if159_exit
 10243  45C0             _if159_true:
 10244  45C0             ;; puts("That does it, Captain!!"); 
-10245  45C0 26 4D 6D      mov b, _s114 ; "That does it, Captain!!"
+10245  45C0 26 49 6E      mov b, _s114 ; "That does it, Captain!!"
 10246  45C3 FD AB         swp b
 10247  45C5 D8            push b
 10248  45C6 07 31 13      call puts
 10249  45C9 51 02 00      add sp, 2
 10250  45CC             ;; puts("You are hereby relieved of command\n"); 
-10251  45CC 26 65 6D      mov b, _s115 ; "You are hereby relieved of command\n"
+10251  45CC 26 61 6E      mov b, _s115 ; "You are hereby relieved of command\n"
 10252  45CF FD AB         swp b
 10253  45D1 D8            push b
 10254  45D2 07 31 13      call puts
 10255  45D5 51 02 00      add sp, 2
 10256  45D8             ;; puts("and sentenced to 99 stardates of hard"); 
-10257  45D8 26 89 6D      mov b, _s116 ; "and sentenced to 99 stardates of hard"
+10257  45D8 26 85 6E      mov b, _s116 ; "and sentenced to 99 stardates of hard"
 10258  45DB FD AB         swp b
 10259  45DD D8            push b
 10260  45DE 07 31 13      call puts
 10261  45E1 51 02 00      add sp, 2
 10262  45E4             ;; puts("labor on Cygnus 12!!\n"); 
-10263  45E4 26 AF 6D      mov b, _s117 ; "labor on Cygnus 12!!\n"
+10263  45E4 26 AB 6E      mov b, _s117 ; "labor on Cygnus 12!!\n"
 10264  45E7 FD AB         swp b
 10265  45E9 D8            push b
 10266  45EA 07 31 13      call puts
@@ -11484,7 +11482,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10270  45F3 0A F6 45      jmp _if159_exit
 10271  45F6             _if159_exit:
 10272  45F6             ;; puts("Starfleet Command reviewing your record to consider\n court martial!\n"); 
-10273  45F6 26 C5 6D      mov b, _s118 ; "Starfleet Command reviewing your record to consider\n court martial!\n"
+10273  45F6 26 C1 6E      mov b, _s118 ; "Starfleet Command reviewing your record to consider\n court martial!\n"
 10274  45F9 FD AB         swp b
 10275  45FB D8            push b
 10276  45FC 07 31 13      call puts
@@ -11603,7 +11601,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10389  46A6 C6 B8 46      je _if160_exit
 10390  46A9             _if160_true:
 10391  46A9             ;; puts("Damage Control report not available."); 
-10392  46A9 26 0A 6E      mov b, _s119 ; "Damage Control report not available."
+10392  46A9 26 06 6F      mov b, _s119 ; "Damage Control report not available."
 10393  46AC FD AB         swp b
 10394  46AE D8            push b
 10395  46AF 07 31 13      call puts
@@ -11747,7 +11745,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10533  4776 51 02 00      add sp, 2
 10534  4779 FD AB         swp b
 10535  477B D8            push b
-10536  477C 26 2F 6E      mov b, _s120 ; "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? "
+10536  477C 26 2B 6F      mov b, _s120 ; "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? "
 10537  477F FD AB         swp b
 10538  4781 D8            push b
 10539  4782 07 D1 05      call printf
@@ -11895,7 +11893,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10681  4848 0A 4B 48      jmp _if169_exit
 10682  484B             _if169_exit:
 10683  484B             ;; puts("Device            State of Repair"); 
-10684  484B 26 30 6E      mov b, _s121 ; "Device            State of Repair"
+10684  484B 26 B9 6F      mov b, _s121 ; "Device            State of Repair"
 10685  484E FD AB         swp b
 10686  4850 D8            push b
 10687  4851 07 31 13      call puts
@@ -11945,7 +11943,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10731  489A 51 02 00      add sp, 2
 10732  489D FD AB         swp b
 10733  489F D8            push b
-10734  48A0 26 52 6E      mov b, _s122 ; "%-25s%6s\n"
+10734  48A0 26 DB 6F      mov b, _s122 ; "%-25s%6s\n"
 10735  48A3 FD AB         swp b
 10736  48A5 D8            push b
 10737  48A6 07 D1 05      call printf
@@ -11961,7 +11959,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10747  48B9 0A 61 48      jmp _for170_cond
 10748  48BC             _for170_exit:
 10749  48BC             ;; printf("\n"); 
-10750  48BC 26 5C 6E      mov b, _s123 ; "\n"
+10750  48BC 26 E5 6F      mov b, _s123 ; "\n"
 10751  48BF FD AB         swp b
 10752  48C1 D8            push b
 10753  48C2 07 D1 05      call printf
@@ -12000,7 +11998,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10786  48F1             ; END TERMS
 10787  48F1 FD AB         swp b
 10788  48F3 D8            push b
-10789  48F4 26 5E 6E      mov b, _s124 ; "Energy available = %d\n\n Input number of units to shields: "
+10789  48F4 26 E7 6F      mov b, _s124 ; "Energy available = %d\n\n Input number of units to shields: "
 10790  48F7 FD AB         swp b
 10791  48F9 D8            push b
 10792  48FA 07 D1 05      call printf
@@ -12042,7 +12040,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10828  492D C6 41 49      je _if172_exit
 10829  4930             _if172_true:
 10830  4930             ;; puts("<Shields Unchanged>\n"); 
-10831  4930 26 99 6E      mov b, _s125 ; "<Shields Unchanged>\n"
+10831  4930 26 22 70      mov b, _s125 ; "<Shields Unchanged>\n"
 10832  4933 FD AB         swp b
 10833  4935 D8            push b
 10834  4936 07 31 13      call puts
@@ -12077,7 +12075,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10863  495A C6 6C 49      je _if173_exit
 10864  495D             _if173_true:
 10865  495D             ;; puts("Shield Control Reports:\n  This is not the Federation Treasury."); 
-10866  495D 26 AE 6E      mov b, _s126 ; "Shield Control Reports:\n  This is not the Federation Treasury."
+10866  495D 26 37 70      mov b, _s126 ; "Shield Control Reports:\n  This is not the Federation Treasury."
 10867  4960 FD AB         swp b
 10868  4962 D8            push b
 10869  4963 07 31 13      call puts
@@ -12116,7 +12114,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10902  4994 2A            mov b, [d]
 10903  4995 FD AB         swp b
 10904  4997 D8            push b
-10905  4998 26 ED 6E      mov b, _s127 ; "Deflector Control Room report:\n  Shields now at %d units per your command.\n\n"
+10905  4998 26 76 70      mov b, _s127 ; "Deflector Control Room report:\n  Shields now at %d units per your command.\n\n"
 10906  499B FD AB         swp b
 10907  499D D8            push b
 10908  499E 07 D1 05      call printf
@@ -12141,7 +12139,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10927  49BB 0A BE 49      jmp _if174_exit
 10928  49BE             _if174_exit:
 10929  49BE             ;; puts("Computer active and awating command: "); 
-10930  49BE 26 3A 6F      mov b, _s128 ; "Computer active and awating command: "
+10930  49BE 26 C3 70      mov b, _s128 ; "Computer active and awating command: "
 10931  49C1 FD AB         swp b
 10932  49C3 D8            push b
 10933  49C4 07 31 13      call puts
@@ -12201,43 +12199,43 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 10987  4A21 0A 78 4A      jmp _switch175_exit ; case break
 10988  4A24             _switch175_default:
 10989  4A24             ;; puts("Functions available from Library-Computer:\n\n"); 
-10990  4A24 26 60 6F      mov b, _s129 ; "Functions available from Library-Computer:\n\n"
+10990  4A24 26 E9 70      mov b, _s129 ; "Functions available from Library-Computer:\n\n"
 10991  4A27 FD AB         swp b
 10992  4A29 D8            push b
 10993  4A2A 07 31 13      call puts
 10994  4A2D 51 02 00      add sp, 2
 10995  4A30             ;; puts("   0 = Cumulative Galactic Record\n"); 
-10996  4A30 26 8D 6F      mov b, _s130 ; "   0 = Cumulative Galactic Record\n"
+10996  4A30 26 16 71      mov b, _s130 ; "   0 = Cumulative Galactic Record\n"
 10997  4A33 FD AB         swp b
 10998  4A35 D8            push b
 10999  4A36 07 31 13      call puts
 11000  4A39 51 02 00      add sp, 2
 11001  4A3C             ;; puts("   1 = Status Report\n"); 
-11002  4A3C 26 B0 6F      mov b, _s131 ; "   1 = Status Report\n"
+11002  4A3C 26 39 71      mov b, _s131 ; "   1 = Status Report\n"
 11003  4A3F FD AB         swp b
 11004  4A41 D8            push b
 11005  4A42 07 31 13      call puts
 11006  4A45 51 02 00      add sp, 2
 11007  4A48             ;; puts("   2 = Photon Torpedo Data\n"); 
-11008  4A48 26 C6 6F      mov b, _s132 ; "   2 = Photon Torpedo Data\n"
+11008  4A48 26 4F 71      mov b, _s132 ; "   2 = Photon Torpedo Data\n"
 11009  4A4B FD AB         swp b
 11010  4A4D D8            push b
 11011  4A4E 07 31 13      call puts
 11012  4A51 51 02 00      add sp, 2
 11013  4A54             ;; puts("   3 = Starbase Nav Data\n"); 
-11014  4A54 26 E2 6F      mov b, _s133 ; "   3 = Starbase Nav Data\n"
+11014  4A54 26 6B 71      mov b, _s133 ; "   3 = Starbase Nav Data\n"
 11015  4A57 FD AB         swp b
 11016  4A59 D8            push b
 11017  4A5A 07 31 13      call puts
 11018  4A5D 51 02 00      add sp, 2
 11019  4A60             ;; puts("   4 = Direction/Distance Calculator\n"); 
-11020  4A60 26 FC 6F      mov b, _s134 ; "   4 = Direction/Distance Calculator\n"
+11020  4A60 26 85 71      mov b, _s134 ; "   4 = Direction/Distance Calculator\n"
 11021  4A63 FD AB         swp b
 11022  4A65 D8            push b
 11023  4A66 07 31 13      call puts
 11024  4A69 51 02 00      add sp, 2
 11025  4A6C             ;; puts("   5 = Galaxy Region Name Map\n"); 
-11026  4A6C 26 22 70      mov b, _s135 ; "   5 = Galaxy Region Name Map\n"
+11026  4A6C 26 AB 71      mov b, _s135 ; "   5 = Galaxy Region Name Map\n"
 11027  4A6F FD AB         swp b
 11028  4A71 D8            push b
 11029  4A72 07 31 13      call puts
@@ -12260,13 +12258,13 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11046  4A8A 2A            mov b, [d]
 11047  4A8B FD AB         swp b
 11048  4A8D D8            push b
-11049  4A8E 26 41 70      mov b, _s136 ; "\n     Computer Record of Galaxy for Quadrant %d,%d\n\n"
+11049  4A8E 26 CA 71      mov b, _s136 ; "\n     Computer Record of Galaxy for Quadrant %d,%d\n\n"
 11050  4A91 FD AB         swp b
 11051  4A93 D8            push b
 11052  4A94 07 D1 05      call printf
 11053  4A97 51 06 00      add sp, 6
 11054  4A9A             ;; puts("     1     2     3     4     5     6     7     8"); 
-11055  4A9A 26 76 70      mov b, _s137 ; "     1     2     3     4     5     6     7     8"
+11055  4A9A 26 FF 71      mov b, _s137 ; "     1     2     3     4     5     6     7     8"
 11056  4A9D FD AB         swp b
 11057  4A9F D8            push b
 11058  4AA0 07 31 13      call puts
@@ -12301,7 +12299,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11087  4ACD 2A            mov b, [d]
 11088  4ACE FD AB         swp b
 11089  4AD0 D8            push b
-11090  4AD1 26 A7 70      mov b, _s138 ; "%s%d"
+11090  4AD1 26 30 72      mov b, _s138 ; "%s%d"
 11091  4AD4 FD AB         swp b
 11092  4AD6 D8            push b
 11093  4AD7 07 D1 05      call printf
@@ -12328,7 +12326,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11114  4AF7 C6 70 4B      je _for177_exit
 11115  4AFA             _for177_block:
 11116  4AFA             ;; printf("   "); 
-11117  4AFA 26 60 64      mov b, _s25 ; "   "
+11117  4AFA 26 66 64      mov b, _s25 ; "   "
 11118  4AFD FD AB         swp b
 11119  4AFF D8            push b
 11120  4B00 07 D1 05      call printf
@@ -12379,7 +12377,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11165  4B51 0A 60 4B      jmp _if178_exit
 11166  4B54             _if178_else:
 11167  4B54             ;; printf("***"); 
-11168  4B54 26 27 6B      mov b, _s96 ; "***"
+11168  4B54 26 23 6C      mov b, _s96 ; "***"
 11169  4B57 FD AB         swp b
 11170  4B59 D8            push b
 11171  4B5A 07 D1 05      call printf
@@ -12415,7 +12413,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11201  4B8D 2A            mov b, [d]
 11202  4B8E FD AB         swp b
 11203  4B90 D8            push b
-11204  4B91 26 2E 6B      mov b, _s98 ; "%s\n"
+11204  4B91 26 2A 6C      mov b, _s98 ; "%s\n"
 11205  4B94 FD AB         swp b
 11206  4B96 D8            push b
 11207  4B97 07 D1 05      call printf
@@ -12471,7 +12469,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11257  4BD9 E7            pop d
 11258  4BDA FD 43         mov [d], b
 11259  4BDC             ;; puts("   Status Report:\n"); 
-11260  4BDC 26 AC 70      mov b, _s139 ; "   Status Report:\n"
+11260  4BDC 26 35 72      mov b, _s139 ; "   Status Report:\n"
 11261  4BDF FD AB         swp b
 11262  4BE1 D8            push b
 11263  4BE2 07 31 13      call puts
@@ -12531,7 +12529,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11317  4C35 2A            mov b, [d]
 11318  4C36 FD AB         swp b
 11319  4C38 D8            push b
-11320  4C39 26 BF 70      mov b, _s140 ; "Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n"
+11320  4C39 26 48 72      mov b, _s140 ; "Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n"
 11321  4C3C FD AB         swp b
 11322  4C3E D8            push b
 11323  4C3F 07 D1 05      call printf
@@ -12553,7 +12551,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11339  4C57 C6 69 4C      je _if180_else
 11340  4C5A             _if180_true:
 11341  4C5A             ;; puts("Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"); 
-11342  4C5A 26 01 71      mov b, _s141 ; "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"
+11342  4C5A 26 8A 72      mov b, _s141 ; "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"
 11343  4C5D FD AB         swp b
 11344  4C5F D8            push b
 11345  4C60 07 31 13      call puts
@@ -12602,7 +12600,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11388  4CA3 32            mov bl, [d]
 11389  4CA4 A7 00         mov bh, 0
 11390  4CA6 DD            push bl
-11391  4CA7 26 58 71      mov b, _s142 ; "The Federation is maintaining %d starbase%s in the galaxy\n\n"
+11391  4CA7 26 E1 72      mov b, _s142 ; "The Federation is maintaining %d starbase%s in the galaxy\n\n"
 11392  4CAA FD AB         swp b
 11393  4CAC D8            push b
 11394  4CAD 07 D1 05      call printf
@@ -12673,7 +12671,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11459  4D03 2A            mov b, [d]
 11460  4D04 FD AB         swp b
 11461  4D06 D8            push b
-11462  4D07 26 94 71      mov b, _s143 ; "From Enterprise to Klingon battlecriuser%s:\n\n"
+11462  4D07 26 1D 73      mov b, _s143 ; "From Enterprise to Klingon battlecriuser%s:\n\n"
 11463  4D0A FD AB         swp b
 11464  4D0C D8            push b
 11465  4D0D 07 D1 05      call printf
@@ -12799,7 +12797,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11585  4DCE C6 E2 4D      je _if186_exit
 11586  4DD1             _if186_true:
 11587  4DD1             ;; puts("Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"); 
-11588  4DD1 26 C2 71      mov b, _s144 ; "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"
+11588  4DD1 26 4B 73      mov b, _s144 ; "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"
 11589  4DD4 FD AB         swp b
 11590  4DD6 D8            push b
 11591  4DD7 07 31 13      call puts
@@ -12873,7 +12871,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11659  4E4C 2A            mov b, [d]
 11660  4E4D FD AB         swp b
 11661  4E4F D8            push b
-11662  4E50 26 04 72      mov b, _s145 ; "Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: "
+11662  4E50 26 8D 73      mov b, _s145 ; "Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: "
 11663  4E53 FD AB         swp b
 11664  4E55 D8            push b
 11665  4E56 07 D1 05      call printf
@@ -12923,7 +12921,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11709  4E96 0A 99 4E      jmp _if187_exit
 11710  4E99             _if187_exit:
 11711  4E99             ;; puts("Please enter initial Y coordinate: "); 
-11712  4E99 26 70 72      mov b, _s146 ; "Please enter initial Y coordinate: "
+11712  4E99 26 F9 73      mov b, _s146 ; "Please enter initial Y coordinate: "
 11713  4E9C FD AB         swp b
 11714  4E9E D8            push b
 11715  4E9F 07 31 13      call puts
@@ -12973,7 +12971,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11759  4EDF 0A E2 4E      jmp _if188_exit
 11760  4EE2             _if188_exit:
 11761  4EE2             ;; puts("Please enter final X coordinate: "); 
-11762  4EE2 26 94 72      mov b, _s147 ; "Please enter final X coordinate: "
+11762  4EE2 26 1D 74      mov b, _s147 ; "Please enter final X coordinate: "
 11763  4EE5 FD AB         swp b
 11764  4EE7 D8            push b
 11765  4EE8 07 31 13      call puts
@@ -13023,7 +13021,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11809  4F28 0A 2B 4F      jmp _if189_exit
 11810  4F2B             _if189_exit:
 11811  4F2B             ;; puts("Please enter final Y coordinate: "); 
-11812  4F2B 26 B6 72      mov b, _s148 ; "Please enter final Y coordinate: "
+11812  4F2B 26 3F 74      mov b, _s148 ; "Please enter final Y coordinate: "
 11813  4F2E FD AB         swp b
 11814  4F30 D8            push b
 11815  4F31 07 31 13      call puts
@@ -13101,13 +13099,13 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11887  4F9B             ; $j0 
 11888  4F9B 52 06 00      sub sp, 6
 11889  4F9E             ;; printf("\n                   The Galaxy\n\n"); 
-11890  4F9E 26 D8 72      mov b, _s149 ; "\n                   The Galaxy\n\n"
+11890  4F9E 26 61 74      mov b, _s149 ; "\n                   The Galaxy\n\n"
 11891  4FA1 FD AB         swp b
 11892  4FA3 D8            push b
 11893  4FA4 07 D1 05      call printf
 11894  4FA7 51 02 00      add sp, 2
 11895  4FAA             ;; printf("    1     2     3     4     5     6     7     8\n"); 
-11896  4FAA 26 F9 72      mov b, _s150 ; "    1     2     3     4     5     6     7     8\n"
+11896  4FAA 26 82 74      mov b, _s150 ; "    1     2     3     4     5     6     7     8\n"
 11897  4FAD FD AB         swp b
 11898  4FAF D8            push b
 11899  4FB0 07 D1 05      call printf
@@ -13142,7 +13140,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 11928  4FDD 2A            mov b, [d]
 11929  4FDE FD AB         swp b
 11930  4FE0 D8            push b
-11931  4FE1 26 2A 73      mov b, _s151 ; "%s%d "
+11931  4FE1 26 B3 74      mov b, _s151 ; "%s%d "
 11932  4FE4 FD AB         swp b
 11933  4FE6 D8            push b
 11934  4FE7 07 D1 05      call printf
@@ -13401,7 +13399,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12187  516D             ; $al 
 12188  516D 52 08 00      sub sp, 8
 12189  5170             ;; puts("  DIRECTION = "); 
-12190  5170 26 30 73      mov b, _s152 ; "  DIRECTION = "
+12190  5170 26 B9 74      mov b, _s152 ; "  DIRECTION = "
 12191  5173 FD AB         swp b
 12192  5175 D8            push b
 12193  5176 07 31 13      call puts
@@ -13567,7 +13565,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12353  525E 51 02 00      add sp, 2
 12354  5261 FD AB         swp b
 12355  5263 D8            push b
-12356  5264 26 3F 73      mov b, _s153 ; "%s"
+12356  5264 26 C8 74      mov b, _s153 ; "%s"
 12357  5267 FD AB         swp b
 12358  5269 D8            push b
 12359  526A 07 D1 05      call printf
@@ -13642,7 +13640,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12428  52C5 51 02 00      add sp, 2
 12429  52C8 FD AB         swp b
 12430  52CA D8            push b
-12431  52CB 26 3F 73      mov b, _s153 ; "%s"
+12431  52CB 26 C8 74      mov b, _s153 ; "%s"
 12432  52CE FD AB         swp b
 12433  52D0 D8            push b
 12434  52D1 07 D1 05      call printf
@@ -13866,7 +13864,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12652  5405 51 02 00      add sp, 2
 12653  5408 FD AB         swp b
 12654  540A D8            push b
-12655  540B 26 3F 73      mov b, _s153 ; "%s"
+12655  540B 26 C8 74      mov b, _s153 ; "%s"
 12656  540E FD AB         swp b
 12657  5410 D8            push b
 12658  5411 07 D1 05      call printf
@@ -13941,7 +13939,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12727  546C 51 02 00      add sp, 2
 12728  546F FD AB         swp b
 12729  5471 D8            push b
-12730  5472 26 3F 73      mov b, _s153 ; "%s"
+12730  5472 26 C8 74      mov b, _s153 ; "%s"
 12731  5475 FD AB         swp b
 12732  5477 D8            push b
 12733  5478 07 D1 05      call printf
@@ -14002,7 +14000,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12788  54D1             ship_destroyed:
 12789  54D1 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 12790  54D4             ;; puts("The Enterprise has been destroyed. The Federation will be conquered.\n"); 
-12791  54D4 26 42 73      mov b, _s154 ; "The Enterprise has been destroyed. The Federation will be conquered.\n"
+12791  54D4 26 CB 74      mov b, _s154 ; "The Enterprise has been destroyed. The Federation will be conquered.\n"
 12792  54D7 FD AB         swp b
 12793  54D9 D8            push b
 12794  54DA 07 31 13      call puts
@@ -14023,7 +14021,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12809  54F2 51 02 00      add sp, 2
 12810  54F5 FD AB         swp b
 12811  54F7 D8            push b
-12812  54F8 26 88 73      mov b, _s155 ; "It is stardate %d.\n\n"
+12812  54F8 26 11 75      mov b, _s155 ; "It is stardate %d.\n\n"
 12813  54FB FD AB         swp b
 12814  54FD D8            push b
 12815  54FE 07 D1 05      call printf
@@ -14040,7 +14038,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12826  550F 32            mov bl, [d]
 12827  5510 A7 00         mov bh, 0
 12828  5512 DD            push bl
-12829  5513 26 9D 73      mov b, _s156 ; "There were %d Klingon Battlecruisers left at the end of your mission.\n\n"
+12829  5513 26 26 75      mov b, _s156 ; "There were %d Klingon Battlecruisers left at the end of your mission.\n\n"
 12830  5516 FD AB         swp b
 12831  5518 D8            push b
 12832  5519 07 D1 05      call printf
@@ -14053,7 +14051,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12839  5524             won_game:
 12840  5524 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 12841  5527             ;; puts("Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"); 
-12842  5527 26 E5 73      mov b, _s157 ; "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"
+12842  5527 26 6E 75      mov b, _s157 ; "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"
 12843  552A FD AB         swp b
 12844  552C D8            push b
 12845  552D 07 31 13      call puts
@@ -14126,7 +14124,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12912  5591 51 02 00      add sp, 2
 12913  5594 FD AB         swp b
 12914  5596 D8            push b
-12915  5597 26 4D 74      mov b, _s158 ; "Your efficiency rating is %s\n"
+12915  5597 26 D6 75      mov b, _s158 ; "Your efficiency rating is %s\n"
 12916  559A FD AB         swp b
 12917  559C D8            push b
 12918  559D 07 D1 05      call printf
@@ -14159,25 +14157,25 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12945  55C3 C6 34 56      je _if213_exit
 12946  55C6             _if213_true:
 12947  55C6             ;; puts("The Federation is in need of a new starship commander"); 
-12948  55C6 26 6B 74      mov b, _s159 ; "The Federation is in need of a new starship commander"
+12948  55C6 26 F4 75      mov b, _s159 ; "The Federation is in need of a new starship commander"
 12949  55C9 FD AB         swp b
 12950  55CB D8            push b
 12951  55CC 07 31 13      call puts
 12952  55CF 51 02 00      add sp, 2
 12953  55D2             ;; puts(" for a similar mission.\n"); 
-12954  55D2 26 A1 74      mov b, _s160 ; " for a similar mission.\n"
+12954  55D2 26 2A 76      mov b, _s160 ; " for a similar mission.\n"
 12955  55D5 FD AB         swp b
 12956  55D7 D8            push b
 12957  55D8 07 31 13      call puts
 12958  55DB 51 02 00      add sp, 2
 12959  55DE             ;; puts("If there is a volunteer, let him step forward and"); 
-12960  55DE 26 BA 74      mov b, _s161 ; "If there is a volunteer, let him step forward and"
+12960  55DE 26 43 76      mov b, _s161 ; "If there is a volunteer, let him step forward and"
 12961  55E1 FD AB         swp b
 12962  55E3 D8            push b
 12963  55E4 07 31 13      call puts
 12964  55E7 51 02 00      add sp, 2
 12965  55EA             ;; puts(" enter aye: "); 
-12966  55EA 26 EC 74      mov b, _s162 ; " enter aye: "
+12966  55EA 26 75 76      mov b, _s162 ; " enter aye: "
 12967  55ED FD AB         swp b
 12968  55EF D8            push b
 12969  55F0 07 31 13      call puts
@@ -14196,7 +14194,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 12982  5607 26 03 00      mov b, $3
 12983  560A FD AB         swp b
 12984  560C D8            push b
-12985  560D 26 F9 74      mov b, _s163 ; "aye"
+12985  560D 26 82 76      mov b, _s163 ; "aye"
 12986  5610 FD AB         swp b
 12987  5612 D8            push b
 12988  5613 FA FD FF      lea d, [bp + -3] ; $x
@@ -14368,7 +14366,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 13154  570D C6 21 57      je _if218_exit
 13155  5710             _if218_true:
 13156  5710             ;; puts("Starbase shields protect the Enterprise\n"); 
-13157  5710 26 FD 74      mov b, _s164 ; "Starbase shields protect the Enterprise\n"
+13157  5710 26 86 76      mov b, _s164 ; "Starbase shields protect the Enterprise\n"
 13158  5713 FD AB         swp b
 13159  5715 D8            push b
 13160  5716 07 31 13      call puts
@@ -14582,7 +14580,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 13368  5853 2A            mov b, [d] ; Lower Word in B
 13369  5854 FD AB         swp b
 13370  5856 D8            push b
-13371  5857 26 26 75      mov b, _s165 ; "%d unit hit on Enterprise from sector %d, %d\n"
+13371  5857 26 AF 76      mov b, _s165 ; "%d unit hit on Enterprise from sector %d, %d\n"
 13372  585A FD AB         swp b
 13373  585C D8            push b
 13374  585D 07 D1 05      call printf
@@ -14616,7 +14614,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 13402  5889 2A            mov b, [d]
 13403  588A FD AB         swp b
 13404  588C D8            push b
-13405  588D 26 54 75      mov b, _s166 ; "    <Shields down to %d units>\n\n"
+13405  588D 26 DD 76      mov b, _s166 ; "    <Shields down to %d units>\n\n"
 13406  5890 FD AB         swp b
 13407  5892 D8            push b
 13408  5893 07 D1 05      call printf
@@ -14764,7 +14762,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 13549  597B 51 02 00      add sp, 2
 13550  597E FD AB         swp b
 13551  5980 D8            push b
-13552  5981 26 75 75      mov b, _s167 ; "Damage Control reports\n%s damaged by hit\n\n"
+13552  5981 26 FE 76      mov b, _s167 ; "Damage Control reports\n%s damaged by hit\n\n"
 13553  5984 FD AB         swp b
 13554  5986 D8            push b
 13555  5987 07 D1 05      call printf
@@ -15030,7 +15028,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 13815  5B06 51 02 00      add sp, 2
 13816  5B09 FD AB         swp b
 13817  5B0B D8            push b
-13818  5B0C 26 A0 75      mov b, _s168 ; "    %s repair completed\n\n"
+13818  5B0C 26 29 77      mov b, _s168 ; "    %s repair completed\n\n"
 13819  5B0F FD AB         swp b
 13820  5B11 D8            push b
 13821  5B12 07 D1 05      call printf
@@ -15164,7 +15162,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 13949  5BDC 51 02 00      add sp, 2
 13950  5BDF FD AB         swp b
 13951  5BE1 D8            push b
-13952  5BE2 26 BA 75      mov b, _s169 ; "    %s damaged\n\n"
+13952  5BE2 26 43 77      mov b, _s169 ; "    %s damaged\n\n"
 13953  5BE5 FD AB         swp b
 13954  5BE7 D8            push b
 13955  5BE8 07 D1 05      call printf
@@ -15225,7 +15223,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 14010  5C46 51 02 00      add sp, 2
 14011  5C49 FD AB         swp b
 14012  5C4B D8            push b
-14013  5C4C 26 CB 75      mov b, _s170 ; "    %s state of repair improved\n\n"
+14013  5C4C 26 54 77      mov b, _s170 ; "    %s state of repair improved\n\n"
 14014  5C4F FD AB         swp b
 14015  5C51 D8            push b
 14016  5C52 07 D1 05      call printf
@@ -15486,7 +15484,7 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 14271  5DAF C6 C8 5D      je _if236_exit
 14272  5DB2             _if236_true:
 14273  5DB2             ;; strcpy(quadname, "Unknown"); 
-14274  5DB2 26 FD 75      mov b, _s175 ; "Unknown"
+14274  5DB2 26 86 77      mov b, _s175 ; "Unknown"
 14275  5DB5 FD AB         swp b
 14276  5DB7 D8            push b
 14277  5DB8 3B B2 61      mov d, _quadname_data ; $quadname
@@ -16109,15 +16107,15 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 14815  61E2 72 21 0A 00 
 14816  61E6 BE 61       _inc_1: .dw _inc_1_data
 14817  61E8             _quad_name_data: 
-14818  61E8 62 63 63 63 .dw _s0, _s1, _s2, _s3, _s4, _s5, _s6, _s7, _s8, _s9, _s10, _s11, _s12, _s13, _s14, _s15, _s16, 
-14818  61EC 6B 63 71 63 
-14818  61F0 79 63 7E 63 
-14818  61F4 86 63 8D 63 
-14818  61F8 99 63 A0 63 
-14818  61FC A7 63 AD 63 
-14818  6200 B5 63 C0 63 
-14818  6204 CA 63 D2 63 
-14818  6208 DB 63 
+14818  61E8 68 63 69 63 .dw _s0, _s1, _s2, _s3, _s4, _s5, _s6, _s7, _s8, _s9, _s10, _s11, _s12, _s13, _s14, _s15, _s16, 
+14818  61EC 71 63 77 63 
+14818  61F0 7F 63 84 63 
+14818  61F4 8C 63 93 63 
+14818  61F8 9F 63 A6 63 
+14818  61FC AD 63 B3 63 
+14818  6200 BB 63 C6 63 
+14818  6204 D0 63 D8 63 
+14818  6208 E1 63 
 14819  620A 00 00 00 00 .fill 34, 0
 14819  620E 00 00 00 00 
 14819  6212 00 00 00 00 
@@ -16128,11 +16126,11 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 14819  6226 00 00 00 00 
 14819  622A 00 00 
 14820  622C             _device_name_data: 
-14821  622C 62 63 E1 63 .dw _s0, _s17, _s18, _s19, _s20, _s21, _s22, _s23, _s24, 
-14821  6230 EE 63 02 64 
-14821  6234 15 64 24 64 
-14821  6238 31 64 40 64 
-14821  623C 4F 64 
+14821  622C 68 63 E7 63 .dw _s0, _s17, _s18, _s19, _s20, _s21, _s22, _s23, _s24, 
+14821  6230 F4 63 08 64 
+14821  6234 1B 64 2A 64 
+14821  6238 37 64 46 64 
+14821  623C 55 64 
 14822  623E 00 00 00 00 .fill 18, 0
 14822  6242 00 00 00 00 
 14822  6246 00 00 00 00 
@@ -16162,9 +16160,9 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 14833  628B 00 
 14834  628C 73 62       _srs_1: .dw _srs_1_data
 14835  628E             _tilestr_data: 
-14836  628E 60 64 64 64 .dw _s25, _s26, _s27, _s28, _s29, 
-14836  6292 68 64 6C 64 
-14836  6296 70 64 
+14836  628E 66 64 6A 64 .dw _s25, _s26, _s27, _s28, _s29, 
+14836  6292 6E 64 72 64 
+14836  6296 76 64 
 14837  6298 00 00 00 00 .fill 10, 0
 14837  629C 00 00 00 00 
 14837  62A0 00 00 
@@ -16218,1276 +16216,1365 @@ out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians st
 14849  634E 4E 00 
 14850  6350 4A 63       _sC: .dw _sC_data
 14851  6352             st_quadrant_name_sect_name_dt: 
-out/startrek.asm line 14852: Unknown token: (.)
-out/startrek.asm line 14852: Unknown token.    
-out/startrek.asm line 14852: Label not found: (fill10)
-out/startrek.asm line 14852: Unknown token: (.)
-out/startrek.asm line 14852: Unknown token.    
-out/startrek.asm line 14852: Label not found: (fill10)
-14852  6352 62 63 ED 75 .dw _s0, _s171, _s172, _s173, _s174, .fill 10, 0
-14852  6356 F0 75 F4 75 
-14852  635A F9 75 00 00 
-14852  635E 00 00 
-out/startrek.asm line 14853: Label not found: (st_sect_name_sect_name_dt)
-out/startrek.asm line 14853: Label not found: (st_sect_name_sect_name_dt)
-14853  6360 00 00       st_quadrant_name: .dw st_sect_name_sect_name_dt
-14854  6362 00          _s0: .db "", 0
-14855  6363 41 6E 74 61 _s1: .db "Antares", 0
-14855  6367 72 65 73 00 
-14856  636B 52 69 67 65 _s2: .db "Rigel", 0
-14856  636F 6C 00 
-14857  6371 50 72 6F 63 _s3: .db "Procyon", 0
-14857  6375 79 6F 6E 00 
-14858  6379 56 65 67 61 _s4: .db "Vega", 0
-14858  637D 00 
-14859  637E 43 61 6E 6F _s5: .db "Canopus", 0
-14859  6382 70 75 73 00 
-14860  6386 41 6C 74 61 _s6: .db "Altair", 0
-14860  638A 69 72 00 
-14861  638D 53 61 67 69 _s7: .db "Sagittarius", 0
-14861  6391 74 74 61 72 
-14861  6395 69 75 73 00 
-14862  6399 50 6F 6C 6C _s8: .db "Pollux", 0
-14862  639D 75 78 00 
-14863  63A0 53 69 72 69 _s9: .db "Sirius", 0
-14863  63A4 75 73 00 
-14864  63A7 44 65 6E 65 _s10: .db "Deneb", 0
-14864  63AB 62 00 
-14865  63AD 43 61 70 65 _s11: .db "Capella", 0
-14865  63B1 6C 6C 61 00 
-14866  63B5 42 65 74 65 _s12: .db "Betelgeuse", 0
-14866  63B9 6C 67 65 75 
-14866  63BD 73 65 00 
-14867  63C0 41 6C 64 65 _s13: .db "Aldebaran", 0
-14867  63C4 62 61 72 61 
-14867  63C8 6E 00 
-14868  63CA 52 65 67 75 _s14: .db "Regulus", 0
-14868  63CE 6C 75 73 00 
-14869  63D2 41 72 63 74 _s15: .db "Arcturus", 0
-14869  63D6 75 72 75 73 
-14869  63DA 00 
-14870  63DB 53 70 69 63 _s16: .db "Spica", 0
-14870  63DF 61 00 
-14871  63E1 57 61 72 70 _s17: .db "Warp engines", 0
-14871  63E5 20 65 6E 67 
-14871  63E9 69 6E 65 73 
-14871  63ED 00 
-14872  63EE 53 68 6F 72 _s18: .db "Short range sensors", 0
-14872  63F2 74 20 72 61 
-14872  63F6 6E 67 65 20 
-14872  63FA 73 65 6E 73 
-14872  63FE 6F 72 73 00 
-14873  6402 4C 6F 6E 67 _s19: .db "Long range sensors", 0
-14873  6406 20 72 61 6E 
-14873  640A 67 65 20 73 
-14873  640E 65 6E 73 6F 
-14873  6412 72 73 00 
-14874  6415 50 68 61 73 _s20: .db "Phaser control", 0
-14874  6419 65 72 20 63 
-14874  641D 6F 6E 74 72 
-14874  6421 6F 6C 00 
-14875  6424 50 68 6F 74 _s21: .db "Photon tubes", 0
-14875  6428 6F 6E 20 74 
-14875  642C 75 62 65 73 
-14875  6430 00 
-14876  6431 44 61 6D 61 _s22: .db "Damage control", 0
-14876  6435 67 65 20 63 
-14876  6439 6F 6E 74 72 
-14876  643D 6F 6C 00 
-14877  6440 53 68 69 65 _s23: .db "Shield control", 0
-14877  6444 6C 64 20 63 
-14877  6448 6F 6E 74 72 
-14877  644C 6F 6C 00 
-14878  644F 4C 69 62 72 _s24: .db "Library computer", 0
-14878  6453 61 72 79 20 
-14878  6457 63 6F 6D 70 
-14878  645B 75 74 65 72 
-14878  645F 00 
-14879  6460 20 20 20 00 _s25: .db "   ", 0
-14880  6464 20 2A 20 00 _s26: .db " * ", 0
-14881  6468 3E 21 3C 00 _s27: .db ">!<", 0
-14882  646C 2B 4B 2B 00 _s28: .db "+K+", 0
-14883  6470 3C 2A 3E 00 _s29: .db "<*>", 0
-14884  6474 55 6E 65 78 _s30: .db "Unexpected format in printf.", 0
-14884  6478 70 65 63 74 
-14884  647C 65 64 20 66 
-14884  6480 6F 72 6D 61 
-14884  6484 74 20 69 6E 
-14884  6488 20 70 72 69 
-14884  648C 6E 74 66 2E 
-14884  6490 00 
-14885  6491 45 72 72 6F _s31: .db "Error: Unknown argument type.\n", 0
-14885  6495 72 3A 20 55 
-14885  6499 6E 6B 6E 6F 
-14885  649D 77 6E 20 61 
-14885  64A1 72 67 75 6D 
-14885  64A5 65 6E 74 20 
-14885  64A9 74 79 70 65 
-14885  64AD 2E 0A 00 
-14886  64B0 1B 5B 32 4A _s32: .db "\033[2J\033[H", 0
-14886  64B4 1B 5B 48 00 
-14887  64B8 61 72 65 00 _s33: .db "are", 0
-14888  64BC 69 73 00    _s34: .db "is", 0
-14889  64BF 25 73 20 25 _s35: .db "%s %s inoperable.\n", 0
-14889  64C3 73 20 69 6E 
-14889  64C7 6F 70 65 72 
-14889  64CB 61 62 6C 65 
-14889  64CF 2E 0A 00 
-14890  64D2 73 74 61 72 _s36: .db "startrek.intro", 0
-14890  64D6 74 72 65 6B 
-14890  64DA 2E 69 6E 74 
-14890  64DE 72 6F 00 
-14891  64E1 73 74 61 72 _s37: .db "startrek.doc", 0
-14891  64E5 74 72 65 6B 
-14891  64E9 2E 64 6F 63 
-14891  64ED 00 
-14892  64EE 73 74 61 72 _s38: .db "startrek.logo", 0
-14892  64F2 74 72 65 6B 
-14892  64F6 2E 6C 6F 67 
-14892  64FA 6F 00 
-14893  64FC 73 74 61 72 _s39: .db "startrek.fatal", 0
-14893  6500 74 72 65 6B 
-14893  6504 2E 66 61 74 
-14893  6508 61 6C 00 
-14894  650B 43 6F 6D 6D _s40: .db "Command? ", 0
-14894  650F 61 6E 64 3F 
-14894  6513 20 00 
-14895  6515 6E 61 76 00 _s41: .db "nav", 0
-14896  6519 73 72 73 00 _s42: .db "srs", 0
-14897  651D 6C 72 73 00 _s43: .db "lrs", 0
-14898  6521 70 68 61 00 _s44: .db "pha", 0
-14899  6525 74 6F 72 00 _s45: .db "tor", 0
-14900  6529 73 68 69 00 _s46: .db "shi", 0
-14901  652D 64 61 6D 00 _s47: .db "dam", 0
-14902  6531 63 6F 6D 00 _s48: .db "com", 0
-14903  6535 78 78 78 00 _s49: .db "xxx", 0
-14904  6539 45 6E 74 65 _s50: .db "Enter one of the following:\n", 0
-14904  653D 72 20 6F 6E 
-14904  6541 65 20 6F 66 
-14904  6545 20 74 68 65 
-14904  6549 20 66 6F 6C 
-14904  654D 6C 6F 77 69 
-14904  6551 6E 67 3A 0A 
-14904  6555 00 
-14905  6556 20 20 6E 61 _s51: .db "  nav - To Set Course", 0
-14905  655A 76 20 2D 20 
-14905  655E 54 6F 20 53 
-14905  6562 65 74 20 43 
-14905  6566 6F 75 72 73 
-14905  656A 65 00 
-14906  656C 20 20 73 72 _s52: .db "  srs - Short Range Sensors", 0
-14906  6570 73 20 2D 20 
-14906  6574 53 68 6F 72 
-14906  6578 74 20 52 61 
-14906  657C 6E 67 65 20 
-14906  6580 53 65 6E 73 
-14906  6584 6F 72 73 00 
-14907  6588 20 20 6C 72 _s53: .db "  lrs - Long Range Sensors", 0
-14907  658C 73 20 2D 20 
-14907  6590 4C 6F 6E 67 
-14907  6594 20 52 61 6E 
-14907  6598 67 65 20 53 
-14907  659C 65 6E 73 6F 
-14907  65A0 72 73 00 
-14908  65A3 20 20 70 68 _s54: .db "  pha - Phasers", 0
-14908  65A7 61 20 2D 20 
-14908  65AB 50 68 61 73 
-14908  65AF 65 72 73 00 
-14909  65B3 20 20 74 6F _s55: .db "  tor - Photon Torpedoes", 0
-14909  65B7 72 20 2D 20 
-14909  65BB 50 68 6F 74 
-14909  65BF 6F 6E 20 54 
-14909  65C3 6F 72 70 65 
-14909  65C7 64 6F 65 73 
-14909  65CB 00 
-14910  65CC 20 20 73 68 _s56: .db "  shi - Shield Control", 0
-14910  65D0 69 20 2D 20 
-14910  65D4 53 68 69 65 
-14910  65D8 6C 64 20 43 
-14910  65DC 6F 6E 74 72 
-14910  65E0 6F 6C 00 
-14911  65E3 20 20 64 61 _s57: .db "  dam - Damage Control", 0
-14911  65E7 6D 20 2D 20 
-14911  65EB 44 61 6D 61 
-14911  65EF 67 65 20 43 
-14911  65F3 6F 6E 74 72 
-14911  65F7 6F 6C 00 
-14912  65FA 20 20 63 6F _s58: .db "  com - Library Computer", 0
-14912  65FE 6D 20 2D 20 
-14912  6602 4C 69 62 72 
-14912  6606 61 72 79 20 
-14912  660A 43 6F 6D 70 
-14912  660E 75 74 65 72 
-14912  6612 00 
-14913  6613 20 20 78 78 _s59: .db "  xxx - Resign Command\n", 0
-14913  6617 78 20 2D 20 
-14913  661B 52 65 73 69 
-14913  661F 67 6E 20 43 
-14913  6623 6F 6D 6D 61 
-14913  6627 6E 64 0A 00 
-14914  662B 73 00       _s60: .db "s", 0
-14915  662D 59 6F 75 72 _s61: .db "Your orders are as follows:\nDestroy the %d Klingon warships which have", 0
-14915  6631 20 6F 72 64 
-14915  6635 65 72 73 20 
-14915  6639 61 72 65 20 
-14915  663D 61 73 20 66 
-14915  6641 6F 6C 6C 6F 
-14915  6645 77 73 3A 0A 
-14915  6649 44 65 73 74 
-14915  664D 72 6F 79 20 
-14915  6651 74 68 65 20 
-14915  6655 25 64 20 4B 
-14915  6659 6C 69 6E 67 
-14915  665D 6F 6E 20 77 
-14915  6661 61 72 73 68 
-14915  6665 69 70 73 20 
-14915  6669 77 68 69 63 
-14915  666D 68 20 68 61 
-14915  6671 76 65 00 
-14916  6674 69 6E 76 61 _s62: .db "invaded\n the galaxy before they can attack Federation Headquarters\n", 0
-14916  6678 64 65 64 0A 
-14916  667C 20 74 68 65 
-14916  6680 20 67 61 6C 
-14916  6684 61 78 79 20 
-14916  6688 62 65 66 6F 
-14916  668C 72 65 20 74 
-14916  6690 68 65 79 20 
-14916  6694 63 61 6E 20 
-14916  6698 61 74 74 61 
-14916  669C 63 6B 20 46 
-14916  66A0 65 64 65 72 
-14916  66A4 61 74 69 6F 
-14916  66A8 6E 20 48 65 
-14916  66AC 61 64 71 75 
-14916  66B0 61 72 74 65 
-14916  66B4 72 73 0A 00 
-14917  66B8 20 6F 6E 20 _s63: .db " on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy", 0
-14917  66BC 73 74 61 72 
-14917  66C0 64 61 74 65 
-14917  66C4 20 25 75 2E 
-14917  66C8 20 54 68 69 
-14917  66CC 73 20 67 69 
-14917  66D0 76 65 73 20 
-14917  66D4 79 6F 75 20 
-14917  66D8 25 64 20 64 
-14917  66DC 61 79 73 2E 
-14917  66E0 20 54 68 65 
-14917  66E4 72 65 20 25 
-14917  66E8 73 0A 20 25 
-14917  66EC 64 20 73 74 
-14917  66F0 61 72 62 61 
-14917  66F4 73 65 25 73 
-14917  66F8 20 69 6E 20 
-14917  66FC 74 68 65 20 
-14917  6700 67 61 6C 61 
-14917  6704 78 79 00 
-14918  6707 20 66 6F 72 _s64: .db " for resupplying your ship.\n\n Hit any key to accept command. ", 0
-14918  670B 20 72 65 73 
-14918  670F 75 70 70 6C 
-14918  6713 79 69 6E 67 
-14918  6717 20 79 6F 75 
-14918  671B 72 20 73 68 
-14918  671F 69 70 2E 0A 
-14918  6723 0A 20 48 69 
-14918  6727 74 20 61 6E 
-14918  672B 79 20 6B 65 
-14918  672F 79 20 74 6F 
-14918  6733 20 61 63 63 
-14918  6737 65 70 74 20 
-14918  673B 63 6F 6D 6D 
-14918  673F 61 6E 64 2E 
-14918  6743 20 00 
-14919  6745 4E 6F 77 20 _s65: .db "Now entering %s quadrant...\n\n", 0
-14919  6749 65 6E 74 65 
-14919  674D 72 69 6E 67 
-14919  6751 20 25 73 20 
-14919  6755 71 75 61 64 
-14919  6759 72 61 6E 74 
-14919  675D 2E 2E 2E 0A 
-14919  6761 0A 00 
-14920  6763 0A 59 6F 75 _s66: .db "\nYour mission begins with your starship located", 0
-14920  6767 72 20 6D 69 
-14920  676B 73 73 69 6F 
-14920  676F 6E 20 62 65 
-14920  6773 67 69 6E 73 
-14920  6777 20 77 69 74 
-14920  677B 68 20 79 6F 
-14920  677F 75 72 20 73 
-14920  6783 74 61 72 73 
-14920  6787 68 69 70 20 
-14920  678B 6C 6F 63 61 
-14920  678F 74 65 64 00 
-14921  6793 69 6E 20 74 _s67: .db "in the galactic quadrant %s.\n\n", 0
-14921  6797 68 65 20 67 
-14921  679B 61 6C 61 63 
-14921  679F 74 69 63 20 
-14921  67A3 71 75 61 64 
-14921  67A7 72 61 6E 74 
-14921  67AB 20 25 73 2E 
-14921  67AF 0A 0A 00 
-14922  67B2 43 6F 6D 62 _s68: .db "Combat Area  Condition Red\n", 0
-14922  67B6 61 74 20 41 
-14922  67BA 72 65 61 20 
-14922  67BE 20 43 6F 6E 
-14922  67C2 64 69 74 69 
-14922  67C6 6F 6E 20 52 
-14922  67CA 65 64 0A 00 
-14923  67CE 53 68 69 65 _s69: .db "Shields Dangerously Low\n", 0
-14923  67D2 6C 64 73 20 
-14923  67D6 44 61 6E 67 
-14923  67DA 65 72 6F 75 
-14923  67DE 73 6C 79 20 
-14923  67E2 4C 6F 77 0A 
-14923  67E6 00 
-14924  67E7 43 6F 75 72 _s70: .db "Course (0-9): ", 0
-14924  67EB 73 65 20 28 
-14924  67EF 30 2D 39 29 
-14924  67F3 3A 20 00 
-14925  67F6 4C 74 2E 20 _s71: .db "Lt. Sulu%s", 0
-14925  67FA 53 75 6C 75 
-14925  67FE 25 73 00 
-14926  6801 30 2E 32 00 _s72: .db "0.2", 0
-14927  6805 57 61 72 70 _s73: .db "Warp Factor (0-%s): ", 0
-14927  6809 20 46 61 63 
-14927  680D 74 6F 72 20 
-14927  6811 28 30 2D 25 
-14927  6815 73 29 3A 20 
-14927  6819 00 
-14928  681A 57 61 72 70 _s74: .db "Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n", 0
-14928  681E 20 45 6E 67 
-14928  6822 69 6E 65 73 
-14928  6826 20 61 72 65 
-14928  682A 20 64 61 6D 
-14928  682E 61 67 65 64 
-14928  6832 2E 20 4D 61 
-14928  6836 78 69 6D 75 
-14928  683A 6D 20 73 70 
-14928  683E 65 65 64 20 
-14928  6842 3D 20 57 61 
-14928  6846 72 70 20 30 
-14928  684A 2E 32 2E 0A 
-14928  684E 0A 00 
-14929  6850 43 68 69 65 _s75: .db "Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n", 0
-14929  6854 66 20 45 6E 
-14929  6858 67 69 6E 65 
-14929  685C 65 72 20 53 
-14929  6860 63 6F 74 74 
-14929  6864 20 72 65 70 
-14929  6868 6F 72 74 73 
-14929  686C 3A 0A 20 20 
-14929  6870 54 68 65 20 
-14929  6874 65 6E 67 69 
-14929  6878 6E 65 73 20 
-14929  687C 77 6F 6E 74 
-14929  6880 20 74 61 6B 
-14929  6884 65 20 77 61 
-14929  6888 72 70 20 25 
-14929  688C 73 21 0A 0A 
-14929  6890 00 
-14930  6891 45 6E 67 69 _s76: .db "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n", 0
-14930  6895 6E 65 65 72 
-14930  6899 69 6E 67 20 
-14930  689D 72 65 70 6F 
-14930  68A1 72 74 73 3A 
-14930  68A5 0A 20 20 49 
-14930  68A9 6E 73 75 66 
-14930  68AD 66 69 63 69 
-14930  68B1 65 6E 74 20 
-14930  68B5 65 6E 65 72 
-14930  68B9 67 79 20 61 
-14930  68BD 76 61 69 6C 
-14930  68C1 61 62 6C 65 
-14930  68C5 20 66 6F 72 
-14930  68C9 20 6D 61 6E 
-14930  68CD 65 75 76 65 
-14930  68D1 72 69 6E 67 
-14930  68D5 20 61 74 20 
-14930  68D9 77 61 72 70 
-14930  68DD 20 25 73 21 
-14930  68E1 0A 0A 00 
-14931  68E4 44 65 66 6C _s77: .db "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n", 0
-14931  68E8 65 63 74 6F 
-14931  68EC 72 20 43 6F 
-14931  68F0 6E 74 72 6F 
-14931  68F4 6C 20 52 6F 
-14931  68F8 6F 6D 20 61 
-14931  68FC 63 6B 6E 6F 
-14931  6900 77 6C 65 64 
-14931  6904 67 65 73 3A 
-14931  6908 0A 20 20 25 
-14931  690C 64 20 75 6E 
-14931  6910 69 74 73 20 
-14931  6914 6F 66 20 65 
-14931  6918 6E 65 72 67 
-14931  691C 79 20 70 72 
-14931  6920 65 73 65 6E 
-14931  6924 74 6C 79 20 
-14931  6928 64 65 70 6C 
-14931  692C 6F 79 65 64 
-14931  6930 20 74 6F 20 
-14931  6934 73 68 69 65 
-14931  6938 6C 64 73 2E 
-14931  693C 0A 00 
-out/startrek.asm line 14932: Maximum number of args exceeded. ("LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n",0)
-14932  693E 00          _s78: .db "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n", 0
-14933  693F 57 61 72 70 _s79: .db "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n", 0
-14933  6943 20 45 6E 67 
-14933  6947 69 6E 65 73 
-14933  694B 20 73 68 75 
-14933  694F 74 20 64 6F 
-14933  6953 77 6E 20 61 
-14933  6957 74 20 73 65 
-14933  695B 63 74 6F 72 
-14933  695F 20 25 64 2C 
-14933  6963 20 25 64 20 
-14933  6967 64 75 65 20 
-14933  696B 74 6F 20 62 
-14933  696F 61 64 20 6E 
-14933  6973 61 76 69 67 
-14933  6977 61 74 69 6F 
-14933  697B 6E 2E 0A 0A 
-14933  697F 00 
-14934  6980 53 68 69 65 _s80: .db "Shield Control supplies energy to complete maneuver.\n", 0
-14934  6984 6C 64 20 43 
-14934  6988 6F 6E 74 72 
-14934  698C 6F 6C 20 73 
-14934  6990 75 70 70 6C 
-14934  6994 69 65 73 20 
-14934  6998 65 6E 65 72 
-14934  699C 67 79 20 74 
-14934  69A0 6F 20 63 6F 
-14934  69A4 6D 70 6C 65 
-14934  69A8 74 65 20 6D 
-14934  69AC 61 6E 65 75 
-14934  69B0 76 65 72 2E 
-14934  69B4 0A 00 
-14935  69B6 59 45 4C 4C _s81: .db "YELLOW", 0
-14935  69BA 4F 57 00 
-14936  69BD 2A 52 45 44 _s82: .db "*RED*", 0
-14936  69C1 2A 00 
-14937  69C3 44 4F 43 4B _s83: .db "DOCKED", 0
-14937  69C7 45 44 00 
-14938  69CA 53 68 69 65 _s84: .db "Shields dropped for docking purposes.", 0
-14938  69CE 6C 64 73 20 
-14938  69D2 64 72 6F 70 
-14938  69D6 70 65 64 20 
-14938  69DA 66 6F 72 20 
-14938  69DE 64 6F 63 6B 
-14938  69E2 69 6E 67 20 
-14938  69E6 70 75 72 70 
-14938  69EA 6F 73 65 73 
-14938  69EE 2E 00 
-14939  69F0 0A 2A 2A 2A _s85: .db "\n*** Short Range Sensors are out ***", 0
-14939  69F4 20 53 68 6F 
-14939  69F8 72 74 20 52 
-14939  69FC 61 6E 67 65 
-14939  6A00 20 53 65 6E 
-14939  6A04 73 6F 72 73 
-14939  6A08 20 61 72 65 
-14939  6A0C 20 6F 75 74 
-14939  6A10 20 2A 2A 2A 
-14939  6A14 00 
-14940  6A15 20 20 20 20 _s86: .db "    Stardate            %d\n", 0
-14940  6A19 53 74 61 72 
-14940  6A1D 64 61 74 65 
-14940  6A21 20 20 20 20 
-14940  6A25 20 20 20 20 
-14940  6A29 20 20 20 20 
-14940  6A2D 25 64 0A 00 
-14941  6A31 20 20 20 20 _s87: .db "    Condition           %s\n", 0
-14941  6A35 43 6F 6E 64 
-14941  6A39 69 74 69 6F 
-14941  6A3D 6E 20 20 20 
-14941  6A41 20 20 20 20 
-14941  6A45 20 20 20 20 
-14941  6A49 25 73 0A 00 
-14942  6A4D 20 20 20 20 _s88: .db "    Quadrant            %d, %d\n", 0
-14942  6A51 51 75 61 64 
-14942  6A55 72 61 6E 74 
-14942  6A59 20 20 20 20 
-14942  6A5D 20 20 20 20 
-14942  6A61 20 20 20 20 
-14942  6A65 25 64 2C 20 
-14942  6A69 25 64 0A 00 
-14943  6A6D 20 20 20 20 _s89: .db "    Sector              %d, %d\n", 0
-14943  6A71 53 65 63 74 
-14943  6A75 6F 72 20 20 
-14943  6A79 20 20 20 20 
-14943  6A7D 20 20 20 20 
-14943  6A81 20 20 20 20 
-14943  6A85 25 64 2C 20 
-14943  6A89 25 64 0A 00 
-14944  6A8D 20 20 20 20 _s90: .db "    Photon Torpedoes    %d\n", 0
-14944  6A91 50 68 6F 74 
-14944  6A95 6F 6E 20 54 
-14944  6A99 6F 72 70 65 
-14944  6A9D 64 6F 65 73 
-14944  6AA1 20 20 20 20 
-14944  6AA5 25 64 0A 00 
-14945  6AA9 20 20 20 20 _s91: .db "    Total Energy        %d\n", 0
-14945  6AAD 54 6F 74 61 
-14945  6AB1 6C 20 45 6E 
-14945  6AB5 65 72 67 79 
-14945  6AB9 20 20 20 20 
-14945  6ABD 20 20 20 20 
-14945  6AC1 25 64 0A 00 
-14946  6AC5 20 20 20 20 _s92: .db "    Shields             %d\n", 0
-14946  6AC9 53 68 69 65 
-14946  6ACD 6C 64 73 20 
-14946  6AD1 20 20 20 20 
-14946  6AD5 20 20 20 20 
-14946  6AD9 20 20 20 20 
-14946  6ADD 25 64 0A 00 
-14947  6AE1 20 20 20 20 _s93: .db "    Klingons Remaining  %d\n", 0
-14947  6AE5 4B 6C 69 6E 
-14947  6AE9 67 6F 6E 73 
-14947  6AED 20 52 65 6D 
-14947  6AF1 61 69 6E 69 
-14947  6AF5 6E 67 20 20 
-14947  6AF9 25 64 0A 00 
-14948  6AFD 4C 6F 6E 67 _s94: .db "Long Range Scan for Quadrant %d, %d\n\n", 0
-14948  6B01 20 52 61 6E 
-14948  6B05 67 65 20 53 
-14948  6B09 63 61 6E 20 
-14948  6B0D 66 6F 72 20 
-14948  6B11 51 75 61 64 
-14948  6B15 72 61 6E 74 
-14948  6B19 20 25 64 2C 
-14948  6B1D 20 25 64 0A 
-14948  6B21 0A 00 
-14949  6B23 25 73 3A 00 _s95: .db "%s:", 0
-14950  6B27 2A 2A 2A 00 _s96: .db "***", 0
-14951  6B2B 20 3A 00    _s97: .db " :", 0
-14952  6B2E 25 73 0A 00 _s98: .db "%s\n", 0
-14953  6B32 53 63 69 65 _s99: .db "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n", 0
-14953  6B36 6E 63 65 20 
-14953  6B3A 4F 66 66 69 
-14953  6B3E 63 65 72 20 
-14953  6B42 53 70 6F 63 
-14953  6B46 6B 20 72 65 
-14953  6B4A 70 6F 72 74 
-14953  6B4E 73 3A 0A 20 
-14953  6B52 20 27 53 65 
-14953  6B56 6E 73 6F 72 
-14953  6B5A 73 20 73 68 
-14953  6B5E 6F 77 20 6E 
-14953  6B62 6F 20 65 6E 
-14953  6B66 65 6D 79 20 
-14953  6B6A 73 68 69 70 
-14953  6B6E 73 20 69 6E 
-14953  6B72 20 74 68 69 
-14953  6B76 73 20 71 75 
-14953  6B7A 61 64 72 61 
-14953  6B7E 6E 74 27 0A 
-14953  6B82 00 
-14954  6B83 43 6F 6D 70 _s100: .db "Computer failure hampers accuracy.", 0
-14954  6B87 75 74 65 72 
-14954  6B8B 20 66 61 69 
-14954  6B8F 6C 75 72 65 
-14954  6B93 20 68 61 6D 
-14954  6B97 70 65 72 73 
-14954  6B9B 20 61 63 63 
-14954  6B9F 75 72 61 63 
-14954  6BA3 79 2E 00 
-14955  6BA6 50 68 61 73 _s101: .db "Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: ", 0
-14955  6BAA 65 72 73 20 
-14955  6BAE 6C 6F 63 6B 
-14955  6BB2 65 64 20 6F 
-14955  6BB6 6E 20 74 61 
-14955  6BBA 72 67 65 74 
-14955  6BBE 3B 0A 20 45 
-14955  6BC2 6E 65 72 67 
-14955  6BC6 79 20 61 76 
-14955  6BCA 61 69 6C 61 
-14955  6BCE 62 6C 65 20 
-14955  6BD2 3D 20 25 64 
-14955  6BD6 20 75 6E 69 
-14955  6BDA 74 73 0A 0A 
-14955  6BDE 20 4E 75 6D 
-14955  6BE2 62 65 72 20 
-14955  6BE6 6F 66 20 75 
-14955  6BEA 6E 69 74 73 
-14955  6BEE 20 74 6F 20 
-14955  6BF2 66 69 72 65 
-14955  6BF6 3A 20 00 
-14956  6BF9 4E 6F 74 20 _s102: .db "Not enough energy available.\n", 0
-14956  6BFD 65 6E 6F 75 
-14956  6C01 67 68 20 65 
-14956  6C05 6E 65 72 67 
-14956  6C09 79 20 61 76 
-14956  6C0D 61 69 6C 61 
-14956  6C11 62 6C 65 2E 
-14956  6C15 0A 00 
-14957  6C17 53 65 6E 73 _s103: .db "Sensors show no damage to enemy at %d, %d\n\n", 0
-14957  6C1B 6F 72 73 20 
-14957  6C1F 73 68 6F 77 
-14957  6C23 20 6E 6F 20 
-14957  6C27 64 61 6D 61 
-14957  6C2B 67 65 20 74 
-14957  6C2F 6F 20 65 6E 
-14957  6C33 65 6D 79 20 
-14957  6C37 61 74 20 25 
-14957  6C3B 64 2C 20 25 
-14957  6C3F 64 0A 0A 00 
-14958  6C43 25 64 20 75 _s104: .db "%d unit hit on Klingon at sector %d, %d\n", 0
-14958  6C47 6E 69 74 20 
-14958  6C4B 68 69 74 20 
-14958  6C4F 6F 6E 20 4B 
-14958  6C53 6C 69 6E 67 
-14958  6C57 6F 6E 20 61 
-14958  6C5B 74 20 73 65 
-14958  6C5F 63 74 6F 72 
-14958  6C63 20 25 64 2C 
-14958  6C67 20 25 64 0A 
-14958  6C6B 00 
-14959  6C6C 2A 2A 2A 20 _s105: .db "*** Klingon Destroyed ***\n", 0
-14959  6C70 4B 6C 69 6E 
-14959  6C74 67 6F 6E 20 
-14959  6C78 44 65 73 74 
-14959  6C7C 72 6F 79 65 
-14959  6C80 64 20 2A 2A 
-14959  6C84 2A 0A 00 
-14960  6C87 20 20 20 28 _s106: .db "   (Sensors show %d units remaining.)\n\n", 0
-14960  6C8B 53 65 6E 73 
-14960  6C8F 6F 72 73 20 
-14960  6C93 73 68 6F 77 
-14960  6C97 20 25 64 20 
-14960  6C9B 75 6E 69 74 
-14960  6C9F 73 20 72 65 
-14960  6CA3 6D 61 69 6E 
-14960  6CA7 69 6E 67 2E 
-14960  6CAB 29 0A 0A 00 
-14961  6CAF 41 6C 6C 20 _s107: .db "All photon torpedoes expended", 0
-14961  6CB3 70 68 6F 74 
-14961  6CB7 6F 6E 20 74 
-14961  6CBB 6F 72 70 65 
-14961  6CBF 64 6F 65 73 
-14961  6CC3 20 65 78 70 
-14961  6CC7 65 6E 64 65 
-14961  6CCB 64 00 
-14962  6CCD 45 6E 73 69 _s108: .db "Ensign Chekov%s", 0
-14962  6CD1 67 6E 20 43 
-14962  6CD5 68 65 6B 6F 
-14962  6CD9 76 25 73 00 
-14963  6CDD 54 6F 72 70 _s109: .db "Torpedo Track:", 0
-14963  6CE1 65 64 6F 20 
-14963  6CE5 54 72 61 63 
-14963  6CE9 6B 3A 00 
-14964  6CEC 20 20 20 20 _s110: .db "    %d, %d\n", 0
-14964  6CF0 25 64 2C 20 
-14964  6CF4 25 64 0A 00 
-14965  6CF8 54 6F 72 70 _s111: .db "Torpedo Missed\n", 0
-14965  6CFC 65 64 6F 20 
-14965  6D00 4D 69 73 73 
-14965  6D04 65 64 0A 00 
-14966  6D08 53 74 61 72 _s112: .db "Star at %d, %d absorbed torpedo energy.\n\n", 0
-14966  6D0C 20 61 74 20 
-14966  6D10 25 64 2C 20 
-14966  6D14 25 64 20 61 
-14966  6D18 62 73 6F 72 
-14966  6D1C 62 65 64 20 
-14966  6D20 74 6F 72 70 
-14966  6D24 65 64 6F 20 
-14966  6D28 65 6E 65 72 
-14966  6D2C 67 79 2E 0A 
-14966  6D30 0A 00 
-14967  6D32 2A 2A 2A 20 _s113: .db "*** Starbase Destroyed ***", 0
-14967  6D36 53 74 61 72 
-14967  6D3A 62 61 73 65 
-14967  6D3E 20 44 65 73 
-14967  6D42 74 72 6F 79 
-14967  6D46 65 64 20 2A 
-14967  6D4A 2A 2A 00 
-14968  6D4D 54 68 61 74 _s114: .db "That does it, Captain!!", 0
-14968  6D51 20 64 6F 65 
-14968  6D55 73 20 69 74 
-14968  6D59 2C 20 43 61 
-14968  6D5D 70 74 61 69 
-14968  6D61 6E 21 21 00 
-14969  6D65 59 6F 75 20 _s115: .db "You are hereby relieved of command\n", 0
-14969  6D69 61 72 65 20 
-14969  6D6D 68 65 72 65 
-14969  6D71 62 79 20 72 
-14969  6D75 65 6C 69 65 
-14969  6D79 76 65 64 20 
-14969  6D7D 6F 66 20 63 
-14969  6D81 6F 6D 6D 61 
-14969  6D85 6E 64 0A 00 
-14970  6D89 61 6E 64 20 _s116: .db "and sentenced to 99 stardates of hard", 0
-14970  6D8D 73 65 6E 74 
-14970  6D91 65 6E 63 65 
-14970  6D95 64 20 74 6F 
-14970  6D99 20 39 39 20 
-14970  6D9D 73 74 61 72 
-14970  6DA1 64 61 74 65 
-14970  6DA5 73 20 6F 66 
-14970  6DA9 20 68 61 72 
-14970  6DAD 64 00 
-14971  6DAF 6C 61 62 6F _s117: .db "labor on Cygnus 12!!\n", 0
-14971  6DB3 72 20 6F 6E 
-14971  6DB7 20 43 79 67 
-14971  6DBB 6E 75 73 20 
-14971  6DBF 31 32 21 21 
-14971  6DC3 0A 00 
-14972  6DC5 53 74 61 72 _s118: .db "Starfleet Command reviewing your record to consider\n court martial!\n", 0
-14972  6DC9 66 6C 65 65 
-14972  6DCD 74 20 43 6F 
-14972  6DD1 6D 6D 61 6E 
-14972  6DD5 64 20 72 65 
-14972  6DD9 76 69 65 77 
-14972  6DDD 69 6E 67 20 
-14972  6DE1 79 6F 75 72 
-14972  6DE5 20 72 65 63 
-14972  6DE9 6F 72 64 20 
-14972  6DED 74 6F 20 63 
-14972  6DF1 6F 6E 73 69 
-14972  6DF5 64 65 72 0A 
-14972  6DF9 20 63 6F 75 
-14972  6DFD 72 74 20 6D 
-14972  6E01 61 72 74 69 
-14972  6E05 61 6C 21 0A 
-14972  6E09 00 
-14973  6E0A 44 61 6D 61 _s119: .db "Damage Control report not available.", 0
-14973  6E0E 67 65 20 43 
-14973  6E12 6F 6E 74 72 
-14973  6E16 6F 6C 20 72 
-14973  6E1A 65 70 6F 72 
-14973  6E1E 74 20 6E 6F 
-14973  6E22 74 20 61 76 
-14973  6E26 61 69 6C 61 
-14973  6E2A 62 6C 65 2E 
-14973  6E2E 00 
-out/startrek.asm line 14974: Maximum number of args exceeded. ("\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ",0)
-14974  6E2F 00          _s120: .db "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ", 0
-14975  6E30 44 65 76 69 _s121: .db "Device            State of Repair", 0
-14975  6E34 63 65 20 20 
-14975  6E38 20 20 20 20 
-14975  6E3C 20 20 20 20 
-14975  6E40 20 20 53 74 
-14975  6E44 61 74 65 20 
-14975  6E48 6F 66 20 52 
-14975  6E4C 65 70 61 69 
-14975  6E50 72 00 
-14976  6E52 25 2D 32 35 _s122: .db "%-25s%6s\n", 0
-14976  6E56 73 25 36 73 
-14976  6E5A 0A 00 
-14977  6E5C 0A 00       _s123: .db "\n", 0
-14978  6E5E 45 6E 65 72 _s124: .db "Energy available = %d\n\n Input number of units to shields: ", 0
-14978  6E62 67 79 20 61 
-14978  6E66 76 61 69 6C 
-14978  6E6A 61 62 6C 65 
-14978  6E6E 20 3D 20 25 
-14978  6E72 64 0A 0A 20 
-14978  6E76 49 6E 70 75 
-14978  6E7A 74 20 6E 75 
-14978  6E7E 6D 62 65 72 
-14978  6E82 20 6F 66 20 
-14978  6E86 75 6E 69 74 
-14978  6E8A 73 20 74 6F 
-14978  6E8E 20 73 68 69 
-14978  6E92 65 6C 64 73 
-14978  6E96 3A 20 00 
-14979  6E99 3C 53 68 69 _s125: .db "<Shields Unchanged>\n", 0
-14979  6E9D 65 6C 64 73 
-14979  6EA1 20 55 6E 63 
-14979  6EA5 68 61 6E 67 
-14979  6EA9 65 64 3E 0A 
-14979  6EAD 00 
-14980  6EAE 53 68 69 65 _s126: .db "Shield Control Reports:\n  This is not the Federation Treasury.", 0
-14980  6EB2 6C 64 20 43 
-14980  6EB6 6F 6E 74 72 
-14980  6EBA 6F 6C 20 52 
-14980  6EBE 65 70 6F 72 
-14980  6EC2 74 73 3A 0A 
-14980  6EC6 20 20 54 68 
-14980  6ECA 69 73 20 69 
-14980  6ECE 73 20 6E 6F 
-14980  6ED2 74 20 74 68 
-14980  6ED6 65 20 46 65 
-14980  6EDA 64 65 72 61 
-14980  6EDE 74 69 6F 6E 
-14980  6EE2 20 54 72 65 
-14980  6EE6 61 73 75 72 
-14980  6EEA 79 2E 00 
-14981  6EED 44 65 66 6C _s127: .db "Deflector Control Room report:\n  Shields now at %d units per your command.\n\n", 0
-14981  6EF1 65 63 74 6F 
-14981  6EF5 72 20 43 6F 
-14981  6EF9 6E 74 72 6F 
-14981  6EFD 6C 20 52 6F 
-14981  6F01 6F 6D 20 72 
-14981  6F05 65 70 6F 72 
-14981  6F09 74 3A 0A 20 
-14981  6F0D 20 53 68 69 
-14981  6F11 65 6C 64 73 
-14981  6F15 20 6E 6F 77 
-14981  6F19 20 61 74 20 
-14981  6F1D 25 64 20 75 
-14981  6F21 6E 69 74 73 
-14981  6F25 20 70 65 72 
-14981  6F29 20 79 6F 75 
-14981  6F2D 72 20 63 6F 
-14981  6F31 6D 6D 61 6E 
-14981  6F35 64 2E 0A 0A 
-14981  6F39 00 
-14982  6F3A 43 6F 6D 70 _s128: .db "Computer active and awating command: ", 0
-14982  6F3E 75 74 65 72 
-14982  6F42 20 61 63 74 
-14982  6F46 69 76 65 20 
-14982  6F4A 61 6E 64 20 
-14982  6F4E 61 77 61 74 
-14982  6F52 69 6E 67 20 
-14982  6F56 63 6F 6D 6D 
-14982  6F5A 61 6E 64 3A 
-14982  6F5E 20 00 
-14983  6F60 46 75 6E 63 _s129: .db "Functions available from Library-Computer:\n\n", 0
-14983  6F64 74 69 6F 6E 
-14983  6F68 73 20 61 76 
-14983  6F6C 61 69 6C 61 
-14983  6F70 62 6C 65 20 
-14983  6F74 66 72 6F 6D 
-14983  6F78 20 4C 69 62 
-14983  6F7C 72 61 72 79 
-14983  6F80 2D 43 6F 6D 
-14983  6F84 70 75 74 65 
-14983  6F88 72 3A 0A 0A 
-14983  6F8C 00 
-14984  6F8D 20 20 20 30 _s130: .db "   0 = Cumulative Galactic Record\n", 0
-14984  6F91 20 3D 20 43 
-14984  6F95 75 6D 75 6C 
-14984  6F99 61 74 69 76 
-14984  6F9D 65 20 47 61 
-14984  6FA1 6C 61 63 74 
-14984  6FA5 69 63 20 52 
-14984  6FA9 65 63 6F 72 
-14984  6FAD 64 0A 00 
-14985  6FB0 20 20 20 31 _s131: .db "   1 = Status Report\n", 0
-14985  6FB4 20 3D 20 53 
-14985  6FB8 74 61 74 75 
-14985  6FBC 73 20 52 65 
-14985  6FC0 70 6F 72 74 
-14985  6FC4 0A 00 
-14986  6FC6 20 20 20 32 _s132: .db "   2 = Photon Torpedo Data\n", 0
-14986  6FCA 20 3D 20 50 
-14986  6FCE 68 6F 74 6F 
-14986  6FD2 6E 20 54 6F 
-14986  6FD6 72 70 65 64 
-14986  6FDA 6F 20 44 61 
-14986  6FDE 74 61 0A 00 
-14987  6FE2 20 20 20 33 _s133: .db "   3 = Starbase Nav Data\n", 0
-14987  6FE6 20 3D 20 53 
-14987  6FEA 74 61 72 62 
-14987  6FEE 61 73 65 20 
-14987  6FF2 4E 61 76 20 
-14987  6FF6 44 61 74 61 
-14987  6FFA 0A 00 
-14988  6FFC 20 20 20 34 _s134: .db "   4 = Direction/Distance Calculator\n", 0
-14988  7000 20 3D 20 44 
-14988  7004 69 72 65 63 
-14988  7008 74 69 6F 6E 
-14988  700C 2F 44 69 73 
-14988  7010 74 61 6E 63 
-14988  7014 65 20 43 61 
-14988  7018 6C 63 75 6C 
-14988  701C 61 74 6F 72 
-14988  7020 0A 00 
-14989  7022 20 20 20 35 _s135: .db "   5 = Galaxy Region Name Map\n", 0
-14989  7026 20 3D 20 47 
-14989  702A 61 6C 61 78 
-14989  702E 79 20 52 65 
-14989  7032 67 69 6F 6E 
-14989  7036 20 4E 61 6D 
-14989  703A 65 20 4D 61 
-14989  703E 70 0A 00 
-14990  7041 0A 20 20 20 _s136: .db "\n     Computer Record of Galaxy for Quadrant %d,%d\n\n", 0
-14990  7045 20 20 43 6F 
-14990  7049 6D 70 75 74 
-14990  704D 65 72 20 52 
-14990  7051 65 63 6F 72 
-14990  7055 64 20 6F 66 
-14990  7059 20 47 61 6C 
-14990  705D 61 78 79 20 
-14990  7061 66 6F 72 20 
-14990  7065 51 75 61 64 
-14990  7069 72 61 6E 74 
-14990  706D 20 25 64 2C 
-14990  7071 25 64 0A 0A 
-14990  7075 00 
-14991  7076 20 20 20 20 _s137: .db "     1     2     3     4     5     6     7     8", 0
-14991  707A 20 31 20 20 
-14991  707E 20 20 20 32 
-14991  7082 20 20 20 20 
-14991  7086 20 33 20 20 
-14991  708A 20 20 20 34 
-14991  708E 20 20 20 20 
-14991  7092 20 35 20 20 
-14991  7096 20 20 20 36 
-14991  709A 20 20 20 20 
-14991  709E 20 37 20 20 
-14991  70A2 20 20 20 38 
-14991  70A6 00 
-14992  70A7 25 73 25 64 _s138: .db "%s%d", 0
-14992  70AB 00 
-14993  70AC 20 20 20 53 _s139: .db "   Status Report:\n", 0
-14993  70B0 74 61 74 75 
-14993  70B4 73 20 52 65 
-14993  70B8 70 6F 72 74 
-14993  70BC 3A 0A 00 
-14994  70BF 4B 6C 69 6E _s140: .db "Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n", 0
-14994  70C3 67 6F 6E 25 
-14994  70C7 73 20 4C 65 
-14994  70CB 66 74 3A 20 
-14994  70CF 25 64 0A 20 
-14994  70D3 4D 69 73 73 
-14994  70D7 69 6F 6E 20 
-14994  70DB 6D 75 73 74 
-14994  70DF 20 62 65 20 
-14994  70E3 63 6F 6D 70 
-14994  70E7 6C 65 74 65 
-14994  70EB 64 20 69 6E 
-14994  70EF 20 25 64 2E 
-14994  70F3 25 64 20 73 
-14994  70F7 74 61 72 64 
-14994  70FB 61 74 65 73 
-14994  70FF 0A 00 
-14995  7101 59 6F 75 72 _s141: .db "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n", 0
-14995  7105 20 73 74 75 
-14995  7109 70 69 64 69 
-14995  710D 74 79 20 68 
-14995  7111 61 73 20 6C 
-14995  7115 65 66 74 20 
-14995  7119 79 6F 75 20 
-14995  711D 6F 6E 20 79 
-14995  7121 6F 75 72 20 
-14995  7125 6F 77 6E 20 
-14995  7129 69 6E 20 74 
-14995  712D 68 65 20 67 
-14995  7131 61 6C 61 78 
-14995  7135 79 0A 20 2D 
-14995  7139 2D 20 79 6F 
-14995  713D 75 20 68 61 
-14995  7141 76 65 20 6E 
-14995  7145 6F 20 73 74 
-14995  7149 61 72 62 61 
-14995  714D 73 65 73 20 
-14995  7151 6C 65 66 74 
-14995  7155 21 0A 00 
-14996  7158 54 68 65 20 _s142: .db "The Federation is maintaining %d starbase%s in the galaxy\n\n", 0
-14996  715C 46 65 64 65 
-14996  7160 72 61 74 69 
-14996  7164 6F 6E 20 69 
-14996  7168 73 20 6D 61 
-14996  716C 69 6E 74 61 
-14996  7170 69 6E 69 6E 
-14996  7174 67 20 25 64 
-14996  7178 20 73 74 61 
-14996  717C 72 62 61 73 
-14996  7180 65 25 73 20 
-14996  7184 69 6E 20 74 
-14996  7188 68 65 20 67 
-14996  718C 61 6C 61 78 
-14996  7190 79 0A 0A 00 
-14997  7194 46 72 6F 6D _s143: .db "From Enterprise to Klingon battlecriuser%s:\n\n", 0
-14997  7198 20 45 6E 74 
-14997  719C 65 72 70 72 
-14997  71A0 69 73 65 20 
-14997  71A4 74 6F 20 4B 
-14997  71A8 6C 69 6E 67 
-14997  71AC 6F 6E 20 62 
-14997  71B0 61 74 74 6C 
-14997  71B4 65 63 72 69 
-14997  71B8 75 73 65 72 
-14997  71BC 25 73 3A 0A 
-14997  71C0 0A 00 
-14998  71C2 4D 72 2E 20 _s144: .db "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n", 0
-14998  71C6 53 70 6F 63 
-14998  71CA 6B 20 72 65 
-14998  71CE 70 6F 72 74 
-14998  71D2 73 2C 0A 20 
-14998  71D6 20 53 65 6E 
-14998  71DA 73 6F 72 73 
-14998  71DE 20 73 68 6F 
-14998  71E2 77 20 6E 6F 
-14998  71E6 20 73 74 61 
-14998  71EA 72 62 61 73 
-14998  71EE 65 73 20 69 
-14998  71F2 6E 20 74 68 
-14998  71F6 69 73 20 71 
-14998  71FA 75 61 64 72 
-14998  71FE 61 6E 74 2E 
-14998  7202 0A 00 
-14999  7204 44 69 72 65 _s145: .db "Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: ", 0
-14999  7208 63 74 69 6F 
-14999  720C 6E 2F 44 69 
-14999  7210 73 74 61 6E 
-14999  7214 63 65 20 43 
-14999  7218 61 6C 63 75 
-14999  721C 6C 61 74 6F 
-14999  7220 72 0A 20 59 
-14999  7224 6F 75 20 61 
-14999  7228 72 65 20 61 
-14999  722C 74 20 71 75 
-14999  7230 61 64 72 61 
-14999  7234 6E 74 20 25 
-14999  7238 64 2C 25 64 
-14999  723C 20 73 65 63 
-14999  7240 74 6F 72 20 
-14999  7244 25 64 2C 25 
-14999  7248 64 0A 0A 20 
-14999  724C 50 6C 65 61 
-14999  7250 73 65 20 65 
-14999  7254 6E 74 65 72 
-14999  7258 20 69 6E 69 
-14999  725C 74 69 61 6C 
-14999  7260 20 58 20 63 
-14999  7264 6F 6F 72 64 
-14999  7268 69 6E 61 74 
-14999  726C 65 3A 20 00 
-15000  7270 50 6C 65 61 _s146: .db "Please enter initial Y coordinate: ", 0
-15000  7274 73 65 20 65 
-15000  7278 6E 74 65 72 
-15000  727C 20 69 6E 69 
-15000  7280 74 69 61 6C 
-15000  7284 20 59 20 63 
-15000  7288 6F 6F 72 64 
-15000  728C 69 6E 61 74 
-15000  7290 65 3A 20 00 
-15001  7294 50 6C 65 61 _s147: .db "Please enter final X coordinate: ", 0
-15001  7298 73 65 20 65 
-15001  729C 6E 74 65 72 
-15001  72A0 20 66 69 6E 
-15001  72A4 61 6C 20 58 
-15001  72A8 20 63 6F 6F 
-15001  72AC 72 64 69 6E 
-15001  72B0 61 74 65 3A 
-15001  72B4 20 00 
-15002  72B6 50 6C 65 61 _s148: .db "Please enter final Y coordinate: ", 0
-15002  72BA 73 65 20 65 
-15002  72BE 6E 74 65 72 
-15002  72C2 20 66 69 6E 
-15002  72C6 61 6C 20 59 
-15002  72CA 20 63 6F 6F 
-15002  72CE 72 64 69 6E 
-15002  72D2 61 74 65 3A 
-15002  72D6 20 00 
-15003  72D8 0A 20 20 20 _s149: .db "\n                   The Galaxy\n\n", 0
-15003  72DC 20 20 20 20 
-15003  72E0 20 20 20 20 
-15003  72E4 20 20 20 20 
-15003  72E8 20 20 20 20 
-15003  72EC 54 68 65 20 
-15003  72F0 47 61 6C 61 
-15003  72F4 78 79 0A 0A 
-15003  72F8 00 
-15004  72F9 20 20 20 20 _s150: .db "    1     2     3     4     5     6     7     8\n", 0
-15004  72FD 31 20 20 20 
-15004  7301 20 20 32 20 
-15004  7305 20 20 20 20 
-15004  7309 33 20 20 20 
-15004  730D 20 20 34 20 
-15004  7311 20 20 20 20 
-15004  7315 35 20 20 20 
-15004  7319 20 20 36 20 
-15004  731D 20 20 20 20 
-15004  7321 37 20 20 20 
-15004  7325 20 20 38 0A 
-15004  7329 00 
-15005  732A 25 73 25 64 _s151: .db "%s%d ", 0
-15005  732E 20 00 
-15006  7330 20 20 44 49 _s152: .db "  DIRECTION = ", 0
-15006  7334 52 45 43 54 
-15006  7338 49 4F 4E 20 
-15006  733C 3D 20 00 
-15007  733F 25 73 00    _s153: .db "%s", 0
-15008  7342 54 68 65 20 _s154: .db "The Enterprise has been destroyed. The Federation will be conquered.\n", 0
-15008  7346 45 6E 74 65 
-15008  734A 72 70 72 69 
-15008  734E 73 65 20 68 
-15008  7352 61 73 20 62 
-15008  7356 65 65 6E 20 
-15008  735A 64 65 73 74 
-15008  735E 72 6F 79 65 
-15008  7362 64 2E 20 54 
-15008  7366 68 65 20 46 
-15008  736A 65 64 65 72 
-15008  736E 61 74 69 6F 
-15008  7372 6E 20 77 69 
-15008  7376 6C 6C 20 62 
-15008  737A 65 20 63 6F 
-15008  737E 6E 71 75 65 
-15008  7382 72 65 64 2E 
-15008  7386 0A 00 
-15009  7388 49 74 20 69 _s155: .db "It is stardate %d.\n\n", 0
-15009  738C 73 20 73 74 
-15009  7390 61 72 64 61 
-15009  7394 74 65 20 25 
-15009  7398 64 2E 0A 0A 
-15009  739C 00 
-15010  739D 54 68 65 72 _s156: .db "There were %d Klingon Battlecruisers left at the end of your mission.\n\n", 0
-15010  73A1 65 20 77 65 
-15010  73A5 72 65 20 25 
-15010  73A9 64 20 4B 6C 
-15010  73AD 69 6E 67 6F 
-15010  73B1 6E 20 42 61 
-15010  73B5 74 74 6C 65 
-15010  73B9 63 72 75 69 
-15010  73BD 73 65 72 73 
-15010  73C1 20 6C 65 66 
-15010  73C5 74 20 61 74 
-15010  73C9 20 74 68 65 
-15010  73CD 20 65 6E 64 
-15010  73D1 20 6F 66 20 
-15010  73D5 79 6F 75 72 
-15010  73D9 20 6D 69 73 
-15010  73DD 73 69 6F 6E 
-15010  73E1 2E 0A 0A 00 
-15011  73E5 43 6F 6E 67 _s157: .db "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n", 0
-15011  73E9 72 61 74 75 
-15011  73ED 6C 61 74 69 
-15011  73F1 6F 6E 73 2C 
-15011  73F5 20 43 61 70 
-15011  73F9 74 61 69 6E 
-15011  73FD 21 20 20 54 
-15011  7401 68 65 20 6C 
-15011  7405 61 73 74 20 
-15011  7409 4B 6C 69 6E 
-15011  740D 67 6F 6E 20 
-15011  7411 42 61 74 74 
-15011  7415 6C 65 20 43 
-15011  7419 72 75 69 73 
-15011  741D 65 72 0A 20 
-15011  7421 6D 65 6E 61 
-15011  7425 63 69 6E 67 
-15011  7429 20 74 68 65 
-15011  742D 20 46 65 64 
-15011  7431 65 72 61 74 
-15011  7435 69 6F 6E 20 
-15011  7439 68 61 73 20 
-15011  743D 62 65 65 6E 
-15011  7441 20 64 65 73 
-15011  7445 74 6F 79 65 
-15011  7449 64 2E 0A 00 
-15012  744D 59 6F 75 72 _s158: .db "Your efficiency rating is %s\n", 0
-15012  7451 20 65 66 66 
-15012  7455 69 63 69 65 
-15012  7459 6E 63 79 20 
-15012  745D 72 61 74 69 
-15012  7461 6E 67 20 69 
-15012  7465 73 20 25 73 
-15012  7469 0A 00 
-15013  746B 54 68 65 20 _s159: .db "The Federation is in need of a new starship commander", 0
-15013  746F 46 65 64 65 
-15013  7473 72 61 74 69 
-15013  7477 6F 6E 20 69 
-15013  747B 73 20 69 6E 
-15013  747F 20 6E 65 65 
-15013  7483 64 20 6F 66 
-15013  7487 20 61 20 6E 
-15013  748B 65 77 20 73 
-15013  748F 74 61 72 73 
-15013  7493 68 69 70 20 
-15013  7497 63 6F 6D 6D 
-15013  749B 61 6E 64 65 
-15013  749F 72 00 
-15014  74A1 20 66 6F 72 _s160: .db " for a similar mission.\n", 0
-15014  74A5 20 61 20 73 
-15014  74A9 69 6D 69 6C 
-15014  74AD 61 72 20 6D 
-15014  74B1 69 73 73 69 
-15014  74B5 6F 6E 2E 0A 
-15014  74B9 00 
-15015  74BA 49 66 20 74 _s161: .db "If there is a volunteer, let him step forward and", 0
-15015  74BE 68 65 72 65 
-15015  74C2 20 69 73 20 
-15015  74C6 61 20 76 6F 
-15015  74CA 6C 75 6E 74 
-15015  74CE 65 65 72 2C 
-15015  74D2 20 6C 65 74 
-15015  74D6 20 68 69 6D 
-15015  74DA 20 73 74 65 
-15015  74DE 70 20 66 6F 
-15015  74E2 72 77 61 72 
-15015  74E6 64 20 61 6E 
-15015  74EA 64 00 
-15016  74EC 20 65 6E 74 _s162: .db " enter aye: ", 0
-15016  74F0 65 72 20 61 
-15016  74F4 79 65 3A 20 
-15016  74F8 00 
-15017  74F9 61 79 65 00 _s163: .db "aye", 0
-15018  74FD 53 74 61 72 _s164: .db "Starbase shields protect the Enterprise\n", 0
-15018  7501 62 61 73 65 
-15018  7505 20 73 68 69 
-15018  7509 65 6C 64 73 
-15018  750D 20 70 72 6F 
-15018  7511 74 65 63 74 
-15018  7515 20 74 68 65 
-15018  7519 20 45 6E 74 
-15018  751D 65 72 70 72 
-15018  7521 69 73 65 0A 
-15018  7525 00 
-15019  7526 25 64 20 75 _s165: .db "%d unit hit on Enterprise from sector %d, %d\n", 0
-15019  752A 6E 69 74 20 
-15019  752E 68 69 74 20 
-15019  7532 6F 6E 20 45 
-15019  7536 6E 74 65 72 
-15019  753A 70 72 69 73 
-15019  753E 65 20 66 72 
-15019  7542 6F 6D 20 73 
-15019  7546 65 63 74 6F 
-15019  754A 72 20 25 64 
-15019  754E 2C 20 25 64 
-15019  7552 0A 00 
-15020  7554 20 20 20 20 _s166: .db "    <Shields down to %d units>\n\n", 0
-15020  7558 3C 53 68 69 
-15020  755C 65 6C 64 73 
-15020  7560 20 64 6F 77 
-15020  7564 6E 20 74 6F 
-15020  7568 20 25 64 20 
-15020  756C 75 6E 69 74 
-15020  7570 73 3E 0A 0A 
-15020  7574 00 
-15021  7575 44 61 6D 61 _s167: .db "Damage Control reports\n%s damaged by hit\n\n", 0
-15021  7579 67 65 20 43 
-15021  757D 6F 6E 74 72 
-15021  7581 6F 6C 20 72 
-15021  7585 65 70 6F 72 
-15021  7589 74 73 0A 25 
-15021  758D 73 20 64 61 
-15021  7591 6D 61 67 65 
-15021  7595 64 20 62 79 
-15021  7599 20 68 69 74 
-15021  759D 0A 0A 00 
-15022  75A0 20 20 20 20 _s168: .db "    %s repair completed\n\n", 0
-15022  75A4 25 73 20 72 
-15022  75A8 65 70 61 69 
-15022  75AC 72 20 63 6F 
-15022  75B0 6D 70 6C 65 
-15022  75B4 74 65 64 0A 
-15022  75B8 0A 00 
-15023  75BA 20 20 20 20 _s169: .db "    %s damaged\n\n", 0
-15023  75BE 25 73 20 64 
-15023  75C2 61 6D 61 67 
-15023  75C6 65 64 0A 0A 
-15023  75CA 00 
-15024  75CB 20 20 20 20 _s170: .db "    %s state of repair improved\n\n", 0
-15024  75CF 25 73 20 73 
-15024  75D3 74 61 74 65 
-15024  75D7 20 6F 66 20 
-15024  75DB 72 65 70 61 
-15024  75DF 69 72 20 69 
-15024  75E3 6D 70 72 6F 
-15024  75E7 76 65 64 0A 
-15024  75EB 0A 00 
-15025  75ED 20 49 00    _s171: .db " I", 0
-15026  75F0 20 49 49 00 _s172: .db " II", 0
-15027  75F4 20 49 49 49 _s173: .db " III", 0
-15027  75F8 00 
-15028  75F9 20 49 56 00 _s174: .db " IV", 0
-15029  75FD 55 6E 6B 6E _s175: .db "Unknown", 0
-15029  7601 6F 77 6E 00 
-15030  7605             
-15031  7605 07 76       _heap_top: .dw _heap
-15032  7607 00          _heap: .db 0
-15033  7608             ; --- END DATA BLOCK
-15034  7608             
-15035  7608             .end
-tasm: Number of errors = 12
+14852  6352 68 63 76 77 .dw _s0, _s171, _s172, _s173, _s174, 
+14852  6356 79 77 7D 77 
+14852  635A 82 77 
+14853  635C 00 00 00 00 .fill 10, 0
+14853  6360 00 00 00 00 
+14853  6364 00 00 
+14854  6366 52 63       st_quadrant_name_sect_name: .dw st_quadrant_name_sect_name_dt
+14855  6368 00          _s0: .db "", 0
+14856  6369 41 6E 74 61 _s1: .db "Antares", 0
+14856  636D 72 65 73 00 
+14857  6371 52 69 67 65 _s2: .db "Rigel", 0
+14857  6375 6C 00 
+14858  6377 50 72 6F 63 _s3: .db "Procyon", 0
+14858  637B 79 6F 6E 00 
+14859  637F 56 65 67 61 _s4: .db "Vega", 0
+14859  6383 00 
+14860  6384 43 61 6E 6F _s5: .db "Canopus", 0
+14860  6388 70 75 73 00 
+14861  638C 41 6C 74 61 _s6: .db "Altair", 0
+14861  6390 69 72 00 
+14862  6393 53 61 67 69 _s7: .db "Sagittarius", 0
+14862  6397 74 74 61 72 
+14862  639B 69 75 73 00 
+14863  639F 50 6F 6C 6C _s8: .db "Pollux", 0
+14863  63A3 75 78 00 
+14864  63A6 53 69 72 69 _s9: .db "Sirius", 0
+14864  63AA 75 73 00 
+14865  63AD 44 65 6E 65 _s10: .db "Deneb", 0
+14865  63B1 62 00 
+14866  63B3 43 61 70 65 _s11: .db "Capella", 0
+14866  63B7 6C 6C 61 00 
+14867  63BB 42 65 74 65 _s12: .db "Betelgeuse", 0
+14867  63BF 6C 67 65 75 
+14867  63C3 73 65 00 
+14868  63C6 41 6C 64 65 _s13: .db "Aldebaran", 0
+14868  63CA 62 61 72 61 
+14868  63CE 6E 00 
+14869  63D0 52 65 67 75 _s14: .db "Regulus", 0
+14869  63D4 6C 75 73 00 
+14870  63D8 41 72 63 74 _s15: .db "Arcturus", 0
+14870  63DC 75 72 75 73 
+14870  63E0 00 
+14871  63E1 53 70 69 63 _s16: .db "Spica", 0
+14871  63E5 61 00 
+14872  63E7 57 61 72 70 _s17: .db "Warp engines", 0
+14872  63EB 20 65 6E 67 
+14872  63EF 69 6E 65 73 
+14872  63F3 00 
+14873  63F4 53 68 6F 72 _s18: .db "Short range sensors", 0
+14873  63F8 74 20 72 61 
+14873  63FC 6E 67 65 20 
+14873  6400 73 65 6E 73 
+14873  6404 6F 72 73 00 
+14874  6408 4C 6F 6E 67 _s19: .db "Long range sensors", 0
+14874  640C 20 72 61 6E 
+14874  6410 67 65 20 73 
+14874  6414 65 6E 73 6F 
+14874  6418 72 73 00 
+14875  641B 50 68 61 73 _s20: .db "Phaser control", 0
+14875  641F 65 72 20 63 
+14875  6423 6F 6E 74 72 
+14875  6427 6F 6C 00 
+14876  642A 50 68 6F 74 _s21: .db "Photon tubes", 0
+14876  642E 6F 6E 20 74 
+14876  6432 75 62 65 73 
+14876  6436 00 
+14877  6437 44 61 6D 61 _s22: .db "Damage control", 0
+14877  643B 67 65 20 63 
+14877  643F 6F 6E 74 72 
+14877  6443 6F 6C 00 
+14878  6446 53 68 69 65 _s23: .db "Shield control", 0
+14878  644A 6C 64 20 63 
+14878  644E 6F 6E 74 72 
+14878  6452 6F 6C 00 
+14879  6455 4C 69 62 72 _s24: .db "Library computer", 0
+14879  6459 61 72 79 20 
+14879  645D 63 6F 6D 70 
+14879  6461 75 74 65 72 
+14879  6465 00 
+14880  6466 20 20 20 00 _s25: .db "   ", 0
+14881  646A 20 2A 20 00 _s26: .db " * ", 0
+14882  646E 3E 21 3C 00 _s27: .db ">!<", 0
+14883  6472 2B 4B 2B 00 _s28: .db "+K+", 0
+14884  6476 3C 2A 3E 00 _s29: .db "<*>", 0
+14885  647A 55 6E 65 78 _s30: .db "Unexpected format in printf.", 0
+14885  647E 70 65 63 74 
+14885  6482 65 64 20 66 
+14885  6486 6F 72 6D 61 
+14885  648A 74 20 69 6E 
+14885  648E 20 70 72 69 
+14885  6492 6E 74 66 2E 
+14885  6496 00 
+14886  6497 45 72 72 6F _s31: .db "Error: Unknown argument type.\n", 0
+14886  649B 72 3A 20 55 
+14886  649F 6E 6B 6E 6F 
+14886  64A3 77 6E 20 61 
+14886  64A7 72 67 75 6D 
+14886  64AB 65 6E 74 20 
+14886  64AF 74 79 70 65 
+14886  64B3 2E 0A 00 
+14887  64B6 1B 5B 32 4A _s32: .db "\033[2J\033[H", 0
+14887  64BA 1B 5B 48 00 
+14888  64BE 61 72 65 00 _s33: .db "are", 0
+14889  64C2 69 73 00    _s34: .db "is", 0
+14890  64C5 25 73 20 25 _s35: .db "%s %s inoperable.\n", 0
+14890  64C9 73 20 69 6E 
+14890  64CD 6F 70 65 72 
+14890  64D1 61 62 6C 65 
+14890  64D5 2E 0A 00 
+14891  64D8 73 74 61 72 _s36: .db "startrek.intro", 0
+14891  64DC 74 72 65 6B 
+14891  64E0 2E 69 6E 74 
+14891  64E4 72 6F 00 
+14892  64E7 73 74 61 72 _s37: .db "startrek.doc", 0
+14892  64EB 74 72 65 6B 
+14892  64EF 2E 64 6F 63 
+14892  64F3 00 
+14893  64F4 73 74 61 72 _s38: .db "startrek.logo", 0
+14893  64F8 74 72 65 6B 
+14893  64FC 2E 6C 6F 67 
+14893  6500 6F 00 
+14894  6502 73 74 61 72 _s39: .db "startrek.fatal", 0
+14894  6506 74 72 65 6B 
+14894  650A 2E 66 61 74 
+14894  650E 61 6C 00 
+14895  6511 43 6F 6D 6D _s40: .db "Command? ", 0
+14895  6515 61 6E 64 3F 
+14895  6519 20 00 
+14896  651B 6E 61 76 00 _s41: .db "nav", 0
+14897  651F 73 72 73 00 _s42: .db "srs", 0
+14898  6523 6C 72 73 00 _s43: .db "lrs", 0
+14899  6527 70 68 61 00 _s44: .db "pha", 0
+14900  652B 74 6F 72 00 _s45: .db "tor", 0
+14901  652F 73 68 69 00 _s46: .db "shi", 0
+14902  6533 64 61 6D 00 _s47: .db "dam", 0
+14903  6537 63 6F 6D 00 _s48: .db "com", 0
+14904  653B 78 78 78 00 _s49: .db "xxx", 0
+14905  653F 45 6E 74 65 _s50: .db "Enter one of the following:\n", 0
+14905  6543 72 20 6F 6E 
+14905  6547 65 20 6F 66 
+14905  654B 20 74 68 65 
+14905  654F 20 66 6F 6C 
+14905  6553 6C 6F 77 69 
+14905  6557 6E 67 3A 0A 
+14905  655B 00 
+14906  655C 20 20 6E 61 _s51: .db "  nav - To Set Course", 0
+14906  6560 76 20 2D 20 
+14906  6564 54 6F 20 53 
+14906  6568 65 74 20 43 
+14906  656C 6F 75 72 73 
+14906  6570 65 00 
+14907  6572 20 20 73 72 _s52: .db "  srs - Short Range Sensors", 0
+14907  6576 73 20 2D 20 
+14907  657A 53 68 6F 72 
+14907  657E 74 20 52 61 
+14907  6582 6E 67 65 20 
+14907  6586 53 65 6E 73 
+14907  658A 6F 72 73 00 
+14908  658E 20 20 6C 72 _s53: .db "  lrs - Long Range Sensors", 0
+14908  6592 73 20 2D 20 
+14908  6596 4C 6F 6E 67 
+14908  659A 20 52 61 6E 
+14908  659E 67 65 20 53 
+14908  65A2 65 6E 73 6F 
+14908  65A6 72 73 00 
+14909  65A9 20 20 70 68 _s54: .db "  pha - Phasers", 0
+14909  65AD 61 20 2D 20 
+14909  65B1 50 68 61 73 
+14909  65B5 65 72 73 00 
+14910  65B9 20 20 74 6F _s55: .db "  tor - Photon Torpedoes", 0
+14910  65BD 72 20 2D 20 
+14910  65C1 50 68 6F 74 
+14910  65C5 6F 6E 20 54 
+14910  65C9 6F 72 70 65 
+14910  65CD 64 6F 65 73 
+14910  65D1 00 
+14911  65D2 20 20 73 68 _s56: .db "  shi - Shield Control", 0
+14911  65D6 69 20 2D 20 
+14911  65DA 53 68 69 65 
+14911  65DE 6C 64 20 43 
+14911  65E2 6F 6E 74 72 
+14911  65E6 6F 6C 00 
+14912  65E9 20 20 64 61 _s57: .db "  dam - Damage Control", 0
+14912  65ED 6D 20 2D 20 
+14912  65F1 44 61 6D 61 
+14912  65F5 67 65 20 43 
+14912  65F9 6F 6E 74 72 
+14912  65FD 6F 6C 00 
+14913  6600 20 20 63 6F _s58: .db "  com - Library Computer", 0
+14913  6604 6D 20 2D 20 
+14913  6608 4C 69 62 72 
+14913  660C 61 72 79 20 
+14913  6610 43 6F 6D 70 
+14913  6614 75 74 65 72 
+14913  6618 00 
+14914  6619 20 20 78 78 _s59: .db "  xxx - Resign Command\n", 0
+14914  661D 78 20 2D 20 
+14914  6621 52 65 73 69 
+14914  6625 67 6E 20 43 
+14914  6629 6F 6D 6D 61 
+14914  662D 6E 64 0A 00 
+14915  6631 73 00       _s60: .db "s", 0
+14916  6633 59 6F 75 72 _s61: .db "Your orders are as follows:\nDestroy the %d Klingon warships which have", 0
+14916  6637 20 6F 72 64 
+14916  663B 65 72 73 20 
+14916  663F 61 72 65 20 
+14916  6643 61 73 20 66 
+14916  6647 6F 6C 6C 6F 
+14916  664B 77 73 3A 0A 
+14916  664F 44 65 73 74 
+14916  6653 72 6F 79 20 
+14916  6657 74 68 65 20 
+14916  665B 25 64 20 4B 
+14916  665F 6C 69 6E 67 
+14916  6663 6F 6E 20 77 
+14916  6667 61 72 73 68 
+14916  666B 69 70 73 20 
+14916  666F 77 68 69 63 
+14916  6673 68 20 68 61 
+14916  6677 76 65 00 
+14917  667A 69 6E 76 61 _s62: .db "invaded\n the galaxy before they can attack Federation Headquarters\n", 0
+14917  667E 64 65 64 0A 
+14917  6682 20 74 68 65 
+14917  6686 20 67 61 6C 
+14917  668A 61 78 79 20 
+14917  668E 62 65 66 6F 
+14917  6692 72 65 20 74 
+14917  6696 68 65 79 20 
+14917  669A 63 61 6E 20 
+14917  669E 61 74 74 61 
+14917  66A2 63 6B 20 46 
+14917  66A6 65 64 65 72 
+14917  66AA 61 74 69 6F 
+14917  66AE 6E 20 48 65 
+14917  66B2 61 64 71 75 
+14917  66B6 61 72 74 65 
+14917  66BA 72 73 0A 00 
+14918  66BE 20 6F 6E 20 _s63: .db " on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy", 0
+14918  66C2 73 74 61 72 
+14918  66C6 64 61 74 65 
+14918  66CA 20 25 75 2E 
+14918  66CE 20 54 68 69 
+14918  66D2 73 20 67 69 
+14918  66D6 76 65 73 20 
+14918  66DA 79 6F 75 20 
+14918  66DE 25 64 20 64 
+14918  66E2 61 79 73 2E 
+14918  66E6 20 54 68 65 
+14918  66EA 72 65 20 25 
+14918  66EE 73 0A 20 25 
+14918  66F2 64 20 73 74 
+14918  66F6 61 72 62 61 
+14918  66FA 73 65 25 73 
+14918  66FE 20 69 6E 20 
+14918  6702 74 68 65 20 
+14918  6706 67 61 6C 61 
+14918  670A 78 79 00 
+14919  670D 20 66 6F 72 _s64: .db " for resupplying your ship.\n\n Hit any key to accept command. ", 0
+14919  6711 20 72 65 73 
+14919  6715 75 70 70 6C 
+14919  6719 79 69 6E 67 
+14919  671D 20 79 6F 75 
+14919  6721 72 20 73 68 
+14919  6725 69 70 2E 0A 
+14919  6729 0A 20 48 69 
+14919  672D 74 20 61 6E 
+14919  6731 79 20 6B 65 
+14919  6735 79 20 74 6F 
+14919  6739 20 61 63 63 
+14919  673D 65 70 74 20 
+14919  6741 63 6F 6D 6D 
+14919  6745 61 6E 64 2E 
+14919  6749 20 00 
+14920  674B 4E 6F 77 20 _s65: .db "Now entering %s quadrant...\n\n", 0
+14920  674F 65 6E 74 65 
+14920  6753 72 69 6E 67 
+14920  6757 20 25 73 20 
+14920  675B 71 75 61 64 
+14920  675F 72 61 6E 74 
+14920  6763 2E 2E 2E 0A 
+14920  6767 0A 00 
+14921  6769 0A 59 6F 75 _s66: .db "\nYour mission begins with your starship located", 0
+14921  676D 72 20 6D 69 
+14921  6771 73 73 69 6F 
+14921  6775 6E 20 62 65 
+14921  6779 67 69 6E 73 
+14921  677D 20 77 69 74 
+14921  6781 68 20 79 6F 
+14921  6785 75 72 20 73 
+14921  6789 74 61 72 73 
+14921  678D 68 69 70 20 
+14921  6791 6C 6F 63 61 
+14921  6795 74 65 64 00 
+14922  6799 69 6E 20 74 _s67: .db "in the galactic quadrant %s.\n\n", 0
+14922  679D 68 65 20 67 
+14922  67A1 61 6C 61 63 
+14922  67A5 74 69 63 20 
+14922  67A9 71 75 61 64 
+14922  67AD 72 61 6E 74 
+14922  67B1 20 25 73 2E 
+14922  67B5 0A 0A 00 
+14923  67B8 43 6F 6D 62 _s68: .db "Combat Area  Condition Red\n", 0
+14923  67BC 61 74 20 41 
+14923  67C0 72 65 61 20 
+14923  67C4 20 43 6F 6E 
+14923  67C8 64 69 74 69 
+14923  67CC 6F 6E 20 52 
+14923  67D0 65 64 0A 00 
+14924  67D4 53 68 69 65 _s69: .db "Shields Dangerously Low\n", 0
+14924  67D8 6C 64 73 20 
+14924  67DC 44 61 6E 67 
+14924  67E0 65 72 6F 75 
+14924  67E4 73 6C 79 20 
+14924  67E8 4C 6F 77 0A 
+14924  67EC 00 
+14925  67ED 43 6F 75 72 _s70: .db "Course (0-9): ", 0
+14925  67F1 73 65 20 28 
+14925  67F5 30 2D 39 29 
+14925  67F9 3A 20 00 
+14926  67FC 4C 74 2E 20 _s71: .db "Lt. Sulu%s", 0
+14926  6800 53 75 6C 75 
+14926  6804 25 73 00 
+14927  6807 30 2E 32 00 _s72: .db "0.2", 0
+14928  680B 57 61 72 70 _s73: .db "Warp Factor (0-%s): ", 0
+14928  680F 20 46 61 63 
+14928  6813 74 6F 72 20 
+14928  6817 28 30 2D 25 
+14928  681B 73 29 3A 20 
+14928  681F 00 
+14929  6820 57 61 72 70 _s74: .db "Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n", 0
+14929  6824 20 45 6E 67 
+14929  6828 69 6E 65 73 
+14929  682C 20 61 72 65 
+14929  6830 20 64 61 6D 
+14929  6834 61 67 65 64 
+14929  6838 2E 20 4D 61 
+14929  683C 78 69 6D 75 
+14929  6840 6D 20 73 70 
+14929  6844 65 65 64 20 
+14929  6848 3D 20 57 61 
+14929  684C 72 70 20 30 
+14929  6850 2E 32 2E 0A 
+14929  6854 0A 00 
+14930  6856 43 68 69 65 _s75: .db "Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n", 0
+14930  685A 66 20 45 6E 
+14930  685E 67 69 6E 65 
+14930  6862 65 72 20 53 
+14930  6866 63 6F 74 74 
+14930  686A 20 72 65 70 
+14930  686E 6F 72 74 73 
+14930  6872 3A 0A 20 20 
+14930  6876 54 68 65 20 
+14930  687A 65 6E 67 69 
+14930  687E 6E 65 73 20 
+14930  6882 77 6F 6E 74 
+14930  6886 20 74 61 6B 
+14930  688A 65 20 77 61 
+14930  688E 72 70 20 25 
+14930  6892 73 21 0A 0A 
+14930  6896 00 
+14931  6897 45 6E 67 69 _s76: .db "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n", 0
+14931  689B 6E 65 65 72 
+14931  689F 69 6E 67 20 
+14931  68A3 72 65 70 6F 
+14931  68A7 72 74 73 3A 
+14931  68AB 0A 20 20 49 
+14931  68AF 6E 73 75 66 
+14931  68B3 66 69 63 69 
+14931  68B7 65 6E 74 20 
+14931  68BB 65 6E 65 72 
+14931  68BF 67 79 20 61 
+14931  68C3 76 61 69 6C 
+14931  68C7 61 62 6C 65 
+14931  68CB 20 66 6F 72 
+14931  68CF 20 6D 61 6E 
+14931  68D3 65 75 76 65 
+14931  68D7 72 69 6E 67 
+14931  68DB 20 61 74 20 
+14931  68DF 77 61 72 70 
+14931  68E3 20 25 73 21 
+14931  68E7 0A 0A 00 
+14932  68EA 44 65 66 6C _s77: .db "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n", 0
+14932  68EE 65 63 74 6F 
+14932  68F2 72 20 43 6F 
+14932  68F6 6E 74 72 6F 
+14932  68FA 6C 20 52 6F 
+14932  68FE 6F 6D 20 61 
+14932  6902 63 6B 6E 6F 
+14932  6906 77 6C 65 64 
+14932  690A 67 65 73 3A 
+14932  690E 0A 20 20 25 
+14932  6912 64 20 75 6E 
+14932  6916 69 74 73 20 
+14932  691A 6F 66 20 65 
+14932  691E 6E 65 72 67 
+14932  6922 79 20 70 72 
+14932  6926 65 73 65 6E 
+14932  692A 74 6C 79 20 
+14932  692E 64 65 70 6C 
+14932  6932 6F 79 65 64 
+14932  6936 20 74 6F 20 
+14932  693A 73 68 69 65 
+14932  693E 6C 64 73 2E 
+14932  6942 0A 00 
+14933  6944 4C 54 2E 20 _s78: .db "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denie"
+14933  6948 55 68 75 72 
+14933  694C 61 20 72 65 
+14933  6950 70 6F 72 74 
+14933  6954 73 3A 0A 20 
+14933  6958 4D 65 73 73 
+14933  695C 61 67 65 20 
+14933  6960 66 72 6F 6D 
+14933  6964 20 53 74 61 
+14933  6968 72 66 6C 65 
+14933  696C 65 74 20 43 
+14933  6970 6F 6D 6D 61 
+14933  6974 6E 64 3A 0A 
+14933  6978 0A 20 50 65 
+14933  697C 72 6D 69 73 
+14933  6980 73 69 6F 6E 
+14933  6984 20 74 6F 20 
+14933  6988 61 74 74 65 
+14933  698C 6D 70 74 20 
+14933  6990 63 72 6F 73 
+14933  6994 73 69 6E 67 
+14933  6998 20 6F 66 20 
+14933  699C 67 61 6C 61 
+14933  69A0 63 74 69 63 
+14933  69A4 20 70 65 72 
+14933  69A8 69 6D 65 74 
+14933  69AC 65 72 0A 20 
+14933  69B0 69 73 20 68 
+14933  69B4 65 72 65 62 
+14933  69B8 79 20 2A 64 
+14933  69BC 65 6E 69 65 
+14934  69C0 64 2A 2E 20 .db "d*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n", 0
+14934  69C4 53 68 75 74 
+14934  69C8 20 64 6F 77 
+14934  69CC 6E 20 79 6F 
+14934  69D0 75 72 20 65 
+14934  69D4 6E 67 69 6E 
+14934  69D8 65 73 2E 0A 
+14934  69DC 0A 20 43 68 
+14934  69E0 69 65 66 20 
+14934  69E4 45 6E 67 69 
+14934  69E8 6E 65 65 72 
+14934  69EC 20 53 63 6F 
+14934  69F0 74 74 20 72 
+14934  69F4 65 70 6F 72 
+14934  69F8 74 73 3A 0A 
+14934  69FC 20 57 61 72 
+14934  6A00 70 20 45 6E 
+14934  6A04 67 69 6E 65 
+14934  6A08 73 20 73 68 
+14934  6A0C 75 74 20 64 
+14934  6A10 6F 77 6E 20 
+14934  6A14 61 74 20 73 
+14934  6A18 65 63 74 6F 
+14934  6A1C 72 20 25 64 
+14934  6A20 2C 20 25 64 
+14934  6A24 20 6F 66 20 
+14934  6A28 71 75 61 64 
+14934  6A2C 72 61 6E 74 
+14934  6A30 20 25 64 2C 
+14934  6A34 20 25 64 2E 
+14934  6A38 0A 0A 00 
+14935  6A3B 57 61 72 70 _s79: .db "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n", 0
+14935  6A3F 20 45 6E 67 
+14935  6A43 69 6E 65 73 
+14935  6A47 20 73 68 75 
+14935  6A4B 74 20 64 6F 
+14935  6A4F 77 6E 20 61 
+14935  6A53 74 20 73 65 
+14935  6A57 63 74 6F 72 
+14935  6A5B 20 25 64 2C 
+14935  6A5F 20 25 64 20 
+14935  6A63 64 75 65 20 
+14935  6A67 74 6F 20 62 
+14935  6A6B 61 64 20 6E 
+14935  6A6F 61 76 69 67 
+14935  6A73 61 74 69 6F 
+14935  6A77 6E 2E 0A 0A 
+14935  6A7B 00 
+14936  6A7C 53 68 69 65 _s80: .db "Shield Control supplies energy to complete maneuver.\n", 0
+14936  6A80 6C 64 20 43 
+14936  6A84 6F 6E 74 72 
+14936  6A88 6F 6C 20 73 
+14936  6A8C 75 70 70 6C 
+14936  6A90 69 65 73 20 
+14936  6A94 65 6E 65 72 
+14936  6A98 67 79 20 74 
+14936  6A9C 6F 20 63 6F 
+14936  6AA0 6D 70 6C 65 
+14936  6AA4 74 65 20 6D 
+14936  6AA8 61 6E 65 75 
+14936  6AAC 76 65 72 2E 
+14936  6AB0 0A 00 
+14937  6AB2 59 45 4C 4C _s81: .db "YELLOW", 0
+14937  6AB6 4F 57 00 
+14938  6AB9 2A 52 45 44 _s82: .db "*RED*", 0
+14938  6ABD 2A 00 
+14939  6ABF 44 4F 43 4B _s83: .db "DOCKED", 0
+14939  6AC3 45 44 00 
+14940  6AC6 53 68 69 65 _s84: .db "Shields dropped for docking purposes.", 0
+14940  6ACA 6C 64 73 20 
+14940  6ACE 64 72 6F 70 
+14940  6AD2 70 65 64 20 
+14940  6AD6 66 6F 72 20 
+14940  6ADA 64 6F 63 6B 
+14940  6ADE 69 6E 67 20 
+14940  6AE2 70 75 72 70 
+14940  6AE6 6F 73 65 73 
+14940  6AEA 2E 00 
+14941  6AEC 0A 2A 2A 2A _s85: .db "\n*** Short Range Sensors are out ***", 0
+14941  6AF0 20 53 68 6F 
+14941  6AF4 72 74 20 52 
+14941  6AF8 61 6E 67 65 
+14941  6AFC 20 53 65 6E 
+14941  6B00 73 6F 72 73 
+14941  6B04 20 61 72 65 
+14941  6B08 20 6F 75 74 
+14941  6B0C 20 2A 2A 2A 
+14941  6B10 00 
+14942  6B11 20 20 20 20 _s86: .db "    Stardate            %d\n", 0
+14942  6B15 53 74 61 72 
+14942  6B19 64 61 74 65 
+14942  6B1D 20 20 20 20 
+14942  6B21 20 20 20 20 
+14942  6B25 20 20 20 20 
+14942  6B29 25 64 0A 00 
+14943  6B2D 20 20 20 20 _s87: .db "    Condition           %s\n", 0
+14943  6B31 43 6F 6E 64 
+14943  6B35 69 74 69 6F 
+14943  6B39 6E 20 20 20 
+14943  6B3D 20 20 20 20 
+14943  6B41 20 20 20 20 
+14943  6B45 25 73 0A 00 
+14944  6B49 20 20 20 20 _s88: .db "    Quadrant            %d, %d\n", 0
+14944  6B4D 51 75 61 64 
+14944  6B51 72 61 6E 74 
+14944  6B55 20 20 20 20 
+14944  6B59 20 20 20 20 
+14944  6B5D 20 20 20 20 
+14944  6B61 25 64 2C 20 
+14944  6B65 25 64 0A 00 
+14945  6B69 20 20 20 20 _s89: .db "    Sector              %d, %d\n", 0
+14945  6B6D 53 65 63 74 
+14945  6B71 6F 72 20 20 
+14945  6B75 20 20 20 20 
+14945  6B79 20 20 20 20 
+14945  6B7D 20 20 20 20 
+14945  6B81 25 64 2C 20 
+14945  6B85 25 64 0A 00 
+14946  6B89 20 20 20 20 _s90: .db "    Photon Torpedoes    %d\n", 0
+14946  6B8D 50 68 6F 74 
+14946  6B91 6F 6E 20 54 
+14946  6B95 6F 72 70 65 
+14946  6B99 64 6F 65 73 
+14946  6B9D 20 20 20 20 
+14946  6BA1 25 64 0A 00 
+14947  6BA5 20 20 20 20 _s91: .db "    Total Energy        %d\n", 0
+14947  6BA9 54 6F 74 61 
+14947  6BAD 6C 20 45 6E 
+14947  6BB1 65 72 67 79 
+14947  6BB5 20 20 20 20 
+14947  6BB9 20 20 20 20 
+14947  6BBD 25 64 0A 00 
+14948  6BC1 20 20 20 20 _s92: .db "    Shields             %d\n", 0
+14948  6BC5 53 68 69 65 
+14948  6BC9 6C 64 73 20 
+14948  6BCD 20 20 20 20 
+14948  6BD1 20 20 20 20 
+14948  6BD5 20 20 20 20 
+14948  6BD9 25 64 0A 00 
+14949  6BDD 20 20 20 20 _s93: .db "    Klingons Remaining  %d\n", 0
+14949  6BE1 4B 6C 69 6E 
+14949  6BE5 67 6F 6E 73 
+14949  6BE9 20 52 65 6D 
+14949  6BED 61 69 6E 69 
+14949  6BF1 6E 67 20 20 
+14949  6BF5 25 64 0A 00 
+14950  6BF9 4C 6F 6E 67 _s94: .db "Long Range Scan for Quadrant %d, %d\n\n", 0
+14950  6BFD 20 52 61 6E 
+14950  6C01 67 65 20 53 
+14950  6C05 63 61 6E 20 
+14950  6C09 66 6F 72 20 
+14950  6C0D 51 75 61 64 
+14950  6C11 72 61 6E 74 
+14950  6C15 20 25 64 2C 
+14950  6C19 20 25 64 0A 
+14950  6C1D 0A 00 
+14951  6C1F 25 73 3A 00 _s95: .db "%s:", 0
+14952  6C23 2A 2A 2A 00 _s96: .db "***", 0
+14953  6C27 20 3A 00    _s97: .db " :", 0
+14954  6C2A 25 73 0A 00 _s98: .db "%s\n", 0
+14955  6C2E 53 63 69 65 _s99: .db "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n", 0
+14955  6C32 6E 63 65 20 
+14955  6C36 4F 66 66 69 
+14955  6C3A 63 65 72 20 
+14955  6C3E 53 70 6F 63 
+14955  6C42 6B 20 72 65 
+14955  6C46 70 6F 72 74 
+14955  6C4A 73 3A 0A 20 
+14955  6C4E 20 27 53 65 
+14955  6C52 6E 73 6F 72 
+14955  6C56 73 20 73 68 
+14955  6C5A 6F 77 20 6E 
+14955  6C5E 6F 20 65 6E 
+14955  6C62 65 6D 79 20 
+14955  6C66 73 68 69 70 
+14955  6C6A 73 20 69 6E 
+14955  6C6E 20 74 68 69 
+14955  6C72 73 20 71 75 
+14955  6C76 61 64 72 61 
+14955  6C7A 6E 74 27 0A 
+14955  6C7E 00 
+14956  6C7F 43 6F 6D 70 _s100: .db "Computer failure hampers accuracy.", 0
+14956  6C83 75 74 65 72 
+14956  6C87 20 66 61 69 
+14956  6C8B 6C 75 72 65 
+14956  6C8F 20 68 61 6D 
+14956  6C93 70 65 72 73 
+14956  6C97 20 61 63 63 
+14956  6C9B 75 72 61 63 
+14956  6C9F 79 2E 00 
+14957  6CA2 50 68 61 73 _s101: .db "Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: ", 0
+14957  6CA6 65 72 73 20 
+14957  6CAA 6C 6F 63 6B 
+14957  6CAE 65 64 20 6F 
+14957  6CB2 6E 20 74 61 
+14957  6CB6 72 67 65 74 
+14957  6CBA 3B 0A 20 45 
+14957  6CBE 6E 65 72 67 
+14957  6CC2 79 20 61 76 
+14957  6CC6 61 69 6C 61 
+14957  6CCA 62 6C 65 20 
+14957  6CCE 3D 20 25 64 
+14957  6CD2 20 75 6E 69 
+14957  6CD6 74 73 0A 0A 
+14957  6CDA 20 4E 75 6D 
+14957  6CDE 62 65 72 20 
+14957  6CE2 6F 66 20 75 
+14957  6CE6 6E 69 74 73 
+14957  6CEA 20 74 6F 20 
+14957  6CEE 66 69 72 65 
+14957  6CF2 3A 20 00 
+14958  6CF5 4E 6F 74 20 _s102: .db "Not enough energy available.\n", 0
+14958  6CF9 65 6E 6F 75 
+14958  6CFD 67 68 20 65 
+14958  6D01 6E 65 72 67 
+14958  6D05 79 20 61 76 
+14958  6D09 61 69 6C 61 
+14958  6D0D 62 6C 65 2E 
+14958  6D11 0A 00 
+14959  6D13 53 65 6E 73 _s103: .db "Sensors show no damage to enemy at %d, %d\n\n", 0
+14959  6D17 6F 72 73 20 
+14959  6D1B 73 68 6F 77 
+14959  6D1F 20 6E 6F 20 
+14959  6D23 64 61 6D 61 
+14959  6D27 67 65 20 74 
+14959  6D2B 6F 20 65 6E 
+14959  6D2F 65 6D 79 20 
+14959  6D33 61 74 20 25 
+14959  6D37 64 2C 20 25 
+14959  6D3B 64 0A 0A 00 
+14960  6D3F 25 64 20 75 _s104: .db "%d unit hit on Klingon at sector %d, %d\n", 0
+14960  6D43 6E 69 74 20 
+14960  6D47 68 69 74 20 
+14960  6D4B 6F 6E 20 4B 
+14960  6D4F 6C 69 6E 67 
+14960  6D53 6F 6E 20 61 
+14960  6D57 74 20 73 65 
+14960  6D5B 63 74 6F 72 
+14960  6D5F 20 25 64 2C 
+14960  6D63 20 25 64 0A 
+14960  6D67 00 
+14961  6D68 2A 2A 2A 20 _s105: .db "*** Klingon Destroyed ***\n", 0
+14961  6D6C 4B 6C 69 6E 
+14961  6D70 67 6F 6E 20 
+14961  6D74 44 65 73 74 
+14961  6D78 72 6F 79 65 
+14961  6D7C 64 20 2A 2A 
+14961  6D80 2A 0A 00 
+14962  6D83 20 20 20 28 _s106: .db "   (Sensors show %d units remaining.)\n\n", 0
+14962  6D87 53 65 6E 73 
+14962  6D8B 6F 72 73 20 
+14962  6D8F 73 68 6F 77 
+14962  6D93 20 25 64 20 
+14962  6D97 75 6E 69 74 
+14962  6D9B 73 20 72 65 
+14962  6D9F 6D 61 69 6E 
+14962  6DA3 69 6E 67 2E 
+14962  6DA7 29 0A 0A 00 
+14963  6DAB 41 6C 6C 20 _s107: .db "All photon torpedoes expended", 0
+14963  6DAF 70 68 6F 74 
+14963  6DB3 6F 6E 20 74 
+14963  6DB7 6F 72 70 65 
+14963  6DBB 64 6F 65 73 
+14963  6DBF 20 65 78 70 
+14963  6DC3 65 6E 64 65 
+14963  6DC7 64 00 
+14964  6DC9 45 6E 73 69 _s108: .db "Ensign Chekov%s", 0
+14964  6DCD 67 6E 20 43 
+14964  6DD1 68 65 6B 6F 
+14964  6DD5 76 25 73 00 
+14965  6DD9 54 6F 72 70 _s109: .db "Torpedo Track:", 0
+14965  6DDD 65 64 6F 20 
+14965  6DE1 54 72 61 63 
+14965  6DE5 6B 3A 00 
+14966  6DE8 20 20 20 20 _s110: .db "    %d, %d\n", 0
+14966  6DEC 25 64 2C 20 
+14966  6DF0 25 64 0A 00 
+14967  6DF4 54 6F 72 70 _s111: .db "Torpedo Missed\n", 0
+14967  6DF8 65 64 6F 20 
+14967  6DFC 4D 69 73 73 
+14967  6E00 65 64 0A 00 
+14968  6E04 53 74 61 72 _s112: .db "Star at %d, %d absorbed torpedo energy.\n\n", 0
+14968  6E08 20 61 74 20 
+14968  6E0C 25 64 2C 20 
+14968  6E10 25 64 20 61 
+14968  6E14 62 73 6F 72 
+14968  6E18 62 65 64 20 
+14968  6E1C 74 6F 72 70 
+14968  6E20 65 64 6F 20 
+14968  6E24 65 6E 65 72 
+14968  6E28 67 79 2E 0A 
+14968  6E2C 0A 00 
+14969  6E2E 2A 2A 2A 20 _s113: .db "*** Starbase Destroyed ***", 0
+14969  6E32 53 74 61 72 
+14969  6E36 62 61 73 65 
+14969  6E3A 20 44 65 73 
+14969  6E3E 74 72 6F 79 
+14969  6E42 65 64 20 2A 
+14969  6E46 2A 2A 00 
+14970  6E49 54 68 61 74 _s114: .db "That does it, Captain!!", 0
+14970  6E4D 20 64 6F 65 
+14970  6E51 73 20 69 74 
+14970  6E55 2C 20 43 61 
+14970  6E59 70 74 61 69 
+14970  6E5D 6E 21 21 00 
+14971  6E61 59 6F 75 20 _s115: .db "You are hereby relieved of command\n", 0
+14971  6E65 61 72 65 20 
+14971  6E69 68 65 72 65 
+14971  6E6D 62 79 20 72 
+14971  6E71 65 6C 69 65 
+14971  6E75 76 65 64 20 
+14971  6E79 6F 66 20 63 
+14971  6E7D 6F 6D 6D 61 
+14971  6E81 6E 64 0A 00 
+14972  6E85 61 6E 64 20 _s116: .db "and sentenced to 99 stardates of hard", 0
+14972  6E89 73 65 6E 74 
+14972  6E8D 65 6E 63 65 
+14972  6E91 64 20 74 6F 
+14972  6E95 20 39 39 20 
+14972  6E99 73 74 61 72 
+14972  6E9D 64 61 74 65 
+14972  6EA1 73 20 6F 66 
+14972  6EA5 20 68 61 72 
+14972  6EA9 64 00 
+14973  6EAB 6C 61 62 6F _s117: .db "labor on Cygnus 12!!\n", 0
+14973  6EAF 72 20 6F 6E 
+14973  6EB3 20 43 79 67 
+14973  6EB7 6E 75 73 20 
+14973  6EBB 31 32 21 21 
+14973  6EBF 0A 00 
+14974  6EC1 53 74 61 72 _s118: .db "Starfleet Command reviewing your record to consider\n court martial!\n", 0
+14974  6EC5 66 6C 65 65 
+14974  6EC9 74 20 43 6F 
+14974  6ECD 6D 6D 61 6E 
+14974  6ED1 64 20 72 65 
+14974  6ED5 76 69 65 77 
+14974  6ED9 69 6E 67 20 
+14974  6EDD 79 6F 75 72 
+14974  6EE1 20 72 65 63 
+14974  6EE5 6F 72 64 20 
+14974  6EE9 74 6F 20 63 
+14974  6EED 6F 6E 73 69 
+14974  6EF1 64 65 72 0A 
+14974  6EF5 20 63 6F 75 
+14974  6EF9 72 74 20 6D 
+14974  6EFD 61 72 74 69 
+14974  6F01 61 6C 21 0A 
+14974  6F05 00 
+14975  6F06 44 61 6D 61 _s119: .db "Damage Control report not available.", 0
+14975  6F0A 67 65 20 43 
+14975  6F0E 6F 6E 74 72 
+14975  6F12 6F 6C 20 72 
+14975  6F16 65 70 6F 72 
+14975  6F1A 74 20 6E 6F 
+14975  6F1E 74 20 61 76 
+14975  6F22 61 69 6C 61 
+14975  6F26 62 6C 65 2E 
+14975  6F2A 00 
+14976  6F2B 0A 54 65 63 _s120: .db "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repa"
+14976  6F2F 68 6E 69 63 
+14976  6F33 69 61 6E 73 
+14976  6F37 20 73 74 61 
+14976  6F3B 6E 64 69 6E 
+14976  6F3F 67 20 62 79 
+14976  6F43 20 74 6F 20 
+14976  6F47 65 66 66 65 
+14976  6F4B 63 74 20 72 
+14976  6F4F 65 70 61 69 
+14976  6F53 72 73 20 74 
+14976  6F57 6F 20 79 6F 
+14976  6F5B 75 72 20 73 
+14976  6F5F 68 69 70 3B 
+14976  6F63 0A 45 73 74 
+14976  6F67 69 6D 61 74 
+14976  6F6B 65 64 20 74 
+14976  6F6F 69 6D 65 20 
+14976  6F73 74 6F 20 72 
+14976  6F77 65 70 61 69 
+14976  6F7B 72 3A 20 25 
+14976  6F7F 73 20 73 74 
+14976  6F83 61 72 64 61 
+14976  6F87 74 65 73 2E 
+14976  6F8B 0A 20 57 69 
+14976  6F8F 6C 6C 20 79 
+14976  6F93 6F 75 20 61 
+14976  6F97 75 74 68 6F 
+14976  6F9B 72 69 7A 65 
+14976  6F9F 20 74 68 65 
+14976  6FA3 20 72 65 70 
+14976  6FA7 61 
+14977  6FA8 69 72 20 6F .db "ir order (y/N)? ", 0
+14977  6FAC 72 64 65 72 
+14977  6FB0 20 28 79 2F 
+14977  6FB4 4E 29 3F 20 
+14977  6FB8 00 
+14978  6FB9 44 65 76 69 _s121: .db "Device            State of Repair", 0
+14978  6FBD 63 65 20 20 
+14978  6FC1 20 20 20 20 
+14978  6FC5 20 20 20 20 
+14978  6FC9 20 20 53 74 
+14978  6FCD 61 74 65 20 
+14978  6FD1 6F 66 20 52 
+14978  6FD5 65 70 61 69 
+14978  6FD9 72 00 
+14979  6FDB 25 2D 32 35 _s122: .db "%-25s%6s\n", 0
+14979  6FDF 73 25 36 73 
+14979  6FE3 0A 00 
+14980  6FE5 0A 00       _s123: .db "\n", 0
+14981  6FE7 45 6E 65 72 _s124: .db "Energy available = %d\n\n Input number of units to shields: ", 0
+14981  6FEB 67 79 20 61 
+14981  6FEF 76 61 69 6C 
+14981  6FF3 61 62 6C 65 
+14981  6FF7 20 3D 20 25 
+14981  6FFB 64 0A 0A 20 
+14981  6FFF 49 6E 70 75 
+14981  7003 74 20 6E 75 
+14981  7007 6D 62 65 72 
+14981  700B 20 6F 66 20 
+14981  700F 75 6E 69 74 
+14981  7013 73 20 74 6F 
+14981  7017 20 73 68 69 
+14981  701B 65 6C 64 73 
+14981  701F 3A 20 00 
+14982  7022 3C 53 68 69 _s125: .db "<Shields Unchanged>\n", 0
+14982  7026 65 6C 64 73 
+14982  702A 20 55 6E 63 
+14982  702E 68 61 6E 67 
+14982  7032 65 64 3E 0A 
+14982  7036 00 
+14983  7037 53 68 69 65 _s126: .db "Shield Control Reports:\n  This is not the Federation Treasury.", 0
+14983  703B 6C 64 20 43 
+14983  703F 6F 6E 74 72 
+14983  7043 6F 6C 20 52 
+14983  7047 65 70 6F 72 
+14983  704B 74 73 3A 0A 
+14983  704F 20 20 54 68 
+14983  7053 69 73 20 69 
+14983  7057 73 20 6E 6F 
+14983  705B 74 20 74 68 
+14983  705F 65 20 46 65 
+14983  7063 64 65 72 61 
+14983  7067 74 69 6F 6E 
+14983  706B 20 54 72 65 
+14983  706F 61 73 75 72 
+14983  7073 79 2E 00 
+14984  7076 44 65 66 6C _s127: .db "Deflector Control Room report:\n  Shields now at %d units per your command.\n\n", 0
+14984  707A 65 63 74 6F 
+14984  707E 72 20 43 6F 
+14984  7082 6E 74 72 6F 
+14984  7086 6C 20 52 6F 
+14984  708A 6F 6D 20 72 
+14984  708E 65 70 6F 72 
+14984  7092 74 3A 0A 20 
+14984  7096 20 53 68 69 
+14984  709A 65 6C 64 73 
+14984  709E 20 6E 6F 77 
+14984  70A2 20 61 74 20 
+14984  70A6 25 64 20 75 
+14984  70AA 6E 69 74 73 
+14984  70AE 20 70 65 72 
+14984  70B2 20 79 6F 75 
+14984  70B6 72 20 63 6F 
+14984  70BA 6D 6D 61 6E 
+14984  70BE 64 2E 0A 0A 
+14984  70C2 00 
+14985  70C3 43 6F 6D 70 _s128: .db "Computer active and awating command: ", 0
+14985  70C7 75 74 65 72 
+14985  70CB 20 61 63 74 
+14985  70CF 69 76 65 20 
+14985  70D3 61 6E 64 20 
+14985  70D7 61 77 61 74 
+14985  70DB 69 6E 67 20 
+14985  70DF 63 6F 6D 6D 
+14985  70E3 61 6E 64 3A 
+14985  70E7 20 00 
+14986  70E9 46 75 6E 63 _s129: .db "Functions available from Library-Computer:\n\n", 0
+14986  70ED 74 69 6F 6E 
+14986  70F1 73 20 61 76 
+14986  70F5 61 69 6C 61 
+14986  70F9 62 6C 65 20 
+14986  70FD 66 72 6F 6D 
+14986  7101 20 4C 69 62 
+14986  7105 72 61 72 79 
+14986  7109 2D 43 6F 6D 
+14986  710D 70 75 74 65 
+14986  7111 72 3A 0A 0A 
+14986  7115 00 
+14987  7116 20 20 20 30 _s130: .db "   0 = Cumulative Galactic Record\n", 0
+14987  711A 20 3D 20 43 
+14987  711E 75 6D 75 6C 
+14987  7122 61 74 69 76 
+14987  7126 65 20 47 61 
+14987  712A 6C 61 63 74 
+14987  712E 69 63 20 52 
+14987  7132 65 63 6F 72 
+14987  7136 64 0A 00 
+14988  7139 20 20 20 31 _s131: .db "   1 = Status Report\n", 0
+14988  713D 20 3D 20 53 
+14988  7141 74 61 74 75 
+14988  7145 73 20 52 65 
+14988  7149 70 6F 72 74 
+14988  714D 0A 00 
+14989  714F 20 20 20 32 _s132: .db "   2 = Photon Torpedo Data\n", 0
+14989  7153 20 3D 20 50 
+14989  7157 68 6F 74 6F 
+14989  715B 6E 20 54 6F 
+14989  715F 72 70 65 64 
+14989  7163 6F 20 44 61 
+14989  7167 74 61 0A 00 
+14990  716B 20 20 20 33 _s133: .db "   3 = Starbase Nav Data\n", 0
+14990  716F 20 3D 20 53 
+14990  7173 74 61 72 62 
+14990  7177 61 73 65 20 
+14990  717B 4E 61 76 20 
+14990  717F 44 61 74 61 
+14990  7183 0A 00 
+14991  7185 20 20 20 34 _s134: .db "   4 = Direction/Distance Calculator\n", 0
+14991  7189 20 3D 20 44 
+14991  718D 69 72 65 63 
+14991  7191 74 69 6F 6E 
+14991  7195 2F 44 69 73 
+14991  7199 74 61 6E 63 
+14991  719D 65 20 43 61 
+14991  71A1 6C 63 75 6C 
+14991  71A5 61 74 6F 72 
+14991  71A9 0A 00 
+14992  71AB 20 20 20 35 _s135: .db "   5 = Galaxy Region Name Map\n", 0
+14992  71AF 20 3D 20 47 
+14992  71B3 61 6C 61 78 
+14992  71B7 79 20 52 65 
+14992  71BB 67 69 6F 6E 
+14992  71BF 20 4E 61 6D 
+14992  71C3 65 20 4D 61 
+14992  71C7 70 0A 00 
+14993  71CA 0A 20 20 20 _s136: .db "\n     Computer Record of Galaxy for Quadrant %d,%d\n\n", 0
+14993  71CE 20 20 43 6F 
+14993  71D2 6D 70 75 74 
+14993  71D6 65 72 20 52 
+14993  71DA 65 63 6F 72 
+14993  71DE 64 20 6F 66 
+14993  71E2 20 47 61 6C 
+14993  71E6 61 78 79 20 
+14993  71EA 66 6F 72 20 
+14993  71EE 51 75 61 64 
+14993  71F2 72 61 6E 74 
+14993  71F6 20 25 64 2C 
+14993  71FA 25 64 0A 0A 
+14993  71FE 00 
+14994  71FF 20 20 20 20 _s137: .db "     1     2     3     4     5     6     7     8", 0
+14994  7203 20 31 20 20 
+14994  7207 20 20 20 32 
+14994  720B 20 20 20 20 
+14994  720F 20 33 20 20 
+14994  7213 20 20 20 34 
+14994  7217 20 20 20 20 
+14994  721B 20 35 20 20 
+14994  721F 20 20 20 36 
+14994  7223 20 20 20 20 
+14994  7227 20 37 20 20 
+14994  722B 20 20 20 38 
+14994  722F 00 
+14995  7230 25 73 25 64 _s138: .db "%s%d", 0
+14995  7234 00 
+14996  7235 20 20 20 53 _s139: .db "   Status Report:\n", 0
+14996  7239 74 61 74 75 
+14996  723D 73 20 52 65 
+14996  7241 70 6F 72 74 
+14996  7245 3A 0A 00 
+14997  7248 4B 6C 69 6E _s140: .db "Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n", 0
+14997  724C 67 6F 6E 25 
+14997  7250 73 20 4C 65 
+14997  7254 66 74 3A 20 
+14997  7258 25 64 0A 20 
+14997  725C 4D 69 73 73 
+14997  7260 69 6F 6E 20 
+14997  7264 6D 75 73 74 
+14997  7268 20 62 65 20 
+14997  726C 63 6F 6D 70 
+14997  7270 6C 65 74 65 
+14997  7274 64 20 69 6E 
+14997  7278 20 25 64 2E 
+14997  727C 25 64 20 73 
+14997  7280 74 61 72 64 
+14997  7284 61 74 65 73 
+14997  7288 0A 00 
+14998  728A 59 6F 75 72 _s141: .db "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n", 0
+14998  728E 20 73 74 75 
+14998  7292 70 69 64 69 
+14998  7296 74 79 20 68 
+14998  729A 61 73 20 6C 
+14998  729E 65 66 74 20 
+14998  72A2 79 6F 75 20 
+14998  72A6 6F 6E 20 79 
+14998  72AA 6F 75 72 20 
+14998  72AE 6F 77 6E 20 
+14998  72B2 69 6E 20 74 
+14998  72B6 68 65 20 67 
+14998  72BA 61 6C 61 78 
+14998  72BE 79 0A 20 2D 
+14998  72C2 2D 20 79 6F 
+14998  72C6 75 20 68 61 
+14998  72CA 76 65 20 6E 
+14998  72CE 6F 20 73 74 
+14998  72D2 61 72 62 61 
+14998  72D6 73 65 73 20 
+14998  72DA 6C 65 66 74 
+14998  72DE 21 0A 00 
+14999  72E1 54 68 65 20 _s142: .db "The Federation is maintaining %d starbase%s in the galaxy\n\n", 0
+14999  72E5 46 65 64 65 
+14999  72E9 72 61 74 69 
+14999  72ED 6F 6E 20 69 
+14999  72F1 73 20 6D 61 
+14999  72F5 69 6E 74 61 
+14999  72F9 69 6E 69 6E 
+14999  72FD 67 20 25 64 
+14999  7301 20 73 74 61 
+14999  7305 72 62 61 73 
+14999  7309 65 25 73 20 
+14999  730D 69 6E 20 74 
+14999  7311 68 65 20 67 
+14999  7315 61 6C 61 78 
+14999  7319 79 0A 0A 00 
+15000  731D 46 72 6F 6D _s143: .db "From Enterprise to Klingon battlecriuser%s:\n\n", 0
+15000  7321 20 45 6E 74 
+15000  7325 65 72 70 72 
+15000  7329 69 73 65 20 
+15000  732D 74 6F 20 4B 
+15000  7331 6C 69 6E 67 
+15000  7335 6F 6E 20 62 
+15000  7339 61 74 74 6C 
+15000  733D 65 63 72 69 
+15000  7341 75 73 65 72 
+15000  7345 25 73 3A 0A 
+15000  7349 0A 00 
+15001  734B 4D 72 2E 20 _s144: .db "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n", 0
+15001  734F 53 70 6F 63 
+15001  7353 6B 20 72 65 
+15001  7357 70 6F 72 74 
+15001  735B 73 2C 0A 20 
+15001  735F 20 53 65 6E 
+15001  7363 73 6F 72 73 
+15001  7367 20 73 68 6F 
+15001  736B 77 20 6E 6F 
+15001  736F 20 73 74 61 
+15001  7373 72 62 61 73 
+15001  7377 65 73 20 69 
+15001  737B 6E 20 74 68 
+15001  737F 69 73 20 71 
+15001  7383 75 61 64 72 
+15001  7387 61 6E 74 2E 
+15001  738B 0A 00 
+15002  738D 44 69 72 65 _s145: .db "Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: ", 0
+15002  7391 63 74 69 6F 
+15002  7395 6E 2F 44 69 
+15002  7399 73 74 61 6E 
+15002  739D 63 65 20 43 
+15002  73A1 61 6C 63 75 
+15002  73A5 6C 61 74 6F 
+15002  73A9 72 0A 20 59 
+15002  73AD 6F 75 20 61 
+15002  73B1 72 65 20 61 
+15002  73B5 74 20 71 75 
+15002  73B9 61 64 72 61 
+15002  73BD 6E 74 20 25 
+15002  73C1 64 2C 25 64 
+15002  73C5 20 73 65 63 
+15002  73C9 74 6F 72 20 
+15002  73CD 25 64 2C 25 
+15002  73D1 64 0A 0A 20 
+15002  73D5 50 6C 65 61 
+15002  73D9 73 65 20 65 
+15002  73DD 6E 74 65 72 
+15002  73E1 20 69 6E 69 
+15002  73E5 74 69 61 6C 
+15002  73E9 20 58 20 63 
+15002  73ED 6F 6F 72 64 
+15002  73F1 69 6E 61 74 
+15002  73F5 65 3A 20 00 
+15003  73F9 50 6C 65 61 _s146: .db "Please enter initial Y coordinate: ", 0
+15003  73FD 73 65 20 65 
+15003  7401 6E 74 65 72 
+15003  7405 20 69 6E 69 
+15003  7409 74 69 61 6C 
+15003  740D 20 59 20 63 
+15003  7411 6F 6F 72 64 
+15003  7415 69 6E 61 74 
+15003  7419 65 3A 20 00 
+15004  741D 50 6C 65 61 _s147: .db "Please enter final X coordinate: ", 0
+15004  7421 73 65 20 65 
+15004  7425 6E 74 65 72 
+15004  7429 20 66 69 6E 
+15004  742D 61 6C 20 58 
+15004  7431 20 63 6F 6F 
+15004  7435 72 64 69 6E 
+15004  7439 61 74 65 3A 
+15004  743D 20 00 
+15005  743F 50 6C 65 61 _s148: .db "Please enter final Y coordinate: ", 0
+15005  7443 73 65 20 65 
+15005  7447 6E 74 65 72 
+15005  744B 20 66 69 6E 
+15005  744F 61 6C 20 59 
+15005  7453 20 63 6F 6F 
+15005  7457 72 64 69 6E 
+15005  745B 61 74 65 3A 
+15005  745F 20 00 
+15006  7461 0A 20 20 20 _s149: .db "\n                   The Galaxy\n\n", 0
+15006  7465 20 20 20 20 
+15006  7469 20 20 20 20 
+15006  746D 20 20 20 20 
+15006  7471 20 20 20 20 
+15006  7475 54 68 65 20 
+15006  7479 47 61 6C 61 
+15006  747D 78 79 0A 0A 
+15006  7481 00 
+15007  7482 20 20 20 20 _s150: .db "    1     2     3     4     5     6     7     8\n", 0
+15007  7486 31 20 20 20 
+15007  748A 20 20 32 20 
+15007  748E 20 20 20 20 
+15007  7492 33 20 20 20 
+15007  7496 20 20 34 20 
+15007  749A 20 20 20 20 
+15007  749E 35 20 20 20 
+15007  74A2 20 20 36 20 
+15007  74A6 20 20 20 20 
+15007  74AA 37 20 20 20 
+15007  74AE 20 20 38 0A 
+15007  74B2 00 
+15008  74B3 25 73 25 64 _s151: .db "%s%d ", 0
+15008  74B7 20 00 
+15009  74B9 20 20 44 49 _s152: .db "  DIRECTION = ", 0
+15009  74BD 52 45 43 54 
+15009  74C1 49 4F 4E 20 
+15009  74C5 3D 20 00 
+15010  74C8 25 73 00    _s153: .db "%s", 0
+15011  74CB 54 68 65 20 _s154: .db "The Enterprise has been destroyed. The Federation will be conquered.\n", 0
+15011  74CF 45 6E 74 65 
+15011  74D3 72 70 72 69 
+15011  74D7 73 65 20 68 
+15011  74DB 61 73 20 62 
+15011  74DF 65 65 6E 20 
+15011  74E3 64 65 73 74 
+15011  74E7 72 6F 79 65 
+15011  74EB 64 2E 20 54 
+15011  74EF 68 65 20 46 
+15011  74F3 65 64 65 72 
+15011  74F7 61 74 69 6F 
+15011  74FB 6E 20 77 69 
+15011  74FF 6C 6C 20 62 
+15011  7503 65 20 63 6F 
+15011  7507 6E 71 75 65 
+15011  750B 72 65 64 2E 
+15011  750F 0A 00 
+15012  7511 49 74 20 69 _s155: .db "It is stardate %d.\n\n", 0
+15012  7515 73 20 73 74 
+15012  7519 61 72 64 61 
+15012  751D 74 65 20 25 
+15012  7521 64 2E 0A 0A 
+15012  7525 00 
+15013  7526 54 68 65 72 _s156: .db "There were %d Klingon Battlecruisers left at the end of your mission.\n\n", 0
+15013  752A 65 20 77 65 
+15013  752E 72 65 20 25 
+15013  7532 64 20 4B 6C 
+15013  7536 69 6E 67 6F 
+15013  753A 6E 20 42 61 
+15013  753E 74 74 6C 65 
+15013  7542 63 72 75 69 
+15013  7546 73 65 72 73 
+15013  754A 20 6C 65 66 
+15013  754E 74 20 61 74 
+15013  7552 20 74 68 65 
+15013  7556 20 65 6E 64 
+15013  755A 20 6F 66 20 
+15013  755E 79 6F 75 72 
+15013  7562 20 6D 69 73 
+15013  7566 73 69 6F 6E 
+15013  756A 2E 0A 0A 00 
+15014  756E 43 6F 6E 67 _s157: .db "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n", 0
+15014  7572 72 61 74 75 
+15014  7576 6C 61 74 69 
+15014  757A 6F 6E 73 2C 
+15014  757E 20 43 61 70 
+15014  7582 74 61 69 6E 
+15014  7586 21 20 20 54 
+15014  758A 68 65 20 6C 
+15014  758E 61 73 74 20 
+15014  7592 4B 6C 69 6E 
+15014  7596 67 6F 6E 20 
+15014  759A 42 61 74 74 
+15014  759E 6C 65 20 43 
+15014  75A2 72 75 69 73 
+15014  75A6 65 72 0A 20 
+15014  75AA 6D 65 6E 61 
+15014  75AE 63 69 6E 67 
+15014  75B2 20 74 68 65 
+15014  75B6 20 46 65 64 
+15014  75BA 65 72 61 74 
+15014  75BE 69 6F 6E 20 
+15014  75C2 68 61 73 20 
+15014  75C6 62 65 65 6E 
+15014  75CA 20 64 65 73 
+15014  75CE 74 6F 79 65 
+15014  75D2 64 2E 0A 00 
+15015  75D6 59 6F 75 72 _s158: .db "Your efficiency rating is %s\n", 0
+15015  75DA 20 65 66 66 
+15015  75DE 69 63 69 65 
+15015  75E2 6E 63 79 20 
+15015  75E6 72 61 74 69 
+15015  75EA 6E 67 20 69 
+15015  75EE 73 20 25 73 
+15015  75F2 0A 00 
+15016  75F4 54 68 65 20 _s159: .db "The Federation is in need of a new starship commander", 0
+15016  75F8 46 65 64 65 
+15016  75FC 72 61 74 69 
+15016  7600 6F 6E 20 69 
+15016  7604 73 20 69 6E 
+15016  7608 20 6E 65 65 
+15016  760C 64 20 6F 66 
+15016  7610 20 61 20 6E 
+15016  7614 65 77 20 73 
+15016  7618 74 61 72 73 
+15016  761C 68 69 70 20 
+15016  7620 63 6F 6D 6D 
+15016  7624 61 6E 64 65 
+15016  7628 72 00 
+15017  762A 20 66 6F 72 _s160: .db " for a similar mission.\n", 0
+15017  762E 20 61 20 73 
+15017  7632 69 6D 69 6C 
+15017  7636 61 72 20 6D 
+15017  763A 69 73 73 69 
+15017  763E 6F 6E 2E 0A 
+15017  7642 00 
+15018  7643 49 66 20 74 _s161: .db "If there is a volunteer, let him step forward and", 0
+15018  7647 68 65 72 65 
+15018  764B 20 69 73 20 
+15018  764F 61 20 76 6F 
+15018  7653 6C 75 6E 74 
+15018  7657 65 65 72 2C 
+15018  765B 20 6C 65 74 
+15018  765F 20 68 69 6D 
+15018  7663 20 73 74 65 
+15018  7667 70 20 66 6F 
+15018  766B 72 77 61 72 
+15018  766F 64 20 61 6E 
+15018  7673 64 00 
+15019  7675 20 65 6E 74 _s162: .db " enter aye: ", 0
+15019  7679 65 72 20 61 
+15019  767D 79 65 3A 20 
+15019  7681 00 
+15020  7682 61 79 65 00 _s163: .db "aye", 0
+15021  7686 53 74 61 72 _s164: .db "Starbase shields protect the Enterprise\n", 0
+15021  768A 62 61 73 65 
+15021  768E 20 73 68 69 
+15021  7692 65 6C 64 73 
+15021  7696 20 70 72 6F 
+15021  769A 74 65 63 74 
+15021  769E 20 74 68 65 
+15021  76A2 20 45 6E 74 
+15021  76A6 65 72 70 72 
+15021  76AA 69 73 65 0A 
+15021  76AE 00 
+15022  76AF 25 64 20 75 _s165: .db "%d unit hit on Enterprise from sector %d, %d\n", 0
+15022  76B3 6E 69 74 20 
+15022  76B7 68 69 74 20 
+15022  76BB 6F 6E 20 45 
+15022  76BF 6E 74 65 72 
+15022  76C3 70 72 69 73 
+15022  76C7 65 20 66 72 
+15022  76CB 6F 6D 20 73 
+15022  76CF 65 63 74 6F 
+15022  76D3 72 20 25 64 
+15022  76D7 2C 20 25 64 
+15022  76DB 0A 00 
+15023  76DD 20 20 20 20 _s166: .db "    <Shields down to %d units>\n\n", 0
+15023  76E1 3C 53 68 69 
+15023  76E5 65 6C 64 73 
+15023  76E9 20 64 6F 77 
+15023  76ED 6E 20 74 6F 
+15023  76F1 20 25 64 20 
+15023  76F5 75 6E 69 74 
+15023  76F9 73 3E 0A 0A 
+15023  76FD 00 
+15024  76FE 44 61 6D 61 _s167: .db "Damage Control reports\n%s damaged by hit\n\n", 0
+15024  7702 67 65 20 43 
+15024  7706 6F 6E 74 72 
+15024  770A 6F 6C 20 72 
+15024  770E 65 70 6F 72 
+15024  7712 74 73 0A 25 
+15024  7716 73 20 64 61 
+15024  771A 6D 61 67 65 
+15024  771E 64 20 62 79 
+15024  7722 20 68 69 74 
+15024  7726 0A 0A 00 
+15025  7729 20 20 20 20 _s168: .db "    %s repair completed\n\n", 0
+15025  772D 25 73 20 72 
+15025  7731 65 70 61 69 
+15025  7735 72 20 63 6F 
+15025  7739 6D 70 6C 65 
+15025  773D 74 65 64 0A 
+15025  7741 0A 00 
+15026  7743 20 20 20 20 _s169: .db "    %s damaged\n\n", 0
+15026  7747 25 73 20 64 
+15026  774B 61 6D 61 67 
+15026  774F 65 64 0A 0A 
+15026  7753 00 
+15027  7754 20 20 20 20 _s170: .db "    %s state of repair improved\n\n", 0
+15027  7758 25 73 20 73 
+15027  775C 74 61 74 65 
+15027  7760 20 6F 66 20 
+15027  7764 72 65 70 61 
+15027  7768 69 72 20 69 
+15027  776C 6D 70 72 6F 
+15027  7770 76 65 64 0A 
+15027  7774 0A 00 
+15028  7776 20 49 00    _s171: .db " I", 0
+15029  7779 20 49 49 00 _s172: .db " II", 0
+15030  777D 20 49 49 49 _s173: .db " III", 0
+15030  7781 00 
+15031  7782 20 49 56 00 _s174: .db " IV", 0
+15032  7786 55 6E 6B 6E _s175: .db "Unknown", 0
+15032  778A 6F 77 6E 00 
+15033  778E             
+15034  778E 90 77       _heap_top: .dw _heap
+15035  7790 00          _heap: .db 0
+15036  7791             ; --- END DATA BLOCK
+15037  7791             
+15038  7791             .end
+tasm: Number of errors = 0
