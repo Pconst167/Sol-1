@@ -1,7 +1,10 @@
 {
   "C_Cpp.errorSquiggles": "disabled",
   "files.associations": {
+    "*.s": "asm-intel-x86-generic",
     "stdint.h": "c",
-    "stdint-gcc.h": "c"
+    "stdint-gcc.h": "c",
+    "cstdint": "c",
+    "stdio.h": "c"
   }
 }

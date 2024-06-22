@@ -345,6 +345,7 @@ int main(int argc, char *argv[]){
   declare_heap();
   pre_processor();
   pre_scan();
+
   if((main_index = search_function("main")) != -1){
     if(search_function_parameter(main_index, "argc") != -1 && search_function_parameter(main_index, "argv") != -1){
       insert_runtime();
@@ -364,15 +365,20 @@ int main(int argc, char *argv[]){
   while(*asm_p) asm_p++; 
   
   emitln("\n; --- BEGIN DATA BLOCK");
+
   emit_string_table_data();
+
   // Emit heap
   emit_data("\n_heap_top: .dw _heap\n");
   emit_data("_heap: .db 0\n");
+  
   emit_datablock_asm();
+
   emitln("; --- END DATA BLOCK");
 
   emitln("\n.end");
   *asm_p = '\0';
+
   strcpy(filename_out, "out/");
   strcat(filename_out, filename_no_ext);
   strcat(filename_out, ".asm");
@@ -381,10 +387,6 @@ int main(int argc, char *argv[]){
 
   if(switch_display_function_table) print_function_table();
   if(switch_display_typedef_table) print_typedef_table();
-
-  for(int h=0;h<string_table_tos;h++){
-
-  }
 
   return 0;
 }
