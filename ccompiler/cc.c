@@ -51,85 +51,85 @@ struct{
   char *as_str;
   t_tok token;
 } token_to_str[] = {
-  {"undefined",               TOK_UNDEF},
-  {"ampersand",               AMPERSAND}, 
+  {"&",                       AMPERSAND}, 
   {"asm",                     ASM},
-  {"assignment",              ASSIGNMENT},
-  {"at",                      AT}, 
+  {"=",                       ASSIGNMENT},
+  {"@",                       AT}, 
   {"auto",                    AUTO},
-  {"bitwise_not",             BITWISE_NOT}, 
-  {"bitwise_or",              BITWISE_OR}, 
-  {"bitwise_shl",             BITWISE_SHL},
-  {"bitwise_shr",             BITWISE_SHR},
-  {"bitwise_xor",             BITWISE_XOR}, 
+  {"~",             BITWISE_NOT}, 
+  {"|",              BITWISE_OR}, 
+  {"<<",             BITWISE_SHL},
+  {">>",             BITWISE_SHR},
+  {"^",             BITWISE_XOR}, 
   {"break",                   BREAK},
-  {"caret",                   CARET}, 
+  {"^",                   CARET}, 
   {"case",                    CASE},
   {"char",                    CHAR},
-  {"closing_brace",           CLOSING_BRACE},
-  {"closing_bracket",         CLOSING_BRACKET},
-  {"closing_paren",           CLOSING_PAREN},
-  {"colon",                   COLON},
-  {"comma",                   COMMA},
+  {"}",           CLOSING_BRACE},
+  {"]",         CLOSING_BRACKET},
+  {")",           CLOSING_PAREN},
+  {":",                   COLON},
+  {",",                   COMMA},
   {"const",                   CONST},
   {"continue",                CONTINUE},
-  {"decrement",               DECREMENT},
+  {"--",               DECREMENT},
   {"default",                 DEFAULT},
   {"define",                  DEFINE},
   {"ifdef",                   DEF_IFDEF},
   {"endif",                   DEF_ENDIF},
   {"directive",               DIRECTIVE}, 
   {"do",                      DO},
-  {"dollar",                  DOLLAR}, 
+  {"$",                  DOLLAR}, 
   {"double",                  DOUBLE},
   {"else",                    ELSE},
   {"enum",                    ENUM},
-  {"equal",                   EQUAL}, 
+  {"==",                   EQUAL}, 
   {"extern",                  EXTERN},
   {"float",                   FLOAT},
   {"for",                     FOR},
-  {"fslash",                  FSLASH},
+  {"/",                  FSLASH},
   {"goto",                    GOTO},
-  {"greater_than",            GREATER_THAN}, 
-  {"greater_than_or_equal",   GREATER_THAN_OR_EQUAL}, 
+  {">",            GREATER_THAN}, 
+  {">=",   GREATER_THAN_OR_EQUAL}, 
   {"if",                      IF},
   {"include",                 INCLUDE}, 
-  {"increment",               INCREMENT},
+  {"++",               INCREMENT},
   {"int",                     INT},
-  {"less_than",               LESS_THAN}, 
-  {"less_than_or_equal",      LESS_THAN_OR_EQUAL}, 
-  {"logical_and",             LOGICAL_AND}, 
-  {"logical_not",             LOGICAL_NOT}, 
-  {"logical_or",              LOGICAL_OR}, 
+  {"<",               LESS_THAN}, 
+  {"<=",      LESS_THAN_OR_EQUAL}, 
+  {"&&",             LOGICAL_AND}, 
+  {"!",             LOGICAL_NOT}, 
+  {"||",              LOGICAL_OR}, 
   {"long",                    LONG},
-  {"minus",                   MINUS},
-  {"mod",                     MOD},
-  {"not_equal",               NOT_EQUAL}, 
-  {"opening_brace",           OPENING_BRACE},
-  {"opening_bracket",         OPENING_BRACKET},
-  {"opening_paren",           OPENING_PAREN},
-  {"plus",                    PLUS},
+  {"-",                   MINUS},
+  {"%",                     MOD},
+  {"!=",               NOT_EQUAL}, 
+  {"{",           OPENING_BRACE},
+  {"[",         OPENING_BRACKET},
+  {"(",           OPENING_PAREN},
+  {"+",                    PLUS},
   {"pragma",                  PRAGMA}, 
   {"register",                REGISTER},
   {"return",                  RETURN},
-  {"semicolon",               SEMICOLON},
+  {";",               SEMICOLON},
   {"short",                   SHORT},
   {"signed",                  SIGNED},
   {"sizeof",                  SIZEOF},
-  {"star",                    STAR},
+  {"*",                    STAR},
   {"static",                  STATIC},
   {"struct",                  STRUCT},
-  {"struct_arrow",            STRUCT_ARROW},
-  {"struct_dot",              STRUCT_DOT},
+  {"->",            STRUCT_ARROW},
+  {".",              STRUCT_DOT},
   {"switch",                  SWITCH},
-  {"ternary_op",              TERNARY_OP}, 
+  {"?",              TERNARY_OP}, 
   {"tok_undef",               TOK_UNDEF},                 
   {"typedef",                 TYPEDEF},
   {"union",                   UNION},
   {"unsigned",                UNSIGNED},
   {"void",                    VOID},
   {"volatile",                VOLATILE},
-  {"while",                   WHILE}
+  {"while",                   WHILE},
+  {"undefined",               TOK_UNDEF},
 };
 
 char *primitive_type_to_str_table[] = {
@@ -271,7 +271,7 @@ char c_in[PROG_SIZE];               // C program-in buffer
 char include_file_buffer[PROG_SIZE];     // buffer for reading in include files
 char asm_out[ASM_SIZE];             // ASM output
 char data_block_asm[ASM_SIZE];
-char tempbuffer[PROG_SIZE];
+char tempbuffer[TEMP_BUFFER_SIZE];
 
 char *asm_p;
 char *data_p;
@@ -344,7 +344,6 @@ int main(int argc, char *argv[]){
   declare_heap();
   pre_processor();
   pre_scan();
-
   if((main_index = search_function("main")) != -1){
     if(search_function_parameter(main_index, "argc") != -1 && search_function_parameter(main_index, "argv") != -1){
       insert_runtime();
@@ -460,7 +459,7 @@ void emit_data(const char* format, ...){
   char *bufferp = tempbuffer;
   va_list args;
   va_start(args, format);
-  vsnprintf(tempbuffer, ASM_SIZE, format, args);
+  vsnprintf(tempbuffer, TEMP_BUFFER_SIZE, format, args);
   va_end(args);
   while (*bufferp) *data_block_p++ = *bufferp++;
 }
@@ -482,10 +481,9 @@ void emit(const char* format, ...){
   char *bufferp = tempbuffer;
   va_list args;
   va_start(args, format);
-  vsnprintf(tempbuffer, ASM_SIZE, format, args);
+  vsnprintf(tempbuffer, TEMP_BUFFER_SIZE, format, args);
   va_end(args);
   while (*bufferp){
-    putchar(*asm_p);
     *asm_p++ = *bufferp++;
   }
 }
@@ -494,10 +492,9 @@ void emitln(const char* format, ...){
   char *bufferp = tempbuffer;
   va_list args;
   va_start(args, format);
-  vsnprintf(tempbuffer, ASM_SIZE, format, args);
+  vsnprintf(tempbuffer, TEMP_BUFFER_SIZE, format, args);
   va_end(args);
   while (*bufferp){
-    putchar(*asm_p);
     *asm_p++ = *bufferp++;
   }
   *asm_p++ = '\n';
@@ -1650,33 +1647,6 @@ void declare_func(void){
 }
 
 void declare_goto_label(void) {
-    int i, goto_tos;
-    size_t buffer_size = sizeof(function_table[current_func_id].goto_labels_table[0]);
-    
-    goto_tos = function_table[current_func_id].goto_labels_table_tos;
-    get();
-    
-    for (i = 0; i < goto_tos; i++) {
-        if (!strcmp(function_table[current_func_id].goto_labels_table[i], curr_token.token_str)) {
-            error(ERR_FATAL, "Duplicate label: %s", curr_token.token_str);
-            return;
-        }
-    }
-
-    size_t name_len = strlen(function_table[current_func_id].name);
-    size_t token_len = strlen(curr_token.token_str);
-
-    // Ensure the concatenated string fits in the buffer
-    if (name_len + 1 + token_len + 1 > buffer_size) {  // +1 for '_' and +1 for '\0'
-        error(ERR_FATAL, "Label buffer overflow: %s", curr_token.token_str);
-        return;
-    }
-
-    // Use snprintf safely
-    snprintf(function_table[current_func_id].goto_labels_table[goto_tos], buffer_size, "%s_%s", function_table[current_func_id].name, curr_token.token_str);
-    emitln("%s:", function_table[current_func_id].goto_labels_table[goto_tos]);
-    function_table[current_func_id].goto_labels_table_tos++;
-    get();
 }
 
 int get_param_size(){
@@ -2240,16 +2210,6 @@ void parse_block(void){
       default:
         if(curr_token.tok_type == END) error(ERR_FATAL, "Closing brace expected");
         emit_c_header_line();
-        prog = temp_prog;
-        get();
-        if(curr_token.tok_type == IDENTIFIER){
-          get();
-          if(curr_token.tok == COLON){
-            prog = temp_prog;
-            declare_goto_label();
-            continue;
-          }
-        }
         prog = temp_prog;
         parse_expr();
         if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
@@ -4787,10 +4747,17 @@ void get_line(void){
 
 void error(t_error_type error_type, const char* format, ...){
   int line = 1;
-  char tempbuffer[1024];
+  char tempbuffer[TEMP_BUFFER_SIZE];
   char error_token[256];
   char *temp_prog;
   va_list args;
+
+  char *tok_to_str(t_tok tok){
+    for(int i=0; token_to_str[i].token; i++){
+      if(tok == token_to_str[i].token) return token_to_str[i].as_str;
+    }
+    return NULL;
+  }
 
   va_start(args, format);
   vsnprintf(tempbuffer, sizeof(tempbuffer), format, args);
@@ -4806,19 +4773,18 @@ void error(t_error_type error_type, const char* format, ...){
   }
 
   if(error_type == ERR_WARNING)
-    printf("\nWarning     : %s\n", tempbuffer);
+    printf("\nwarning     : %s\n", tempbuffer);
   else 
-    printf("\nError       : %s\n", tempbuffer);
+    printf("\nerror       : %s\n", tempbuffer);
 
-  printf("At line %d   : ", line - include_files_total_lines);
+  printf("at line %d   : ", line - include_files_total_lines);
   while(*prog != '\n' && prog != c_in) prog--;
   prog++;
   while(*prog != '\n') putchar(*prog++);
   printf("\n");
-  printf("Token       : %s\n", error_token);
-  printf("Tok         : %s (%d)\n", token_to_str[curr_token.tok].as_str, curr_token.tok);
-  printf("curr_token.tok_type     : %s\n\n", tok_type_to_str[curr_token.tok_type].as_str);
-
+  printf("token       : %s\n", error_token);
+  printf("tok         : %s\n", tok_to_str(curr_token.tok));
+  printf("toktype     : %s\n\n", tok_type_to_str[curr_token.tok_type].as_str);
 
   if(error_type == ERR_WARNING)
     prog = temp_prog;

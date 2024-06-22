@@ -19,6 +19,7 @@
 #define PROG_SIZE                  512 * 1024
 #define STRING_TABLE_SIZE          4096
 #define ASM_SIZE                   512 * 1024
+#define TEMP_BUFFER_SIZE           4 * 1024
 
 #define true 1
 #define false 0
@@ -111,7 +112,6 @@ typedef enum {
   OPENING_PAREN,
   PLUS,
   PRAGMA, 
-  REGISTER,
   RETURN,
   SEMICOLON,
   SHORT,
@@ -119,6 +119,7 @@ typedef enum {
   SIZEOF,
   STAR,
   STATIC,
+  REGISTER,
   STRUCT,
   STRUCT_ARROW,
   STRUCT_DOT,

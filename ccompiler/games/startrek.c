@@ -491,7 +491,7 @@ void course_control(void)
 		return;
 
 	if (warp > 800) {
-		printf("Chief Engineer Scott reports:\n  The engines won't take warp %s!\n\n", print100(warp));
+		printf("Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n", print100(warp));
 		return;
 	}
 
@@ -1060,20 +1060,18 @@ void shield_control(void)
 	i = input_int();
 
 	if (i < 0 || shield == i) {
-unchanged:
 		puts("<Shields Unchanged>\n");
 		return;
 	}
 
 	if (i >= energy + shield) {
-		puts("Shield Control Reports:\n  'This is not the Federation Treasury.'");
-		goto unchanged;
+		puts("Shield Control Reports:\n  This is not the Federation Treasury.");
 	}
 
 	energy = energy + shield - i;
 	shield = i;
 
-	printf("Deflector Control Room report:\n  'Shields now at %d units per your command.'\n\n", shield);
+	printf("Deflector Control Room report:\n  Shields now at %d units per your command.\n\n", shield);
 }
 
 void library_computer(void)
@@ -1114,7 +1112,7 @@ void library_computer(void)
 			     puts("   2 = Photon Torpedo Data\n");
 			     puts("   3 = Starbase Nav Data\n");
 			     puts("   4 = Direction/Distance Calculator\n");
-			     puts("   5 = Galaxy 'Region Name' Map\n");
+			     puts("   5 = Galaxy Region Name Map\n");
 	}
 }
 
@@ -1204,7 +1202,7 @@ void torpedo_data(void)
 void nav_data(void)
 {
 	if (starbases <= 0) {
-		puts("Mr. Spock reports,\n  'Sensors show no starbases in this quadrant.'\n");
+		puts("Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n");
 		return;
 	}
 	compute_vector(TO_FIXED00(base_y), TO_FIXED00(base_x), ship_y, ship_x);
@@ -1280,7 +1278,7 @@ void galaxy_map(void)
 
 }
 
-const char *dist_1 = "  DISTANCE = %s\n\n";
+const char *dist_1 = "  DISTANCE = \n\n";
 
 void compute_vector(int16_t w1, int16_t x, int16_t c1, int16_t a)
 {
@@ -1297,7 +1295,6 @@ void compute_vector(int16_t w1, int16_t x, int16_t c1, int16_t a)
 	if (x < 0) {
 		if (a > 0) {
 			c1 = 300;
-estimate2:
 		/* Multiply the top half by 100 to keep in fixed0 */
 			if (al >= xl)
 				printf("%s", print100(c1 + ((xl * 100) / al)));
@@ -1308,24 +1305,18 @@ estimate2:
 			return;
 		} else if (x != 0){
 			c1 = 500;
-			//goto estimate1;
 			return;
 		} else {
 			c1 = 700;
-			//goto estimate2;
 		}
 	} else if (a < 0) {
 		c1 = 700;
-		//goto estimate2;
 	} else if (x > 0) {
 		c1 = 100;
-		//goto estimate1;
 	} else if (a == 0) {
 		c1 = 500;
-		//goto estimate1;
 	} else {
 		c1 = 100;
-estimate1:
 		/* Multiply the top half by 100 as well so that we keep it in fixed00
 		   format. Our larget value is int 9 (900) so we must do this 32bit */
 		if (al <= xl)
@@ -1375,7 +1366,7 @@ void end_of_game(void)
 		puts("The Federation is in need of a new starship commander");
 		     puts(" for a similar mission.\n");
 		     puts("If there is a volunteer, let him step forward and");
-		     puts(" enter 'aye': ");
+		     puts(" enter aye: ");
 
 		input(x,4);
 		if (!strncmp(x, "aye", 3))
@@ -1454,7 +1445,7 @@ void klingons_shoot(void)
 					damage[r] =damage[r] - ratio + get_rand(50);
 
 					/* FIXME: can we use dcr_1 here ?? */
-					printf("Damage Control reports\n'%s' damaged by hit\n\n", get_device_name(r));
+					printf("Damage Control reports\n%s damaged by hit\n\n", get_device_name(r));
 				}
 			}
 		}
