@@ -327,6 +327,11 @@ _while4_exit:
   leave
   ret
 
+fopen:
+  enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
+
 printf:
   enter 0 ; (push bp; mov bp, sp)
 ; $p 

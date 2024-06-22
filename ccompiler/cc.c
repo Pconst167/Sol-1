@@ -231,7 +231,6 @@ char *runtime_argc_argv_getter = "\n\n\
   }\n";
 */
 char libc_directory[] = "./lib/";
-char debug;
 
 defines_table_t defines_table[MAX_DEFINES];
 t_typedef typedef_table[MAX_TYPEDEFS];
@@ -2177,7 +2176,7 @@ void parse_block(void){
       do{
         get();
       } while(curr_token.tok != SEMICOLON);
-      get();
+      continue;
     }
     switch(curr_token.tok){
       case CONST:
@@ -3108,13 +3107,19 @@ t_type parse_atomic(void){
 }
 
 t_type parse_sizeof(){
-  t_type expr_out;
   int var_id;
+  t_type type;
 
   get();
   expect(OPENING_PAREN, "Opening parenthesis expected");
   get();
-  if(curr_token.tok_type == IDENTIFIER){
+  if((search_typedef(curr_token.token_str)) != -1){                              
+    back();
+    type = get_type();
+    emitln("  mov b, %d", get_total_type_size(type));
+    get();
+  }
+  else if(curr_token.tok_type == IDENTIFIER){
     if(local_var_exists(curr_token.token_str) != -1){ // is a local variable
       var_id = local_var_exists(curr_token.token_str);
       emitln("  mov b, %d", get_total_type_size(function_table[current_func_id].local_vars[var_id].type));
@@ -3128,31 +3133,11 @@ t_type parse_sizeof(){
     }
     get();
   }
-  else{
-    t_tok temp_tok = curr_token.tok;
-    get();
-    if(curr_token.tok == STAR){
-      while(curr_token.tok == STAR){
-        get();
-      }
-      emitln("  mov b, 2");
-    }
-    else{
-      switch(temp_tok){
-      case CHAR:
-        emitln("  mov b, 1");
-        break;
-      case INT:
-        emitln("  mov b, 2");
-        break;
-      }
-    }
-  }
-  expr_out.primitive_type = DT_INT;
-  expr_out.ind_level = 0;
-  expr_out.sign_modifier = SNESS_SIGNED;
+  type.primitive_type = DT_INT;
+  type.ind_level = 0;
+  type.sign_modifier = SNESS_SIGNED;
   expect(CLOSING_PAREN, "Closing paren expected");
-  return expr_out;
+  return type;
 }
 
 t_type parse_string_const(){

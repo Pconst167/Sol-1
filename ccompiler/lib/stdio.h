@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define NULL 0
 #define ARG_BUFF 0x0000
@@ -15,7 +16,9 @@ struct _FILE{
 typedef struct _FILE FILE;
 
 FILE *fopen(char *filename, uint8_t mode){
+  FILE *fp;
 
+  fp = alloc(sizeof(struct _FILE));
 }
 
 /*
@@ -233,7 +236,6 @@ int hex_str_to_int(char *hex_string) {
   return value;
 }
 
-
 int gets(char *s){
   asm{
     addr mov d, s
@@ -390,7 +392,6 @@ void print(char *s){
     call _puts
   }
 }
-
 
 unsigned char getparam(char *address){
   char data;
