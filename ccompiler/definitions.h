@@ -27,6 +27,9 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
+#define tkn curr_token.token_str
+#define tokt curr_token.toktype
+
 typedef enum {ERR_WARNING, ERR_FATAL} t_error_type;
 
 typedef enum{
@@ -248,7 +251,6 @@ int declare_struct(void);
 void declare_func(void);
 void declare_global(void);
 int declare_local(void);
-void declare_all_locals(int function_id);
 void declare_struct_global_vars(int struct_id);
 void parse_struct_initialization_data(int struct_id, int array_size);
 void declare_goto_label(void);
@@ -393,3 +395,5 @@ char is_space(char c);
 void build_referenced_func_list(void);
 void expand_all_included_files(void);
 
+
+int insert_var_name(char *name, char array[32][ID_LEN]);

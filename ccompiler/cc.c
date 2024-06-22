@@ -545,7 +545,6 @@ void parse_functions(void){
       emitln("\n%s:", function_table[i].name);
       emitln("  mov bp, $FFE0 ;");
       emitln("  mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)");
-      declare_all_locals(i);
       current_function_var_bp_offset = 0; 
       current_func_id = i;
       prog = function_table[i].code_location;
@@ -565,7 +564,6 @@ void parse_functions(void){
       // then inside the function it can increase according to how any local vars there are.
       emitln("\n%s:", function_table[i].name);
       emitln("  enter 0 ; (push bp; mov bp, sp)");
-      declare_all_locals(i);
       current_function_var_bp_offset = 0;
       current_func_id = i;
       prog = function_table[i].code_location;
@@ -966,15 +964,28 @@ int declare_struct(){
   return curr_struct_enum_id; // return struct_enum_id
 }
 
+int insert_var_name(char *name, char array[32][ID_LEN]){
+  int i;
+  for(i = 0; i < 32; i++){
+    if(array[i][0] == '\0'){
+      strcpy(array[i], name);
+      return i;
+    }
+  }
+  error(ERR_FATAL, "array that contains names of local variables is too small to hold the next variable name.");
+}
+
 int declare_local(void){                        
-  t_var new_var;
+  t_var new_var = {0};
   char *temp_prog;
   int total_sp = 0;
   uint8_t is_static, is_const, is_register;
-  
+  char var_names[32][ID_LEN] = {0};
+  int dim = 0;
+
   is_register = 0;
-  is_static  = 0;
-  is_const   = 0;
+  is_static   = 0;
+  is_const    = 0;
   get();
   if(curr_token.tok == STATIC || curr_token.tok == CONST || curr_token.tok == REGISTER){
     while(curr_token.tok == STATIC || curr_token.tok == CONST || curr_token.tok == REGISTER){
@@ -1005,10 +1016,11 @@ int declare_local(void){
     if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
     if(local_var_exists(curr_token.token_str) != -1) error(ERR_FATAL, "Duplicate local variable: %s", curr_token.token_str);
     snprintf(new_var.name, sizeof(new_var.name), "%.125s", curr_token.token_str);
+    insert_var_name(curr_token.token_str, var_names);
     get();
 
     // checks if this is a array declaration
-    int dim = 0;
+    dim = 0;
     new_var.type.dims[0] = 0; // in case its not a array, this signals that fact
     if(curr_token.tok == OPENING_BRACKET){
       while(curr_token.tok == OPENING_BRACKET){
@@ -1051,6 +1063,8 @@ int declare_local(void){
       total_sp += get_total_type_size(new_var.type);
     }
 
+    emitln("  sub sp, %d ; %s", get_total_type_size(new_var.type), new_var.name);
+
     // assigns the new variable to the local stack
     function_table[current_func_id].local_vars[function_table[current_func_id].local_var_tos] = new_var;    
     function_table[current_func_id].local_var_tos++;
@@ -1068,19 +1082,20 @@ int declare_local(void){
       }
     }
     else{
-      emitln("; $%s ", new_var.name);
       if(curr_token.tok == ASSIGNMENT){
-        if(new_var.type.dims[0] > 0){
+        if(is_array(new_var.type)){
           error(ERR_WARNING, "Warning: Skipping initialization of local variable '%s' (not yet implemented).", new_var.name);
           do{
             get();
           } while(curr_token.tok != SEMICOLON);
         }
         else{
+          emitln("; --- START LOCAL VAR INITIALIZATION");
           t_type init_expr;
           emit_var_addr_into_d(new_var.name);
           emitln("  push d");
           init_expr = parse_expr();
+          puts("after expression");
           emitln("  pop d");
           if(init_expr.ind_level > 0)
             emitln("  mov [d], b");
@@ -1099,16 +1114,26 @@ int declare_local(void){
             emitln("  mov c, %d", get_total_type_size(init_expr));
             emitln("  rep movsb");
           }
-
+          emitln("; --- END LOCAL VAR INITIALIZATION");
         }
       }
     }
   } while(curr_token.tok == COMMA);
-
   if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+/*
+  dbg(curr_token.token_str);
 
+  emit("  sub sp, %d ; ", total_sp, new_var.name);
+  for(int i = 0; var_names[i][0]; i++){
+    if(var_names[i][0]){
+      emit("%s", var_names[i]);
+      if(var_names[i + 1][0]) emit(", ");
+    }
+  }
+  emitln("");
+  */
   return total_sp;
-} // declare_local
+} 
 
 void declare_global(void){
   char *temp_prog;
@@ -1418,64 +1443,6 @@ void declare_struct_global_vars(int struct_id){
     get();
   } while(curr_token.tok == COMMA);
   back();
-}
-
-void declare_all_locals(int function_id){
-  int total_braces = 0;
-  char *temp_prog;
-  int total_sp;
-  current_function_var_bp_offset = 0; 
-  current_func_id = function_id;
-  prog = function_table[function_id].code_location;
-
-  total_sp = 0;
-  for(;;){
-    declare_all_locals_L0:
-    temp_prog = prog;
-    get();
-    if(curr_token.tok == ASM){
-      for(;;){
-        get();
-        if(curr_token.tok == CLOSING_BRACE) goto declare_all_locals_L0;
-        if(curr_token.tok_type == END) error(ERR_FATAL, "Unterminated inline asm block.");
-      }
-    }
-    if(curr_token.tok == OPENING_PAREN){ // skip expressions inside parenthesis as they can't be variable declarations.
-      for(;;){
-        get();
-        if(curr_token.tok == CLOSING_PAREN) goto declare_all_locals_L0;
-        if(curr_token.tok_type == END) error(ERR_FATAL, "Unterminated parenthesized expression.");
-      }
-    }
-    if(curr_token.tok == OPENING_BRACE) total_braces++;
-    if(curr_token.tok == CLOSING_BRACE) total_braces--;
-    if(total_braces == 0) break;
-    if(curr_token.tok == STATIC   || curr_token.tok == CONST  || 
-       curr_token.tok == UNSIGNED || curr_token.tok == SIGNED || 
-       curr_token.tok == LONG     || curr_token.tok == SHORT  || 
-       curr_token.tok == INT      || curr_token.tok == CHAR   || 
-       curr_token.tok == VOID     || curr_token.tok == STRUCT || 
-       search_typedef(curr_token.token_str) != -1
-      ){
-      while(curr_token.tok == STATIC   || curr_token.tok == CONST  || 
-            curr_token.tok == UNSIGNED || curr_token.tok == SIGNED || 
-            curr_token.tok == LONG     || curr_token.tok == SHORT  || 
-            curr_token.tok == INT      || curr_token.tok == CHAR   || 
-            curr_token.tok == VOID     || curr_token.tok == STRUCT || 
-            curr_token.tok == ENUM     || search_typedef(curr_token.token_str) != -1
-      ){
-        get();       
-      }
-      while(curr_token.tok == STAR) get();
-      get(); // get identifier
-      get();
-      if(curr_token.tok != OPENING_PAREN){
-        prog = temp_prog;
-        total_sp += declare_local();
-      }
-    }
-  }
-  if(total_sp > 0) emitln("  sub sp, %d", total_sp);
 }
 
 void declare_func(void){
@@ -2158,9 +2125,9 @@ void parse_block(void){
     get();
     if(curr_token.tok != CLOSING_BRACE) return_is_last_statement = false;
     if(search_typedef(curr_token.token_str) != -1){
-      do{
-        get();
-      } while(curr_token.tok != SEMICOLON);
+      emit_c_header_line();
+      prog = temp_prog;
+      declare_local();
       continue;
     }
     switch(curr_token.tok){
@@ -2177,9 +2144,9 @@ void parse_block(void){
       case FLOAT:
       case DOUBLE:
       case STRUCT:
-        do{
-          get();
-        } while(curr_token.tok != SEMICOLON);
+        emit_c_header_line();
+        prog = temp_prog;
+        declare_local();
         break;
       case ASM:
         parse_asm();
@@ -2366,6 +2333,7 @@ t_type parse_assignment(){
 
   // is assignment
   get();
+  puts("OK");
   if(curr_token.tok_type == IDENTIFIER){
     if(is_constant(curr_token.token_str)) 
       error(ERR_FATAL, "assignment of read-only variable: %s", curr_token.token_str);
