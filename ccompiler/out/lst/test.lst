@@ -27,19 +27,25 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408 05 0B         syscall sys_terminate_proc
-0011   040A             ; --- END TEXT BLOCK
-0012   040A             
-0013   040A             ; --- BEGIN DATA BLOCK
-0014   040A 48 65 6C 6C _s_data: .db "Hello %s World", 0
-0014   040E 6F 20 25 73 
-0014   0412 20 57 6F 72 
-0014   0416 6C 64 00 
-0015   0419 0A 04       _s: .dw _s_data
-0016   041B             
-0017   041B 1D 04       _heap_top: .dw _heap
-0018   041D 00          _heap: .db 0
-0019   041E             ; --- END DATA BLOCK
-0020   041E             
-0021   041E             .end
+0010   0408             ;; "Hello % World"; 
+0011   0408 26 1E 04      mov b, _s0 ; "Hello % World"
+0012   040B 05 0B         syscall sys_terminate_proc
+0013   040D             ; --- END TEXT BLOCK
+0014   040D             
+0015   040D             ; --- BEGIN DATA BLOCK
+0016   040D 48 65 6C 6C _s_data: .db "Hello %s World", 0
+0016   0411 6F 20 25 73 
+0016   0415 20 57 6F 72 
+0016   0419 6C 64 00 
+0017   041C 0D 04       _s: .dw _s_data
+0018   041E 48 65 6C 6C _s0: .db "Hello % World", 0
+0018   0422 6F 20 25 20 
+0018   0426 57 6F 72 6C 
+0018   042A 64 00 
+0019   042C             
+0020   042C 2E 04       _heap_top: .dw _heap
+0021   042E 00          _heap: .db 0
+0022   042F             ; --- END DATA BLOCK
+0023   042F             
+0024   042F             .end
 tasm: Number of errors = 0

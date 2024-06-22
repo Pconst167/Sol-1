@@ -260,6 +260,7 @@ int enum_element_exists(char *element_name);
 void emit_c_header_line(void);
 void emit(const char* format, ...);
 void emitln(const char* format, ...);
+void emit_datablock_asm();
 void emit_data(const char* format, ...);
 void emit_data_dbdw(t_type type);
 void emit_string_table_data(void);
@@ -393,5 +394,3 @@ char is_space(char c);
 void build_referenced_func_list(void);
 void expand_all_included_files(void);
 
-
-char *replace_percent(const char* input_str);

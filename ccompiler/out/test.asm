@@ -7,12 +7,15 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
+;; "Hello % World"; 
+  mov b, _s0 ; "Hello % World"
   syscall sys_terminate_proc
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
 _s_data: .db "Hello %s World", 0
 _s: .dw _s_data
+_s0: .db "Hello % World", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

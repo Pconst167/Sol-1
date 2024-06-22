@@ -565,7 +565,7 @@ _if11_true:
   jmp _if11_exit
 _if11_else:
 ;; err("Unexpected format in printf."); 
-  mov b, __s29 ; "Unexpected format in printf."
+  mov b, _s30 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -720,7 +720,7 @@ _switch8_case7:
   jmp _switch8_exit ; case break
 _switch8_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s30 ; "Error: Unknown argument type.\n"
+  mov b, _s31 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -953,7 +953,7 @@ _if18_true:
   jmp _if18_exit
 _if18_else:
 ;; err("Unexpected format in printf."); 
-  mov b, __s29 ; "Unexpected format in printf."
+  mov b, _s30 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -1134,7 +1134,7 @@ _switch15_case7:
   jmp _switch15_exit ; case break
 _switch15_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, __s30 ; "Error: Unknown argument type.\n"
+  mov b, _s31 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -2305,7 +2305,7 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, __s31 ; "\033[2J\033[H"
+  mov b, _s32 ; "\033[2J\033[H"
   swp b
   push b
   call print
@@ -4024,10 +4024,10 @@ _ternary59_cond:
   cmp b, 0
   je _ternary59_false
 _ternary59_true:
-  mov b, __s32 ; "are"
+  mov b, _s33 ; "are"
   jmp _ternary59_exit
 _ternary59_false:
-  mov b, __s33 ; "is"
+  mov b, _s34 ; "is"
 _ternary59_exit:
   swp b
   push b
@@ -4040,7 +4040,7 @@ _ternary59_exit:
   add sp, 2
   swp b
   push b
-  mov b, __s34 ; "%s %s inoperable.\n"
+  mov b, _s35 ; "%s %s inoperable.\n"
   swp b
   push b
   call printf
@@ -4059,7 +4059,7 @@ _if57_exit:
 intro:
   enter 0 ; (push bp; mov bp, sp)
 ;; showfile("startrek.intro"); 
-  mov b, __s35 ; "startrek.intro"
+  mov b, _s36 ; "startrek.intro"
   swp b
   push b
   call showfile
@@ -4071,7 +4071,7 @@ _if60_cond:
   je _if60_exit
 _if60_true:
 ;; showfile("startrek.doc"); 
-  mov b, __s36 ; "startrek.doc"
+  mov b, _s37 ; "startrek.doc"
   swp b
   push b
   call showfile
@@ -4079,7 +4079,7 @@ _if60_true:
   jmp _if60_exit
 _if60_exit:
 ;; showfile("startrek.logo"); 
-  mov b, __s37 ; "startrek.logo"
+  mov b, _s38 ; "startrek.logo"
   swp b
   push b
   call showfile
@@ -4191,7 +4191,7 @@ _if62_cond:
   je _if62_exit
 _if62_true:
 ;; showfile("startrek.fatal"); 
-  mov b, __s38 ; "startrek.fatal"
+  mov b, _s39 ; "startrek.fatal"
   swp b
   push b
   call showfile
@@ -4201,7 +4201,7 @@ _if62_true:
   jmp _if62_exit
 _if62_exit:
 ;; puts("Command? "); 
-  mov b, __s39 ; "Command? "
+  mov b, _s40 ; "Command? "
   swp b
   push b
   call puts
@@ -4225,7 +4225,7 @@ _if63_cond:
   mov b, $3
   swp b
   push b
-  mov b, __s40 ; "nav"
+  mov b, _s41 ; "nav"
   swp b
   push b
   lea d, [bp + -3] ; $cmd
@@ -4248,7 +4248,7 @@ _if64_cond:
   mov b, $3
   swp b
   push b
-  mov b, __s41 ; "srs"
+  mov b, _s42 ; "srs"
   swp b
   push b
   lea d, [bp + -3] ; $cmd
@@ -4271,7 +4271,7 @@ _if65_cond:
   mov b, $3
   swp b
   push b
-  mov b, __s42 ; "lrs"
+  mov b, _s43 ; "lrs"
   swp b
   push b
   lea d, [bp + -3] ; $cmd
@@ -4294,7 +4294,7 @@ _if66_cond:
   mov b, $3
   swp b
   push b
-  mov b, __s43 ; "pha"
+  mov b, _s44 ; "pha"
   swp b
   push b
   lea d, [bp + -3] ; $cmd
@@ -4317,7 +4317,7 @@ _if67_cond:
   mov b, $3
   swp b
   push b
-  mov b, __s44 ; "tor"
+  mov b, _s45 ; "tor"
   swp b
   push b
   lea d, [bp + -3] ; $cmd
@@ -4340,7 +4340,7 @@ _if68_cond:
   mov b, $3
   swp b
   push b
-  mov b, __s45 ; "shi"
+  mov b, _s46 ; "shi"
   swp b
   push b
   lea d, [bp + -3] ; $cmd
@@ -4363,7 +4363,7 @@ _if69_cond:
   mov b, $3
   swp b
   push b
-  mov b, __s46 ; "dam"
+  mov b, _s47 ; "dam"
   swp b
   push b
   lea d, [bp + -3] ; $cmd
@@ -4386,7 +4386,7 @@ _if70_cond:
   mov b, $3
   swp b
   push b
-  mov b, __s47 ; "com"
+  mov b, _s48 ; "com"
   swp b
   push b
   lea d, [bp + -3] ; $cmd
@@ -4409,7 +4409,7 @@ _if71_cond:
   mov b, $3
   swp b
   push b
-  mov b, __s48 ; "xxx"
+  mov b, _s49 ; "xxx"
   swp b
   push b
   lea d, [bp + -3] ; $cmd
@@ -4428,61 +4428,61 @@ _if71_true:
   jmp _if71_exit
 _if71_else:
 ;; puts("Enter one of the following:\n"); 
-  mov b, __s49 ; "Enter one of the following:\n"
+  mov b, _s50 ; "Enter one of the following:\n"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("  nav - To Set Course"); 
-  mov b, __s50 ; "  nav - To Set Course"
+  mov b, _s51 ; "  nav - To Set Course"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("  srs - Short Range Sensors"); 
-  mov b, __s51 ; "  srs - Short Range Sensors"
+  mov b, _s52 ; "  srs - Short Range Sensors"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("  lrs - Long Range Sensors"); 
-  mov b, __s52 ; "  lrs - Long Range Sensors"
+  mov b, _s53 ; "  lrs - Long Range Sensors"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("  pha - Phasers"); 
-  mov b, __s53 ; "  pha - Phasers"
+  mov b, _s54 ; "  pha - Phasers"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("  tor - Photon Torpedoes"); 
-  mov b, __s54 ; "  tor - Photon Torpedoes"
+  mov b, _s55 ; "  tor - Photon Torpedoes"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("  shi - Shield Control"); 
-  mov b, __s55 ; "  shi - Shield Control"
+  mov b, _s56 ; "  shi - Shield Control"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("  dam - Damage Control"); 
-  mov b, __s56 ; "  dam - Damage Control"
+  mov b, _s57 ; "  dam - Damage Control"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("  com - Library Computer"); 
-  mov b, __s57 ; "  com - Library Computer"
+  mov b, _s58 ; "  com - Library Computer"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("  xxx - Resign Command\n"); 
-  mov b, __s58 ; "  xxx - Resign Command\n"
+  mov b, _s59 ; "  xxx - Resign Command\n"
   swp b
   push b
   call puts
@@ -5148,7 +5148,7 @@ _if82_cond:
   je _if82_exit
 _if82_true:
 ;; strcpy(plural_2, "s"); 
-  mov b, __s59 ; "s"
+  mov b, _s60 ; "s"
   swp b
   push b
   mov d, _plural_2_data ; $plural_2
@@ -5158,7 +5158,7 @@ _if82_true:
   call strcpy
   add sp, 4
 ;; strcpy(plural, "are"); 
-  mov b, __s32 ; "are"
+  mov b, _s33 ; "are"
   swp b
   push b
   mov d, _plural_data ; $plural
@@ -5169,6 +5169,62 @@ _if82_true:
   add sp, 4
   jmp _if82_exit
 _if82_exit:
+;; printf("Your orders are as follows:\nDestroy the %d Klingon warships which have",klingons_left); 
+  mov d, _klingons_left ; $klingons_left
+  mov bl, [d]
+  mov bh, 0
+  push bl
+  mov b, _s61 ; "Your orders are as follows:\nDestroy the %d Klingon warships which have"
+  swp b
+  push b
+  call printf
+  add sp, 3
+;; printf("invaded\n the galaxy before they can attack Federation Headquarters\n"); 
+  mov b, _s62 ; "invaded\n the galaxy before they can attack Federation Headquarters\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+;; printf(" on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy",  
+  mov d, _plural_2_data ; $plural_2
+  mov b, d
+  swp b
+  push b
+  mov d, _starbases_left ; $starbases_left
+  mov bl, [d]
+  mov bh, 0
+  push bl
+  mov d, _plural_data ; $plural
+  mov b, d
+  swp b
+  push b
+  mov d, _time_up ; $time_up
+  mov b, [d]
+  swp b
+  push b
+  mov d, _time_start ; $time_start
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  mov d, _time_up ; $time_up
+  mov b, [d]
+  add b, a
+  pop a
+; END TERMS
+  swp b
+  push b
+  mov b, _s63 ; " on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy"
+  swp b
+  push b
+  call printf
+  add sp, 11
+;; printf(" for resupplying your ship.\n\n Hit any key to accept command. "); 
+  mov b, _s64 ; " for resupplying your ship.\n\n Hit any key to accept command. "
+  swp b
+  push b
+  call printf
+  add sp, 2
 ;; getchar(); 
   call getchar
   leave
@@ -5395,7 +5451,7 @@ _if84_true:
   mov b, d
   swp b
   push b
-  mov b, __s60 ; "Now entering %s quadrant...\n\n"
+  mov b, _s65 ; "Now entering %s quadrant...\n\n"
   swp b
   push b
   call printf
@@ -5403,7 +5459,7 @@ _if84_true:
   jmp _if84_exit
 _if84_else:
 ;; puts("\nYour mission begins with your starship located"); 
-  mov b, __s61 ; "\nYour mission begins with your starship located"
+  mov b, _s66 ; "\nYour mission begins with your starship located"
   swp b
   push b
   call puts
@@ -5413,7 +5469,7 @@ _if84_else:
   mov b, d
   swp b
   push b
-  mov b, __s62 ; "in the galactic quadrant %s.\n\n"
+  mov b, _s67 ; "in the galactic quadrant %s.\n\n"
   swp b
   push b
   call printf
@@ -5511,7 +5567,7 @@ _if85_cond:
   je _if85_exit
 _if85_true:
 ;; printf("Combat Area  Condition Red\n"); 
-  mov b, __s63 ; "Combat Area  Condition Red\n"
+  mov b, _s68 ; "Combat Area  Condition Red\n"
   swp b
   push b
   call printf
@@ -5532,7 +5588,7 @@ _if86_cond:
   je _if86_exit
 _if86_true:
 ;; printf("Shields Dangerously Low\n"); 
-  mov b, __s64 ; "Shields Dangerously Low\n"
+  mov b, _s69 ; "Shields Dangerously Low\n"
   swp b
   push b
   call printf
@@ -5824,7 +5880,7 @@ course_control:
 ; $quad_x_old 
   sub sp, 29
 ;; puts("Course (0-9): " ); 
-  mov b, __s65 ; "Course (0-9): "
+  mov b, _s70 ; "Course (0-9): "
   swp b
   push b
   call puts
@@ -5892,7 +5948,7 @@ _if93_true:
   mov b, [d]
   swp b
   push b
-  mov b, __s66 ; "Lt. Sulu%s"
+  mov b, _s71 ; "Lt. Sulu%s"
   swp b
   push b
   call printf
@@ -5924,7 +5980,7 @@ _if94_cond:
   je _if94_exit
 _if94_true:
 ;; strcpy(warpmax, "0.2"); 
-  mov b, __s67 ; "0.2"
+  mov b, _s72 ; "0.2"
   swp b
   push b
   mov d, _warpmax_data ; $warpmax
@@ -5940,7 +5996,7 @@ _if94_exit:
   mov b, d
   swp b
   push b
-  mov b, __s68 ; "Warp Factor (0-%s): "
+  mov b, _s73 ; "Warp Factor (0-%s): "
   swp b
   push b
   call printf
@@ -5987,7 +6043,7 @@ _if95_cond:
   je _if95_exit
 _if95_true:
 ;; printf("Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n"); 
-  mov b, __s69 ; "Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n"
+  mov b, _s74 ; "Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n"
   swp b
   push b
   call printf
@@ -6041,7 +6097,7 @@ _if97_true:
   add sp, 2
   swp b
   push b
-  mov b, __s70 ; "Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n"
+  mov b, _s75 ; "Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n"
   swp b
   push b
   call printf
@@ -6111,7 +6167,7 @@ _if98_true:
   add sp, 2
   swp b
   push b
-  mov b, __s71 ; "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n"
+  mov b, _s76 ; "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n"
   swp b
   push b
   call printf
@@ -6157,7 +6213,7 @@ _if99_true:
   mov b, [d]
   swp b
   push b
-  mov b, __s72 ; "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n"
+  mov b, _s77 ; "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n"
   swp b
   push b
   call printf
@@ -7025,7 +7081,7 @@ _if108_true:
   add sp, 2
   swp b
   push b
-  mov b, __s73 ; "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n"
+  mov b, _s78 ; "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n"
   swp b
   push b
   call printf
@@ -7225,7 +7281,7 @@ _if111_true:
   mov b, [d]
   swp b
   push b
-  mov b, __s74 ; "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n"
+  mov b, _s79 ; "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n"
   swp b
   push b
   call printf
@@ -7419,7 +7475,7 @@ _if114_true:
   jmp _if114_exit
 _if114_exit:
 ;; puts("Shield Control supplies energy to complete maneuver.\n"); 
-  mov b, __s75 ; "Shield Control supplies energy to complete maneuver.\n"
+  mov b, _s80 ; "Shield Control supplies energy to complete maneuver.\n"
   swp b
   push b
   call puts
@@ -7506,7 +7562,7 @@ _if116_true:
 ;; sC = "YELLOW"; 
   lea d, [bp + -5] ; $sC
   push d
-  mov b, __s76 ; "YELLOW"
+  mov b, _s81 ; "YELLOW"
   pop d
   mov [d], b
   jmp _if116_exit
@@ -7530,7 +7586,7 @@ _if117_true:
 ;; sC = "*RED*"; 
   lea d, [bp + -5] ; $sC
   push d
-  mov b, __s77 ; "*RED*"
+  mov b, _s82 ; "*RED*"
   pop d
   mov [d], b
   jmp _if117_exit
@@ -7737,7 +7793,7 @@ _if121_true:
 ;; sC = "DOCKED"; 
   lea d, [bp + -5] ; $sC
   push d
-  mov b, __s78 ; "DOCKED"
+  mov b, _s83 ; "DOCKED"
   pop d
   mov [d], b
 ;; energy = energy0; 
@@ -7756,7 +7812,7 @@ _if121_true:
   pop d
   mov [d], bl
 ;; puts("Shields dropped for docking purposes."); 
-  mov b, __s79 ; "Shields dropped for docking purposes."
+  mov b, _s84 ; "Shields dropped for docking purposes."
   swp b
   push b
   call puts
@@ -7813,7 +7869,7 @@ _if122_cond:
   je _if122_exit
 _if122_true:
 ;; puts("\n*** Short Range Sensors are out ***"); 
-  mov b, __s80 ; "\n*** Short Range Sensors are out ***"
+  mov b, _s85 ; "\n*** Short Range Sensors are out ***"
   swp b
   push b
   call puts
@@ -7933,7 +7989,7 @@ _if125_true:
   add sp, 2
   swp b
   push b
-  mov b, __s81 ; "    Stardate            %d\n"
+  mov b, _s86 ; "    Stardate            %d\n"
   swp b
   push b
   call printf
@@ -7960,7 +8016,7 @@ _if126_true:
   mov b, [d]
   swp b
   push b
-  mov b, __s82 ; "    Condition           %s\n"
+  mov b, _s87 ; "    Condition           %s\n"
   swp b
   push b
   call printf
@@ -7991,7 +8047,7 @@ _if127_true:
   mov b, [d]
   swp b
   push b
-  mov b, __s83 ; "    Quadrant            %d, %d\n"
+  mov b, _s88 ; "    Quadrant            %d, %d\n"
   swp b
   push b
   call printf
@@ -8030,7 +8086,7 @@ _if128_true:
   add sp, 2
   swp b
   push b
-  mov b, __s84 ; "    Sector              %d, %d\n"
+  mov b, _s89 ; "    Sector              %d, %d\n"
   swp b
   push b
   call printf
@@ -8057,7 +8113,7 @@ _if129_true:
   mov bl, [d]
   mov bh, 0
   push bl
-  mov b, __s85 ; "    Photon Torpedoes    %d\n"
+  mov b, _s90 ; "    Photon Torpedoes    %d\n"
   swp b
   push b
   call printf
@@ -8092,7 +8148,7 @@ _if130_true:
 ; END TERMS
   swp b
   push b
-  mov b, __s86 ; "    Total Energy        %d\n"
+  mov b, _s91 ; "    Total Energy        %d\n"
   swp b
   push b
   call printf
@@ -8119,7 +8175,7 @@ _if131_true:
   mov b, [d]
   swp b
   push b
-  mov b, __s87 ; "    Shields             %d\n"
+  mov b, _s92 ; "    Shields             %d\n"
   swp b
   push b
   call printf
@@ -8146,7 +8202,7 @@ _if132_true:
   mov bl, [d]
   mov bh, 0
   push bl
-  mov b, __s88 ; "    Klingons Remaining  %d\n"
+  mov b, _s93 ; "    Klingons Remaining  %d\n"
   swp b
   push b
   call printf
@@ -8280,7 +8336,7 @@ _if133_exit:
   mov b, [d]
   swp b
   push b
-  mov b, __s89 ; "Long Range Scan for Quadrant %d, %d\n\n"
+  mov b, _s94 ; "Long Range Scan for Quadrant %d, %d\n\n"
   swp b
   push b
   call printf
@@ -8328,7 +8384,7 @@ _for134_block:
   mov b, [d]
   swp b
   push b
-  mov b, __s90 ; "%s:"
+  mov b, _s95 ; "%s:"
   swp b
   push b
   call printf
@@ -8487,14 +8543,14 @@ _if136_true:
   jmp _if136_exit
 _if136_else:
 ;; puts("***"); 
-  mov b, __s91 ; "***"
+  mov b, _s96 ; "***"
   swp b
   push b
   call puts
   add sp, 2
 _if136_exit:
 ;; puts(" :"); 
-  mov b, __s92 ; " :"
+  mov b, _s97 ; " :"
   swp b
   push b
   call puts
@@ -8529,7 +8585,7 @@ _for134_exit:
   mov b, [d]
   swp b
   push b
-  mov b, __s93 ; "%s\n"
+  mov b, _s98 ; "%s\n"
   swp b
   push b
   call printf
@@ -8556,7 +8612,7 @@ _if137_cond:
   je _if137_exit
 _if137_true:
 ;; puts("Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"); 
-  mov b, __s94 ; "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"
+  mov b, _s99 ; "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"
   swp b
   push b
   call puts
@@ -8677,7 +8733,7 @@ _if140_cond:
   je _if140_exit
 _if140_true:
 ;; puts("Computer failure hampers accuracy."); 
-  mov b, __s95 ; "Computer failure hampers accuracy."
+  mov b, _s100 ; "Computer failure hampers accuracy."
   swp b
   push b
   call puts
@@ -8689,7 +8745,7 @@ _if140_exit:
   mov b, [d]
   swp b
   push b
-  mov b, __s96 ; "Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: "
+  mov b, _s101 ; "Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: "
   swp b
   push b
   call printf
@@ -8758,7 +8814,7 @@ _if142_cond:
   je _if142_exit
 _if142_true:
 ;; puts("Not enough energy available.\n"); 
-  mov b, __s97 ; "Not enough energy available.\n"
+  mov b, _s102 ; "Not enough energy available.\n"
   swp b
   push b
   call puts
@@ -9013,7 +9069,7 @@ _if146_true:
   mov bl, [d]
   mov bh, 0
   push bl
-  mov b, __s98 ; "Sensors show no damage to enemy at %d, %d\n\n"
+  mov b, _s103 ; "Sensors show no damage to enemy at %d, %d\n\n"
   swp b
   push b
   call printf
@@ -9070,7 +9126,7 @@ _if146_else:
   mov b, [d]
   swp b
   push b
-  mov b, __s99 ; "%d unit hit on Klingon at sector %d, %d\n"
+  mov b, _s104 ; "%d unit hit on Klingon at sector %d, %d\n"
   swp b
   push b
   call printf
@@ -9093,7 +9149,7 @@ _if147_cond:
   je _if147_else
 _if147_true:
 ;; puts("*** Klingon Destroyed ***\n"); 
-  mov b, __s100 ; "*** Klingon Destroyed ***\n"
+  mov b, _s105 ; "*** Klingon Destroyed ***\n"
   swp b
   push b
   call puts
@@ -9199,7 +9255,7 @@ _if147_else:
   mov b, [d]
   swp b
   push b
-  mov b, __s101 ; "   (Sensors show %d units remaining.)\n\n"
+  mov b, _s106 ; "   (Sensors show %d units remaining.)\n\n"
   swp b
   push b
   call printf
@@ -9263,7 +9319,7 @@ _if149_cond:
   je _if149_exit
 _if149_true:
 ;; puts("All photon torpedoes expended"); 
-  mov b, __s102 ; "All photon torpedoes expended"
+  mov b, _s107 ; "All photon torpedoes expended"
   swp b
   push b
   call puts
@@ -9288,7 +9344,7 @@ _if150_true:
   jmp _if150_exit
 _if150_exit:
 ;; puts("Course (0-9): "); 
-  mov b, __s65 ; "Course (0-9): "
+  mov b, _s70 ; "Course (0-9): "
   swp b
   push b
   call puts
@@ -9356,7 +9412,7 @@ _if152_true:
   mov b, [d]
   swp b
   push b
-  mov b, __s103 ; "Ensign Chekov%s"
+  mov b, _s108 ; "Ensign Chekov%s"
   swp b
   push b
   call printf
@@ -9646,7 +9702,7 @@ _if152_exit:
   pop d
   mov [d], b
 ;; puts("Torpedo Track:"); 
-  mov b, __s104 ; "Torpedo Track:"
+  mov b, _s109 ; "Torpedo Track:"
   swp b
   push b
   call puts
@@ -9713,7 +9769,7 @@ _while153_block:
   mov b, [d]
   swp b
   push b
-  mov b, __s105 ; "    %d, %d\n"
+  mov b, _s110 ; "    %d, %d\n"
   swp b
   push b
   call printf
@@ -9854,7 +9910,7 @@ _if154_exit:
   jmp _while153_cond
 _while153_exit:
 ;; puts("Torpedo Missed\n"); 
-  mov b, __s106 ; "Torpedo Missed\n"
+  mov b, _s111 ; "Torpedo Missed\n"
   swp b
   push b
   call puts
@@ -9920,7 +9976,7 @@ _switch155_case0:
   mov bl, [d]
   mov bh, 0
   push bl
-  mov b, __s107 ; "Star at %d, %d absorbed torpedo energy.\n\n"
+  mov b, _s112 ; "Star at %d, %d absorbed torpedo energy.\n\n"
   swp b
   push b
   call printf
@@ -9930,7 +9986,7 @@ _switch155_case0:
   ret
 _switch155_case1:
 ;; puts("*** Klingon Destroyed ***\n"); 
-  mov b, __s100 ; "*** Klingon Destroyed ***\n"
+  mov b, _s105 ; "*** Klingon Destroyed ***\n"
   swp b
   push b
   call puts
@@ -10112,7 +10168,7 @@ _for157_exit:
   jmp _switch155_exit ; case break
 _switch155_case2:
 ;; puts("*** Starbase Destroyed ***"); 
-  mov b, __s108 ; "*** Starbase Destroyed ***"
+  mov b, _s113 ; "*** Starbase Destroyed ***"
   swp b
   push b
   call puts
@@ -10186,25 +10242,25 @@ _if159_cond:
   je _if159_exit
 _if159_true:
 ;; puts("That does it, Captain!!"); 
-  mov b, __s109 ; "That does it, Captain!!"
+  mov b, _s114 ; "That does it, Captain!!"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("You are hereby relieved of command\n"); 
-  mov b, __s110 ; "You are hereby relieved of command\n"
+  mov b, _s115 ; "You are hereby relieved of command\n"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("and sentenced to 99 stardates of hard"); 
-  mov b, __s111 ; "and sentenced to 99 stardates of hard"
+  mov b, _s116 ; "and sentenced to 99 stardates of hard"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("labor on Cygnus 12!!\n"); 
-  mov b, __s112 ; "labor on Cygnus 12!!\n"
+  mov b, _s117 ; "labor on Cygnus 12!!\n"
   swp b
   push b
   call puts
@@ -10214,7 +10270,7 @@ _if159_true:
   jmp _if159_exit
 _if159_exit:
 ;; puts("Starfleet Command reviewing your record to consider\n court martial!\n"); 
-  mov b, __s113 ; "Starfleet Command reviewing your record to consider\n court martial!\n"
+  mov b, _s118 ; "Starfleet Command reviewing your record to consider\n court martial!\n"
   swp b
   push b
   call puts
@@ -10333,7 +10389,7 @@ _if160_cond:
   je _if160_exit
 _if160_true:
 ;; puts("Damage Control report not available."); 
-  mov b, __s114 ; "Damage Control report not available."
+  mov b, _s119 ; "Damage Control report not available."
   swp b
   push b
   call puts
@@ -10477,7 +10533,7 @@ _if165_exit:
   add sp, 2
   swp b
   push b
-  mov b, __s115 ; "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? "
+  mov b, _s120 ; "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? "
   swp b
   push b
   call printf
@@ -10625,7 +10681,7 @@ _if169_true:
   jmp _if169_exit
 _if169_exit:
 ;; puts("Device            State of Repair"); 
-  mov b, __s116 ; "Device            State of Repair"
+  mov b, _s121 ; "Device            State of Repair"
   swp b
   push b
   call puts
@@ -10675,7 +10731,7 @@ _for170_block:
   add sp, 2
   swp b
   push b
-  mov b, __s117 ; "%-25s%6s\n"
+  mov b, _s122 ; "%-25s%6s\n"
   swp b
   push b
   call printf
@@ -10691,7 +10747,7 @@ _for170_update:
   jmp _for170_cond
 _for170_exit:
 ;; printf("\n"); 
-  mov b, __s118 ; "\n"
+  mov b, _s123 ; "\n"
   swp b
   push b
   call printf
@@ -10730,7 +10786,7 @@ _if171_exit:
 ; END TERMS
   swp b
   push b
-  mov b, __s119 ; "Energy available = %d\n\n Input number of units to shields: "
+  mov b, _s124 ; "Energy available = %d\n\n Input number of units to shields: "
   swp b
   push b
   call printf
@@ -10772,7 +10828,7 @@ _if172_cond:
   je _if172_exit
 _if172_true:
 ;; puts("<Shields Unchanged>\n"); 
-  mov b, __s120 ; "<Shields Unchanged>\n"
+  mov b, _s125 ; "<Shields Unchanged>\n"
   swp b
   push b
   call puts
@@ -10807,7 +10863,7 @@ _if173_cond:
   je _if173_exit
 _if173_true:
 ;; puts("Shield Control Reports:\n  This is not the Federation Treasury."); 
-  mov b, __s121 ; "Shield Control Reports:\n  This is not the Federation Treasury."
+  mov b, _s126 ; "Shield Control Reports:\n  This is not the Federation Treasury."
   swp b
   push b
   call puts
@@ -10846,7 +10902,7 @@ _if173_exit:
   mov b, [d]
   swp b
   push b
-  mov b, __s122 ; "Deflector Control Room report:\n  Shields now at %d units per your command.\n\n"
+  mov b, _s127 ; "Deflector Control Room report:\n  Shields now at %d units per your command.\n\n"
   swp b
   push b
   call printf
@@ -10871,7 +10927,7 @@ _if174_true:
   jmp _if174_exit
 _if174_exit:
 ;; puts("Computer active and awating command: "); 
-  mov b, __s123 ; "Computer active and awating command: "
+  mov b, _s128 ; "Computer active and awating command: "
   swp b
   push b
   call puts
@@ -10931,43 +10987,43 @@ _switch175_case6:
   jmp _switch175_exit ; case break
 _switch175_default:
 ;; puts("Functions available from Library-Computer:\n\n"); 
-  mov b, __s124 ; "Functions available from Library-Computer:\n\n"
+  mov b, _s129 ; "Functions available from Library-Computer:\n\n"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("   0 = Cumulative Galactic Record\n"); 
-  mov b, __s125 ; "   0 = Cumulative Galactic Record\n"
+  mov b, _s130 ; "   0 = Cumulative Galactic Record\n"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("   1 = Status Report\n"); 
-  mov b, __s126 ; "   1 = Status Report\n"
+  mov b, _s131 ; "   1 = Status Report\n"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("   2 = Photon Torpedo Data\n"); 
-  mov b, __s127 ; "   2 = Photon Torpedo Data\n"
+  mov b, _s132 ; "   2 = Photon Torpedo Data\n"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("   3 = Starbase Nav Data\n"); 
-  mov b, __s128 ; "   3 = Starbase Nav Data\n"
+  mov b, _s133 ; "   3 = Starbase Nav Data\n"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("   4 = Direction/Distance Calculator\n"); 
-  mov b, __s129 ; "   4 = Direction/Distance Calculator\n"
+  mov b, _s134 ; "   4 = Direction/Distance Calculator\n"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("   5 = Galaxy Region Name Map\n"); 
-  mov b, __s130 ; "   5 = Galaxy Region Name Map\n"
+  mov b, _s135 ; "   5 = Galaxy Region Name Map\n"
   swp b
   push b
   call puts
@@ -10990,13 +11046,13 @@ galactic_record:
   mov b, [d]
   swp b
   push b
-  mov b, __s131 ; "\n     Computer Record of Galaxy for Quadrant %d,%d\n\n"
+  mov b, _s136 ; "\n     Computer Record of Galaxy for Quadrant %d,%d\n\n"
   swp b
   push b
   call printf
   add sp, 6
 ;; puts("     1     2     3     4     5     6     7     8"); 
-  mov b, __s132 ; "     1     2     3     4     5     6     7     8"
+  mov b, _s137 ; "     1     2     3     4     5     6     7     8"
   swp b
   push b
   call puts
@@ -11031,7 +11087,7 @@ _for176_block:
   mov b, [d]
   swp b
   push b
-  mov b, __s133 ; "%s%d"
+  mov b, _s138 ; "%s%d"
   swp b
   push b
   call printf
@@ -11058,7 +11114,7 @@ _for177_cond:
   je _for177_exit
 _for177_block:
 ;; printf("   "); 
-  mov b, __s24 ; "   "
+  mov b, _s25 ; "   "
   swp b
   push b
   call printf
@@ -11109,7 +11165,7 @@ _if178_true:
   jmp _if178_exit
 _if178_else:
 ;; printf("***"); 
-  mov b, __s91 ; "***"
+  mov b, _s96 ; "***"
   swp b
   push b
   call printf
@@ -11145,7 +11201,7 @@ _for176_exit:
   mov b, [d]
   swp b
   push b
-  mov b, __s93 ; "%s\n"
+  mov b, _s98 ; "%s\n"
   swp b
   push b
   call printf
@@ -11201,7 +11257,7 @@ status_report:
   pop d
   mov [d], b
 ;; puts("   Status Report:\n"); 
-  mov b, __s134 ; "   Status Report:\n"
+  mov b, _s139 ; "   Status Report:\n"
   swp b
   push b
   call puts
@@ -11261,7 +11317,7 @@ _if179_exit:
   mov b, [d]
   swp b
   push b
-  mov b, __s135 ; "Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n"
+  mov b, _s140 ; "Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n"
   swp b
   push b
   call printf
@@ -11283,7 +11339,7 @@ _if180_cond:
   je _if180_else
 _if180_true:
 ;; puts("Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"); 
-  mov b, __s136 ; "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"
+  mov b, _s141 ; "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"
   swp b
   push b
   call puts
@@ -11332,7 +11388,7 @@ _if181_exit:
   mov bl, [d]
   mov bh, 0
   push bl
-  mov b, __s137 ; "The Federation is maintaining %d starbase%s in the galaxy\n\n"
+  mov b, _s142 ; "The Federation is maintaining %d starbase%s in the galaxy\n\n"
   swp b
   push b
   call printf
@@ -11403,7 +11459,7 @@ _if183_exit:
   mov b, [d]
   swp b
   push b
-  mov b, __s138 ; "From Enterprise to Klingon battlecriuser%s:\n\n"
+  mov b, _s143 ; "From Enterprise to Klingon battlecriuser%s:\n\n"
   swp b
   push b
   call printf
@@ -11529,7 +11585,7 @@ _if186_cond:
   je _if186_exit
 _if186_true:
 ;; puts("Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"); 
-  mov b, __s139 ; "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"
+  mov b, _s144 ; "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"
   swp b
   push b
   call puts
@@ -11603,7 +11659,7 @@ dirdist_calc:
   mov b, [d]
   swp b
   push b
-  mov b, __s140 ; "Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: "
+  mov b, _s145 ; "Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: "
   swp b
   push b
   call printf
@@ -11653,7 +11709,7 @@ _if187_true:
   jmp _if187_exit
 _if187_exit:
 ;; puts("Please enter initial Y coordinate: "); 
-  mov b, __s141 ; "Please enter initial Y coordinate: "
+  mov b, _s146 ; "Please enter initial Y coordinate: "
   swp b
   push b
   call puts
@@ -11703,7 +11759,7 @@ _if188_true:
   jmp _if188_exit
 _if188_exit:
 ;; puts("Please enter final X coordinate: "); 
-  mov b, __s142 ; "Please enter final X coordinate: "
+  mov b, _s147 ; "Please enter final X coordinate: "
   swp b
   push b
   call puts
@@ -11753,7 +11809,7 @@ _if189_true:
   jmp _if189_exit
 _if189_exit:
 ;; puts("Please enter final Y coordinate: "); 
-  mov b, __s143 ; "Please enter final Y coordinate: "
+  mov b, _s148 ; "Please enter final Y coordinate: "
   swp b
   push b
   call puts
@@ -11831,13 +11887,13 @@ galaxy_map:
 ; $j0 
   sub sp, 6
 ;; printf("\n                   The Galaxy\n\n"); 
-  mov b, __s144 ; "\n                   The Galaxy\n\n"
+  mov b, _s149 ; "\n                   The Galaxy\n\n"
   swp b
   push b
   call printf
   add sp, 2
 ;; printf("    1     2     3     4     5     6     7     8\n"); 
-  mov b, __s145 ; "    1     2     3     4     5     6     7     8\n"
+  mov b, _s150 ; "    1     2     3     4     5     6     7     8\n"
   swp b
   push b
   call printf
@@ -11872,7 +11928,7 @@ _for191_block:
   mov b, [d]
   swp b
   push b
-  mov b, __s146 ; "%s%d "
+  mov b, _s151 ; "%s%d "
   swp b
   push b
   call printf
@@ -12131,7 +12187,7 @@ compute_vector:
 ; $al 
   sub sp, 8
 ;; puts("  DIRECTION = "); 
-  mov b, __s147 ; "  DIRECTION = "
+  mov b, _s152 ; "  DIRECTION = "
   swp b
   push b
   call puts
@@ -12297,7 +12353,7 @@ _if198_true:
   add sp, 2
   swp b
   push b
-  mov b, __s148 ; "%s"
+  mov b, _s153 ; "%s"
   swp b
   push b
   call printf
@@ -12372,7 +12428,7 @@ _if198_else:
   add sp, 2
   swp b
   push b
-  mov b, __s148 ; "%s"
+  mov b, _s153 ; "%s"
   swp b
   push b
   call printf
@@ -12596,7 +12652,7 @@ _if207_true:
   add sp, 2
   swp b
   push b
-  mov b, __s148 ; "%s"
+  mov b, _s153 ; "%s"
   swp b
   push b
   call printf
@@ -12671,7 +12727,7 @@ _if207_else:
   add sp, 2
   swp b
   push b
-  mov b, __s148 ; "%s"
+  mov b, _s153 ; "%s"
   swp b
   push b
   call printf
@@ -12732,7 +12788,7 @@ _if196_exit:
 ship_destroyed:
   enter 0 ; (push bp; mov bp, sp)
 ;; puts("The Enterprise has been destroyed. The Federation will be conquered.\n"); 
-  mov b, __s149 ; "The Enterprise has been destroyed. The Federation will be conquered.\n"
+  mov b, _s154 ; "The Enterprise has been destroyed. The Federation will be conquered.\n"
   swp b
   push b
   call puts
@@ -12753,7 +12809,7 @@ end_of_time:
   add sp, 2
   swp b
   push b
-  mov b, __s150 ; "It is stardate %d.\n\n"
+  mov b, _s155 ; "It is stardate %d.\n\n"
   swp b
   push b
   call printf
@@ -12770,7 +12826,7 @@ resign_commision:
   mov bl, [d]
   mov bh, 0
   push bl
-  mov b, __s151 ; "There were %d Klingon Battlecruisers left at the end of your mission.\n\n"
+  mov b, _s156 ; "There were %d Klingon Battlecruisers left at the end of your mission.\n\n"
   swp b
   push b
   call printf
@@ -12783,7 +12839,7 @@ resign_commision:
 won_game:
   enter 0 ; (push bp; mov bp, sp)
 ;; puts("Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"); 
-  mov b, __s152 ; "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"
+  mov b, _s157 ; "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"
   swp b
   push b
   call puts
@@ -12856,7 +12912,7 @@ _if212_true:
   add sp, 2
   swp b
   push b
-  mov b, __s153 ; "Your efficiency rating is %s\n"
+  mov b, _s158 ; "Your efficiency rating is %s\n"
   swp b
   push b
   call printf
@@ -12889,25 +12945,25 @@ _if213_cond:
   je _if213_exit
 _if213_true:
 ;; puts("The Federation is in need of a new starship commander"); 
-  mov b, __s154 ; "The Federation is in need of a new starship commander"
+  mov b, _s159 ; "The Federation is in need of a new starship commander"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts(" for a similar mission.\n"); 
-  mov b, __s155 ; " for a similar mission.\n"
+  mov b, _s160 ; " for a similar mission.\n"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts("If there is a volunteer, let him step forward and"); 
-  mov b, __s156 ; "If there is a volunteer, let him step forward and"
+  mov b, _s161 ; "If there is a volunteer, let him step forward and"
   swp b
   push b
   call puts
   add sp, 2
 ;; puts(" enter aye: "); 
-  mov b, __s157 ; " enter aye: "
+  mov b, _s162 ; " enter aye: "
   swp b
   push b
   call puts
@@ -12926,7 +12982,7 @@ _if214_cond:
   mov b, $3
   swp b
   push b
-  mov b, __s158 ; "aye"
+  mov b, _s163 ; "aye"
   swp b
   push b
   lea d, [bp + -3] ; $x
@@ -13098,7 +13154,7 @@ _if218_cond:
   je _if218_exit
 _if218_true:
 ;; puts("Starbase shields protect the Enterprise\n"); 
-  mov b, __s159 ; "Starbase shields protect the Enterprise\n"
+  mov b, _s164 ; "Starbase shields protect the Enterprise\n"
   swp b
   push b
   call puts
@@ -13312,7 +13368,7 @@ _if220_true:
   mov b, [d] ; Lower Word in B
   swp b
   push b
-  mov b, __s160 ; "%d unit hit on Enterprise from sector %d, %d\n"
+  mov b, _s165 ; "%d unit hit on Enterprise from sector %d, %d\n"
   swp b
   push b
   call printf
@@ -13346,7 +13402,7 @@ _if221_exit:
   mov b, [d]
   swp b
   push b
-  mov b, __s161 ; "    <Shields down to %d units>\n\n"
+  mov b, _s166 ; "    <Shields down to %d units>\n\n"
   swp b
   push b
   call printf
@@ -13493,7 +13549,7 @@ _if223_true:
   add sp, 2
   swp b
   push b
-  mov b, __s162 ; "Damage Control reports\n%s damaged by hit\n\n"
+  mov b, _s167 ; "Damage Control reports\n%s damaged by hit\n\n"
   swp b
   push b
   call printf
@@ -13759,7 +13815,7 @@ _if229_exit:
   add sp, 2
   swp b
   push b
-  mov b, __s163 ; "    %s repair completed\n\n"
+  mov b, _s168 ; "    %s repair completed\n\n"
   swp b
   push b
   call printf
@@ -13893,7 +13949,7 @@ _if231_true:
   add sp, 2
   swp b
   push b
-  mov b, __s164 ; "    %s damaged\n\n"
+  mov b, _s169 ; "    %s damaged\n\n"
   swp b
   push b
   call printf
@@ -13954,7 +14010,7 @@ _if231_else:
   add sp, 2
   swp b
   push b
-  mov b, __s165 ; "    %s state of repair improved\n\n"
+  mov b, _s170 ; "    %s state of repair improved\n\n"
   swp b
   push b
   call printf
@@ -14215,7 +14271,7 @@ _if236_cond:
   je _if236_exit
 _if236_true:
 ;; strcpy(quadname, "Unknown"); 
-  mov b, __s170 ; "Unknown"
+  mov b, _s175 ; "Unknown"
   swp b
   push b
   mov d, _quadname_data ; $quadname
@@ -14759,10 +14815,10 @@ _quadname_data: .fill 12, 0
 _inc_1_data: .db "reports:\n  Incorrect course data, sir!\n", 0
 _inc_1: .dw _inc_1_data
 _quad_name_data: 
-.dw __s0, __s0, __s1, __s2, __s3, __s4, __s5, __s6, __s7, __s8, __s9, __s10, __s11, __s12, __s13, __s14, __s15, 
+.dw _s0, _s1, _s2, _s3, _s4, _s5, _s6, _s7, _s8, _s9, _s10, _s11, _s12, _s13, _s14, _s15, _s16, 
 .fill 34, 0
 _device_name_data: 
-.dw __s16, __s16, __s17, __s18, __s19, __s20, __s21, __s22, __s23, 
+.dw _s0, _s17, _s18, _s19, _s20, _s21, _s22, _s23, _s24, 
 .fill 18, 0
 _dcr_1_data: .db "Damage Control report:", 0
 _dcr_1: .dw _dcr_1_data
@@ -14777,7 +14833,7 @@ _warpmax_data:
 _srs_1_data: .db "------------------------", 0
 _srs_1: .dw _srs_1_data
 _tilestr_data: 
-.dw __s24, __s25, __s26, __s27, __s28, 
+.dw _s25, _s26, _s27, _s28, _s29, 
 .fill 10, 0
 _lrs_1_data: .db "-------------------\n", 0
 _lrs_1: .dw _lrs_1_data
@@ -14793,78 +14849,187 @@ st_print100_buf_dt: .fill 16, 0
 _sC_data: .db "GREEN", 0
 _sC: .dw _sC_data
 st_quadrant_name_sect_name_dt: 
-.dw __s166, __s166, __s167, __s168, __s169, .fill 10, 0
+.dw _s0, _s171, _s172, _s173, _s174, .fill 10, 0
 st_quadrant_name: .dw st_sect_name_sect_name_dt
-__s0: .db "Antares", 0
-__s1: .db "Rigel", 0
-__s2: .db "Procyon", 0
-__s3: .db "Vega", 0
-__s4: .db "Canopus", 0
-__s5: .db "Altair", 0
-__s6: .db "Sagittarius", 0
-__s7: .db "Pollux", 0
-__s8: .db "Sirius", 0
-__s9: .db "Deneb", 0
-__s10: .db "Capella", 0
-__s11: .db "Betelgeuse", 0
-__s12: .db "Aldebaran", 0
-__s13: .db "Regulus", 0
-__s14: .db "Arcturus", 0
-__s15: .db "Spica", 0
-__s16: .db "Warp engines", 0
-__s17: .db "Short range sensors", 0
-__s18: .db "Long range sensors", 0
-__s19: .db "Phaser control", 0
-__s20: .db "Photon tubes", 0
-__s21: .db "Damage control", 0
-__s22: .db "Shield control", 0
-__s23: .db "Library computer", 0
-__s24: .db "   ", 0
-__s25: .db " * ", 0
-__s26: .db ">!<", 0
-__s27: .db "+K+", 0
-__s28: .db "<*>", 0
-__s29: .db "Unexpected format in printf.", 0
-__s30: .db "Error: Unknown argument type.\n", 0
-__s31: .db "\033[2J\033[H", 0
-__s32: .db "are", 0
-__s33: .db "is", 0
-__s34: .db "%s %s inoperable.\n", 0
-__s35: .db "startrek.intro", 0
-__s36: .db "startrek.doc", 0
-__s37: .db "startrek.logo", 0
-__s38: .db "startrek.fatal", 0
-__s39: .db "Command? ", 0
-__s40: .db "nav", 0
-__s41: .db "srs", 0
-__s42: .db "lrs", 0
-__s43: .db "pha", 0
-__s44: .db "tor", 0
-__s45: .db "shi", 0
-__s46: .db "dam", 0
-__s47: .db "com", 0
-__s48: .db "xxx", 0
-__s49: .db "Enter one of the following:\n", 0
-__s50: .db "  nav - To Set Course", 0
-__s51: .db "  srs - Short Range Sensors", 0
-__s52: .db "  lrs - Long Range Sensors", 0
-__s53: .db "  pha - Phasers", 0
-__s54: .db "  tor - Photon Torpedoes", 0
-__s55: .db "  shi - Shield Control", 0
-__s56: .db "  dam - Damage Control", 0
-__s57: .db "  com - Library Computer", 0
-__s58: .db "  xxx - Resign Command\n", 0
-__s59: .db "s", 0
-__s60: .db "Now entering %s quadrant...\n\n", 0
-__s61: .db "\nYour mission begins with your starship located", 0
-__s62: .db "in the galactic quadrant %s.\n\n", 0
-__s63: .db "Combat Area  Condition Red\n", 0
-__s64: .db "Shields Dangerously Low\n", 0
-__s65: .db "Course (0-9): ", 0
-__s66: .db "Lt. Sulu%s", 0
-__s67: .db "0.2", 0
-__s68: .db "Warp Factor (0-%s): ", 0
-__s69: .db "Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n", 0
-__s70: .db "Chief Engineer Scott reports:\n  The engi; --- END DATA BLOCK
+_s0: .db "", 0
+_s1: .db "Antares", 0
+_s2: .db "Rigel", 0
+_s3: .db "Procyon", 0
+_s4: .db "Vega", 0
+_s5: .db "Canopus", 0
+_s6: .db "Altair", 0
+_s7: .db "Sagittarius", 0
+_s8: .db "Pollux", 0
+_s9: .db "Sirius", 0
+_s10: .db "Deneb", 0
+_s11: .db "Capella", 0
+_s12: .db "Betelgeuse", 0
+_s13: .db "Aldebaran", 0
+_s14: .db "Regulus", 0
+_s15: .db "Arcturus", 0
+_s16: .db "Spica", 0
+_s17: .db "Warp engines", 0
+_s18: .db "Short range sensors", 0
+_s19: .db "Long range sensors", 0
+_s20: .db "Phaser control", 0
+_s21: .db "Photon tubes", 0
+_s22: .db "Damage control", 0
+_s23: .db "Shield control", 0
+_s24: .db "Library computer", 0
+_s25: .db "   ", 0
+_s26: .db " * ", 0
+_s27: .db ">!<", 0
+_s28: .db "+K+", 0
+_s29: .db "<*>", 0
+_s30: .db "Unexpected format in printf.", 0
+_s31: .db "Error: Unknown argument type.\n", 0
+_s32: .db "\033[2J\033[H", 0
+_s33: .db "are", 0
+_s34: .db "is", 0
+_s35: .db "%s %s inoperable.\n", 0
+_s36: .db "startrek.intro", 0
+_s37: .db "startrek.doc", 0
+_s38: .db "startrek.logo", 0
+_s39: .db "startrek.fatal", 0
+_s40: .db "Command? ", 0
+_s41: .db "nav", 0
+_s42: .db "srs", 0
+_s43: .db "lrs", 0
+_s44: .db "pha", 0
+_s45: .db "tor", 0
+_s46: .db "shi", 0
+_s47: .db "dam", 0
+_s48: .db "com", 0
+_s49: .db "xxx", 0
+_s50: .db "Enter one of the following:\n", 0
+_s51: .db "  nav - To Set Course", 0
+_s52: .db "  srs - Short Range Sensors", 0
+_s53: .db "  lrs - Long Range Sensors", 0
+_s54: .db "  pha - Phasers", 0
+_s55: .db "  tor - Photon Torpedoes", 0
+_s56: .db "  shi - Shield Control", 0
+_s57: .db "  dam - Damage Control", 0
+_s58: .db "  com - Library Computer", 0
+_s59: .db "  xxx - Resign Command\n", 0
+_s60: .db "s", 0
+_s61: .db "Your orders are as follows:\nDestroy the %d Klingon warships which have", 0
+_s62: .db "invaded\n the galaxy before they can attack Federation Headquarters\n", 0
+_s63: .db " on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy", 0
+_s64: .db " for resupplying your ship.\n\n Hit any key to accept command. ", 0
+_s65: .db "Now entering %s quadrant...\n\n", 0
+_s66: .db "\nYour mission begins with your starship located", 0
+_s67: .db "in the galactic quadrant %s.\n\n", 0
+_s68: .db "Combat Area  Condition Red\n", 0
+_s69: .db "Shields Dangerously Low\n", 0
+_s70: .db "Course (0-9): ", 0
+_s71: .db "Lt. Sulu%s", 0
+_s72: .db "0.2", 0
+_s73: .db "Warp Factor (0-%s): ", 0
+_s74: .db "Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n", 0
+_s75: .db "Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n", 0
+_s76: .db "Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n", 0
+_s77: .db "Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n", 0
+_s78: .db "LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n", 0
+_s79: .db "Warp Engines shut down at sector %d, %d due to bad navigation.\n\n", 0
+_s80: .db "Shield Control supplies energy to complete maneuver.\n", 0
+_s81: .db "YELLOW", 0
+_s82: .db "*RED*", 0
+_s83: .db "DOCKED", 0
+_s84: .db "Shields dropped for docking purposes.", 0
+_s85: .db "\n*** Short Range Sensors are out ***", 0
+_s86: .db "    Stardate            %d\n", 0
+_s87: .db "    Condition           %s\n", 0
+_s88: .db "    Quadrant            %d, %d\n", 0
+_s89: .db "    Sector              %d, %d\n", 0
+_s90: .db "    Photon Torpedoes    %d\n", 0
+_s91: .db "    Total Energy        %d\n", 0
+_s92: .db "    Shields             %d\n", 0
+_s93: .db "    Klingons Remaining  %d\n", 0
+_s94: .db "Long Range Scan for Quadrant %d, %d\n\n", 0
+_s95: .db "%s:", 0
+_s96: .db "***", 0
+_s97: .db " :", 0
+_s98: .db "%s\n", 0
+_s99: .db "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n", 0
+_s100: .db "Computer failure hampers accuracy.", 0
+_s101: .db "Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: ", 0
+_s102: .db "Not enough energy available.\n", 0
+_s103: .db "Sensors show no damage to enemy at %d, %d\n\n", 0
+_s104: .db "%d unit hit on Klingon at sector %d, %d\n", 0
+_s105: .db "*** Klingon Destroyed ***\n", 0
+_s106: .db "   (Sensors show %d units remaining.)\n\n", 0
+_s107: .db "All photon torpedoes expended", 0
+_s108: .db "Ensign Chekov%s", 0
+_s109: .db "Torpedo Track:", 0
+_s110: .db "    %d, %d\n", 0
+_s111: .db "Torpedo Missed\n", 0
+_s112: .db "Star at %d, %d absorbed torpedo energy.\n\n", 0
+_s113: .db "*** Starbase Destroyed ***", 0
+_s114: .db "That does it, Captain!!", 0
+_s115: .db "You are hereby relieved of command\n", 0
+_s116: .db "and sentenced to 99 stardates of hard", 0
+_s117: .db "labor on Cygnus 12!!\n", 0
+_s118: .db "Starfleet Command reviewing your record to consider\n court martial!\n", 0
+_s119: .db "Damage Control report not available.", 0
+_s120: .db "\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ", 0
+_s121: .db "Device            State of Repair", 0
+_s122: .db "%-25s%6s\n", 0
+_s123: .db "\n", 0
+_s124: .db "Energy available = %d\n\n Input number of units to shields: ", 0
+_s125: .db "<Shields Unchanged>\n", 0
+_s126: .db "Shield Control Reports:\n  This is not the Federation Treasury.", 0
+_s127: .db "Deflector Control Room report:\n  Shields now at %d units per your command.\n\n", 0
+_s128: .db "Computer active and awating command: ", 0
+_s129: .db "Functions available from Library-Computer:\n\n", 0
+_s130: .db "   0 = Cumulative Galactic Record\n", 0
+_s131: .db "   1 = Status Report\n", 0
+_s132: .db "   2 = Photon Torpedo Data\n", 0
+_s133: .db "   3 = Starbase Nav Data\n", 0
+_s134: .db "   4 = Direction/Distance Calculator\n", 0
+_s135: .db "   5 = Galaxy Region Name Map\n", 0
+_s136: .db "\n     Computer Record of Galaxy for Quadrant %d,%d\n\n", 0
+_s137: .db "     1     2     3     4     5     6     7     8", 0
+_s138: .db "%s%d", 0
+_s139: .db "   Status Report:\n", 0
+_s140: .db "Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n", 0
+_s141: .db "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n", 0
+_s142: .db "The Federation is maintaining %d starbase%s in the galaxy\n\n", 0
+_s143: .db "From Enterprise to Klingon battlecriuser%s:\n\n", 0
+_s144: .db "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n", 0
+_s145: .db "Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: ", 0
+_s146: .db "Please enter initial Y coordinate: ", 0
+_s147: .db "Please enter final X coordinate: ", 0
+_s148: .db "Please enter final Y coordinate: ", 0
+_s149: .db "\n                   The Galaxy\n\n", 0
+_s150: .db "    1     2     3     4     5     6     7     8\n", 0
+_s151: .db "%s%d ", 0
+_s152: .db "  DIRECTION = ", 0
+_s153: .db "%s", 0
+_s154: .db "The Enterprise has been destroyed. The Federation will be conquered.\n", 0
+_s155: .db "It is stardate %d.\n\n", 0
+_s156: .db "There were %d Klingon Battlecruisers left at the end of your mission.\n\n", 0
+_s157: .db "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n", 0
+_s158: .db "Your efficiency rating is %s\n", 0
+_s159: .db "The Federation is in need of a new starship commander", 0
+_s160: .db " for a similar mission.\n", 0
+_s161: .db "If there is a volunteer, let him step forward and", 0
+_s162: .db " enter aye: ", 0
+_s163: .db "aye", 0
+_s164: .db "Starbase shields protect the Enterprise\n", 0
+_s165: .db "%d unit hit on Enterprise from sector %d, %d\n", 0
+_s166: .db "    <Shields down to %d units>\n\n", 0
+_s167: .db "Damage Control reports\n%s damaged by hit\n\n", 0
+_s168: .db "    %s repair completed\n\n", 0
+_s169: .db "    %s damaged\n\n", 0
+_s170: .db "    %s state of repair improved\n\n", 0
+_s171: .db " I", 0
+_s172: .db " II", 0
+_s173: .db " III", 0
+_s174: .db " IV", 0
+_s175: .db "Unknown", 0
+
+_heap_top: .dw _heap
+_heap: .db 0
+; --- END DATA BLOCK
 
 .end

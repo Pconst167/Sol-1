@@ -255,6 +255,7 @@ int enum_table_tos;
 int struct_table_tos;
 int defines_tos;
 int typedef_table_tos;
+int string_table_tos;
 
 char *prog;                           // pointer to the current program position
 char *prog_stack[1024];
@@ -367,7 +368,7 @@ int main(int argc, char *argv[]){
   // Emit heap
   emit_data("\n_heap_top: .dw _heap\n");
   emit_data("_heap: .db 0\n");
-  emit(data_block_asm);
+  emit_datablock_asm();
   emitln("; --- END DATA BLOCK");
 
   emitln("\n.end");
@@ -381,7 +382,18 @@ int main(int argc, char *argv[]){
   if(switch_display_function_table) print_function_table();
   if(switch_display_typedef_table) print_typedef_table();
 
+  for(int h=0;h<string_table_tos;h++){
+
+  }
+
   return 0;
+}
+
+void emit_datablock_asm(){
+  char *dp = data_block_asm;
+  while(*dp){
+    *asm_p++ = *dp++;
+  }
 }
 
 char find_cmdline_switch(int argc, char **argv, char *_switch){
@@ -1072,7 +1084,7 @@ int declare_local(void){
               if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
               emit_data("_%s_data: ", new_var.name);
               emit_data_dbdw(new_var.type);
-              emit_data("%s, 0\n", replace_percent(curr_token.token_str));
+              emit_data("%s, 0\n", curr_token.token_str);
               emit_data("_%s: .dw _%s_data\n", new_var.name, new_var.name);
 
               emitln("  mov a, _%s_data", new_var.name);
@@ -3128,7 +3140,7 @@ t_type parse_string_const(){
     string_id = add_string_data(curr_token.string_const);
   }
   // now emit the reference to this string into the ASM
-  emitln("  mov b, __s%d ; \"%s\"", string_id, curr_token.string_const);
+  emitln("  mov b, _s%d ; \"%s\"", string_id, curr_token.string_const);
   expr_out.size_modifier = MOD_NORMAL;
   expr_out.primitive_type = DT_CHAR;
   expr_out.ind_level = 1;
@@ -3659,37 +3671,31 @@ unsigned int add_string_data(char *str){
   int i;
 
   // Check if string already exists
-  for(i = 0; i < STRING_TABLE_SIZE; i++)
+  for(i = 0; i < string_table_tos; i++)
     if(!strcmp(string_table[i], str))
       return i;
 
-  // Declare new string
-  for(i = 0; i < STRING_TABLE_SIZE; i++)
-    if(!string_table[i][0]){
-      strcpy(string_table[i], str);
-      return i;
-    }
+  if(string_table_tos == STRING_TABLE_SIZE) error(ERR_FATAL, "Maximum number of string literals reached.");
 
-  error(ERR_FATAL, "Maximum number of string literals reached.");
+  // Declare new string
+  strcpy(string_table[string_table_tos], str);
+  string_table_tos++;
+  return string_table_tos - 1;
+  
 }
 
 void emit_string_table_data(void){
   int i, j;
-  char temp[4096];
   char *p;
+  int n = 0;
 
-  for(i = 0; string_table[i][0]; i++){
-      // emit the declaration of this string, into the data block
-    p = temp;
-    for(j = 0; string_table[i][j]; j++){
-      if(string_table[i][j] == '%'){
-        *p++ = '%';
-        *p++ = '%';
-      }
-      else *p++ = string_table[i][j];
-    }  
-    *p = '\0';
-    emit_data("__s%d: .db \"%s\", 0\n", i, temp);
+  for(i = 0; i < string_table_tos; i++){
+    emit_data("_s%d: .db \"", i); // emit string header
+    for(j = 0; string_table; j++){
+
+    }
+
+    emit_data("_s%d: .db \"%s\", 0\n", i, string_table[i]);
   }
 }
 
@@ -4006,13 +4012,13 @@ void parse_struct_initialization_data(int struct_id, int array_size){
                   break;
                 case STRING_CONST:
                   int string_id = add_string_data(curr_token.string_const);
-                  emit_data(".dw __s%u\n", string_id);
+                  emit_data(".dw _s%u\n", string_id);
               }
             }
             else{
               switch(curr_token.tok_type){
                 case CHAR_CONST:
-                  emit_data(".db %s\n", replace_percent(curr_token.token_str));
+                  emit_data(".db %s\n", curr_token.token_str);
                   break;
                 case INTEGER_CONST:
                   emit_data(".db %d\n", (char)curr_token.int_const);
@@ -4032,7 +4038,7 @@ void parse_struct_initialization_data(int struct_id, int array_size){
                 break;
               case STRING_CONST:
                 int string_id = add_string_data(curr_token.string_const);
-                emit_data(".dw __s%u\n", string_id);
+                emit_data(".dw _s%u\n", string_id);
                 break;
             }
             break;
@@ -4134,7 +4140,7 @@ void emit_global_var_initialization(t_var *var){
       else if(curr_token.tok_type == INTEGER_CONST)
         emit_data("$%x,", (uint16_t)curr_token.int_const);
       else if(curr_token.tok_type == STRING_CONST){
-        emit_data("__s%u, ", add_string_data(curr_token.string_const));
+        emit_data("_s%u, ", add_string_data(curr_token.string_const));
       }
       else error(ERR_FATAL, "Unknown data type");
       if(curr_token.tok_type == CHAR_CONST || curr_token.tok_type == INTEGER_CONST || curr_token.tok_type == STRING_CONST) j++;
@@ -4171,7 +4177,7 @@ void emit_global_var_initialization(t_var *var){
             if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
             emit_data("_%s_data: ", var->name);
             emit_data_dbdw(var->type);
-            emit_data("%s, 0\n", replace_percent(curr_token.token_str));
+            emit_data("%s, 0\n", curr_token.token_str);
             emit_data("_%s: .dw _%s_data\n", var->name, var->name);
           }
         }
@@ -4221,7 +4227,7 @@ void emit_static_var_initialization(t_var *var){
       else if(curr_token.tok_type == STRING_CONST){
         int string_id;
         string_id = add_string_data(curr_token.string_const);
-        emit_data("__s%u, ", string_id);
+        emit_data("_s%u, ", string_id);
       }
       else 
         error(ERR_FATAL, "Unknown data type");
@@ -4252,7 +4258,7 @@ void emit_static_var_initialization(t_var *var){
           if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
           emit_data("st_%s_%s_dt: ", function_table[current_func_id].name, var->name);
           emit_data_dbdw(var->type);
-          emit_data("%s, 0\n", replace_percent(curr_token.token_str)); // TODO: do not require char pointer initialization to be a string only!
+          emit_data("%s, 0\n", curr_token.token_str); // TODO: do not require char pointer initialization to be a string only!
           emit_data("st_%s_%s: .dw st_%s_%s_dt\n", function_table[current_func_id].name, var->name, function_table[current_func_id].name, var->name);
         }
         else{
@@ -4870,42 +4876,4 @@ void expand_all_included_files(void){
   exit(1);
 
   prog = c_in;
-}
-
-char *replace_percent(const char* input_str) {
-    if (input_str == NULL) {
-        return NULL;
-    }
-
-    size_t length = strlen(input_str);
-    size_t new_length = length;
-
-    // Calculate the new length considering each '%' will be replaced by '%%'
-    for (size_t i = 0; i < length; ++i) {
-        if (input_str[i] == '%') {
-            new_length++;
-        }
-    }
-
-    // Allocate memory for the new string
-    char *new_str = (char *)malloc(new_length + 1);
-    if (new_str == NULL) {
-        perror("Failed to allocate memory");
-        exit(EXIT_FAILURE);
-    }
-
-    size_t j = 0;
-    // Replace '%' with '%%' in the new string
-    for (size_t i = 0; i < length; ++i) {
-        if (input_str[i] == '%') {
-            new_str[j++] = '%';
-            new_str[j++] = '%';
-        } else {
-            new_str[j++] = input_str[i];
-        }
-    }
-
-    new_str[new_length] = '\0';
-
-    return new_str;
 }

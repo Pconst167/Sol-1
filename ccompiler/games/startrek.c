@@ -359,15 +359,11 @@ void initialize(void)
 		strcpy(plural_2, "s");
 		strcpy(plural, "are");
 	}
-/*
-	printf("Your orders are as follows:\n"
-	       " Destroy the %d Klingon warships which have invaded\n"
-	       " the galaxy before they can attack Federation Headquarters\n"
-	       " on stardate %u. This gives you %d days. There %s\n"
-	       " %d starbase%s in the galaxy for resupplying your ship.\n\n"
-	       "Hit any key to accept command. ",
-	       klingons_left, time_start + time_up, time_up, plural, starbases_left, plural_2);
-				 */
+	printf("Your orders are as follows:\nDestroy the %d Klingon warships which have",klingons_left);
+	printf("invaded\n the galaxy before they can attack Federation Headquarters\n");
+	printf(" on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy", 
+	time_start + time_up, time_up, plural, starbases_left, plural_2);
+	printf(" for resupplying your ship.\n\n Hit any key to accept command. ");
 	getchar();
 }
 
