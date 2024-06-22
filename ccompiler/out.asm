@@ -7,8 +7,22 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; $fp 
-  sub sp, 2
+; $j 
+; $i 
+  lea d, [bp + -3] ; $i
+  push d
+  lea d, [bp + -1] ; $j
+  mov b, [d]
+; START TERMS
+  push a
+  mov a, b
+  mov b, $1
+  add b, a
+  pop a
+; END TERMS
+  pop d
+  mov [d], b
+  sub sp, 4
   syscall sys_terminate_proc
 
 strcpy:
@@ -394,11 +408,17 @@ _for5_exit:
 atoi:
   enter 0 ; (push bp; mov bp, sp)
 ; $result 
-  mov a, $0
-  mov [bp + -1], a
+  lea d, [bp + -1] ; $result
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
 ; $sign 
-  mov a, $1
-  mov [bp + -3], a
+  lea d, [bp + -3] ; $sign
+  push d
+  mov b, $1
+  pop d
+  mov [d], b
   sub sp, 4
 ;; while (*str == ' ') str++; 
 _while6_cond:
@@ -675,7 +695,7 @@ fopen:
 ;; fp = alloc(sizeof(struct _FILE)); 
   lea d, [bp + -1] ; $fp
   push d
-  mov b, 1630833664
+  mov b, -1656192512
   swp b
   push b
   call alloc
@@ -1586,8 +1606,11 @@ printx8:
 hex_str_to_int:
   enter 0 ; (push bp; mov bp, sp)
 ; $value 
-  mov a, $0
-  mov [bp + -1], a
+  lea d, [bp + -1] ; $value
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
 ; $i 
 ; $hex_char 
 ; $len 
@@ -1854,8 +1877,11 @@ print_signed:
   enter 0 ; (push bp; mov bp, sp)
 ; $digits 
 ; $i 
-  mov a, $0
-  mov [bp + -6], a
+  lea d, [bp + -6] ; $i
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
   sub sp, 7
 ;; if (num < 0) { 
 _if27_cond:
@@ -2029,8 +2055,11 @@ print_signed_long:
   enter 0 ; (push bp; mov bp, sp)
 ; $digits 
 ; $i 
-  mov a, $0
-  mov [bp + -11], a
+  lea d, [bp + -11] ; $i
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
   sub sp, 12
 ;; if (num < 0) { 
 _if31_cond:
@@ -2711,6 +2740,8 @@ include_stdio_asm:
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
+_a: .fill 2, 0
+_b: .fill 2, 0
 _s0: .db "Unexpected format in printf.", 0
 _s1: .db "Error: Unknown argument type.\n", 0
 _s2: .db "\033[2J\033[H", 0

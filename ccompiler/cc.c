@@ -1042,6 +1042,19 @@ int declare_local(void){
       new_var.type.dims[dim] = 0; // sets the last variable dimention to 0, to mark the end of the list
     }
 
+    if(!new_var.is_static){
+      // this is used to position local variables correctly relative to BP.
+      // whenever a new function is parsed, this is reset to 0.
+      // then inside the function it can increase according to how many local vars there are.
+      new_var.bp_offset = current_function_var_bp_offset - get_total_type_size(new_var.type) + 1;
+      current_function_var_bp_offset -= get_total_type_size(new_var.type);
+      total_sp += get_total_type_size(new_var.type);
+    }
+
+    // assigns the new variable to the local stack
+    function_table[current_func_id].local_vars[function_table[current_func_id].local_var_tos] = new_var;    
+    function_table[current_func_id].local_var_tos++;
+
     if(new_var.is_static){
       if(curr_token.tok == ASSIGNMENT)
         emit_static_var_initialization(&new_var);
@@ -1055,17 +1068,8 @@ int declare_local(void){
       }
     }
     else{
-      // this is used to position local variables correctly relative to BP.
-      // whenever a new function is parsed, this is reset to 0.
-      // then inside the function it can increase according to how many local vars there are.
-      new_var.bp_offset = current_function_var_bp_offset - get_total_type_size(new_var.type) + 1;
-      //new_var.bp_offset = current_function_var_bp_offset + 1;
-      current_function_var_bp_offset -= get_total_type_size(new_var.type);
-      total_sp += get_total_type_size(new_var.type);
       emitln("; $%s ", new_var.name);
-      //emitln("  sub sp, %d ; $%s", get_total_type_size(new_var.type), new_var.name);
       if(curr_token.tok == ASSIGNMENT){
-        char isneg = 0;
         if(new_var.type.dims[0] > 0){
           error(ERR_WARNING, "Warning: Skipping initialization of local variable '%s' (not yet implemented).", new_var.name);
           do{
@@ -1073,51 +1077,32 @@ int declare_local(void){
           } while(curr_token.tok != SEMICOLON);
         }
         else{
-          get();
-          if(curr_token.tok == MINUS){
-            isneg = 1;
-            get();
+          t_type init_expr;
+          emit_var_addr_into_d(new_var.name);
+          emitln("  push d");
+          init_expr = parse_expr();
+          emitln("  pop d");
+          if(init_expr.ind_level > 0)
+            emitln("  mov [d], b");
+          else if(init_expr.primitive_type == DT_INT && init_expr.ind_level == 0 && init_expr.size_modifier == MOD_LONG){
+            emitln("  mov [d], b");
+            emitln("  mov b, c");
+            emitln("  mov [d + 2], b");
           }
-          if(token_not_a_const()){
-            error(ERR_FATAL, "Local variable initialization is non constant");
+          else if(init_expr.primitive_type == DT_INT)
+            emitln("  mov [d], b");
+          else if(init_expr.primitive_type == DT_CHAR)
+            emitln("  mov [d], bl");
+          else if(init_expr.primitive_type == DT_STRUCT){
+            emitln("  mov si, b");
+            emitln("  mov di, d");
+            emitln("  mov c, %d", get_total_type_size(init_expr));
+            emitln("  rep movsb");
           }
-          if(new_var.type.primitive_type == DT_INT || new_var.type.ind_level > 0){
-            if(curr_token.tok_type == CHAR_CONST){
-              emitln("  mov a, $%x", curr_token.string_const[0]);
-              emitln("  mov [bp + %d], a", new_var.bp_offset);
-            }
-            else if(curr_token.tok_type == STRING_CONST){
-              if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
-              emit_data("_%s_data: ", new_var.name);
-              emit_data_dbdw(new_var.type);
-              emit_data("%s, 0\n", curr_token.token_str);
-              emit_data("_%s: .dw _%s_data\n", new_var.name, new_var.name);
 
-              emitln("  mov a, _%s_data", new_var.name);
-              emitln("  mov [bp + %d], a", new_var.bp_offset);
-            }
-            else{
-              emitln("  mov a, $%x", (isneg ? -atoi(curr_token.token_str) : atoi(curr_token.token_str)));
-              emitln("  mov [bp + %d], a", new_var.bp_offset);
-            }
-          }
-          else if(new_var.type.primitive_type == DT_CHAR){
-            if(curr_token.tok_type == CHAR_CONST){
-              emitln("  mov al, $%x", curr_token.string_const[0]);
-              emitln("  mov [bp + %d], al", new_var.bp_offset);
-            }
-            else{
-              emitln("  mov al, $%x", (unsigned char)(isneg ? -atoi(curr_token.token_str) : atoi(curr_token.token_str)));
-              emitln("  mov [bp + %d], al", new_var.bp_offset);
-            }
-          }
-          get(); // get ';'
         }
       }
     }
-    // assigns the new variable to the local stack
-    function_table[current_func_id].local_vars[function_table[current_func_id].local_var_tos] = new_var;    
-    function_table[current_func_id].local_var_tos++;
   } while(curr_token.tok == COMMA);
 
   if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
@@ -4229,7 +4214,6 @@ void emit_global_var_initialization(t_var *var){
           get_var_base_addr(temp, curr_token.token_str);
           emit_data("_%s: .dw _%s_data\n", var->name, temp);
         }
-
     }
   }
   get();

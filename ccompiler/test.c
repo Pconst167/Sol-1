@@ -1,6 +1,10 @@
 #include <stdio.h>
 
+int a;
+int b = a;
+
 void main(){
-	FILE *fp;
+	int j;
+	int i = j + 1;
 
 }
