@@ -2966,7 +2966,6 @@ t_type parse_atomic(void){
         emitln("  mov b, d");
     }
   }
-
   else if(curr_token.tok == OPENING_PAREN){
     get();
     if(curr_token.tok != SIGNED && curr_token.tok != UNSIGNED && curr_token.tok != LONG && curr_token.tok != SHORT && curr_token.tok != INT && curr_token.tok != CHAR && curr_token.tok != VOID){
@@ -3006,7 +3005,6 @@ t_type parse_atomic(void){
         ind_level++;
         get();
       }
-
       if(primitive_type == DT_VOID){
         if(ind_level == 0) 
           error(ERR_FATAL, "Invalid data type of pure 'void'.");
@@ -3050,7 +3048,6 @@ t_type parse_atomic(void){
       expr_out.size_modifier = size_modifier;
     }
   }
-
   else error(ERR_FATAL, "Invalid expression");
 
 // Check for post ++/--
@@ -4398,9 +4395,25 @@ void convert_constant(){
   *s = '\0';
 }
 
+uint8_t prev_tok_is_binary_op(t_tok prev_tok){
+  return prev_tok == PLUS || prev_tok == MINUS ||
+         prev_tok == STAR || prev_tok ==  FSLASH ||
+         prev_tok == LESS_THAN || prev_tok ==  LESS_THAN_OR_EQUAL ||
+         prev_tok == GREATER_THAN || prev_tok ==  GREATER_THAN_OR_EQUAL ||
+         prev_tok == LOGICAL_AND || prev_tok == LOGICAL_OR ||
+         prev_tok == MOD|| prev_tok == AMPERSAND ||
+         prev_tok == BITWISE_OR || prev_tok == BITWISE_XOR ||
+         prev_tok == BITWISE_SHL || prev_tok ==  BITWISE_SHR;
+}
+
 void get(void){
+  static t_tok previous_tok = TOK_UNDEF;
+  t_tok prev_tok;
   char *t;
   // skip blank spaces
+
+  previous_tok = curr_token.tok;
+  prev_tok = curr_token.tok;
 
   *curr_token.token_str = '\0';
   curr_token.tok = 0;
@@ -4468,7 +4481,7 @@ void get(void){
     curr_token.tok_type = STRING_CONST;
     convert_constant(); // converts this string curr_token.token_str qith quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
   }
-  else if(is_digit(*prog) || (*prog == '-' && is_digit(*(prog+1)))){
+  else if(is_digit(*prog) || (*prog == '-' && is_digit(*(prog+1)) && prev_tok_is_binary_op(previous_tok))){
     curr_token.tok_type = INTEGER_CONST;
     curr_token.const_size_modifier = MOD_NORMAL;
     curr_token.const_sign_modifier = SNESS_SIGNED;
