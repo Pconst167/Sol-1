@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 
 #define TREK_DIR	"./STAR_TREK"

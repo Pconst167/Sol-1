@@ -8,9 +8,9 @@ main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
 ;; char input[512]; 
-; $input 
+  sub sp, 512 ; input
 ;; char output[256]; 
-; $output 
+  sub sp, 256 ; output
 ;; printf("Enter a base64 encoded string to decode: "); 
   mov b, _s0 ; "Enter a base64 encoded string to decode: "
   swp b
@@ -74,9 +74,9 @@ main:
 strcpy:
   enter 0 ; (push bp; mov bp, sp)
 ;; char *psrc; 
-; $psrc 
+  sub sp, 2 ; psrc
 ;; char *pdest; 
-; $pdest 
+  sub sp, 2 ; pdest
 ;; psrc = src; 
   lea d, [bp + -1] ; $psrc
   push d
@@ -214,9 +214,9 @@ strncmp:
 strcat:
   enter 0 ; (push bp; mov bp, sp)
 ;; int dest_len; 
-; $dest_len 
+  sub sp, 2 ; dest_len
 ;; int i; 
-; $i 
+  sub sp, 2 ; i
 ;; dest_len = strlen(dest); 
   lea d, [bp + -1] ; $dest_len
   push d
@@ -337,7 +337,7 @@ _for3_exit:
 strlen:
   enter 0 ; (push bp; mov bp, sp)
 ;; int length; 
-; $length 
+  sub sp, 2 ; length
 ;; length = 0; 
   lea d, [bp + -1] ; $length
   push d
@@ -397,7 +397,7 @@ exit:
 memset:
   enter 0 ; (push bp; mov bp, sp)
 ;; int i; 
-; $i 
+  sub sp, 2 ; i
 ;; for(i = 0; i < size; i++){ 
 _for5_init:
   lea d, [bp + -1] ; $i
@@ -456,13 +456,23 @@ _for5_exit:
 atoi:
   enter 0 ; (push bp; mov bp, sp)
 ;; int result = 0;  // Initialize result 
-; $result 
-  mov a, $0
-  mov [bp + -1], a
+  sub sp, 2 ; result
+; --- START LOCAL VAR INITIALIZATION
+  lea d, [bp + -1] ; $result
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+; --- END LOCAL VAR INITIALIZATION
 ;; int sign = 1;    // Initialize sign as positive 
-; $sign 
-  mov a, $1
-  mov [bp + -3], a
+  sub sp, 2 ; sign
+; --- START LOCAL VAR INITIALIZATION
+  lea d, [bp + -3] ; $sign
+  push d
+  mov b, $1
+  pop d
+  mov [d], b
+; --- END LOCAL VAR INITIALIZATION
 ;; while (*str == ' ') str++; 
 _while6_cond:
   lea d, [bp + 5] ; $str
@@ -661,7 +671,7 @@ _while9_exit:
 rand:
   enter 0 ; (push bp; mov bp, sp)
 ;; int  sec; 
-; $sec 
+  sub sp, 2 ; sec
 
 ; --- BEGIN INLINE ASM BLOCK
   mov al, 0
@@ -734,7 +744,7 @@ free:
 fopen:
   enter 0 ; (push bp; mov bp, sp)
 ;; FILE *fp; 
-; $fp 
+  sub sp, 2 ; fp
 ;; fp = alloc(sizeof(int)); 
   lea d, [bp + -1] ; $fp
   push d
@@ -751,8 +761,8 @@ fopen:
 printf:
   enter 0 ; (push bp; mov bp, sp)
 ;; char *p, *format_p; 
-; $p 
-; $format_p 
+  sub sp, 2 ; p
+  sub sp, 2 ; format_p
 ;; format_p = format; 
   lea d, [bp + -3] ; $format_p
   push d
@@ -1185,14 +1195,14 @@ _for10_exit:
 scanf:
   enter 0 ; (push bp; mov bp, sp)
 ;; char *p, *format_p; 
-; $p 
-; $format_p 
+  sub sp, 2 ; p
+  sub sp, 2 ; format_p
 ;; char c; 
-; $c 
+  sub sp, 1 ; c
 ;; int i; 
-; $i 
+  sub sp, 2 ; i
 ;; char input_string[  512                    ]; 
-; $input_string 
+  sub sp, 512 ; input_string
 ;; format_p = format; 
   lea d, [bp + -3] ; $format_p
   push d
@@ -1652,15 +1662,20 @@ printx8:
 hex_str_to_int:
   enter 0 ; (push bp; mov bp, sp)
 ;; int value = 0; 
-; $value 
-  mov a, $0
-  mov [bp + -1], a
+  sub sp, 2 ; value
+; --- START LOCAL VAR INITIALIZATION
+  lea d, [bp + -1] ; $value
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+; --- END LOCAL VAR INITIALIZATION
 ;; int i; 
-; $i 
+  sub sp, 2 ; i
 ;; char hex_char; 
-; $hex_char 
+  sub sp, 1 ; hex_char
 ;; int len; 
-; $len 
+  sub sp, 2 ; len
 ;; len = strlen(hex_string); 
   lea d, [bp + -6] ; $len
   push d
@@ -1922,11 +1937,16 @@ gets:
 print_signed:
   enter 0 ; (push bp; mov bp, sp)
 ;; char digits[5]; 
-; $digits 
+  sub sp, 5 ; digits
 ;; int i = 0; 
-; $i 
-  mov a, $0
-  mov [bp + -6], a
+  sub sp, 2 ; i
+; --- START LOCAL VAR INITIALIZATION
+  lea d, [bp + -6] ; $i
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+; --- END LOCAL VAR INITIALIZATION
 ;; if (num < 0) { 
 _if27_cond:
   lea d, [bp + 5] ; $num
@@ -2098,11 +2118,16 @@ _while30_exit:
 print_signed_long:
   enter 0 ; (push bp; mov bp, sp)
 ;; char digits[10]; 
-; $digits 
+  sub sp, 10 ; digits
 ;; int i = 0; 
-; $i 
-  mov a, $0
-  mov [bp + -11], a
+  sub sp, 2 ; i
+; --- START LOCAL VAR INITIALIZATION
+  lea d, [bp + -11] ; $i
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+; --- END LOCAL VAR INITIALIZATION
 ;; if (num < 0) { 
 _if31_cond:
   lea d, [bp + 5] ; $num
@@ -2307,9 +2332,9 @@ _while34_exit:
 print_unsigned_long:
   enter 0 ; (push bp; mov bp, sp)
 ;; char digits[10]; 
-; $digits 
+  sub sp, 10 ; digits
 ;; int i; 
-; $i 
+  sub sp, 2 ; i
 ;; i = 0; 
   lea d, [bp + -11] ; $i
   push d
@@ -2479,9 +2504,9 @@ _while37_exit:
 print_unsigned:
   enter 0 ; (push bp; mov bp, sp)
 ;; char digits[5]; 
-; $digits 
+  sub sp, 5 ; digits
 ;; int i; 
-; $i 
+  sub sp, 2 ; i
 ;; i = 0; 
   lea d, [bp + -6] ; $i
   push d
@@ -2652,7 +2677,7 @@ putchar:
 getchar:
   enter 0 ; (push bp; mov bp, sp)
 ;; char c; 
-; $c 
+  sub sp, 1 ; c
 
 ; --- BEGIN INLINE ASM BLOCK
   call getch
@@ -2671,7 +2696,7 @@ getchar:
 scann:
   enter 0 ; (push bp; mov bp, sp)
 ;; int m; 
-; $m 
+  sub sp, 2 ; m
 
 ; --- BEGIN INLINE ASM BLOCK
   call scan_u16d
@@ -2715,7 +2740,7 @@ print:
 getparam:
   enter 0 ; (push bp; mov bp, sp)
 ;; char data; 
-; $data 
+  sub sp, 1 ; data
 
 ; --- BEGIN INLINE ASM BLOCK
   mov al, 4
@@ -2785,21 +2810,31 @@ include_stdio_asm:
 base64_encode:
   enter 0 ; (push bp; mov bp, sp)
 ;; int i = 0; 
-; $i 
-  mov a, $0
-  mov [bp + -1], a
+  sub sp, 2 ; i
+; --- START LOCAL VAR INITIALIZATION
+  lea d, [bp + -1] ; $i
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+; --- END LOCAL VAR INITIALIZATION
 ;; int j = 0; 
-; $j 
-  mov a, $0
-  mov [bp + -3], a
+  sub sp, 2 ; j
+; --- START LOCAL VAR INITIALIZATION
+  lea d, [bp + -3] ; $j
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+; --- END LOCAL VAR INITIALIZATION
 ;; int k; 
-; $k 
+  sub sp, 2 ; k
 ;; int input_len; 
-; $input_len 
+  sub sp, 2 ; input_len
 ;; unsigned char input_buffer[3]; 
-; $input_buffer 
+  sub sp, 3 ; input_buffer
 ;; unsigned char output_buffer[4]; 
-; $output_buffer 
+  sub sp, 4 ; output_buffer
 ;; input_len = strlen(input); 
   lea d, [bp + -7] ; $input_len
   push d
@@ -3677,21 +3712,36 @@ _if53_exit:
 base64_decode:
   enter 0 ; (push bp; mov bp, sp)
 ;; int i = 0, j = 0, k = 0; 
-; $i 
-  mov a, $0
-  mov [bp + -1], a
-; $j 
-  mov a, $0
-  mov [bp + -3], a
-; $k 
-  mov a, $0
-  mov [bp + -5], a
+  sub sp, 2 ; i
+; --- START LOCAL VAR INITIALIZATION
+  lea d, [bp + -1] ; $i
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+; --- END LOCAL VAR INITIALIZATION
+  sub sp, 2 ; j
+; --- START LOCAL VAR INITIALIZATION
+  lea d, [bp + -3] ; $j
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+; --- END LOCAL VAR INITIALIZATION
+  sub sp, 2 ; k
+; --- START LOCAL VAR INITIALIZATION
+  lea d, [bp + -5] ; $k
+  push d
+  mov b, $0
+  pop d
+  mov [d], b
+; --- END LOCAL VAR INITIALIZATION
 ;; int input_len; 
-; $input_len 
+  sub sp, 2 ; input_len
 ;; unsigned char input_buffer[4]; 
-; $input_buffer 
+  sub sp, 4 ; input_buffer
 ;; unsigned char output_buffer[3]; 
-; $output_buffer 
+  sub sp, 3 ; output_buffer
 ;; input_len = strlen(input); 
   lea d, [bp + -7] ; $input_len
   push d
