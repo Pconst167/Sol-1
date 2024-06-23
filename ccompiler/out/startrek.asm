@@ -49,19 +49,17 @@ _while1_block:
 ;; *pdest++ = *psrc++; 
   lea d, [bp + -3] ; $pdest
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $pdest
   mov [d], b
-  pop b
+  dec b
   push b
   lea d, [bp + -1] ; $psrc
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $psrc
   mov [d], b
-  pop b
+  dec b
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -88,6 +86,7 @@ _while2_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $s1
@@ -109,25 +108,24 @@ _while2_cond:
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _while2_exit
 _while2_block:
 ;; s1++; 
   lea d, [bp + 5] ; $s1
   mov b, [d]
-  push b
   inc b
   lea d, [bp + 5] ; $s1
   mov [d], b
-  pop b
+  dec b
 ;; s2++; 
   lea d, [bp + 7] ; $s2
   mov b, [d]
-  push b
   inc b
   lea d, [bp + 7] ; $s2
   mov [d], b
-  pop b
+  dec b
   jmp _while2_cond
 _while2_exit:
 ;; return *s1 - *s2; 
@@ -316,11 +314,10 @@ _while4_block:
 ;; length++; 
   lea d, [bp + -1] ; $length
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $length
   mov [d], b
-  pop b
+  dec b
   jmp _while4_cond
 _while4_exit:
 ;; return length; 
@@ -385,11 +382,10 @@ _for5_block:
 _for5_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for5_cond
 _for5_exit:
 ;; return s; 
@@ -439,11 +435,10 @@ _while6_block:
 ;; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
-  push b
   inc b
   lea d, [bp + 5] ; $str
   mov [d], b
-  pop b
+  dec b
   jmp _while6_cond
 _while6_exit:
 ;; if (*str == '-' || *str == '+') { 
@@ -461,6 +456,7 @@ _if7_cond:
   seq ; ==
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 5] ; $str
@@ -478,6 +474,7 @@ _if7_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if7_exit
 _if7_true:
@@ -502,7 +499,8 @@ _if8_true:
 ;; sign = -1; 
   lea d, [bp + -3] ; $sign
   push d
-  mov b, $ffff
+  mov b, $1
+  neg b
   pop d
   mov [d], b
   jmp _if8_exit
@@ -510,11 +508,10 @@ _if8_exit:
 ;; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
-  push b
   inc b
   lea d, [bp + 5] ; $str
   mov [d], b
-  pop b
+  dec b
   jmp _if7_exit
 _if7_exit:
 ;; while (*str >= '0' && *str <= '9') { 
@@ -532,6 +529,7 @@ _while9_cond:
   sgeu ; >= (unsigned)
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $str
@@ -544,11 +542,12 @@ _while9_cond:
   mov a, b
   mov b, $39
   cmp a, b
-  slu ; <= (unsigned)
+  sleu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _while9_exit
 _while9_block:
@@ -590,11 +589,10 @@ _while9_block:
 ;; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
-  push b
   inc b
   lea d, [bp + 5] ; $str
   mov [d], b
-  pop b
+  dec b
   jmp _while9_cond
 _while9_exit:
 ;; return sign * result; 
@@ -770,11 +768,10 @@ _if12_true:
 ;; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
-  pop b
+  dec b
 ;; switch(*format_p){ 
 _switch13_expr:
   lea d, [bp + -3] ; $format_p
@@ -806,11 +803,10 @@ _switch13_case1:
 ;; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
-  pop b
+  dec b
 ;; if(*format_p == 'd' || *format_p == 'i') 
 _if14_cond:
   lea d, [bp + -3] ; $format_p
@@ -826,6 +822,7 @@ _if14_cond:
   seq ; ==
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -3] ; $format_p
@@ -843,6 +840,7 @@ _if14_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if14_else
 _if14_true:
@@ -1105,11 +1103,10 @@ _switch13_exit:
 ;; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
-  pop b
+  dec b
   jmp _if12_exit
 _if12_else:
 ;; putchar(*format_p); 
@@ -1124,11 +1121,10 @@ _if12_else:
 ;; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
-  pop b
+  dec b
 _if12_exit:
 _if11_exit:
 _for10_update:
@@ -1210,11 +1206,10 @@ _if19_true:
 ;; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
-  pop b
+  dec b
 ;; switch(*format_p){ 
 _switch20_expr:
   lea d, [bp + -3] ; $format_p
@@ -1246,11 +1241,10 @@ _switch20_case1:
 ;; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
-  pop b
+  dec b
 ;; if(*format_p == 'd' || *format_p == 'i'); 
 _if21_cond:
   lea d, [bp + -3] ; $format_p
@@ -1266,6 +1260,7 @@ _if21_cond:
   seq ; ==
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -3] ; $format_p
@@ -1283,6 +1278,7 @@ _if21_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if21_else
 _if21_true:
@@ -1522,11 +1518,10 @@ _switch20_exit:
 ;; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
-  pop b
+  dec b
   jmp _if19_exit
 _if19_else:
 ;; putchar(*format_p); 
@@ -1541,11 +1536,10 @@ _if19_else:
 ;; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
-  pop b
+  dec b
 _if19_exit:
 _if18_exit:
 _for17_update:
@@ -1683,6 +1677,7 @@ _if25_cond:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -4] ; $hex_char
@@ -1693,11 +1688,12 @@ _if25_cond:
   mov a, b
   mov b, $66
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if25_else
 _if25_true:
@@ -1752,6 +1748,7 @@ _if26_cond:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -4] ; $hex_char
@@ -1762,11 +1759,12 @@ _if26_cond:
   mov a, b
   mov b, $46
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if26_else
 _if26_true:
@@ -1846,11 +1844,10 @@ _if25_exit:
 _for24_update:
   lea d, [bp + -3] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for24_cond
 _for24_exit:
 ;; return value; 
@@ -2011,11 +2008,10 @@ _while29_block:
 ;; i++; 
   lea d, [bp + -6] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _while29_cond
 _while29_exit:
 ;; while (i > 0) { 
@@ -2036,11 +2032,10 @@ _while30_block:
 ;; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
-  push b
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
-  pop b
+  inc b
 ;; putchar(digits[i]); 
   lea d, [bp + -4] ; $digits
   push a
@@ -2225,11 +2220,10 @@ _while33_block:
 ;; i++; 
   lea d, [bp + -11] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -11] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _while33_cond
 _while33_exit:
 ;; while (i > 0) { 
@@ -2250,11 +2244,10 @@ _while34_block:
 ;; i--; 
   lea d, [bp + -11] ; $i
   mov b, [d]
-  push b
   dec b
   lea d, [bp + -11] ; $i
   mov [d], b
-  pop b
+  inc b
 ;; putchar(digits[i]); 
   lea d, [bp + -9] ; $digits
   push a
@@ -2397,11 +2390,10 @@ _while36_block:
 ;; i++; 
   lea d, [bp + -11] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -11] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _while36_cond
 _while36_exit:
 ;; while (i > 0) { 
@@ -2422,11 +2414,10 @@ _while37_block:
 ;; i--; 
   lea d, [bp + -11] ; $i
   mov b, [d]
-  push b
   dec b
   lea d, [bp + -11] ; $i
   mov [d], b
-  pop b
+  inc b
 ;; putchar(digits[i]); 
   lea d, [bp + -9] ; $digits
   push a
@@ -2546,11 +2537,10 @@ _while39_block:
 ;; i++; 
   lea d, [bp + -6] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _while39_cond
 _while39_exit:
 ;; while (i > 0) { 
@@ -2571,11 +2561,10 @@ _while40_block:
 ;; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
-  push b
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
-  pop b
+  inc b
 ;; putchar(digits[i]); 
   lea d, [bp + -4] ; $digits
   push a
@@ -2776,6 +2765,7 @@ is_space:
   seq ; ==
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 5] ; $c
@@ -2817,6 +2807,7 @@ is_space:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   leave
   ret
 
@@ -2834,6 +2825,7 @@ is_digit:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $c
@@ -2844,11 +2836,12 @@ is_digit:
   mov a, b
   mov b, $39
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   leave
   ret
 
@@ -2866,6 +2859,7 @@ is_alpha:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $c
@@ -2876,11 +2870,13 @@ is_alpha:
   mov a, b
   mov b, $7a
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 5] ; $c
@@ -2894,6 +2890,7 @@ is_alpha:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $c
@@ -2904,11 +2901,12 @@ is_alpha:
   mov a, b
   mov b, $5a
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
@@ -2924,6 +2922,7 @@ is_alpha:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   leave
   ret
 
@@ -2942,6 +2941,7 @@ _if42_cond:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $ch
@@ -2952,11 +2952,12 @@ _if42_cond:
   mov a, b
   mov b, $5a
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if42_else
 _if42_true:
@@ -3004,6 +3005,7 @@ _if43_cond:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $ch
@@ -3014,11 +3016,12 @@ _if43_cond:
   mov a, b
   mov b, $7a
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if43_else
 _if43_true:
@@ -3066,6 +3069,7 @@ _if44_cond:
   seq ; ==
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 5] ; $c
@@ -3380,6 +3384,7 @@ _if44_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if44_else
 _if44_true:
@@ -3567,7 +3572,8 @@ _if46_cond:
 ; START RELATIONAL
   push a
   mov a, b
-  mov b, $ffff
+  mov b, $1
+  neg b
   cmp a, b
   seq ; ==
   pop a
@@ -3598,11 +3604,10 @@ _if47_true:
 ;; *b++ = c; 
   lea d, [bp + 5] ; $b
   mov b, [d]
-  push b
   inc b
   lea d, [bp + 5] ; $b
   mov [d], b
-  pop b
+  dec b
   push b
   lea d, [bp + -1] ; $c
   mov b, [d]
@@ -3612,11 +3617,10 @@ _if47_true:
   lea d, [bp + 7] ; $l
   mov bl, [d]
   mov bh, 0
-  push b
   dec b
   lea d, [bp + 7] ; $l
   mov [d], b
-  pop b
+  inc b
   jmp _if47_exit
 _if47_exit:
   jmp _while45_cond
@@ -3716,7 +3720,8 @@ _if49_cond:
   je _if49_exit
 _if49_true:
 ;; return -1; 
-  mov b, $ffff
+  mov b, $1
+  neg b
   leave
   ret
   jmp _if49_exit
@@ -3730,11 +3735,10 @@ _if49_exit:
   mov a, b
   lea d, [bp + -11] ; $x
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -11] ; $x
   mov [d], b
-  pop b
+  dec b
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -3782,11 +3786,10 @@ _if50_exit:
 _if51_cond:
   lea d, [bp + -11] ; $x
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -11] ; $x
   mov [d], b
-  pop b
+  dec b
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -3802,7 +3805,8 @@ _if51_cond:
   je _if51_exit
 _if51_true:
 ;; return -1; 
-  mov b, $ffff
+  mov b, $1
+  neg b
   leave
   ret
   jmp _if51_exit
@@ -3823,7 +3827,8 @@ _if52_cond:
   je _if52_exit
 _if52_true:
 ;; return -1; 
-  mov b, $ffff
+  mov b, $1
+  neg b
   leave
   ret
   jmp _if52_exit
@@ -3842,11 +3847,10 @@ _if52_exit:
   mov a, b
   lea d, [bp + -11] ; $x
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -11] ; $x
   mov [d], b
-  pop b
+  dec b
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -3903,7 +3907,8 @@ _if54_cond:
   je _if54_exit
 _if54_true:
 ;; return -1; 
-  mov b, $ffff
+  mov b, $1
+  neg b
   leave
   ret
   jmp _if54_exit
@@ -3918,11 +3923,10 @@ _if54_exit:
   mov a, b
   lea d, [bp + -11] ; $x
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -11] ; $x
   mov [d], b
-  pop b
+  dec b
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -3970,7 +3974,8 @@ _if55_cond:
   je _if55_exit
 _if55_true:
 ;; return -1; 
-  mov b, $ffff
+  mov b, $1
+  neg b
   leave
   ret
   jmp _if55_exit
@@ -4025,11 +4030,10 @@ _if56_true:
 ;; *p++ = '-'; 
   lea d, [bp + -1] ; $p
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $p
   mov [d], b
-  pop b
+  dec b
   push b
   mov b, $2d
   pop d
@@ -4209,9 +4213,10 @@ _if62_cond:
   mov a, b
   mov b, $a
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   mov d, _energy ; $energy
@@ -4224,6 +4229,7 @@ _if62_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   mov d, _damage_data ; $damage
@@ -4244,8 +4250,10 @@ _if62_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if62_exit
 _if62_true:
@@ -4672,7 +4680,7 @@ _for72_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -4694,11 +4702,10 @@ _for72_block:
 _for72_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for72_cond
 _for72_exit:
 ;; for (i = 1; i <= 8; i++) { 
@@ -4716,7 +4723,7 @@ _for73_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -4737,7 +4744,7 @@ _for74_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -4952,21 +4959,19 @@ _if78_exit:
 _for74_update:
   lea d, [bp + -3] ; $j
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  pop b
+  dec b
   jmp _for74_cond
 _for74_exit:
 _for73_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for73_cond
 _for73_exit:
 ;; if (klingons_left > time_up) 
@@ -5115,11 +5120,10 @@ _if81_true:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
-  push b
   inc b
   mov d, _klingons_left ; $klingons_left
   mov [d], b
-  pop b
+  dec b
   jmp _if81_exit
 _if81_exit:
 ;; map[yp][xp] = map[yp][xp] + (1 << 4); 
@@ -5177,11 +5181,10 @@ _if81_exit:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
-  push b
   inc b
   mov d, _starbases_left ; $starbases_left
   mov [d], b
-  pop b
+  dec b
   jmp _if80_exit
 _if80_exit:
 ;; total_klingons = klingons_left; 
@@ -5437,6 +5440,7 @@ _if83_cond:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   mov d, _quad_y ; $quad_y
@@ -5446,7 +5450,7 @@ _if83_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
@@ -5470,11 +5474,12 @@ _if83_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if83_exit
 _if83_true:
@@ -5675,7 +5680,7 @@ _for87_cond:
   mov a, b
   mov b, $3
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -5708,20 +5713,19 @@ _for87_block:
 ;; k++; 
   lea d, [bp + -5] ; $k
   mov b, [d]
-  push b
   inc b
   inc b
   lea d, [bp + -5] ; $k
   mov [d], b
-  pop b
+  dec b
+  dec b
 _for87_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for87_cond
 _for87_exit:
 ;; memset(quad,  		0      , 64); 
@@ -5825,20 +5829,19 @@ _for89_block:
 ;; k++; 
   lea d, [bp + -5] ; $k
   mov b, [d]
-  push b
   inc b
   inc b
   lea d, [bp + -5] ; $k
   mov [d], b
-  pop b
+  dec b
+  dec b
 _for89_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for89_cond
 _for89_exit:
   jmp _if88_exit
@@ -5891,7 +5894,7 @@ _for91_cond:
   mov bl, [d]
   mov bh, 0
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -5911,11 +5914,10 @@ _for91_block:
 _for91_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for91_cond
 _for91_exit:
   leave
@@ -6004,6 +6006,7 @@ _if93_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -3] ; $c1
@@ -6018,6 +6021,7 @@ _if93_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if93_exit
 _if93_true:
@@ -6103,6 +6107,7 @@ _if95_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -5] ; $warp
@@ -6117,6 +6122,7 @@ _if95_cond:
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if95_exit
 _if95_true:
@@ -6140,7 +6146,7 @@ _if96_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -6263,6 +6269,7 @@ _if99_cond:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   mov d, _damage_data ; $damage
@@ -6283,6 +6290,7 @@ _if99_cond:
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if99_exit
 _if99_true:
@@ -6599,7 +6607,7 @@ _for100_cond:
   lea d, [bp + -7] ; $n
   mov b, [d]
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -6669,6 +6677,7 @@ _if101_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -15] ; $z1
@@ -6707,6 +6716,7 @@ _if101_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if101_exit
 _if101_true:
@@ -7219,6 +7229,7 @@ _if110_cond:
   sneq ; !=
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   mov d, _quad_x ; $quad_x
@@ -7235,6 +7246,7 @@ _if110_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if110_exit
 _if110_true:
@@ -7383,11 +7395,10 @@ _if111_exit:
 _for100_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for100_cond
 _for100_exit:
 ;; complete_maneuver(warp, n); 
@@ -7588,7 +7599,7 @@ _if115_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -7721,7 +7732,7 @@ _for118_cond:
   pop a
 ; END TERMS
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -7767,7 +7778,7 @@ _for119_cond:
   pop a
 ; END TERMS
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -7785,6 +7796,7 @@ _if120_cond:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -1] ; $i
@@ -7794,7 +7806,7 @@ _if120_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
@@ -7818,11 +7830,12 @@ _if120_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if120_exit
 _if120_true:
@@ -7914,21 +7927,19 @@ _if120_exit:
 _for119_update:
   lea d, [bp + -3] ; $j
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  pop b
+  dec b
   jmp _for119_cond
 _for119_exit:
 _for118_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for118_cond
 _for118_exit:
 ;; if (damage[2] < 0) { 
@@ -8042,11 +8053,10 @@ _for124_block:
 _for124_update:
   lea d, [bp + -3] ; $j
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  pop b
+  dec b
   jmp _for124_cond
 _for124_exit:
 ;; if (i == 0) 
@@ -8296,11 +8306,10 @@ _if132_exit:
 _for123_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for123_cond
 _for123_exit:
 ;; puts(srs_1); 
@@ -8457,7 +8466,7 @@ _for134_cond:
   pop a
 ; END TERMS
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -8505,7 +8514,7 @@ _for135_cond:
   pop a
 ; END TERMS
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -8528,6 +8537,7 @@ _if136_cond:
   sgt ; >
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -1] ; $i
@@ -8537,7 +8547,7 @@ _if136_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
@@ -8561,11 +8571,12 @@ _if136_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if136_else
 _if136_true:
@@ -8642,11 +8653,10 @@ _if136_exit:
 _for135_update:
   lea d, [bp + -3] ; $j
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  pop b
+  dec b
   jmp _for135_cond
 _for135_exit:
 ;; putchar('\n'); 
@@ -8657,11 +8667,10 @@ _for135_exit:
 _for134_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for134_cond
 _for134_exit:
 ;; printf("%s\n", lrs_1); 
@@ -8689,7 +8698,7 @@ _if137_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slu ; <= (unsigned)
+  sleu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -9034,7 +9043,7 @@ _for144_cond:
   mov a, b
   mov b, $2
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -9230,7 +9239,7 @@ _if147_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -9246,20 +9255,18 @@ _if147_true:
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
-  push b
   dec b
   mov d, _klingons ; $klingons
   mov [d], b
-  pop b
+  inc b
 ;; klingons_left--; 
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
-  push b
   dec b
   mov d, _klingons_left ; $klingons_left
   mov [d], b
-  pop b
+  inc b
 ;; wipe_klingon(k); 
   lea d, [bp + -13] ; $k
   mov b, [d]
@@ -9324,7 +9331,7 @@ _if148_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slu ; <= (unsigned)
+  sleu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -9355,20 +9362,19 @@ _if145_exit:
 ;; k++; 
   lea d, [bp + -13] ; $k
   mov b, [d]
-  push b
   inc b
   inc b
   lea d, [bp + -13] ; $k
   mov [d], b
-  pop b
+  dec b
+  dec b
 _for144_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for144_cond
 _for144_exit:
 ;; klingons_shoot(); 
@@ -9402,7 +9408,7 @@ _if149_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slu ; <= (unsigned)
+  sleu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -9480,6 +9486,7 @@ _if152_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -5] ; $c1
@@ -9494,6 +9501,7 @@ _if152_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if152_exit
 _if152_true:
@@ -9531,11 +9539,10 @@ _if152_exit:
   mov d, _torps ; $torps
   mov bl, [d]
   mov bh, 0
-  push b
   dec b
   mov d, _torps ; $torps
   mov [d], b
-  pop b
+  inc b
 ;; c2 = FROM_FIXED00(c1);	/* Integer part */ 
   lea d, [bp + -7] ; $c2
   push d
@@ -9809,6 +9816,7 @@ _while153_cond:
   sge ; >=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -1] ; $x3
@@ -9818,7 +9826,7 @@ _while153_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
@@ -9842,11 +9850,12 @@ _while153_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _while153_exit
 _while153_block:
@@ -9913,6 +9922,7 @@ _if154_cond:
   sneq ; !=
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -20] ; $p
@@ -9928,6 +9938,7 @@ _if154_cond:
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if154_exit
 _if154_true:
@@ -10088,20 +10099,18 @@ _switch155_case1:
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
-  push b
   dec b
   mov d, _klingons ; $klingons
   mov [d], b
-  pop b
+  inc b
 ;; klingons_left--; 
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
-  push b
   dec b
   mov d, _klingons_left ; $klingons_left
   mov [d], b
-  pop b
+  inc b
 ;; if (klingons_left <= 0) 
 _if156_cond:
   mov d, _klingons_left ; $klingons_left
@@ -10112,7 +10121,7 @@ _if156_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slu ; <= (unsigned)
+  sleu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -10144,7 +10153,7 @@ _for157_cond:
   mov a, b
   mov b, $2
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -10167,6 +10176,7 @@ _if158_cond:
   seq ; ==
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 6] ; $xp
@@ -10186,6 +10196,7 @@ _if158_cond:
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if158_exit
 _if158_true:
@@ -10202,20 +10213,19 @@ _if158_exit:
 ;; k++; 
   lea d, [bp + -3] ; $k
   mov b, [d]
-  push b
   inc b
   inc b
   lea d, [bp + -3] ; $k
   mov [d], b
-  pop b
+  dec b
+  dec b
 _for157_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for157_cond
 _for157_exit:
 ;; map[quad_y][quad_x] =map[quad_y][quad_x] - 0x100; 
@@ -10270,20 +10280,18 @@ _switch155_case2:
   mov d, _starbases ; $starbases
   mov bl, [d]
   mov bh, 0
-  push b
   dec b
   mov d, _starbases ; $starbases
   mov [d], b
-  pop b
+  inc b
 ;; starbases_left--; 
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
-  push b
   dec b
   mov d, _starbases_left ; $starbases_left
   mov [d], b
-  pop b
+  inc b
 ;; if (starbases_left <= 0 && klingons_left <= FROM_FIXED(stardate) - time_start - time_up) { 
 _if159_cond:
   mov d, _starbases_left ; $starbases_left
@@ -10294,9 +10302,10 @@ _if159_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   mov d, _klingons_left ; $klingons_left
@@ -10326,11 +10335,12 @@ _if159_cond:
   pop a
 ; END TERMS
   cmp a, b
-  slu ; <= (unsigned)
+  sleu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if159_exit
 _if159_true:
@@ -10524,7 +10534,7 @@ _for162_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -10571,11 +10581,10 @@ _if163_exit:
 _for162_update:
   lea d, [bp + -3] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for162_cond
 _for162_exit:
 ;; if (repair_cost) { 
@@ -10658,7 +10667,7 @@ _for167_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -10704,11 +10713,10 @@ _if168_exit:
 _for167_update:
   lea d, [bp + -3] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for167_cond
 _for167_exit:
 ;; stardate = stardate + (repair_cost + 5)/10 + 1; 
@@ -10800,7 +10808,7 @@ _for170_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -10838,11 +10846,10 @@ _for170_block:
 _for170_update:
   lea d, [bp + -3] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for170_cond
 _for170_exit:
 ;; printf("\n"); 
@@ -10908,6 +10915,7 @@ _if172_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   mov d, _shield ; $shield
@@ -10923,6 +10931,7 @@ _if172_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if172_exit
 _if172_true:
@@ -11171,7 +11180,7 @@ _for176_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -11206,7 +11215,7 @@ _for177_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -11273,11 +11282,10 @@ _if178_exit:
 _for177_update:
   lea d, [bp + -3] ; $j
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  pop b
+  dec b
   jmp _for177_cond
 _for177_exit:
 ;; putchar('\n'); 
@@ -11288,11 +11296,10 @@ _for177_exit:
 _for176_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for176_cond
 _for176_exit:
 ;; printf("%s\n", gr_1); 
@@ -11472,11 +11479,10 @@ _if181_true:
 ;; plural++; 
   lea d, [bp + -1] ; $plural
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $plural
   mov [d], b
-  pop b
+  dec b
   jmp _if181_exit
 _if181_exit:
 ;; printf("The Federation is maintaining %d starbase%s in the galaxy\n\n", starbases_left, plural); 
@@ -11549,11 +11555,10 @@ _if183_true:
 ;; plural--; 
   lea d, [bp + -3] ; $plural
   mov b, [d]
-  push b
   dec b
   lea d, [bp + -3] ; $plural
   mov [d], b
-  pop b
+  inc b
   jmp _if183_exit
 _if183_exit:
 ;; printf("From Enterprise to Klingon battlecriuser%s:\n\n", plural); 
@@ -11588,7 +11593,7 @@ _for184_cond:
   mov a, b
   mov b, $2
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -11649,20 +11654,19 @@ _if185_exit:
 ;; k++; 
   lea d, [bp + -5] ; $k
   mov b, [d]
-  push b
   inc b
   inc b
   lea d, [bp + -5] ; $k
   mov [d], b
-  pop b
+  dec b
+  dec b
 _for184_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for184_cond
 _for184_exit:
   leave
@@ -11680,7 +11684,7 @@ _if186_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -11788,6 +11792,7 @@ _if187_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -1] ; $c1
@@ -11802,6 +11807,7 @@ _if187_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if187_exit
 _if187_true:
@@ -11838,6 +11844,7 @@ _if188_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -3] ; $a
@@ -11852,6 +11859,7 @@ _if188_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if188_exit
 _if188_true:
@@ -11888,6 +11896,7 @@ _if189_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -5] ; $w1
@@ -11902,6 +11911,7 @@ _if189_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if189_exit
 _if189_true:
@@ -11938,6 +11948,7 @@ _if190_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -7] ; $x
@@ -11952,6 +11963,7 @@ _if190_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if190_exit
 _if190_true:
@@ -12015,7 +12027,7 @@ _for191_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -12102,11 +12114,10 @@ _for192_block:
 _for192_update:
   lea d, [bp + -3] ; $j
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  pop b
+  dec b
   jmp _for192_cond
 _for192_exit:
 ;; puts(quadname); 
@@ -12146,11 +12157,10 @@ _for193_block:
 _for193_update:
   lea d, [bp + -3] ; $j
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  pop b
+  dec b
   jmp _for193_cond
 _for193_exit:
 ;; if (!(strlen(quadname) % 2)) 
@@ -12249,11 +12259,10 @@ _for195_block:
 _for195_update:
   lea d, [bp + -3] ; $j
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  pop b
+  dec b
   jmp _for195_cond
 _for195_exit:
 ;; puts(quadname); 
@@ -12266,11 +12275,10 @@ _for195_exit:
 _for191_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for191_cond
 _for191_exit:
 ;; puts(gm_1); 
@@ -13137,7 +13145,7 @@ _for215_cond:
   mov a, b
   mov b, $2
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -13191,20 +13199,19 @@ _if216_exit:
 ;; k++; 
   lea d, [bp + -3] ; $k
   mov b, [d]
-  push b
   inc b
   inc b
   lea d, [bp + -3] ; $k
   mov [d], b
-  pop b
+  dec b
+  dec b
 _for215_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for215_cond
 _for215_exit:
 ;; klingons_shoot(); 
@@ -13241,7 +13248,7 @@ _if217_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slu ; <= (unsigned)
+  sleu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -13287,7 +13294,7 @@ _for219_cond:
   mov a, b
   mov b, $2
   cmp a, b
-  slu ; <= (unsigned)
+  sleu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -13489,7 +13496,7 @@ _if221_cond:
   mov a, b
   mov b, $0
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -13566,9 +13573,10 @@ _if223_cond:
   mov a, b
   mov b, $6
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -11] ; $ratio
@@ -13589,6 +13597,7 @@ _if223_cond:
   mov g, 0
   sand32 ga, cb
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if223_exit
 _if223_true:
@@ -13670,21 +13679,20 @@ _if220_exit:
 ;; k++; 
   lea d, [bp + -7] ; $k
   mov b, [d]
-  push b
   inc b
   inc b
   lea d, [bp + -7] ; $k
   mov [d], b
-  pop b
+  dec b
+  dec b
 _for219_update:
   lea d, [bp + -5] ; $i
   mov bl, [d]
   mov bh, 0
-  push b
   inc b
   lea d, [bp + -5] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for219_cond
 _for219_exit:
   leave
@@ -13747,7 +13755,7 @@ _for225_cond:
   mov a, b
   mov b, $8
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -13823,6 +13831,7 @@ _if227_cond:
   sgt ; >
   pop a
 ; END RELATIONAL
+; START LOGICAL AND
   push a
   mov a, b
   mov d, _damage_data ; $damage
@@ -13844,6 +13853,7 @@ _if227_cond:
 ; END RELATIONAL
   sand a, b
   pop a
+; END LOGICAL AND
   cmp b, 0
   je _if227_else
 _if227_true:
@@ -13857,7 +13867,8 @@ _if227_true:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
-  mov b, $fff6
+  mov b, $a
+  neg b
   pop d
   mov [d], b
   jmp _if227_exit
@@ -13949,11 +13960,10 @@ _if226_exit:
 _for225_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
-  push b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  pop b
+  dec b
   jmp _for225_cond
 _for225_exit:
 ;; unsigned char                         r; 
@@ -13970,7 +13980,7 @@ _if230_cond:
   mov a, b
   mov b, $2
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   cmp b, 0
@@ -14283,6 +14293,7 @@ _if235_cond:
   slt ; < (signed)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 5] ; $n
@@ -14297,6 +14308,7 @@ _if235_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if235_exit
 _if235_true:
@@ -14338,6 +14350,7 @@ _if236_cond:
   slu ; < (unsigned)
   pop a
 ; END RELATIONAL
+; START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 6] ; $y
@@ -14379,6 +14392,7 @@ _if236_cond:
 ; END RELATIONAL
   sor a, b ; ||
   pop a
+; END LOGICAL OR
   cmp b, 0
   je _if236_exit
 _if236_true:
@@ -14404,7 +14418,7 @@ _if237_cond:
   mov a, b
   mov b, $4
   cmp a, b
-  slu ; <= (unsigned)
+  sleu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   cmp b, 0

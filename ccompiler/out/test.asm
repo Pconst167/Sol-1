@@ -7,20 +7,22 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; 1 - 1; 
+;; 1 + -1; 
   mov b, $1
 ; START TERMS
   push a
   mov a, b
-  mov b, $1
-  sub a, b
-  mov b, a
+  mov b, $ffff
+  add b, a
   pop a
 ; END TERMS
   syscall sys_terminate_proc
 ; --- END TEXT BLOCK
 
 ; --- BEGIN DATA BLOCK
+_array_data: 
+.dw $1,$ffff,$ffff,$0,
+.fill 12, 0
 
 _heap_top: .dw _heap
 _heap: .db 0

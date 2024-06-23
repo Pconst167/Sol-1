@@ -27,24 +27,29 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408             ;; 1 - 1; 
+0010   0408             ;; 1 + -1; 
 0011   0408 26 01 00      mov b, $1
 0012   040B             ; START TERMS
 0013   040B D7            push a
 0014   040C 11            mov a, b
-0015   040D 26 01 00      mov b, $1
-0016   0410 60            sub a, b
-0017   0411 27            mov b, a
-0018   0412 E4            pop a
-0019   0413             ; END TERMS
-0020   0413 05 0B         syscall sys_terminate_proc
-0021   0415             ; --- END TEXT BLOCK
-0022   0415             
-0023   0415             ; --- BEGIN DATA BLOCK
-0024   0415             
-0025   0415 17 04       _heap_top: .dw _heap
-0026   0417 00          _heap: .db 0
-0027   0418             ; --- END DATA BLOCK
-0028   0418             
-0029   0418             .end
+0015   040D 26 FF FF      mov b, $ffff
+0016   0410 56            add b, a
+0017   0411 E4            pop a
+0018   0412             ; END TERMS
+0019   0412 05 0B         syscall sys_terminate_proc
+0020   0414             ; --- END TEXT BLOCK
+0021   0414             
+0022   0414             ; --- BEGIN DATA BLOCK
+0023   0414             _array_data: 
+0024   0414 01 00 FF FF .dw $1,$ffff,$ffff,$0,
+0024   0418 FF FF 00 00 
+0025   041C 00 00 00 00 .fill 12, 0
+0025   0420 00 00 00 00 
+0025   0424 00 00 00 00 
+0026   0428             
+0027   0428 2A 04       _heap_top: .dw _heap
+0028   042A 00          _heap: .db 0
+0029   042B             ; --- END DATA BLOCK
+0030   042B             
+0031   042B             .end
 tasm: Number of errors = 0

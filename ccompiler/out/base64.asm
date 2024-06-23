@@ -554,7 +554,8 @@ _if8_true:
 ;; sign = -1; 
   lea d, [bp + -3] ; $sign
   push d
-  mov b, $ffff
+  mov b, $1
+  neg b
   pop d
   mov [d], b
   jmp _if8_exit
@@ -3689,7 +3690,8 @@ _if53_true:
   jmp _if53_exit
 _if53_exit:
 ;; return -1; 
-  mov b, $ffff
+  mov b, $1
+  neg b
   leave
   ret
 
@@ -3786,7 +3788,8 @@ _while54_cond:
 ; START RELATIONAL
   push a
   mov a, b
-  mov b, $ffff
+  mov b, $1
+  neg b
   cmp a, b
   sneq ; !=
   pop a

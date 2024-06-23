@@ -139,12 +139,12 @@ void show_room() {
        }
     }
 
-    print("YOU ARE IN ROOM "); printu(loc[YOU]+1); print("\n");
+    print("YOU ARE IN ROOM "); print_unsigned(loc[YOU]+1); print("\n");
 
     print("TUNNELS LEAD TO "); 
-    printu(cave[loc[YOU]][0]+1); print(", ");
-    printu(cave[loc[YOU]][1]+1); print(", ");
-    printu(cave[loc[YOU]][2]+1);
+    print_unsigned(cave[loc[YOU]][0]+1); print(", ");
+    print_unsigned(cave[loc[YOU]][1]+1); print(", ");
+    print_unsigned(cave[loc[YOU]][2]+1);
     print("\n\n");
 }
 
@@ -315,11 +315,11 @@ void game_play() {
     print("HUNT THE WUMPUS\n");
 
     if (debug) {
-        print("Wumpus is at "); printu(loc[WUMPUS]+1);
-        print(", pits at "); printu(loc[PIT1]+1);
-        print(" & "); printu(loc[PIT2]+1);
-        print(", bats at "); printu(loc[BATS1]+1);
-        print(" & "); printu(loc[BATS2]+1);
+        print("Wumpus is at "); print_unsigned(loc[WUMPUS]+1);
+        print(", pits at "); print_unsigned(loc[PIT1]+1);
+        print(" & "); print_unsigned(loc[PIT2]+1);
+        print(", bats at "); print_unsigned(loc[BATS1]+1);
+        print(" & "); print_unsigned(loc[BATS2]+1);
     }
 
     finished = NOT;
