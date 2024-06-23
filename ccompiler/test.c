@@ -10,6 +10,7 @@ void main(void){
 
 	printf("\nResult: %d. Section: %d\n", pass, section);
 
+	printf(output);
 }
 
 int base64_char_value(char c) {

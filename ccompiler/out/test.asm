@@ -32,6 +32,13 @@ main:
   push b
   call printf
   add sp, 6
+;; printf(output); 
+  mov d, _output_data ; $output
+  mov b, d
+  swp b
+  push b
+  call printf
+  add sp, 2
   syscall sys_terminate_proc
 
 strcpy:

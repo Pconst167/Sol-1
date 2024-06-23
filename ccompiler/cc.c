@@ -338,7 +338,7 @@ int main(int argc, char *argv[]){
     }
   }
 
-  expand_all_included_files();
+  //expand_all_included_files();
 
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
