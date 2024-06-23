@@ -4,6 +4,7 @@
 
 /* The largest number rand will return (same as INT_MAX).  */
 #define	RAND_MAX	2147483647
+#define EOF -1
 
 void exit(){
   asm{
