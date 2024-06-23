@@ -398,3 +398,5 @@ void expand_all_included_files(void);
 
 
 int insert_var_name(char *name, char array[32][ID_LEN]);
+
+char *find_next_func_header();

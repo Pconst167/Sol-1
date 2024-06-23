@@ -255,6 +255,7 @@ int struct_table_tos;
 int defines_tos;
 int typedef_table_tos;
 int string_table_tos;
+int referenced_func_table_tos;
 
 char *prog;                           // pointer to the current program position
 char *prog_stack[1024];
@@ -263,7 +264,7 @@ int prog_tos;
 char include_kernel_exp = 1;
 char org[64] = "text_org";
 int include_files_total_lines;
-char included_functions_table[512][ID_LEN];
+char referenced_func_table[512][ID_LEN];
 
 t_token curr_token;
 
@@ -624,6 +625,8 @@ void pre_processor(void){
   char *p, *temp_prog;
   char filename[256];
 
+  expand_all_included_files(); // go through each #include directive, read the file recursively, and write to buffer
+
   prog = c_in; 
   do{
     get(); 
@@ -647,35 +650,6 @@ void pre_processor(void){
           if(!strcmp(curr_token.string_const, "kernel.exp")) include_kernel_exp = 0;
           delete(temp_prog, prog - temp_prog);
         }
-      }
-      else if(curr_token.tok == INCLUDE){
-        get();
-        if(curr_token.tok_type == STRING_CONST) strcpy(filename, curr_token.string_const);
-        else if(curr_token.tok == LESS_THAN){
-          strcpy(filename, libc_directory);
-          for(;;){
-            get();
-            if(curr_token.tok == GREATER_THAN) break;
-            strcat(filename, curr_token.token_str);
-          }
-        }
-        else error(ERR_FATAL, "Syntax error in include directive.");
-        if((fp = fopen(filename, "rb")) == NULL){
-          printf("%s: Included source file not found.\n", filename);
-          exit(1);
-        }
-        p = include_file_buffer;
-        do{
-          *p = getc(fp);
-          if(*p == '\n') include_files_total_lines++;
-          p++;
-        } while(!feof(fp));
-        *(p - 1) = '\0'; // overwrite the EOF char with NULL
-        fclose(fp);
-        delete(temp_prog, prog - temp_prog);
-        insert(temp_prog, include_file_buffer);
-        prog = c_in;
-        continue;
       }
       else if(curr_token.tok == DEFINE){
         declare_define();
@@ -4816,8 +4790,113 @@ void error(t_error_type error_type, const char* format, ...){
     exit(1);
 }
 
+// this function will use the current value of prog.
+// it will then search forwards in text until it finds a function header.
+// after finding the header, find location of first '{' and return that pointer
+char *find_next_func_header(){
+  for(;;){
+    get();
+    if(curr_token.tok_type == END) return NULL;
+    if(
+      curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED || 
+      curr_token.tok == LONG     || curr_token.tok == CONST    || 
+      curr_token.tok == VOID     || curr_token.tok == CHAR     ||
+      curr_token.tok == INT      || curr_token.tok == FLOAT    || 
+      curr_token.tok == DOUBLE   || curr_token.tok == STRUCT   ||
+      curr_token.tok == SHORT    || curr_token.tok == STATIC   ||
+      curr_token.tok == ENUM     || curr_token.tok == REGISTER ||
+      curr_token.tok == VOLATILE || curr_token.tok_type == IDENTIFIER
+    ){
+      while(
+        curr_token.tok == CONST    || curr_token.tok == STATIC   || 
+        curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED ||
+        curr_token.tok == LONG     || curr_token.tok == SHORT    ||
+        curr_token.tok == REGISTER || curr_token.tok == VOLATILE
+      ){
+        get();
+      }
+      
+      if(curr_token.tok == STRUCT){
+        get(); // get struct's type name
+        if(curr_token.tok_type != IDENTIFIER) 
+          error(ERR_FATAL, "Struct's type name expected.");
+      }
+      else if(curr_token.tok == ENUM){
+        get(); // get enum's type name
+        if(curr_token.tok_type != IDENTIFIER) 
+          error(ERR_FATAL, "Enum's type name expected.");
+      }
+      // if not a struct or enum, then the var type has just been gotten
+      get();
+      if(curr_token.tok == STAR){
+        while(curr_token.tok == STAR) 
+          get();
+      }
+      else{
+        if(curr_token.tok_type != IDENTIFIER) 
+          error(ERR_FATAL, "Identifier expected in variable or function declaration.");
+      }
+      get(); // get semicolon, assignment, comma, or opening braces
+      if(curr_token.tok == OPENING_PAREN){ //it must be a function declaration
+        while(curr_token.tok != OPENING_BRACE && curr_token.tok_type != END) get();
+        if(curr_token.tok_type == END) error(ERR_FATAL, "opening braces expected in function body");
+        return prog; // return location of '{'
+      }
+      else{ // it must be a variable declaration
+        while(curr_token.tok != SEMICOLON && curr_token.tok_type != END) get();
+        if(curr_token.tok_type == END) error(ERR_FATAL, "semicolon expected after a variable declaration");
+      }
+    }
+  }
+}
+
 void build_referenced_func_list(void){
-  uint16_t braces;
+  int braces = 0;
+  char *loc;
+  char name[ID_LEN];
+  
+  // first cycle through main program
+  prog = c_in;
+  for(;;){
+    loc = find_next_func_header();
+    if(loc == NULL) break;
+    prog = loc;
+    braces = 1;
+    for(;;){
+      get();
+      if(curr_token.tok == END) 
+      if(curr_token.tok == OPENING_BRACE) braces++;
+      else if(curr_token.tok == CLOSING_BRACE) braces--;
+      if(braces == 0) break;
+      if(curr_token.tok_type == IDENTIFIER){
+        strcpy(name, curr_token.token_str);
+        get();
+        if(curr_token.tok == OPENING_PAREN){ // is a function call!
+          strcpy(referenced_func_table[referenced_func_table_tos], name);
+          referenced_func_table_tos++;
+        }
+      }
+    }
+  }
+
+  // then cycle through includes file buffer
+  prog = include_file_buffer;
+  for(;;){
+    get();
+    if(curr_token.tok == OPENING_BRACE) braces++;
+    else if(curr_token.tok == CLOSING_BRACE) braces--;
+    if(braces == 0) break;
+    if(curr_token.tok_type == IDENTIFIER){
+      strcpy(name, curr_token.token_str);
+      get();
+      if(curr_token.tok == OPENING_PAREN){ // is a function call!
+        strcpy(referenced_func_table[referenced_func_table_tos], name);
+        referenced_func_table_tos++;
+      }
+    }
+
+  }
+
 }
 
 void expand_all_included_files(void){
@@ -4891,9 +4970,6 @@ void expand_all_included_files(void){
   } 
 
   end_of_includes:
-
-  printf("%s", include_file_buffer);
-  exit(1);
 
   prog = c_in;
 }
