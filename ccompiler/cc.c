@@ -338,6 +338,8 @@ int main(int argc, char *argv[]){
     }
   }
 
+  expand_all_included_files();
+
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
 
@@ -4856,6 +4858,8 @@ void expand_all_included_files(void){
         delete(temp_prog2, prog - temp_prog2);
         pi = include_file_buffer;
         while(*pi) pi++;
+        *pi++ = '\n';
+        *pi++ = '\n';
         do{
           *pi = getc(fp);
           if(*pi == '\n') include_files_total_lines++;
