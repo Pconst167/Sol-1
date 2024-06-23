@@ -596,7 +596,7 @@ _while9_cond:
   mov a, b
   mov b, $39
   cmp a, b
-  slu ; <= (unsigned)
+  sleu ; <= (unsigned)
   pop a
 ; END RELATIONAL
   sand a, b
@@ -1742,7 +1742,7 @@ _if25_cond:
   mov a, b
   mov b, $66
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
@@ -1813,7 +1813,7 @@ _if26_cond:
   mov a, b
   mov b, $46
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
@@ -3515,7 +3515,7 @@ _if49_cond:
   mov a, b
   mov b, $5a
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
@@ -3564,7 +3564,7 @@ _if50_cond:
   mov a, b
   mov b, $7a
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b
@@ -3616,7 +3616,7 @@ _if51_cond:
   mov a, b
   mov b, $39
   cmp a, b
-  slt ; <= (signed)
+  sle ; <= (signed)
   pop a
 ; END RELATIONAL
   sand a, b

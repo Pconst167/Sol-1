@@ -2736,9 +2736,9 @@ t_type parse_relational(void){
           else{
             emitln("  cmp a, b");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
-              emitln("  slu ; <= (unsigned)");
+              emitln("  sleu ; <= (unsigned)");
             else
-              emitln("  slt ; <= (signed)");
+              emitln("  sle ; <= (signed)");
           }
           break;
         case GREATER_THAN:

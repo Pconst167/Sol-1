@@ -579,7 +579,7 @@
 0559   0713 11            mov a, b
 0560   0714 26 39 00      mov b, $39
 0561   0717 B0            cmp a, b
-0562   0718 FD 75         slu ; <= (unsigned)
+0562   0718 FD 76         sleu ; <= (unsigned)
 0563   071A E4            pop a
 0564   071B             ; END RELATIONAL
 0565   071B FD A7         sand a, b
@@ -1725,7 +1725,7 @@
 1705   0D45 11            mov a, b
 1706   0D46 26 66 00      mov b, $66
 1707   0D49 B0            cmp a, b
-1708   0D4A FD 73         slt ; <= (signed)
+1708   0D4A FD 74         sle ; <= (signed)
 1709   0D4C E4            pop a
 1710   0D4D             ; END RELATIONAL
 1711   0D4D FD A7         sand a, b
@@ -1796,7 +1796,7 @@
 1776   0D9C 11            mov a, b
 1777   0D9D 26 46 00      mov b, $46
 1778   0DA0 B0            cmp a, b
-1779   0DA1 FD 73         slt ; <= (signed)
+1779   0DA1 FD 74         sle ; <= (signed)
 1780   0DA3 E4            pop a
 1781   0DA4             ; END RELATIONAL
 1782   0DA4 FD A7         sand a, b
@@ -3781,7 +3781,7 @@
 2784   1984 11            mov a, b
 2785   1985 26 5A 00      mov b, $5a
 2786   1988 B0            cmp a, b
-2787   1989 FD 73         slt ; <= (signed)
+2787   1989 FD 74         sle ; <= (signed)
 2788   198B E4            pop a
 2789   198C             ; END RELATIONAL
 2790   198C FD A7         sand a, b
@@ -3830,7 +3830,7 @@
 2833   19C0 11            mov a, b
 2834   19C1 26 7A 00      mov b, $7a
 2835   19C4 B0            cmp a, b
-2836   19C5 FD 73         slt ; <= (signed)
+2836   19C5 FD 74         sle ; <= (signed)
 2837   19C7 E4            pop a
 2838   19C8             ; END RELATIONAL
 2839   19C8 FD A7         sand a, b
@@ -3882,7 +3882,7 @@
 2885   1A01 11            mov a, b
 2886   1A02 26 39 00      mov b, $39
 2887   1A05 B0            cmp a, b
-2888   1A06 FD 73         slt ; <= (signed)
+2888   1A06 FD 74         sle ; <= (signed)
 2889   1A08 E4            pop a
 2890   1A09             ; END RELATIONAL
 2891   1A09 FD A7         sand a, b
