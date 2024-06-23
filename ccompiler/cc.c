@@ -698,20 +698,20 @@ void pre_processor(void){
 //  1 : function
 int8_t type_detected(void){
   if(
-    curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || 
-    curr_token.tok == LONG   || curr_token.tok == CONST    || 
-    curr_token.tok == VOID   || curr_token.tok == CHAR     ||
-    curr_token.tok == INT    || curr_token.tok == FLOAT    || 
-    curr_token.tok == DOUBLE || curr_token.tok == STRUCT   ||
-    curr_token.tok == SHORT  || curr_token.tok == STATIC   ||
-    curr_token.tok == ENUM   || curr_token.tok == REGISTER ||
-    search_typedef(curr_token.token_str) != -1 
+    curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED || 
+    curr_token.tok == LONG     || curr_token.tok == CONST    || 
+    curr_token.tok == VOID     || curr_token.tok == CHAR     ||
+    curr_token.tok == INT      || curr_token.tok == FLOAT    || 
+    curr_token.tok == DOUBLE   || curr_token.tok == STRUCT   ||
+    curr_token.tok == SHORT    || curr_token.tok == STATIC   ||
+    curr_token.tok == ENUM     || curr_token.tok == REGISTER ||
+    curr_token.tok == VOLATILE || search_typedef(curr_token.token_str) != -1 
   ){
     while(
-      curr_token.tok == CONST  || curr_token.tok == STATIC   || 
-      curr_token.tok == SIGNED || curr_token.tok == UNSIGNED ||
-      curr_token.tok == LONG   || curr_token.tok == SHORT    ||
-      curr_token.tok == REGISTER
+      curr_token.tok == CONST    || curr_token.tok == STATIC   || 
+      curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED ||
+      curr_token.tok == LONG     || curr_token.tok == SHORT    ||
+      curr_token.tok == REGISTER || curr_token.tok == VOLATILE
     ){
       get();
     }
@@ -1158,9 +1158,12 @@ void declare_global(void){
   if(curr_token.tok == STATIC || curr_token.tok == CONST ||
      curr_token.tok == VOLATILE
   ){
-    while(curr_token.tok == STATIC || curr_token.tok == CONST){
-      if(curr_token.tok == STATIC) is_static = true;
-      else if(curr_token.tok == CONST) is_const = true;
+    while(curr_token.tok == STATIC || curr_token.tok == CONST ||
+          curr_token.tok == VOLATILE
+    ){
+      if(curr_token.tok == STATIC) is_static          = true;
+      else if(curr_token.tok == VOLATILE) is_volatile = true;
+      else if(curr_token.tok == CONST) is_const       = true;
       get();
     }
     back();
@@ -1169,8 +1172,9 @@ void declare_global(void){
   type = get_type();
   do{
     if(global_var_tos == MAX_GLOBAL_VARS) error(ERR_FATAL, "Max number of global variable declarations exceeded");
-    global_var_table[global_var_tos].type = type;
-    global_var_table[global_var_tos].is_static = is_static;
+    global_var_table[global_var_tos].type             = type;
+    global_var_table[global_var_tos].is_volatile      = is_volatile;
+    global_var_table[global_var_tos].is_static        = is_static;
     global_var_table[global_var_tos].type.is_constant = is_const;
     get();
 // **************** checks whether this is a pointer declaration *******************************
@@ -1537,6 +1541,7 @@ void declare_func(void){
       // set as parameter so that we can tell that if a array is declared, the argument is also a pointer
       // even though it may not be declared with any '*' curr_token.token_strs;
       function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_parameter = true;
+      function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_volatile = false;
       temp_prog = prog;
       get();
       if(curr_token.tok == VAR_ARG_DOTS){
@@ -1544,8 +1549,10 @@ void declare_func(void){
         get();
         break; // exit parameter loop as '...' has to be the last curr_token.token_str in the param definition
       }
-      if(curr_token.tok == CONST){
-        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.is_constant = true;
+
+      while(curr_token.tok == VOLATILE || curr_token.tok == CONST){
+              if(curr_token.tok == VOLATILE) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_volatile = true;
+        else if(curr_token.tok == CONST) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.is_constant = true;
         get();
       }
 
@@ -1556,8 +1563,12 @@ void declare_func(void){
       else{
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_NORMAL; 
-        while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == SHORT || curr_token.tok == LONG){
-               if(curr_token.tok == SIGNED)   function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_SIGNED;
+        while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || 
+              curr_token.tok == SHORT  || curr_token.tok == LONG      ||
+              curr_token.tok == VOLATILE
+        ){
+               if(curr_token.tok == VOLATILE) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_volatile = true;
+          else if(curr_token.tok == SIGNED)   function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_SIGNED;
           else if(curr_token.tok == UNSIGNED) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_UNSIGNED;
           else if(curr_token.tok == SHORT)    function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_SHORT;
           else if(curr_token.tok == LONG)     function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_LONG;
@@ -1651,7 +1662,8 @@ int get_param_size(){
   get();
   while(curr_token.tok == CONST  || curr_token.tok == STATIC   ||
         curr_token.tok == SIGNED || curr_token.tok == UNSIGNED ||
-        curr_token.tok == SHORT  || curr_token.tok == LONG
+        curr_token.tok == SHORT  || curr_token.tok == LONG     ||
+        curr_token.tok == VOLATILE
   ){
     if(curr_token.tok == LONG) size_modifier = MOD_LONG;
     get();
@@ -2143,6 +2155,7 @@ void parse_block(void){
     }
     switch(curr_token.tok){
       case CONST:
+      case VOLATILE:
       case REGISTER:
       case STATIC:
       case SIGNED:
