@@ -121,6 +121,7 @@ typedef enum {
   SIGNED,
   SIZEOF,
   STAR,
+  VOLATILE,
   STATIC,
   REGISTER,
   STRUCT,
@@ -133,7 +134,6 @@ typedef enum {
   UNSIGNED,
   VAR_ARG_DOTS,
   VOID,
-  VOLATILE,
   WHILE
 } t_tok; // internal token representation
 
@@ -207,6 +207,7 @@ typedef struct {
   char    name[ID_LEN];
   t_type  type; // holds the type of data and the value itself
   uint8_t is_parameter;
+  uint8_t is_volatile;
   uint8_t is_static;
   uint8_t is_register;
   int     bp_offset; // if var is local, this holds the offset of the var from BP.

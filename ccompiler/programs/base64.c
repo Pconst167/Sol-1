@@ -87,7 +87,6 @@ void base64_decode(char *input, char *output) {
       for (i = 0; i < 4; i++) {
         input_buffer[i] = base64_char_value(input_buffer[i]);
       }
-
       output_buffer[0] = (input_buffer[0] << 2) + ((input_buffer[1] & 0x30) >> 4);
       output_buffer[1] = ((input_buffer[1] & 0x0F) << 4) + ((input_buffer[2] & 0x3C) >> 2);
       output_buffer[2] = ((input_buffer[2] & 0x03) << 6) + input_buffer[3];

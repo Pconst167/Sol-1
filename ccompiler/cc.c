@@ -979,19 +979,25 @@ int declare_local(void){
   t_var new_var = {0};
   char *temp_prog;
   int total_sp = 0;
-  uint8_t is_static, is_const, is_register;
+  uint8_t is_static, is_const, is_register, is_volatile;
   char var_names[32][ID_LEN] = {0};
   int dim = 0;
 
   is_register = 0;
   is_static   = 0;
+  is_volatile = 0;
   is_const    = 0;
   get();
-  if(curr_token.tok == STATIC || curr_token.tok == CONST || curr_token.tok == REGISTER){
-    while(curr_token.tok == STATIC || curr_token.tok == CONST || curr_token.tok == REGISTER){
-      if(curr_token.tok == REGISTER) is_register = true;
-      else if(curr_token.tok == STATIC) is_static = true;
-      else if(curr_token.tok == CONST) is_const = true;
+  if(curr_token.tok == STATIC   || curr_token.tok == CONST || 
+     curr_token.tok == REGISTER || curr_token.tok == VOLATILE
+  ){
+    while(curr_token.tok == STATIC   || curr_token.tok == CONST || 
+          curr_token.tok == REGISTER || curr_token.tok == VOLATILE
+    ){
+      if(curr_token.tok == REGISTER)      is_register = true;
+      else if(curr_token.tok == VOLATILE) is_volatile = true;
+      else if(curr_token.tok == STATIC)   is_static = true;
+      else if(curr_token.tok == CONST)    is_const = true;
       get();
     }
     back();
@@ -1000,11 +1006,12 @@ int declare_local(void){
   new_var.type = get_type();
   do{
     if(function_table[current_func_id].local_var_tos == MAX_LOCAL_VARS) error(ERR_FATAL, "Local var declaration limit reached");
-    new_var.is_parameter = false;
-    new_var.is_static = is_static;
-    new_var.is_register = is_register;
+    new_var.is_parameter     = false;
+    new_var.is_static        = is_static;
+    new_var.is_volatile      = is_volatile;
+    new_var.is_register      = is_register;
     new_var.type.is_constant = is_const;
-    new_var.function_id = current_func_id; // set variable owner function
+    new_var.function_id      = current_func_id; // set variable owner function
 // **************** checks whether this is a pointer declaration *******************************
     new_var.type.ind_level = 0;
     get();
@@ -1140,14 +1147,17 @@ void declare_global(void){
   char *temp_prog;
   int dim;
   t_type type;
-  uint8_t is_static, is_const;
+  uint8_t is_static, is_const, is_volatile;
   int fixed_part_size;
   int initialization_size;
 
-  is_static = false;
-  is_const = false;
+  is_volatile = false;
+  is_static   = false;
+  is_const    = false;
   get();
-  if(curr_token.tok == STATIC || curr_token.tok == CONST){
+  if(curr_token.tok == STATIC || curr_token.tok == CONST ||
+     curr_token.tok == VOLATILE
+  ){
     while(curr_token.tok == STATIC || curr_token.tok == CONST){
       if(curr_token.tok == STATIC) is_static = true;
       else if(curr_token.tok == CONST) is_const = true;
@@ -2457,6 +2467,7 @@ t_type parse_logical_or(void){
   type1 = parse_logical_and();
   expr_out = type1;
   if(curr_token.tok == LOGICAL_OR){
+    emitln("; START LOGICAL OR");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == LOGICAL_OR){
@@ -2480,6 +2491,7 @@ t_type parse_logical_or(void){
     if(type_is_32bit(type1))
       emitln("  pop g");
     emitln("  pop a");
+    emitln("; END LOGICAL OR");
   }
   return expr_out;
 }
@@ -2490,6 +2502,7 @@ t_type parse_logical_and(void){
   type1 = parse_bitwise_or();
   expr_out = type1;
   if(curr_token.tok == LOGICAL_AND){
+    emitln("; START LOGICAL AND");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == LOGICAL_AND){
@@ -2513,6 +2526,7 @@ t_type parse_logical_and(void){
     }
     if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
+    emitln("; END LOGICAL AND");
   }
   return expr_out;
 }
@@ -3198,16 +3212,20 @@ t_type parse_char_const(){
 t_type parse_post_decrementing(t_type expr_in, char *temp_name){
   t_type expr_out;
 
-  emitln("  push b");
   if(get_pointer_unit(expr_in) > 1){
     emitln("  dec b");
     emitln("  dec b");
+    emit_var_addr_into_d(temp_name);
+    emitln("  mov [d], b");
+    emitln("  inc b");
+    emitln("  inc b");
   }
-  else
+  else{
     emitln("  dec b");
-  emit_var_addr_into_d(temp_name);
-  emitln("  mov [d], b");
-  emitln("  pop b");
+    emit_var_addr_into_d(temp_name);
+    emitln("  mov [d], b");
+    emitln("  inc b");
+  }
   expr_out = expr_in;
   get(); // gets the next curr_token.token_str (it must be a delimiter)
 
@@ -3217,16 +3235,20 @@ t_type parse_post_decrementing(t_type expr_in, char *temp_name){
 t_type parse_post_incrementing(t_type expr_in, char *temp_name){
   t_type expr_out;
 
-  emitln("  push b"); 
-  if(get_pointer_unit(expr_in) > 1) {
+  if(get_pointer_unit(expr_in) > 1){
     emitln("  inc b");
     emitln("  inc b");
+    emit_var_addr_into_d(temp_name);
+    emitln("  mov [d], b");
+    emitln("  dec b");
+    emitln("  dec b");
   }
-  else 
+  else{
     emitln("  inc b");
-  emit_var_addr_into_d(temp_name);
-  emitln("  mov [d], b");
-  emitln("  pop b");
+    emit_var_addr_into_d(temp_name);
+    emitln("  mov [d], b");
+    emitln("  dec b");
+  }
   expr_out = expr_in;
   get(); // gets the next curr_token.token_str (it must be a delimiter)
 
