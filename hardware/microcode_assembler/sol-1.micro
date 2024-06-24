@@ -3871,7 +3871,7 @@
   }
 }
 
-0x15, "mov a, [d]"{
+0x15, "mov a, [d] - add cb, ga"{
   0{
     next=next_offset
     offset=1
@@ -3930,9 +3930,89 @@
     marh_wrt=true
     mar_in_src=pc
   }
+
+  16{
+    next=next_offset
+    offset=1
+    alu_x=al
+    alu_op=x
+    alu_mode=logic
+    mdrl_wrt=true
+  }
+  17{
+    next=next_offset
+    offset=1
+    alu_x=ah
+    alu_op=x
+    alu_mode=logic
+    mdrh_wrt=true
+  }
+  18{
+    next=next_offset
+    offset=1
+    alu_x=bl
+    alu_op=plus
+    zf_in_src=alu_zf_and_zf
+    alu_cf_out_inv=true
+    cf_in_src=alu_final_cf
+    alu_y=mdrl
+    bl_wrt=true
+  }
+  19{
+    next=next_offset
+    offset=1
+    alu_x=bh
+    alu_op=plus
+    alu_cf_in=cf
+    alu_cf_in_inv=true
+    zf_in_src=alu_zf_and_zf
+    alu_cf_out_inv=true
+    cf_in_src=alu_final_cf
+    alu_y=mdrh  
+    bh_wrt=true
+  }
+  20{
+    next=next_offset
+    offset=1
+    alu_x=gl
+    alu_op=x
+    alu_mode=logic
+    mdrl_wrt=true
+  }
+  21{
+    next=next_offset
+    offset=1
+    alu_x=gh
+    alu_op=x
+    alu_mode=logic
+    mdrh_wrt=true
+  }
+  22{
+    next=next_offset
+    offset=1
+    alu_x=cl
+    alu_op=plus
+    zf_in_src=alu_zf_and_zf
+    alu_cf_out_inv=true
+    cf_in_src=alu_final_cf
+    alu_y=mdrl
+    cl_wrt=true
+  }
+  23{
+    next=next_fetch
+    alu_x=ch
+    alu_op=plus
+    alu_cf_in=cf
+    alu_cf_in_inv=true
+    zf_in_src=alu_zf_and_zf
+    alu_cf_out_inv=true
+    cf_in_src=alu_final_cf
+    alu_y=mdrh  
+    ch_wrt=true
+  }
 }
 
-0x16, "mov a, [d + i16]"{
+0x16, "mov a, [d + i16] - adc cb, ga"{
   0{
     next=next_offset
     offset=1
@@ -4041,6 +4121,88 @@
     marl_wrt=true
     marh_wrt=true
     mar_in_src=pc
+  }
+
+  16{
+    next=next_offset
+    offset=1
+    alu_x=al
+    alu_op=x
+    alu_mode=logic
+    mdrl_wrt=true
+  }
+  17{
+    next=next_offset
+    offset=1
+    alu_x=ah
+    alu_op=x
+    alu_mode=logic
+    mdrh_wrt=true
+  }
+  18{
+    next=next_offset
+    offset=1
+    alu_x=bl
+    alu_op=plus
+    alu_cf_in=cf
+    zf_in_src=alu_zf_and_zf
+    alu_cf_in_inv=true
+    alu_cf_out_inv=true
+    cf_in_src=alu_final_cf
+    alu_y=mdrl
+    bl_wrt=true
+  }
+  19{
+    next=next_offset
+    offset=1
+    alu_x=bh
+    alu_op=plus
+    alu_cf_in=cf
+    alu_cf_in_inv=true
+    zf_in_src=alu_zf_and_zf
+    alu_cf_out_inv=true
+    cf_in_src=alu_final_cf
+    alu_y=mdrh  
+    bh_wrt=true
+  }
+  20{
+    next=next_offset
+    offset=1
+    alu_x=gl
+    alu_op=x
+    alu_mode=logic
+    mdrl_wrt=true
+  }
+  21{
+    next=next_offset
+    offset=1
+    alu_x=gh
+    alu_op=x
+    alu_mode=logic
+    mdrh_wrt=true
+  }
+  22{
+    next=next_offset
+    offset=1
+    alu_x=cl
+    alu_op=plus
+    zf_in_src=alu_zf_and_zf
+    alu_cf_out_inv=true
+    cf_in_src=alu_final_cf
+    alu_y=mdrl
+    cl_wrt=true
+  }
+  23{
+    next=next_fetch
+    alu_x=ch
+    alu_op=plus
+    alu_cf_in=cf
+    alu_cf_in_inv=true
+    zf_in_src=alu_zf_and_zf
+    alu_cf_out_inv=true
+    cf_in_src=alu_final_cf
+    alu_y=mdrh  
+    ch_wrt=true
   }
 }
 
