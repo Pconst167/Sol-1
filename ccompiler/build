@@ -10,9 +10,9 @@ file_name=$(basename "$full_path")
 file_name="${file_name%.*}"
 
 
-make FILE=${full_path}
+make FILE=$full_path
 
-./cc $1
+./cc "$full_path" $@
 
 echo
 wine tasm -1 -b out/${file_name}.asm out/obj/${file_name}.obj out/lst/${file_name}.lst

@@ -1,4 +1,4 @@
-; --- FILENAME: games/startrek
+; --- FILENAME: games/startrek.c
 .include "lib/asm/kernel.exp"
 .include "lib/asm/bios.exp"
 .org text_org

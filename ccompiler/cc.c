@@ -308,7 +308,7 @@ int label_tos_cmp;
 // --- MAIN
 int main(int argc, char *argv[]){
   int main_index;
-  char *filename_no_ext;
+  char filename_no_ext[256];
   char filename_out[ID_LEN];
   char switch_display_function_table;
   char switch_display_typedef_table;
@@ -328,7 +328,7 @@ int main(int argc, char *argv[]){
     return 0;
   }
 
-  filename_no_ext = basename(argv[1]);
+  strcpy(filename_no_ext, basename(argv[1]));
   for(size_t i = 0; i < strlen(filename_no_ext); i++){
     if(filename_no_ext[i] == '.'){
       filename_no_ext[i] = '\0';
