@@ -3925,7 +3925,8 @@
     next=next_fetch
     alu_op=y
     alu_mode=logic
-    alu_y=mdrh  ah_wrt=true
+    alu_y=mdrh  
+    ah_wrt=true
     marl_wrt=true
     marh_wrt=true
     mar_in_src=pc
@@ -3952,7 +3953,7 @@
     offset=1
     alu_x=bl
     alu_op=plus
-    zf_in_src=alu_zf_and_zf
+    zf_in_src=alu_zf
     alu_cf_out_inv=true
     cf_in_src=alu_final_cf
     alu_y=mdrl
@@ -3991,11 +3992,13 @@
     next=next_offset
     offset=1
     alu_x=cl
+    alu_y=mdrl
     alu_op=plus
+    alu_cf_in=cf
+    alu_cf_in_inv=true
     zf_in_src=alu_zf_and_zf
     alu_cf_out_inv=true
     cf_in_src=alu_final_cf
-    alu_y=mdrl
     cl_wrt=true
   }
   23{
@@ -4186,6 +4189,8 @@
     offset=1
     alu_x=cl
     alu_op=plus
+    alu_cf_in=cf
+    alu_cf_in_inv=true
     zf_in_src=alu_zf_and_zf
     alu_cf_out_inv=true
     cf_in_src=alu_final_cf
@@ -4654,13 +4659,93 @@
   }
 }
 
-0x1C, "mov al, bh"{
+0x1C, "mov al, bh - sbb32 ga, cb"{
   0{
     next=next_fetch
     alu_x=bh
     alu_op=x
     alu_mode=logic
     al_wrt=true
+  }
+
+  16{
+    next=next_offset
+    offset=1
+    alu_x=bl
+    alu_op=x
+    alu_mode=logic
+    mdrl_wrt=true
+  }
+  17{
+    next=next_offset
+    offset=1
+    alu_x=bh
+    alu_op=x
+    alu_mode=logic
+    mdrh_wrt=true
+  }
+  18{
+    next=next_offset
+    offset=1
+    alu_op=minus
+    alu_cf_in=cf
+    alu_cf_in_inv=true
+    zf_in_src=alu_zf  
+    cf_in_src=alu_final_cf
+    alu_y=mdrl
+    al_wrt=true
+  }
+  19{
+    next=next_offset
+    offset=1
+    alu_x=ah
+    alu_op=minus
+    alu_cf_in=cf
+    zf_in_src=alu_zf_and_zf  
+    cf_in_src=alu_final_cf
+    sf_in_src=zbus_7
+    of_in_src=alu_of
+    alu_y=mdrh  
+    ah_wrt=true
+  }
+  20{
+    next=next_offset
+    offset=1
+    alu_x=cl
+    alu_op=x
+    alu_mode=logic
+    mdrl_wrt=true
+  }
+  21{
+    next=next_offset
+    offset=1
+    alu_x=ch
+    alu_op=x
+    alu_mode=logic
+    mdrh_wrt=true
+  }
+  22{
+    next=next_offset
+    offset=1
+    alu_op=minus
+    alu_cf_in=cf
+    alu_cf_in_inv=true
+    zf_in_src=alu_zf  
+    cf_in_src=alu_final_cf
+    alu_y=mdrl
+    gl_wrt=true
+  }
+  23{
+    next=next_fetch
+    alu_x=ah
+    alu_op=minus
+    alu_cf_in=cf
+    zf_in_src=alu_zf_and_zf  
+    cf_in_src=alu_final_cf
+    sf_in_src=zbus_7
+    of_in_src=alu_of
+    alu_y=mdrh  
+    gh_wrt=true
   }
 }
 
