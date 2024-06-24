@@ -17,8 +17,19 @@ typedef struct _FILE FILE;
 
 FILE *fopen(char *filename, uint8_t mode){
   FILE *fp;
+  static int max_handle = 0;
 
-  fp = alloc(sizeof(int));
+  fp = alloc(sizeof(FILE));
+  strcpy(fp->filename, filename);
+  fp->handle = max_handle;
+  fp->mode = mode;
+  fp->loc = 0;
+
+  max_handle++;
+}
+
+void fclose(FILE *fp){
+  free(sizeof(FILE));
 }
 
 /*
@@ -543,6 +554,65 @@ void clear(){
 
 int abs(int i){
   return i < 0 ? -i : i;
+}
+
+int loadfile(char *filename, char *destination){
+  asm{
+    addr mov d, destination
+    mov a, [d]
+    mov di, a
+    addr mov d, filename
+    mov d, [d]
+    mov al, 20
+    syscall sys_filesystem
+  }
+}
+
+int create_file(char *filename, char *content){
+}
+
+int delete_file(char *filename){
+  asm{
+    addr mov d, filename
+    mov al, 10
+    syscall sys_filesystem
+  }
+}
+
+void load_hex(char *destination){
+  char *temp;
+  
+  temp = alloc(32768);
+
+  asm{
+    ; GET HEX FILE
+    ; di = destination address
+    ; return length in bytes in C
+    _load_hex:
+      addr mov d, destination
+      mov d, [d]
+      mov di, d
+      addr mov d, temp
+      mov d, [d]
+      mov c, 0
+      mov a, sp
+      inc a
+      mov d, a          ; start of string data block
+      call _gets        ; get program string
+      mov si, a
+    __load_hex_loop:
+      lodsb             ; load from [SI] to AL
+      cmp al, 0         ; check if ASCII 0
+      jz __load_hex_ret
+      mov bh, al
+      lodsb
+      mov bl, al
+      call _atoi        ; convert ASCII byte in B to int (to AL)
+      stosb             ; store AL to [DI]
+      inc c
+      jmp __load_hex_loop
+    __load_hex_ret:
+  }
 }
 
 void include_stdio_asm(){

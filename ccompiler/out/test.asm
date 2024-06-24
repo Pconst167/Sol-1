@@ -1,4 +1,4 @@
-; --- FILENAME: test
+; --- FILENAME: test.c
 .include "lib/asm/kernel.exp"
 .include "lib/asm/bios.exp"
 .org text_org
@@ -709,16 +709,65 @@ fopen:
   enter 0 ; (push bp; mov bp, sp)
 ; FILE *fp; 
   sub sp, 2
-; fp = alloc(sizeof(int)); 
+; static int max_handle = 0; 
+  sub sp, 2
+; fp = alloc(sizeof(FILE)); 
   lea d, [bp + -1] ; $fp
   push d
-  mov b, 2
+  mov b, 260
   swp b
   push b
   call alloc
   add sp, 2
   pop d
   mov [d], b
+; strcpy(fp->filename, filename); 
+  lea d, [bp + 5] ; $filename
+  mov b, [d]
+  swp b
+  push b
+  lea d, [bp + -1] ; $fp
+  mov d, [d]
+  add d, 2
+  mov b, d
+  swp b
+  push b
+  call strcpy
+  add sp, 4
+; fp->handle = max_handle; 
+  lea d, [bp + -1] ; $fp
+  mov d, [d]
+  add d, 0
+  push d
+  mov d, st_fopen_max_handle ; static max_handle
+  mov b, [d]
+  pop d
+  mov [d], b
+; fp->mode = mode; 
+  lea d, [bp + -1] ; $fp
+  mov d, [d]
+  add d, 258
+  push d
+  lea d, [bp + 7] ; $mode
+  mov bl, [d]
+  mov bh, 0
+  pop d
+  mov [d], bl
+; fp->loc = 0; 
+  lea d, [bp + -1] ; $fp
+  mov d, [d]
+  add d, 259
+  push d
+  mov b, $0
+  pop d
+  mov [d], bl
+; max_handle++; 
+  mov d, st_fopen_max_handle ; static max_handle
+  mov b, [d]
+  inc b
+  mov d, st_fopen_max_handle ; static max_handle
+  mov [d], b
+  dec b
   leave
   ret
 
@@ -3716,6 +3765,87 @@ _ternary55_exit:
   leave
   ret
 
+loadfile:
+  enter 0 ; (push bp; mov bp, sp)
+
+; --- BEGIN INLINE ASM SEGMENT
+  lea d, [bp + 7] ; $destination
+  mov a, [d]
+  mov di, a
+  lea d, [bp + 5] ; $filename
+  mov d, [d]
+  mov al, 20
+  syscall sys_filesystem
+; --- END INLINE ASM SEGMENT
+
+  leave
+  ret
+
+create_file:
+  enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
+
+delete_file:
+  enter 0 ; (push bp; mov bp, sp)
+
+; --- BEGIN INLINE ASM SEGMENT
+  lea d, [bp + 5] ; $filename
+  mov al, 10
+  syscall sys_filesystem
+; --- END INLINE ASM SEGMENT
+
+  leave
+  ret
+
+load_hex:
+  enter 0 ; (push bp; mov bp, sp)
+; char *temp; 
+  sub sp, 2
+; temp = alloc(32768); 
+  lea d, [bp + -1] ; $temp
+  push d
+  mov b, $8000
+  swp b
+  push b
+  call alloc
+  add sp, 2
+  pop d
+  mov [d], b
+
+; --- BEGIN INLINE ASM SEGMENT
+  
+  
+  
+_load_hex:
+  lea d, [bp + 5] ; $destination
+  mov d, [d]
+  mov di, d
+  lea d, [bp + -1] ; $temp
+  mov d, [d]
+  mov c, 0
+  mov a, sp
+  inc a
+  mov d, a          
+  call _gets        
+  mov si, a
+__load_hex_loop:
+  lodsb             
+  cmp al, 0         
+  jz __load_hex_ret
+  mov bh, al
+  lodsb
+  mov bl, al
+  call _atoi        
+  stosb             
+  inc c
+  jmp __load_hex_loop
+__load_hex_ret:
+; --- END INLINE ASM SEGMENT
+
+  leave
+  ret
+
 include_stdio_asm:
   enter 0 ; (push bp; mov bp, sp)
 
@@ -3732,6 +3862,7 @@ _s_data: .fill 256, 0
 _ss_data: 
 .db _s0, 
 .fill 9, 0
+st_fopen_max_handle: .dw 0
 _s0: .db "Hello", 0
 _s1: .db "Hello World!", 0
 _s2: .db "Integer: %d, Char: %c, String: %s\n\n", 0
