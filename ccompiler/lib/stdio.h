@@ -187,6 +187,79 @@ void scanf(const char *format, ...){
   }
 }
 
+void sprintf(char *dest, const char *format, ...){
+  char *p, *format_p;
+  char *sp;
+
+  sp = dest;
+  format_p = format;
+  p = &format + 2;
+
+// sprintf(dest, "%i %d %d", 124, 1234, 65535);
+  for(;;){
+    if(!*format_p) break;
+    else if(*format_p == '%'){
+      format_p++;
+      switch(*format_p){
+        case 'l':
+        case 'L':
+          format_p++;
+          if(*format_p == 'd' || *format_p == 'i')
+            print_signed_long(*(long *)p);
+          else if(*format_p == 'u')
+            print_unsigned_long(*(unsigned long *)p);
+          else if(*format_p == 'x')
+            printx32(*(long int *)p);
+          else err("Unexpected format in printf.");
+          p = p + 4;
+          break;
+
+        case 'd':
+        case 'i':
+          sp = sp + sprint_signed(sp, *(int*)p);
+          p = p + 2;
+          break;
+
+        case 'u':
+          sp = sp + sprint_unsigned(sp, *(unsigned int*)p);
+          p = p + 2;
+          break;
+
+        case 'x':
+          asm{
+            addr mov d, p
+            mov d, [d]
+            mov b, [d]
+            call print_u16x
+          }
+          p = p + 2;
+          break;
+
+        case 'c':
+          *sp++ = *p;
+          p = p + 2;
+          break;
+
+        case 's':
+          printf(p);
+          int len = strlen(*p);
+          print_signed(len);
+          strcpy(sp, *p);
+          sp = sp + len;
+          p = p + 2;
+          break;
+
+        default:
+          print("Error: Unknown argument type.\n");
+      }
+      format_p++;
+    }
+    else {
+      *sp++ = *format_p++;
+    }
+  }
+}
+
 void err(char *e){
   print(e);
 }
@@ -316,6 +389,31 @@ void print_unsigned_long(unsigned long int num) {
   }
 }
 
+void sprint_unsigned(char *dest, unsigned int num) {
+  char digits[5];
+  int i;
+  int len = 0;
+
+  i = 0;
+  if(num == 0){
+    *dest++ = '0';
+    return 1;
+  }
+  while (num > 0) {
+    digits[i] = '0' + (num % 10);
+    num = num / 10;
+    i++;
+  }
+  // Print the digits in reverse order using putchar()
+  while (i > 0) {
+    i--;
+    *dest++ = digits[i];
+    len++;
+  }
+  *dest = '\0';
+  return len;
+}
+
 void print_unsigned(unsigned int num) {
   char digits[5];
   int i;
@@ -334,6 +432,37 @@ void print_unsigned(unsigned int num) {
     i--;
     putchar(digits[i]);
   }
+}
+
+void sprint_signed(char *dest, int num) {
+  char digits[5];
+  int i = 0;
+  int len = 0;
+
+  if (num < 0) {
+    *dest++ = '-';
+    num = -num;
+    len++;
+  }
+  else if (num == 0) {
+    *dest++ = '0';
+    *dest = '\0';
+    return 1;
+  }
+
+  while (num > 0) {
+    digits[i] = '0' + (num % 10);
+    num = num / 10;
+    i++;
+  }
+
+  while (i > 0) {
+    i--;
+    *dest++ = digits[i];
+    len++;
+  }
+  *dest = '\0';
+  return len;
 }
 
 void date(){

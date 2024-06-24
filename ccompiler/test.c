@@ -1,4 +1,10 @@
-int array[10]={1,-1,-1,0};
+#include<stdio.h>
+
+char s1[256];
+
 void main(void){
-	1 + -1;
+
+	sprintf(s1, "Integer: %d, Char: %c, String: %s\n\n",  2341, 'G', "Hello World!");
+
+	printf(s1);
 }
