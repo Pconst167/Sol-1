@@ -2138,7 +2138,7 @@ void emit_c_header_line(){
     *s++ = *prog++;
   }
   *s = '\0';
-  emitln(";; %s ", curr_token.string_const);
+  emitln("; %s ", curr_token.string_const);
   prog = temp;
 }
 
