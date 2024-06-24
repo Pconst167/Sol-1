@@ -7,36 +7,36 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-;; intro(); 
+; intro(); 
   call intro
-;; new_game(); 
+; new_game(); 
   call new_game
-;; return (0); 
+; return (0); 
   mov b, $0
   leave
   syscall sys_terminate_proc
 
 strcpy:
   enter 0 ; (push bp; mov bp, sp)
-;; char *psrc; 
+; char *psrc; 
   sub sp, 2
-;; char *pdest; 
+; char *pdest; 
   sub sp, 2
-;; psrc = src; 
+; psrc = src; 
   lea d, [bp + -1] ; $psrc
   push d
   lea d, [bp + 7] ; $src
   mov b, [d]
   pop d
   mov [d], b
-;; pdest = dest; 
+; pdest = dest; 
   lea d, [bp + -3] ; $pdest
   push d
   lea d, [bp + 5] ; $dest
   mov b, [d]
   pop d
   mov [d], b
-;; while(*psrc) *pdest++ = *psrc++; 
+; while(*psrc) *pdest++ = *psrc++; 
 _while1_cond:
   lea d, [bp + -1] ; $psrc
   mov b, [d]
@@ -46,7 +46,7 @@ _while1_cond:
   cmp b, 0
   je _while1_exit
 _while1_block:
-;; *pdest++ = *psrc++; 
+; *pdest++ = *psrc++; 
   lea d, [bp + -3] ; $pdest
   mov b, [d]
   inc b
@@ -67,7 +67,7 @@ _while1_block:
   mov [d], bl
   jmp _while1_cond
 _while1_exit:
-;; *pdest = '\0'; 
+; *pdest = '\0'; 
   lea d, [bp + -3] ; $pdest
   mov b, [d]
   push b
@@ -79,7 +79,7 @@ _while1_exit:
 
 strcmp:
   enter 0 ; (push bp; mov bp, sp)
-;; while (*s1 && (*s1 == *s2)) { 
+; while (*s1 && (*s1 == *s2)) { 
 _while2_cond:
   lea d, [bp + 5] ; $s1
   mov b, [d]
@@ -112,14 +112,14 @@ _while2_cond:
   cmp b, 0
   je _while2_exit
 _while2_block:
-;; s1++; 
+; s1++; 
   lea d, [bp + 5] ; $s1
   mov b, [d]
   inc b
   lea d, [bp + 5] ; $s1
   mov [d], b
   dec b
-;; s2++; 
+; s2++; 
   lea d, [bp + 7] ; $s2
   mov b, [d]
   inc b
@@ -128,7 +128,7 @@ _while2_block:
   dec b
   jmp _while2_cond
 _while2_exit:
-;; return *s1 - *s2; 
+; return *s1 - *s2; 
   lea d, [bp + 5] ; $s1
   mov b, [d]
   mov d, b
@@ -156,11 +156,11 @@ strncmp:
 
 strcat:
   enter 0 ; (push bp; mov bp, sp)
-;; int dest_len; 
+; int dest_len; 
   sub sp, 2
-;; int i; 
+; int i; 
   sub sp, 2
-;; dest_len = strlen(dest); 
+; dest_len = strlen(dest); 
   lea d, [bp + -1] ; $dest_len
   push d
   lea d, [bp + 5] ; $dest
@@ -171,7 +171,7 @@ strcat:
   add sp, 2
   pop d
   mov [d], b
-;; for (i = 0; src[i] != 0; i=i+1) { 
+; for (i = 0; src[i] != 0; i=i+1) { 
 _for3_init:
   lea d, [bp + -3] ; $i
   push d
@@ -201,7 +201,7 @@ _for3_cond:
   cmp b, 0
   je _for3_exit
 _for3_block:
-;; dest[dest_len + i] = src[i]; 
+; dest[dest_len + i] = src[i]; 
   lea d, [bp + 5] ; $dest
   mov d, [d]
   push a
@@ -249,7 +249,7 @@ _for3_update:
   mov [d], b
   jmp _for3_cond
 _for3_exit:
-;; dest[dest_len + i] = 0; 
+; dest[dest_len + i] = 0; 
   lea d, [bp + 5] ; $dest
   mov d, [d]
   push a
@@ -271,7 +271,7 @@ _for3_exit:
   mov b, $0
   pop d
   mov [d], bl
-;; return dest; 
+; return dest; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
   leave
@@ -279,15 +279,15 @@ _for3_exit:
 
 strlen:
   enter 0 ; (push bp; mov bp, sp)
-;; int length; 
+; int length; 
   sub sp, 2
-;; length = 0; 
+; length = 0; 
   lea d, [bp + -1] ; $length
   push d
   mov b, $0
   pop d
   mov [d], b
-;; while (str[length] != 0) { 
+; while (str[length] != 0) { 
 _while4_cond:
   lea d, [bp + 5] ; $str
   mov d, [d]
@@ -311,7 +311,7 @@ _while4_cond:
   cmp b, 0
   je _while4_exit
 _while4_block:
-;; length++; 
+; length++; 
   lea d, [bp + -1] ; $length
   mov b, [d]
   inc b
@@ -320,7 +320,7 @@ _while4_block:
   dec b
   jmp _while4_cond
 _while4_exit:
-;; return length; 
+; return length; 
   lea d, [bp + -1] ; $length
   mov b, [d]
   leave
@@ -338,9 +338,9 @@ exit:
 
 memset:
   enter 0 ; (push bp; mov bp, sp)
-;; int i; 
+; int i; 
   sub sp, 2
-;; for(i = 0; i < size; i++){ 
+; for(i = 0; i < size; i++){ 
 _for5_init:
   lea d, [bp + -1] ; $i
   push d
@@ -362,7 +362,7 @@ _for5_cond:
   cmp b, 0
   je _for5_exit
 _for5_block:
-;; *(s+i) = c; 
+; *(s+i) = c; 
   lea d, [bp + 5] ; $s
   mov b, [d]
 ; START TERMS
@@ -388,7 +388,7 @@ _for5_update:
   dec b
   jmp _for5_cond
 _for5_exit:
-;; return s; 
+; return s; 
   lea d, [bp + 5] ; $s
   mov b, [d]
   leave
@@ -396,7 +396,7 @@ _for5_exit:
 
 atoi:
   enter 0 ; (push bp; mov bp, sp)
-;; int result = 0;  // Initialize result 
+; int result = 0;  // Initialize result 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -1] ; $result
@@ -405,7 +405,7 @@ atoi:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; int sign = 1;    // Initialize sign as positive 
+; int sign = 1;    // Initialize sign as positive 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -3] ; $sign
@@ -414,7 +414,7 @@ atoi:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; while (*str == ' ') str++; 
+; while (*str == ' ') str++; 
 _while6_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
@@ -432,7 +432,7 @@ _while6_cond:
   cmp b, 0
   je _while6_exit
 _while6_block:
-;; str++; 
+; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
   inc b
@@ -441,7 +441,7 @@ _while6_block:
   dec b
   jmp _while6_cond
 _while6_exit:
-;; if (*str == '-' || *str == '+') { 
+; if (*str == '-' || *str == '+') { 
 _if7_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
@@ -478,7 +478,7 @@ _if7_cond:
   cmp b, 0
   je _if7_exit
 _if7_true:
-;; if (*str == '-') sign = -1; 
+; if (*str == '-') sign = -1; 
 _if8_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
@@ -496,7 +496,7 @@ _if8_cond:
   cmp b, 0
   je _if8_exit
 _if8_true:
-;; sign = -1; 
+; sign = -1; 
   lea d, [bp + -3] ; $sign
   push d
   mov b, $1
@@ -505,7 +505,7 @@ _if8_true:
   mov [d], b
   jmp _if8_exit
 _if8_exit:
-;; str++; 
+; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
   inc b
@@ -514,7 +514,7 @@ _if8_exit:
   dec b
   jmp _if7_exit
 _if7_exit:
-;; while (*str >= '0' && *str <= '9') { 
+; while (*str >= '0' && *str <= '9') { 
 _while9_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
@@ -551,7 +551,7 @@ _while9_cond:
   cmp b, 0
   je _while9_exit
 _while9_block:
-;; result = result * 10 + (*str - '0'); 
+; result = result * 10 + (*str - '0'); 
   lea d, [bp + -1] ; $result
   push d
   lea d, [bp + -1] ; $result
@@ -586,7 +586,7 @@ _while9_block:
 ; END TERMS
   pop d
   mov [d], b
-;; str++; 
+; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
   inc b
@@ -595,7 +595,7 @@ _while9_block:
   dec b
   jmp _while9_cond
 _while9_exit:
-;; return sign * result; 
+; return sign * result; 
   lea d, [bp + -3] ; $sign
   mov b, [d]
 ; START FACTORS
@@ -613,7 +613,7 @@ _while9_exit:
 
 rand:
   enter 0 ; (push bp; mov bp, sp)
-;; int  sec; 
+; int  sec; 
   sub sp, 2
 
 ; --- BEGIN INLINE ASM BLOCK
@@ -625,7 +625,7 @@ rand:
   mov ah, 0
 ; --- END INLINE ASM BLOCK
 
-;; return sec; 
+; return sec; 
   lea d, [bp + -1] ; $sec
   mov b, [d]
   leave
@@ -633,7 +633,7 @@ rand:
 
 alloc:
   enter 0 ; (push bp; mov bp, sp)
-;; heap_top = heap_top + bytes; 
+; heap_top = heap_top + bytes; 
   mov d, _heap_top ; $heap_top
   push d
   mov d, _heap_top ; $heap_top
@@ -648,7 +648,7 @@ alloc:
 ; END TERMS
   pop d
   mov [d], b
-;; return heap_top - bytes; 
+; return heap_top - bytes; 
   mov d, _heap_top ; $heap_top
   mov b, [d]
 ; START TERMS
@@ -665,7 +665,7 @@ alloc:
 
 free:
   enter 0 ; (push bp; mov bp, sp)
-;; return heap_top = heap_top - bytes; 
+; return heap_top = heap_top - bytes; 
   mov d, _heap_top ; $heap_top
   push d
   mov d, _heap_top ; $heap_top
@@ -686,9 +686,9 @@ free:
 
 fopen:
   enter 0 ; (push bp; mov bp, sp)
-;; FILE *fp; 
+; FILE *fp; 
   sub sp, 2
-;; fp = alloc(sizeof(int)); 
+; fp = alloc(sizeof(int)); 
   lea d, [bp + -1] ; $fp
   push d
   mov b, 2
@@ -703,17 +703,17 @@ fopen:
 
 printf:
   enter 0 ; (push bp; mov bp, sp)
-;; char *p, *format_p; 
+; char *p, *format_p; 
   sub sp, 2
   sub sp, 2
-;; format_p = format; 
+; format_p = format; 
   lea d, [bp + -3] ; $format_p
   push d
   lea d, [bp + 5] ; $format
   mov b, [d]
   pop d
   mov [d], b
-;; p = &format + 2; 
+; p = &format + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + 5] ; $format
@@ -727,11 +727,11 @@ printf:
 ; END TERMS
   pop d
   mov [d], b
-;; for(;;){ 
+; for(;;){ 
 _for10_init:
 _for10_cond:
 _for10_block:
-;; if(!*format_p) break; 
+; if(!*format_p) break; 
 _if11_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -743,11 +743,11 @@ _if11_cond:
   cmp b, 0
   je _if11_else
 _if11_true:
-;; break; 
+; break; 
   jmp _for10_exit ; for break
   jmp _if11_exit
 _if11_else:
-;; if(*format_p == '%'){ 
+; if(*format_p == '%'){ 
 _if12_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -765,14 +765,14 @@ _if12_cond:
   cmp b, 0
   je _if12_else
 _if12_true:
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
-;; switch(*format_p){ 
+; switch(*format_p){ 
 _switch13_expr:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -800,14 +800,14 @@ _switch13_comparisons:
   jmp _switch13_exit
 _switch13_case0:
 _switch13_case1:
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
-;; if(*format_p == 'd' || *format_p == 'i') 
+; if(*format_p == 'd' || *format_p == 'i') 
 _if14_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -844,7 +844,7 @@ _if14_cond:
   cmp b, 0
   je _if14_else
 _if14_true:
-;; print_signed_long(*(long *)p); 
+; print_signed_long(*(long *)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
   snex b
@@ -864,7 +864,7 @@ _if14_true:
   add sp, 4
   jmp _if14_exit
 _if14_else:
-;; if(*format_p == 'u') 
+; if(*format_p == 'u') 
 _if15_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -882,7 +882,7 @@ _if15_cond:
   cmp b, 0
   je _if15_else
 _if15_true:
-;; print_unsigned_long(*(unsigned long *)p); 
+; print_unsigned_long(*(unsigned long *)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov bh, 0
@@ -902,7 +902,7 @@ _if15_true:
   add sp, 4
   jmp _if15_exit
 _if15_else:
-;; if(*format_p == 'x') 
+; if(*format_p == 'x') 
 _if16_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -920,7 +920,7 @@ _if16_cond:
   cmp b, 0
   je _if16_else
 _if16_true:
-;; printx32(*(long int *)p); 
+; printx32(*(long int *)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov d, b
@@ -938,7 +938,7 @@ _if16_true:
   add sp, 4
   jmp _if16_exit
 _if16_else:
-;; err("Unexpected format in printf."); 
+; err("Unexpected format in printf."); 
   mov b, _s30 ; "Unexpected format in printf."
   swp b
   push b
@@ -947,7 +947,7 @@ _if16_else:
 _if16_exit:
 _if15_exit:
 _if14_exit:
-;; p = p + 4; 
+; p = p + 4; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -961,11 +961,11 @@ _if14_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch13_exit ; case break
 _switch13_case2:
 _switch13_case3:
-;; print_signed(*(int*)p); 
+; print_signed(*(int*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov d, b
@@ -974,7 +974,7 @@ _switch13_case3:
   push b
   call print_signed
   add sp, 2
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -988,10 +988,10 @@ _switch13_case3:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch13_exit ; case break
 _switch13_case4:
-;; print_unsigned(*(unsigned int*)p); 
+; print_unsigned(*(unsigned int*)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov d, b
@@ -1000,7 +1000,7 @@ _switch13_case4:
   push b
   call print_unsigned
   add sp, 2
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1014,7 +1014,7 @@ _switch13_case4:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch13_exit ; case break
 _switch13_case5:
 
@@ -1025,7 +1025,7 @@ _switch13_case5:
   call print_u16x
 ; --- END INLINE ASM BLOCK
 
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1039,7 +1039,7 @@ _switch13_case5:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch13_exit ; case break
 _switch13_case6:
 
@@ -1051,7 +1051,7 @@ _switch13_case6:
   call _putchar
 ; --- END INLINE ASM BLOCK
 
-;; p = p + 1; 
+; p = p + 1; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1065,7 +1065,7 @@ _switch13_case6:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch13_exit ; case break
 _switch13_case7:
 
@@ -1076,7 +1076,7 @@ _switch13_case7:
   call _puts
 ; --- END INLINE ASM BLOCK
 
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1090,17 +1090,17 @@ _switch13_case7:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch13_exit ; case break
 _switch13_default:
-;; print("Error: Unknown argument type.\n"); 
+; print("Error: Unknown argument type.\n"); 
   mov b, _s31 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
   add sp, 2
 _switch13_exit:
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
@@ -1109,7 +1109,7 @@ _switch13_exit:
   dec b
   jmp _if12_exit
 _if12_else:
-;; putchar(*format_p); 
+; putchar(*format_p); 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   mov d, b
@@ -1118,7 +1118,7 @@ _if12_else:
   push bl
   call putchar
   add sp, 1
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
@@ -1135,23 +1135,23 @@ _for10_exit:
 
 scanf:
   enter 0 ; (push bp; mov bp, sp)
-;; char *p, *format_p; 
+; char *p, *format_p; 
   sub sp, 2
   sub sp, 2
-;; char c; 
+; char c; 
   sub sp, 1
-;; int i; 
+; int i; 
   sub sp, 2
-;; char input_string[  512                    ]; 
+; char input_string[  512                    ]; 
   sub sp, 512
-;; format_p = format; 
+; format_p = format; 
   lea d, [bp + -3] ; $format_p
   push d
   lea d, [bp + 5] ; $format
   mov b, [d]
   pop d
   mov [d], b
-;; p = &format + 2; 
+; p = &format + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + 5] ; $format
@@ -1165,11 +1165,11 @@ scanf:
 ; END TERMS
   pop d
   mov [d], b
-;; for(;;){ 
+; for(;;){ 
 _for17_init:
 _for17_cond:
 _for17_block:
-;; if(!*format_p) break; 
+; if(!*format_p) break; 
 _if18_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1181,11 +1181,11 @@ _if18_cond:
   cmp b, 0
   je _if18_else
 _if18_true:
-;; break; 
+; break; 
   jmp _for17_exit ; for break
   jmp _if18_exit
 _if18_else:
-;; if(*format_p == '%'){ 
+; if(*format_p == '%'){ 
 _if19_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1203,14 +1203,14 @@ _if19_cond:
   cmp b, 0
   je _if19_else
 _if19_true:
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
-;; switch(*format_p){ 
+; switch(*format_p){ 
 _switch20_expr:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1238,14 +1238,14 @@ _switch20_comparisons:
   jmp _switch20_exit
 _switch20_case0:
 _switch20_case1:
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
-;; if(*format_p == 'd' || *format_p == 'i'); 
+; if(*format_p == 'd' || *format_p == 'i'); 
 _if21_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1282,10 +1282,10 @@ _if21_cond:
   cmp b, 0
   je _if21_else
 _if21_true:
-;; ; 
+; ; 
   jmp _if21_exit
 _if21_else:
-;; if(*format_p == 'u'); 
+; if(*format_p == 'u'); 
 _if22_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1303,10 +1303,10 @@ _if22_cond:
   cmp b, 0
   je _if22_else
 _if22_true:
-;; ; 
+; ; 
   jmp _if22_exit
 _if22_else:
-;; if(*format_p == 'x'); 
+; if(*format_p == 'x'); 
 _if23_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1324,10 +1324,10 @@ _if23_cond:
   cmp b, 0
   je _if23_else
 _if23_true:
-;; ; 
+; ; 
   jmp _if23_exit
 _if23_else:
-;; err("Unexpected format in printf."); 
+; err("Unexpected format in printf."); 
   mov b, _s30 ; "Unexpected format in printf."
   swp b
   push b
@@ -1336,7 +1336,7 @@ _if23_else:
 _if23_exit:
 _if22_exit:
 _if21_exit:
-;; p = p + 4; 
+; p = p + 4; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1350,17 +1350,17 @@ _if21_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch20_exit ; case break
 _switch20_case2:
 _switch20_case3:
-;; i = scann(); 
+; i = scann(); 
   lea d, [bp + -6] ; $i
   push d
   call scann
   pop d
   mov [d], b
-;; **(int **)p = i; 
+; **(int **)p = i; 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov d, b
@@ -1370,7 +1370,7 @@ _switch20_case3:
   mov b, [d]
   pop d
   mov [d], b
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1384,16 +1384,16 @@ _switch20_case3:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch20_exit ; case break
 _switch20_case4:
-;; i = scann(); 
+; i = scann(); 
   lea d, [bp + -6] ; $i
   push d
   call scann
   pop d
   mov [d], b
-;; **(int **)p = i; 
+; **(int **)p = i; 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov d, b
@@ -1403,7 +1403,7 @@ _switch20_case4:
   mov b, [d]
   pop d
   mov [d], b
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1417,10 +1417,10 @@ _switch20_case4:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch20_exit ; case break
 _switch20_case5:
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1434,16 +1434,16 @@ _switch20_case5:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch20_exit ; case break
 _switch20_case6:
-;; c = getchar(); 
+; c = getchar(); 
   lea d, [bp + -4] ; $c
   push d
   call getchar
   pop d
   mov [d], bl
-;; **(char **)p = *(char *)c; 
+; **(char **)p = *(char *)c; 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov d, b
@@ -1457,7 +1457,7 @@ _switch20_case6:
   mov bh, 0
   pop d
   mov [d], b
-;; p = p + 1; 
+; p = p + 1; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1471,17 +1471,17 @@ _switch20_case6:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch20_exit ; case break
 _switch20_case7:
-;; gets(input_string); 
+; gets(input_string); 
   lea d, [bp + -518] ; $input_string
   mov b, d
   swp b
   push b
   call gets
   add sp, 2
-;; strcpy(*(char **)p, input_string); 
+; strcpy(*(char **)p, input_string); 
   lea d, [bp + -518] ; $input_string
   mov b, d
   swp b
@@ -1494,7 +1494,7 @@ _switch20_case7:
   push b
   call strcpy
   add sp, 4
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1508,17 +1508,17 @@ _switch20_case7:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch20_exit ; case break
 _switch20_default:
-;; print("Error: Unknown argument type.\n"); 
+; print("Error: Unknown argument type.\n"); 
   mov b, _s31 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
   add sp, 2
 _switch20_exit:
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
@@ -1527,7 +1527,7 @@ _switch20_exit:
   dec b
   jmp _if19_exit
 _if19_else:
-;; putchar(*format_p); 
+; putchar(*format_p); 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   mov d, b
@@ -1536,7 +1536,7 @@ _if19_else:
   push bl
   call putchar
   add sp, 1
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
@@ -1553,26 +1553,26 @@ _for17_exit:
 
 sprintf:
   enter 0 ; (push bp; mov bp, sp)
-;; char *p, *format_p; 
+; char *p, *format_p; 
   sub sp, 2
   sub sp, 2
-;; char *sp; 
+; char *sp; 
   sub sp, 2
-;; sp = dest; 
+; sp = dest; 
   lea d, [bp + -5] ; $sp
   push d
   lea d, [bp + 5] ; $dest
   mov b, [d]
   pop d
   mov [d], b
-;; format_p = format; 
+; format_p = format; 
   lea d, [bp + -3] ; $format_p
   push d
   lea d, [bp + 7] ; $format
   mov b, [d]
   pop d
   mov [d], b
-;; p = &format + 2; 
+; p = &format + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + 7] ; $format
@@ -1586,11 +1586,11 @@ sprintf:
 ; END TERMS
   pop d
   mov [d], b
-;; for(;;){ 
+; for(;;){ 
 _for24_init:
 _for24_cond:
 _for24_block:
-;; if(!*format_p) break; 
+; if(!*format_p) break; 
 _if25_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1602,11 +1602,11 @@ _if25_cond:
   cmp b, 0
   je _if25_else
 _if25_true:
-;; break; 
+; break; 
   jmp _for24_exit ; for break
   jmp _if25_exit
 _if25_else:
-;; if(*format_p == '%'){ 
+; if(*format_p == '%'){ 
 _if26_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1624,14 +1624,14 @@ _if26_cond:
   cmp b, 0
   je _if26_else
 _if26_true:
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
-;; switch(*format_p){ 
+; switch(*format_p){ 
 _switch27_expr:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1659,14 +1659,14 @@ _switch27_comparisons:
   jmp _switch27_exit
 _switch27_case0:
 _switch27_case1:
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
-;; if(*format_p == 'd' || *format_p == 'i') 
+; if(*format_p == 'd' || *format_p == 'i') 
 _if28_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1703,7 +1703,7 @@ _if28_cond:
   cmp b, 0
   je _if28_else
 _if28_true:
-;; print_signed_long(*(long *)p); 
+; print_signed_long(*(long *)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
   snex b
@@ -1723,7 +1723,7 @@ _if28_true:
   add sp, 4
   jmp _if28_exit
 _if28_else:
-;; if(*format_p == 'u') 
+; if(*format_p == 'u') 
 _if29_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1741,7 +1741,7 @@ _if29_cond:
   cmp b, 0
   je _if29_else
 _if29_true:
-;; print_unsigned_long(*(unsigned long *)p); 
+; print_unsigned_long(*(unsigned long *)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov bh, 0
@@ -1761,7 +1761,7 @@ _if29_true:
   add sp, 4
   jmp _if29_exit
 _if29_else:
-;; if(*format_p == 'x') 
+; if(*format_p == 'x') 
 _if30_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -1779,7 +1779,7 @@ _if30_cond:
   cmp b, 0
   je _if30_else
 _if30_true:
-;; printx32(*(long int *)p); 
+; printx32(*(long int *)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov d, b
@@ -1797,7 +1797,7 @@ _if30_true:
   add sp, 4
   jmp _if30_exit
 _if30_else:
-;; err("Unexpected format in printf."); 
+; err("Unexpected format in printf."); 
   mov b, _s30 ; "Unexpected format in printf."
   swp b
   push b
@@ -1806,7 +1806,7 @@ _if30_else:
 _if30_exit:
 _if29_exit:
 _if28_exit:
-;; p = p + 4; 
+; p = p + 4; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1820,11 +1820,11 @@ _if28_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch27_exit ; case break
 _switch27_case2:
 _switch27_case3:
-;; sp = sp + sprint_signed(sp, *(int*)p); 
+; sp = sp + sprint_signed(sp, *(int*)p); 
   lea d, [bp + -5] ; $sp
   push d
   lea d, [bp + -5] ; $sp
@@ -1849,7 +1849,7 @@ _switch27_case3:
 ; END TERMS
   pop d
   mov [d], b
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1863,10 +1863,10 @@ _switch27_case3:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch27_exit ; case break
 _switch27_case4:
-;; sp = sp + sprint_unsigned(sp, *(unsigned int*)p); 
+; sp = sp + sprint_unsigned(sp, *(unsigned int*)p); 
   lea d, [bp + -5] ; $sp
   push d
   lea d, [bp + -5] ; $sp
@@ -1891,7 +1891,7 @@ _switch27_case4:
 ; END TERMS
   pop d
   mov [d], b
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1905,7 +1905,7 @@ _switch27_case4:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch27_exit ; case break
 _switch27_case5:
 
@@ -1916,7 +1916,7 @@ _switch27_case5:
   call print_u16x
 ; --- END INLINE ASM BLOCK
 
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1930,10 +1930,10 @@ _switch27_case5:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch27_exit ; case break
 _switch27_case6:
-;; *sp++ = *(char *)p; 
+; *sp++ = *(char *)p; 
   lea d, [bp + -5] ; $sp
   mov b, [d]
   inc b
@@ -1948,7 +1948,7 @@ _switch27_case6:
   mov bh, 0
   pop d
   mov [d], bl
-;; p = p + 1; 
+; p = p + 1; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1962,10 +1962,10 @@ _switch27_case6:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch27_exit ; case break
 _switch27_case7:
-;; int len = strlen(*(char **)p); 
+; int len = strlen(*(char **)p); 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -7] ; $len
@@ -1981,7 +1981,7 @@ _switch27_case7:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; strcpy(sp, *(char **)p); 
+; strcpy(sp, *(char **)p); 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov d, b
@@ -1994,7 +1994,7 @@ _switch27_case7:
   push b
   call strcpy
   add sp, 4
-;; sp = sp + len; 
+; sp = sp + len; 
   lea d, [bp + -5] ; $sp
   push d
   lea d, [bp + -5] ; $sp
@@ -2009,7 +2009,7 @@ _switch27_case7:
 ; END TERMS
   pop d
   mov [d], b
-;; p = p + 2; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -2023,17 +2023,17 @@ _switch27_case7:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch27_exit ; case break
 _switch27_default:
-;; print("Error: Unknown argument type.\n"); 
+; print("Error: Unknown argument type.\n"); 
   mov b, _s31 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
   add sp, 2
 _switch27_exit:
-;; format_p++; 
+; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   inc b
@@ -2042,7 +2042,7 @@ _switch27_exit:
   dec b
   jmp _if26_exit
 _if26_else:
-;; *sp++ = *format_p++; 
+; *sp++ = *format_p++; 
   lea d, [bp + -5] ; $sp
   mov b, [d]
   inc b
@@ -2066,14 +2066,14 @@ _if25_exit:
 _for24_update:
   jmp _for24_cond
 _for24_exit:
-;; *sp = '\0'; 
+; *sp = '\0'; 
   lea d, [bp + -5] ; $sp
   mov b, [d]
   push b
   mov b, $0
   pop d
   mov [d], bl
-;; return sp - dest; // return total number of chars written 
+; return sp - dest; // return total number of chars written 
   lea d, [bp + -5] ; $sp
   mov b, [d]
 ; START TERMS
@@ -2090,7 +2090,7 @@ _for24_exit:
 
 err:
   enter 0 ; (push bp; mov bp, sp)
-;; print(e); 
+; print(e); 
   lea d, [bp + 5] ; $e
   mov b, [d]
   swp b
@@ -2140,7 +2140,7 @@ printx8:
 
 hex_str_to_int:
   enter 0 ; (push bp; mov bp, sp)
-;; int value = 0; 
+; int value = 0; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -1] ; $value
@@ -2149,13 +2149,13 @@ hex_str_to_int:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; int i; 
+; int i; 
   sub sp, 2
-;; char hex_char; 
+; char hex_char; 
   sub sp, 1
-;; int len; 
+; int len; 
   sub sp, 2
-;; len = strlen(hex_string); 
+; len = strlen(hex_string); 
   lea d, [bp + -6] ; $len
   push d
   lea d, [bp + 5] ; $hex_string
@@ -2166,7 +2166,7 @@ hex_str_to_int:
   add sp, 2
   pop d
   mov [d], b
-;; for (i = 0; i < len; i++) { 
+; for (i = 0; i < len; i++) { 
 _for31_init:
   lea d, [bp + -3] ; $i
   push d
@@ -2188,7 +2188,7 @@ _for31_cond:
   cmp b, 0
   je _for31_exit
 _for31_block:
-;; hex_char = hex_string[i]; 
+; hex_char = hex_string[i]; 
   lea d, [bp + -4] ; $hex_char
   push d
   lea d, [bp + 5] ; $hex_string
@@ -2204,7 +2204,7 @@ _for31_block:
   mov bh, 0
   pop d
   mov [d], bl
-;; if (hex_char >= 'a' && hex_char <= 'f')  
+; if (hex_char >= 'a' && hex_char <= 'f')  
 _if32_cond:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
@@ -2237,7 +2237,7 @@ _if32_cond:
   cmp b, 0
   je _if32_else
 _if32_true:
-;; value = (value * 16) + (hex_char - 'a' + 10); 
+; value = (value * 16) + (hex_char - 'a' + 10); 
   lea d, [bp + -1] ; $value
   push d
   lea d, [bp + -1] ; $value
@@ -2275,7 +2275,7 @@ _if32_true:
   mov [d], b
   jmp _if32_exit
 _if32_else:
-;; if (hex_char >= 'A' && hex_char <= 'F')  
+; if (hex_char >= 'A' && hex_char <= 'F')  
 _if33_cond:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
@@ -2308,7 +2308,7 @@ _if33_cond:
   cmp b, 0
   je _if33_else
 _if33_true:
-;; value = (value * 16) + (hex_char - 'A' + 10); 
+; value = (value * 16) + (hex_char - 'A' + 10); 
   lea d, [bp + -1] ; $value
   push d
   lea d, [bp + -1] ; $value
@@ -2346,7 +2346,7 @@ _if33_true:
   mov [d], b
   jmp _if33_exit
 _if33_else:
-;; value = (value * 16) + (hex_char - '0'); 
+; value = (value * 16) + (hex_char - '0'); 
   lea d, [bp + -1] ; $value
   push d
   lea d, [bp + -1] ; $value
@@ -2390,7 +2390,7 @@ _for31_update:
   dec b
   jmp _for31_cond
 _for31_exit:
-;; return value; 
+; return value; 
   lea d, [bp + -1] ; $value
   mov b, [d]
   leave
@@ -2406,7 +2406,7 @@ gets:
   call _gets
 ; --- END INLINE ASM BLOCK
 
-;; return strlen(s); 
+; return strlen(s); 
   lea d, [bp + 5] ; $s
   mov b, [d]
   swp b
@@ -2418,9 +2418,9 @@ gets:
 
 print_signed:
   enter 0 ; (push bp; mov bp, sp)
-;; char digits[5]; 
+; char digits[5]; 
   sub sp, 5
-;; int i = 0; 
+; int i = 0; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -6] ; $i
@@ -2429,7 +2429,7 @@ print_signed:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; if (num < 0) { 
+; if (num < 0) { 
 _if34_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
@@ -2444,12 +2444,12 @@ _if34_cond:
   cmp b, 0
   je _if34_else
 _if34_true:
-;; putchar('-'); 
+; putchar('-'); 
   mov b, $2d
   push bl
   call putchar
   add sp, 1
-;; num = -num; 
+; num = -num; 
   lea d, [bp + 5] ; $num
   push d
   lea d, [bp + 5] ; $num
@@ -2459,7 +2459,7 @@ _if34_true:
   mov [d], b
   jmp _if34_exit
 _if34_else:
-;; if (num == 0) { 
+; if (num == 0) { 
 _if35_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
@@ -2474,18 +2474,18 @@ _if35_cond:
   cmp b, 0
   je _if35_exit
 _if35_true:
-;; putchar('0'); 
+; putchar('0'); 
   mov b, $30
   push bl
   call putchar
   add sp, 1
-;; return; 
+; return; 
   leave
   ret
   jmp _if35_exit
 _if35_exit:
 _if34_exit:
-;; while (num > 0) { 
+; while (num > 0) { 
 _while36_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
@@ -2500,7 +2500,7 @@ _while36_cond:
   cmp b, 0
   je _while36_exit
 _while36_block:
-;; digits[i] = '0' + (num % 10); 
+; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
   push d
@@ -2530,7 +2530,7 @@ _while36_block:
 ; END TERMS
   pop d
   mov [d], bl
-;; num = num / 10; 
+; num = num / 10; 
   lea d, [bp + 5] ; $num
   push d
   lea d, [bp + 5] ; $num
@@ -2545,7 +2545,7 @@ _while36_block:
 ; END FACTORS
   pop d
   mov [d], b
-;; i++; 
+; i++; 
   lea d, [bp + -6] ; $i
   mov b, [d]
   inc b
@@ -2554,7 +2554,7 @@ _while36_block:
   dec b
   jmp _while36_cond
 _while36_exit:
-;; while (i > 0) { 
+; while (i > 0) { 
 _while37_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
@@ -2569,14 +2569,14 @@ _while37_cond:
   cmp b, 0
   je _while37_exit
 _while37_block:
-;; i--; 
+; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
   inc b
-;; putchar(digits[i]); 
+; putchar(digits[i]); 
   lea d, [bp + -4] ; $digits
   push a
   push d
@@ -2597,9 +2597,9 @@ _while37_exit:
 
 print_signed_long:
   enter 0 ; (push bp; mov bp, sp)
-;; char digits[10]; 
+; char digits[10]; 
   sub sp, 10
-;; int i = 0; 
+; int i = 0; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -11] ; $i
@@ -2608,7 +2608,7 @@ print_signed_long:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; if (num < 0) { 
+; if (num < 0) { 
 _if38_cond:
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -2629,12 +2629,12 @@ _if38_cond:
   cmp b, 0
   je _if38_else
 _if38_true:
-;; putchar('-'); 
+; putchar('-'); 
   mov b, $2d
   push bl
   call putchar
   add sp, 1
-;; num = -num; 
+; num = -num; 
   lea d, [bp + 5] ; $num
   push d
   lea d, [bp + 5] ; $num
@@ -2648,7 +2648,7 @@ _if38_true:
   mov [d + 2], b
   jmp _if38_exit
 _if38_else:
-;; if (num == 0) { 
+; if (num == 0) { 
 _if39_cond:
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -2669,18 +2669,18 @@ _if39_cond:
   cmp b, 0
   je _if39_exit
 _if39_true:
-;; putchar('0'); 
+; putchar('0'); 
   mov b, $30
   push bl
   call putchar
   add sp, 1
-;; return; 
+; return; 
   leave
   ret
   jmp _if39_exit
 _if39_exit:
 _if38_exit:
-;; while (num > 0) { 
+; while (num > 0) { 
 _while40_cond:
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -2700,7 +2700,7 @@ _while40_cond:
   cmp b, 0
   je _while40_exit
 _while40_block:
-;; digits[i] = '0' + (num % 10); 
+; digits[i] = '0' + (num % 10); 
   lea d, [bp + -9] ; $digits
   push a
   push d
@@ -2738,7 +2738,7 @@ _while40_block:
 ; END TERMS
   pop d
   mov [d], bl
-;; num = num / 10; 
+; num = num / 10; 
   lea d, [bp + 5] ; $num
   push d
   lea d, [bp + 5] ; $num
@@ -2757,7 +2757,7 @@ _while40_block:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; i++; 
+; i++; 
   lea d, [bp + -11] ; $i
   mov b, [d]
   inc b
@@ -2766,7 +2766,7 @@ _while40_block:
   dec b
   jmp _while40_cond
 _while40_exit:
-;; while (i > 0) { 
+; while (i > 0) { 
 _while41_cond:
   lea d, [bp + -11] ; $i
   mov b, [d]
@@ -2781,14 +2781,14 @@ _while41_cond:
   cmp b, 0
   je _while41_exit
 _while41_block:
-;; i--; 
+; i--; 
   lea d, [bp + -11] ; $i
   mov b, [d]
   dec b
   lea d, [bp + -11] ; $i
   mov [d], b
   inc b
-;; putchar(digits[i]); 
+; putchar(digits[i]); 
   lea d, [bp + -9] ; $digits
   push a
   push d
@@ -2809,17 +2809,17 @@ _while41_exit:
 
 print_unsigned_long:
   enter 0 ; (push bp; mov bp, sp)
-;; char digits[10]; 
+; char digits[10]; 
   sub sp, 10
-;; int i; 
+; int i; 
   sub sp, 2
-;; i = 0; 
+; i = 0; 
   lea d, [bp + -11] ; $i
   push d
   mov b, $0
   pop d
   mov [d], b
-;; if(num == 0){ 
+; if(num == 0){ 
 _if42_cond:
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -2840,17 +2840,17 @@ _if42_cond:
   cmp b, 0
   je _if42_exit
 _if42_true:
-;; putchar('0'); 
+; putchar('0'); 
   mov b, $30
   push bl
   call putchar
   add sp, 1
-;; return; 
+; return; 
   leave
   ret
   jmp _if42_exit
 _if42_exit:
-;; while (num > 0) { 
+; while (num > 0) { 
 _while43_cond:
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -2870,7 +2870,7 @@ _while43_cond:
   cmp b, 0
   je _while43_exit
 _while43_block:
-;; digits[i] = '0' + (num % 10); 
+; digits[i] = '0' + (num % 10); 
   lea d, [bp + -9] ; $digits
   push a
   push d
@@ -2908,7 +2908,7 @@ _while43_block:
 ; END TERMS
   pop d
   mov [d], bl
-;; num = num / 10; 
+; num = num / 10; 
   lea d, [bp + 5] ; $num
   push d
   lea d, [bp + 5] ; $num
@@ -2927,7 +2927,7 @@ _while43_block:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; i++; 
+; i++; 
   lea d, [bp + -11] ; $i
   mov b, [d]
   inc b
@@ -2936,7 +2936,7 @@ _while43_block:
   dec b
   jmp _while43_cond
 _while43_exit:
-;; while (i > 0) { 
+; while (i > 0) { 
 _while44_cond:
   lea d, [bp + -11] ; $i
   mov b, [d]
@@ -2951,14 +2951,14 @@ _while44_cond:
   cmp b, 0
   je _while44_exit
 _while44_block:
-;; i--; 
+; i--; 
   lea d, [bp + -11] ; $i
   mov b, [d]
   dec b
   lea d, [bp + -11] ; $i
   mov [d], b
   inc b
-;; putchar(digits[i]); 
+; putchar(digits[i]); 
   lea d, [bp + -9] ; $digits
   push a
   push d
@@ -2979,11 +2979,11 @@ _while44_exit:
 
 sprint_unsigned:
   enter 0 ; (push bp; mov bp, sp)
-;; char digits[5]; 
+; char digits[5]; 
   sub sp, 5
-;; int i; 
+; int i; 
   sub sp, 2
-;; int len = 0; 
+; int len = 0; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -8] ; $len
@@ -2992,13 +2992,13 @@ sprint_unsigned:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; i = 0; 
+; i = 0; 
   lea d, [bp + -6] ; $i
   push d
   mov b, $0
   pop d
   mov [d], b
-;; if(num == 0){ 
+; if(num == 0){ 
 _if45_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
@@ -3013,7 +3013,7 @@ _if45_cond:
   cmp b, 0
   je _if45_exit
 _if45_true:
-;; *dest++ = '0'; 
+; *dest++ = '0'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
   inc b
@@ -3024,13 +3024,13 @@ _if45_true:
   mov b, $30
   pop d
   mov [d], bl
-;; return 1; 
+; return 1; 
   mov b, $1
   leave
   ret
   jmp _if45_exit
 _if45_exit:
-;; while (num > 0) { 
+; while (num > 0) { 
 _while46_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
@@ -3045,7 +3045,7 @@ _while46_cond:
   cmp b, 0
   je _while46_exit
 _while46_block:
-;; digits[i] = '0' + (num % 10); 
+; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
   push d
@@ -3075,7 +3075,7 @@ _while46_block:
 ; END TERMS
   pop d
   mov [d], bl
-;; num = num / 10; 
+; num = num / 10; 
   lea d, [bp + 7] ; $num
   push d
   lea d, [bp + 7] ; $num
@@ -3090,7 +3090,7 @@ _while46_block:
 ; END FACTORS
   pop d
   mov [d], b
-;; i++; 
+; i++; 
   lea d, [bp + -6] ; $i
   mov b, [d]
   inc b
@@ -3099,7 +3099,7 @@ _while46_block:
   dec b
   jmp _while46_cond
 _while46_exit:
-;; while (i > 0) { 
+; while (i > 0) { 
 _while47_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
@@ -3114,14 +3114,14 @@ _while47_cond:
   cmp b, 0
   je _while47_exit
 _while47_block:
-;; i--; 
+; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
   inc b
-;; *dest++ = digits[i]; 
+; *dest++ = digits[i]; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
   inc b
@@ -3141,7 +3141,7 @@ _while47_block:
   mov bh, 0
   pop d
   mov [d], bl
-;; len++; 
+; len++; 
   lea d, [bp + -8] ; $len
   mov b, [d]
   inc b
@@ -3150,14 +3150,14 @@ _while47_block:
   dec b
   jmp _while47_cond
 _while47_exit:
-;; *dest = '\0'; 
+; *dest = '\0'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
   push b
   mov b, $0
   pop d
   mov [d], bl
-;; return len; 
+; return len; 
   lea d, [bp + -8] ; $len
   mov b, [d]
   leave
@@ -3165,17 +3165,17 @@ _while47_exit:
 
 print_unsigned:
   enter 0 ; (push bp; mov bp, sp)
-;; char digits[5]; 
+; char digits[5]; 
   sub sp, 5
-;; int i; 
+; int i; 
   sub sp, 2
-;; i = 0; 
+; i = 0; 
   lea d, [bp + -6] ; $i
   push d
   mov b, $0
   pop d
   mov [d], b
-;; if(num == 0){ 
+; if(num == 0){ 
 _if48_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
@@ -3190,17 +3190,17 @@ _if48_cond:
   cmp b, 0
   je _if48_exit
 _if48_true:
-;; putchar('0'); 
+; putchar('0'); 
   mov b, $30
   push bl
   call putchar
   add sp, 1
-;; return; 
+; return; 
   leave
   ret
   jmp _if48_exit
 _if48_exit:
-;; while (num > 0) { 
+; while (num > 0) { 
 _while49_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
@@ -3215,7 +3215,7 @@ _while49_cond:
   cmp b, 0
   je _while49_exit
 _while49_block:
-;; digits[i] = '0' + (num % 10); 
+; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
   push d
@@ -3245,7 +3245,7 @@ _while49_block:
 ; END TERMS
   pop d
   mov [d], bl
-;; num = num / 10; 
+; num = num / 10; 
   lea d, [bp + 5] ; $num
   push d
   lea d, [bp + 5] ; $num
@@ -3260,7 +3260,7 @@ _while49_block:
 ; END FACTORS
   pop d
   mov [d], b
-;; i++; 
+; i++; 
   lea d, [bp + -6] ; $i
   mov b, [d]
   inc b
@@ -3269,7 +3269,7 @@ _while49_block:
   dec b
   jmp _while49_cond
 _while49_exit:
-;; while (i > 0) { 
+; while (i > 0) { 
 _while50_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
@@ -3284,14 +3284,14 @@ _while50_cond:
   cmp b, 0
   je _while50_exit
 _while50_block:
-;; i--; 
+; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
   inc b
-;; putchar(digits[i]); 
+; putchar(digits[i]); 
   lea d, [bp + -4] ; $digits
   push a
   push d
@@ -3312,9 +3312,9 @@ _while50_exit:
 
 sprint_signed:
   enter 0 ; (push bp; mov bp, sp)
-;; char digits[5]; 
+; char digits[5]; 
   sub sp, 5
-;; int i = 0; 
+; int i = 0; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -6] ; $i
@@ -3323,7 +3323,7 @@ sprint_signed:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; int len = 0; 
+; int len = 0; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -8] ; $len
@@ -3332,7 +3332,7 @@ sprint_signed:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; if (num < 0) { 
+; if (num < 0) { 
 _if51_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
@@ -3347,7 +3347,7 @@ _if51_cond:
   cmp b, 0
   je _if51_else
 _if51_true:
-;; *dest++ = '-'; 
+; *dest++ = '-'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
   inc b
@@ -3358,7 +3358,7 @@ _if51_true:
   mov b, $2d
   pop d
   mov [d], bl
-;; num = -num; 
+; num = -num; 
   lea d, [bp + 7] ; $num
   push d
   lea d, [bp + 7] ; $num
@@ -3366,7 +3366,7 @@ _if51_true:
   neg b
   pop d
   mov [d], b
-;; len++; 
+; len++; 
   lea d, [bp + -8] ; $len
   mov b, [d]
   inc b
@@ -3375,7 +3375,7 @@ _if51_true:
   dec b
   jmp _if51_exit
 _if51_else:
-;; if (num == 0) { 
+; if (num == 0) { 
 _if52_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
@@ -3390,7 +3390,7 @@ _if52_cond:
   cmp b, 0
   je _if52_exit
 _if52_true:
-;; *dest++ = '0'; 
+; *dest++ = '0'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
   inc b
@@ -3401,21 +3401,21 @@ _if52_true:
   mov b, $30
   pop d
   mov [d], bl
-;; *dest = '\0'; 
+; *dest = '\0'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
   push b
   mov b, $0
   pop d
   mov [d], bl
-;; return 1; 
+; return 1; 
   mov b, $1
   leave
   ret
   jmp _if52_exit
 _if52_exit:
 _if51_exit:
-;; while (num > 0) { 
+; while (num > 0) { 
 _while53_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
@@ -3430,7 +3430,7 @@ _while53_cond:
   cmp b, 0
   je _while53_exit
 _while53_block:
-;; digits[i] = '0' + (num % 10); 
+; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
   push d
@@ -3460,7 +3460,7 @@ _while53_block:
 ; END TERMS
   pop d
   mov [d], bl
-;; num = num / 10; 
+; num = num / 10; 
   lea d, [bp + 7] ; $num
   push d
   lea d, [bp + 7] ; $num
@@ -3475,7 +3475,7 @@ _while53_block:
 ; END FACTORS
   pop d
   mov [d], b
-;; i++; 
+; i++; 
   lea d, [bp + -6] ; $i
   mov b, [d]
   inc b
@@ -3484,7 +3484,7 @@ _while53_block:
   dec b
   jmp _while53_cond
 _while53_exit:
-;; while (i > 0) { 
+; while (i > 0) { 
 _while54_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
@@ -3499,14 +3499,14 @@ _while54_cond:
   cmp b, 0
   je _while54_exit
 _while54_block:
-;; i--; 
+; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
   inc b
-;; *dest++ = digits[i]; 
+; *dest++ = digits[i]; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
   inc b
@@ -3526,7 +3526,7 @@ _while54_block:
   mov bh, 0
   pop d
   mov [d], bl
-;; len++; 
+; len++; 
   lea d, [bp + -8] ; $len
   mov b, [d]
   inc b
@@ -3535,14 +3535,14 @@ _while54_block:
   dec b
   jmp _while54_cond
 _while54_exit:
-;; *dest = '\0'; 
+; *dest = '\0'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
   push b
   mov b, $0
   pop d
   mov [d], bl
-;; return len; 
+; return len; 
   lea d, [bp + -8] ; $len
   mov b, [d]
   leave
@@ -3574,7 +3574,7 @@ putchar:
 
 getchar:
   enter 0 ; (push bp; mov bp, sp)
-;; char c; 
+; char c; 
   sub sp, 1
 
 ; --- BEGIN INLINE ASM BLOCK
@@ -3584,7 +3584,7 @@ getchar:
   mov [d], al
 ; --- END INLINE ASM BLOCK
 
-;; return c; 
+; return c; 
   lea d, [bp + 0] ; $c
   mov bl, [d]
   mov bh, 0
@@ -3593,7 +3593,7 @@ getchar:
 
 scann:
   enter 0 ; (push bp; mov bp, sp)
-;; int m; 
+; int m; 
   sub sp, 2
 
 ; --- BEGIN INLINE ASM BLOCK
@@ -3602,7 +3602,7 @@ scann:
   mov [d], a
 ; --- END INLINE ASM BLOCK
 
-;; return m; 
+; return m; 
   lea d, [bp + -1] ; $m
   mov b, [d]
   leave
@@ -3637,7 +3637,7 @@ print:
 
 getparam:
   enter 0 ; (push bp; mov bp, sp)
-;; char data; 
+; char data; 
   sub sp, 1
 
 ; --- BEGIN INLINE ASM BLOCK
@@ -3649,7 +3649,7 @@ getparam:
   mov [d], bl
 ; --- END INLINE ASM BLOCK
 
-;; return data; 
+; return data; 
   lea d, [bp + 0] ; $data
   mov bl, [d]
   mov bh, 0
@@ -3658,7 +3658,7 @@ getparam:
 
 clear:
   enter 0 ; (push bp; mov bp, sp)
-;; print("\033[2J\033[H"); 
+; print("\033[2J\033[H"); 
   mov b, _s32 ; "\033[2J\033[H"
   swp b
   push b
@@ -3669,7 +3669,7 @@ clear:
 
 abs:
   enter 0 ; (push bp; mov bp, sp)
-;; return i < 0 ? -i : i; 
+; return i < 0 ? -i : i; 
 _ternary55_cond:
   lea d, [bp + 5] ; $i
   mov b, [d]
@@ -3717,7 +3717,7 @@ include_ctype_lib:
 
 is_space:
   enter 0 ; (push bp; mov bp, sp)
-;; return c == ' ' || c == '\t' || c == '\n' || c == '\r'; 
+; return c == ' ' || c == '\t' || c == '\n' || c == '\r'; 
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
@@ -3777,7 +3777,7 @@ is_space:
 
 is_digit:
   enter 0 ; (push bp; mov bp, sp)
-;; return c >= '0' && c <= '9'; 
+; return c >= '0' && c <= '9'; 
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
@@ -3811,7 +3811,7 @@ is_digit:
 
 is_alpha:
   enter 0 ; (push bp; mov bp, sp)
-;; return(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_'); 
+; return(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_'); 
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
@@ -3892,7 +3892,7 @@ is_alpha:
 
 tolower:
   enter 0 ; (push bp; mov bp, sp)
-;; if (ch >= 'A' && ch <= 'Z')  
+; if (ch >= 'A' && ch <= 'Z')  
 _if56_cond:
   lea d, [bp + 5] ; $ch
   mov bl, [d]
@@ -3925,7 +3925,7 @@ _if56_cond:
   cmp b, 0
   je _if56_else
 _if56_true:
-;; return ch - 'A' + 'a'; 
+; return ch - 'A' + 'a'; 
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
@@ -3944,7 +3944,7 @@ _if56_true:
   ret
   jmp _if56_exit
 _if56_else:
-;; return ch; 
+; return ch; 
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
@@ -3956,7 +3956,7 @@ _if56_exit:
 
 toupper:
   enter 0 ; (push bp; mov bp, sp)
-;; if (ch >= 'a' && ch <= 'z')  
+; if (ch >= 'a' && ch <= 'z')  
 _if57_cond:
   lea d, [bp + 5] ; $ch
   mov bl, [d]
@@ -3989,7 +3989,7 @@ _if57_cond:
   cmp b, 0
   je _if57_else
 _if57_true:
-;; return ch - 'a' + 'A'; 
+; return ch - 'a' + 'A'; 
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
@@ -4008,7 +4008,7 @@ _if57_true:
   ret
   jmp _if57_exit
 _if57_else:
-;; return ch; 
+; return ch; 
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
@@ -4020,7 +4020,7 @@ _if57_exit:
 
 is_delimiter:
   enter 0 ; (push bp; mov bp, sp)
-;; if( 
+; if( 
 _if58_cond:
   lea d, [bp + 5] ; $c
   mov bl, [d]
@@ -4352,13 +4352,13 @@ _if58_cond:
   cmp b, 0
   je _if58_else
 _if58_true:
-;; return 1; 
+; return 1; 
   mov b, $1
   leave
   ret
   jmp _if58_exit
 _if58_else:
-;; return 0; 
+; return 0; 
   mov b, $0
   leave
   ret
@@ -4368,7 +4368,7 @@ _if58_exit:
 
 TO_FIXED:
   enter 0 ; (push bp; mov bp, sp)
-;; return x * 10; 
+; return x * 10; 
   lea d, [bp + 5] ; $x
   mov b, [d]
 ; START FACTORS
@@ -4385,7 +4385,7 @@ TO_FIXED:
 
 FROM_FIXED:
   enter 0 ; (push bp; mov bp, sp)
-;; return x / 10; 
+; return x / 10; 
   lea d, [bp + 5] ; $x
   mov b, [d]
 ; START FACTORS
@@ -4401,7 +4401,7 @@ FROM_FIXED:
 
 TO_FIXED00:
   enter 0 ; (push bp; mov bp, sp)
-;; return x * 100; 
+; return x * 100; 
   lea d, [bp + 5] ; $x
   mov b, [d]
 ; START FACTORS
@@ -4418,7 +4418,7 @@ TO_FIXED00:
 
 FROM_FIXED00:
   enter 0 ; (push bp; mov bp, sp)
-;; return x / 100; 
+; return x / 100; 
   lea d, [bp + 5] ; $x
   mov b, [d]
 ; START FACTORS
@@ -4434,7 +4434,7 @@ FROM_FIXED00:
 
 get_rand:
   enter 0 ; (push bp; mov bp, sp)
-;; unsigned int        r = rand(); 
+; unsigned int        r = rand(); 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -1] ; $r
@@ -4443,7 +4443,7 @@ get_rand:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; r = (r >> 8) | (r << 8); 
+; r = (r >> 8) | (r << 8); 
   lea d, [bp + -1] ; $r
   push d
   lea d, [bp + -1] ; $r
@@ -4474,7 +4474,7 @@ get_rand:
   pop a
   pop d
   mov [d], b
-;; return ((r % spread) + 1); 
+; return ((r % spread) + 1); 
   lea d, [bp + -1] ; $r
   mov b, [d]
 ; START FACTORS
@@ -4499,7 +4499,7 @@ get_rand:
 
 rand8:
   enter 0 ; (push bp; mov bp, sp)
-;; return (get_rand(8)); 
+; return (get_rand(8)); 
   mov b, $8
   swp b
   push b
@@ -4510,9 +4510,9 @@ rand8:
 
 input:
   enter 0 ; (push bp; mov bp, sp)
-;; int c; 
+; int c; 
   sub sp, 2
-;; while((c = getchar()) != '\n') { 
+; while((c = getchar()) != '\n') { 
 _while59_cond:
   lea d, [bp + -1] ; $c
   push d
@@ -4530,7 +4530,7 @@ _while59_cond:
   cmp b, 0
   je _while59_exit
 _while59_block:
-;; if (c ==   -1  ) 
+; if (c ==   -1  ) 
 _if60_cond:
   lea d, [bp + -1] ; $c
   mov b, [d]
@@ -4546,11 +4546,11 @@ _if60_cond:
   cmp b, 0
   je _if60_exit
 _if60_true:
-;; exit(); 
+; exit(); 
   call exit
   jmp _if60_exit
 _if60_exit:
-;; if (l > 1) { 
+; if (l > 1) { 
 _if61_cond:
   lea d, [bp + 7] ; $l
   mov bl, [d]
@@ -4566,7 +4566,7 @@ _if61_cond:
   cmp b, 0
   je _if61_exit
 _if61_true:
-;; *b++ = c; 
+; *b++ = c; 
   lea d, [bp + 5] ; $b
   mov b, [d]
   inc b
@@ -4578,7 +4578,7 @@ _if61_true:
   mov b, [d]
   pop d
   mov [d], bl
-;; l--; 
+; l--; 
   lea d, [bp + 7] ; $l
   mov bl, [d]
   mov bh, 0
@@ -4590,7 +4590,7 @@ _if61_true:
 _if61_exit:
   jmp _while59_cond
 _while59_exit:
-;; *b = 0; 
+; *b = 0; 
   lea d, [bp + 5] ; $b
   mov b, [d]
   push b
@@ -4602,9 +4602,9 @@ _while59_exit:
 
 yesno:
   enter 0 ; (push bp; mov bp, sp)
-;; char b[2]; 
+; char b[2]; 
   sub sp, 2
-;; input(b,2); 
+; input(b,2); 
   mov b, $2
   push bl
   lea d, [bp + -1] ; $b
@@ -4613,7 +4613,7 @@ yesno:
   push b
   call input
   add sp, 3
-;; if (tolower(*b) == 'y') 
+; if (tolower(*b) == 'y') 
 _if62_cond:
   lea d, [bp + -1] ; $b
   mov b, d
@@ -4634,26 +4634,26 @@ _if62_cond:
   cmp b, 0
   je _if62_exit
 _if62_true:
-;; return 1; 
+; return 1; 
   mov b, $1
   leave
   ret
   jmp _if62_exit
 _if62_exit:
-;; return 0; 
+; return 0; 
   mov b, $0
   leave
   ret
 
 input_f00:
   enter 0 ; (push bp; mov bp, sp)
-;; int       v; 
+; int       v; 
   sub sp, 2
-;; char buf[8]; 
+; char buf[8]; 
   sub sp, 8
-;; char *x; 
+; char *x; 
   sub sp, 2
-;; input(buf, 8); 
+; input(buf, 8); 
   mov b, $8
   push bl
   lea d, [bp + -9] ; $buf
@@ -4662,14 +4662,14 @@ input_f00:
   push b
   call input
   add sp, 3
-;; x = buf; 
+; x = buf; 
   lea d, [bp + -11] ; $x
   push d
   lea d, [bp + -9] ; $buf
   mov b, d
   pop d
   mov [d], b
-;; if (!is_digit(*x)) 
+; if (!is_digit(*x)) 
 _if63_cond:
   lea d, [bp + -11] ; $x
   mov b, [d]
@@ -4684,14 +4684,14 @@ _if63_cond:
   cmp b, 0
   je _if63_exit
 _if63_true:
-;; return -1; 
+; return -1; 
   mov b, $1
   neg b
   leave
   ret
   jmp _if63_exit
 _if63_exit:
-;; v = 100 * (*x++ - '0'); 
+; v = 100 * (*x++ - '0'); 
   lea d, [bp + -1] ; $v
   push d
   mov b, $64
@@ -4722,7 +4722,7 @@ _if63_exit:
 ; END FACTORS
   pop d
   mov [d], b
-;; if (*x == 0) 
+; if (*x == 0) 
 _if64_cond:
   lea d, [bp + -11] ; $x
   mov b, [d]
@@ -4740,14 +4740,14 @@ _if64_cond:
   cmp b, 0
   je _if64_exit
 _if64_true:
-;; return v; 
+; return v; 
   lea d, [bp + -1] ; $v
   mov b, [d]
   leave
   ret
   jmp _if64_exit
 _if64_exit:
-;; if (*x++ != '.') 
+; if (*x++ != '.') 
 _if65_cond:
   lea d, [bp + -11] ; $x
   mov b, [d]
@@ -4769,14 +4769,14 @@ _if65_cond:
   cmp b, 0
   je _if65_exit
 _if65_true:
-;; return -1; 
+; return -1; 
   mov b, $1
   neg b
   leave
   ret
   jmp _if65_exit
 _if65_exit:
-;; if (!is_digit(*x)) 
+; if (!is_digit(*x)) 
 _if66_cond:
   lea d, [bp + -11] ; $x
   mov b, [d]
@@ -4791,14 +4791,14 @@ _if66_cond:
   cmp b, 0
   je _if66_exit
 _if66_true:
-;; return -1; 
+; return -1; 
   mov b, $1
   neg b
   leave
   ret
   jmp _if66_exit
 _if66_exit:
-;; v = v + 10 * (*x++ - '0'); 
+; v = v + 10 * (*x++ - '0'); 
   lea d, [bp + -1] ; $v
   push d
   lea d, [bp + -1] ; $v
@@ -4837,7 +4837,7 @@ _if66_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; if (!*x) 
+; if (!*x) 
 _if67_cond:
   lea d, [bp + -11] ; $x
   mov b, [d]
@@ -4849,14 +4849,14 @@ _if67_cond:
   cmp b, 0
   je _if67_exit
 _if67_true:
-;; return v; 
+; return v; 
   lea d, [bp + -1] ; $v
   mov b, [d]
   leave
   ret
   jmp _if67_exit
 _if67_exit:
-;; if (!is_digit(*x)) 
+; if (!is_digit(*x)) 
 _if68_cond:
   lea d, [bp + -11] ; $x
   mov b, [d]
@@ -4871,14 +4871,14 @@ _if68_cond:
   cmp b, 0
   je _if68_exit
 _if68_true:
-;; return -1; 
+; return -1; 
   mov b, $1
   neg b
   leave
   ret
   jmp _if68_exit
 _if68_exit:
-;; v = v + *x++ - '0'; 
+; v = v + *x++ - '0'; 
   lea d, [bp + -1] ; $v
   push d
   lea d, [bp + -1] ; $v
@@ -4904,7 +4904,7 @@ _if68_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; return v; 
+; return v; 
   lea d, [bp + -1] ; $v
   mov b, [d]
   leave
@@ -4912,9 +4912,9 @@ _if68_exit:
 
 input_int:
   enter 0 ; (push bp; mov bp, sp)
-;; char x[8]; 
+; char x[8]; 
   sub sp, 8
-;; input(x, 8); 
+; input(x, 8); 
   mov b, $8
   push bl
   lea d, [bp + -7] ; $x
@@ -4923,7 +4923,7 @@ input_int:
   push b
   call input
   add sp, 3
-;; if (!is_digit(*x)) 
+; if (!is_digit(*x)) 
 _if69_cond:
   lea d, [bp + -7] ; $x
   mov b, d
@@ -4938,14 +4938,14 @@ _if69_cond:
   cmp b, 0
   je _if69_exit
 _if69_true:
-;; return -1; 
+; return -1; 
   mov b, $1
   neg b
   leave
   ret
   jmp _if69_exit
 _if69_exit:
-;; return atoi(x); 
+; return atoi(x); 
   lea d, [bp + -7] ; $x
   mov b, d
   swp b
@@ -4957,9 +4957,9 @@ _if69_exit:
 
 print100:
   enter 0 ; (push bp; mov bp, sp)
-;; static char buf[16]; 
+; static char buf[16]; 
   sub sp, 16
-;; char *p = buf; 
+; char *p = buf; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -1] ; $p
@@ -4969,7 +4969,7 @@ print100:
   pop d
   mov [d], bl
 ; --- END LOCAL VAR INITIALIZATION
-;; if (v < 0) { 
+; if (v < 0) { 
 _if70_cond:
   lea d, [bp + 5] ; $v
   mov b, [d]
@@ -4984,7 +4984,7 @@ _if70_cond:
   cmp b, 0
   je _if70_exit
 _if70_true:
-;; v = -v; 
+; v = -v; 
   lea d, [bp + 5] ; $v
   push d
   lea d, [bp + 5] ; $v
@@ -4992,7 +4992,7 @@ _if70_true:
   neg b
   pop d
   mov [d], b
-;; *p++ = '-'; 
+; *p++ = '-'; 
   lea d, [bp + -1] ; $p
   mov b, [d]
   inc b
@@ -5005,7 +5005,7 @@ _if70_true:
   mov [d], bl
   jmp _if70_exit
 _if70_exit:
-;; p = p + sprintf(p, "%d.%d", v / 100, v%100); 
+; p = p + sprintf(p, "%d.%d", v / 100, v%100); 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -5052,7 +5052,7 @@ _if70_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; return buf; 
+; return buf; 
   mov d, st_print100_buf_dt ; static buf
   mov b, d
   leave
@@ -5060,7 +5060,7 @@ _if70_exit:
 
 inoperable:
   enter 0 ; (push bp; mov bp, sp)
-;; if (damage[u] < 0) { 
+; if (damage[u] < 0) { 
 _if71_cond:
   mov d, _damage_data ; $damage
   push a
@@ -5083,7 +5083,7 @@ _if71_cond:
   cmp b, 0
   je _if71_exit
 _if71_true:
-;; printf("%s %s inoperable.\n", 
+; printf("%s %s inoperable.\n", 
 _ternary73_cond:
   lea d, [bp + 5] ; $u
   mov bl, [d]
@@ -5120,32 +5120,32 @@ _ternary73_exit:
   push b
   call printf
   add sp, 6
-;; return 1; 
+; return 1; 
   mov b, $1
   leave
   ret
   jmp _if71_exit
 _if71_exit:
-;; return 0; 
+; return 0; 
   mov b, $0
   leave
   ret
 
 intro:
   enter 0 ; (push bp; mov bp, sp)
-;; showfile("startrek.intro"); 
+; showfile("startrek.intro"); 
   mov b, _s37 ; "startrek.intro"
   swp b
   push b
   call showfile
   add sp, 2
-;; if (yesno()) 
+; if (yesno()) 
 _if74_cond:
   call yesno
   cmp b, 0
   je _if74_exit
 _if74_true:
-;; showfile("startrek.doc"); 
+; showfile("startrek.doc"); 
   mov b, _s38 ; "startrek.doc"
   swp b
   push b
@@ -5153,13 +5153,13 @@ _if74_true:
   add sp, 2
   jmp _if74_exit
 _if74_exit:
-;; showfile("startrek.logo"); 
+; showfile("startrek.logo"); 
   mov b, _s39 ; "startrek.logo"
   swp b
   push b
   call showfile
   add sp, 2
-;; stardate = TO_FIXED((get_rand(20) + 20) * 100); 
+; stardate = TO_FIXED((get_rand(20) + 20) * 100); 
   mov d, _stardate ; $stardate
   push d
   mov b, $14
@@ -5194,21 +5194,21 @@ _if74_exit:
 
 new_game:
   enter 0 ; (push bp; mov bp, sp)
-;; char cmd[4]; 
+; char cmd[4]; 
   sub sp, 4
-;; initialize(); 
+; initialize(); 
   call initialize
-;; new_quadrant(); 
+; new_quadrant(); 
   call new_quadrant
-;; short_range_scan(); 
+; short_range_scan(); 
   call short_range_scan
-;; while (1) { 
+; while (1) { 
 _while75_cond:
   mov b, $1
   cmp b, 0
   je _while75_exit
 _while75_block:
-;; if (shield + energy <= 10 && (energy < 10 || damage[7] < 0)) { 
+; if (shield + energy <= 10 && (energy < 10 || damage[7] < 0)) { 
 _if76_cond:
   mov d, _shield ; $shield
   mov b, [d]
@@ -5269,23 +5269,23 @@ _if76_cond:
   cmp b, 0
   je _if76_exit
 _if76_true:
-;; showfile("startrek.fatal"); 
+; showfile("startrek.fatal"); 
   mov b, _s40 ; "startrek.fatal"
   swp b
   push b
   call showfile
   add sp, 2
-;; end_of_time(); 
+; end_of_time(); 
   call end_of_time
   jmp _if76_exit
 _if76_exit:
-;; puts("Command? "); 
+; puts("Command? "); 
   mov b, _s41 ; "Command? "
   swp b
   push b
   call puts
   add sp, 2
-;; input(cmd, 4); 
+; input(cmd, 4); 
   mov b, $4
   push bl
   lea d, [bp + -3] ; $cmd
@@ -5294,12 +5294,12 @@ _if76_exit:
   push b
   call input
   add sp, 3
-;; putchar('\n'); 
+; putchar('\n'); 
   mov b, $a
   push bl
   call putchar
   add sp, 1
-;; if (!strncmp(cmd, "nav", 3)) 
+; if (!strncmp(cmd, "nav", 3)) 
 _if77_cond:
   mov b, $3
   swp b
@@ -5318,11 +5318,11 @@ _if77_cond:
   cmp b, 0
   je _if77_else
 _if77_true:
-;; course_control(); 
+; course_control(); 
   call course_control
   jmp _if77_exit
 _if77_else:
-;; if (!strncmp(cmd, "srs", 3)) 
+; if (!strncmp(cmd, "srs", 3)) 
 _if78_cond:
   mov b, $3
   swp b
@@ -5341,11 +5341,11 @@ _if78_cond:
   cmp b, 0
   je _if78_else
 _if78_true:
-;; short_range_scan(); 
+; short_range_scan(); 
   call short_range_scan
   jmp _if78_exit
 _if78_else:
-;; if (!strncmp(cmd, "lrs", 3)) 
+; if (!strncmp(cmd, "lrs", 3)) 
 _if79_cond:
   mov b, $3
   swp b
@@ -5364,11 +5364,11 @@ _if79_cond:
   cmp b, 0
   je _if79_else
 _if79_true:
-;; long_range_scan(); 
+; long_range_scan(); 
   call long_range_scan
   jmp _if79_exit
 _if79_else:
-;; if (!strncmp(cmd, "pha", 3)) 
+; if (!strncmp(cmd, "pha", 3)) 
 _if80_cond:
   mov b, $3
   swp b
@@ -5387,11 +5387,11 @@ _if80_cond:
   cmp b, 0
   je _if80_else
 _if80_true:
-;; phaser_control(); 
+; phaser_control(); 
   call phaser_control
   jmp _if80_exit
 _if80_else:
-;; if (!strncmp(cmd, "tor", 3)) 
+; if (!strncmp(cmd, "tor", 3)) 
 _if81_cond:
   mov b, $3
   swp b
@@ -5410,11 +5410,11 @@ _if81_cond:
   cmp b, 0
   je _if81_else
 _if81_true:
-;; photon_torpedoes(); 
+; photon_torpedoes(); 
   call photon_torpedoes
   jmp _if81_exit
 _if81_else:
-;; if (!strncmp(cmd, "shi", 3)) 
+; if (!strncmp(cmd, "shi", 3)) 
 _if82_cond:
   mov b, $3
   swp b
@@ -5433,11 +5433,11 @@ _if82_cond:
   cmp b, 0
   je _if82_else
 _if82_true:
-;; shield_control(); 
+; shield_control(); 
   call shield_control
   jmp _if82_exit
 _if82_else:
-;; if (!strncmp(cmd, "dam", 3)) 
+; if (!strncmp(cmd, "dam", 3)) 
 _if83_cond:
   mov b, $3
   swp b
@@ -5456,11 +5456,11 @@ _if83_cond:
   cmp b, 0
   je _if83_else
 _if83_true:
-;; damage_control(); 
+; damage_control(); 
   call damage_control
   jmp _if83_exit
 _if83_else:
-;; if (!strncmp(cmd, "com", 3)) 
+; if (!strncmp(cmd, "com", 3)) 
 _if84_cond:
   mov b, $3
   swp b
@@ -5479,11 +5479,11 @@ _if84_cond:
   cmp b, 0
   je _if84_else
 _if84_true:
-;; library_computer(); 
+; library_computer(); 
   call library_computer
   jmp _if84_exit
 _if84_else:
-;; if (!strncmp(cmd, "xxx", 3)) 
+; if (!strncmp(cmd, "xxx", 3)) 
 _if85_cond:
   mov b, $3
   swp b
@@ -5502,65 +5502,65 @@ _if85_cond:
   cmp b, 0
   je _if85_else
 _if85_true:
-;; resign_commision(); 
+; resign_commision(); 
   call resign_commision
   jmp _if85_exit
 _if85_else:
-;; puts("Enter one of the following:\n"); 
+; puts("Enter one of the following:\n"); 
   mov b, _s51 ; "Enter one of the following:\n"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("  nav - To Set Course"); 
+; puts("  nav - To Set Course"); 
   mov b, _s52 ; "  nav - To Set Course"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("  srs - Short Range Sensors"); 
+; puts("  srs - Short Range Sensors"); 
   mov b, _s53 ; "  srs - Short Range Sensors"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("  lrs - Long Range Sensors"); 
+; puts("  lrs - Long Range Sensors"); 
   mov b, _s54 ; "  lrs - Long Range Sensors"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("  pha - Phasers"); 
+; puts("  pha - Phasers"); 
   mov b, _s55 ; "  pha - Phasers"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("  tor - Photon Torpedoes"); 
+; puts("  tor - Photon Torpedoes"); 
   mov b, _s56 ; "  tor - Photon Torpedoes"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("  shi - Shield Control"); 
+; puts("  shi - Shield Control"); 
   mov b, _s57 ; "  shi - Shield Control"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("  dam - Damage Control"); 
+; puts("  dam - Damage Control"); 
   mov b, _s58 ; "  dam - Damage Control"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("  com - Library Computer"); 
+; puts("  com - Library Computer"); 
   mov b, _s59 ; "  com - Library Computer"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("  xxx - Resign Command\n"); 
+; puts("  xxx - Resign Command\n"); 
   mov b, _s60 ; "  xxx - Resign Command\n"
   swp b
   push b
@@ -5582,15 +5582,15 @@ _while75_exit:
 
 initialize:
   enter 0 ; (push bp; mov bp, sp)
-;; int i, j; 
+; int i, j; 
   sub sp, 2
   sub sp, 2
-;; unsigned char                         yp, xp; 
+; unsigned char                         yp, xp; 
   sub sp, 1
   sub sp, 1
-;; unsigned char                         r; 
+; unsigned char                         r; 
   sub sp, 1
-;; time_start = FROM_FIXED(stardate); 
+; time_start = FROM_FIXED(stardate); 
   mov d, _time_start ; $time_start
   push d
   mov d, _stardate ; $stardate
@@ -5601,7 +5601,7 @@ initialize:
   add sp, 2
   pop d
   mov [d], b
-;; time_up = 25 + get_rand(10); 
+; time_up = 25 + get_rand(10); 
   mov d, _time_up ; $time_up
   push d
   mov b, $19
@@ -5618,20 +5618,20 @@ initialize:
 ; END TERMS
   pop d
   mov [d], b
-;; docked = 0; 
+; docked = 0; 
   mov d, _docked ; $docked
   push d
   mov b, $0
   pop d
   mov [d], bl
-;; energy = energy0; 
+; energy = energy0; 
   mov d, _energy ; $energy
   push d
   mov d, _energy0 ; $energy0
   mov b, [d]
   pop d
   mov [d], b
-;; torps = torps0; 
+; torps = torps0; 
   mov d, _torps ; $torps
   push d
   mov d, _torps0 ; $torps0
@@ -5639,25 +5639,25 @@ initialize:
   mov bh, 0
   pop d
   mov [d], bl
-;; shield = 0; 
+; shield = 0; 
   mov d, _shield ; $shield
   push d
   mov b, $0
   pop d
   mov [d], b
-;; quad_y = rand8(); 
+; quad_y = rand8(); 
   mov d, _quad_y ; $quad_y
   push d
   call rand8
   pop d
   mov [d], b
-;; quad_x = rand8(); 
+; quad_x = rand8(); 
   mov d, _quad_x ; $quad_x
   push d
   call rand8
   pop d
   mov [d], b
-;; ship_y = TO_FIXED00(rand8()); 
+; ship_y = TO_FIXED00(rand8()); 
   mov d, _ship_y ; $ship_y
   push d
   call rand8
@@ -5667,7 +5667,7 @@ initialize:
   add sp, 2
   pop d
   mov [d], b
-;; ship_x = TO_FIXED00(rand8()); 
+; ship_x = TO_FIXED00(rand8()); 
   mov d, _ship_x ; $ship_x
   push d
   call rand8
@@ -5677,7 +5677,7 @@ initialize:
   add sp, 2
   pop d
   mov [d], b
-;; for (i = 1; i <= 8; i++) 
+; for (i = 1; i <= 8; i++) 
 _for86_init:
   lea d, [bp + -1] ; $i
   push d
@@ -5698,7 +5698,7 @@ _for86_cond:
   cmp b, 0
   je _for86_exit
 _for86_block:
-;; damage[i] = 0; 
+; damage[i] = 0; 
   mov d, _damage_data ; $damage
   push a
   push d
@@ -5720,7 +5720,7 @@ _for86_update:
   dec b
   jmp _for86_cond
 _for86_exit:
-;; for (i = 1; i <= 8; i++) { 
+; for (i = 1; i <= 8; i++) { 
 _for87_init:
   lea d, [bp + -1] ; $i
   push d
@@ -5741,7 +5741,7 @@ _for87_cond:
   cmp b, 0
   je _for87_exit
 _for87_block:
-;; for (j = 1; j <= 8; j++) { 
+; for (j = 1; j <= 8; j++) { 
 _for88_init:
   lea d, [bp + -3] ; $j
   push d
@@ -5762,7 +5762,7 @@ _for88_cond:
   cmp b, 0
   je _for88_exit
 _for88_block:
-;; r = get_rand(100); 
+; r = get_rand(100); 
   lea d, [bp + -6] ; $r
   push d
   mov b, $64
@@ -5772,13 +5772,13 @@ _for88_block:
   add sp, 2
   pop d
   mov [d], bl
-;; klingons = 0; 
+; klingons = 0; 
   mov d, _klingons ; $klingons
   push d
   mov b, $0
   pop d
   mov [d], bl
-;; if (r > 98) 
+; if (r > 98) 
 _if89_cond:
   lea d, [bp + -6] ; $r
   mov bl, [d]
@@ -5794,7 +5794,7 @@ _if89_cond:
   cmp b, 0
   je _if89_else
 _if89_true:
-;; klingons = 3; 
+; klingons = 3; 
   mov d, _klingons ; $klingons
   push d
   mov b, $3
@@ -5802,7 +5802,7 @@ _if89_true:
   mov [d], bl
   jmp _if89_exit
 _if89_else:
-;; if (r > 95) 
+; if (r > 95) 
 _if90_cond:
   lea d, [bp + -6] ; $r
   mov bl, [d]
@@ -5818,7 +5818,7 @@ _if90_cond:
   cmp b, 0
   je _if90_else
 _if90_true:
-;; klingons = 2; 
+; klingons = 2; 
   mov d, _klingons ; $klingons
   push d
   mov b, $2
@@ -5826,7 +5826,7 @@ _if90_true:
   mov [d], bl
   jmp _if90_exit
 _if90_else:
-;; if (r > 80) 
+; if (r > 80) 
 _if91_cond:
   lea d, [bp + -6] ; $r
   mov bl, [d]
@@ -5842,7 +5842,7 @@ _if91_cond:
   cmp b, 0
   je _if91_exit
 _if91_true:
-;; klingons = 1; 
+; klingons = 1; 
   mov d, _klingons ; $klingons
   push d
   mov b, $1
@@ -5852,7 +5852,7 @@ _if91_true:
 _if91_exit:
 _if90_exit:
 _if89_exit:
-;; klingons_left = klingons_left + klingons; 
+; klingons_left = klingons_left + klingons; 
   mov d, _klingons_left ; $klingons_left
   push d
   mov d, _klingons_left ; $klingons_left
@@ -5869,13 +5869,13 @@ _if89_exit:
 ; END TERMS
   pop d
   mov [d], bl
-;; starbases = 0; 
+; starbases = 0; 
   mov d, _starbases ; $starbases
   push d
   mov b, $0
   pop d
   mov [d], bl
-;; if (get_rand(100) > 96) 
+; if (get_rand(100) > 96) 
 _if92_cond:
   mov b, $64
   swp b
@@ -5893,7 +5893,7 @@ _if92_cond:
   cmp b, 0
   je _if92_exit
 _if92_true:
-;; starbases = 1; 
+; starbases = 1; 
   mov d, _starbases ; $starbases
   push d
   mov b, $1
@@ -5901,7 +5901,7 @@ _if92_true:
   mov [d], bl
   jmp _if92_exit
 _if92_exit:
-;; starbases_left = starbases_left + starbases; 
+; starbases_left = starbases_left + starbases; 
   mov d, _starbases_left ; $starbases_left
   push d
   mov d, _starbases_left ; $starbases_left
@@ -5918,7 +5918,7 @@ _if92_exit:
 ; END TERMS
   pop d
   mov [d], bl
-;; map[i][j] = (klingons << 8) + (starbases << 4) + rand8(); 
+; map[i][j] = (klingons << 8) + (starbases << 4) + rand8(); 
   mov d, _map_data ; $map
   push a
   push d
@@ -5986,7 +5986,7 @@ _for87_update:
   dec b
   jmp _for87_cond
 _for87_exit:
-;; if (klingons_left > time_up) 
+; if (klingons_left > time_up) 
 _if93_cond:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
@@ -6003,7 +6003,7 @@ _if93_cond:
   cmp b, 0
   je _if93_exit
 _if93_true:
-;; time_up = klingons_left + 1; 
+; time_up = klingons_left + 1; 
   mov d, _time_up ; $time_up
   push d
   mov d, _klingons_left ; $klingons_left
@@ -6020,7 +6020,7 @@ _if93_true:
   mov [d], b
   jmp _if93_exit
 _if93_exit:
-;; if (starbases_left == 0) { 
+; if (starbases_left == 0) { 
 _if94_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
@@ -6036,19 +6036,19 @@ _if94_cond:
   cmp b, 0
   je _if94_exit
 _if94_true:
-;; yp = rand8(); 
+; yp = rand8(); 
   lea d, [bp + -4] ; $yp
   push d
   call rand8
   pop d
   mov [d], bl
-;; xp = rand8(); 
+; xp = rand8(); 
   lea d, [bp + -5] ; $xp
   push d
   call rand8
   pop d
   mov [d], bl
-;; if (map[yp][xp] < 0x200) { 
+; if (map[yp][xp] < 0x200) { 
 _if95_cond:
   mov d, _map_data ; $map
   push a
@@ -6077,7 +6077,7 @@ _if95_cond:
   cmp b, 0
   je _if95_exit
 _if95_true:
-;; map[yp][xp] = map[yp][xp] + (1 << 8); 
+; map[yp][xp] = map[yp][xp] + (1 << 8); 
   mov d, _map_data ; $map
   push a
   push d
@@ -6128,7 +6128,7 @@ _if95_true:
 ; END TERMS
   pop d
   mov [d], b
-;; klingons_left++; 
+; klingons_left++; 
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
@@ -6138,7 +6138,7 @@ _if95_true:
   dec b
   jmp _if95_exit
 _if95_exit:
-;; map[yp][xp] = map[yp][xp] + (1 << 4); 
+; map[yp][xp] = map[yp][xp] + (1 << 4); 
   mov d, _map_data ; $map
   push a
   push d
@@ -6189,7 +6189,7 @@ _if95_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; starbases_left++; 
+; starbases_left++; 
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
@@ -6199,7 +6199,7 @@ _if95_exit:
   dec b
   jmp _if94_exit
 _if94_exit:
-;; total_klingons = klingons_left; 
+; total_klingons = klingons_left; 
   mov d, _total_klingons ; $total_klingons
   push d
   mov d, _klingons_left ; $klingons_left
@@ -6207,7 +6207,7 @@ _if94_exit:
   mov bh, 0
   pop d
   mov [d], bl
-;; if (starbases_left != 1) { 
+; if (starbases_left != 1) { 
 _if96_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
@@ -6223,7 +6223,7 @@ _if96_cond:
   cmp b, 0
   je _if96_exit
 _if96_true:
-;; strcpy(plural_2, "s"); 
+; strcpy(plural_2, "s"); 
   mov b, _s61 ; "s"
   swp b
   push b
@@ -6233,7 +6233,7 @@ _if96_true:
   push b
   call strcpy
   add sp, 4
-;; strcpy(plural, "are"); 
+; strcpy(plural, "are"); 
   mov b, _s34 ; "are"
   swp b
   push b
@@ -6245,7 +6245,7 @@ _if96_true:
   add sp, 4
   jmp _if96_exit
 _if96_exit:
-;; printf("Your orders are as follows:\nDestroy the %d Klingon warships which have",klingons_left); 
+; printf("Your orders are as follows:\nDestroy the %d Klingon warships which have",klingons_left); 
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
@@ -6255,13 +6255,13 @@ _if96_exit:
   push b
   call printf
   add sp, 3
-;; printf("invaded\n the galaxy before they can attack Federation Headquarters\n"); 
+; printf("invaded\n the galaxy before they can attack Federation Headquarters\n"); 
   mov b, _s63 ; "invaded\n the galaxy before they can attack Federation Headquarters\n"
   swp b
   push b
   call printf
   add sp, 2
-;; printf(" on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy",  
+; printf(" on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy",  
   mov d, _plural_2_data ; $plural_2
   mov b, d
   swp b
@@ -6295,20 +6295,20 @@ _if96_exit:
   push b
   call printf
   add sp, 11
-;; printf(" for resupplying your ship.\n\n Hit any key to accept command. "); 
+; printf(" for resupplying your ship.\n\n Hit any key to accept command. "); 
   mov b, _s65 ; " for resupplying your ship.\n\n Hit any key to accept command. "
   swp b
   push b
   call printf
   add sp, 2
-;; getchar(); 
+; getchar(); 
   call getchar
   leave
   ret
 
 place_ship:
   enter 0 ; (push bp; mov bp, sp)
-;; quad[FROM_FIXED00(ship_y) - 1][FROM_FIXED00(ship_x) - 1] =  		4     ; 
+; quad[FROM_FIXED00(ship_y) - 1][FROM_FIXED00(ship_x) - 1] =  		4     ; 
   mov d, _quad_data ; $quad
   push a
   push d
@@ -6355,38 +6355,38 @@ place_ship:
 
 new_quadrant:
   enter 0 ; (push bp; mov bp, sp)
-;; int i; 
+; int i; 
   sub sp, 2
-;; unsigned int        tmp; 
+; unsigned int        tmp; 
   sub sp, 2
-;; struct klingon *k; 
+; struct klingon *k; 
   sub sp, 2
-;; k = &kdata; 
+; k = &kdata; 
   lea d, [bp + -5] ; $k
   push d
   mov d, _kdata_data ; $kdata
   mov b, d
   pop d
   mov [d], b
-;; klingons = 0; 
+; klingons = 0; 
   mov d, _klingons ; $klingons
   push d
   mov b, $0
   pop d
   mov [d], bl
-;; starbases = 0; 
+; starbases = 0; 
   mov d, _starbases ; $starbases
   push d
   mov b, $0
   pop d
   mov [d], bl
-;; stars = 0; 
+; stars = 0; 
   mov d, _stars ; $stars
   push d
   mov b, $0
   pop d
   mov [d], bl
-;; d4 = get_rand(50) - 1; 
+; d4 = get_rand(50) - 1; 
   mov d, _d4 ; $d4
   push d
   mov b, $32
@@ -6404,7 +6404,7 @@ new_quadrant:
 ; END TERMS
   pop d
   mov [d], b
-;; map[quad_y][quad_x] = map[quad_y][quad_x] |   0x1000		/* Set if this sector was mapped */          ; 
+; map[quad_y][quad_x] = map[quad_y][quad_x] |   0x1000		/* Set if this sector was mapped */          ; 
   mov d, _map_data ; $map
   push a
   push d
@@ -6440,7 +6440,7 @@ new_quadrant:
   pop a
   pop d
   mov [d], b
-;; if (quad_y >= 1 && quad_y <= 8 && quad_x >= 1 && quad_x <= 8) { 
+; if (quad_y >= 1 && quad_y <= 8 && quad_x >= 1 && quad_x <= 8) { 
 _if97_cond:
   mov d, _quad_y ; $quad_y
   mov b, [d]
@@ -6495,7 +6495,7 @@ _if97_cond:
   cmp b, 0
   je _if97_exit
 _if97_true:
-;; quadrant_name(0, quad_y, quad_x); 
+; quadrant_name(0, quad_y, quad_x); 
   mov d, _quad_x ; $quad_x
   mov b, [d]
   push bl
@@ -6506,7 +6506,7 @@ _if97_true:
   push bl
   call quadrant_name
   add sp, 3
-;; if (TO_FIXED(time_start) != stardate) 
+; if (TO_FIXED(time_start) != stardate) 
 _if98_cond:
   mov d, _time_start ; $time_start
   mov b, [d]
@@ -6526,7 +6526,7 @@ _if98_cond:
   cmp b, 0
   je _if98_else
 _if98_true:
-;; printf("Now entering %s quadrant...\n\n", quadname); 
+; printf("Now entering %s quadrant...\n\n", quadname); 
   mov d, _quadname_data ; $quadname
   mov b, d
   swp b
@@ -6538,13 +6538,13 @@ _if98_true:
   add sp, 4
   jmp _if98_exit
 _if98_else:
-;; puts("\nYour mission begins with your starship located"); 
+; puts("\nYour mission begins with your starship located"); 
   mov b, _s67 ; "\nYour mission begins with your starship located"
   swp b
   push b
   call puts
   add sp, 2
-;; printf("in the galactic quadrant %s.\n\n", quadname); 
+; printf("in the galactic quadrant %s.\n\n", quadname); 
   mov d, _quadname_data ; $quadname
   mov b, d
   swp b
@@ -6557,7 +6557,7 @@ _if98_else:
 _if98_exit:
   jmp _if97_exit
 _if97_exit:
-;; tmp = map[quad_y][quad_x]; 
+; tmp = map[quad_y][quad_x]; 
   lea d, [bp + -3] ; $tmp
   push d
   mov d, _map_data ; $map
@@ -6576,7 +6576,7 @@ _if97_exit:
   mov b, [d]
   pop d
   mov [d], b
-;; klingons = (tmp >> 8) & 0x0F; 
+; klingons = (tmp >> 8) & 0x0F; 
   mov d, _klingons ; $klingons
   push d
   lea d, [bp + -3] ; $tmp
@@ -6597,7 +6597,7 @@ _if97_exit:
   pop a
   pop d
   mov [d], bl
-;; starbases = (tmp >> 4) & 0x0F; 
+; starbases = (tmp >> 4) & 0x0F; 
   mov d, _starbases ; $starbases
   push d
   lea d, [bp + -3] ; $tmp
@@ -6618,7 +6618,7 @@ _if97_exit:
   pop a
   pop d
   mov [d], bl
-;; stars = tmp & 0x0F; 
+; stars = tmp & 0x0F; 
   mov d, _stars ; $stars
   push d
   lea d, [bp + -3] ; $tmp
@@ -6630,7 +6630,7 @@ _if97_exit:
   pop a
   pop d
   mov [d], bl
-;; if (klingons > 0) { 
+; if (klingons > 0) { 
 _if99_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
@@ -6646,13 +6646,13 @@ _if99_cond:
   cmp b, 0
   je _if99_exit
 _if99_true:
-;; printf("Combat Area  Condition Red\n"); 
+; printf("Combat Area  Condition Red\n"); 
   mov b, _s69 ; "Combat Area  Condition Red\n"
   swp b
   push b
   call printf
   add sp, 2
-;; if (shield < 200) 
+; if (shield < 200) 
 _if100_cond:
   mov d, _shield ; $shield
   mov b, [d]
@@ -6667,7 +6667,7 @@ _if100_cond:
   cmp b, 0
   je _if100_exit
 _if100_true:
-;; printf("Shields Dangerously Low\n"); 
+; printf("Shields Dangerously Low\n"); 
   mov b, _s70 ; "Shields Dangerously Low\n"
   swp b
   push b
@@ -6677,7 +6677,7 @@ _if100_true:
 _if100_exit:
   jmp _if99_exit
 _if99_exit:
-;; for (i = 1; i <= 3; i++) { 
+; for (i = 1; i <= 3; i++) { 
 _for101_init:
   lea d, [bp + -1] ; $i
   push d
@@ -6698,7 +6698,7 @@ _for101_cond:
   cmp b, 0
   je _for101_exit
 _for101_block:
-;; k->y = 0; 
+; k->y = 0; 
   lea d, [bp + -5] ; $k
   mov d, [d]
   add d, 0
@@ -6706,7 +6706,7 @@ _for101_block:
   mov b, $0
   pop d
   mov [d], bl
-;; k->x = 0; 
+; k->x = 0; 
   lea d, [bp + -5] ; $k
   mov d, [d]
   add d, 1
@@ -6714,7 +6714,7 @@ _for101_block:
   mov b, $0
   pop d
   mov [d], bl
-;; k->energy = 0; 
+; k->energy = 0; 
   lea d, [bp + -5] ; $k
   mov d, [d]
   add d, 2
@@ -6722,7 +6722,7 @@ _for101_block:
   mov b, $0
   pop d
   mov [d], b
-;; k++; 
+; k++; 
   lea d, [bp + -5] ; $k
   mov b, [d]
   inc b
@@ -6740,7 +6740,7 @@ _for101_update:
   dec b
   jmp _for101_cond
 _for101_exit:
-;; memset(quad,  		0      , 64); 
+; memset(quad,  		0      , 64); 
   mov b, $40
   swp b
   push b
@@ -6752,9 +6752,9 @@ _for101_exit:
   push b
   call memset
   add sp, 5
-;; place_ship(); 
+; place_ship(); 
   call place_ship
-;; if (klingons > 0) { 
+; if (klingons > 0) { 
 _if102_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
@@ -6770,14 +6770,14 @@ _if102_cond:
   cmp b, 0
   je _if102_exit
 _if102_true:
-;; k = kdata; 
+; k = kdata; 
   lea d, [bp + -5] ; $k
   push d
   mov d, _kdata_data ; $kdata
   mov b, d
   pop d
   mov [d], b
-;; for (i = 0; i < klingons; i++) { 
+; for (i = 0; i < klingons; i++) { 
 _for103_init:
   lea d, [bp + -1] ; $i
   push d
@@ -6800,7 +6800,7 @@ _for103_cond:
   cmp b, 0
   je _for103_exit
 _for103_block:
-;; find_set_empty_place( 	3        , &k->y, &k->x); 
+; find_set_empty_place( 	3        , &k->y, &k->x); 
   lea d, [bp + -5] ; $k
   mov d, [d]
   add d, 1
@@ -6817,7 +6817,7 @@ _for103_block:
   push bl
   call find_set_empty_place
   add sp, 5
-;; k->energy = 100 + get_rand(200); 
+; k->energy = 100 + get_rand(200); 
   lea d, [bp + -5] ; $k
   mov d, [d]
   add d, 2
@@ -6836,7 +6836,7 @@ _for103_block:
 ; END TERMS
   pop d
   mov [d], b
-;; k++; 
+; k++; 
   lea d, [bp + -5] ; $k
   mov b, [d]
   inc b
@@ -6856,7 +6856,7 @@ _for103_update:
 _for103_exit:
   jmp _if102_exit
 _if102_exit:
-;; if (starbases > 0) 
+; if (starbases > 0) 
 _if104_cond:
   mov d, _starbases ; $starbases
   mov bl, [d]
@@ -6872,7 +6872,7 @@ _if104_cond:
   cmp b, 0
   je _if104_exit
 _if104_true:
-;; find_set_empty_place( 		2     , &base_y, &base_x); 
+; find_set_empty_place( 		2     , &base_y, &base_x); 
   mov d, _base_x ; $base_x
   mov b, d
   swp b
@@ -6887,7 +6887,7 @@ _if104_true:
   add sp, 5
   jmp _if104_exit
 _if104_exit:
-;; for (i = 1; i <= stars; i++) 
+; for (i = 1; i <= stars; i++) 
 _for105_init:
   lea d, [bp + -1] ; $i
   push d
@@ -6910,7 +6910,7 @@ _for105_cond:
   cmp b, 0
   je _for105_exit
 _for105_block:
-;; find_set_empty_place( 		1     ,   0   ,   0   ); 
+; find_set_empty_place( 		1     ,   0   ,   0   ); 
   mov b, $0
   swp b
   push b
@@ -6935,28 +6935,28 @@ _for105_exit:
 
 course_control:
   enter 0 ; (push bp; mov bp, sp)
-;; int i; 
+; int i; 
   sub sp, 2
-;; int       c1; 
+; int       c1; 
   sub sp, 2
-;; int       warp; 
+; int       warp; 
   sub sp, 2
-;; unsigned int        n; 
+; unsigned int        n; 
   sub sp, 2
-;; int c2, c3, c4; 
-  sub sp, 2
-  sub sp, 2
-  sub sp, 2
-;; int       z1, z2; 
+; int c2, c3, c4; 
   sub sp, 2
   sub sp, 2
-;; int       x1, x2; 
+  sub sp, 2
+; int       z1, z2; 
   sub sp, 2
   sub sp, 2
-;; int       x, y; 
+; int       x1, x2; 
   sub sp, 2
   sub sp, 2
-;; unsigned char                         outside = 0;		/* Outside galaxy flag */ 
+; int       x, y; 
+  sub sp, 2
+  sub sp, 2
+; unsigned char                         outside = 0;		/* Outside galaxy flag */ 
   sub sp, 1
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -26] ; $outside
@@ -6965,23 +6965,23 @@ course_control:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; unsigned char                         quad_y_old; 
+; unsigned char                         quad_y_old; 
   sub sp, 1
-;; unsigned char                         quad_x_old; 
+; unsigned char                         quad_x_old; 
   sub sp, 1
-;; puts("Course (0-9): " ); 
+; puts("Course (0-9): " ); 
   mov b, _s71 ; "Course (0-9): "
   swp b
   push b
   call puts
   add sp, 2
-;; c1 = input_f00(); 
+; c1 = input_f00(); 
   lea d, [bp + -3] ; $c1
   push d
   call input_f00
   pop d
   mov [d], b
-;; if (c1 == 900) 
+; if (c1 == 900) 
 _if106_cond:
   lea d, [bp + -3] ; $c1
   mov b, [d]
@@ -6996,7 +6996,7 @@ _if106_cond:
   cmp b, 0
   je _if106_exit
 _if106_true:
-;; c1 = 100; 
+; c1 = 100; 
   lea d, [bp + -3] ; $c1
   push d
   mov b, $64
@@ -7004,7 +7004,7 @@ _if106_true:
   mov [d], b
   jmp _if106_exit
 _if106_exit:
-;; if (c1 < 0 || c1 > 900) { 
+; if (c1 < 0 || c1 > 900) { 
 _if107_cond:
   lea d, [bp + -3] ; $c1
   mov b, [d]
@@ -7035,7 +7035,7 @@ _if107_cond:
   cmp b, 0
   je _if107_exit
 _if107_true:
-;; printf("Lt. Sulu%s", inc_1); 
+; printf("Lt. Sulu%s", inc_1); 
   mov d, _inc_1 ; $inc_1
   mov b, [d]
   swp b
@@ -7045,12 +7045,12 @@ _if107_true:
   push b
   call printf
   add sp, 4
-;; return; 
+; return; 
   leave
   ret
   jmp _if107_exit
 _if107_exit:
-;; if (damage[1] < 0) 
+; if (damage[1] < 0) 
 _if108_cond:
   mov d, _damage_data ; $damage
   push a
@@ -7071,7 +7071,7 @@ _if108_cond:
   cmp b, 0
   je _if108_exit
 _if108_true:
-;; strcpy(warpmax, "0.2"); 
+; strcpy(warpmax, "0.2"); 
   mov b, _s73 ; "0.2"
   swp b
   push b
@@ -7083,7 +7083,7 @@ _if108_true:
   add sp, 4
   jmp _if108_exit
 _if108_exit:
-;; printf("Warp Factor (0-%s): ", warpmax); 
+; printf("Warp Factor (0-%s): ", warpmax); 
   mov d, _warpmax_data ; $warpmax
   mov b, d
   swp b
@@ -7093,13 +7093,13 @@ _if108_exit:
   push b
   call printf
   add sp, 4
-;; warp = input_f00(); 
+; warp = input_f00(); 
   lea d, [bp + -5] ; $warp
   push d
   call input_f00
   pop d
   mov [d], b
-;; if (damage[1] < 0 && warp > 20) { 
+; if (damage[1] < 0 && warp > 20) { 
 _if109_cond:
   mov d, _damage_data ; $damage
   push a
@@ -7136,18 +7136,18 @@ _if109_cond:
   cmp b, 0
   je _if109_exit
 _if109_true:
-;; printf("Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n"); 
+; printf("Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n"); 
   mov b, _s75 ; "Warp Engines are damaged. Maximum speed = Warp 0.2.\n\n"
   swp b
   push b
   call printf
   add sp, 2
-;; return; 
+; return; 
   leave
   ret
   jmp _if109_exit
 _if109_exit:
-;; if (warp <= 0) 
+; if (warp <= 0) 
 _if110_cond:
   lea d, [bp + -5] ; $warp
   mov b, [d]
@@ -7162,12 +7162,12 @@ _if110_cond:
   cmp b, 0
   je _if110_exit
 _if110_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if110_exit
 _if110_exit:
-;; if (warp > 800) { 
+; if (warp > 800) { 
 _if111_cond:
   lea d, [bp + -5] ; $warp
   mov b, [d]
@@ -7182,7 +7182,7 @@ _if111_cond:
   cmp b, 0
   je _if111_exit
 _if111_true:
-;; printf("Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n", print100(warp)); 
+; printf("Chief Engineer Scott reports:\n  The engines wont take warp %s!\n\n", print100(warp)); 
   lea d, [bp + -5] ; $warp
   mov b, [d]
   swp b
@@ -7196,12 +7196,12 @@ _if111_true:
   push b
   call printf
   add sp, 4
-;; return; 
+; return; 
   leave
   ret
   jmp _if111_exit
 _if111_exit:
-;; n = warp * 8; 
+; n = warp * 8; 
   lea d, [bp + -7] ; $n
   push d
   lea d, [bp + -5] ; $warp
@@ -7217,7 +7217,7 @@ _if111_exit:
 ; END FACTORS
   pop d
   mov [d], b
-;; n = cint100(n);	 
+; n = cint100(n);	 
   lea d, [bp + -7] ; $n
   push d
   lea d, [bp + -7] ; $n
@@ -7228,7 +7228,7 @@ _if111_exit:
   add sp, 2
   pop d
   mov [d], b
-;; if (energy - n < 0) { 
+; if (energy - n < 0) { 
 _if112_cond:
   mov d, _energy ; $energy
   mov b, [d]
@@ -7252,7 +7252,7 @@ _if112_cond:
   cmp b, 0
   je _if112_exit
 _if112_true:
-;; printf("Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n", print100(warp)); 
+; printf("Engineering reports:\n  Insufficient energy available for maneuvering at warp %s!\n\n", print100(warp)); 
   lea d, [bp + -5] ; $warp
   mov b, [d]
   swp b
@@ -7266,7 +7266,7 @@ _if112_true:
   push b
   call printf
   add sp, 4
-;; if (shield >= n && damage[7] >= 0) { 
+; if (shield >= n && damage[7] >= 0) { 
 _if113_cond:
   mov d, _shield ; $shield
   mov b, [d]
@@ -7304,7 +7304,7 @@ _if113_cond:
   cmp b, 0
   je _if113_exit
 _if113_true:
-;; printf("Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n", shield); 
+; printf("Deflector Control Room acknowledges:\n  %d units of energy presently deployed to shields.\n", shield); 
   mov d, _shield ; $shield
   mov b, [d]
   swp b
@@ -7316,21 +7316,21 @@ _if113_true:
   add sp, 4
   jmp _if113_exit
 _if113_exit:
-;; return; 
+; return; 
   leave
   ret
   jmp _if112_exit
 _if112_exit:
-;; klingons_move(); 
+; klingons_move(); 
   call klingons_move
-;; repair_damage(warp); 
+; repair_damage(warp); 
   lea d, [bp + -5] ; $warp
   mov b, [d]
   swp b
   push b
   call repair_damage
   add sp, 2
-;; z1 = FROM_FIXED00(ship_y); 
+; z1 = FROM_FIXED00(ship_y); 
   lea d, [bp + -15] ; $z1
   push d
   mov d, _ship_y ; $ship_y
@@ -7341,7 +7341,7 @@ _if112_exit:
   add sp, 2
   pop d
   mov [d], b
-;; z2 = FROM_FIXED00(ship_x); 
+; z2 = FROM_FIXED00(ship_x); 
   lea d, [bp + -17] ; $z2
   push d
   mov d, _ship_x ; $ship_x
@@ -7352,7 +7352,7 @@ _if112_exit:
   add sp, 2
   pop d
   mov [d], b
-;; quad[z1+-1][z2+-1] =  		0      ; 
+; quad[z1+-1][z2+-1] =  		0      ; 
   mov d, _quad_data ; $quad
   push a
   push d
@@ -7384,7 +7384,7 @@ _if112_exit:
   mov b, $0
   pop d
   mov [d], bl
-;; c2 = FROM_FIXED00(c1);	/* Integer part */ 
+; c2 = FROM_FIXED00(c1);	/* Integer part */ 
   lea d, [bp + -9] ; $c2
   push d
   lea d, [bp + -3] ; $c1
@@ -7395,7 +7395,7 @@ _if112_exit:
   add sp, 2
   pop d
   mov [d], b
-;; c3 = c2 + 1;		/* Next integer part */ 
+; c3 = c2 + 1;		/* Next integer part */ 
   lea d, [bp + -11] ; $c3
   push d
   lea d, [bp + -9] ; $c2
@@ -7409,7 +7409,7 @@ _if112_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; c4 = (c1 - TO_FIXED00(c2));	/* Fractional element in fixed point */ 
+; c4 = (c1 - TO_FIXED00(c2));	/* Fractional element in fixed point */ 
   lea d, [bp + -13] ; $c4
   push d
   lea d, [bp + -3] ; $c1
@@ -7429,7 +7429,7 @@ _if112_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; x1 = 100 * c[1][c2] + (c[1][c3] - c[1][c2]) * c4; 
+; x1 = 100 * c[1][c2] + (c[1][c3] - c[1][c2]) * c4; 
   lea d, [bp + -19] ; $x1
   push d
   mov b, $64
@@ -7508,7 +7508,7 @@ _if112_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; x2 = 100 * c[2][c2] + (c[2][c3] - c[2][c2]) * c4; 
+; x2 = 100 * c[2][c2] + (c[2][c3] - c[2][c2]) * c4; 
   lea d, [bp + -21] ; $x2
   push d
   mov b, $64
@@ -7587,21 +7587,21 @@ _if112_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; x = ship_y; 
+; x = ship_y; 
   lea d, [bp + -23] ; $x
   push d
   mov d, _ship_y ; $ship_y
   mov b, [d]
   pop d
   mov [d], b
-;; y = ship_x; 
+; y = ship_x; 
   lea d, [bp + -25] ; $y
   push d
   mov d, _ship_x ; $ship_x
   mov b, [d]
   pop d
   mov [d], b
-;; for (i = 1; i <= n; i++) { 
+; for (i = 1; i <= n; i++) { 
 _for114_init:
   lea d, [bp + -1] ; $i
   push d
@@ -7623,7 +7623,7 @@ _for114_cond:
   cmp b, 0
   je _for114_exit
 _for114_block:
-;; ship_y = ship_y + x1; 
+; ship_y = ship_y + x1; 
   mov d, _ship_y ; $ship_y
   push d
   mov d, _ship_y ; $ship_y
@@ -7638,7 +7638,7 @@ _for114_block:
 ; END TERMS
   pop d
   mov [d], b
-;; ship_x = ship_x + x2; 
+; ship_x = ship_x + x2; 
   mov d, _ship_x ; $ship_x
   push d
   mov d, _ship_x ; $ship_x
@@ -7653,7 +7653,7 @@ _for114_block:
 ; END TERMS
   pop d
   mov [d], b
-;; z1 = FROM_FIXED00(ship_y); 
+; z1 = FROM_FIXED00(ship_y); 
   lea d, [bp + -15] ; $z1
   push d
   mov d, _ship_y ; $ship_y
@@ -7664,7 +7664,7 @@ _for114_block:
   add sp, 2
   pop d
   mov [d], b
-;; z2 = FROM_FIXED00(ship_x);	/* ?? cint100 ?? */ 
+; z2 = FROM_FIXED00(ship_x);	/* ?? cint100 ?? */ 
   lea d, [bp + -17] ; $z2
   push d
   mov d, _ship_x ; $ship_x
@@ -7675,7 +7675,7 @@ _for114_block:
   add sp, 2
   pop d
   mov [d], b
-;; if (z1 < 1 || z1 >= 9 || z2 < 1 || z2 >= 9) { 
+; if (z1 < 1 || z1 >= 9 || z2 < 1 || z2 >= 9) { 
 _if115_cond:
   lea d, [bp + -15] ; $z1
   mov b, [d]
@@ -7730,27 +7730,27 @@ _if115_cond:
   cmp b, 0
   je _if115_exit
 _if115_true:
-;; outside = 0;		/* Outside galaxy flag */ 
+; outside = 0;		/* Outside galaxy flag */ 
   lea d, [bp + -26] ; $outside
   push d
   mov b, $0
   pop d
   mov [d], bl
-;; quad_y_old = quad_y; 
+; quad_y_old = quad_y; 
   lea d, [bp + -27] ; $quad_y_old
   push d
   mov d, _quad_y ; $quad_y
   mov b, [d]
   pop d
   mov [d], bl
-;; quad_x_old = quad_x; 
+; quad_x_old = quad_x; 
   lea d, [bp + -28] ; $quad_x_old
   push d
   mov d, _quad_x ; $quad_x
   mov b, [d]
   pop d
   mov [d], bl
-;; x = (800 * quad_y) + x + (n * x1); 
+; x = (800 * quad_y) + x + (n * x1); 
   lea d, [bp + -23] ; $x
   push d
   mov b, $320
@@ -7788,7 +7788,7 @@ _if115_true:
 ; END TERMS
   pop d
   mov [d], b
-;; y = (800 * quad_x) + y + (n * x2); 
+; y = (800 * quad_x) + y + (n * x2); 
   lea d, [bp + -25] ; $y
   push d
   mov b, $320
@@ -7826,7 +7826,7 @@ _if115_true:
 ; END TERMS
   pop d
   mov [d], b
-;; quad_y = x / 800;	/* Fixed point to int and divide by 8 */ 
+; quad_y = x / 800;	/* Fixed point to int and divide by 8 */ 
   mov d, _quad_y ; $quad_y
   push d
   lea d, [bp + -23] ; $x
@@ -7841,7 +7841,7 @@ _if115_true:
 ; END FACTORS
   pop d
   mov [d], b
-;; quad_x = y / 800;	/* Ditto */ 
+; quad_x = y / 800;	/* Ditto */ 
   mov d, _quad_x ; $quad_x
   push d
   lea d, [bp + -25] ; $y
@@ -7856,7 +7856,7 @@ _if115_true:
 ; END FACTORS
   pop d
   mov [d], b
-;; ship_y = x - (quad_y * 800); 
+; ship_y = x - (quad_y * 800); 
   mov d, _ship_y ; $ship_y
   push d
   lea d, [bp + -23] ; $x
@@ -7881,7 +7881,7 @@ _if115_true:
 ; END TERMS
   pop d
   mov [d], b
-;; ship_x = y - (quad_x * 800); 
+; ship_x = y - (quad_x * 800); 
   mov d, _ship_x ; $ship_x
   push d
   lea d, [bp + -25] ; $y
@@ -7906,7 +7906,7 @@ _if115_true:
 ; END TERMS
   pop d
   mov [d], b
-;; if (ship_y < 100) { 
+; if (ship_y < 100) { 
 _if116_cond:
   mov d, _ship_y ; $ship_y
   mov b, [d]
@@ -7921,7 +7921,7 @@ _if116_cond:
   cmp b, 0
   je _if116_exit
 _if116_true:
-;; quad_y = quad_y - 1; 
+; quad_y = quad_y - 1; 
   mov d, _quad_y ; $quad_y
   push d
   mov d, _quad_y ; $quad_y
@@ -7936,7 +7936,7 @@ _if116_true:
 ; END TERMS
   pop d
   mov [d], b
-;; ship_y = ship_y + 800; 
+; ship_y = ship_y + 800; 
   mov d, _ship_y ; $ship_y
   push d
   mov d, _ship_y ; $ship_y
@@ -7952,7 +7952,7 @@ _if116_true:
   mov [d], b
   jmp _if116_exit
 _if116_exit:
-;; if (ship_x < 100) { 
+; if (ship_x < 100) { 
 _if117_cond:
   mov d, _ship_x ; $ship_x
   mov b, [d]
@@ -7967,7 +7967,7 @@ _if117_cond:
   cmp b, 0
   je _if117_exit
 _if117_true:
-;; quad_x = quad_x - 1; 
+; quad_x = quad_x - 1; 
   mov d, _quad_x ; $quad_x
   push d
   mov d, _quad_x ; $quad_x
@@ -7982,7 +7982,7 @@ _if117_true:
 ; END TERMS
   pop d
   mov [d], b
-;; ship_x = ship_x + 800; 
+; ship_x = ship_x + 800; 
   mov d, _ship_x ; $ship_x
   push d
   mov d, _ship_x ; $ship_x
@@ -7998,7 +7998,7 @@ _if117_true:
   mov [d], b
   jmp _if117_exit
 _if117_exit:
-;; if (quad_y < 1) { 
+; if (quad_y < 1) { 
 _if118_cond:
   mov d, _quad_y ; $quad_y
   mov b, [d]
@@ -8013,19 +8013,19 @@ _if118_cond:
   cmp b, 0
   je _if118_exit
 _if118_true:
-;; outside = 1; 
+; outside = 1; 
   lea d, [bp + -26] ; $outside
   push d
   mov b, $1
   pop d
   mov [d], bl
-;; quad_y = 1; 
+; quad_y = 1; 
   mov d, _quad_y ; $quad_y
   push d
   mov b, $1
   pop d
   mov [d], b
-;; ship_y = 100; 
+; ship_y = 100; 
   mov d, _ship_y ; $ship_y
   push d
   mov b, $64
@@ -8033,7 +8033,7 @@ _if118_true:
   mov [d], b
   jmp _if118_exit
 _if118_exit:
-;; if (quad_y > 8) { 
+; if (quad_y > 8) { 
 _if119_cond:
   mov d, _quad_y ; $quad_y
   mov b, [d]
@@ -8048,19 +8048,19 @@ _if119_cond:
   cmp b, 0
   je _if119_exit
 _if119_true:
-;; outside = 1; 
+; outside = 1; 
   lea d, [bp + -26] ; $outside
   push d
   mov b, $1
   pop d
   mov [d], bl
-;; quad_y = 8; 
+; quad_y = 8; 
   mov d, _quad_y ; $quad_y
   push d
   mov b, $8
   pop d
   mov [d], b
-;; ship_y = 800; 
+; ship_y = 800; 
   mov d, _ship_y ; $ship_y
   push d
   mov b, $320
@@ -8068,7 +8068,7 @@ _if119_true:
   mov [d], b
   jmp _if119_exit
 _if119_exit:
-;; if (quad_x < 1) { 
+; if (quad_x < 1) { 
 _if120_cond:
   mov d, _quad_x ; $quad_x
   mov b, [d]
@@ -8083,19 +8083,19 @@ _if120_cond:
   cmp b, 0
   je _if120_exit
 _if120_true:
-;; outside = 1; 
+; outside = 1; 
   lea d, [bp + -26] ; $outside
   push d
   mov b, $1
   pop d
   mov [d], bl
-;; quad_x = 1; 
+; quad_x = 1; 
   mov d, _quad_x ; $quad_x
   push d
   mov b, $1
   pop d
   mov [d], b
-;; ship_x = 100; 
+; ship_x = 100; 
   mov d, _ship_x ; $ship_x
   push d
   mov b, $64
@@ -8103,7 +8103,7 @@ _if120_true:
   mov [d], b
   jmp _if120_exit
 _if120_exit:
-;; if (quad_x > 8) { 
+; if (quad_x > 8) { 
 _if121_cond:
   mov d, _quad_x ; $quad_x
   mov b, [d]
@@ -8118,19 +8118,19 @@ _if121_cond:
   cmp b, 0
   je _if121_exit
 _if121_true:
-;; outside = 1; 
+; outside = 1; 
   lea d, [bp + -26] ; $outside
   push d
   mov b, $1
   pop d
   mov [d], bl
-;; quad_x = 8; 
+; quad_x = 8; 
   mov d, _quad_x ; $quad_x
   push d
   mov b, $8
   pop d
   mov [d], b
-;; ship_x = 800; 
+; ship_x = 800; 
   mov d, _ship_x ; $ship_x
   push d
   mov b, $320
@@ -8138,7 +8138,7 @@ _if121_true:
   mov [d], b
   jmp _if121_exit
 _if121_exit:
-;; if (outside == 1) { 
+; if (outside == 1) { 
 _if122_cond:
   lea d, [bp + -26] ; $outside
   mov bl, [d]
@@ -8154,25 +8154,25 @@ _if122_cond:
   cmp b, 0
   je _if122_exit
 _if122_true:
-;; printf("LT. Uhura reports:\n Message from Starfleet Command:\n\n "); 
+; printf("LT. Uhura reports:\n Message from Starfleet Command:\n\n "); 
   mov b, _s79 ; "LT. Uhura reports:\n Message from Starfleet Command:\n\n "
   swp b
   push b
   call printf
   add sp, 2
-;; printf("Permission to attempt crossing of galactic perimeter\n is hereby *denied*. "); 
+; printf("Permission to attempt crossing of galactic perimeter\n is hereby *denied*. "); 
   mov b, _s80 ; "Permission to attempt crossing of galactic perimeter\n is hereby *denied*. "
   swp b
   push b
   call printf
   add sp, 2
-;; printf("Shut down your engines.\n\n Chief Engineer Scott reports:\n "); 
+; printf("Shut down your engines.\n\n Chief Engineer Scott reports:\n "); 
   mov b, _s81 ; "Shut down your engines.\n\n Chief Engineer Scott reports:\n "
   swp b
   push b
   call printf
   add sp, 2
-;; printf("Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n",  
+; printf("Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n",  
   mov d, _quad_x ; $quad_x
   mov b, [d]
   swp b
@@ -8204,14 +8204,14 @@ _if122_true:
   add sp, 10
   jmp _if122_exit
 _if122_exit:
-;; maneuver_energy(n); 
+; maneuver_energy(n); 
   lea d, [bp + -7] ; $n
   mov b, [d]
   swp b
   push b
   call maneuver_energy
   add sp, 2
-;; if (FROM_FIXED(stardate) > time_start + time_up) 
+; if (FROM_FIXED(stardate) > time_start + time_up) 
 _if123_cond:
   mov d, _stardate ; $stardate
   mov b, [d]
@@ -8239,11 +8239,11 @@ _if123_cond:
   cmp b, 0
   je _if123_exit
 _if123_true:
-;; end_of_time(); 
+; end_of_time(); 
   call end_of_time
   jmp _if123_exit
 _if123_exit:
-;; if (quad_y != quad_y_old || quad_x != quad_x_old) { 
+; if (quad_y != quad_y_old || quad_x != quad_x_old) { 
 _if124_cond:
   mov d, _quad_y ; $quad_y
   mov b, [d]
@@ -8278,7 +8278,7 @@ _if124_cond:
   cmp b, 0
   je _if124_exit
 _if124_true:
-;; stardate = stardate + TO_FIXED(1); 
+; stardate = stardate + TO_FIXED(1); 
   mov d, _stardate ; $stardate
   push d
   mov d, _stardate ; $stardate
@@ -8296,11 +8296,11 @@ _if124_true:
 ; END TERMS
   pop d
   mov [d], b
-;; new_quadrant(); 
+; new_quadrant(); 
   call new_quadrant
   jmp _if124_exit
 _if124_exit:
-;; complete_maneuver(warp, n); 
+; complete_maneuver(warp, n); 
   lea d, [bp + -7] ; $n
   mov b, [d]
   swp b
@@ -8311,12 +8311,12 @@ _if124_exit:
   push b
   call complete_maneuver
   add sp, 4
-;; return; 
+; return; 
   leave
   ret
   jmp _if115_exit
 _if115_exit:
-;; if (quad[z1-1][z2-1] !=  		0      ) {	/* Sector not empty */ 
+; if (quad[z1-1][z2-1] !=  		0      ) {	/* Sector not empty */ 
 _if125_cond:
   mov d, _quad_data ; $quad
   push a
@@ -8360,7 +8360,7 @@ _if125_cond:
   cmp b, 0
   je _if125_exit
 _if125_true:
-;; ship_y = ship_y - x1; 
+; ship_y = ship_y - x1; 
   mov d, _ship_y ; $ship_y
   push d
   mov d, _ship_y ; $ship_y
@@ -8376,7 +8376,7 @@ _if125_true:
 ; END TERMS
   pop d
   mov [d], b
-;; ship_x = ship_x - x2; 
+; ship_x = ship_x - x2; 
   mov d, _ship_x ; $ship_x
   push d
   mov d, _ship_x ; $ship_x
@@ -8392,7 +8392,7 @@ _if125_true:
 ; END TERMS
   pop d
   mov [d], b
-;; printf("Warp Engines shut down at sector %d, %d due to bad navigation.\n\n", z1, z2); 
+; printf("Warp Engines shut down at sector %d, %d due to bad navigation.\n\n", z1, z2); 
   lea d, [bp + -17] ; $z2
   mov b, [d]
   swp b
@@ -8406,7 +8406,7 @@ _if125_true:
   push b
   call printf
   add sp, 6
-;; i = n + 1; 
+; i = n + 1; 
   lea d, [bp + -1] ; $i
   push d
   lea d, [bp + -7] ; $n
@@ -8431,7 +8431,7 @@ _for114_update:
   dec b
   jmp _for114_cond
 _for114_exit:
-;; complete_maneuver(warp, n); 
+; complete_maneuver(warp, n); 
   lea d, [bp + -7] ; $n
   mov b, [d]
   swp b
@@ -8447,18 +8447,18 @@ _for114_exit:
 
 complete_maneuver:
   enter 0 ; (push bp; mov bp, sp)
-;; unsigned int        time_used; 
+; unsigned int        time_used; 
   sub sp, 2
-;; place_ship(); 
+; place_ship(); 
   call place_ship
-;; maneuver_energy(n); 
+; maneuver_energy(n); 
   lea d, [bp + 7] ; $n
   mov b, [d]
   swp b
   push b
   call maneuver_energy
   add sp, 2
-;; time_used = TO_FIXED(1); 
+; time_used = TO_FIXED(1); 
   lea d, [bp + -1] ; $time_used
   push d
   mov b, $1
@@ -8468,7 +8468,7 @@ complete_maneuver:
   add sp, 2
   pop d
   mov [d], b
-;; if (warp < 100) 
+; if (warp < 100) 
 _if126_cond:
   lea d, [bp + 5] ; $warp
   mov b, [d]
@@ -8483,7 +8483,7 @@ _if126_cond:
   cmp b, 0
   je _if126_exit
 _if126_true:
-;; time_used = TO_FIXED(FROM_FIXED00(warp)); 
+; time_used = TO_FIXED(FROM_FIXED00(warp)); 
   lea d, [bp + -1] ; $time_used
   push d
   lea d, [bp + 5] ; $warp
@@ -8500,7 +8500,7 @@ _if126_true:
   mov [d], b
   jmp _if126_exit
 _if126_exit:
-;; stardate = stardate + time_used; 
+; stardate = stardate + time_used; 
   mov d, _stardate ; $stardate
   push d
   mov d, _stardate ; $stardate
@@ -8515,7 +8515,7 @@ _if126_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; if (FROM_FIXED(stardate) > time_start + time_up) 
+; if (FROM_FIXED(stardate) > time_start + time_up) 
 _if127_cond:
   mov d, _stardate ; $stardate
   mov b, [d]
@@ -8543,18 +8543,18 @@ _if127_cond:
   cmp b, 0
   je _if127_exit
 _if127_true:
-;; end_of_time(); 
+; end_of_time(); 
   call end_of_time
   jmp _if127_exit
 _if127_exit:
-;; short_range_scan(); 
+; short_range_scan(); 
   call short_range_scan
   leave
   ret
 
 maneuver_energy:
   enter 0 ; (push bp; mov bp, sp)
-;; energy = energy - n + 10; 
+; energy = energy - n + 10; 
   mov d, _energy ; $energy
   push d
   mov d, _energy ; $energy
@@ -8573,7 +8573,7 @@ maneuver_energy:
 ; END TERMS
   pop d
   mov [d], b
-;; if (energy >= 0) 
+; if (energy >= 0) 
 _if128_cond:
   mov d, _energy ; $energy
   mov b, [d]
@@ -8588,18 +8588,18 @@ _if128_cond:
   cmp b, 0
   je _if128_exit
 _if128_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if128_exit
 _if128_exit:
-;; puts("Shield Control supplies energy to complete maneuver.\n"); 
+; puts("Shield Control supplies energy to complete maneuver.\n"); 
   mov b, _s84 ; "Shield Control supplies energy to complete maneuver.\n"
   swp b
   push b
   call puts
   add sp, 2
-;; shield = shield + energy; 
+; shield = shield + energy; 
   mov d, _shield ; $shield
   push d
   mov d, _shield ; $shield
@@ -8614,13 +8614,13 @@ _if128_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; energy = 0; 
+; energy = 0; 
   mov d, _energy ; $energy
   push d
   mov b, $0
   pop d
   mov [d], b
-;; if (shield <= 0) 
+; if (shield <= 0) 
 _if129_cond:
   mov d, _shield ; $shield
   mov b, [d]
@@ -8635,7 +8635,7 @@ _if129_cond:
   cmp b, 0
   je _if129_exit
 _if129_true:
-;; shield = 0; 
+; shield = 0; 
   mov d, _shield ; $shield
   push d
   mov b, $0
@@ -8648,10 +8648,10 @@ _if129_exit:
 
 short_range_scan:
   enter 0 ; (push bp; mov bp, sp)
-;; int i, j; 
+; int i, j; 
   sub sp, 2
   sub sp, 2
-;; char *sC = "GREEN"; 
+; char *sC = "GREEN"; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -5] ; $sC
@@ -8660,7 +8660,7 @@ short_range_scan:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; if (energy < energy0 / 10) 
+; if (energy < energy0 / 10) 
 _if130_cond:
   mov d, _energy ; $energy
   mov b, [d]
@@ -8684,7 +8684,7 @@ _if130_cond:
   cmp b, 0
   je _if130_exit
 _if130_true:
-;; sC = "YELLOW"; 
+; sC = "YELLOW"; 
   lea d, [bp + -5] ; $sC
   push d
   mov b, _s86 ; "YELLOW"
@@ -8692,7 +8692,7 @@ _if130_true:
   mov [d], b
   jmp _if130_exit
 _if130_exit:
-;; if (klingons > 0) 
+; if (klingons > 0) 
 _if131_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
@@ -8708,7 +8708,7 @@ _if131_cond:
   cmp b, 0
   je _if131_exit
 _if131_true:
-;; sC = "*RED*"; 
+; sC = "*RED*"; 
   lea d, [bp + -5] ; $sC
   push d
   mov b, _s87 ; "*RED*"
@@ -8716,13 +8716,13 @@ _if131_true:
   mov [d], b
   jmp _if131_exit
 _if131_exit:
-;; docked = 0; 
+; docked = 0; 
   mov d, _docked ; $docked
   push d
   mov b, $0
   pop d
   mov [d], bl
-;; for (i = (int) (FROM_FIXED00(ship_y) - 1); i <= (int) (FROM_FIXED00(ship_y) + 1); i++) 
+; for (i = (int) (FROM_FIXED00(ship_y) - 1); i <= (int) (FROM_FIXED00(ship_y) + 1); i++) 
 _for132_init:
   lea d, [bp + -1] ; $i
   push d
@@ -8768,7 +8768,7 @@ _for132_cond:
   cmp b, 0
   je _for132_exit
 _for132_block:
-;; for (j = (int) (FROM_FIXED00(ship_x) - 1); j <= (int) (FROM_FIXED00(ship_x) + 1); j++) 
+; for (j = (int) (FROM_FIXED00(ship_x) - 1); j <= (int) (FROM_FIXED00(ship_x) + 1); j++) 
 _for133_init:
   lea d, [bp + -3] ; $j
   push d
@@ -8814,7 +8814,7 @@ _for133_cond:
   cmp b, 0
   je _for133_exit
 _for133_block:
-;; if (i >= 1 && i <= 8 && j >= 1 && j <= 8) { 
+; if (i >= 1 && i <= 8 && j >= 1 && j <= 8) { 
 _if134_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -8869,7 +8869,7 @@ _if134_cond:
   cmp b, 0
   je _if134_exit
 _if134_true:
-;; if (quad[i-1][j-1] ==  		2     ) { 
+; if (quad[i-1][j-1] ==  		2     ) { 
 _if135_cond:
   mov d, _quad_data ; $quad
   push a
@@ -8913,26 +8913,26 @@ _if135_cond:
   cmp b, 0
   je _if135_exit
 _if135_true:
-;; docked = 1; 
+; docked = 1; 
   mov d, _docked ; $docked
   push d
   mov b, $1
   pop d
   mov [d], bl
-;; sC = "DOCKED"; 
+; sC = "DOCKED"; 
   lea d, [bp + -5] ; $sC
   push d
   mov b, _s88 ; "DOCKED"
   pop d
   mov [d], b
-;; energy = energy0; 
+; energy = energy0; 
   mov d, _energy ; $energy
   push d
   mov d, _energy0 ; $energy0
   mov b, [d]
   pop d
   mov [d], b
-;; torps = torps0; 
+; torps = torps0; 
   mov d, _torps ; $torps
   push d
   mov d, _torps0 ; $torps0
@@ -8940,13 +8940,13 @@ _if135_true:
   mov bh, 0
   pop d
   mov [d], bl
-;; puts("Shields dropped for docking purposes."); 
+; puts("Shields dropped for docking purposes."); 
   mov b, _s89 ; "Shields dropped for docking purposes."
   swp b
   push b
   call puts
   add sp, 2
-;; shield = 0; 
+; shield = 0; 
   mov d, _shield ; $shield
   push d
   mov b, $0
@@ -8974,7 +8974,7 @@ _for132_update:
   dec b
   jmp _for132_cond
 _for132_exit:
-;; if (damage[2] < 0) { 
+; if (damage[2] < 0) { 
 _if136_cond:
   mov d, _damage_data ; $damage
   push a
@@ -8995,25 +8995,25 @@ _if136_cond:
   cmp b, 0
   je _if136_exit
 _if136_true:
-;; puts("\n*** Short Range Sensors are out ***"); 
+; puts("\n*** Short Range Sensors are out ***"); 
   mov b, _s90 ; "\n*** Short Range Sensors are out ***"
   swp b
   push b
   call puts
   add sp, 2
-;; return; 
+; return; 
   leave
   ret
   jmp _if136_exit
 _if136_exit:
-;; puts(srs_1); 
+; puts(srs_1); 
   mov d, _srs_1 ; $srs_1
   mov b, [d]
   swp b
   push b
   call puts
   add sp, 2
-;; for (i = 0; i < 8; i++) { 
+; for (i = 0; i < 8; i++) { 
 _for137_init:
   lea d, [bp + -1] ; $i
   push d
@@ -9034,7 +9034,7 @@ _for137_cond:
   cmp b, 0
   je _for137_exit
 _for137_block:
-;; for (j = 0; j < 8; j++) 
+; for (j = 0; j < 8; j++) 
 _for138_init:
   lea d, [bp + -3] ; $j
   push d
@@ -9055,7 +9055,7 @@ _for138_cond:
   cmp b, 0
   je _for138_exit
 _for138_block:
-;; puts(tilestr[quad[i][j]]); 
+; puts(tilestr[quad[i][j]]); 
   mov d, _tilestr_data ; $tilestr
   push a
   push d
@@ -9091,7 +9091,7 @@ _for138_update:
   dec b
   jmp _for138_cond
 _for138_exit:
-;; if (i == 0) 
+; if (i == 0) 
 _if139_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -9106,7 +9106,7 @@ _if139_cond:
   cmp b, 0
   je _if139_exit
 _if139_true:
-;; printf("    Stardate            %d\n", FROM_FIXED(stardate)); 
+; printf("    Stardate            %d\n", FROM_FIXED(stardate)); 
   mov d, _stardate ; $stardate
   mov b, [d]
   swp b
@@ -9122,7 +9122,7 @@ _if139_true:
   add sp, 4
   jmp _if139_exit
 _if139_exit:
-;; if (i == 1) 
+; if (i == 1) 
 _if140_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -9137,7 +9137,7 @@ _if140_cond:
   cmp b, 0
   je _if140_exit
 _if140_true:
-;; printf("    Condition           %s\n", sC); 
+; printf("    Condition           %s\n", sC); 
   lea d, [bp + -5] ; $sC
   mov b, [d]
   swp b
@@ -9149,7 +9149,7 @@ _if140_true:
   add sp, 4
   jmp _if140_exit
 _if140_exit:
-;; if (i == 2) 
+; if (i == 2) 
 _if141_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -9164,7 +9164,7 @@ _if141_cond:
   cmp b, 0
   je _if141_exit
 _if141_true:
-;; printf("    Quadrant            %d, %d\n", quad_y, quad_x); 
+; printf("    Quadrant            %d, %d\n", quad_y, quad_x); 
   mov d, _quad_x ; $quad_x
   mov b, [d]
   swp b
@@ -9180,7 +9180,7 @@ _if141_true:
   add sp, 6
   jmp _if141_exit
 _if141_exit:
-;; if (i == 3) 
+; if (i == 3) 
 _if142_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -9195,7 +9195,7 @@ _if142_cond:
   cmp b, 0
   je _if142_exit
 _if142_true:
-;; printf("    Sector              %d, %d\n", FROM_FIXED00(ship_y), FROM_FIXED00(ship_x)); 
+; printf("    Sector              %d, %d\n", FROM_FIXED00(ship_y), FROM_FIXED00(ship_x)); 
   mov d, _ship_x ; $ship_x
   mov b, [d]
   swp b
@@ -9219,7 +9219,7 @@ _if142_true:
   add sp, 6
   jmp _if142_exit
 _if142_exit:
-;; if (i == 4) 
+; if (i == 4) 
 _if143_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -9234,7 +9234,7 @@ _if143_cond:
   cmp b, 0
   je _if143_exit
 _if143_true:
-;; printf("    Photon Torpedoes    %d\n", torps); 
+; printf("    Photon Torpedoes    %d\n", torps); 
   mov d, _torps ; $torps
   mov bl, [d]
   mov bh, 0
@@ -9246,7 +9246,7 @@ _if143_true:
   add sp, 3
   jmp _if143_exit
 _if143_exit:
-;; if (i == 5) 
+; if (i == 5) 
 _if144_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -9261,7 +9261,7 @@ _if144_cond:
   cmp b, 0
   je _if144_exit
 _if144_true:
-;; printf("    Total Energy        %d\n", energy + shield); 
+; printf("    Total Energy        %d\n", energy + shield); 
   mov d, _energy ; $energy
   mov b, [d]
 ; START TERMS
@@ -9281,7 +9281,7 @@ _if144_true:
   add sp, 4
   jmp _if144_exit
 _if144_exit:
-;; if (i == 6) 
+; if (i == 6) 
 _if145_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -9296,7 +9296,7 @@ _if145_cond:
   cmp b, 0
   je _if145_exit
 _if145_true:
-;; printf("    Shields             %d\n", shield); 
+; printf("    Shields             %d\n", shield); 
   mov d, _shield ; $shield
   mov b, [d]
   swp b
@@ -9308,7 +9308,7 @@ _if145_true:
   add sp, 4
   jmp _if145_exit
 _if145_exit:
-;; if (i == 7) 
+; if (i == 7) 
 _if146_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -9323,7 +9323,7 @@ _if146_cond:
   cmp b, 0
   je _if146_exit
 _if146_true:
-;; printf("    Klingons Remaining  %d\n", klingons_left); 
+; printf("    Klingons Remaining  %d\n", klingons_left); 
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
@@ -9344,25 +9344,25 @@ _for137_update:
   dec b
   jmp _for137_cond
 _for137_exit:
-;; puts(srs_1); 
+; puts(srs_1); 
   mov d, _srs_1 ; $srs_1
   mov b, [d]
   swp b
   push b
   call puts
   add sp, 2
-;; putchar('\n'); 
+; putchar('\n'); 
   mov b, $a
   push bl
   call putchar
   add sp, 1
-;; return; 
+; return; 
   leave
   ret
 
 put1bcd:
   enter 0 ; (push bp; mov bp, sp)
-;; v = v & 0x0F; 
+; v = v & 0x0F; 
   lea d, [bp + 5] ; $v
   push d
   lea d, [bp + 5] ; $v
@@ -9375,7 +9375,7 @@ put1bcd:
   pop a
   pop d
   mov [d], bl
-;; putchar('0' + v); 
+; putchar('0' + v); 
   mov b, $30
 ; START TERMS
   push a
@@ -9394,7 +9394,7 @@ put1bcd:
 
 putbcd:
   enter 0 ; (push bp; mov bp, sp)
-;; put1bcd(x >> 8); 
+; put1bcd(x >> 8); 
   lea d, [bp + 5] ; $x
   mov b, [d]
 ; START SHIFT
@@ -9409,7 +9409,7 @@ putbcd:
   push bl
   call put1bcd
   add sp, 1
-;; put1bcd(x >> 4); 
+; put1bcd(x >> 4); 
   lea d, [bp + 5] ; $x
   mov b, [d]
 ; START SHIFT
@@ -9424,7 +9424,7 @@ putbcd:
   push bl
   call put1bcd
   add sp, 1
-;; put1bcd(x); 
+; put1bcd(x); 
   lea d, [bp + 5] ; $x
   mov b, [d]
   push bl
@@ -9435,10 +9435,10 @@ putbcd:
 
 long_range_scan:
   enter 0 ; (push bp; mov bp, sp)
-;; int i, j; 
+; int i, j; 
   sub sp, 2
   sub sp, 2
-;; if (inoperable(3)) 
+; if (inoperable(3)) 
 _if147_cond:
   mov b, $3
   push bl
@@ -9447,12 +9447,12 @@ _if147_cond:
   cmp b, 0
   je _if147_exit
 _if147_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if147_exit
 _if147_exit:
-;; printf("Long Range Scan for Quadrant %d, %d\n\n", quad_y, quad_x); 
+; printf("Long Range Scan for Quadrant %d, %d\n\n", quad_y, quad_x); 
   mov d, _quad_x ; $quad_x
   mov b, [d]
   swp b
@@ -9466,7 +9466,7 @@ _if147_exit:
   push b
   call printf
   add sp, 6
-;; for (i = quad_y - 1; i <= quad_y + 1; i++) { 
+; for (i = quad_y - 1; i <= quad_y + 1; i++) { 
 _for148_init:
   lea d, [bp + -1] ; $i
   push d
@@ -9504,7 +9504,7 @@ _for148_cond:
   cmp b, 0
   je _for148_exit
 _for148_block:
-;; printf("%s:", lrs_1); 
+; printf("%s:", lrs_1); 
   mov d, _lrs_1 ; $lrs_1
   mov b, [d]
   swp b
@@ -9514,7 +9514,7 @@ _for148_block:
   push b
   call printf
   add sp, 4
-;; for (j = quad_x - 1; j <= quad_x + 1; j++) { 
+; for (j = quad_x - 1; j <= quad_x + 1; j++) { 
 _for149_init:
   lea d, [bp + -3] ; $j
   push d
@@ -9552,12 +9552,12 @@ _for149_cond:
   cmp b, 0
   je _for149_exit
 _for149_block:
-;; putchar(' '); 
+; putchar(' '); 
   mov b, $20
   push bl
   call putchar
   add sp, 1
-;; if (i > 0 && i <= 8 && j > 0 && j <= 8) { 
+; if (i > 0 && i <= 8 && j > 0 && j <= 8) { 
 _if150_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -9612,7 +9612,7 @@ _if150_cond:
   cmp b, 0
   je _if150_else
 _if150_true:
-;; map[i][j] = map[i][j] |   0x1000		/* Set if this sector was mapped */          ; 
+; map[i][j] = map[i][j] |   0x1000		/* Set if this sector was mapped */          ; 
   mov d, _map_data ; $map
   push a
   push d
@@ -9648,7 +9648,7 @@ _if150_true:
   pop a
   pop d
   mov [d], b
-;; putbcd(map[i][j]); 
+; putbcd(map[i][j]); 
   mov d, _map_data ; $map
   push a
   push d
@@ -9669,14 +9669,14 @@ _if150_true:
   add sp, 2
   jmp _if150_exit
 _if150_else:
-;; puts("***"); 
+; puts("***"); 
   mov b, _s101 ; "***"
   swp b
   push b
   call puts
   add sp, 2
 _if150_exit:
-;; puts(" :"); 
+; puts(" :"); 
   mov b, _s102 ; " :"
   swp b
   push b
@@ -9691,7 +9691,7 @@ _for149_update:
   dec b
   jmp _for149_cond
 _for149_exit:
-;; putchar('\n'); 
+; putchar('\n'); 
   mov b, $a
   push bl
   call putchar
@@ -9705,7 +9705,7 @@ _for148_update:
   dec b
   jmp _for148_cond
 _for148_exit:
-;; printf("%s\n", lrs_1); 
+; printf("%s\n", lrs_1); 
   mov d, _lrs_1 ; $lrs_1
   mov b, [d]
   swp b
@@ -9720,7 +9720,7 @@ _for148_exit:
 
 no_klingon:
   enter 0 ; (push bp; mov bp, sp)
-;; if (klingons <= 0) { 
+; if (klingons <= 0) { 
 _if151_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
@@ -9736,26 +9736,26 @@ _if151_cond:
   cmp b, 0
   je _if151_exit
 _if151_true:
-;; puts("Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"); 
+; puts("Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"); 
   mov b, _s104 ; "Science Officer Spock reports:\n  'Sensors show no enemy ships in this quadrant'\n"
   swp b
   push b
   call puts
   add sp, 2
-;; return 1; 
+; return 1; 
   mov b, $1
   leave
   ret
   jmp _if151_exit
 _if151_exit:
-;; return 0; 
+; return 0; 
   mov b, $0
   leave
   ret
 
 wipe_klingon:
   enter 0 ; (push bp; mov bp, sp)
-;; quad[k->y+-1][k->x+-1] =  		0      ; 
+; quad[k->y+-1][k->x+-1] =  		0      ; 
   mov d, _quad_data ; $quad
   push a
   push d
@@ -9798,24 +9798,24 @@ wipe_klingon:
 
 phaser_control:
   enter 0 ; (push bp; mov bp, sp)
-;; int i; 
+; int i; 
   sub sp, 2
-;; long int       phaser_energy; 
+; long int       phaser_energy; 
   sub sp, 4
-;; long unsigned int        h1; 
+; long unsigned int        h1; 
   sub sp, 4
-;; int h; 
+; int h; 
   sub sp, 2
-;; struct klingon *k; 
+; struct klingon *k; 
   sub sp, 2
-;; k = &kdata; 
+; k = &kdata; 
   lea d, [bp + -13] ; $k
   push d
   mov d, _kdata_data ; $kdata
   mov b, d
   pop d
   mov [d], b
-;; if (inoperable(4)) 
+; if (inoperable(4)) 
 _if152_cond:
   mov b, $4
   push bl
@@ -9824,23 +9824,23 @@ _if152_cond:
   cmp b, 0
   je _if152_exit
 _if152_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if152_exit
 _if152_exit:
-;; if (no_klingon()) 
+; if (no_klingon()) 
 _if153_cond:
   call no_klingon
   cmp b, 0
   je _if153_exit
 _if153_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if153_exit
 _if153_exit:
-;; if (damage[8] < 0) 
+; if (damage[8] < 0) 
 _if154_cond:
   mov d, _damage_data ; $damage
   push a
@@ -9861,7 +9861,7 @@ _if154_cond:
   cmp b, 0
   je _if154_exit
 _if154_true:
-;; puts("Computer failure hampers accuracy."); 
+; puts("Computer failure hampers accuracy."); 
   mov b, _s105 ; "Computer failure hampers accuracy."
   swp b
   push b
@@ -9869,7 +9869,7 @@ _if154_true:
   add sp, 2
   jmp _if154_exit
 _if154_exit:
-;; printf("Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: ", energy); 
+; printf("Phasers locked on target;\n Energy available = %d units\n\n Number of units to fire: ", energy); 
   mov d, _energy ; $energy
   mov b, [d]
   swp b
@@ -9879,7 +9879,7 @@ _if154_exit:
   push b
   call printf
   add sp, 4
-;; phaser_energy = input_int(); 
+; phaser_energy = input_int(); 
   lea d, [bp + -5] ; $phaser_energy
   push d
   call input_int
@@ -9887,7 +9887,7 @@ _if154_exit:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; if (phaser_energy <= 0) 
+; if (phaser_energy <= 0) 
 _if155_cond:
   lea d, [bp + -5] ; $phaser_energy
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -9907,12 +9907,12 @@ _if155_cond:
   cmp b, 0
   je _if155_exit
 _if155_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if155_exit
 _if155_exit:
-;; if (energy - phaser_energy < 0) { 
+; if (energy - phaser_energy < 0) { 
 _if156_cond:
   mov d, _energy ; $energy
   mov b, [d]
@@ -9942,18 +9942,18 @@ _if156_cond:
   cmp b, 0
   je _if156_exit
 _if156_true:
-;; puts("Not enough energy available.\n"); 
+; puts("Not enough energy available.\n"); 
   mov b, _s107 ; "Not enough energy available.\n"
   swp b
   push b
   call puts
   add sp, 2
-;; return; 
+; return; 
   leave
   ret
   jmp _if156_exit
 _if156_exit:
-;; energy = energy -  phaser_energy; 
+; energy = energy -  phaser_energy; 
   mov d, _energy ; $energy
   push d
   mov d, _energy ; $energy
@@ -9971,7 +9971,7 @@ _if156_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; if (damage[8] < 0) 
+; if (damage[8] < 0) 
 _if157_cond:
   mov d, _damage_data ; $damage
   push a
@@ -9992,7 +9992,7 @@ _if157_cond:
   cmp b, 0
   je _if157_else
 _if157_true:
-;; phaser_energy =phaser_energy * get_rand(100); 
+; phaser_energy =phaser_energy * get_rand(100); 
   lea d, [bp + -5] ; $phaser_energy
   push d
   lea d, [bp + -5] ; $phaser_energy
@@ -10018,7 +10018,7 @@ _if157_true:
   mov [d + 2], b
   jmp _if157_exit
 _if157_else:
-;; phaser_energy = phaser_energy* 100; 
+; phaser_energy = phaser_energy* 100; 
   lea d, [bp + -5] ; $phaser_energy
   push d
   lea d, [bp + -5] ; $phaser_energy
@@ -10039,7 +10039,7 @@ _if157_else:
   mov b, c
   mov [d + 2], b
 _if157_exit:
-;; h1 = phaser_energy / klingons; 
+; h1 = phaser_energy / klingons; 
   lea d, [bp + -9] ; $h1
   push d
   lea d, [bp + -5] ; $phaser_energy
@@ -10060,7 +10060,7 @@ _if157_exit:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; for (i = 0; i <= 2; i++) { 
+; for (i = 0; i <= 2; i++) { 
 _for158_init:
   lea d, [bp + -1] ; $i
   push d
@@ -10081,7 +10081,7 @@ _for158_cond:
   cmp b, 0
   je _for158_exit
 _for158_block:
-;; if (k->energy > 0) { 
+; if (k->energy > 0) { 
 _if159_cond:
   lea d, [bp + -13] ; $k
   mov d, [d]
@@ -10098,7 +10098,7 @@ _if159_cond:
   cmp b, 0
   je _if159_exit
 _if159_true:
-;; h1 = h1 * (get_rand(100) + 200); 
+; h1 = h1 * (get_rand(100) + 200); 
   lea d, [bp + -9] ; $h1
   push d
   lea d, [bp + -9] ; $h1
@@ -10129,7 +10129,7 @@ _if159_true:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; h1 =h1/ distance_to(k); 
+; h1 =h1/ distance_to(k); 
   lea d, [bp + -9] ; $h1
   push d
   lea d, [bp + -9] ; $h1
@@ -10153,7 +10153,7 @@ _if159_true:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; if (h1 <= 15 * k->energy) {	/* was 0.15 */ 
+; if (h1 <= 15 * k->energy) {	/* was 0.15 */ 
 _if160_cond:
   lea d, [bp + -9] ; $h1
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -10185,7 +10185,7 @@ _if160_cond:
   cmp b, 0
   je _if160_else
 _if160_true:
-;; printf("Sensors show no damage to enemy at %d, %d\n\n", k->y, k->x); 
+; printf("Sensors show no damage to enemy at %d, %d\n\n", k->y, k->x); 
   lea d, [bp + -13] ; $k
   mov d, [d]
   add d, 1
@@ -10205,7 +10205,7 @@ _if160_true:
   add sp, 4
   jmp _if160_exit
 _if160_else:
-;; h = FROM_FIXED00(h1); 
+; h = FROM_FIXED00(h1); 
   lea d, [bp + -11] ; $h
   push d
   lea d, [bp + -9] ; $h1
@@ -10218,7 +10218,7 @@ _if160_else:
   add sp, 2
   pop d
   mov [d], b
-;; k->energy = k->energy - h; 
+; k->energy = k->energy - h; 
   lea d, [bp + -13] ; $k
   mov d, [d]
   add d, 2
@@ -10238,7 +10238,7 @@ _if160_else:
 ; END TERMS
   pop d
   mov [d], b
-;; printf("%d unit hit on Klingon at sector %d, %d\n", 
+; printf("%d unit hit on Klingon at sector %d, %d\n", 
   lea d, [bp + -13] ; $k
   mov d, [d]
   add d, 1
@@ -10260,7 +10260,7 @@ _if160_else:
   push b
   call printf
   add sp, 6
-;; if (k->energy <= 0) { 
+; if (k->energy <= 0) { 
 _if161_cond:
   lea d, [bp + -13] ; $k
   mov d, [d]
@@ -10277,13 +10277,13 @@ _if161_cond:
   cmp b, 0
   je _if161_else
 _if161_true:
-;; puts("*** Klingon Destroyed ***\n"); 
+; puts("*** Klingon Destroyed ***\n"); 
   mov b, _s110 ; "*** Klingon Destroyed ***\n"
   swp b
   push b
   call puts
   add sp, 2
-;; klingons--; 
+; klingons--; 
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
@@ -10291,7 +10291,7 @@ _if161_true:
   mov d, _klingons ; $klingons
   mov [d], b
   inc b
-;; klingons_left--; 
+; klingons_left--; 
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
@@ -10299,14 +10299,14 @@ _if161_true:
   mov d, _klingons_left ; $klingons_left
   mov [d], b
   inc b
-;; wipe_klingon(k); 
+; wipe_klingon(k); 
   lea d, [bp + -13] ; $k
   mov b, [d]
   swp b
   push b
   call wipe_klingon
   add sp, 2
-;; k->energy = 0; 
+; k->energy = 0; 
   lea d, [bp + -13] ; $k
   mov d, [d]
   add d, 2
@@ -10314,7 +10314,7 @@ _if161_true:
   mov b, $0
   pop d
   mov [d], b
-;; map[quad_y][quad_x] = map[quad_y][quad_x] - 0x100; 
+; map[quad_y][quad_x] = map[quad_y][quad_x] - 0x100; 
   mov d, _map_data ; $map
   push a
   push d
@@ -10353,7 +10353,7 @@ _if161_true:
 ; END TERMS
   pop d
   mov [d], b
-;; if (klingons_left <= 0) 
+; if (klingons_left <= 0) 
 _if162_cond:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
@@ -10369,13 +10369,13 @@ _if162_cond:
   cmp b, 0
   je _if162_exit
 _if162_true:
-;; won_game(); 
+; won_game(); 
   call won_game
   jmp _if162_exit
 _if162_exit:
   jmp _if161_exit
 _if161_else:
-;; printf("   (Sensors show %d units remaining.)\n\n", k->energy); 
+; printf("   (Sensors show %d units remaining.)\n\n", k->energy); 
   lea d, [bp + -13] ; $k
   mov d, [d]
   add d, 2
@@ -10391,7 +10391,7 @@ _if161_exit:
 _if160_exit:
   jmp _if159_exit
 _if159_exit:
-;; k++; 
+; k++; 
   lea d, [bp + -13] ; $k
   mov b, [d]
   inc b
@@ -10409,28 +10409,28 @@ _for158_update:
   dec b
   jmp _for158_cond
 _for158_exit:
-;; klingons_shoot(); 
+; klingons_shoot(); 
   call klingons_shoot
   leave
   ret
 
 photon_torpedoes:
   enter 0 ; (push bp; mov bp, sp)
-;; int x3, y3; 
+; int x3, y3; 
   sub sp, 2
   sub sp, 2
-;; int       c1; 
+; int       c1; 
   sub sp, 2
-;; int c2, c3, c4; 
-  sub sp, 2
-  sub sp, 2
-  sub sp, 2
-;; int       x, y, x1, x2; 
+; int c2, c3, c4; 
   sub sp, 2
   sub sp, 2
   sub sp, 2
+; int       x, y, x1, x2; 
   sub sp, 2
-;; if (torps <= 0) { 
+  sub sp, 2
+  sub sp, 2
+  sub sp, 2
+; if (torps <= 0) { 
 _if163_cond:
   mov d, _torps ; $torps
   mov bl, [d]
@@ -10446,18 +10446,18 @@ _if163_cond:
   cmp b, 0
   je _if163_exit
 _if163_true:
-;; puts("All photon torpedoes expended"); 
+; puts("All photon torpedoes expended"); 
   mov b, _s112 ; "All photon torpedoes expended"
   swp b
   push b
   call puts
   add sp, 2
-;; return; 
+; return; 
   leave
   ret
   jmp _if163_exit
 _if163_exit:
-;; if (inoperable(5)) 
+; if (inoperable(5)) 
 _if164_cond:
   mov b, $5
   push bl
@@ -10466,24 +10466,24 @@ _if164_cond:
   cmp b, 0
   je _if164_exit
 _if164_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if164_exit
 _if164_exit:
-;; puts("Course (0-9): "); 
+; puts("Course (0-9): "); 
   mov b, _s71 ; "Course (0-9): "
   swp b
   push b
   call puts
   add sp, 2
-;; c1 = input_f00(); 
+; c1 = input_f00(); 
   lea d, [bp + -5] ; $c1
   push d
   call input_f00
   pop d
   mov [d], b
-;; if (c1 == 900) 
+; if (c1 == 900) 
 _if165_cond:
   lea d, [bp + -5] ; $c1
   mov b, [d]
@@ -10498,7 +10498,7 @@ _if165_cond:
   cmp b, 0
   je _if165_exit
 _if165_true:
-;; c1 = 100; 
+; c1 = 100; 
   lea d, [bp + -5] ; $c1
   push d
   mov b, $64
@@ -10506,7 +10506,7 @@ _if165_true:
   mov [d], b
   jmp _if165_exit
 _if165_exit:
-;; if (c1 < 100 || c1 >= 900) { 
+; if (c1 < 100 || c1 >= 900) { 
 _if166_cond:
   lea d, [bp + -5] ; $c1
   mov b, [d]
@@ -10537,7 +10537,7 @@ _if166_cond:
   cmp b, 0
   je _if166_exit
 _if166_true:
-;; printf("Ensign Chekov%s", inc_1); 
+; printf("Ensign Chekov%s", inc_1); 
   mov d, _inc_1 ; $inc_1
   mov b, [d]
   swp b
@@ -10547,12 +10547,12 @@ _if166_true:
   push b
   call printf
   add sp, 4
-;; return; 
+; return; 
   leave
   ret
   jmp _if166_exit
 _if166_exit:
-;; energy = energy - 2; 
+; energy = energy - 2; 
   mov d, _energy ; $energy
   push d
   mov d, _energy ; $energy
@@ -10567,7 +10567,7 @@ _if166_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; torps--; 
+; torps--; 
   mov d, _torps ; $torps
   mov bl, [d]
   mov bh, 0
@@ -10575,7 +10575,7 @@ _if166_exit:
   mov d, _torps ; $torps
   mov [d], b
   inc b
-;; c2 = FROM_FIXED00(c1);	/* Integer part */ 
+; c2 = FROM_FIXED00(c1);	/* Integer part */ 
   lea d, [bp + -7] ; $c2
   push d
   lea d, [bp + -5] ; $c1
@@ -10586,7 +10586,7 @@ _if166_exit:
   add sp, 2
   pop d
   mov [d], b
-;; c3 = c2 + 1;		/* Next integer part */ 
+; c3 = c2 + 1;		/* Next integer part */ 
   lea d, [bp + -9] ; $c3
   push d
   lea d, [bp + -7] ; $c2
@@ -10600,7 +10600,7 @@ _if166_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; c4 = (c1 - TO_FIXED00(c2));	/* Fractional element in fixed point */ 
+; c4 = (c1 - TO_FIXED00(c2));	/* Fractional element in fixed point */ 
   lea d, [bp + -11] ; $c4
   push d
   lea d, [bp + -5] ; $c1
@@ -10620,7 +10620,7 @@ _if166_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; x1 = 100 * c[1][c2] + (c[1][c3] - c[1][c2]) * c4; 
+; x1 = 100 * c[1][c2] + (c[1][c3] - c[1][c2]) * c4; 
   lea d, [bp + -17] ; $x1
   push d
   mov b, $64
@@ -10699,7 +10699,7 @@ _if166_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; x2 = 100 * c[2][c2] + (c[2][c3] - c[2][c2]) * c4; 
+; x2 = 100 * c[2][c2] + (c[2][c3] - c[2][c2]) * c4; 
   lea d, [bp + -19] ; $x2
   push d
   mov b, $64
@@ -10778,7 +10778,7 @@ _if166_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; x = ship_y + x1; 
+; x = ship_y + x1; 
   lea d, [bp + -13] ; $x
   push d
   mov d, _ship_y ; $ship_y
@@ -10793,7 +10793,7 @@ _if166_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; y = ship_x + x2; 
+; y = ship_x + x2; 
   lea d, [bp + -15] ; $y
   push d
   mov d, _ship_x ; $ship_x
@@ -10808,7 +10808,7 @@ _if166_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; x3 = FROM_FIXED00(x); 
+; x3 = FROM_FIXED00(x); 
   lea d, [bp + -1] ; $x3
   push d
   lea d, [bp + -13] ; $x
@@ -10819,7 +10819,7 @@ _if166_exit:
   add sp, 2
   pop d
   mov [d], b
-;; y3 = FROM_FIXED00(y); 
+; y3 = FROM_FIXED00(y); 
   lea d, [bp + -3] ; $y3
   push d
   lea d, [bp + -15] ; $y
@@ -10830,13 +10830,13 @@ _if166_exit:
   add sp, 2
   pop d
   mov [d], b
-;; puts("Torpedo Track:"); 
+; puts("Torpedo Track:"); 
   mov b, _s114 ; "Torpedo Track:"
   swp b
   push b
   call puts
   add sp, 2
-;; while (x3 >= 1 && x3 <= 8 && y3 >= 1 && y3 <= 8) { 
+; while (x3 >= 1 && x3 <= 8 && y3 >= 1 && y3 <= 8) { 
 _while167_cond:
   lea d, [bp + -1] ; $x3
   mov b, [d]
@@ -10891,9 +10891,9 @@ _while167_cond:
   cmp b, 0
   je _while167_exit
 _while167_block:
-;; unsigned char                         p; 
+; unsigned char                         p; 
   sub sp, 1
-;; printf("    %d, %d\n", x3, y3); 
+; printf("    %d, %d\n", x3, y3); 
   lea d, [bp + -3] ; $y3
   mov b, [d]
   swp b
@@ -10907,7 +10907,7 @@ _while167_block:
   push b
   call printf
   add sp, 6
-;; p = quad[x3-1][y3-1]; 
+; p = quad[x3-1][y3-1]; 
   lea d, [bp + -20] ; $p
   push d
   mov d, _quad_data ; $quad
@@ -10943,7 +10943,7 @@ _while167_block:
   mov bh, 0
   pop d
   mov [d], bl
-;; if (p !=  		0       && p !=  		4     ) { 
+; if (p !=  		0       && p !=  		4     ) { 
 _if168_cond:
   lea d, [bp + -20] ; $p
   mov bl, [d]
@@ -10976,7 +10976,7 @@ _if168_cond:
   cmp b, 0
   je _if168_exit
 _if168_true:
-;; torpedo_hit(x3, y3); 
+; torpedo_hit(x3, y3); 
   lea d, [bp + -3] ; $y3
   mov b, [d]
   push bl
@@ -10985,14 +10985,14 @@ _if168_true:
   push bl
   call torpedo_hit
   add sp, 2
-;; klingons_shoot(); 
+; klingons_shoot(); 
   call klingons_shoot
-;; return; 
+; return; 
   leave
   ret
   jmp _if168_exit
 _if168_exit:
-;; x = x + x1; 
+; x = x + x1; 
   lea d, [bp + -13] ; $x
   push d
   lea d, [bp + -13] ; $x
@@ -11007,7 +11007,7 @@ _if168_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; y = y + x2; 
+; y = y + x2; 
   lea d, [bp + -15] ; $y
   push d
   lea d, [bp + -15] ; $y
@@ -11022,7 +11022,7 @@ _if168_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; x3 = FROM_FIXED00(x); 
+; x3 = FROM_FIXED00(x); 
   lea d, [bp + -1] ; $x3
   push d
   lea d, [bp + -13] ; $x
@@ -11033,7 +11033,7 @@ _if168_exit:
   add sp, 2
   pop d
   mov [d], b
-;; y3 = FROM_FIXED00(y); 
+; y3 = FROM_FIXED00(y); 
   lea d, [bp + -3] ; $y3
   push d
   lea d, [bp + -15] ; $y
@@ -11046,24 +11046,24 @@ _if168_exit:
   mov [d], b
   jmp _while167_cond
 _while167_exit:
-;; puts("Torpedo Missed\n"); 
+; puts("Torpedo Missed\n"); 
   mov b, _s116 ; "Torpedo Missed\n"
   swp b
   push b
   call puts
   add sp, 2
-;; klingons_shoot(); 
+; klingons_shoot(); 
   call klingons_shoot
   leave
   ret
 
 torpedo_hit:
   enter 0 ; (push bp; mov bp, sp)
-;; int i; 
+; int i; 
   sub sp, 2
-;; struct klingon *k; 
+; struct klingon *k; 
   sub sp, 2
-;; switch(quad[yp-1][xp-1]) { 
+; switch(quad[yp-1][xp-1]) { 
 _switch169_expr:
   mov d, _quad_data ; $quad
   push a
@@ -11107,7 +11107,7 @@ _switch169_comparisons:
   je _switch169_case2
   jmp _switch169_exit
 _switch169_case0:
-;; printf("Star at %d, %d absorbed torpedo energy.\n\n", yp, xp); 
+; printf("Star at %d, %d absorbed torpedo energy.\n\n", yp, xp); 
   lea d, [bp + 6] ; $xp
   mov bl, [d]
   mov bh, 0
@@ -11121,17 +11121,17 @@ _switch169_case0:
   push b
   call printf
   add sp, 4
-;; return; 
+; return; 
   leave
   ret
 _switch169_case1:
-;; puts("*** Klingon Destroyed ***\n"); 
+; puts("*** Klingon Destroyed ***\n"); 
   mov b, _s110 ; "*** Klingon Destroyed ***\n"
   swp b
   push b
   call puts
   add sp, 2
-;; klingons--; 
+; klingons--; 
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
@@ -11139,7 +11139,7 @@ _switch169_case1:
   mov d, _klingons ; $klingons
   mov [d], b
   inc b
-;; klingons_left--; 
+; klingons_left--; 
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
@@ -11147,7 +11147,7 @@ _switch169_case1:
   mov d, _klingons_left ; $klingons_left
   mov [d], b
   inc b
-;; if (klingons_left <= 0) 
+; if (klingons_left <= 0) 
 _if170_cond:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
@@ -11163,18 +11163,18 @@ _if170_cond:
   cmp b, 0
   je _if170_exit
 _if170_true:
-;; won_game(); 
+; won_game(); 
   call won_game
   jmp _if170_exit
 _if170_exit:
-;; k = kdata; 
+; k = kdata; 
   lea d, [bp + -3] ; $k
   push d
   mov d, _kdata_data ; $kdata
   mov b, d
   pop d
   mov [d], b
-;; for (i = 0; i <= 2; i++) { 
+; for (i = 0; i <= 2; i++) { 
 _for171_init:
   lea d, [bp + -1] ; $i
   push d
@@ -11195,7 +11195,7 @@ _for171_cond:
   cmp b, 0
   je _for171_exit
 _for171_block:
-;; if (yp == k->y && xp == k->x) 
+; if (yp == k->y && xp == k->x) 
 _if172_cond:
   lea d, [bp + 5] ; $yp
   mov bl, [d]
@@ -11236,7 +11236,7 @@ _if172_cond:
   cmp b, 0
   je _if172_exit
 _if172_true:
-;; k->energy = 0; 
+; k->energy = 0; 
   lea d, [bp + -3] ; $k
   mov d, [d]
   add d, 2
@@ -11246,7 +11246,7 @@ _if172_true:
   mov [d], b
   jmp _if172_exit
 _if172_exit:
-;; k++; 
+; k++; 
   lea d, [bp + -3] ; $k
   mov b, [d]
   inc b
@@ -11264,7 +11264,7 @@ _for171_update:
   dec b
   jmp _for171_cond
 _for171_exit:
-;; map[quad_y][quad_x] =map[quad_y][quad_x] - 0x100; 
+; map[quad_y][quad_x] =map[quad_y][quad_x] - 0x100; 
   mov d, _map_data ; $map
   push a
   push d
@@ -11303,16 +11303,16 @@ _for171_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch169_exit ; case break
 _switch169_case2:
-;; puts("*** Starbase Destroyed ***"); 
+; puts("*** Starbase Destroyed ***"); 
   mov b, _s118 ; "*** Starbase Destroyed ***"
   swp b
   push b
   call puts
   add sp, 2
-;; starbases--; 
+; starbases--; 
   mov d, _starbases ; $starbases
   mov bl, [d]
   mov bh, 0
@@ -11320,7 +11320,7 @@ _switch169_case2:
   mov d, _starbases ; $starbases
   mov [d], b
   inc b
-;; starbases_left--; 
+; starbases_left--; 
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
@@ -11328,7 +11328,7 @@ _switch169_case2:
   mov d, _starbases_left ; $starbases_left
   mov [d], b
   inc b
-;; if (starbases_left <= 0 && klingons_left <= FROM_FIXED(stardate) - time_start - time_up) { 
+; if (starbases_left <= 0 && klingons_left <= FROM_FIXED(stardate) - time_start - time_up) { 
 _if173_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
@@ -11380,47 +11380,47 @@ _if173_cond:
   cmp b, 0
   je _if173_exit
 _if173_true:
-;; puts("That does it, Captain!!"); 
+; puts("That does it, Captain!!"); 
   mov b, _s119 ; "That does it, Captain!!"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("You are hereby relieved of command\n"); 
+; puts("You are hereby relieved of command\n"); 
   mov b, _s120 ; "You are hereby relieved of command\n"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("and sentenced to 99 stardates of hard"); 
+; puts("and sentenced to 99 stardates of hard"); 
   mov b, _s121 ; "and sentenced to 99 stardates of hard"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("labor on Cygnus 12!!\n"); 
+; puts("labor on Cygnus 12!!\n"); 
   mov b, _s122 ; "labor on Cygnus 12!!\n"
   swp b
   push b
   call puts
   add sp, 2
-;; resign_commision(); 
+; resign_commision(); 
   call resign_commision
   jmp _if173_exit
 _if173_exit:
-;; puts("Starfleet Command reviewing your record to consider\n court martial!\n"); 
+; puts("Starfleet Command reviewing your record to consider\n court martial!\n"); 
   mov b, _s123 ; "Starfleet Command reviewing your record to consider\n court martial!\n"
   swp b
   push b
   call puts
   add sp, 2
-;; docked = 0;		/* Undock */ 
+; docked = 0;		/* Undock */ 
   mov d, _docked ; $docked
   push d
   mov b, $0
   pop d
   mov [d], bl
-;; map[quad_y][quad_x] =map[quad_y][quad_x] - 0x10; 
+; map[quad_y][quad_x] =map[quad_y][quad_x] - 0x10; 
   mov d, _map_data ; $map
   push a
   push d
@@ -11459,10 +11459,10 @@ _if173_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; break; 
+; break; 
   jmp _switch169_exit ; case break
 _switch169_exit:
-;; quad[yp-1][xp-1] =  		0      ; 
+; quad[yp-1][xp-1] =  		0      ; 
   mov d, _quad_data ; $quad
   push a
   push d
@@ -11503,7 +11503,7 @@ _switch169_exit:
 
 damage_control:
   enter 0 ; (push bp; mov bp, sp)
-;; int       repair_cost = 0; 
+; int       repair_cost = 0; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -1] ; $repair_cost
@@ -11512,9 +11512,9 @@ damage_control:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; int i; 
+; int i; 
   sub sp, 2
-;; if (damage[6] < 0) 
+; if (damage[6] < 0) 
 _if174_cond:
   mov d, _damage_data ; $damage
   push a
@@ -11535,7 +11535,7 @@ _if174_cond:
   cmp b, 0
   je _if174_exit
 _if174_true:
-;; puts("Damage Control report not available."); 
+; puts("Damage Control report not available."); 
   mov b, _s124 ; "Damage Control report not available."
   swp b
   push b
@@ -11543,7 +11543,7 @@ _if174_true:
   add sp, 2
   jmp _if174_exit
 _if174_exit:
-;; if (docked) { 
+; if (docked) { 
 _if175_cond:
   mov d, _docked ; $docked
   mov bl, [d]
@@ -11551,13 +11551,13 @@ _if175_cond:
   cmp b, 0
   je _if175_exit
 _if175_true:
-;; repair_cost = 0; 
+; repair_cost = 0; 
   lea d, [bp + -1] ; $repair_cost
   push d
   mov b, $0
   pop d
   mov [d], b
-;; for (i = 1; i <= 8; i++) 
+; for (i = 1; i <= 8; i++) 
 _for176_init:
   lea d, [bp + -3] ; $i
   push d
@@ -11578,7 +11578,7 @@ _for176_cond:
   cmp b, 0
   je _for176_exit
 _for176_block:
-;; if (damage[i] < 0) 
+; if (damage[i] < 0) 
 _if177_cond:
   mov d, _damage_data ; $damage
   push a
@@ -11600,7 +11600,7 @@ _if177_cond:
   cmp b, 0
   je _if177_exit
 _if177_true:
-;; repair_cost = repair_cost + 10; 
+; repair_cost = repair_cost + 10; 
   lea d, [bp + -1] ; $repair_cost
   push d
   lea d, [bp + -1] ; $repair_cost
@@ -11625,14 +11625,14 @@ _for176_update:
   dec b
   jmp _for176_cond
 _for176_exit:
-;; if (repair_cost) { 
+; if (repair_cost) { 
 _if178_cond:
   lea d, [bp + -1] ; $repair_cost
   mov b, [d]
   cmp b, 0
   je _if178_exit
 _if178_true:
-;; repair_cost = repair_cost + d4; 
+; repair_cost = repair_cost + d4; 
   lea d, [bp + -1] ; $repair_cost
   push d
   lea d, [bp + -1] ; $repair_cost
@@ -11647,7 +11647,7 @@ _if178_true:
 ; END TERMS
   pop d
   mov [d], b
-;; if (repair_cost >= 100) 
+; if (repair_cost >= 100) 
 _if179_cond:
   lea d, [bp + -1] ; $repair_cost
   mov b, [d]
@@ -11662,7 +11662,7 @@ _if179_cond:
   cmp b, 0
   je _if179_exit
 _if179_true:
-;; repair_cost = 90;	/* 0.9 */ 
+; repair_cost = 90;	/* 0.9 */ 
   lea d, [bp + -1] ; $repair_cost
   push d
   mov b, $5a
@@ -11670,13 +11670,13 @@ _if179_true:
   mov [d], b
   jmp _if179_exit
 _if179_exit:
-;; printf("\nTechnicians standing by to effect repairs to your ship;\n"); 
+; printf("\nTechnicians standing by to effect repairs to your ship;\n"); 
   mov b, _s125 ; "\nTechnicians standing by to effect repairs to your ship;\n"
   swp b
   push b
   call printf
   add sp, 2
-;; printf("Estimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ", print100(repair_cost)); 
+; printf("Estimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ", print100(repair_cost)); 
   lea d, [bp + -1] ; $repair_cost
   mov b, [d]
   swp b
@@ -11690,13 +11690,13 @@ _if179_exit:
   push b
   call printf
   add sp, 4
-;; if (yesno()) { 
+; if (yesno()) { 
 _if180_cond:
   call yesno
   cmp b, 0
   je _if180_exit
 _if180_true:
-;; for (i = 1; i <= 8; i++) 
+; for (i = 1; i <= 8; i++) 
 _for181_init:
   lea d, [bp + -3] ; $i
   push d
@@ -11717,7 +11717,7 @@ _for181_cond:
   cmp b, 0
   je _for181_exit
 _for181_block:
-;; if (damage[i] < 0) 
+; if (damage[i] < 0) 
 _if182_cond:
   mov d, _damage_data ; $damage
   push a
@@ -11739,7 +11739,7 @@ _if182_cond:
   cmp b, 0
   je _if182_exit
 _if182_true:
-;; damage[i] = 0; 
+; damage[i] = 0; 
   mov d, _damage_data ; $damage
   push a
   push d
@@ -11763,7 +11763,7 @@ _for181_update:
   dec b
   jmp _for181_cond
 _for181_exit:
-;; stardate = stardate + (repair_cost + 5)/10 + 1; 
+; stardate = stardate + (repair_cost + 5)/10 + 1; 
   mov d, _stardate ; $stardate
   push d
   mov d, _stardate ; $stardate
@@ -11798,14 +11798,14 @@ _for181_exit:
   mov [d], b
   jmp _if180_exit
 _if180_exit:
-;; return; 
+; return; 
   leave
   ret
   jmp _if178_exit
 _if178_exit:
   jmp _if175_exit
 _if175_exit:
-;; if (damage[6] < 0) 
+; if (damage[6] < 0) 
 _if183_cond:
   mov d, _damage_data ; $damage
   push a
@@ -11826,18 +11826,18 @@ _if183_cond:
   cmp b, 0
   je _if183_exit
 _if183_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if183_exit
 _if183_exit:
-;; puts("Device            State of Repair"); 
+; puts("Device            State of Repair"); 
   mov b, _s127 ; "Device            State of Repair"
   swp b
   push b
   call puts
   add sp, 2
-;; for (i = 1; i <= 8; i++) 
+; for (i = 1; i <= 8; i++) 
 _for184_init:
   lea d, [bp + -3] ; $i
   push d
@@ -11858,7 +11858,7 @@ _for184_cond:
   cmp b, 0
   je _for184_exit
 _for184_block:
-;; printf("%-25s%6s\n", get_device_name(i), print100(damage[i])); 
+; printf("%-25s%6s\n", get_device_name(i), print100(damage[i])); 
   mov d, _damage_data ; $damage
   push a
   push d
@@ -11896,7 +11896,7 @@ _for184_update:
   dec b
   jmp _for184_cond
 _for184_exit:
-;; printf("\n"); 
+; printf("\n"); 
   mov b, _s129 ; "\n"
   swp b
   push b
@@ -11907,9 +11907,9 @@ _for184_exit:
 
 shield_control:
   enter 0 ; (push bp; mov bp, sp)
-;; int i; 
+; int i; 
   sub sp, 2
-;; if (inoperable(7)) 
+; if (inoperable(7)) 
 _if185_cond:
   mov b, $7
   push bl
@@ -11918,12 +11918,12 @@ _if185_cond:
   cmp b, 0
   je _if185_exit
 _if185_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if185_exit
 _if185_exit:
-;; printf("Energy available = %d\n\n Input number of units to shields: ", energy + shield); 
+; printf("Energy available = %d\n\n Input number of units to shields: ", energy + shield); 
   mov d, _energy ; $energy
   mov b, [d]
 ; START TERMS
@@ -11941,13 +11941,13 @@ _if185_exit:
   push b
   call printf
   add sp, 4
-;; i = input_int(); 
+; i = input_int(); 
   lea d, [bp + -1] ; $i
   push d
   call input_int
   pop d
   mov [d], b
-;; if (i < 0 || shield == i) { 
+; if (i < 0 || shield == i) { 
 _if186_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -11979,18 +11979,18 @@ _if186_cond:
   cmp b, 0
   je _if186_exit
 _if186_true:
-;; puts("<Shields Unchanged>\n"); 
+; puts("<Shields Unchanged>\n"); 
   mov b, _s131 ; "<Shields Unchanged>\n"
   swp b
   push b
   call puts
   add sp, 2
-;; return; 
+; return; 
   leave
   ret
   jmp _if186_exit
 _if186_exit:
-;; if (i >= energy + shield) { 
+; if (i >= energy + shield) { 
 _if187_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -12014,7 +12014,7 @@ _if187_cond:
   cmp b, 0
   je _if187_exit
 _if187_true:
-;; puts("Shield Control Reports:\n  This is not the Federation Treasury."); 
+; puts("Shield Control Reports:\n  This is not the Federation Treasury."); 
   mov b, _s132 ; "Shield Control Reports:\n  This is not the Federation Treasury."
   swp b
   push b
@@ -12022,7 +12022,7 @@ _if187_true:
   add sp, 2
   jmp _if187_exit
 _if187_exit:
-;; energy = energy + shield - i; 
+; energy = energy + shield - i; 
   mov d, _energy ; $energy
   push d
   mov d, _energy ; $energy
@@ -12042,14 +12042,14 @@ _if187_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; shield = i; 
+; shield = i; 
   mov d, _shield ; $shield
   push d
   lea d, [bp + -1] ; $i
   mov b, [d]
   pop d
   mov [d], b
-;; printf("Deflector Control Room report:\n  Shields now at %d units per your command.\n\n", shield); 
+; printf("Deflector Control Room report:\n  Shields now at %d units per your command.\n\n", shield); 
   mov d, _shield ; $shield
   mov b, [d]
   swp b
@@ -12064,7 +12064,7 @@ _if187_exit:
 
 library_computer:
   enter 0 ; (push bp; mov bp, sp)
-;; if (inoperable(8)) 
+; if (inoperable(8)) 
 _if188_cond:
   mov b, $8
   push bl
@@ -12073,18 +12073,18 @@ _if188_cond:
   cmp b, 0
   je _if188_exit
 _if188_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if188_exit
 _if188_exit:
-;; puts("Computer active and awating command: "); 
+; puts("Computer active and awating command: "); 
   mov b, _s134 ; "Computer active and awating command: "
   swp b
   push b
   call puts
   add sp, 2
-;; switch(input_int()) { 
+; switch(input_int()) { 
 _switch189_expr:
   call input_int
 _switch189_comparisons:
@@ -12105,76 +12105,76 @@ _switch189_comparisons:
   jmp _switch189_default
   jmp _switch189_exit
 _switch189_case0:
-;; break; 
+; break; 
   jmp _switch189_exit ; case break
 _switch189_case1:
-;; galactic_record(); 
+; galactic_record(); 
   call galactic_record
-;; break; 
+; break; 
   jmp _switch189_exit ; case break
 _switch189_case2:
-;; status_report(); 
+; status_report(); 
   call status_report
-;; break; 
+; break; 
   jmp _switch189_exit ; case break
 _switch189_case3:
-;; torpedo_data(); 
+; torpedo_data(); 
   call torpedo_data
-;; break; 
+; break; 
   jmp _switch189_exit ; case break
 _switch189_case4:
-;; nav_data(); 
+; nav_data(); 
   call nav_data
-;; break; 
+; break; 
   jmp _switch189_exit ; case break
 _switch189_case5:
-;; dirdist_calc(); 
+; dirdist_calc(); 
   call dirdist_calc
-;; break; 
+; break; 
   jmp _switch189_exit ; case break
 _switch189_case6:
-;; galaxy_map(); 
+; galaxy_map(); 
   call galaxy_map
-;; break; 
+; break; 
   jmp _switch189_exit ; case break
 _switch189_default:
-;; puts("Functions available from Library-Computer:\n\n"); 
+; puts("Functions available from Library-Computer:\n\n"); 
   mov b, _s135 ; "Functions available from Library-Computer:\n\n"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("   0 = Cumulative Galactic Record\n"); 
+; puts("   0 = Cumulative Galactic Record\n"); 
   mov b, _s136 ; "   0 = Cumulative Galactic Record\n"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("   1 = Status Report\n"); 
+; puts("   1 = Status Report\n"); 
   mov b, _s137 ; "   1 = Status Report\n"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("   2 = Photon Torpedo Data\n"); 
+; puts("   2 = Photon Torpedo Data\n"); 
   mov b, _s138 ; "   2 = Photon Torpedo Data\n"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("   3 = Starbase Nav Data\n"); 
+; puts("   3 = Starbase Nav Data\n"); 
   mov b, _s139 ; "   3 = Starbase Nav Data\n"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("   4 = Direction/Distance Calculator\n"); 
+; puts("   4 = Direction/Distance Calculator\n"); 
   mov b, _s140 ; "   4 = Direction/Distance Calculator\n"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("   5 = Galaxy Region Name Map\n"); 
+; puts("   5 = Galaxy Region Name Map\n"); 
   mov b, _s141 ; "   5 = Galaxy Region Name Map\n"
   swp b
   push b
@@ -12186,10 +12186,10 @@ _switch189_exit:
 
 galactic_record:
   enter 0 ; (push bp; mov bp, sp)
-;; int i, j; 
+; int i, j; 
   sub sp, 2
   sub sp, 2
-;; printf("\n     Computer Record of Galaxy for Quadrant %d,%d\n\n", quad_y, quad_x); 
+; printf("\n     Computer Record of Galaxy for Quadrant %d,%d\n\n", quad_y, quad_x); 
   mov d, _quad_x ; $quad_x
   mov b, [d]
   swp b
@@ -12203,13 +12203,13 @@ galactic_record:
   push b
   call printf
   add sp, 6
-;; puts("     1     2     3     4     5     6     7     8"); 
+; puts("     1     2     3     4     5     6     7     8"); 
   mov b, _s143 ; "     1     2     3     4     5     6     7     8"
   swp b
   push b
   call puts
   add sp, 2
-;; for (i = 1; i <= 8; i++) { 
+; for (i = 1; i <= 8; i++) { 
 _for190_init:
   lea d, [bp + -1] ; $i
   push d
@@ -12230,7 +12230,7 @@ _for190_cond:
   cmp b, 0
   je _for190_exit
 _for190_block:
-;; printf("%s%d", gr_1, i); 
+; printf("%s%d", gr_1, i); 
   lea d, [bp + -1] ; $i
   mov b, [d]
   swp b
@@ -12244,7 +12244,7 @@ _for190_block:
   push b
   call printf
   add sp, 6
-;; for (j = 1; j <= 8; j++) { 
+; for (j = 1; j <= 8; j++) { 
 _for191_init:
   lea d, [bp + -3] ; $j
   push d
@@ -12265,13 +12265,13 @@ _for191_cond:
   cmp b, 0
   je _for191_exit
 _for191_block:
-;; printf("   "); 
+; printf("   "); 
   mov b, _s25 ; "   "
   swp b
   push b
   call printf
   add sp, 2
-;; if (map[i][j] &   0x1000		/* Set if this sector was mapped */          ) 
+; if (map[i][j] &   0x1000		/* Set if this sector was mapped */          ) 
 _if192_cond:
   mov d, _map_data ; $map
   push a
@@ -12295,7 +12295,7 @@ _if192_cond:
   cmp b, 0
   je _if192_else
 _if192_true:
-;; putbcd(map[i][j]); 
+; putbcd(map[i][j]); 
   mov d, _map_data ; $map
   push a
   push d
@@ -12316,7 +12316,7 @@ _if192_true:
   add sp, 2
   jmp _if192_exit
 _if192_else:
-;; printf("***"); 
+; printf("***"); 
   mov b, _s101 ; "***"
   swp b
   push b
@@ -12332,7 +12332,7 @@ _for191_update:
   dec b
   jmp _for191_cond
 _for191_exit:
-;; putchar('\n'); 
+; putchar('\n'); 
   mov b, $a
   push bl
   call putchar
@@ -12346,7 +12346,7 @@ _for190_update:
   dec b
   jmp _for190_cond
 _for190_exit:
-;; printf("%s\n", gr_1); 
+; printf("%s\n", gr_1); 
   mov d, _gr_1 ; $gr_1
   mov b, [d]
   swp b
@@ -12361,7 +12361,7 @@ _for190_exit:
 
 status_report:
   enter 0 ; (push bp; mov bp, sp)
-;; char *plural = str_s + 1; 
+; char *plural = str_s + 1; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -1] ; $plural
@@ -12378,7 +12378,7 @@ status_report:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; unsigned int        left = TO_FIXED(time_start + time_up) - stardate; 
+; unsigned int        left = TO_FIXED(time_start + time_up) - stardate; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -3] ; $left
@@ -12409,13 +12409,13 @@ status_report:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; puts("   Status Report:\n"); 
+; puts("   Status Report:\n"); 
   mov b, _s145 ; "   Status Report:\n"
   swp b
   push b
   call puts
   add sp, 2
-;; if (klingons_left > 1) 
+; if (klingons_left > 1) 
 _if193_cond:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
@@ -12431,7 +12431,7 @@ _if193_cond:
   cmp b, 0
   je _if193_exit
 _if193_true:
-;; plural = str_s; 
+; plural = str_s; 
   lea d, [bp + -1] ; $plural
   push d
   mov d, _str_s ; $str_s
@@ -12440,7 +12440,7 @@ _if193_true:
   mov [d], b
   jmp _if193_exit
 _if193_exit:
-;; printf("Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n", 
+; printf("Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n", 
   lea d, [bp + -3] ; $left
   mov b, [d]
 ; START FACTORS
@@ -12475,7 +12475,7 @@ _if193_exit:
   push b
   call printf
   add sp, 9
-;; if (starbases_left < 1) { 
+; if (starbases_left < 1) { 
 _if194_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
@@ -12491,7 +12491,7 @@ _if194_cond:
   cmp b, 0
   je _if194_else
 _if194_true:
-;; puts("Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"); 
+; puts("Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"); 
   mov b, _s147 ; "Your stupidity has left you on your own in the galaxy\n -- you have no starbases left!\n"
   swp b
   push b
@@ -12499,14 +12499,14 @@ _if194_true:
   add sp, 2
   jmp _if194_exit
 _if194_else:
-;; plural = str_s; 
+; plural = str_s; 
   lea d, [bp + -1] ; $plural
   push d
   mov d, _str_s ; $str_s
   mov b, [d]
   pop d
   mov [d], b
-;; if (starbases_left < 2) 
+; if (starbases_left < 2) 
 _if195_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
@@ -12522,7 +12522,7 @@ _if195_cond:
   cmp b, 0
   je _if195_exit
 _if195_true:
-;; plural++; 
+; plural++; 
   lea d, [bp + -1] ; $plural
   mov b, [d]
   inc b
@@ -12531,7 +12531,7 @@ _if195_true:
   dec b
   jmp _if195_exit
 _if195_exit:
-;; printf("The Federation is maintaining %d starbase%s in the galaxy\n\n", starbases_left, plural); 
+; printf("The Federation is maintaining %d starbase%s in the galaxy\n\n", starbases_left, plural); 
   lea d, [bp + -1] ; $plural
   mov b, [d]
   swp b
@@ -12551,9 +12551,9 @@ _if194_exit:
 
 torpedo_data:
   enter 0 ; (push bp; mov bp, sp)
-;; int i; 
+; int i; 
   sub sp, 2
-;; const char *plural = str_s + 1; 
+; const char *plural = str_s + 1; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -3] ; $plural
@@ -12570,20 +12570,20 @@ torpedo_data:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
-;; struct klingon *k; 
+; struct klingon *k; 
   sub sp, 2
-;; if (no_klingon()) 
+; if (no_klingon()) 
 _if196_cond:
   call no_klingon
   cmp b, 0
   je _if196_exit
 _if196_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if196_exit
 _if196_exit:
-;; if (klingons > 1) 
+; if (klingons > 1) 
 _if197_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
@@ -12599,7 +12599,7 @@ _if197_cond:
   cmp b, 0
   je _if197_exit
 _if197_true:
-;; plural--; 
+; plural--; 
   lea d, [bp + -3] ; $plural
   mov b, [d]
   dec b
@@ -12608,7 +12608,7 @@ _if197_true:
   inc b
   jmp _if197_exit
 _if197_exit:
-;; printf("From Enterprise to Klingon battlecriuser%s:\n\n", plural); 
+; printf("From Enterprise to Klingon battlecriuser%s:\n\n", plural); 
   lea d, [bp + -3] ; $plural
   mov b, [d]
   swp b
@@ -12618,14 +12618,14 @@ _if197_exit:
   push b
   call printf
   add sp, 4
-;; k = kdata; 
+; k = kdata; 
   lea d, [bp + -5] ; $k
   push d
   mov d, _kdata_data ; $kdata
   mov b, d
   pop d
   mov [d], b
-;; for (i = 0; i <= 2; i++) { 
+; for (i = 0; i <= 2; i++) { 
 _for198_init:
   lea d, [bp + -1] ; $i
   push d
@@ -12646,7 +12646,7 @@ _for198_cond:
   cmp b, 0
   je _for198_exit
 _for198_block:
-;; if (k->energy > 0) { 
+; if (k->energy > 0) { 
 _if199_cond:
   lea d, [bp + -5] ; $k
   mov d, [d]
@@ -12663,7 +12663,7 @@ _if199_cond:
   cmp b, 0
   je _if199_exit
 _if199_true:
-;; compute_vector(TO_FIXED00(k->y), 
+; compute_vector(TO_FIXED00(k->y), 
   mov d, _ship_x ; $ship_x
   mov b, [d]
   swp b
@@ -12698,7 +12698,7 @@ _if199_true:
   add sp, 8
   jmp _if199_exit
 _if199_exit:
-;; k++; 
+; k++; 
   lea d, [bp + -5] ; $k
   mov b, [d]
   inc b
@@ -12721,7 +12721,7 @@ _for198_exit:
 
 nav_data:
   enter 0 ; (push bp; mov bp, sp)
-;; if (starbases <= 0) { 
+; if (starbases <= 0) { 
 _if200_cond:
   mov d, _starbases ; $starbases
   mov bl, [d]
@@ -12737,18 +12737,18 @@ _if200_cond:
   cmp b, 0
   je _if200_exit
 _if200_true:
-;; puts("Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"); 
+; puts("Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"); 
   mov b, _s150 ; "Mr. Spock reports,\n  Sensors show no starbases in this quadrant.\n"
   swp b
   push b
   call puts
   add sp, 2
-;; return; 
+; return; 
   leave
   ret
   jmp _if200_exit
 _if200_exit:
-;; compute_vector(TO_FIXED00(base_y), TO_FIXED00(base_x), ship_y, ship_x); 
+; compute_vector(TO_FIXED00(base_y), TO_FIXED00(base_x), ship_y, ship_x); 
   mov d, _ship_x ; $ship_x
   mov b, [d]
   swp b
@@ -12782,12 +12782,12 @@ _if200_exit:
 
 dirdist_calc:
   enter 0 ; (push bp; mov bp, sp)
-;; int       c1, a, w1, x; 
+; int       c1, a, w1, x; 
   sub sp, 2
   sub sp, 2
   sub sp, 2
   sub sp, 2
-;; printf("Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: ", 
+; printf("Direction/Distance Calculator\n You are at quadrant %d,%d sector %d,%d\n\n Please enter initial X coordinate: ", 
   mov d, _ship_x ; $ship_x
   mov b, [d]
   swp b
@@ -12817,7 +12817,7 @@ dirdist_calc:
   push b
   call printf
   add sp, 10
-;; c1 = TO_FIXED00(input_int()); 
+; c1 = TO_FIXED00(input_int()); 
   lea d, [bp + -1] ; $c1
   push d
   call input_int
@@ -12827,7 +12827,7 @@ dirdist_calc:
   add sp, 2
   pop d
   mov [d], b
-;; if (c1 < 0 || c1 > 900 ) 
+; if (c1 < 0 || c1 > 900 ) 
 _if201_cond:
   lea d, [bp + -1] ; $c1
   mov b, [d]
@@ -12858,18 +12858,18 @@ _if201_cond:
   cmp b, 0
   je _if201_exit
 _if201_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if201_exit
 _if201_exit:
-;; puts("Please enter initial Y coordinate: "); 
+; puts("Please enter initial Y coordinate: "); 
   mov b, _s152 ; "Please enter initial Y coordinate: "
   swp b
   push b
   call puts
   add sp, 2
-;; a = TO_FIXED00(input_int()); 
+; a = TO_FIXED00(input_int()); 
   lea d, [bp + -3] ; $a
   push d
   call input_int
@@ -12879,7 +12879,7 @@ _if201_exit:
   add sp, 2
   pop d
   mov [d], b
-;; if (a < 0 || a > 900) 
+; if (a < 0 || a > 900) 
 _if202_cond:
   lea d, [bp + -3] ; $a
   mov b, [d]
@@ -12910,18 +12910,18 @@ _if202_cond:
   cmp b, 0
   je _if202_exit
 _if202_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if202_exit
 _if202_exit:
-;; puts("Please enter final X coordinate: "); 
+; puts("Please enter final X coordinate: "); 
   mov b, _s153 ; "Please enter final X coordinate: "
   swp b
   push b
   call puts
   add sp, 2
-;; w1 = TO_FIXED00(input_int()); 
+; w1 = TO_FIXED00(input_int()); 
   lea d, [bp + -5] ; $w1
   push d
   call input_int
@@ -12931,7 +12931,7 @@ _if202_exit:
   add sp, 2
   pop d
   mov [d], b
-;; if (w1 < 0 || w1 > 900) 
+; if (w1 < 0 || w1 > 900) 
 _if203_cond:
   lea d, [bp + -5] ; $w1
   mov b, [d]
@@ -12962,18 +12962,18 @@ _if203_cond:
   cmp b, 0
   je _if203_exit
 _if203_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if203_exit
 _if203_exit:
-;; puts("Please enter final Y coordinate: "); 
+; puts("Please enter final Y coordinate: "); 
   mov b, _s154 ; "Please enter final Y coordinate: "
   swp b
   push b
   call puts
   add sp, 2
-;; x = TO_FIXED00(input_int()); 
+; x = TO_FIXED00(input_int()); 
   lea d, [bp + -7] ; $x
   push d
   call input_int
@@ -12983,7 +12983,7 @@ _if203_exit:
   add sp, 2
   pop d
   mov [d], b
-;; if (x < 0 || x > 900) 
+; if (x < 0 || x > 900) 
 _if204_cond:
   lea d, [bp + -7] ; $x
   mov b, [d]
@@ -13014,12 +13014,12 @@ _if204_cond:
   cmp b, 0
   je _if204_exit
 _if204_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if204_exit
 _if204_exit:
-;; compute_vector(w1, x, c1, a); 
+; compute_vector(w1, x, c1, a); 
   lea d, [bp + -3] ; $a
   mov b, [d]
   swp b
@@ -13043,23 +13043,23 @@ _if204_exit:
 
 galaxy_map:
   enter 0 ; (push bp; mov bp, sp)
-;; int i, j, j0; 
+; int i, j, j0; 
   sub sp, 2
   sub sp, 2
   sub sp, 2
-;; printf("\n                   The Galaxy\n\n"); 
+; printf("\n                   The Galaxy\n\n"); 
   mov b, _s155 ; "\n                   The Galaxy\n\n"
   swp b
   push b
   call printf
   add sp, 2
-;; printf("    1     2     3     4     5     6     7     8\n"); 
+; printf("    1     2     3     4     5     6     7     8\n"); 
   mov b, _s156 ; "    1     2     3     4     5     6     7     8\n"
   swp b
   push b
   call printf
   add sp, 2
-;; for (i = 1; i <= 8; i++) { 
+; for (i = 1; i <= 8; i++) { 
 _for205_init:
   lea d, [bp + -1] ; $i
   push d
@@ -13080,7 +13080,7 @@ _for205_cond:
   cmp b, 0
   je _for205_exit
 _for205_block:
-;; printf("%s%d ", gm_1, i); 
+; printf("%s%d ", gm_1, i); 
   lea d, [bp + -1] ; $i
   mov b, [d]
   swp b
@@ -13094,7 +13094,7 @@ _for205_block:
   push b
   call printf
   add sp, 6
-;; quadrant_name(1, i, 1); 
+; quadrant_name(1, i, 1); 
   mov b, $1
   push bl
   lea d, [bp + -1] ; $i
@@ -13104,7 +13104,7 @@ _for205_block:
   push bl
   call quadrant_name
   add sp, 3
-;; j0 = (int) (11 - (strlen(quadname) / 2)); 
+; j0 = (int) (11 - (strlen(quadname) / 2)); 
   lea d, [bp + -5] ; $j0
   push d
   mov b, $b
@@ -13131,7 +13131,7 @@ _for205_block:
 ; END TERMS
   pop d
   mov [d], b
-;; for (j = 0; j < j0; j++) 
+; for (j = 0; j < j0; j++) 
 _for206_init:
   lea d, [bp + -3] ; $j
   push d
@@ -13153,7 +13153,7 @@ _for206_cond:
   cmp b, 0
   je _for206_exit
 _for206_block:
-;; putchar(' '); 
+; putchar(' '); 
   mov b, $20
   push bl
   call putchar
@@ -13167,14 +13167,14 @@ _for206_update:
   dec b
   jmp _for206_cond
 _for206_exit:
-;; puts(quadname); 
+; puts(quadname); 
   mov d, _quadname_data ; $quadname
   mov b, d
   swp b
   push b
   call puts
   add sp, 2
-;; for (j = 0; j < j0; j++) 
+; for (j = 0; j < j0; j++) 
 _for207_init:
   lea d, [bp + -3] ; $j
   push d
@@ -13196,7 +13196,7 @@ _for207_cond:
   cmp b, 0
   je _for207_exit
 _for207_block:
-;; putchar(' '); 
+; putchar(' '); 
   mov b, $20
   push bl
   call putchar
@@ -13210,7 +13210,7 @@ _for207_update:
   dec b
   jmp _for207_cond
 _for207_exit:
-;; if (!(strlen(quadname) % 2)) 
+; if (!(strlen(quadname) % 2)) 
 _if208_cond:
   mov d, _quadname_data ; $quadname
   mov b, d
@@ -13232,14 +13232,14 @@ _if208_cond:
   cmp b, 0
   je _if208_exit
 _if208_true:
-;; putchar(' '); 
+; putchar(' '); 
   mov b, $20
   push bl
   call putchar
   add sp, 1
   jmp _if208_exit
 _if208_exit:
-;; quadrant_name(1, i, 5); 
+; quadrant_name(1, i, 5); 
   mov b, $5
   push bl
   lea d, [bp + -1] ; $i
@@ -13249,7 +13249,7 @@ _if208_exit:
   push bl
   call quadrant_name
   add sp, 3
-;; j0 = (int) (12 - (strlen(quadname) / 2)); 
+; j0 = (int) (12 - (strlen(quadname) / 2)); 
   lea d, [bp + -5] ; $j0
   push d
   mov b, $c
@@ -13276,7 +13276,7 @@ _if208_exit:
 ; END TERMS
   pop d
   mov [d], b
-;; for (j = 0; j < j0; j++) 
+; for (j = 0; j < j0; j++) 
 _for209_init:
   lea d, [bp + -3] ; $j
   push d
@@ -13298,7 +13298,7 @@ _for209_cond:
   cmp b, 0
   je _for209_exit
 _for209_block:
-;; putchar(' '); 
+; putchar(' '); 
   mov b, $20
   push bl
   call putchar
@@ -13312,7 +13312,7 @@ _for209_update:
   dec b
   jmp _for209_cond
 _for209_exit:
-;; puts(quadname); 
+; puts(quadname); 
   mov d, _quadname_data ; $quadname
   mov b, d
   swp b
@@ -13328,7 +13328,7 @@ _for205_update:
   dec b
   jmp _for205_cond
 _for205_exit:
-;; puts(gm_1); 
+; puts(gm_1); 
   mov d, _gm_1 ; $gm_1
   mov b, [d]
   swp b
@@ -13340,16 +13340,16 @@ _for205_exit:
 
 compute_vector:
   enter 0 ; (push bp; mov bp, sp)
-;; long unsigned int        xl, al; 
+; long unsigned int        xl, al; 
   sub sp, 4
   sub sp, 4
-;; puts("  DIRECTION = "); 
+; puts("  DIRECTION = "); 
   mov b, _s158 ; "  DIRECTION = "
   swp b
   push b
   call puts
   add sp, 2
-;; x = x - a; 
+; x = x - a; 
   lea d, [bp + 7] ; $x
   push d
   lea d, [bp + 7] ; $x
@@ -13365,7 +13365,7 @@ compute_vector:
 ; END TERMS
   pop d
   mov [d], b
-;; a = c1 - w1; 
+; a = c1 - w1; 
   lea d, [bp + 11] ; $a
   push d
   lea d, [bp + 9] ; $c1
@@ -13381,7 +13381,7 @@ compute_vector:
 ; END TERMS
   pop d
   mov [d], b
-;; xl = abs(x); 
+; xl = abs(x); 
   lea d, [bp + -3] ; $xl
   push d
   lea d, [bp + 7] ; $x
@@ -13394,7 +13394,7 @@ compute_vector:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; al = abs(a); 
+; al = abs(a); 
   lea d, [bp + -7] ; $al
   push d
   lea d, [bp + 11] ; $a
@@ -13407,7 +13407,7 @@ compute_vector:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; if (x < 0) { 
+; if (x < 0) { 
 _if210_cond:
   lea d, [bp + 7] ; $x
   mov b, [d]
@@ -13422,7 +13422,7 @@ _if210_cond:
   cmp b, 0
   je _if210_else
 _if210_true:
-;; if (a > 0) { 
+; if (a > 0) { 
 _if211_cond:
   lea d, [bp + 11] ; $a
   mov b, [d]
@@ -13437,13 +13437,13 @@ _if211_cond:
   cmp b, 0
   je _if211_else
 _if211_true:
-;; c1 = 300; 
+; c1 = 300; 
   lea d, [bp + 9] ; $c1
   push d
   mov b, $12c
   pop d
   mov [d], b
-;; if (al >= xl) 
+; if (al >= xl) 
 _if212_cond:
   lea d, [bp + -7] ; $al
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -13465,7 +13465,7 @@ _if212_cond:
   cmp b, 0
   je _if212_else
 _if212_true:
-;; printf("%s", print100(c1 + ((xl * 100) / al))); 
+; printf("%s", print100(c1 + ((xl * 100) / al))); 
   lea d, [bp + 9] ; $c1
   mov b, [d]
 ; START TERMS
@@ -13517,7 +13517,7 @@ _if212_true:
   add sp, 4
   jmp _if212_exit
 _if212_else:
-;; printf("%s", print100(c1 + ((((xl * 2) - al) * 100)  / xl))); 
+; printf("%s", print100(c1 + ((((xl * 2) - al) * 100)  / xl))); 
   lea d, [bp + 9] ; $c1
   mov b, [d]
 ; START TERMS
@@ -13591,7 +13591,7 @@ _if212_else:
   call printf
   add sp, 4
 _if212_exit:
-;; printf(dist_1, print100((x > a) ? x : a)); 
+; printf(dist_1, print100((x > a) ? x : a)); 
 _ternary216_cond:
   lea d, [bp + 7] ; $x
   mov b, [d]
@@ -13626,12 +13626,12 @@ _ternary216_exit:
   push b
   call printf
   add sp, 4
-;; return; 
+; return; 
   leave
   ret
   jmp _if211_exit
 _if211_else:
-;; if (x != 0){ 
+; if (x != 0){ 
 _if217_cond:
   lea d, [bp + 7] ; $x
   mov b, [d]
@@ -13646,18 +13646,18 @@ _if217_cond:
   cmp b, 0
   je _if217_else
 _if217_true:
-;; c1 = 500; 
+; c1 = 500; 
   lea d, [bp + 9] ; $c1
   push d
   mov b, $1f4
   pop d
   mov [d], b
-;; return; 
+; return; 
   leave
   ret
   jmp _if217_exit
 _if217_else:
-;; c1 = 700; 
+; c1 = 700; 
   lea d, [bp + 9] ; $c1
   push d
   mov b, $2bc
@@ -13667,7 +13667,7 @@ _if217_exit:
 _if211_exit:
   jmp _if210_exit
 _if210_else:
-;; if (a < 0) { 
+; if (a < 0) { 
 _if218_cond:
   lea d, [bp + 11] ; $a
   mov b, [d]
@@ -13682,7 +13682,7 @@ _if218_cond:
   cmp b, 0
   je _if218_else
 _if218_true:
-;; c1 = 700; 
+; c1 = 700; 
   lea d, [bp + 9] ; $c1
   push d
   mov b, $2bc
@@ -13690,7 +13690,7 @@ _if218_true:
   mov [d], b
   jmp _if218_exit
 _if218_else:
-;; if (x > 0) { 
+; if (x > 0) { 
 _if219_cond:
   lea d, [bp + 7] ; $x
   mov b, [d]
@@ -13705,7 +13705,7 @@ _if219_cond:
   cmp b, 0
   je _if219_else
 _if219_true:
-;; c1 = 100; 
+; c1 = 100; 
   lea d, [bp + 9] ; $c1
   push d
   mov b, $64
@@ -13713,7 +13713,7 @@ _if219_true:
   mov [d], b
   jmp _if219_exit
 _if219_else:
-;; if (a == 0) { 
+; if (a == 0) { 
 _if220_cond:
   lea d, [bp + 11] ; $a
   mov b, [d]
@@ -13728,7 +13728,7 @@ _if220_cond:
   cmp b, 0
   je _if220_else
 _if220_true:
-;; c1 = 500; 
+; c1 = 500; 
   lea d, [bp + 9] ; $c1
   push d
   mov b, $1f4
@@ -13736,13 +13736,13 @@ _if220_true:
   mov [d], b
   jmp _if220_exit
 _if220_else:
-;; c1 = 100; 
+; c1 = 100; 
   lea d, [bp + 9] ; $c1
   push d
   mov b, $64
   pop d
   mov [d], b
-;; if (al <= xl) 
+; if (al <= xl) 
 _if221_cond:
   lea d, [bp + -7] ; $al
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -13764,7 +13764,7 @@ _if221_cond:
   cmp b, 0
   je _if221_else
 _if221_true:
-;; printf("%s", print100(c1 + ((al * 100) / xl))); 
+; printf("%s", print100(c1 + ((al * 100) / xl))); 
   lea d, [bp + 9] ; $c1
   mov b, [d]
 ; START TERMS
@@ -13816,7 +13816,7 @@ _if221_true:
   add sp, 4
   jmp _if221_exit
 _if221_else:
-;; printf("%s", print100(c1 + ((((al * 2) - xl) * 100) / al))); 
+; printf("%s", print100(c1 + ((((al * 2) - xl) * 100) / al))); 
   lea d, [bp + 9] ; $c1
   mov b, [d]
 ; START TERMS
@@ -13890,7 +13890,7 @@ _if221_else:
   call printf
   add sp, 4
 _if221_exit:
-;; printf(dist_1, print100((xl > al) ? xl : al)); 
+; printf(dist_1, print100((xl > al) ? xl : al)); 
 _ternary225_cond:
   lea d, [bp + -3] ; $xl
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -13944,20 +13944,20 @@ _if210_exit:
 
 ship_destroyed:
   enter 0 ; (push bp; mov bp, sp)
-;; puts("The Enterprise has been destroyed. The Federation will be conquered.\n"); 
+; puts("The Enterprise has been destroyed. The Federation will be conquered.\n"); 
   mov b, _s160 ; "The Enterprise has been destroyed. The Federation will be conquered.\n"
   swp b
   push b
   call puts
   add sp, 2
-;; end_of_time(); 
+; end_of_time(); 
   call end_of_time
   leave
   ret
 
 end_of_time:
   enter 0 ; (push bp; mov bp, sp)
-;; printf("It is stardate %d.\n\n",  FROM_FIXED(stardate)); 
+; printf("It is stardate %d.\n\n",  FROM_FIXED(stardate)); 
   mov d, _stardate ; $stardate
   mov b, [d]
   swp b
@@ -13971,14 +13971,14 @@ end_of_time:
   push b
   call printf
   add sp, 4
-;; resign_commision(); 
+; resign_commision(); 
   call resign_commision
   leave
   ret
 
 resign_commision:
   enter 0 ; (push bp; mov bp, sp)
-;; printf("There were %d Klingon Battlecruisers left at the end of your mission.\n\n", klingons_left); 
+; printf("There were %d Klingon Battlecruisers left at the end of your mission.\n\n", klingons_left); 
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
@@ -13988,20 +13988,20 @@ resign_commision:
   push b
   call printf
   add sp, 3
-;; end_of_game(); 
+; end_of_game(); 
   call end_of_game
   leave
   ret
 
 won_game:
   enter 0 ; (push bp; mov bp, sp)
-;; puts("Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"); 
+; puts("Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"); 
   mov b, _s163 ; "Congratulations, Captain!  The last Klingon Battle Cruiser\n menacing the Federation has been destoyed.\n"
   swp b
   push b
   call puts
   add sp, 2
-;; if (FROM_FIXED(stardate) - time_start > 0) 
+; if (FROM_FIXED(stardate) - time_start > 0) 
 _if226_cond:
   mov d, _stardate ; $stardate
   mov b, [d]
@@ -14029,7 +14029,7 @@ _if226_cond:
   cmp b, 0
   je _if226_exit
 _if226_true:
-;; printf("Your efficiency rating is %s\n", 
+; printf("Your efficiency rating is %s\n", 
   mov d, _total_klingons ; $total_klingons
   mov bl, [d]
   mov bh, 0
@@ -14076,16 +14076,16 @@ _if226_true:
   add sp, 4
   jmp _if226_exit
 _if226_exit:
-;; end_of_game(); 
+; end_of_game(); 
   call end_of_game
   leave
   ret
 
 end_of_game:
   enter 0 ; (push bp; mov bp, sp)
-;; char x[4]; 
+; char x[4]; 
   sub sp, 4
-;; if (starbases_left > 0) { 
+; if (starbases_left > 0) { 
 _if227_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
@@ -14101,31 +14101,31 @@ _if227_cond:
   cmp b, 0
   je _if227_exit
 _if227_true:
-;; puts("The Federation is in need of a new starship commander"); 
+; puts("The Federation is in need of a new starship commander"); 
   mov b, _s165 ; "The Federation is in need of a new starship commander"
   swp b
   push b
   call puts
   add sp, 2
-;; puts(" for a similar mission.\n"); 
+; puts(" for a similar mission.\n"); 
   mov b, _s166 ; " for a similar mission.\n"
   swp b
   push b
   call puts
   add sp, 2
-;; puts("If there is a volunteer, let him step forward and"); 
+; puts("If there is a volunteer, let him step forward and"); 
   mov b, _s167 ; "If there is a volunteer, let him step forward and"
   swp b
   push b
   call puts
   add sp, 2
-;; puts(" enter aye: "); 
+; puts(" enter aye: "); 
   mov b, _s168 ; " enter aye: "
   swp b
   push b
   call puts
   add sp, 2
-;; input(x,4); 
+; input(x,4); 
   mov b, $4
   push bl
   lea d, [bp + -3] ; $x
@@ -14134,7 +14134,7 @@ _if227_true:
   push b
   call input
   add sp, 3
-;; if (!strncmp(x, "aye", 3)) 
+; if (!strncmp(x, "aye", 3)) 
 _if228_cond:
   mov b, $3
   swp b
@@ -14153,31 +14153,31 @@ _if228_cond:
   cmp b, 0
   je _if228_exit
 _if228_true:
-;; new_game(); 
+; new_game(); 
   call new_game
   jmp _if228_exit
 _if228_exit:
   jmp _if227_exit
 _if227_exit:
-;; exit(); 
+; exit(); 
   call exit
   leave
   ret
 
 klingons_move:
   enter 0 ; (push bp; mov bp, sp)
-;; int i; 
+; int i; 
   sub sp, 2
-;; struct klingon *k; 
+; struct klingon *k; 
   sub sp, 2
-;; k = &kdata; 
+; k = &kdata; 
   lea d, [bp + -3] ; $k
   push d
   mov d, _kdata_data ; $kdata
   mov b, d
   pop d
   mov [d], b
-;; for (i = 0; i <= 2; i++) { 
+; for (i = 0; i <= 2; i++) { 
 _for229_init:
   lea d, [bp + -1] ; $i
   push d
@@ -14198,7 +14198,7 @@ _for229_cond:
   cmp b, 0
   je _for229_exit
 _for229_block:
-;; if (k->energy > 0) { 
+; if (k->energy > 0) { 
 _if230_cond:
   lea d, [bp + -3] ; $k
   mov d, [d]
@@ -14215,14 +14215,14 @@ _if230_cond:
   cmp b, 0
   je _if230_exit
 _if230_true:
-;; wipe_klingon(k); 
+; wipe_klingon(k); 
   lea d, [bp + -3] ; $k
   mov b, [d]
   swp b
   push b
   call wipe_klingon
   add sp, 2
-;; find_set_empty_place( 	3        , &k->y, &k->x); 
+; find_set_empty_place( 	3        , &k->y, &k->x); 
   lea d, [bp + -3] ; $k
   mov d, [d]
   add d, 1
@@ -14241,7 +14241,7 @@ _if230_true:
   add sp, 5
   jmp _if230_exit
 _if230_exit:
-;; k++; 
+; k++; 
   lea d, [bp + -3] ; $k
   mov b, [d]
   inc b
@@ -14259,31 +14259,31 @@ _for229_update:
   dec b
   jmp _for229_cond
 _for229_exit:
-;; klingons_shoot(); 
+; klingons_shoot(); 
   call klingons_shoot
   leave
   ret
 
 klingons_shoot:
   enter 0 ; (push bp; mov bp, sp)
-;; unsigned char                         r; 
+; unsigned char                         r; 
   sub sp, 1
-;; long unsigned int        h; 
+; long unsigned int        h; 
   sub sp, 4
-;; unsigned char                         i; 
+; unsigned char                         i; 
   sub sp, 1
-;; struct klingon *k; 
+; struct klingon *k; 
   sub sp, 2
-;; long unsigned int        ratio; 
+; long unsigned int        ratio; 
   sub sp, 4
-;; k = &kdata; 
+; k = &kdata; 
   lea d, [bp + -7] ; $k
   push d
   mov d, _kdata_data ; $kdata
   mov b, d
   pop d
   mov [d], b
-;; if (klingons <= 0) 
+; if (klingons <= 0) 
 _if231_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
@@ -14299,12 +14299,12 @@ _if231_cond:
   cmp b, 0
   je _if231_exit
 _if231_true:
-;; return; 
+; return; 
   leave
   ret
   jmp _if231_exit
 _if231_exit:
-;; if (docked) { 
+; if (docked) { 
 _if232_cond:
   mov d, _docked ; $docked
   mov bl, [d]
@@ -14312,18 +14312,18 @@ _if232_cond:
   cmp b, 0
   je _if232_exit
 _if232_true:
-;; puts("Starbase shields protect the Enterprise\n"); 
+; puts("Starbase shields protect the Enterprise\n"); 
   mov b, _s170 ; "Starbase shields protect the Enterprise\n"
   swp b
   push b
   call puts
   add sp, 2
-;; return; 
+; return; 
   leave
   ret
   jmp _if232_exit
 _if232_exit:
-;; for (i = 0; i <= 2; i++) { 
+; for (i = 0; i <= 2; i++) { 
 _for233_init:
   lea d, [bp + -5] ; $i
   push d
@@ -14345,7 +14345,7 @@ _for233_cond:
   cmp b, 0
   je _for233_exit
 _for233_block:
-;; if (k->energy > 0) { 
+; if (k->energy > 0) { 
 _if234_cond:
   lea d, [bp + -7] ; $k
   mov d, [d]
@@ -14362,7 +14362,7 @@ _if234_cond:
   cmp b, 0
   je _if234_exit
 _if234_true:
-;; h = k->energy * (200UL + get_rand(100)); 
+; h = k->energy * (200UL + get_rand(100)); 
   lea d, [bp + -4] ; $h
   push d
   lea d, [bp + -7] ; $k
@@ -14403,7 +14403,7 @@ _if234_true:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; h =h* 100;	/* Ready for division in fixed */ 
+; h =h* 100;	/* Ready for division in fixed */ 
   lea d, [bp + -4] ; $h
   push d
   lea d, [bp + -4] ; $h
@@ -14423,7 +14423,7 @@ _if234_true:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; h =h/ distance_to(k); 
+; h =h/ distance_to(k); 
   lea d, [bp + -4] ; $h
   push d
   lea d, [bp + -4] ; $h
@@ -14447,7 +14447,7 @@ _if234_true:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; shield = shield - FROM_FIXED00(h); 
+; shield = shield - FROM_FIXED00(h); 
   mov d, _shield ; $shield
   push d
   mov d, _shield ; $shield
@@ -14469,7 +14469,7 @@ _if234_true:
 ; END TERMS
   pop d
   mov [d], b
-;; k->energy = (k->energy * 100) / (300 + get_rand(100)); 
+; k->energy = (k->energy * 100) / (300 + get_rand(100)); 
   lea d, [bp + -7] ; $k
   mov d, [d]
   add d, 2
@@ -14508,7 +14508,7 @@ _if234_true:
 ; END FACTORS
   pop d
   mov [d], b
-;; printf("%d unit hit on Enterprise from sector %d, %d\n", (unsigned)FROM_FIXED00(h), k->y, k->x); 
+; printf("%d unit hit on Enterprise from sector %d, %d\n", (unsigned)FROM_FIXED00(h), k->y, k->x); 
   lea d, [bp + -7] ; $k
   mov d, [d]
   add d, 1
@@ -14532,7 +14532,7 @@ _if234_true:
   push b
   call printf
   add sp, 6
-;; if (shield <= 0) { 
+; if (shield <= 0) { 
 _if235_cond:
   mov d, _shield ; $shield
   mov b, [d]
@@ -14547,16 +14547,16 @@ _if235_cond:
   cmp b, 0
   je _if235_exit
 _if235_true:
-;; putchar('\n'); 
+; putchar('\n'); 
   mov b, $a
   push bl
   call putchar
   add sp, 1
-;; ship_destroyed(); 
+; ship_destroyed(); 
   call ship_destroyed
   jmp _if235_exit
 _if235_exit:
-;; printf("    <Shields down to %d units>\n\n", shield); 
+; printf("    <Shields down to %d units>\n\n", shield); 
   mov d, _shield ; $shield
   mov b, [d]
   swp b
@@ -14566,7 +14566,7 @@ _if235_exit:
   push b
   call printf
   add sp, 4
-;; if (h >= 20) { 
+; if (h >= 20) { 
 _if236_cond:
   lea d, [bp + -4] ; $h
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -14586,7 +14586,7 @@ _if236_cond:
   cmp b, 0
   je _if236_exit
 _if236_true:
-;; ratio = ((int)h)/shield; 
+; ratio = ((int)h)/shield; 
   lea d, [bp + -11] ; $ratio
   push d
   lea d, [bp + -4] ; $h
@@ -14606,7 +14606,7 @@ _if236_true:
   mov [d], b
   mov b, c
   mov [d + 2], b
-;; if (get_rand(10) <= 6 && ratio > 2) { 
+; if (get_rand(10) <= 6 && ratio > 2) { 
 _if237_cond:
   mov b, $a
   swp b
@@ -14646,13 +14646,13 @@ _if237_cond:
   cmp b, 0
   je _if237_exit
 _if237_true:
-;; r = rand8(); 
+; r = rand8(); 
   lea d, [bp + 0] ; $r
   push d
   call rand8
   pop d
   mov [d], bl
-;; damage[r] =damage[r] - ratio + get_rand(50); 
+; damage[r] =damage[r] - ratio + get_rand(50); 
   mov d, _damage_data ; $damage
   push a
   push d
@@ -14700,7 +14700,7 @@ _if237_true:
 ; END TERMS
   pop d
   mov [d], b
-;; printf("Damage Control reports\n%s damaged by hit\n\n", get_device_name(r)); 
+; printf("Damage Control reports\n%s damaged by hit\n\n", get_device_name(r)); 
   lea d, [bp + 0] ; $r
   mov bl, [d]
   mov bh, 0
@@ -14721,7 +14721,7 @@ _if237_exit:
 _if236_exit:
   jmp _if234_exit
 _if234_exit:
-;; k++; 
+; k++; 
   lea d, [bp + -7] ; $k
   mov b, [d]
   inc b
@@ -14745,20 +14745,20 @@ _for233_exit:
 
 repair_damage:
   enter 0 ; (push bp; mov bp, sp)
-;; int i; 
+; int i; 
   sub sp, 2
-;; int d1; 
+; int d1; 
   sub sp, 2
-;; unsigned int        repair_factor;		/* Repair Factor */ 
+; unsigned int        repair_factor;		/* Repair Factor */ 
   sub sp, 2
-;; repair_factor = warp; 
+; repair_factor = warp; 
   lea d, [bp + -5] ; $repair_factor
   push d
   lea d, [bp + 5] ; $warp
   mov b, [d]
   pop d
   mov [d], b
-;; if (warp >= 100) 
+; if (warp >= 100) 
 _if238_cond:
   lea d, [bp + 5] ; $warp
   mov b, [d]
@@ -14773,7 +14773,7 @@ _if238_cond:
   cmp b, 0
   je _if238_exit
 _if238_true:
-;; repair_factor = TO_FIXED00(1); 
+; repair_factor = TO_FIXED00(1); 
   lea d, [bp + -5] ; $repair_factor
   push d
   mov b, $1
@@ -14785,7 +14785,7 @@ _if238_true:
   mov [d], b
   jmp _if238_exit
 _if238_exit:
-;; for (i = 1; i <= 8; i++) { 
+; for (i = 1; i <= 8; i++) { 
 _for239_init:
   lea d, [bp + -1] ; $i
   push d
@@ -14806,7 +14806,7 @@ _for239_cond:
   cmp b, 0
   je _for239_exit
 _for239_block:
-;; if (damage[i] < 0) { 
+; if (damage[i] < 0) { 
 _if240_cond:
   mov d, _damage_data ; $damage
   push a
@@ -14828,7 +14828,7 @@ _if240_cond:
   cmp b, 0
   je _if240_exit
 _if240_true:
-;; damage[i] = damage[i] + repair_factor; 
+; damage[i] = damage[i] + repair_factor; 
   mov d, _damage_data ; $damage
   push a
   push d
@@ -14857,7 +14857,7 @@ _if240_true:
 ; END TERMS
   pop d
   mov [d], b
-;; if (damage[i] > -10 && damage[i] < 0)	/* -0.1 */ 
+; if (damage[i] > -10 && damage[i] < 0)	/* -0.1 */ 
 _if241_cond:
   mov d, _damage_data ; $damage
   push a
@@ -14902,7 +14902,7 @@ _if241_cond:
   cmp b, 0
   je _if241_else
 _if241_true:
-;; damage[i] = -10; 
+; damage[i] = -10; 
   mov d, _damage_data ; $damage
   push a
   push d
@@ -14918,7 +14918,7 @@ _if241_true:
   mov [d], b
   jmp _if241_exit
 _if241_else:
-;; if (damage[i] >= 0) { 
+; if (damage[i] >= 0) { 
 _if242_cond:
   mov d, _damage_data ; $damage
   push a
@@ -14940,7 +14940,7 @@ _if242_cond:
   cmp b, 0
   je _if242_exit
 _if242_true:
-;; if (d1 != 1) { 
+; if (d1 != 1) { 
 _if243_cond:
   lea d, [bp + -3] ; $d1
   mov b, [d]
@@ -14955,13 +14955,13 @@ _if243_cond:
   cmp b, 0
   je _if243_exit
 _if243_true:
-;; d1 = 1; 
+; d1 = 1; 
   lea d, [bp + -3] ; $d1
   push d
   mov b, $1
   pop d
   mov [d], b
-;; puts(dcr_1); 
+; puts(dcr_1); 
   mov d, _dcr_1 ; $dcr_1
   mov b, [d]
   swp b
@@ -14970,7 +14970,7 @@ _if243_true:
   add sp, 2
   jmp _if243_exit
 _if243_exit:
-;; printf("    %s repair completed\n\n", 
+; printf("    %s repair completed\n\n", 
   lea d, [bp + -1] ; $i
   mov b, [d]
   swp b
@@ -14984,7 +14984,7 @@ _if243_exit:
   push b
   call printf
   add sp, 4
-;; damage[i] = 0; 
+; damage[i] = 0; 
   mov d, _damage_data ; $damage
   push a
   push d
@@ -15011,9 +15011,9 @@ _for239_update:
   dec b
   jmp _for239_cond
 _for239_exit:
-;; unsigned char                         r; 
+; unsigned char                         r; 
   sub sp, 1
-;; if (get_rand(10) <= 2) { 
+; if (get_rand(10) <= 2) { 
 _if244_cond:
   mov b, $a
   swp b
@@ -15031,13 +15031,13 @@ _if244_cond:
   cmp b, 0
   je _if244_exit
 _if244_true:
-;; r = rand8(); 
+; r = rand8(); 
   lea d, [bp + -6] ; $r
   push d
   call rand8
   pop d
   mov [d], bl
-;; if (get_rand(10) < 6) { 
+; if (get_rand(10) < 6) { 
 _if245_cond:
   mov b, $a
   swp b
@@ -15055,7 +15055,7 @@ _if245_cond:
   cmp b, 0
   je _if245_else
 _if245_true:
-;; damage[r] =damage[r]- (get_rand(500) + 100); 
+; damage[r] =damage[r]- (get_rand(500) + 100); 
   mov d, _damage_data ; $damage
   push a
   push d
@@ -15097,14 +15097,14 @@ _if245_true:
 ; END TERMS
   pop d
   mov [d], b
-;; puts(dcr_1); 
+; puts(dcr_1); 
   mov d, _dcr_1 ; $dcr_1
   mov b, [d]
   swp b
   push b
   call puts
   add sp, 2
-;; printf("    %s damaged\n\n", get_device_name(r)); 
+; printf("    %s damaged\n\n", get_device_name(r)); 
   lea d, [bp + -6] ; $r
   mov bl, [d]
   mov bh, 0
@@ -15121,7 +15121,7 @@ _if245_true:
   add sp, 4
   jmp _if245_exit
 _if245_else:
-;; damage[r] = damage[r] + get_rand(300) + 100; 
+; damage[r] = damage[r] + get_rand(300) + 100; 
   mov d, _damage_data ; $damage
   push a
   push d
@@ -15158,14 +15158,14 @@ _if245_else:
 ; END TERMS
   pop d
   mov [d], b
-;; puts(dcr_1); 
+; puts(dcr_1); 
   mov d, _dcr_1 ; $dcr_1
   mov b, [d]
   swp b
   push b
   call puts
   add sp, 2
-;; printf("    %s state of repair improved\n\n", 
+; printf("    %s state of repair improved\n\n", 
   lea d, [bp + -6] ; $r
   mov bl, [d]
   mov bh, 0
@@ -15188,24 +15188,24 @@ _if244_exit:
 
 find_set_empty_place:
   enter 0 ; (push bp; mov bp, sp)
-;; unsigned char                         r1, r2; 
+; unsigned char                         r1, r2; 
   sub sp, 1
   sub sp, 1
-;; do { 
+; do { 
 _do246_block:
-;; r1 = rand8(); 
+; r1 = rand8(); 
   lea d, [bp + 0] ; $r1
   push d
   call rand8
   pop d
   mov [d], bl
-;; r2 = rand8(); 
+; r2 = rand8(); 
   lea d, [bp + -1] ; $r2
   push d
   call rand8
   pop d
   mov [d], bl
-;; } while (quad[r1-1][r2-1] !=  		0       ); 
+; } while (quad[r1-1][r2-1] !=  		0       ); 
 _do246_cond:
   mov d, _quad_data ; $quad
   push a
@@ -15251,7 +15251,7 @@ _do246_cond:
   cmp b, 1
   je _do246_block
 _do246_exit:
-;; quad[r1-1][r2-1] = t; 
+; quad[r1-1][r2-1] = t; 
   mov d, _quad_data ; $quad
   push a
   push d
@@ -15289,14 +15289,14 @@ _do246_exit:
   mov bh, 0
   pop d
   mov [d], bl
-;; if (z1) 
+; if (z1) 
 _if247_cond:
   lea d, [bp + 6] ; $z1
   mov b, [d]
   cmp b, 0
   je _if247_exit
 _if247_true:
-;; *z1 = r1; 
+; *z1 = r1; 
   lea d, [bp + 6] ; $z1
   mov b, [d]
   push b
@@ -15307,14 +15307,14 @@ _if247_true:
   mov [d], bl
   jmp _if247_exit
 _if247_exit:
-;; if (z2) 
+; if (z2) 
 _if248_cond:
   lea d, [bp + 8] ; $z2
   mov b, [d]
   cmp b, 0
   je _if248_exit
 _if248_true:
-;; *z2 = r2; 
+; *z2 = r2; 
   lea d, [bp + 8] ; $z2
   mov b, [d]
   push b
@@ -15330,7 +15330,7 @@ _if248_exit:
 
 get_device_name:
   enter 0 ; (push bp; mov bp, sp)
-;; if (n < 0 || n > 8) 
+; if (n < 0 || n > 8) 
 _if249_cond:
   lea d, [bp + 5] ; $n
   mov b, [d]
@@ -15361,7 +15361,7 @@ _if249_cond:
   cmp b, 0
   je _if249_exit
 _if249_true:
-;; n = 0; 
+; n = 0; 
   lea d, [bp + 5] ; $n
   push d
   mov b, $0
@@ -15369,7 +15369,7 @@ _if249_true:
   mov [d], b
   jmp _if249_exit
 _if249_exit:
-;; return device_name[n]; 
+; return device_name[n]; 
   mov d, _device_name_data ; $device_name
   push a
   push d
@@ -15384,9 +15384,9 @@ _if249_exit:
 
 quadrant_name:
   enter 0 ; (push bp; mov bp, sp)
-;; static char *sect_name[] = { "", " I", " II", " III", " IV" }; 
+; static char *sect_name[] = { "", " I", " II", " III", " IV" }; 
   sub sp, 20
-;; if (y < 1 || y > 8 || x < 1 || x > 8) 
+; if (y < 1 || y > 8 || x < 1 || x > 8) 
 _if250_cond:
   lea d, [bp + 6] ; $y
   mov bl, [d]
@@ -15445,7 +15445,7 @@ _if250_cond:
   cmp b, 0
   je _if250_exit
 _if250_true:
-;; strcpy(quadname, "Unknown"); 
+; strcpy(quadname, "Unknown"); 
   mov b, _s181 ; "Unknown"
   swp b
   push b
@@ -15457,7 +15457,7 @@ _if250_true:
   add sp, 4
   jmp _if250_exit
 _if250_exit:
-;; if (x <= 4) 
+; if (x <= 4) 
 _if251_cond:
   lea d, [bp + 7] ; $x
   mov bl, [d]
@@ -15473,7 +15473,7 @@ _if251_cond:
   cmp b, 0
   je _if251_else
 _if251_true:
-;; strcpy(quadname, quad_name[y]); 
+; strcpy(quadname, quad_name[y]); 
   mov d, _quad_name_data ; $quad_name
   push a
   push d
@@ -15494,7 +15494,7 @@ _if251_true:
   add sp, 4
   jmp _if251_exit
 _if251_else:
-;; strcpy(quadname, quad_name[y + 8]); 
+; strcpy(quadname, quad_name[y + 8]); 
   mov d, _quad_name_data ; $quad_name
   push a
   push d
@@ -15521,7 +15521,7 @@ _if251_else:
   call strcpy
   add sp, 4
 _if251_exit:
-;; if (small != 1) { 
+; if (small != 1) { 
 _if252_cond:
   lea d, [bp + 5] ; $small
   mov bl, [d]
@@ -15537,7 +15537,7 @@ _if252_cond:
   cmp b, 0
   je _if252_exit
 _if252_true:
-;; if (x > 4) 
+; if (x > 4) 
 _if253_cond:
   lea d, [bp + 7] ; $x
   mov bl, [d]
@@ -15553,7 +15553,7 @@ _if253_cond:
   cmp b, 0
   je _if253_exit
 _if253_true:
-;; x = x - 4; 
+; x = x - 4; 
   lea d, [bp + 7] ; $x
   push d
   lea d, [bp + 7] ; $x
@@ -15571,7 +15571,7 @@ _if253_true:
   mov [d], bl
   jmp _if253_exit
 _if253_exit:
-;; strcat(quadname, sect_name[x]); 
+; strcat(quadname, sect_name[x]); 
   mov d, st_quadrant_name_sect_name_dt ; static sect_name
   push a
   push d
@@ -15592,13 +15592,13 @@ _if253_exit:
   add sp, 4
   jmp _if252_exit
 _if252_exit:
-;; return; 
+; return; 
   leave
   ret
 
 isqrt:
   enter 0 ; (push bp; mov bp, sp)
-;; unsigned int        b = 0x4000, q = 0, r = i, t; 
+; unsigned int        b = 0x4000, q = 0, r = i, t; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -1] ; $b
@@ -15625,14 +15625,14 @@ isqrt:
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
   sub sp, 2
-;; while (b) { 
+; while (b) { 
 _while254_cond:
   lea d, [bp + -1] ; $b
   mov b, [d]
   cmp b, 0
   je _while254_exit
 _while254_block:
-;; t = q + b; 
+; t = q + b; 
   lea d, [bp + -7] ; $t
   push d
   lea d, [bp + -3] ; $q
@@ -15647,7 +15647,7 @@ _while254_block:
 ; END TERMS
   pop d
   mov [d], b
-;; q =q>> 1; 
+; q =q>> 1; 
   lea d, [bp + -3] ; $q
   push d
   lea d, [bp + -3] ; $q
@@ -15663,7 +15663,7 @@ _while254_block:
 ; END SHIFT
   pop d
   mov [d], b
-;; if (r >= t) { 
+; if (r >= t) { 
 _if255_cond:
   lea d, [bp + -5] ; $r
   mov b, [d]
@@ -15679,7 +15679,7 @@ _if255_cond:
   cmp b, 0
   je _if255_exit
 _if255_true:
-;; r =r- t; 
+; r =r- t; 
   lea d, [bp + -5] ; $r
   push d
   lea d, [bp + -5] ; $r
@@ -15695,7 +15695,7 @@ _if255_true:
 ; END TERMS
   pop d
   mov [d], b
-;; q = q + b; 
+; q = q + b; 
   lea d, [bp + -3] ; $q
   push d
   lea d, [bp + -3] ; $q
@@ -15712,7 +15712,7 @@ _if255_true:
   mov [d], b
   jmp _if255_exit
 _if255_exit:
-;; b =b>> 2; 
+; b =b>> 2; 
   lea d, [bp + -1] ; $b
   push d
   lea d, [bp + -1] ; $b
@@ -15730,7 +15730,7 @@ _if255_exit:
   mov [d], b
   jmp _while254_cond
 _while254_exit:
-;; return q; 
+; return q; 
   lea d, [bp + -3] ; $q
   mov b, [d]
   leave
@@ -15738,7 +15738,7 @@ _while254_exit:
 
 square00:
   enter 0 ; (push bp; mov bp, sp)
-;; if (abs(t) > 181) { 
+; if (abs(t) > 181) { 
 _if256_cond:
   lea d, [bp + 5] ; $t
   mov b, [d]
@@ -15757,7 +15757,7 @@ _if256_cond:
   cmp b, 0
   je _if256_else
 _if256_true:
-;; t =t/ 10; 
+; t =t/ 10; 
   lea d, [bp + 5] ; $t
   push d
   lea d, [bp + 5] ; $t
@@ -15772,7 +15772,7 @@ _if256_true:
 ; END FACTORS
   pop d
   mov [d], b
-;; t =t* t; 
+; t =t* t; 
   lea d, [bp + 5] ; $t
   push d
   lea d, [bp + 5] ; $t
@@ -15791,7 +15791,7 @@ _if256_true:
   mov [d], b
   jmp _if256_exit
 _if256_else:
-;; t =t* t; 
+; t =t* t; 
   lea d, [bp + 5] ; $t
   push d
   lea d, [bp + 5] ; $t
@@ -15808,7 +15808,7 @@ _if256_else:
 ; END FACTORS
   pop d
   mov [d], b
-;; t =t/ 100; 
+; t =t/ 100; 
   lea d, [bp + 5] ; $t
   push d
   lea d, [bp + 5] ; $t
@@ -15824,7 +15824,7 @@ _if256_else:
   pop d
   mov [d], b
 _if256_exit:
-;; return t; 
+; return t; 
   lea d, [bp + 5] ; $t
   mov b, [d]
   leave
@@ -15832,9 +15832,9 @@ _if256_exit:
 
 distance_to:
   enter 0 ; (push bp; mov bp, sp)
-;; unsigned int        j; 
+; unsigned int        j; 
   sub sp, 2
-;; j = square00(TO_FIXED00(k->y) - ship_y); 
+; j = square00(TO_FIXED00(k->y) - ship_y); 
   lea d, [bp + -1] ; $j
   push d
   lea d, [bp + 5] ; $k
@@ -15861,7 +15861,7 @@ distance_to:
   add sp, 2
   pop d
   mov [d], b
-;; j = j + square00(TO_FIXED00(k->x) - ship_x); 
+; j = j + square00(TO_FIXED00(k->x) - ship_x); 
   lea d, [bp + -1] ; $j
   push d
   lea d, [bp + -1] ; $j
@@ -15896,7 +15896,7 @@ distance_to:
 ; END TERMS
   pop d
   mov [d], b
-;; j = isqrt(j); 
+; j = isqrt(j); 
   lea d, [bp + -1] ; $j
   push d
   lea d, [bp + -1] ; $j
@@ -15907,7 +15907,7 @@ distance_to:
   add sp, 2
   pop d
   mov [d], b
-;; j =j* 10; 
+; j =j* 10; 
   lea d, [bp + -1] ; $j
   push d
   lea d, [bp + -1] ; $j
@@ -15923,7 +15923,7 @@ distance_to:
 ; END FACTORS
   pop d
   mov [d], b
-;; return j; 
+; return j; 
   lea d, [bp + -1] ; $j
   mov b, [d]
   leave
@@ -15931,7 +15931,7 @@ distance_to:
 
 cint100:
   enter 0 ; (push bp; mov bp, sp)
-;; return (d + 50) / 100; 
+; return (d + 50) / 100; 
   lea d, [bp + 5] ; $d
   mov b, [d]
 ; START TERMS
