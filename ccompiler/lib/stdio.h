@@ -241,10 +241,8 @@ void sprintf(char *dest, const char *format, ...){
           break;
 
         case 's':
-          printf(p);
-          int len = strlen(*p);
-          print_signed(len);
-          strcpy(sp, *p);
+          int len = strlen(*(char **)p);
+          strcpy(sp, *(char **)p);
           sp = sp + len;
           p = p + 2;
           break;
