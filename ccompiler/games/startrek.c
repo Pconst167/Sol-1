@@ -1364,7 +1364,7 @@ void compute_vector(int16_t w1, int16_t x, int16_t c1, int16_t a)
 	if (x < 0) {
 		if (a > 0) {
 			c1 = 300;
-estimate2:
+//estimate2:
 		/* Multiply the top half by 100 to keep in fixed0 */
 			if (al >= xl)
 				printf("%s", print100(c1 + ((xl * 100) / al)));
@@ -1375,24 +1375,24 @@ estimate2:
 			return;
 		} else if (x != 0){
 			c1 = 500;
-			goto estimate1;
+		//	goto estimate1;
 			return;
 		} else {
 			c1 = 700;
-			goto estimate2;
+			//goto estimate2;
 		}
 	} else if (a < 0) {
 		c1 = 700;
-		goto estimate2;
+		//goto estimate2;
 	} else if (x > 0) {
 		c1 = 100;
-		goto estimate1;
+		//goto estimate1;
 	} else if (a == 0) {
 		c1 = 500;
-		goto estimate1;
+		//goto estimate1;
 	} else {
 		c1 = 100;
-estimate1:
+//estimate1:
 		/* Multiply the top half by 100 as well so that we keep it in fixed00
 		   format. Our larget value is int 9 (900) so we must do this 32bit */
 		if (al <= xl)

@@ -1073,7 +1073,7 @@ int declare_local(void){
       total_sp += get_total_type_size(new_var.type);
     }
 
-    emitln("  sub sp, %d ; %s", get_total_type_size(new_var.type), new_var.name);
+    emitln("  sub sp, %d", get_total_type_size(new_var.type));
 
     // assigns the new variable to the local stack
     function_table[current_func_id].local_vars[function_table[current_func_id].local_var_tos] = new_var;    
