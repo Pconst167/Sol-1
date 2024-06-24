@@ -305,12 +305,10 @@ int label_tos_while;
 int label_tos_switch;
 int label_tos_cmp;
 
-/*
-  MAIN
-*/
+// --- MAIN
 int main(int argc, char *argv[]){
   int main_index;
-  char *filename_no_ext;
+  char filename_no_ext[256];
   char filename_out[ID_LEN];
   char switch_display_function_table;
   char switch_display_typedef_table;
@@ -326,11 +324,11 @@ int main(int argc, char *argv[]){
     load_program(argv[1]);  
   }
   else{
-    printf("Usage: cc [filename]\n");
+    printf("usage: cc [filename]\n");
     return 0;
   }
 
-  filename_no_ext = basename(argv[1]);
+  strcpy(filename_no_ext, basename(argv[1]));
   for(size_t i = 0; i < strlen(filename_no_ext); i++){
     if(filename_no_ext[i] == '.'){
       filename_no_ext[i] = '\0';
@@ -338,7 +336,7 @@ int main(int argc, char *argv[]){
     }
   }
 
-  
+  printf("starting compilation of '%s'\n", argv[1]);
 
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
@@ -358,14 +356,14 @@ int main(int argc, char *argv[]){
   emitln(".include \"lib/asm/bios.exp\"");
   emitln(".org %s", org);
 
-  emit("\n; --- BEGIN TEXT BLOCK");
+  emit("\n; --- BEGIN TEXT SEGMENT");
   parse_functions();
-  emitln("; --- END TEXT BLOCK");
+  emitln("; --- END TEXT SEGMENT");
 
   asm_p = asm_out;
   while(*asm_p) asm_p++; 
   
-  emitln("\n; --- BEGIN DATA BLOCK");
+  emitln("\n; --- BEGIN DATA SEGMENT");
 
   emit_string_table_data();
 
@@ -375,7 +373,7 @@ int main(int argc, char *argv[]){
   
   emit_datablock_asm();
 
-  emitln("; --- END DATA BLOCK");
+  emitln("; --- END DATA SEGMENT");
 
   emitln("\n.end");
   *asm_p = '\0';
@@ -1072,7 +1070,7 @@ int declare_local(void){
       total_sp += get_total_type_size(new_var.type);
     }
 
-    emitln("  sub sp, %d ; %s", get_total_type_size(new_var.type), new_var.name);
+    emitln("  sub sp, %d", get_total_type_size(new_var.type));
 
     // assigns the new variable to the local stack
     function_table[current_func_id].local_vars[function_table[current_func_id].local_var_tos] = new_var;    
@@ -1746,7 +1744,7 @@ void parse_asm(void){
   
   get();
   if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
-  emitln("\n; --- BEGIN INLINE ASM BLOCK");
+  emitln("\n; --- BEGIN INLINE ASM SEGMENT");
   for(;;){
     while(is_space(*prog)) prog++;
     temp_prog = prog;
@@ -1774,7 +1772,7 @@ void parse_asm(void){
       emitln("  %s", curr_token.string_const);
     }
   }
-  emitln("; --- END INLINE ASM BLOCK\n");
+  emitln("; --- END INLINE ASM SEGMENT\n");
 }
 
 void parse_break(void){
@@ -2137,7 +2135,7 @@ void emit_c_header_line(){
     *s++ = *prog++;
   }
   *s = '\0';
-  emitln(";; %s ", curr_token.string_const);
+  emitln("; %s ", curr_token.string_const);
   prog = temp;
 }
 
@@ -2482,7 +2480,7 @@ t_type parse_logical_or(void){
   type1 = parse_logical_and();
   expr_out = type1;
   if(curr_token.tok == LOGICAL_OR){
-    emitln("; START LOGICAL OR");
+    emitln("; --- START LOGICAL OR");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == LOGICAL_OR){
@@ -2506,7 +2504,7 @@ t_type parse_logical_or(void){
     if(type_is_32bit(type1))
       emitln("  pop g");
     emitln("  pop a");
-    emitln("; END LOGICAL OR");
+    emitln("; --- END LOGICAL OR");
   }
   return expr_out;
 }
@@ -2517,7 +2515,7 @@ t_type parse_logical_and(void){
   type1 = parse_bitwise_or();
   expr_out = type1;
   if(curr_token.tok == LOGICAL_AND){
-    emitln("; START LOGICAL AND");
+    emitln("; --- START LOGICAL AND");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == LOGICAL_AND){
@@ -2541,7 +2539,7 @@ t_type parse_logical_and(void){
     }
     if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
-    emitln("; END LOGICAL AND");
+    emitln("; --- END LOGICAL AND");
   }
   return expr_out;
 }
@@ -2653,7 +2651,7 @@ t_type parse_relational(void){
   
   if(curr_token.tok == EQUAL              || curr_token.tok == NOT_EQUAL    || curr_token.tok == LESS_THAN ||
      curr_token.tok == LESS_THAN_OR_EQUAL || curr_token.tok == GREATER_THAN || curr_token.tok == GREATER_THAN_OR_EQUAL){
-    emitln("; START RELATIONAL");
+    emitln("; --- START RELATIONAL");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == EQUAL              || curr_token.tok == NOT_EQUAL    || curr_token.tok == LESS_THAN || 
@@ -2788,7 +2786,7 @@ t_type parse_relational(void){
     if(type_is_32bit(type1))
       emitln("  pop g");
     emitln("  pop a");
-    emitln("; END RELATIONAL");
+    emitln("; --- END RELATIONAL");
   }
   return expr_out;
 }
@@ -2801,7 +2799,7 @@ t_type parse_bitwise_shift(void){
   type1 = parse_terms();
   expr_out = type1;
   if(curr_token.tok == BITWISE_SHL || curr_token.tok == BITWISE_SHR){
-    emitln("; START SHIFT");
+    emitln("; --- START SHIFT");
     emitln("  push a");
     emitln("  mov a, b");
     while(curr_token.tok == BITWISE_SHL || curr_token.tok == BITWISE_SHR){
@@ -2824,7 +2822,7 @@ t_type parse_bitwise_shift(void){
     }
     emitln("  mov b, a");
     emitln("  pop a");
-    emitln("; END SHIFT");
+    emitln("; --- END SHIFT");
   }
   return expr_out;
 }
@@ -2837,7 +2835,7 @@ t_type parse_terms(void){
   type1 = parse_factors();
   expr_out = type1;
   if(curr_token.tok == PLUS || curr_token.tok == MINUS){
-    emitln("; START TERMS");
+    emitln("; --- START TERMS");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == PLUS || curr_token.tok == MINUS){
@@ -2867,7 +2865,7 @@ t_type parse_terms(void){
     }
     if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
-    emitln("; END TERMS");
+    emitln("; --- END TERMS");
   }
   return expr_out;
 }
@@ -2881,7 +2879,7 @@ t_type parse_factors(void){
   type1 = parse_atomic();
   expr_out = type1;
   if(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
-    emitln("; START FACTORS");
+    emitln("; --- START FACTORS");
     emitln("  push a");
     emitln("  mov a, b");
     while(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
@@ -2902,7 +2900,7 @@ t_type parse_factors(void){
     }
     emitln("  mov b, a");
     emitln("  pop a");
-    emitln("; END FACTORS");
+    emitln("; --- END FACTORS");
   }
 
   return expr_out;
@@ -4143,12 +4141,10 @@ void emit_global_var_initialization(t_var *var){
   int j, braces;
 
   if(is_array(var->type)){
-    get();
-    expect(OPENING_BRACE, "Opening braces expected");
     emit_data("_%s_data: \n", var->name);
     emit_data_dbdw(var->type);
     j = 0;
-    braces = 1;
+    braces = 0;
     for(;;){
       get();
       if(curr_token.tok == OPENING_BRACE) braces++;
@@ -4170,7 +4166,6 @@ void emit_global_var_initialization(t_var *var){
         emit_data_dbdw(var->type);
       }
     }
-    expect(CLOSING_BRACE, "Closing braces expected");
     // fill in the remaining unitialized array values with 0's 
     emit_data("\n");
     if(get_total_type_size(var->type) - j * get_primitive_type_size(var->type) > 0){
@@ -4443,8 +4438,8 @@ void get(void){
 
 
   *curr_token.token_str = '\0';
-  curr_token.tok = 0;
-  curr_token.tok_type = 0;
+  curr_token.tok = TOK_UNDEF;
+  curr_token.tok_type = TYPE_UNDEF;
   t = curr_token.token_str;
   
   // Save the position of prog before getting a curr_token.token_str. If an 'unexpected curr_token.token_str' error occurs,

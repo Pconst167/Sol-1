@@ -9,9 +9,10 @@ full_path="$1"
 file_name=$(basename "$full_path")
 file_name="${file_name%.*}"
 
-echo "Trying to compile ${1} ..."
 
-make FILE=${1}
+make FILE=$full_path
+
+./cc "$full_path" $@
 
 echo
 wine tasm -1 -b out/${file_name}.asm out/obj/${file_name}.obj out/lst/${file_name}.lst

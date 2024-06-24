@@ -1,3 +1,82 @@
+/*
+ * startrek.c
+ *
+ * Super Star Trek Classic (v1.1)
+ * Retro Star Trek Game 
+ * C Port Copyright (C) 1996  <Chris Nystrom>
+ *
+ * Reworked for Fuzix by Alan Cox (C) 2018
+ *	- Removed all floating point
+ *	- Fixed multiple bugs in the BASIC to C conversion
+ *	- Fixed a couple of bugs in the BASIC that either got in during it's
+ *	  conversion between BASICs or from the original trek
+ *	- Put it on a diet to get it to run in 32K. No features were harmed
+ *	  in the making of this code smaller.
+ *
+ * TODO:
+ *	- Look hard at all the rounding cases
+ *	- Review some of the funnies in the BASIC code that appear to be bugs
+ *	  either in the conversion or between the original and 'super' trek
+ *	  Notably need to fix the use of shield energy directly for warp
+ *	- Find a crazy person to draw ascii art bits we can showfile for things
+ *	  like messages from crew/docking/klingons etc
+ *	- I think it would make a lot of sense to switch to real angles, but
+ *	  trek game traditionalists might consider that heresy.
+ *
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * in any way that you wish. _Star Trek_ is a trademark of Paramount
+ * I think.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * This is a C port of an old BASIC program: the classic Super Star Trek
+ * game. It comes from the book _BASIC Computer Games_ edited by David Ahl
+ * of Creative Computing fame. It was published in 1978 by Workman Publishing,
+ * 1 West 39 Street, New York, New York, and the ISBN is: 0-89489-052-3.
+ * 
+ * See http://www.cactus.org/~nystrom/startrek.html for more info.
+ *
+ * Contact Author of C port at:
+ *
+ * Chris Nystrom
+ * 1013 Prairie Dove Circle
+ * Austin, Texas  78758
+ *
+ * E-Mail: cnystrom@gmail.com, nystrom@cactus.org
+ *
+ * BASIC -> Conversion Issues
+ *
+ *     - String Names changed from A$ to sA
+ *     - Arrays changed from G(8,8) to map[9][9] so indexes can
+ *       stay the same.
+ *
+ * Here is the original BASIC header:
+ *
+ * SUPER STARTREK - MAY 16, 1978 - REQUIRES 24K MEMORY
+ *
+ ***        **** STAR TREK ****        ****
+ *** SIMULATION OF A MISSION OF THE STARSHIP ENTERPRISE,
+ *** AS SEEN ON THE STAR TREK TV SHOW.
+ *** ORIGINAL PROGRAM BY MIKE MAYFIELD, MODIFIED VERSION
+ *** PUBLISHED IN DEC'S "101 BASIC GAMES", BY DAVE AHL.
+ *** MODIFICATIONS TO THE LATTER (PLUS DEBUGGING) BY BOB
+ *** LEEDOM - APRIL & DECEMBER 1974,
+ *** WITH A LITTLE HELP FROM HIS FRIENDS . . .
+ *** COMMENTS, EPITHETS, AND SUGGESTIONS SOLICITED --
+ *** SEND TO:  R. C. LEEDOM
+ ***           WESTINGHOUSE DEFENSE & ELECTRONICS SYSTEMS CNTR.
+ ***           BOX 746, M.S. 338
+ ***           BALTIMORE, MD  21203
+ ***
+ *** CONVERTED TO MICROSOFT 8 K BASIC 3/16/78 BY JOHN BORDERS
+ *** LINE NUMBERS FROM VERSION STREK7 OF 1/12/75 PRESERVED AS
+ *** MUCH AS POSSIBLE WHILE USING MULTIPLE STATMENTS PER LINE
+ *
+ */
+
 #include <stdio.h>
 #include <ctype.h>
 
@@ -7,10 +86,6 @@
 
 #define MAXROW      24
 #define MAXCOL      80
-
-/*typedef char int8_t;
-typedef unsigned char uint8_t;
-typedef int int16_t;*/
 
 struct klingon {
 	uint8_t y;
@@ -105,8 +180,7 @@ int FROM_FIXED00(int x){
  */
 int get_rand(int spread)
 {
-	uint16_t r ;
-	r = rand();
+	uint16_t r = rand();
 	/* RAND_MAX is at least 15 bits, our largest request is for 500. The
 	   classic unix rand() is very poor on the low bits so swap the ends
 	   over */
@@ -129,7 +203,7 @@ void input(char *b, uint8_t l)
 	int c;
 
 	while((c = getchar()) != '\n') {
-		if (c == -1)
+		if (c == EOF)
 			exit();
 		if (l > 1) {
 			*b++ = c;
@@ -187,13 +261,12 @@ int input_int(void)
 char *print100(int16_t v)
 {
 	static char buf[16];
-	char *p;
-	*p = buf;
+	char *p = buf;
 	if (v < 0) {
 		v = -v;
 		*p++ = '-';
 	}
-	//p += sprintf(p, "%d.%02d", v / 100, v%100);
+	p = p + sprintf(p, "%d.%d", v / 100, v%100);
 	return buf;
 }
 
@@ -428,7 +501,7 @@ void new_quadrant(void)
 	if (klingons > 0) {
 		k = kdata;
 		for (i = 0; i < klingons; i++) {
-			find_set_empty_place(Q_KLINGON, k->y, k->x);
+			find_set_empty_place(Q_KLINGON, &k->y, &k->x);
 			k->energy = 100 + get_rand(200);
 			k++;
 		}
@@ -595,8 +668,11 @@ void course_control(void)
 
 			if (outside == 1) {
 				/* Mostly showfile ? FIXME */
-				printf("LT. Uhura reports:\n Message from Starfleet Command:\n\n Permission to attempt crossing of galactic perimeter\n is hereby *denied*. Shut down your engines.\n\n Chief Engineer Scott reports:\n Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n", FROM_FIXED00(ship_y),
-				       FROM_FIXED00(ship_x), quad_y, quad_x);
+				printf("LT. Uhura reports:\n Message from Starfleet Command:\n\n ");
+				printf("Permission to attempt crossing of galactic perimeter\n is hereby *denied*. ");
+				printf("Shut down your engines.\n\n Chief Engineer Scott reports:\n ");
+				printf("Warp Engines shut down at sector %d, %d of quadrant %d, %d.\n\n", 
+					FROM_FIXED00(ship_y), FROM_FIXED00(ship_x), quad_y, quad_x);
 			}
 			maneuver_energy(n);
 
@@ -618,7 +694,7 @@ void course_control(void)
 			return;
 		}
 
-		if (quad[z1+-1][z2+-1] != Q_SPACE) {	/* Sector not empty */
+		if (quad[z1-1][z2-1] != Q_SPACE) {	/* Sector not empty */
 			ship_y = ship_y - x1;
 			ship_x = ship_x - x2;
 			printf("Warp Engines shut down at sector %d, %d due to bad navigation.\n\n", z1, z2);
@@ -697,7 +773,7 @@ void short_range_scan(void)
 	for (i = (int) (FROM_FIXED00(ship_y) - 1); i <= (int) (FROM_FIXED00(ship_y) + 1); i++)
 		for (j = (int) (FROM_FIXED00(ship_x) - 1); j <= (int) (FROM_FIXED00(ship_x) + 1); j++)
 			if (i >= 1 && i <= 8 && j >= 1 && j <= 8) {
-				if (quad[i+-1][j+-1] == Q_BASE) {
+				if (quad[i-1][j-1] == Q_BASE) {
 					docked = 1;
 					sC = "DOCKED";
 					energy = energy0;
@@ -925,7 +1001,7 @@ void photon_torpedoes(void)
 
 		printf("    %d, %d\n", x3, y3);
 
-		p = quad[x3+-1][y3+-1];
+		p = quad[x3-1][y3-1];
 		/* In certain corner cases the first trace we'll step is
 		   ourself. If so treat it as space */
 		if (p != Q_SPACE && p != Q_SHIP) {
@@ -951,7 +1027,7 @@ void torpedo_hit(uint8_t yp, uint8_t xp)
 	int i;
 	struct klingon *k;
 
-	switch(quad[yp+-1][xp+-1]) {
+	switch(quad[yp-1][xp-1]) {
 	case Q_STAR:
 		printf("Star at %d, %d absorbed torpedo energy.\n\n", yp, xp);
 		return;
@@ -991,7 +1067,7 @@ void torpedo_hit(uint8_t yp, uint8_t xp)
 		map[quad_y][quad_x] =map[quad_y][quad_x] - 0x10;
 		break;
 	}
-	quad[yp+-1][xp+-1] = Q_SPACE;
+	quad[yp-1][xp-1] = Q_SPACE;
 }
 
 void damage_control(void)
@@ -1015,7 +1091,8 @@ void damage_control(void)
 			if (repair_cost >= 100)
 				repair_cost = 90;	/* 0.9 */
 
-			printf("\nTechnicians standing by to effect repairs to your ship;\nEstimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ", print100(repair_cost));
+			printf("\nTechnicians standing by to effect repairs to your ship;\n");
+      printf("Estimated time to repair: %s stardates.\n Will you authorize the repair order (y/N)? ", print100(repair_cost));
 
 			if (yesno()) {
 				for (i = 1; i <= 8; i++)
@@ -1141,10 +1218,8 @@ const char *str_s = "s";
 
 void status_report(void)
 {
-	char *plural;
-	plural = str_s + 1;
-	uint16_t left;
-	left = TO_FIXED(time_start + time_up) - stardate;
+	char *plural = str_s + 1;
+	uint16_t left = TO_FIXED(time_start + time_up) - stardate;
 
 	puts("   Status Report:\n");
 
@@ -1170,8 +1245,7 @@ void status_report(void)
 void torpedo_data(void)
 {
 	int i;
-	char *plural;
-	plural = str_s + 1;
+	const char *plural = str_s + 1;
 	struct klingon *k;
 
 	/* Need to also check sensors here ?? */
@@ -1290,6 +1364,7 @@ void compute_vector(int16_t w1, int16_t x, int16_t c1, int16_t a)
 	if (x < 0) {
 		if (a > 0) {
 			c1 = 300;
+//estimate2:
 		/* Multiply the top half by 100 to keep in fixed0 */
 			if (al >= xl)
 				printf("%s", print100(c1 + ((xl * 100) / al)));
@@ -1300,18 +1375,24 @@ void compute_vector(int16_t w1, int16_t x, int16_t c1, int16_t a)
 			return;
 		} else if (x != 0){
 			c1 = 500;
+		//	goto estimate1;
 			return;
 		} else {
 			c1 = 700;
+			//goto estimate2;
 		}
 	} else if (a < 0) {
 		c1 = 700;
+		//goto estimate2;
 	} else if (x > 0) {
 		c1 = 100;
+		//goto estimate1;
 	} else if (a == 0) {
 		c1 = 500;
+		//goto estimate1;
 	} else {
 		c1 = 100;
+//estimate1:
 		/* Multiply the top half by 100 as well so that we keep it in fixed00
 		   format. Our larget value is int 9 (900) so we must do this 32bit */
 		if (al <= xl)
@@ -1321,6 +1402,7 @@ void compute_vector(int16_t w1, int16_t x, int16_t c1, int16_t a)
 		printf(dist_1, print100((xl > al) ? xl : al));
 	}
 }
+
 void ship_destroyed(void)
 {
 	puts("The Enterprise has been destroyed. The Federation will be conquered.\n");
@@ -1380,14 +1462,13 @@ void klingons_move(void)
 		if (k->energy > 0) {
 			wipe_klingon(k);
 
-			find_set_empty_place(Q_KLINGON, k->y, k->x);
+			find_set_empty_place(Q_KLINGON, &k->y, &k->x);
 		}
 		k++;
 	}
 
 	klingons_shoot();
 }
-
 
 
 void klingons_shoot(void)
@@ -1503,14 +1584,13 @@ void find_set_empty_place(uint8_t t, uint8_t *z1, uint8_t *z2)
 	do {
 		r1 = rand8();
 		r2 = rand8();
-	} while (quad[r1+-1][r2+-1] != Q_SPACE );
-	quad[r1+-1][r2+-1] = t;
+	} while (quad[r1-1][r2-1] != Q_SPACE );
+	quad[r1-1][r2-1] = t;
 	if (z1)
 		*z1 = r1;
 	if (z2)
 		*z2 = r2;
 }
-
 
 
 char *get_device_name(int n)
@@ -1550,10 +1630,7 @@ void quadrant_name(uint8_t small, uint8_t y, uint8_t x)
    repeatedly until we find the right one */
 int16_t isqrt(int16_t i)
 {
-	uint16_t b, q, r, t;
-	b = 0x4000;
-	 q = 0;
-	 r = i;
+	uint16_t b = 0x4000, q = 0, r = i, t;
 	while (b) {
 		t = q + b;
 		q =q>> 1;
@@ -1605,7 +1682,8 @@ int cint100(int16_t d)
 
 void showfile(char *filename)
 {
-	/*FILE *fp;
+	/*
+	FILE *fp;
 	char buffer[MAXCOL];
 	int row = 0;
 
@@ -1615,7 +1693,7 @@ void showfile(char *filename)
 		return;
 	}
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-		puts(buffer);
+		fputs(buffer, stdout);
 		if (row++ > MAXROW - 3) {
 			getchar();
 			row = 0;

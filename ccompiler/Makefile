@@ -10,8 +10,6 @@ compile_file: cc
 ifeq ($(FILE),)
 	@echo "Error: Please provide a file to compile using FILE=<filename>"
 	@exit 1
-else
-	./cc $(FILE)
 endif
 
 cc: cc.o char.o debug.o search.o

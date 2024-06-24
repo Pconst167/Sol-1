@@ -96,7 +96,7 @@ void printf(const char *format, ...){
             mov ah, al
             call _putchar
           }
-          p = p + 2;
+          p = p + 1;
           break;
 
         case 's':
@@ -165,8 +165,8 @@ void scanf(const char *format, ...){
 
         case 'c':
           c = getchar();
-          **(char **)p = c;
-          p = p + 2;
+          **(char **)p = *(char *)c;
+          p = p + 1;
           break;
 
         case 's':
@@ -236,8 +236,8 @@ void sprintf(char *dest, const char *format, ...){
           break;
 
         case 'c':
-          *sp++ = *p;
-          p = p + 2;
+          *sp++ = *(char *)p;
+          p = p + 1;
           break;
 
         case 's':
@@ -256,6 +256,9 @@ void sprintf(char *dest, const char *format, ...){
       *sp++ = *format_p++;
     }
   }
+  *sp = '\0';
+
+  return sp - dest; // return total number of chars written
 }
 
 void err(char *e){

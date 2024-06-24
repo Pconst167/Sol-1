@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 char s[256];
+char ss[10] = "Hello";
 
 void main(void){
 

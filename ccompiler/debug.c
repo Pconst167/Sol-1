@@ -54,18 +54,9 @@ void dbg_print_function_info(t_function *function){
   printf("function name: %s\n", function->name);
   printf("RETURN TYPE INFO:\n");
   dbg_print_type_info(&function->return_type);
-  printf("PARAMETER LIST:\n");
   for(i = 0; i < function->local_var_tos && function->local_vars[i].is_parameter ; i++){
-    printf("parameter[%d] Name: %s\n", i, function->local_vars[i].name);
-    printf("ind level: %d\n", function->local_vars[i].type.ind_level);
-    printf("size modifier: %d\n", function->local_vars[i].type.size_modifier);
-    printf("sign modifier: %d\n", function->local_vars[i].type.sign_modifier);
-    printf("struct id: %d\n", function->local_vars[i].type.struct_enum_id);
-    if(function->local_vars[i].type.dims[0]){
-      for(j = 0; function->local_vars[i].type.dims[j]; j++){
-        printf("Dim %d: %d\n", j, function->local_vars[i].type.dims[j]);
-      }
-    }
+    printf("  parameter[%d] Name: %s\n", i, function->local_vars[i].name);
+    dbg_print_type_info(&function->local_vars[i].type);
   }
   printf("*******************************************\n");
 }
@@ -73,12 +64,12 @@ void dbg_print_function_info(t_function *function){
 void dbg_print_type_info(t_type *type){
   int i;
 
-  printf("basic type: %s\n", primitive_type_to_str_table[type->primitive_type]);
+  printf("  basic type: %s\n", primitive_type_to_str_table[type->primitive_type]);
   for(i = 0; type->dims[i]; i++)
-    printf("dims[%d]: %d\n", i, type->dims[i]);
-  printf("ind level: %d\n", type->ind_level);
-  printf("size modifier: %d\n", type->size_modifier);
-  printf("sign modifier: %d\n", type->sign_modifier);
-  printf("struct id: %d\n", type->struct_enum_id);
-  printf("*******************************************\n");
+    printf("  dims[%d]: %d\n", i, type->dims[i]);
+  printf("  ind level: %d\n", type->ind_level);
+  printf("  size modifier: %d\n", type->size_modifier);
+  printf("  sign modifier: %d\n", type->sign_modifier);
+  printf("  struct id: %d\n", type->struct_enum_id);
+  printf("\n");
 }
