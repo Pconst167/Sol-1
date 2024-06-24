@@ -3871,7 +3871,7 @@
   }
 }
 
-0x15, "mov a, [d] - add cb, ga"{
+0x15, "mov a, [d] - add32 cb, ga"{
   0{
     next=next_offset
     offset=1
@@ -4012,7 +4012,7 @@
   }
 }
 
-0x16, "mov a, [d + i16] - adc cb, ga"{
+0x16, "mov a, [d + i16] - adc32 cb, ga"{
   0{
     next=next_offset
     offset=1
