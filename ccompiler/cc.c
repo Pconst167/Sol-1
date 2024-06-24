@@ -1594,12 +1594,12 @@ void declare_func(void){
             error(ERR_FATAL, "Undeclared enum: %s", curr_token.token_str);
         }
         get();
-        while(curr_token.tok == STAR){
-          function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.ind_level++;
-          get();
-        }
       }
 
+      while(curr_token.tok == STAR){
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.ind_level++;
+        get();
+      }
       if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
       strcpy(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].name, curr_token.token_str);
       // Check if this is main, and argc or argv are declared
@@ -1655,6 +1655,7 @@ int get_param_size(){
   int data_size;
   int struct_enum_id;
   t_size_modifier size_modifier;
+  int typedef_id;
 
   data_size = 0;
   struct_enum_id = -1;
@@ -1669,7 +1670,10 @@ int get_param_size(){
     get();
   }
 
-  switch(curr_token.tok){
+  if((typedef_id = search_typedef(curr_token.token_str)) != -1){
+    data_size = get_type_size_for_func_arg_parsing(typedef_table[typedef_id].type);
+  }
+  else switch(curr_token.tok){
     case VAR_ARG_DOTS:
       data_size = 0; // assign zero here as the real size will be computed when the variable arguments are pushed
       break;
@@ -1701,13 +1705,16 @@ int get_param_size(){
       error(ERR_FATAL, "(get_param_size): unknown data type token");
   }
 
+// FILE fp,       FILE fp)
+// FILE *fp,      FILE *fp)
+// int i,         int i)
   get(); // check for '*'
   if(curr_token.tok == STAR){
     data_size = 2;
     while(curr_token.tok == STAR) get();
+    get(); // get identifier name
   }
 
-  get(); // check for brackets
   if(curr_token.tok == OPENING_BRACKET){
     data_size = 2; // parameter is a pointer if it is an array
     while(curr_token.tok == OPENING_BRACKET){
@@ -1722,7 +1729,7 @@ int get_param_size(){
     back();
   }
   else back();
-  
+
   return data_size;
 }
 

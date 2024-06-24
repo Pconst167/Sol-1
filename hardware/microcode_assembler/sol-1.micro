@@ -5124,7 +5124,7 @@
   }
 }
 
-0x25, "mov ah, bh"{
+0x25, "mov ah, bh - xor32 cb, ga"{
   0{
     next=next_fetch
     alu_x=bh
@@ -5134,6 +5134,80 @@
     marl_wrt=true
     marh_wrt=true
     mar_in_src=pc
+  }
+
+
+  16{
+    next=next_offset
+    offset=1
+    alu_x=al
+    alu_op=x
+    alu_mode=logic
+    tdrl_wrt=true
+  }
+  17{
+    next=next_offset
+    offset=1
+    alu_x=ah
+    alu_op=x
+    alu_mode=logic
+    tdrh_wrt=true
+  }
+  18{
+    next=next_offset
+    offset=1
+    alu_x=bl
+    alu_y=tdrl  
+    alu_op=xor
+    alu_mode=logic
+    zf_in_src=alu_zf  
+    bl_wrt=true
+  }
+  19{
+    next=next_offset
+    offset=1
+    alu_x=bh
+    alu_y=tdrh  
+    alu_op=xor
+    alu_mode=logic
+    zf_in_src=alu_zf_and_zf  
+    bh_wrt=true
+  }
+  20{
+    next=next_offset
+    offset=1
+    alu_x=gl
+    alu_op=x
+    alu_mode=logic
+    tdrl_wrt=true
+  }
+  21{
+    next=next_offset
+    offset=1
+    alu_x=gh
+    alu_op=x
+    alu_mode=logic
+    tdrh_wrt=true
+  }
+  22{
+    next=next_offset
+    offset=1
+    alu_x=cl
+    alu_y=tdrl  
+    alu_op=xor
+    alu_mode=logic
+    zf_in_src=alu_zf_and_zf
+    cl_wrt=true
+  }
+  23{
+    next=next_fetch
+    alu_x=ch
+    alu_y=tdrh  
+    alu_op=xor
+    alu_mode=logic
+    zf_in_src=alu_zf_and_zf  
+    sf_in_src=zbus_7
+    ch_wrt=true
   }
 }
 
@@ -5526,7 +5600,6 @@
     alu_op=or
     alu_mode=logic
     zf_in_src=alu_zf_and_zf  
-    sf_in_src=zbus_7
     bh_wrt=true
   }
   20{

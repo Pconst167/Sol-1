@@ -1,12 +1,18 @@
-#include <stdio.h>
 
-char s[256];
-char ss[10] = "Hello";
+
+struct _FILE{
+  int handle;
+  int filename[256];
+  int mode; // 0: RD, 1: WR, 2: RW, 3: APPEND
+  int loc; // position of seek head
+};
+
+typedef struct _FILE FILE;
+
+
+void fclose(int i, FILE *fp, int i){
+}
 
 void main(void){
-
-	sprintf(s, "Integer: %d, Char: %c, String: %s\n\n",  2341, 'G', "Hello World!");
-
-	printf("Final String: %s", s);
 
 }
