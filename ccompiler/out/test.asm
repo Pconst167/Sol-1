@@ -8,7 +8,7 @@ main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
 ;; sprintf(s, "Integer: %d, Char: %c, String: %s\n\n",  2341, 'G', "Hello World!"); 
-  mov b, _s0 ; "Hello World!"
+  mov b, _s1 ; "Hello World!"
   swp b
   push b
   mov b, $47
@@ -16,7 +16,7 @@ main:
   mov b, $925
   swp b
   push b
-  mov b, _s1 ; "Integer: %d, Char: %c, String: %s\n\n"
+  mov b, _s2 ; "Integer: %d, Char: %c, String: %s\n\n"
   swp b
   push b
   mov d, _s_data ; $s
@@ -30,7 +30,7 @@ main:
   mov b, d
   swp b
   push b
-  mov b, _s2 ; "Final String: %s"
+  mov b, _s3 ; "Final String: %s"
   swp b
   push b
   call printf
@@ -960,7 +960,7 @@ _if16_true:
   jmp _if16_exit
 _if16_else:
 ;; err("Unexpected format in printf."); 
-  mov b, _s3 ; "Unexpected format in printf."
+  mov b, _s4 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -1115,7 +1115,7 @@ _switch13_case7:
   jmp _switch13_exit ; case break
 _switch13_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, _s4 ; "Error: Unknown argument type.\n"
+  mov b, _s5 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -1349,7 +1349,7 @@ _if23_true:
   jmp _if23_exit
 _if23_else:
 ;; err("Unexpected format in printf."); 
-  mov b, _s3 ; "Unexpected format in printf."
+  mov b, _s4 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -1533,7 +1533,7 @@ _switch20_case7:
   jmp _switch20_exit ; case break
 _switch20_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, _s4 ; "Error: Unknown argument type.\n"
+  mov b, _s5 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -1819,7 +1819,7 @@ _if30_true:
   jmp _if30_exit
 _if30_else:
 ;; err("Unexpected format in printf."); 
-  mov b, _s3 ; "Unexpected format in printf."
+  mov b, _s4 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -2048,7 +2048,7 @@ _switch27_case7:
   jmp _switch27_exit ; case break
 _switch27_default:
 ;; print("Error: Unknown argument type.\n"); 
-  mov b, _s4 ; "Error: Unknown argument type.\n"
+  mov b, _s5 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -3668,7 +3668,7 @@ getparam:
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ;; print("\033[2J\033[H"); 
-  mov b, _s5 ; "\033[2J\033[H"
+  mov b, _s6 ; "\033[2J\033[H"
   swp b
   push b
   call print
@@ -3717,12 +3717,16 @@ include_stdio_asm:
 
 ; --- BEGIN DATA BLOCK
 _s_data: .fill 256, 0
-_s0: .db "Hello World!", 0
-_s1: .db "Integer: %d, Char: %c, String: %s\n\n", 0
-_s2: .db "Final String: %s", 0
-_s3: .db "Unexpected format in printf.", 0
-_s4: .db "Error: Unknown argument type.\n", 0
-_s5: .db "\033[2J\033[H", 0
+_ss_data: 
+.db _s0, 
+.fill 9, 0
+_s0: .db "Hello", 0
+_s1: .db "Hello World!", 0
+_s2: .db "Integer: %d, Char: %c, String: %s\n\n", 0
+_s3: .db "Final String: %s", 0
+_s4: .db "Unexpected format in printf.", 0
+_s5: .db "Error: Unknown argument type.\n", 0
+_s6: .db "\033[2J\033[H", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

@@ -308,6 +308,7 @@ int label_tos_cmp;
 /*
   MAIN
 */
+
 int main(int argc, char *argv[]){
   int main_index;
   char *filename_no_ext;
@@ -4143,12 +4144,10 @@ void emit_global_var_initialization(t_var *var){
   int j, braces;
 
   if(is_array(var->type)){
-    get();
-    expect(OPENING_BRACE, "Opening braces expected");
     emit_data("_%s_data: \n", var->name);
     emit_data_dbdw(var->type);
     j = 0;
-    braces = 1;
+    braces = 0;
     for(;;){
       get();
       if(curr_token.tok == OPENING_BRACE) braces++;
@@ -4170,7 +4169,6 @@ void emit_global_var_initialization(t_var *var){
         emit_data_dbdw(var->type);
       }
     }
-    expect(CLOSING_BRACE, "Closing braces expected");
     // fill in the remaining unitialized array values with 0's 
     emit_data("\n");
     if(get_total_type_size(var->type) - j * get_primitive_type_size(var->type) > 0){
@@ -4443,8 +4441,8 @@ void get(void){
 
 
   *curr_token.token_str = '\0';
-  curr_token.tok = 0;
-  curr_token.tok_type = 0;
+  curr_token.tok = TOK_UNDEF;
+  curr_token.tok_type = TYPE_UNDEF;
   t = curr_token.token_str;
   
   // Save the position of prog before getting a curr_token.token_str. If an 'unexpected curr_token.token_str' error occurs,

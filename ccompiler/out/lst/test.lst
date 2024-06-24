@@ -28,7 +28,7 @@
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
 0010   0408             ;; sprintf(s, "Integer: %d, Char: %c, String: %s\n\n",  2341, 'G', "Hello World!"); 
-0011   0408 26 D4 1F      mov b, _s0 ; "Hello World!"
+0011   0408 26 E4 1F      mov b, _s1 ; "Hello World!"
 0012   040B FD AB         swp b
 0013   040D D8            push b
 0014   040E 26 47 00      mov b, $47
@@ -36,7 +36,7 @@
 0016   0412 26 25 09      mov b, $925
 0017   0415 FD AB         swp b
 0018   0417 D8            push b
-0019   0418 26 E1 1F      mov b, _s1 ; "Integer: %d, Char: %c, String: %s\n\n"
+0019   0418 26 F1 1F      mov b, _s2 ; "Integer: %d, Char: %c, String: %s\n\n"
 0020   041B FD AB         swp b
 0021   041D D8            push b
 0022   041E 3B D4 1E      mov d, _s_data ; $s
@@ -50,7 +50,7 @@
 0030   042E 2D            mov b, d
 0031   042F FD AB         swp b
 0032   0431 D8            push b
-0033   0432 26 05 20      mov b, _s2 ; "Final String: %s"
+0033   0432 26 15 20      mov b, _s3 ; "Final String: %s"
 0034   0435 FD AB         swp b
 0035   0437 D8            push b
 0036   0438 07 E6 07      call printf
@@ -675,9 +675,9 @@
 0655   078D             alloc:
 0656   078D F8 00 00      enter 0 ; (push bp; mov bp, sp)
 0657   0790             ;; heap_top = heap_top + bytes; 
-0658   0790 3B 5A 20      mov d, _heap_top ; $heap_top
+0658   0790 3B 6A 20      mov d, _heap_top ; $heap_top
 0659   0793 DA            push d
-0660   0794 3B 5A 20      mov d, _heap_top ; $heap_top
+0660   0794 3B 6A 20      mov d, _heap_top ; $heap_top
 0661   0797 2A            mov b, [d]
 0662   0798             ; START TERMS
 0663   0798 D7            push a
@@ -690,7 +690,7 @@
 0670   07A0 E7            pop d
 0671   07A1 FD 43         mov [d], b
 0672   07A3             ;; return heap_top - bytes; 
-0673   07A3 3B 5A 20      mov d, _heap_top ; $heap_top
+0673   07A3 3B 6A 20      mov d, _heap_top ; $heap_top
 0674   07A6 2A            mov b, [d]
 0675   07A7             ; START TERMS
 0676   07A7 D7            push a
@@ -707,9 +707,9 @@
 0687   07B2             free:
 0688   07B2 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 0689   07B5             ;; return heap_top = heap_top - bytes; 
-0690   07B5 3B 5A 20      mov d, _heap_top ; $heap_top
+0690   07B5 3B 6A 20      mov d, _heap_top ; $heap_top
 0691   07B8 DA            push d
-0692   07B9 3B 5A 20      mov d, _heap_top ; $heap_top
+0692   07B9 3B 6A 20      mov d, _heap_top ; $heap_top
 0693   07BC 2A            mov b, [d]
 0694   07BD             ; START TERMS
 0695   07BD D7            push a
@@ -980,7 +980,7 @@
 0960   0949 0A 58 09      jmp _if16_exit
 0961   094C             _if16_else:
 0962   094C             ;; err("Unexpected format in printf."); 
-0963   094C 26 16 20      mov b, _s3 ; "Unexpected format in printf."
+0963   094C 26 26 20      mov b, _s4 ; "Unexpected format in printf."
 0964   094F FD AB         swp b
 0965   0951 D8            push b
 0966   0952 07 93 0F      call err
@@ -1135,7 +1135,7 @@
 1115   0A0E 0A 1D 0A      jmp _switch13_exit ; case break
 1116   0A11             _switch13_default:
 1117   0A11             ;; print("Error: Unknown argument type.\n"); 
-1118   0A11 26 33 20      mov b, _s4 ; "Error: Unknown argument type.\n"
+1118   0A11 26 43 20      mov b, _s5 ; "Error: Unknown argument type.\n"
 1119   0A14 FD AB         swp b
 1120   0A16 D8            push b
 1121   0A17 07 E9 1A      call print
@@ -1369,7 +1369,7 @@
 1349   0B5E 0A 6D 0B      jmp _if23_exit
 1350   0B61             _if23_else:
 1351   0B61             ;; err("Unexpected format in printf."); 
-1352   0B61 26 16 20      mov b, _s3 ; "Unexpected format in printf."
+1352   0B61 26 26 20      mov b, _s4 ; "Unexpected format in printf."
 1353   0B64 FD AB         swp b
 1354   0B66 D8            push b
 1355   0B67 07 93 0F      call err
@@ -1553,7 +1553,7 @@
 1533   0C59 0A 68 0C      jmp _switch20_exit ; case break
 1534   0C5C             _switch20_default:
 1535   0C5C             ;; print("Error: Unknown argument type.\n"); 
-1536   0C5C 26 33 20      mov b, _s4 ; "Error: Unknown argument type.\n"
+1536   0C5C 26 43 20      mov b, _s5 ; "Error: Unknown argument type.\n"
 1537   0C5F FD AB         swp b
 1538   0C61 D8            push b
 1539   0C62 07 E9 1A      call print
@@ -1839,7 +1839,7 @@
 1819   0E0A 0A 19 0E      jmp _if30_exit
 1820   0E0D             _if30_else:
 1821   0E0D             ;; err("Unexpected format in printf."); 
-1822   0E0D 26 16 20      mov b, _s3 ; "Unexpected format in printf."
+1822   0E0D 26 26 20      mov b, _s4 ; "Unexpected format in printf."
 1823   0E10 FD AB         swp b
 1824   0E12 D8            push b
 1825   0E13 07 93 0F      call err
@@ -2068,7 +2068,7 @@
 2048   0F42 0A 51 0F      jmp _switch27_exit ; case break
 2049   0F45             _switch27_default:
 2050   0F45             ;; print("Error: Unknown argument type.\n"); 
-2051   0F45 26 33 20      mov b, _s4 ; "Error: Unknown argument type.\n"
+2051   0F45 26 43 20      mov b, _s5 ; "Error: Unknown argument type.\n"
 2052   0F48 FD AB         swp b
 2053   0F4A D8            push b
 2054   0F4B 07 E9 1A      call print
@@ -3880,7 +3880,7 @@
 3668   1B12             clear:
 3669   1B12 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 3670   1B15             ;; print("\033[2J\033[H"); 
-3671   1B15 26 52 20      mov b, _s5 ; "\033[2J\033[H"
+3671   1B15 26 62 20      mov b, _s6 ; "\033[2J\033[H"
 3672   1B18 FD AB         swp b
 3673   1B1A D8            push b
 3674   1B1B 07 E9 1A      call print
@@ -4777,46 +4777,53 @@
 3719   1FC8 00 00 00 00 
 3719   1FCC 00 00 00 00 
 3719   1FD0 00 00 00 00 
-3720   1FD4 48 65 6C 6C _s0: .db "Hello World!", 0
-3720   1FD8 6F 20 57 6F 
-3720   1FDC 72 6C 64 21 
-3720   1FE0 00 
-3721   1FE1 49 6E 74 65 _s1: .db "Integer: %d, Char: %c, String: %s\n\n", 0
-3721   1FE5 67 65 72 3A 
-3721   1FE9 20 25 64 2C 
-3721   1FED 20 43 68 61 
-3721   1FF1 72 3A 20 25 
-3721   1FF5 63 2C 20 53 
-3721   1FF9 74 72 69 6E 
-3721   1FFD 67 3A 20 25 
-3721   2001 73 0A 0A 00 
-3722   2005 46 69 6E 61 _s2: .db "Final String: %s", 0
-3722   2009 6C 20 53 74 
-3722   200D 72 69 6E 67 
-3722   2011 3A 20 25 73 
-3722   2015 00 
-3723   2016 55 6E 65 78 _s3: .db "Unexpected format in printf.", 0
-3723   201A 70 65 63 74 
-3723   201E 65 64 20 66 
-3723   2022 6F 72 6D 61 
-3723   2026 74 20 69 6E 
-3723   202A 20 70 72 69 
-3723   202E 6E 74 66 2E 
-3723   2032 00 
-3724   2033 45 72 72 6F _s4: .db "Error: Unknown argument type.\n", 0
-3724   2037 72 3A 20 55 
-3724   203B 6E 6B 6E 6F 
-3724   203F 77 6E 20 61 
-3724   2043 72 67 75 6D 
-3724   2047 65 6E 74 20 
-3724   204B 74 79 70 65 
-3724   204F 2E 0A 00 
-3725   2052 1B 5B 32 4A _s5: .db "\033[2J\033[H", 0
-3725   2056 1B 5B 48 00 
-3726   205A             
-3727   205A 5C 20       _heap_top: .dw _heap
-3728   205C 00          _heap: .db 0
-3729   205D             ; --- END DATA BLOCK
-3730   205D             
-3731   205D             .end
+3720   1FD4             _ss_data: 
+3721   1FD4 DE          .db _s0, 
+3722   1FD5 00 00 00 00 .fill 9, 0
+3722   1FD9 00 00 00 00 
+3722   1FDD 00 
+3723   1FDE 48 65 6C 6C _s0: .db "Hello", 0
+3723   1FE2 6F 00 
+3724   1FE4 48 65 6C 6C _s1: .db "Hello World!", 0
+3724   1FE8 6F 20 57 6F 
+3724   1FEC 72 6C 64 21 
+3724   1FF0 00 
+3725   1FF1 49 6E 74 65 _s2: .db "Integer: %d, Char: %c, String: %s\n\n", 0
+3725   1FF5 67 65 72 3A 
+3725   1FF9 20 25 64 2C 
+3725   1FFD 20 43 68 61 
+3725   2001 72 3A 20 25 
+3725   2005 63 2C 20 53 
+3725   2009 74 72 69 6E 
+3725   200D 67 3A 20 25 
+3725   2011 73 0A 0A 00 
+3726   2015 46 69 6E 61 _s3: .db "Final String: %s", 0
+3726   2019 6C 20 53 74 
+3726   201D 72 69 6E 67 
+3726   2021 3A 20 25 73 
+3726   2025 00 
+3727   2026 55 6E 65 78 _s4: .db "Unexpected format in printf.", 0
+3727   202A 70 65 63 74 
+3727   202E 65 64 20 66 
+3727   2032 6F 72 6D 61 
+3727   2036 74 20 69 6E 
+3727   203A 20 70 72 69 
+3727   203E 6E 74 66 2E 
+3727   2042 00 
+3728   2043 45 72 72 6F _s5: .db "Error: Unknown argument type.\n", 0
+3728   2047 72 3A 20 55 
+3728   204B 6E 6B 6E 6F 
+3728   204F 77 6E 20 61 
+3728   2053 72 67 75 6D 
+3728   2057 65 6E 74 20 
+3728   205B 74 79 70 65 
+3728   205F 2E 0A 00 
+3729   2062 1B 5B 32 4A _s6: .db "\033[2J\033[H", 0
+3729   2066 1B 5B 48 00 
+3730   206A             
+3731   206A 6C 20       _heap_top: .dw _heap
+3732   206C 00          _heap: .db 0
+3733   206D             ; --- END DATA BLOCK
+3734   206D             
+3735   206D             .end
 tasm: Number of errors = 0

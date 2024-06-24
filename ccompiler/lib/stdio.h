@@ -257,6 +257,8 @@ void sprintf(char *dest, const char *format, ...){
     }
   }
   *sp = '\0';
+
+  return sp - dest; // return total number of chars written
 }
 
 void err(char *e){
