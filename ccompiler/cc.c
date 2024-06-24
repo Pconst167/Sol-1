@@ -1712,9 +1712,9 @@ int get_param_size(){
   if(curr_token.tok == STAR){
     data_size = 2;
     while(curr_token.tok == STAR) get();
-    get(); // get identifier name
   }
 
+  get();
   if(curr_token.tok == OPENING_BRACKET){
     data_size = 2; // parameter is a pointer if it is an array
     while(curr_token.tok == OPENING_BRACKET){

@@ -10,7 +10,7 @@ struct _FILE{
 typedef struct _FILE FILE;
 
 
-void fclose(int i, FILE *fp, int i){
+void fclose(FILE *i){
 }
 
 void main(void){
