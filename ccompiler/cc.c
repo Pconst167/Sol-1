@@ -305,10 +305,7 @@ int label_tos_while;
 int label_tos_switch;
 int label_tos_cmp;
 
-/*
-  MAIN
-*/
-
+// --- MAIN
 int main(int argc, char *argv[]){
   int main_index;
   char *filename_no_ext;
@@ -327,7 +324,7 @@ int main(int argc, char *argv[]){
     load_program(argv[1]);  
   }
   else{
-    printf("Usage: cc [filename]\n");
+    printf("usage: cc [filename]\n");
     return 0;
   }
 
@@ -339,7 +336,7 @@ int main(int argc, char *argv[]){
     }
   }
 
-  
+  printf("starting compilation of '%s'\n", argv[1]);
 
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
@@ -359,14 +356,14 @@ int main(int argc, char *argv[]){
   emitln(".include \"lib/asm/bios.exp\"");
   emitln(".org %s", org);
 
-  emit("\n; --- BEGIN TEXT BLOCK");
+  emit("\n; --- BEGIN TEXT SEGMENT");
   parse_functions();
-  emitln("; --- END TEXT BLOCK");
+  emitln("; --- END TEXT SEGMENT");
 
   asm_p = asm_out;
   while(*asm_p) asm_p++; 
   
-  emitln("\n; --- BEGIN DATA BLOCK");
+  emitln("\n; --- BEGIN DATA SEGMENT");
 
   emit_string_table_data();
 
@@ -376,7 +373,7 @@ int main(int argc, char *argv[]){
   
   emit_datablock_asm();
 
-  emitln("; --- END DATA BLOCK");
+  emitln("; --- END DATA SEGMENT");
 
   emitln("\n.end");
   *asm_p = '\0';
@@ -1747,7 +1744,7 @@ void parse_asm(void){
   
   get();
   if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
-  emitln("\n; --- BEGIN INLINE ASM BLOCK");
+  emitln("\n; --- BEGIN INLINE ASM SEGMENT");
   for(;;){
     while(is_space(*prog)) prog++;
     temp_prog = prog;
@@ -1775,7 +1772,7 @@ void parse_asm(void){
       emitln("  %s", curr_token.string_const);
     }
   }
-  emitln("; --- END INLINE ASM BLOCK\n");
+  emitln("; --- END INLINE ASM SEGMENT\n");
 }
 
 void parse_break(void){
@@ -2483,7 +2480,7 @@ t_type parse_logical_or(void){
   type1 = parse_logical_and();
   expr_out = type1;
   if(curr_token.tok == LOGICAL_OR){
-    emitln("; START LOGICAL OR");
+    emitln("; --- START LOGICAL OR");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == LOGICAL_OR){
@@ -2507,7 +2504,7 @@ t_type parse_logical_or(void){
     if(type_is_32bit(type1))
       emitln("  pop g");
     emitln("  pop a");
-    emitln("; END LOGICAL OR");
+    emitln("; --- END LOGICAL OR");
   }
   return expr_out;
 }
@@ -2518,7 +2515,7 @@ t_type parse_logical_and(void){
   type1 = parse_bitwise_or();
   expr_out = type1;
   if(curr_token.tok == LOGICAL_AND){
-    emitln("; START LOGICAL AND");
+    emitln("; --- START LOGICAL AND");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == LOGICAL_AND){
@@ -2542,7 +2539,7 @@ t_type parse_logical_and(void){
     }
     if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
-    emitln("; END LOGICAL AND");
+    emitln("; --- END LOGICAL AND");
   }
   return expr_out;
 }
@@ -2654,7 +2651,7 @@ t_type parse_relational(void){
   
   if(curr_token.tok == EQUAL              || curr_token.tok == NOT_EQUAL    || curr_token.tok == LESS_THAN ||
      curr_token.tok == LESS_THAN_OR_EQUAL || curr_token.tok == GREATER_THAN || curr_token.tok == GREATER_THAN_OR_EQUAL){
-    emitln("; START RELATIONAL");
+    emitln("; --- START RELATIONAL");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == EQUAL              || curr_token.tok == NOT_EQUAL    || curr_token.tok == LESS_THAN || 
@@ -2789,7 +2786,7 @@ t_type parse_relational(void){
     if(type_is_32bit(type1))
       emitln("  pop g");
     emitln("  pop a");
-    emitln("; END RELATIONAL");
+    emitln("; --- END RELATIONAL");
   }
   return expr_out;
 }
@@ -2802,7 +2799,7 @@ t_type parse_bitwise_shift(void){
   type1 = parse_terms();
   expr_out = type1;
   if(curr_token.tok == BITWISE_SHL || curr_token.tok == BITWISE_SHR){
-    emitln("; START SHIFT");
+    emitln("; --- START SHIFT");
     emitln("  push a");
     emitln("  mov a, b");
     while(curr_token.tok == BITWISE_SHL || curr_token.tok == BITWISE_SHR){
@@ -2825,7 +2822,7 @@ t_type parse_bitwise_shift(void){
     }
     emitln("  mov b, a");
     emitln("  pop a");
-    emitln("; END SHIFT");
+    emitln("; --- END SHIFT");
   }
   return expr_out;
 }
@@ -2838,7 +2835,7 @@ t_type parse_terms(void){
   type1 = parse_factors();
   expr_out = type1;
   if(curr_token.tok == PLUS || curr_token.tok == MINUS){
-    emitln("; START TERMS");
+    emitln("; --- START TERMS");
     emitln("  push a");
     if(type_is_32bit(type1)) emitln("  push g");
     while(curr_token.tok == PLUS || curr_token.tok == MINUS){
@@ -2868,7 +2865,7 @@ t_type parse_terms(void){
     }
     if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
-    emitln("; END TERMS");
+    emitln("; --- END TERMS");
   }
   return expr_out;
 }
@@ -2882,7 +2879,7 @@ t_type parse_factors(void){
   type1 = parse_atomic();
   expr_out = type1;
   if(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
-    emitln("; START FACTORS");
+    emitln("; --- START FACTORS");
     emitln("  push a");
     emitln("  mov a, b");
     while(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
@@ -2903,7 +2900,7 @@ t_type parse_factors(void){
     }
     emitln("  mov b, a");
     emitln("  pop a");
-    emitln("; END FACTORS");
+    emitln("; --- END FACTORS");
   }
 
   return expr_out;

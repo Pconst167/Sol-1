@@ -3,7 +3,7 @@
 .include "lib/asm/bios.exp"
 .org text_org
 
-; --- BEGIN TEXT BLOCK
+; --- BEGIN TEXT SEGMENT
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
@@ -86,7 +86,7 @@ _while2_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START LOGICAL AND
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $s1
@@ -94,7 +94,7 @@ _while2_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + 7] ; $s2
@@ -105,10 +105,10 @@ _while2_cond:
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _while2_exit
 _while2_block:
@@ -134,7 +134,7 @@ _while2_exit:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 7] ; $s2
@@ -145,7 +145,7 @@ _while2_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   leave
   ret
 
@@ -190,14 +190,14 @@ _for3_cond:
   pop a
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for3_exit
 _for3_block:
@@ -208,14 +208,14 @@ _for3_block:
   push d
   lea d, [bp + -1] ; $dest_len
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -3] ; $i
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
@@ -238,13 +238,13 @@ _for3_update:
   push d
   lea d, [bp + -3] ; $i
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   jmp _for3_cond
@@ -256,14 +256,14 @@ _for3_exit:
   push d
   lea d, [bp + -1] ; $dest_len
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -3] ; $i
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
@@ -300,14 +300,14 @@ _while4_cond:
   pop a
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while4_exit
 _while4_block:
@@ -329,9 +329,9 @@ _while4_exit:
 exit:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   syscall sys_terminate_proc
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
   leave
   ret
@@ -350,7 +350,7 @@ _for5_init:
 _for5_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + 8] ; $size
@@ -358,21 +358,21 @@ _for5_cond:
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for5_exit
 _for5_block:
 ; *(s+i) = c; 
   lea d, [bp + 5] ; $s
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   push b
   lea d, [bp + 7] ; $c
   mov bl, [d]
@@ -421,14 +421,14 @@ _while6_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $20
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while6_exit
 _while6_block:
@@ -448,15 +448,15 @@ _if7_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2d
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 5] ; $str
@@ -464,17 +464,17 @@ _if7_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2b
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if7_exit
 _if7_true:
@@ -485,14 +485,14 @@ _if8_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2d
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if8_exit
 _if8_true:
@@ -521,15 +521,15 @@ _while9_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $30
   cmp a, b
   sgeu ; >= (unsigned)
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $str
@@ -537,17 +537,17 @@ _while9_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $39
   cmp a, b
   sleu ; <= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _while9_exit
 _while9_block:
@@ -556,7 +556,7 @@ _while9_block:
   push d
   lea d, [bp + -1] ; $result
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
@@ -564,8 +564,8 @@ _while9_block:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $str
@@ -573,17 +573,17 @@ _while9_block:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $30
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; str++; 
@@ -598,7 +598,7 @@ _while9_exit:
 ; return sign * result; 
   lea d, [bp + -3] ; $sign
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -1] ; $result
@@ -607,7 +607,7 @@ _while9_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   leave
   ret
 
@@ -616,14 +616,14 @@ rand:
 ; int  sec; 
   sub sp, 2
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   mov al, 0
   syscall sys_rtc					
   mov al, ah
   lea d, [bp + -1] ; $sec
   mov al, [d]
   mov ah, 0
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
 ; return sec; 
   lea d, [bp + -1] ; $sec
@@ -638,20 +638,20 @@ alloc:
   push d
   mov d, _heap_top ; $heap_top
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $bytes
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; return heap_top - bytes; 
   mov d, _heap_top ; $heap_top
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $bytes
@@ -659,7 +659,7 @@ alloc:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   leave
   ret
 
@@ -670,7 +670,7 @@ free:
   push d
   mov d, _heap_top ; $heap_top
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $bytes
@@ -678,7 +678,7 @@ free:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   leave
@@ -718,13 +718,13 @@ printf:
   push d
   lea d, [bp + 5] ; $format
   mov b, d
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; for(;;){ 
@@ -754,14 +754,14 @@ _if12_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $25
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if12_else
 _if12_true:
@@ -814,15 +814,15 @@ _if14_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $64
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -3] ; $format_p
@@ -830,17 +830,17 @@ _if14_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $69
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if14_else
 _if14_true:
@@ -871,14 +871,14 @@ _if15_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $75
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if15_else
 _if15_true:
@@ -909,14 +909,14 @@ _if16_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $78
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if16_else
 _if16_true:
@@ -952,13 +952,13 @@ _if14_exit:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $4
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -979,13 +979,13 @@ _switch13_case3:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1005,89 +1005,89 @@ _switch13_case4:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
   jmp _switch13_exit ; case break
 _switch13_case5:
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + -1] ; $p
   mov d, [d]
   mov b, [d]
   call print_u16x
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
 ; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
   jmp _switch13_exit ; case break
 _switch13_case6:
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + -1] ; $p
   mov d, [d]
   mov al, [d]
   mov ah, al
   call _putchar
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
 ; p = p + 1; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
   jmp _switch13_exit ; case break
 _switch13_case7:
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + -1] ; $p
   mov d, [d]
   mov d, [d]
   call _puts
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
 ; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1156,13 +1156,13 @@ scanf:
   push d
   lea d, [bp + 5] ; $format
   mov b, d
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; for(;;){ 
@@ -1192,14 +1192,14 @@ _if19_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $25
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if19_else
 _if19_true:
@@ -1252,15 +1252,15 @@ _if21_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $64
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -3] ; $format_p
@@ -1268,17 +1268,17 @@ _if21_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $69
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if21_else
 _if21_true:
@@ -1292,14 +1292,14 @@ _if22_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $75
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if22_else
 _if22_true:
@@ -1313,14 +1313,14 @@ _if23_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $78
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if23_else
 _if23_true:
@@ -1341,13 +1341,13 @@ _if21_exit:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $4
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1375,13 +1375,13 @@ _switch20_case3:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1408,13 +1408,13 @@ _switch20_case4:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1425,13 +1425,13 @@ _switch20_case5:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1462,13 +1462,13 @@ _switch20_case6:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1499,13 +1499,13 @@ _switch20_case7:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1577,13 +1577,13 @@ sprintf:
   push d
   lea d, [bp + 7] ; $format
   mov b, d
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; for(;;){ 
@@ -1613,14 +1613,14 @@ _if26_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $25
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if26_else
 _if26_true:
@@ -1673,15 +1673,15 @@ _if28_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $64
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -3] ; $format_p
@@ -1689,17 +1689,17 @@ _if28_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $69
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if28_else
 _if28_true:
@@ -1730,14 +1730,14 @@ _if29_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $75
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if29_else
 _if29_true:
@@ -1768,14 +1768,14 @@ _if30_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $78
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if30_else
 _if30_true:
@@ -1811,13 +1811,13 @@ _if28_exit:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $4
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1829,7 +1829,7 @@ _switch27_case3:
   push d
   lea d, [bp + -5] ; $sp
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -1] ; $p
@@ -1846,7 +1846,7 @@ _switch27_case3:
   add sp, 4
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; p = p + 2; 
@@ -1854,13 +1854,13 @@ _switch27_case3:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1871,7 +1871,7 @@ _switch27_case4:
   push d
   lea d, [bp + -5] ; $sp
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -1] ; $p
@@ -1888,7 +1888,7 @@ _switch27_case4:
   add sp, 4
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; p = p + 2; 
@@ -1896,38 +1896,38 @@ _switch27_case4:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
   jmp _switch27_exit ; case break
 _switch27_case5:
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + -1] ; $p
   mov d, [d]
   mov b, [d]
   call print_u16x
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
 ; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1953,13 +1953,13 @@ _switch27_case6:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -1999,14 +1999,14 @@ _switch27_case7:
   push d
   lea d, [bp + -5] ; $sp
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -7] ; $len
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; p = p + 2; 
@@ -2014,13 +2014,13 @@ _switch27_case7:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -2076,7 +2076,7 @@ _for24_exit:
 ; return sp - dest; // return total number of chars written 
   lea d, [bp + -5] ; $sp
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $dest
@@ -2084,7 +2084,7 @@ _for24_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   leave
   ret
 
@@ -2103,13 +2103,13 @@ err:
 printx32:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + 5] ; $hex
   mov b, [d+2]
   call print_u16x
   mov b, [d]
   call print_u16x
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
   leave
   ret
@@ -2117,11 +2117,11 @@ printx32:
 printx16:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + 5] ; $hex
   mov b, [d]
   call print_u16x
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
   leave
   ret
@@ -2129,11 +2129,11 @@ printx16:
 printx8:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + 5] ; $hex
   mov bl, [d]
   call print_u8x
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
   leave
   ret
@@ -2176,7 +2176,7 @@ _for31_init:
 _for31_cond:
   lea d, [bp + -3] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -6] ; $len
@@ -2184,7 +2184,7 @@ _for31_cond:
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for31_exit
 _for31_block:
@@ -2209,31 +2209,31 @@ _if32_cond:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $61
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $66
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if32_else
 _if32_true:
@@ -2242,7 +2242,7 @@ _if32_true:
   push d
   lea d, [bp + -1] ; $value
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $10
@@ -2250,14 +2250,14 @@ _if32_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $61
@@ -2267,10 +2267,10 @@ _if32_true:
   mov b, $a
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   jmp _if32_exit
@@ -2280,31 +2280,31 @@ _if33_cond:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $41
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $46
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if33_else
 _if33_true:
@@ -2313,7 +2313,7 @@ _if33_true:
   push d
   lea d, [bp + -1] ; $value
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $10
@@ -2321,14 +2321,14 @@ _if33_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $41
@@ -2338,10 +2338,10 @@ _if33_true:
   mov b, $a
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   jmp _if33_exit
@@ -2351,7 +2351,7 @@ _if33_else:
   push d
   lea d, [bp + -1] ; $value
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $10
@@ -2359,24 +2359,24 @@ _if33_else:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $30
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 _if33_exit:
@@ -2399,12 +2399,12 @@ _for31_exit:
 gets:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + 5] ; $s
   mov a, [d]
   mov d, a
   call _gets
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
 ; return strlen(s); 
   lea d, [bp + 5] ; $s
@@ -2433,14 +2433,14 @@ print_signed:
 _if34_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if34_else
 _if34_true:
@@ -2463,14 +2463,14 @@ _if34_else:
 _if35_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if35_exit
 _if35_true:
@@ -2489,14 +2489,14 @@ _if34_exit:
 _while36_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while36_exit
 _while36_block:
@@ -2511,12 +2511,12 @@ _while36_block:
   pop a
   push d
   mov b, $30
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $num
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
@@ -2524,10 +2524,10 @@ _while36_block:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], bl
 ; num = num / 10; 
@@ -2535,14 +2535,14 @@ _while36_block:
   push d
   lea d, [bp + 5] ; $num
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; i++; 
@@ -2558,14 +2558,14 @@ _while36_exit:
 _while37_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while37_exit
 _while37_block:
@@ -2614,7 +2614,7 @@ _if38_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -2625,7 +2625,7 @@ _if38_cond:
   slt ; <
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if38_else
 _if38_true:
@@ -2654,7 +2654,7 @@ _if39_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -2665,7 +2665,7 @@ _if39_cond:
   seq ; ==
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if39_exit
 _if39_true:
@@ -2686,7 +2686,7 @@ _while40_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -2696,7 +2696,7 @@ _while40_cond:
   sgt
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while40_exit
 _while40_block:
@@ -2711,14 +2711,14 @@ _while40_block:
   pop a
   push d
   mov b, $30
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
@@ -2726,7 +2726,7 @@ _while40_block:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add a, b
   push a
   mov a, g
@@ -2735,7 +2735,7 @@ _while40_block:
   mov c, a
   pop b
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], bl
 ; num = num / 10; 
@@ -2745,14 +2745,14 @@ _while40_block:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -2770,14 +2770,14 @@ _while40_exit:
 _while41_cond:
   lea d, [bp + -11] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while41_exit
 _while41_block:
@@ -2825,7 +2825,7 @@ _if42_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -2836,7 +2836,7 @@ _if42_cond:
   seq ; ==
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if42_exit
 _if42_true:
@@ -2856,7 +2856,7 @@ _while43_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -2866,7 +2866,7 @@ _while43_cond:
   sgu
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while43_exit
 _while43_block:
@@ -2881,14 +2881,14 @@ _while43_block:
   pop a
   push d
   mov b, $30
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
@@ -2896,7 +2896,7 @@ _while43_block:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add a, b
   push a
   mov a, g
@@ -2905,7 +2905,7 @@ _while43_block:
   mov c, a
   pop b
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], bl
 ; num = num / 10; 
@@ -2915,14 +2915,14 @@ _while43_block:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -2940,14 +2940,14 @@ _while43_exit:
 _while44_cond:
   lea d, [bp + -11] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while44_exit
 _while44_block:
@@ -3002,14 +3002,14 @@ sprint_unsigned:
 _if45_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if45_exit
 _if45_true:
@@ -3034,14 +3034,14 @@ _if45_exit:
 _while46_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while46_exit
 _while46_block:
@@ -3056,12 +3056,12 @@ _while46_block:
   pop a
   push d
   mov b, $30
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 7] ; $num
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
@@ -3069,10 +3069,10 @@ _while46_block:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], bl
 ; num = num / 10; 
@@ -3080,14 +3080,14 @@ _while46_block:
   push d
   lea d, [bp + 7] ; $num
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; i++; 
@@ -3103,14 +3103,14 @@ _while46_exit:
 _while47_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while47_exit
 _while47_block:
@@ -3179,14 +3179,14 @@ print_unsigned:
 _if48_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if48_exit
 _if48_true:
@@ -3204,14 +3204,14 @@ _if48_exit:
 _while49_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while49_exit
 _while49_block:
@@ -3226,12 +3226,12 @@ _while49_block:
   pop a
   push d
   mov b, $30
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $num
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
@@ -3239,10 +3239,10 @@ _while49_block:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], bl
 ; num = num / 10; 
@@ -3250,14 +3250,14 @@ _while49_block:
   push d
   lea d, [bp + 5] ; $num
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; i++; 
@@ -3273,14 +3273,14 @@ _while49_exit:
 _while50_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while50_exit
 _while50_block:
@@ -3336,14 +3336,14 @@ sprint_signed:
 _if51_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if51_else
 _if51_true:
@@ -3379,14 +3379,14 @@ _if51_else:
 _if52_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if52_exit
 _if52_true:
@@ -3419,14 +3419,14 @@ _if51_exit:
 _while53_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while53_exit
 _while53_block:
@@ -3441,12 +3441,12 @@ _while53_block:
   pop a
   push d
   mov b, $30
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 7] ; $num
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
@@ -3454,10 +3454,10 @@ _while53_block:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], bl
 ; num = num / 10; 
@@ -3465,14 +3465,14 @@ _while53_block:
   push d
   lea d, [bp + 7] ; $num
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; i++; 
@@ -3488,14 +3488,14 @@ _while53_exit:
 _while54_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while54_exit
 _while54_block:
@@ -3551,10 +3551,10 @@ _while54_exit:
 date:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   mov al, 0 
   syscall sys_datetime
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
   leave
   ret
@@ -3562,12 +3562,12 @@ date:
 putchar:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + 5] ; $c
   mov al, [d]
   mov ah, al
   call _putchar
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
   leave
   ret
@@ -3577,12 +3577,12 @@ getchar:
 ; char c; 
   sub sp, 1
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   call getch
   mov al, ah
   lea d, [bp + 0] ; $c
   mov [d], al
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
 ; return c; 
   lea d, [bp + 0] ; $c
@@ -3596,11 +3596,11 @@ scann:
 ; int m; 
   sub sp, 2
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   call scan_u16d
   lea d, [bp + -1] ; $m
   mov [d], a
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
 ; return m; 
   lea d, [bp + -1] ; $m
@@ -3611,14 +3611,14 @@ scann:
 puts:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + 5] ; $s
   mov a, [d]
   mov d, a
   call _puts
   mov a, $0A00
   syscall sys_io
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
   leave
   ret
@@ -3626,11 +3626,11 @@ puts:
 print:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   lea d, [bp + 5] ; $s
   mov d, [d]
   call _puts
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
   leave
   ret
@@ -3640,14 +3640,14 @@ getparam:
 ; char data; 
   sub sp, 1
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
   mov al, 4
   lea d, [bp + 5] ; $address
   mov d, [d]
   syscall sys_system
   lea d, [bp + 0] ; $data
   mov [d], bl
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
 ; return data; 
   lea d, [bp + 0] ; $data
@@ -3673,14 +3673,14 @@ abs:
 _ternary55_cond:
   lea d, [bp + 5] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _ternary55_false
 _ternary55_true:
@@ -3698,9 +3698,9 @@ _ternary55_exit:
 include_stdio_asm:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
 .include "lib/asm/stdio.asm"
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
   leave
   ret
@@ -3708,9 +3708,9 @@ include_stdio_asm:
 include_ctype_lib:
   enter 0 ; (push bp; mov bp, sp)
 
-; --- BEGIN INLINE ASM BLOCK
+; --- BEGIN INLINE ASM SEGMENT
 .include "lib/asm/ctype.asm"
-; --- END INLINE ASM BLOCK
+; --- END INLINE ASM SEGMENT
 
   leave
   ret
@@ -3721,57 +3721,57 @@ is_space:
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $20
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $9
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $a
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $d
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   leave
   ret
 
@@ -3781,31 +3781,31 @@ is_digit:
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $30
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $39
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   leave
   ret
 
@@ -3815,78 +3815,78 @@ is_alpha:
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $61
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $7a
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
-; START LOGICAL OR
+; --- END LOGICAL AND
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $41
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $5a
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $5f
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   leave
   ret
 
@@ -3897,31 +3897,31 @@ _if56_cond:
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $41
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $5a
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if56_else
 _if56_true:
@@ -3929,7 +3929,7 @@ _if56_true:
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $41
@@ -3939,7 +3939,7 @@ _if56_true:
   mov b, $61
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   leave
   ret
   jmp _if56_exit
@@ -3961,31 +3961,31 @@ _if57_cond:
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $61
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $7a
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if57_else
 _if57_true:
@@ -3993,7 +3993,7 @@ _if57_true:
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $61
@@ -4003,7 +4003,7 @@ _if57_true:
   mov b, $41
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   leave
   ret
   jmp _if57_exit
@@ -4025,330 +4025,330 @@ _if58_cond:
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $40
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $23
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $24
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2b
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2d
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2a
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2f
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $25
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $5b
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $5d
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $28
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $29
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $7b
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $7d
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $3a
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $3b
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $3c
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $3e
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $3d
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $21
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $5e
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $26
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $7c
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $7e
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 5] ; $c
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2e
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if58_else
 _if58_true:
@@ -4371,7 +4371,7 @@ TO_FIXED:
 ; return x * 10; 
   lea d, [bp + 5] ; $x
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
@@ -4379,7 +4379,7 @@ TO_FIXED:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   leave
   ret
 
@@ -4388,14 +4388,14 @@ FROM_FIXED:
 ; return x / 10; 
   lea d, [bp + 5] ; $x
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   leave
   ret
 
@@ -4404,7 +4404,7 @@ TO_FIXED00:
 ; return x * 100; 
   lea d, [bp + 5] ; $x
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -4412,7 +4412,7 @@ TO_FIXED00:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   leave
   ret
 
@@ -4421,14 +4421,14 @@ FROM_FIXED00:
 ; return x / 100; 
   lea d, [bp + 5] ; $x
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   leave
   ret
 
@@ -4448,7 +4448,7 @@ get_rand:
   push d
   lea d, [bp + -1] ; $r
   mov b, [d]
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $8
@@ -4456,12 +4456,12 @@ get_rand:
   shr a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   push a
   mov a, b
   lea d, [bp + -1] ; $r
   mov b, [d]
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $8
@@ -4469,7 +4469,7 @@ get_rand:
   shl a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   or b, a ; |
   pop a
   pop d
@@ -4477,7 +4477,7 @@ get_rand:
 ; return ((r % spread) + 1); 
   lea d, [bp + -1] ; $r
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + 5] ; $spread
@@ -4486,14 +4486,14 @@ get_rand:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   leave
   ret
 
@@ -4519,14 +4519,14 @@ _while59_cond:
   call getchar
   pop d
   mov [d], b
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $a
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _while59_exit
 _while59_block:
@@ -4534,7 +4534,7 @@ _while59_block:
 _if60_cond:
   lea d, [bp + -1] ; $c
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
@@ -4542,7 +4542,7 @@ _if60_cond:
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if60_exit
 _if60_true:
@@ -4555,14 +4555,14 @@ _if61_cond:
   lea d, [bp + 7] ; $l
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if61_exit
 _if61_true:
@@ -4623,14 +4623,14 @@ _if62_cond:
   push bl
   call tolower
   add sp, 1
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $79
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if62_exit
 _if62_true:
@@ -4695,7 +4695,7 @@ _if63_exit:
   lea d, [bp + -1] ; $v
   push d
   mov b, $64
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -11] ; $x
@@ -4707,19 +4707,19 @@ _if63_exit:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $30
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   mul a, b ; *
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; if (*x == 0) 
@@ -4729,14 +4729,14 @@ _if64_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if64_exit
 _if64_true:
@@ -4758,14 +4758,14 @@ _if65_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2e
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if65_exit
 _if65_true:
@@ -4803,11 +4803,11 @@ _if66_exit:
   push d
   lea d, [bp + -1] ; $v
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $a
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -11] ; $x
@@ -4819,22 +4819,22 @@ _if66_exit:
   mov d, b
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $30
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   mul a, b ; *
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; if (!*x) 
@@ -4883,7 +4883,7 @@ _if68_exit:
   push d
   lea d, [bp + -1] ; $v
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -11] ; $x
@@ -4901,7 +4901,7 @@ _if68_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; return v; 
@@ -4973,14 +4973,14 @@ print100:
 _if70_cond:
   lea d, [bp + 5] ; $v
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if70_exit
 _if70_true:
@@ -5010,12 +5010,12 @@ _if70_exit:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $v
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -5023,19 +5023,19 @@ _if70_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   swp b
   push b
   lea d, [bp + 5] ; $v
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   swp b
   push b
   mov b, _s33 ; "%d.%d"
@@ -5049,7 +5049,7 @@ _if70_exit:
   add sp, 8
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; return buf; 
@@ -5072,14 +5072,14 @@ _if71_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if71_exit
 _if71_true:
@@ -5088,14 +5088,14 @@ _ternary73_cond:
   lea d, [bp + 5] ; $u
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $5
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _ternary73_false
 _ternary73_true:
@@ -5167,14 +5167,14 @@ _if74_exit:
   push b
   call get_rand
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $14
   add b, a
   pop a
-; END TERMS
-; START FACTORS
+; --- END TERMS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -5182,7 +5182,7 @@ _if74_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   swp b
   push b
   call TO_FIXED
@@ -5212,36 +5212,36 @@ _while75_block:
 _if76_cond:
   mov d, _shield ; $shield
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _energy ; $energy
   mov b, [d]
   add b, a
   pop a
-; END TERMS
-; START RELATIONAL
+; --- END TERMS
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $a
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   mov d, _energy ; $energy
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $a
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   mov d, _damage_data ; $damage
@@ -5252,20 +5252,20 @@ _if76_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if76_exit
 _if76_true:
@@ -5605,7 +5605,7 @@ initialize:
   mov d, _time_up ; $time_up
   push d
   mov b, $19
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $a
@@ -5615,7 +5615,7 @@ initialize:
   add sp, 2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; docked = 0; 
@@ -5687,14 +5687,14 @@ _for86_init:
 _for86_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for86_exit
 _for86_block:
@@ -5730,14 +5730,14 @@ _for87_init:
 _for87_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for87_exit
 _for87_block:
@@ -5751,14 +5751,14 @@ _for88_init:
 _for88_cond:
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for88_exit
 _for88_block:
@@ -5783,14 +5783,14 @@ _if89_cond:
   lea d, [bp + -6] ; $r
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $62
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if89_else
 _if89_true:
@@ -5807,14 +5807,14 @@ _if90_cond:
   lea d, [bp + -6] ; $r
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $5f
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if90_else
 _if90_true:
@@ -5831,14 +5831,14 @@ _if91_cond:
   lea d, [bp + -6] ; $r
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $50
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if91_exit
 _if91_true:
@@ -5858,7 +5858,7 @@ _if89_exit:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _klingons ; $klingons
@@ -5866,7 +5866,7 @@ _if89_exit:
   mov bh, 0
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], bl
 ; starbases = 0; 
@@ -5882,14 +5882,14 @@ _if92_cond:
   push b
   call get_rand
   add sp, 2
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $60
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if92_exit
 _if92_true:
@@ -5907,7 +5907,7 @@ _if92_exit:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _starbases ; $starbases
@@ -5915,7 +5915,7 @@ _if92_exit:
   mov bh, 0
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], bl
 ; map[i][j] = (klingons << 8) + (starbases << 4) + rand8(); 
@@ -5936,7 +5936,7 @@ _if92_exit:
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $8
@@ -5944,14 +5944,14 @@ _if92_exit:
   shl a, cl
   mov b, a
   pop a
-; END SHIFT
-; START TERMS
+; --- END SHIFT
+; --- START TERMS
   push a
   mov a, b
   mov d, _starbases ; $starbases
   mov bl, [d]
   mov bh, 0
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $4
@@ -5959,13 +5959,13 @@ _if92_exit:
   shl a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   add b, a
   mov a, b
   call rand8
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 _for88_update:
@@ -5991,7 +5991,7 @@ _if93_cond:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _time_up ; $time_up
@@ -5999,7 +5999,7 @@ _if93_cond:
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if93_exit
 _if93_true:
@@ -6009,13 +6009,13 @@ _if93_true:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   jmp _if93_exit
@@ -6025,14 +6025,14 @@ _if94_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if94_exit
 _if94_true:
@@ -6066,14 +6066,14 @@ _if95_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $200
   cmp a, b
   slu ; < (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if95_exit
 _if95_true:
@@ -6110,11 +6110,11 @@ _if95_true:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $8
@@ -6122,10 +6122,10 @@ _if95_true:
   shl a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; klingons_left++; 
@@ -6171,11 +6171,11 @@ _if95_exit:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $4
@@ -6183,10 +6183,10 @@ _if95_exit:
   shl a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; starbases_left++; 
@@ -6212,14 +6212,14 @@ _if96_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if96_exit
 _if96_true:
@@ -6280,14 +6280,14 @@ _if96_exit:
   push b
   mov d, _time_start ; $time_start
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _time_up ; $time_up
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   swp b
   push b
   mov b, _s64 ; " on stardate %u. This gives you %d days. There %s\n %d starbase%s in the galaxy"
@@ -6318,14 +6318,14 @@ place_ship:
   push b
   call FROM_FIXED00
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 8 ; mov a, 8; mul a, b; add d, b
   push d
@@ -6335,14 +6335,14 @@ place_ship:
   push b
   call FROM_FIXED00
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   add d, b
   pop a
@@ -6394,14 +6394,14 @@ new_quadrant:
   push b
   call get_rand
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; map[quad_y][quad_x] = map[quad_y][quad_x] |   0x1000		/* Set if this sector was mapped */          ; 
@@ -6444,54 +6444,54 @@ new_quadrant:
 _if97_cond:
   mov d, _quad_y ; $quad_y
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   mov d, _quad_y ; $quad_y
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   mov a, b
   mov d, _quad_x ; $quad_x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   mov a, b
   mov d, _quad_x ; $quad_x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if97_exit
 _if97_true:
@@ -6514,7 +6514,7 @@ _if98_cond:
   push b
   call TO_FIXED
   add sp, 2
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _stardate ; $stardate
@@ -6522,7 +6522,7 @@ _if98_cond:
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if98_else
 _if98_true:
@@ -6581,7 +6581,7 @@ _if97_exit:
   push d
   lea d, [bp + -3] ; $tmp
   mov b, [d]
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $8
@@ -6589,7 +6589,7 @@ _if97_exit:
   shr a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   push a
   mov a, b
   mov b, $f
@@ -6602,7 +6602,7 @@ _if97_exit:
   push d
   lea d, [bp + -3] ; $tmp
   mov b, [d]
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $4
@@ -6610,7 +6610,7 @@ _if97_exit:
   shr a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   push a
   mov a, b
   mov b, $f
@@ -6635,14 +6635,14 @@ _if99_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if99_exit
 _if99_true:
@@ -6656,14 +6656,14 @@ _if99_true:
 _if100_cond:
   mov d, _shield ; $shield
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $c8
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if100_exit
 _if100_true:
@@ -6687,14 +6687,14 @@ _for101_init:
 _for101_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $3
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for101_exit
 _for101_block:
@@ -6759,14 +6759,14 @@ _if102_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if102_exit
 _if102_true:
@@ -6787,7 +6787,7 @@ _for103_init:
 _for103_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _klingons ; $klingons
@@ -6796,7 +6796,7 @@ _for103_cond:
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for103_exit
 _for103_block:
@@ -6823,7 +6823,7 @@ _for103_block:
   add d, 2
   push d
   mov b, $64
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $c8
@@ -6833,7 +6833,7 @@ _for103_block:
   add sp, 2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; k++; 
@@ -6861,14 +6861,14 @@ _if104_cond:
   mov d, _starbases ; $starbases
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if104_exit
 _if104_true:
@@ -6897,7 +6897,7 @@ _for105_init:
 _for105_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _stars ; $stars
@@ -6906,7 +6906,7 @@ _for105_cond:
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for105_exit
 _for105_block:
@@ -6985,14 +6985,14 @@ course_control:
 _if106_cond:
   lea d, [bp + -3] ; $c1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $384
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if106_exit
 _if106_true:
@@ -7008,30 +7008,30 @@ _if106_exit:
 _if107_cond:
   lea d, [bp + -3] ; $c1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -3] ; $c1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $384
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if107_exit
 _if107_true:
@@ -7060,14 +7060,14 @@ _if108_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if108_exit
 _if108_true:
@@ -7109,30 +7109,30 @@ _if109_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -5] ; $warp
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $14
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if109_exit
 _if109_true:
@@ -7151,14 +7151,14 @@ _if109_exit:
 _if110_cond:
   lea d, [bp + -5] ; $warp
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if110_exit
 _if110_true:
@@ -7171,14 +7171,14 @@ _if110_exit:
 _if111_cond:
   lea d, [bp + -5] ; $warp
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $320
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if111_exit
 _if111_true:
@@ -7206,7 +7206,7 @@ _if111_exit:
   push d
   lea d, [bp + -5] ; $warp
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $8
@@ -7214,7 +7214,7 @@ _if111_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; n = cint100(n);	 
@@ -7232,7 +7232,7 @@ _if111_exit:
 _if112_cond:
   mov d, _energy ; $energy
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -7] ; $n
@@ -7240,15 +7240,15 @@ _if112_cond:
   sub a, b
   mov b, a
   pop a
-; END TERMS
-; START RELATIONAL
+; --- END TERMS
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slu ; < (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if112_exit
 _if112_true:
@@ -7270,7 +7270,7 @@ _if112_true:
 _if113_cond:
   mov d, _shield ; $shield
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -7] ; $n
@@ -7278,8 +7278,8 @@ _if113_cond:
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   mov d, _damage_data ; $damage
@@ -7290,17 +7290,17 @@ _if113_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if113_exit
 _if113_true:
@@ -7358,25 +7358,25 @@ _if112_exit:
   push d
   lea d, [bp + -15] ; $z1
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $ffff
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 8 ; mov a, 8; mul a, b; add d, b
   push d
   lea d, [bp + -17] ; $z2
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $ffff
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   add d, b
   pop a
@@ -7400,13 +7400,13 @@ _if112_exit:
   push d
   lea d, [bp + -9] ; $c2
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; c4 = (c1 - TO_FIXED00(c2));	/* Fractional element in fixed point */ 
@@ -7414,7 +7414,7 @@ _if112_exit:
   push d
   lea d, [bp + -3] ; $c1
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -9] ; $c2
@@ -7426,14 +7426,14 @@ _if112_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; x1 = 100 * c[1][c2] + (c[1][c3] - c[1][c2]) * c4; 
   lea d, [bp + -19] ; $x1
   push d
   mov b, $64
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -7454,8 +7454,8 @@ _if112_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -7472,7 +7472,7 @@ _if112_exit:
   pop a
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -7492,8 +7492,8 @@ _if112_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
-; START FACTORS
+; --- END TERMS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -13] ; $c4
@@ -7502,17 +7502,17 @@ _if112_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; x2 = 100 * c[2][c2] + (c[2][c3] - c[2][c2]) * c4; 
   lea d, [bp + -21] ; $x2
   push d
   mov b, $64
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -7533,8 +7533,8 @@ _if112_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -7551,7 +7551,7 @@ _if112_exit:
   pop a
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -7571,8 +7571,8 @@ _if112_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
-; START FACTORS
+; --- END TERMS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -13] ; $c4
@@ -7581,10 +7581,10 @@ _if112_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; x = ship_y; 
@@ -7611,7 +7611,7 @@ _for114_init:
 _for114_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -7] ; $n
@@ -7619,7 +7619,7 @@ _for114_cond:
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for114_exit
 _for114_block:
@@ -7628,14 +7628,14 @@ _for114_block:
   push d
   mov d, _ship_y ; $ship_y
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -19] ; $x1
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; ship_x = ship_x + x2; 
@@ -7643,14 +7643,14 @@ _for114_block:
   push d
   mov d, _ship_x ; $ship_x
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -21] ; $x2
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; z1 = FROM_FIXED00(ship_y); 
@@ -7679,54 +7679,54 @@ _for114_block:
 _if115_cond:
   lea d, [bp + -15] ; $z1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -15] ; $z1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $9
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + -17] ; $z2
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + -17] ; $z2
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $9
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if115_exit
 _if115_true:
@@ -7754,7 +7754,7 @@ _if115_true:
   lea d, [bp + -23] ; $x
   push d
   mov b, $320
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov d, _quad_y ; $quad_y
@@ -7763,8 +7763,8 @@ _if115_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -23] ; $x
@@ -7773,7 +7773,7 @@ _if115_true:
   mov a, b
   lea d, [bp + -7] ; $n
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -19] ; $x1
@@ -7782,17 +7782,17 @@ _if115_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; y = (800 * quad_x) + y + (n * x2); 
   lea d, [bp + -25] ; $y
   push d
   mov b, $320
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov d, _quad_x ; $quad_x
@@ -7801,8 +7801,8 @@ _if115_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -25] ; $y
@@ -7811,7 +7811,7 @@ _if115_true:
   mov a, b
   lea d, [bp + -7] ; $n
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -21] ; $x2
@@ -7820,10 +7820,10 @@ _if115_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; quad_y = x / 800;	/* Fixed point to int and divide by 8 */ 
@@ -7831,14 +7831,14 @@ _if115_true:
   push d
   lea d, [bp + -23] ; $x
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $320
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; quad_x = y / 800;	/* Ditto */ 
@@ -7846,14 +7846,14 @@ _if115_true:
   push d
   lea d, [bp + -25] ; $y
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $320
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; ship_y = x - (quad_y * 800); 
@@ -7861,12 +7861,12 @@ _if115_true:
   push d
   lea d, [bp + -23] ; $x
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _quad_y ; $quad_y
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $320
@@ -7874,11 +7874,11 @@ _if115_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; ship_x = y - (quad_x * 800); 
@@ -7886,12 +7886,12 @@ _if115_true:
   push d
   lea d, [bp + -25] ; $y
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _quad_x ; $quad_x
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $320
@@ -7899,25 +7899,25 @@ _if115_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; if (ship_y < 100) { 
 _if116_cond:
   mov d, _ship_y ; $ship_y
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $64
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if116_exit
 _if116_true:
@@ -7926,14 +7926,14 @@ _if116_true:
   push d
   mov d, _quad_y ; $quad_y
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; ship_y = ship_y + 800; 
@@ -7941,13 +7941,13 @@ _if116_true:
   push d
   mov d, _ship_y ; $ship_y
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $320
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   jmp _if116_exit
@@ -7956,14 +7956,14 @@ _if116_exit:
 _if117_cond:
   mov d, _ship_x ; $ship_x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $64
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if117_exit
 _if117_true:
@@ -7972,14 +7972,14 @@ _if117_true:
   push d
   mov d, _quad_x ; $quad_x
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; ship_x = ship_x + 800; 
@@ -7987,13 +7987,13 @@ _if117_true:
   push d
   mov d, _ship_x ; $ship_x
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $320
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   jmp _if117_exit
@@ -8002,14 +8002,14 @@ _if117_exit:
 _if118_cond:
   mov d, _quad_y ; $quad_y
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if118_exit
 _if118_true:
@@ -8037,14 +8037,14 @@ _if118_exit:
 _if119_cond:
   mov d, _quad_y ; $quad_y
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if119_exit
 _if119_true:
@@ -8072,14 +8072,14 @@ _if119_exit:
 _if120_cond:
   mov d, _quad_x ; $quad_x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if120_exit
 _if120_true:
@@ -8107,14 +8107,14 @@ _if120_exit:
 _if121_cond:
   mov d, _quad_x ; $quad_x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if121_exit
 _if121_true:
@@ -8143,14 +8143,14 @@ _if122_cond:
   lea d, [bp + -26] ; $outside
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if122_exit
 _if122_true:
@@ -8219,23 +8219,23 @@ _if123_cond:
   push b
   call FROM_FIXED
   add sp, 2
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _time_start ; $time_start
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _time_up ; $time_up
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if123_exit
 _if123_true:
@@ -8247,7 +8247,7 @@ _if123_exit:
 _if124_cond:
   mov d, _quad_y ; $quad_y
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -27] ; $quad_y_old
@@ -8256,13 +8256,13 @@ _if124_cond:
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   mov d, _quad_x ; $quad_x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -28] ; $quad_x_old
@@ -8271,10 +8271,10 @@ _if124_cond:
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if124_exit
 _if124_true:
@@ -8283,7 +8283,7 @@ _if124_true:
   push d
   mov d, _stardate ; $stardate
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
@@ -8293,7 +8293,7 @@ _if124_true:
   add sp, 2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; new_quadrant(); 
@@ -8323,40 +8323,40 @@ _if125_cond:
   push d
   lea d, [bp + -15] ; $z1
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 8 ; mov a, 8; mul a, b; add d, b
   push d
   lea d, [bp + -17] ; $z2
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if125_exit
 _if125_true:
@@ -8365,7 +8365,7 @@ _if125_true:
   push d
   mov d, _ship_y ; $ship_y
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -19] ; $x1
@@ -8373,7 +8373,7 @@ _if125_true:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; ship_x = ship_x - x2; 
@@ -8381,7 +8381,7 @@ _if125_true:
   push d
   mov d, _ship_x ; $ship_x
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -21] ; $x2
@@ -8389,7 +8389,7 @@ _if125_true:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; printf("Warp Engines shut down at sector %d, %d due to bad navigation.\n\n", z1, z2); 
@@ -8411,13 +8411,13 @@ _if125_true:
   push d
   lea d, [bp + -7] ; $n
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   jmp _if125_exit
@@ -8472,14 +8472,14 @@ complete_maneuver:
 _if126_cond:
   lea d, [bp + 5] ; $warp
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $64
   cmp a, b
   slu ; < (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if126_exit
 _if126_true:
@@ -8505,14 +8505,14 @@ _if126_exit:
   push d
   mov d, _stardate ; $stardate
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -1] ; $time_used
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; if (FROM_FIXED(stardate) > time_start + time_up) 
@@ -8523,23 +8523,23 @@ _if127_cond:
   push b
   call FROM_FIXED
   add sp, 2
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _time_start ; $time_start
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _time_up ; $time_up
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if127_exit
 _if127_true:
@@ -8559,7 +8559,7 @@ maneuver_energy:
   push d
   mov d, _energy ; $energy
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $n
@@ -8570,21 +8570,21 @@ maneuver_energy:
   mov b, $a
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; if (energy >= 0) 
 _if128_cond:
   mov d, _energy ; $energy
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if128_exit
 _if128_true:
@@ -8604,14 +8604,14 @@ _if128_exit:
   push d
   mov d, _shield ; $shield
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _energy ; $energy
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; energy = 0; 
@@ -8624,14 +8624,14 @@ _if128_exit:
 _if129_cond:
   mov d, _shield ; $shield
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if129_exit
 _if129_true:
@@ -8664,23 +8664,23 @@ short_range_scan:
 _if130_cond:
   mov d, _energy ; $energy
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _energy0 ; $energy0
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if130_exit
 _if130_true:
@@ -8697,14 +8697,14 @@ _if131_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if131_exit
 _if131_true:
@@ -8732,20 +8732,20 @@ _for132_init:
   push b
   call FROM_FIXED00
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 _for132_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _ship_y ; $ship_y
@@ -8754,17 +8754,17 @@ _for132_cond:
   push b
   call FROM_FIXED00
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for132_exit
 _for132_block:
@@ -8778,20 +8778,20 @@ _for133_init:
   push b
   call FROM_FIXED00
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 _for133_cond:
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _ship_x ; $ship_x
@@ -8800,17 +8800,17 @@ _for133_cond:
   push b
   call FROM_FIXED00
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for133_exit
 _for133_block:
@@ -8818,54 +8818,54 @@ _for133_block:
 _if134_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   mov a, b
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   mov a, b
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if134_exit
 _if134_true:
@@ -8876,40 +8876,40 @@ _if135_cond:
   push d
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 8 ; mov a, 8; mul a, b; add d, b
   push d
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if135_exit
 _if135_true:
@@ -8984,14 +8984,14 @@ _if136_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if136_exit
 _if136_true:
@@ -9023,14 +9023,14 @@ _for137_init:
 _for137_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for137_exit
 _for137_block:
@@ -9044,14 +9044,14 @@ _for138_init:
 _for138_cond:
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for138_exit
 _for138_block:
@@ -9095,14 +9095,14 @@ _for138_exit:
 _if139_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if139_exit
 _if139_true:
@@ -9126,14 +9126,14 @@ _if139_exit:
 _if140_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if140_exit
 _if140_true:
@@ -9153,14 +9153,14 @@ _if140_exit:
 _if141_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if141_exit
 _if141_true:
@@ -9184,14 +9184,14 @@ _if141_exit:
 _if142_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $3
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if142_exit
 _if142_true:
@@ -9223,14 +9223,14 @@ _if142_exit:
 _if143_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $4
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if143_exit
 _if143_true:
@@ -9250,28 +9250,28 @@ _if143_exit:
 _if144_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $5
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if144_exit
 _if144_true:
 ; printf("    Total Energy        %d\n", energy + shield); 
   mov d, _energy ; $energy
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _shield ; $shield
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   swp b
   push b
   mov b, _s96 ; "    Total Energy        %d\n"
@@ -9285,14 +9285,14 @@ _if144_exit:
 _if145_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $6
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if145_exit
 _if145_true:
@@ -9312,14 +9312,14 @@ _if145_exit:
 _if146_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $7
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if146_exit
 _if146_true:
@@ -9377,7 +9377,7 @@ put1bcd:
   mov [d], bl
 ; putchar('0' + v); 
   mov b, $30
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $v
@@ -9385,7 +9385,7 @@ put1bcd:
   mov bh, 0
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   push bl
   call putchar
   add sp, 1
@@ -9397,7 +9397,7 @@ putbcd:
 ; put1bcd(x >> 8); 
   lea d, [bp + 5] ; $x
   mov b, [d]
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $8
@@ -9405,14 +9405,14 @@ putbcd:
   shr a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   push bl
   call put1bcd
   add sp, 1
 ; put1bcd(x >> 4); 
   lea d, [bp + 5] ; $x
   mov b, [d]
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $4
@@ -9420,7 +9420,7 @@ putbcd:
   shr a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   push bl
   call put1bcd
   add sp, 1
@@ -9472,35 +9472,35 @@ _for148_init:
   push d
   mov d, _quad_y ; $quad_y
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 _for148_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _quad_y ; $quad_y
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for148_exit
 _for148_block:
@@ -9520,35 +9520,35 @@ _for149_init:
   push d
   mov d, _quad_x ; $quad_x
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 _for149_cond:
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _quad_x ; $quad_x
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for149_exit
 _for149_block:
@@ -9561,54 +9561,54 @@ _for149_block:
 _if150_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   mov a, b
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   mov a, b
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if150_else
 _if150_true:
@@ -9725,14 +9725,14 @@ _if151_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sleu ; <= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if151_exit
 _if151_true:
@@ -9764,13 +9764,13 @@ wipe_klingon:
   add d, 0
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $ffff
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 8 ; mov a, 8; mul a, b; add d, b
   push d
@@ -9779,13 +9779,13 @@ wipe_klingon:
   add d, 1
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $ffff
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   add d, b
   pop a
@@ -9850,14 +9850,14 @@ _if154_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if154_exit
 _if154_true:
@@ -9893,7 +9893,7 @@ _if155_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -9903,7 +9903,7 @@ _if155_cond:
   sle
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if155_exit
 _if155_true:
@@ -9916,7 +9916,7 @@ _if155_exit:
 _if156_cond:
   mov d, _energy ; $energy
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -5] ; $phaser_energy
@@ -9926,8 +9926,8 @@ _if156_cond:
   sub a, b
   mov b, a
   pop a
-; END TERMS
-; START RELATIONAL
+; --- END TERMS
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -9938,7 +9938,7 @@ _if156_cond:
   slt ; <
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if156_exit
 _if156_true:
@@ -9958,7 +9958,7 @@ _if156_exit:
   push d
   mov d, _energy ; $energy
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -5] ; $phaser_energy
@@ -9968,7 +9968,7 @@ _if156_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; if (damage[8] < 0) 
@@ -9981,14 +9981,14 @@ _if157_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if157_else
 _if157_true:
@@ -9999,7 +9999,7 @@ _if157_true:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -10011,7 +10011,7 @@ _if157_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -10025,7 +10025,7 @@ _if157_else:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -10033,7 +10033,7 @@ _if157_else:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -10046,7 +10046,7 @@ _if157_exit:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov d, _klingons ; $klingons
@@ -10055,7 +10055,7 @@ _if157_exit:
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -10070,14 +10070,14 @@ _for158_init:
 _for158_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for158_exit
 _for158_block:
@@ -10087,14 +10087,14 @@ _if159_cond:
   mov d, [d]
   add d, 2
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if159_exit
 _if159_true:
@@ -10105,7 +10105,7 @@ _if159_true:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -10113,18 +10113,18 @@ _if159_true:
   push b
   call get_rand
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $c8
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   mul a, b ; *
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -10136,7 +10136,7 @@ _if159_true:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -13] ; $k
@@ -10148,7 +10148,7 @@ _if159_true:
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -10159,13 +10159,13 @@ _if160_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
   mov g, c
   mov b, $f
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -13] ; $k
@@ -10176,12 +10176,12 @@ _if160_cond:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   mov c, 0
   sleu
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if160_else
 _if160_true:
@@ -10227,7 +10227,7 @@ _if160_else:
   mov d, [d]
   add d, 2
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -11] ; $h
@@ -10235,7 +10235,7 @@ _if160_else:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; printf("%d unit hit on Klingon at sector %d, %d\n", 
@@ -10266,14 +10266,14 @@ _if161_cond:
   mov d, [d]
   add d, 2
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if161_else
 _if161_true:
@@ -10343,14 +10343,14 @@ _if161_true:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $100
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; if (klingons_left <= 0) 
@@ -10358,14 +10358,14 @@ _if162_cond:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sleu ; <= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if162_exit
 _if162_true:
@@ -10435,14 +10435,14 @@ _if163_cond:
   mov d, _torps ; $torps
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sleu ; <= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if163_exit
 _if163_true:
@@ -10487,14 +10487,14 @@ _if164_exit:
 _if165_cond:
   lea d, [bp + -5] ; $c1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $384
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if165_exit
 _if165_true:
@@ -10510,30 +10510,30 @@ _if165_exit:
 _if166_cond:
   lea d, [bp + -5] ; $c1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $64
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -5] ; $c1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $384
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if166_exit
 _if166_true:
@@ -10557,14 +10557,14 @@ _if166_exit:
   push d
   mov d, _energy ; $energy
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $2
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; torps--; 
@@ -10591,13 +10591,13 @@ _if166_exit:
   push d
   lea d, [bp + -7] ; $c2
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; c4 = (c1 - TO_FIXED00(c2));	/* Fractional element in fixed point */ 
@@ -10605,7 +10605,7 @@ _if166_exit:
   push d
   lea d, [bp + -5] ; $c1
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -7] ; $c2
@@ -10617,14 +10617,14 @@ _if166_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; x1 = 100 * c[1][c2] + (c[1][c3] - c[1][c2]) * c4; 
   lea d, [bp + -17] ; $x1
   push d
   mov b, $64
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -10645,8 +10645,8 @@ _if166_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -10663,7 +10663,7 @@ _if166_exit:
   pop a
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -10683,8 +10683,8 @@ _if166_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
-; START FACTORS
+; --- END TERMS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -11] ; $c4
@@ -10693,17 +10693,17 @@ _if166_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; x2 = 100 * c[2][c2] + (c[2][c3] - c[2][c2]) * c4; 
   lea d, [bp + -19] ; $x2
   push d
   mov b, $64
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -10724,8 +10724,8 @@ _if166_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -10742,7 +10742,7 @@ _if166_exit:
   pop a
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _c_data ; $c
@@ -10762,8 +10762,8 @@ _if166_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
-; START FACTORS
+; --- END TERMS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -11] ; $c4
@@ -10772,10 +10772,10 @@ _if166_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; x = ship_y + x1; 
@@ -10783,14 +10783,14 @@ _if166_exit:
   push d
   mov d, _ship_y ; $ship_y
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -17] ; $x1
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; y = ship_x + x2; 
@@ -10798,14 +10798,14 @@ _if166_exit:
   push d
   mov d, _ship_x ; $ship_x
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -19] ; $x2
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; x3 = FROM_FIXED00(x); 
@@ -10840,54 +10840,54 @@ _if166_exit:
 _while167_cond:
   lea d, [bp + -1] ; $x3
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -1] ; $x3
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   mov a, b
   lea d, [bp + -3] ; $y3
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   mov a, b
   lea d, [bp + -3] ; $y3
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _while167_exit
 _while167_block:
@@ -10915,27 +10915,27 @@ _while167_block:
   push d
   lea d, [bp + -1] ; $x3
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 8 ; mov a, 8; mul a, b; add d, b
   push d
   lea d, [bp + -3] ; $y3
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   add d, b
   pop a
@@ -10948,31 +10948,31 @@ _if168_cond:
   lea d, [bp + -20] ; $p
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -20] ; $p
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $4
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if168_exit
 _if168_true:
@@ -10997,14 +10997,14 @@ _if168_exit:
   push d
   lea d, [bp + -13] ; $x
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -17] ; $x1
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; y = y + x2; 
@@ -11012,14 +11012,14 @@ _if168_exit:
   push d
   lea d, [bp + -15] ; $y
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -19] ; $x2
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; x3 = FROM_FIXED00(x); 
@@ -11071,28 +11071,28 @@ _switch169_expr:
   lea d, [bp + 5] ; $yp
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 8 ; mov a, 8; mul a, b; add d, b
   push d
   lea d, [bp + 6] ; $xp
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   add d, b
   pop a
@@ -11152,14 +11152,14 @@ _if170_cond:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sleu ; <= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if170_exit
 _if170_true:
@@ -11184,14 +11184,14 @@ _for171_init:
 _for171_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for171_exit
 _for171_block:
@@ -11200,7 +11200,7 @@ _if172_cond:
   lea d, [bp + 5] ; $yp
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -3] ; $k
@@ -11211,14 +11211,14 @@ _if172_cond:
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + 6] ; $xp
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -3] ; $k
@@ -11229,10 +11229,10 @@ _if172_cond:
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if172_exit
 _if172_true:
@@ -11293,14 +11293,14 @@ _for171_exit:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $100
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -11333,21 +11333,21 @@ _if173_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _stardate ; $stardate
@@ -11356,7 +11356,7 @@ _if173_cond:
   push b
   call FROM_FIXED
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _time_start ; $time_start
@@ -11369,14 +11369,14 @@ _if173_cond:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   cmp a, b
   sleu ; <= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if173_exit
 _if173_true:
@@ -11449,14 +11449,14 @@ _if173_exit:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $10
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; break; 
@@ -11469,28 +11469,28 @@ _switch169_exit:
   lea d, [bp + 5] ; $yp
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 8 ; mov a, 8; mul a, b; add d, b
   push d
   lea d, [bp + 6] ; $xp
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   add d, b
   pop a
@@ -11524,14 +11524,14 @@ _if174_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if174_exit
 _if174_true:
@@ -11567,14 +11567,14 @@ _for176_init:
 _for176_cond:
   lea d, [bp + -3] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for176_exit
 _for176_block:
@@ -11589,14 +11589,14 @@ _if177_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if177_exit
 _if177_true:
@@ -11605,13 +11605,13 @@ _if177_true:
   push d
   lea d, [bp + -1] ; $repair_cost
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $a
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   jmp _if177_exit
@@ -11637,28 +11637,28 @@ _if178_true:
   push d
   lea d, [bp + -1] ; $repair_cost
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _d4 ; $d4
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; if (repair_cost >= 100) 
 _if179_cond:
   lea d, [bp + -1] ; $repair_cost
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $64
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if179_exit
 _if179_true:
@@ -11706,14 +11706,14 @@ _for181_init:
 _for181_cond:
   lea d, [bp + -3] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for181_exit
 _for181_block:
@@ -11728,14 +11728,14 @@ _if182_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if182_exit
 _if182_true:
@@ -11768,32 +11768,32 @@ _for181_exit:
   push d
   mov d, _stardate ; $stardate
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -1] ; $repair_cost
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $5
   add b, a
   pop a
-; END TERMS
-; START FACTORS
+; --- END TERMS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add b, a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   jmp _if180_exit
@@ -11815,14 +11815,14 @@ _if183_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if183_exit
 _if183_true:
@@ -11847,14 +11847,14 @@ _for184_init:
 _for184_cond:
   lea d, [bp + -3] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for184_exit
 _for184_block:
@@ -11926,14 +11926,14 @@ _if185_exit:
 ; printf("Energy available = %d\n\n Input number of units to shields: ", energy + shield); 
   mov d, _energy ; $energy
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _shield ; $shield
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   swp b
   push b
   mov b, _s130 ; "Energy available = %d\n\n Input number of units to shields: "
@@ -11951,20 +11951,20 @@ _if185_exit:
 _if186_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   mov d, _shield ; $shield
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -1] ; $i
@@ -11972,10 +11972,10 @@ _if186_cond:
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if186_exit
 _if186_true:
@@ -11994,23 +11994,23 @@ _if186_exit:
 _if187_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov d, _energy ; $energy
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _shield ; $shield
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if187_exit
 _if187_true:
@@ -12027,7 +12027,7 @@ _if187_exit:
   push d
   mov d, _energy ; $energy
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _shield ; $shield
@@ -12039,7 +12039,7 @@ _if187_exit:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; shield = i; 
@@ -12219,14 +12219,14 @@ _for190_init:
 _for190_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for190_exit
 _for190_block:
@@ -12254,14 +12254,14 @@ _for191_init:
 _for191_cond:
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for191_exit
 _for191_block:
@@ -12368,13 +12368,13 @@ status_report:
   push d
   mov d, _str_s ; $str_s
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -12385,19 +12385,19 @@ status_report:
   push d
   mov d, _time_start ; $time_start
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _time_up ; $time_up
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   swp b
   push b
   call TO_FIXED
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _stardate ; $stardate
@@ -12405,7 +12405,7 @@ status_report:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -12420,14 +12420,14 @@ _if193_cond:
   mov d, _klingons_left ; $klingons_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if193_exit
 _if193_true:
@@ -12443,7 +12443,7 @@ _if193_exit:
 ; printf("Klingon%s Left: %d\n Mission must be completed in %d.%d stardates\n", 
   lea d, [bp + -3] ; $left
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
@@ -12451,7 +12451,7 @@ _if193_exit:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   swp b
   push b
   lea d, [bp + -3] ; $left
@@ -12480,14 +12480,14 @@ _if194_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if194_else
 _if194_true:
@@ -12511,14 +12511,14 @@ _if195_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if195_exit
 _if195_true:
@@ -12560,13 +12560,13 @@ torpedo_data:
   push d
   mov d, _str_s ; $str_s
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -12588,14 +12588,14 @@ _if197_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if197_exit
 _if197_true:
@@ -12635,14 +12635,14 @@ _for198_init:
 _for198_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for198_exit
 _for198_block:
@@ -12652,14 +12652,14 @@ _if199_cond:
   mov d, [d]
   add d, 2
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if199_exit
 _if199_true:
@@ -12726,14 +12726,14 @@ _if200_cond:
   mov d, _starbases ; $starbases
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if200_exit
 _if200_true:
@@ -12831,30 +12831,30 @@ dirdist_calc:
 _if201_cond:
   lea d, [bp + -1] ; $c1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -1] ; $c1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $384
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if201_exit
 _if201_true:
@@ -12883,30 +12883,30 @@ _if201_exit:
 _if202_cond:
   lea d, [bp + -3] ; $a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -3] ; $a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $384
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if202_exit
 _if202_true:
@@ -12935,30 +12935,30 @@ _if202_exit:
 _if203_cond:
   lea d, [bp + -5] ; $w1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -5] ; $w1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $384
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if203_exit
 _if203_true:
@@ -12987,30 +12987,30 @@ _if203_exit:
 _if204_cond:
   lea d, [bp + -7] ; $x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + -7] ; $x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $384
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if204_exit
 _if204_true:
@@ -13069,14 +13069,14 @@ _for205_init:
 _for205_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for205_exit
 _for205_block:
@@ -13108,7 +13108,7 @@ _for205_block:
   lea d, [bp + -5] ; $j0
   push d
   mov b, $b
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _quadname_data ; $quadname
@@ -13117,18 +13117,18 @@ _for205_block:
   push b
   call strlen
   add sp, 2
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $2
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; for (j = 0; j < j0; j++) 
@@ -13141,7 +13141,7 @@ _for206_init:
 _for206_cond:
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -5] ; $j0
@@ -13149,7 +13149,7 @@ _for206_cond:
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for206_exit
 _for206_block:
@@ -13184,7 +13184,7 @@ _for207_init:
 _for207_cond:
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -5] ; $j0
@@ -13192,7 +13192,7 @@ _for207_cond:
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for207_exit
 _for207_block:
@@ -13218,7 +13218,7 @@ _if208_cond:
   push b
   call strlen
   add sp, 2
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $2
@@ -13226,7 +13226,7 @@ _if208_cond:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   cmp b, 0
   seq ; !
   cmp b, 0
@@ -13253,7 +13253,7 @@ _if208_exit:
   lea d, [bp + -5] ; $j0
   push d
   mov b, $c
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _quadname_data ; $quadname
@@ -13262,18 +13262,18 @@ _if208_exit:
   push b
   call strlen
   add sp, 2
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $2
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; for (j = 0; j < j0; j++) 
@@ -13286,7 +13286,7 @@ _for209_init:
 _for209_cond:
   lea d, [bp + -3] ; $j
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -5] ; $j0
@@ -13294,7 +13294,7 @@ _for209_cond:
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for209_exit
 _for209_block:
@@ -13354,7 +13354,7 @@ compute_vector:
   push d
   lea d, [bp + 7] ; $x
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 11] ; $a
@@ -13362,7 +13362,7 @@ compute_vector:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; a = c1 - w1; 
@@ -13370,7 +13370,7 @@ compute_vector:
   push d
   lea d, [bp + 9] ; $c1
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $w1
@@ -13378,7 +13378,7 @@ compute_vector:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; xl = abs(x); 
@@ -13411,14 +13411,14 @@ compute_vector:
 _if210_cond:
   lea d, [bp + 7] ; $x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if210_else
 _if210_true:
@@ -13426,14 +13426,14 @@ _if210_true:
 _if211_cond:
   lea d, [bp + 11] ; $a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if211_else
 _if211_true:
@@ -13449,7 +13449,7 @@ _if212_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -13461,21 +13461,21 @@ _if212_cond:
   sgeu
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if212_else
 _if212_true:
 ; printf("%s", print100(c1 + ((xl * 100) / al))); 
   lea d, [bp + 9] ; $c1
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -3] ; $xl
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -13483,8 +13483,8 @@ _if212_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START FACTORS
+; --- END FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -7] ; $al
@@ -13494,7 +13494,7 @@ _if212_true:
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add a, b
   push a
   mov a, g
@@ -13503,7 +13503,7 @@ _if212_true:
   mov c, a
   pop b
   pop a
-; END TERMS
+; --- END TERMS
   swp b
   push b
   call print100
@@ -13520,14 +13520,14 @@ _if212_else:
 ; printf("%s", print100(c1 + ((((xl * 2) - al) * 100)  / xl))); 
   lea d, [bp + 9] ; $c1
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -3] ; $xl
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $2
@@ -13535,8 +13535,8 @@ _if212_else:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   push g
   mov a, b
@@ -13549,8 +13549,8 @@ _if212_else:
   mov b, a
   pop g
   pop a
-; END TERMS
-; START FACTORS
+; --- END TERMS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -13558,8 +13558,8 @@ _if212_else:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START FACTORS
+; --- END FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -3] ; $xl
@@ -13569,7 +13569,7 @@ _if212_else:
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add a, b
   push a
   mov a, g
@@ -13578,7 +13578,7 @@ _if212_else:
   mov c, a
   pop b
   pop a
-; END TERMS
+; --- END TERMS
   swp b
   push b
   call print100
@@ -13595,7 +13595,7 @@ _if212_exit:
 _ternary216_cond:
   lea d, [bp + 7] ; $x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + 11] ; $a
@@ -13603,7 +13603,7 @@ _ternary216_cond:
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _ternary216_false
 _ternary216_true:
@@ -13635,14 +13635,14 @@ _if211_else:
 _if217_cond:
   lea d, [bp + 7] ; $x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if217_else
 _if217_true:
@@ -13671,14 +13671,14 @@ _if210_else:
 _if218_cond:
   lea d, [bp + 11] ; $a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if218_else
 _if218_true:
@@ -13694,14 +13694,14 @@ _if218_else:
 _if219_cond:
   lea d, [bp + 7] ; $x
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if219_else
 _if219_true:
@@ -13717,14 +13717,14 @@ _if219_else:
 _if220_cond:
   lea d, [bp + 11] ; $a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   seq ; ==
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if220_else
 _if220_true:
@@ -13748,7 +13748,7 @@ _if221_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -13760,21 +13760,21 @@ _if221_cond:
   sleu
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if221_else
 _if221_true:
 ; printf("%s", print100(c1 + ((al * 100) / xl))); 
   lea d, [bp + 9] ; $c1
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -7] ; $al
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -13782,8 +13782,8 @@ _if221_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START FACTORS
+; --- END FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -3] ; $xl
@@ -13793,7 +13793,7 @@ _if221_true:
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add a, b
   push a
   mov a, g
@@ -13802,7 +13802,7 @@ _if221_true:
   mov c, a
   pop b
   pop a
-; END TERMS
+; --- END TERMS
   swp b
   push b
   call print100
@@ -13819,14 +13819,14 @@ _if221_else:
 ; printf("%s", print100(c1 + ((((al * 2) - xl) * 100) / al))); 
   lea d, [bp + 9] ; $c1
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -7] ; $al
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $2
@@ -13834,8 +13834,8 @@ _if221_else:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START TERMS
+; --- END FACTORS
+; --- START TERMS
   push a
   push g
   mov a, b
@@ -13848,8 +13848,8 @@ _if221_else:
   mov b, a
   pop g
   pop a
-; END TERMS
-; START FACTORS
+; --- END TERMS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -13857,8 +13857,8 @@ _if221_else:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START FACTORS
+; --- END FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -7] ; $al
@@ -13868,7 +13868,7 @@ _if221_else:
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   add a, b
   push a
   mov a, g
@@ -13877,7 +13877,7 @@ _if221_else:
   mov c, a
   pop b
   pop a
-; END TERMS
+; --- END TERMS
   swp b
   push b
   call print100
@@ -13896,7 +13896,7 @@ _ternary225_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -13908,7 +13908,7 @@ _ternary225_cond:
   sgu
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _ternary225_false
 _ternary225_true:
@@ -14009,7 +14009,7 @@ _if226_cond:
   push b
   call FROM_FIXED
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _time_start ; $time_start
@@ -14017,15 +14017,15 @@ _if226_cond:
   sub a, b
   mov b, a
   pop a
-; END TERMS
-; START RELATIONAL
+; --- END TERMS
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if226_exit
 _if226_true:
@@ -14037,7 +14037,7 @@ _if226_true:
   push b
   call TO_FIXED00
   add sp, 2
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov d, _stardate ; $stardate
@@ -14046,7 +14046,7 @@ _if226_true:
   push b
   call FROM_FIXED
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _time_start ; $time_start
@@ -14054,11 +14054,11 @@ _if226_true:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   swp b
   push b
   call square00
@@ -14090,14 +14090,14 @@ _if227_cond:
   mov d, _starbases_left ; $starbases_left
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if227_exit
 _if227_true:
@@ -14187,14 +14187,14 @@ _for229_init:
 _for229_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for229_exit
 _for229_block:
@@ -14204,14 +14204,14 @@ _if230_cond:
   mov d, [d]
   add d, 2
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if230_exit
 _if230_true:
@@ -14288,14 +14288,14 @@ _if231_cond:
   mov d, _klingons ; $klingons
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sleu ; <= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if231_exit
 _if231_true:
@@ -14334,14 +14334,14 @@ _for233_cond:
   lea d, [bp + -5] ; $i
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2
   cmp a, b
   sleu ; <= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for233_exit
 _for233_block:
@@ -14351,14 +14351,14 @@ _if234_cond:
   mov d, [d]
   add d, 2
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if234_exit
 _if234_true:
@@ -14369,12 +14369,12 @@ _if234_true:
   mov d, [d]
   add d, 2
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, 200
   mov c, 0
-; START TERMS
+; --- START TERMS
   push a
   push g
   mov a, b
@@ -14393,12 +14393,12 @@ _if234_true:
   pop b
   pop g
   pop a
-; END TERMS
+; --- END TERMS
   mul a, b ; *
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -14410,7 +14410,7 @@ _if234_true:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -14418,7 +14418,7 @@ _if234_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -14430,7 +14430,7 @@ _if234_true:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -7] ; $k
@@ -14442,7 +14442,7 @@ _if234_true:
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -14452,7 +14452,7 @@ _if234_true:
   push d
   mov d, _shield ; $shield
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -4] ; $h
@@ -14466,7 +14466,7 @@ _if234_true:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; k->energy = (k->energy * 100) / (300 + get_rand(100)); 
@@ -14478,7 +14478,7 @@ _if234_true:
   mov d, [d]
   add d, 2
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
@@ -14486,12 +14486,12 @@ _if234_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
-; START FACTORS
+; --- END FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $12c
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $64
@@ -14501,11 +14501,11 @@ _if234_true:
   add sp, 2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; printf("%d unit hit on Enterprise from sector %d, %d\n", (unsigned)FROM_FIXED00(h), k->y, k->x); 
@@ -14536,14 +14536,14 @@ _if234_true:
 _if235_cond:
   mov d, _shield ; $shield
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if235_exit
 _if235_true:
@@ -14572,7 +14572,7 @@ _if236_cond:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -14582,7 +14582,7 @@ _if236_cond:
   sgeu
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if236_exit
 _if236_true:
@@ -14593,7 +14593,7 @@ _if236_true:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov d, _shield ; $shield
@@ -14601,7 +14601,7 @@ _if236_true:
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   mov b, c
@@ -14613,22 +14613,22 @@ _if237_cond:
   push b
   call get_rand
   add sp, 2
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $6
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   lea d, [bp + -11] ; $ratio
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   push g
   mov a, b
@@ -14638,11 +14638,11 @@ _if237_cond:
   sgu
   pop g
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   mov g, 0
   sand32 ga, cb
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if237_exit
 _if237_true:
@@ -14673,7 +14673,7 @@ _if237_true:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -11] ; $ratio
@@ -14697,7 +14697,7 @@ _if237_true:
   mov c, a
   pop b
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; printf("Damage Control reports\n%s damaged by hit\n\n", get_device_name(r)); 
@@ -14762,14 +14762,14 @@ repair_damage:
 _if238_cond:
   lea d, [bp + 5] ; $warp
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $64
   cmp a, b
   sgeu ; >= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if238_exit
 _if238_true:
@@ -14795,14 +14795,14 @@ _for239_init:
 _for239_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _for239_exit
 _for239_block:
@@ -14817,14 +14817,14 @@ _if240_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if240_exit
 _if240_true:
@@ -14847,14 +14847,14 @@ _if240_true:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -5] ; $repair_factor
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; if (damage[i] > -10 && damage[i] < 0)	/* -0.1 */ 
@@ -14868,15 +14868,15 @@ _if241_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $fff6
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
-; START LOGICAL AND
+; --- END RELATIONAL
+; --- START LOGICAL AND
   push a
   mov a, b
   mov d, _damage_data ; $damage
@@ -14888,17 +14888,17 @@ _if241_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sand a, b
   pop a
-; END LOGICAL AND
+; --- END LOGICAL AND
   cmp b, 0
   je _if241_else
 _if241_true:
@@ -14929,14 +14929,14 @@ _if242_cond:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sge ; >=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if242_exit
 _if242_true:
@@ -14944,14 +14944,14 @@ _if242_true:
 _if243_cond:
   lea d, [bp + -3] ; $d1
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if243_exit
 _if243_true:
@@ -15020,14 +15020,14 @@ _if244_cond:
   push b
   call get_rand
   add sp, 2
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $2
   cmp a, b
   sle ; <= (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if244_exit
 _if244_true:
@@ -15044,14 +15044,14 @@ _if245_cond:
   push b
   call get_rand
   add sp, 2
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $6
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if245_else
 _if245_true:
@@ -15076,7 +15076,7 @@ _if245_true:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1f4
@@ -15084,17 +15084,17 @@ _if245_true:
   push b
   call get_rand
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $64
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; puts(dcr_1); 
@@ -15142,7 +15142,7 @@ _if245_else:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $12c
@@ -15155,7 +15155,7 @@ _if245_else:
   mov b, $64
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; puts(dcr_1); 
@@ -15213,41 +15213,41 @@ _do246_cond:
   lea d, [bp + 0] ; $r1
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 8 ; mov a, 8; mul a, b; add d, b
   push d
   lea d, [bp + -1] ; $r2
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 1
   je _do246_block
 _do246_exit:
@@ -15258,28 +15258,28 @@ _do246_exit:
   lea d, [bp + 0] ; $r1
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 8 ; mov a, 8; mul a, b; add d, b
   push d
   lea d, [bp + -1] ; $r2
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $1
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   add d, b
   pop a
@@ -15334,30 +15334,30 @@ get_device_name:
 _if249_cond:
   lea d, [bp + 5] ; $n
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
   cmp a, b
   slt ; < (signed)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 5] ; $n
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if249_exit
 _if249_true:
@@ -15391,57 +15391,57 @@ _if250_cond:
   lea d, [bp + 6] ; $y
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   slu ; < (unsigned)
   pop a
-; END RELATIONAL
-; START LOGICAL OR
+; --- END RELATIONAL
+; --- START LOGICAL OR
   push a
   mov a, b
   lea d, [bp + 6] ; $y
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 7] ; $x
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   slu ; < (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
   lea d, [bp + 7] ; $x
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $8
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   sor a, b ; ||
   pop a
-; END LOGICAL OR
+; --- END LOGICAL OR
   cmp b, 0
   je _if250_exit
 _if250_true:
@@ -15462,14 +15462,14 @@ _if251_cond:
   lea d, [bp + 7] ; $x
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $4
   cmp a, b
   sleu ; <= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if251_else
 _if251_true:
@@ -15501,13 +15501,13 @@ _if251_else:
   lea d, [bp + 6] ; $y
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $8
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
@@ -15526,14 +15526,14 @@ _if252_cond:
   lea d, [bp + 5] ; $small
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
   cmp a, b
   sneq ; !=
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if252_exit
 _if252_true:
@@ -15542,14 +15542,14 @@ _if253_cond:
   lea d, [bp + 7] ; $x
   mov bl, [d]
   mov bh, 0
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $4
   cmp a, b
   sgu ; > (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if253_exit
 _if253_true:
@@ -15559,14 +15559,14 @@ _if253_true:
   lea d, [bp + 7] ; $x
   mov bl, [d]
   mov bh, 0
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $4
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], bl
   jmp _if253_exit
@@ -15637,14 +15637,14 @@ _while254_block:
   push d
   lea d, [bp + -3] ; $q
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -1] ; $b
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; q =q>> 1; 
@@ -15652,7 +15652,7 @@ _while254_block:
   push d
   lea d, [bp + -3] ; $q
   mov b, [d]
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $1
@@ -15660,14 +15660,14 @@ _while254_block:
   shr a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   pop d
   mov [d], b
 ; if (r >= t) { 
 _if255_cond:
   lea d, [bp + -5] ; $r
   mov b, [d]
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -7] ; $t
@@ -15675,7 +15675,7 @@ _if255_cond:
   cmp a, b
   sgeu ; >= (unsigned)
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if255_exit
 _if255_true:
@@ -15684,7 +15684,7 @@ _if255_true:
   push d
   lea d, [bp + -5] ; $r
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -7] ; $t
@@ -15692,7 +15692,7 @@ _if255_true:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; q = q + b; 
@@ -15700,14 +15700,14 @@ _if255_true:
   push d
   lea d, [bp + -3] ; $q
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -1] ; $b
   mov b, [d]
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
   jmp _if255_exit
@@ -15717,7 +15717,7 @@ _if255_exit:
   push d
   lea d, [bp + -1] ; $b
   mov b, [d]
-; START SHIFT
+; --- START SHIFT
   push a
   mov a, b
   mov b, $2
@@ -15725,7 +15725,7 @@ _if255_exit:
   shr a, cl
   mov b, a
   pop a
-; END SHIFT
+; --- END SHIFT
   pop d
   mov [d], b
   jmp _while254_cond
@@ -15746,14 +15746,14 @@ _if256_cond:
   push b
   call abs
   add sp, 2
-; START RELATIONAL
+; --- START RELATIONAL
   push a
   mov a, b
   mov b, $b5
   cmp a, b
   sgt ; >
   pop a
-; END RELATIONAL
+; --- END RELATIONAL
   cmp b, 0
   je _if256_else
 _if256_true:
@@ -15762,14 +15762,14 @@ _if256_true:
   push d
   lea d, [bp + 5] ; $t
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; t =t* t; 
@@ -15777,7 +15777,7 @@ _if256_true:
   push d
   lea d, [bp + 5] ; $t
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + 5] ; $t
@@ -15786,7 +15786,7 @@ _if256_true:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
   jmp _if256_exit
@@ -15796,7 +15796,7 @@ _if256_else:
   push d
   lea d, [bp + 5] ; $t
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + 5] ; $t
@@ -15805,7 +15805,7 @@ _if256_else:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; t =t/ 100; 
@@ -15813,14 +15813,14 @@ _if256_else:
   push d
   lea d, [bp + 5] ; $t
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 _if256_exit:
@@ -15846,7 +15846,7 @@ distance_to:
   push b
   call TO_FIXED00
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _ship_y ; $ship_y
@@ -15854,7 +15854,7 @@ distance_to:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   swp b
   push b
   call square00
@@ -15866,7 +15866,7 @@ distance_to:
   push d
   lea d, [bp + -1] ; $j
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $k
@@ -15878,7 +15878,7 @@ distance_to:
   push b
   call TO_FIXED00
   add sp, 2
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov d, _ship_x ; $ship_x
@@ -15886,14 +15886,14 @@ distance_to:
   sub a, b
   mov b, a
   pop a
-; END TERMS
+; --- END TERMS
   swp b
   push b
   call square00
   add sp, 2
   add b, a
   pop a
-; END TERMS
+; --- END TERMS
   pop d
   mov [d], b
 ; j = isqrt(j); 
@@ -15912,7 +15912,7 @@ distance_to:
   push d
   lea d, [bp + -1] ; $j
   mov b, [d]
-; START FACTORS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $a
@@ -15920,7 +15920,7 @@ distance_to:
   mov a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   pop d
   mov [d], b
 ; return j; 
@@ -15934,21 +15934,21 @@ cint100:
 ; return (d + 50) / 100; 
   lea d, [bp + 5] ; $d
   mov b, [d]
-; START TERMS
+; --- START TERMS
   push a
   mov a, b
   mov b, $32
   add b, a
   pop a
-; END TERMS
-; START FACTORS
+; --- END TERMS
+; --- START FACTORS
   push a
   mov a, b
   mov b, $64
   div a, b
   mov b, a
   pop a
-; END FACTORS
+; --- END FACTORS
   leave
   ret
 
@@ -15956,9 +15956,9 @@ showfile:
   enter 0 ; (push bp; mov bp, sp)
   leave
   ret
-; --- END TEXT BLOCK
+; --- END TEXT SEGMENT
 
-; --- BEGIN DATA BLOCK
+; --- BEGIN DATA SEGMENT
 _starbases: .fill 1, 0
 _base_y: .fill 1, 0
 _base_x: .fill 1, 0
@@ -16220,6 +16220,6 @@ _s181: .db "Unknown", 0
 
 _heap_top: .dw _heap
 _heap: .db 0
-; --- END DATA BLOCK
+; --- END DATA SEGMENT
 
 .end
