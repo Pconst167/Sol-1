@@ -1072,7 +1072,7 @@ _switch13_case6:
   call _putchar
 ; --- END INLINE ASM BLOCK
 
-;; p = p + 2; 
+;; p = p + 1; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1080,7 +1080,7 @@ _switch13_case6:
 ; START TERMS
   push a
   mov a, b
-  mov b, $2
+  mov b, $1
   add b, a
   pop a
 ; END TERMS
@@ -1464,7 +1464,7 @@ _switch20_case6:
   call getchar
   pop d
   mov [d], bl
-;; **(char **)p = c; 
+;; **(char **)p = *(char *)c; 
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov d, b
@@ -1473,9 +1473,12 @@ _switch20_case6:
   lea d, [bp + -4] ; $c
   mov bl, [d]
   mov bh, 0
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
   pop d
   mov [d], b
-;; p = p + 2; 
+;; p = p + 1; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1483,7 +1486,7 @@ _switch20_case6:
 ; START TERMS
   push a
   mov a, b
-  mov b, $2
+  mov b, $1
   add b, a
   pop a
 ; END TERMS
@@ -1951,7 +1954,7 @@ _switch27_case5:
 ;; break; 
   jmp _switch27_exit ; case break
 _switch27_case6:
-;; *sp++ = *p; 
+;; *sp++ = *(char *)p; 
   lea d, [bp + -5] ; $sp
   mov b, [d]
   inc b
@@ -1966,7 +1969,7 @@ _switch27_case6:
   mov bh, 0
   pop d
   mov [d], bl
-;; p = p + 2; 
+;; p = p + 1; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1974,7 +1977,7 @@ _switch27_case6:
 ; START TERMS
   push a
   mov a, b
-  mov b, $2
+  mov b, $1
   add b, a
   pop a
 ; END TERMS
@@ -2084,6 +2087,13 @@ _if25_exit:
 _for24_update:
   jmp _for24_cond
 _for24_exit:
+;; *sp = '\0'; 
+  lea d, [bp + -5] ; $sp
+  mov b, [d]
+  push b
+  mov b, $0
+  pop d
+  mov [d], bl
   leave
   ret
 
