@@ -5519,7 +5519,7 @@
     bl_wrt=true
   }
   19{
-    next=next_offset_
+    next=next_offset
     offset=1
     alu_x=bh
     alu_y=tdrh  
@@ -14892,17 +14892,19 @@
     alu_mode=logic
     alu_y=tdrl  
     al_wrt=true
+    zf_in_src=alu_zf 
   }
   3{
     next=next_fetch
     alu_x=ah
     alu_op=minus
     alu_mode=logic
-    alu_y=tdrh  ah_wrt=true
-    marl_wrt=true
-    marh_wrt=true
-    mar_in_src=pc
+    alu_y=tdrh  
+    ah_wrt=true
+    zf_in_src=alu_zf_and_zf  
+    sf_in_src=zbus_7
   }
+
   16{
     next=next_offset
     offset=1
