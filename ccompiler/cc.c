@@ -33,15 +33,12 @@
 
   ** implement 'register' keyworded type local variables  
 
-
 */
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <libgen.h>
 #include <math.h>
 
 #include "definitions.h"
@@ -53,85 +50,85 @@ struct{
   char *as_str;
   t_tok token;
 } token_to_str[] = {
-  {"&",                       AMPERSAND}, 
-  {"asm",                     ASM},
-  {"=",                       ASSIGNMENT},
-  {"@",                       AT}, 
-  {"auto",                    AUTO},
-  {"~",             BITWISE_NOT}, 
-  {"|",              BITWISE_OR}, 
-  {"<<",             BITWISE_SHL},
-  {">>",             BITWISE_SHR},
-  {"^",             BITWISE_XOR}, 
-  {"break",                   BREAK},
-  {"^",                   CARET}, 
-  {"case",                    CASE},
-  {"char",                    CHAR},
-  {"}",           CLOSING_BRACE},
+  {"&",         AMPERSAND}, 
+  {"asm",       ASM},
+  {"=",         ASSIGNMENT},
+  {"@",         AT}, 
+  {"auto",      AUTO},
+  {"~",         BITWISE_NOT}, 
+  {"|",         BITWISE_OR}, 
+  {"<<",        BITWISE_SHL},
+  {">>",        BITWISE_SHR},
+  {"^",         BITWISE_XOR}, 
+  {"break",     BREAK},
+  {"^",         CARET}, 
+  {"case",      CASE},
+  {"char",      CHAR},
+  {"}",         CLOSING_BRACE},
   {"]",         CLOSING_BRACKET},
-  {")",           CLOSING_PAREN},
-  {":",                   COLON},
-  {",",                   COMMA},
-  {"const",                   CONST},
-  {"continue",                CONTINUE},
-  {"--",               DECREMENT},
-  {"default",                 DEFAULT},
-  {"define",                  DEFINE},
-  {"ifdef",                   DEF_IFDEF},
-  {"endif",                   DEF_ENDIF},
-  {"directive",               DIRECTIVE}, 
-  {"do",                      DO},
-  {"$",                  DOLLAR}, 
-  {"double",                  DOUBLE},
-  {"else",                    ELSE},
-  {"enum",                    ENUM},
-  {"==",                   EQUAL}, 
-  {"extern",                  EXTERN},
-  {"float",                   FLOAT},
-  {"for",                     FOR},
-  {"/",                  FSLASH},
-  {"goto",                    GOTO},
-  {">",            GREATER_THAN}, 
-  {">=",   GREATER_THAN_OR_EQUAL}, 
-  {"if",                      IF},
-  {"include",                 INCLUDE}, 
-  {"++",               INCREMENT},
-  {"int",                     INT},
-  {"<",               LESS_THAN}, 
-  {"<=",      LESS_THAN_OR_EQUAL}, 
-  {"&&",             LOGICAL_AND}, 
-  {"!",             LOGICAL_NOT}, 
-  {"||",              LOGICAL_OR}, 
-  {"long",                    LONG},
-  {"-",                   MINUS},
-  {"%",                     MOD},
-  {"!=",               NOT_EQUAL}, 
-  {"{",           OPENING_BRACE},
+  {")",         CLOSING_PAREN},
+  {":",         COLON},
+  {",",         COMMA},
+  {"const",     CONST},
+  {"continue",  CONTINUE},
+  {"--",        DECREMENT},
+  {"default",   DEFAULT},
+  {"define",    DEFINE},
+  {"ifdef",     DEF_IFDEF},
+  {"endif",     DEF_ENDIF},
+  {"directive", DIRECTIVE}, 
+  {"do",        DO},
+  {"$",         DOLLAR}, 
+  {"double",    DOUBLE},
+  {"else",      ELSE},
+  {"enum",      ENUM},
+  {"==",        EQUAL}, 
+  {"extern",    EXTERN},
+  {"float",     FLOAT},
+  {"for",       FOR},
+  {"/",         FSLASH},
+  {"goto",      GOTO},
+  {">",         GREATER_THAN}, 
+  {">=",        GREATER_THAN_OR_EQUAL}, 
+  {"if",        IF},
+  {"include",   INCLUDE}, 
+  {"++",        INCREMENT},
+  {"int",       INT},
+  {"<",         LESS_THAN}, 
+  {"<=",        LESS_THAN_OR_EQUAL}, 
+  {"&&",        LOGICAL_AND}, 
+  {"!",         LOGICAL_NOT}, 
+  {"||",        LOGICAL_OR}, 
+  {"long",      LONG},
+  {"-",         MINUS},
+  {"%",         MOD},
+  {"!=",        NOT_EQUAL}, 
+  {"{",         OPENING_BRACE},
   {"[",         OPENING_BRACKET},
-  {"(",           OPENING_PAREN},
-  {"+",                    PLUS},
-  {"pragma",                  PRAGMA}, 
-  {"register",                REGISTER},
-  {"return",                  RETURN},
-  {";",               SEMICOLON},
-  {"short",                   SHORT},
-  {"signed",                  SIGNED},
-  {"sizeof",                  SIZEOF},
-  {"*",                    STAR},
-  {"static",                  STATIC},
-  {"struct",                  STRUCT},
-  {"->",            STRUCT_ARROW},
-  {".",              STRUCT_DOT},
-  {"switch",                  SWITCH},
-  {"?",              TERNARY_OP}, 
-  {"tok_undef",               TOK_UNDEF},                 
-  {"typedef",                 TYPEDEF},
-  {"union",                   UNION},
-  {"unsigned",                UNSIGNED},
-  {"void",                    VOID},
-  {"volatile",                VOLATILE},
-  {"while",                   WHILE},
-  {"undefined",               TOK_UNDEF},
+  {"(",         OPENING_PAREN},
+  {"+",         PLUS},
+  {"pragma",    PRAGMA}, 
+  {"register",  REGISTER},
+  {"return",    RETURN},
+  {";",         SEMICOLON},
+  {"short",     SHORT},
+  {"signed",    SIGNED},
+  {"sizeof",    SIZEOF},
+  {"*",         STAR},
+  {"static",    STATIC},
+  {"struct",    STRUCT},
+  {"->",        STRUCT_ARROW},
+  {".",         STRUCT_DOT},
+  {"switch",    SWITCH},
+  {"?",         TERNARY_OP}, 
+  {"tok_undef", TOK_UNDEF},                 
+  {"typedef",   TYPEDEF},
+  {"union",     UNION},
+  {"unsigned",  UNSIGNED},
+  {"void",      VOID},
+  {"volatile",  VOLATILE},
+  {"while",     WHILE},
+  {"undefined", TOK_UNDEF},
 };
 
 char *primitive_type_to_str_table[] = {
@@ -145,63 +142,63 @@ char *primitive_type_to_str_table[] = {
 };
 
 keyword_table_t keyword_table[] = {
-  {"include",  INCLUDE},
-  {"pragma",   PRAGMA},
-  {"define",   DEFINE},
-  {"ifdef",    DEF_IFDEF},
-  {"endif",    DEF_ENDIF},
-  {"asm",      ASM},
+  {"include" , INCLUDE  },
+  {"pragma"  , PRAGMA   },
+  {"define"  , DEFINE   },
+  {"ifdef"   , DEF_IFDEF},
+  {"endif"   , DEF_ENDIF},
+  {"asm"     , ASM      },
 
-  {"register", REGISTER},
-  {"auto",     AUTO},
-  {"volatile", VOLATILE},
-  {"extern",   EXTERN},
-  {"typedef",  TYPEDEF},
-  {"static",   STATIC},
-  {"const",    CONST},
-  {"signed",   SIGNED},
-  {"unsigned", UNSIGNED},
-  {"long",     LONG},
+  {"register", REGISTER },
+  {"auto"    , AUTO     },
+  {"volatile", VOLATILE },
+  {"extern"  , EXTERN   },
+  {"typedef" , TYPEDEF  },
+  {"static"  , STATIC   },
+  {"const"   , CONST    },
+  {"signed"  , SIGNED   },
+  {"unsigned", UNSIGNED },
+  {"long"    , LONG     },
 
-  {"void",     VOID},
-  {"char",     CHAR},
-  {"int",      INT},
-  {"float",    FLOAT},
-  {"double",   DOUBLE},
-  {"enum",     ENUM},
-  {"union",    UNION},
-  {"struct",   STRUCT},
-  {"sizeof",   SIZEOF},
+  {"void"    , VOID     },
+  {"char"    , CHAR     },
+  {"int"     , INT      },
+  {"float"   , FLOAT    },
+  {"double"  , DOUBLE   },
+  {"enum"    , ENUM     },
+  {"union"   , UNION    },
+  {"struct"  , STRUCT   },
+  {"sizeof"  , SIZEOF   },
 
-  {"if",       IF},
-  {"else",     ELSE},
-  {"for",      FOR},
-  {"do",       DO},
-  {"break",    BREAK},
-  {"continue", CONTINUE},
-  {"while",    WHILE},
-  {"switch",   SWITCH},
-  {"case",     CASE},
-  {"default",  DEFAULT},
-  {"goto",     GOTO},
-  {"return",   RETURN},
-  {"",         0}
+  {"if"      , IF       },
+  {"else"    , ELSE     },
+  {"for"     , FOR      },
+  {"do"      , DO       },
+  {"break"   , BREAK    },
+  {"continue", CONTINUE },
+  {"while"   , WHILE    },
+  {"switch"  , SWITCH   },
+  {"case"    , CASE     },
+  {"default" , DEFAULT  },
+  {"goto"    , GOTO     },
+  {"return"  , RETURN   },
+  {""        , 0        }
 };
 
 struct{
   char *as_str;
   t_tok_type tok_type;
 } tok_type_to_str[] = {
-  {"char constant", CHAR_CONST},
-  {"delimiter", DELIMITER},
-  {"double constant", DOUBLE_CONST},
-  {"end", END},
-  {"float constant", FLOAT_CONST}, 
-  {"identifier", IDENTIFIER}, 
-  {"integer constant", INTEGER_CONST}, 
-  {"reserved", RESERVED}, 
-  {"string constant", STRING_CONST}, 
-  {"undefined", TYPE_UNDEF}
+  {"char constant",     CHAR_CONST   },
+  {"delimiter",         DELIMITER    },
+  {"double constant",   DOUBLE_CONST },
+  {"end",               END          },
+  {"float constant",    FLOAT_CONST  }, 
+  {"identifier",        IDENTIFIER   }, 
+  {"integer constant",  INTEGER_CONST}, 
+  {"reserved",          RESERVED     }, 
+  {"string constant",   STRING_CONST }, 
+  {"undefined",         TYPE_UNDEF   }
 };
 /*
 char *runtime_argc_argv_getter = "\n\n\
@@ -1023,7 +1020,8 @@ int declare_local(void){
     }    
 // *********************************************************************************************
     if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
-    if(local_var_exists(curr_token.token_str) != -1) error(ERR_FATAL, "Duplicate local variable: %s", curr_token.token_str);
+    if(local_var_exists(curr_token.token_str) != -1) 
+      error(ERR_FATAL, "Duplicate local variable: %s", curr_token.token_str);
     snprintf(new_var.name, sizeof(new_var.name), "%.125s", curr_token.token_str);
     insert_var_name(curr_token.token_str, var_names);
     get();
@@ -4443,15 +4441,14 @@ uint8_t prev_tok_is_binary_op(t_tok prev_tok){
 void get(void){
   static t_tok previous_tok = TOK_UNDEF;
   char *t;
+
   // skip blank spaces
-
-
   *curr_token.token_str = '\0';
   curr_token.tok = TOK_UNDEF;
   curr_token.tok_type = TYPE_UNDEF;
   t = curr_token.token_str;
   
-  // Save the position of prog before getting a curr_token.token_str. If an 'unexpected curr_token.token_str' error occurs,
+  // Save the position of prog before getting a curr_token.token_str. If an 'unexpected token' error occurs,
   // the position of prog before lines were skipped, will be known.  
   prog_before_error = prog;
 
@@ -4915,4 +4912,36 @@ void expand_all_included_files(void){
   exit(1);
 
   prog = c_in;
+}
+
+char* basename(char* path) {
+  static char bname[1024];
+  char *last_slash;
+
+  // Handle NULL input
+  if (path == NULL || *path == '\0') {
+    bname[0] = '.';
+    bname[1] = '\0';
+    return bname;
+  }
+
+  // Strip trailing slashes
+  size_t len = strlen(path);
+  while (len > 1 && path[len - 1] == '/') {
+    path[--len] = '\0';
+  }
+
+  // Find the last slash in the path
+  last_slash = strrchr(path, '/');
+  if (last_slash != NULL) {
+    // Return the part after the last slash
+    strncpy(bname, last_slash + 1, sizeof(bname) - 1);
+    bname[sizeof(bname) - 1] = '\0';
+  } else {
+    // No slash found, return the whole path
+    strncpy(bname, path, sizeof(bname) - 1);
+    bname[sizeof(bname) - 1] = '\0';
+  }
+
+  return bname;
 }
