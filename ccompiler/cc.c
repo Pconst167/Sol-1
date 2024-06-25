@@ -583,11 +583,11 @@ void declare_define(){
   get(); // get define's name
   strcpy(defines_table[defines_tos].name, curr_token.token_str);
   // get value
-  while(*prog != '\n' && *prog != '\0'){
+  while(*prog != '\n' && *prog != '\0' && *prog != '/' && *(prog+1) != '/'){
     *p++ = *prog++;
   }
   *p = '\0';
-  if(*prog == '\0') error(ERR_FATAL, "Unterminated define.");
+  if(*prog == '/' && *(prog+1) == '/') while(*prog != '\0' && *prog != '\n') prog++;
   defines_tos++;
 }
 
@@ -1799,6 +1799,7 @@ void parse_continue(void){
 
 void parse_for(void){
   char *update_loc;
+  char *temp_prog;
 
   override_return_is_last_statement = true;
   loop_type_stack[loop_type_tos] = current_loop_type;
@@ -1812,10 +1813,17 @@ void parse_for(void){
   get();
   if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   emitln("_for%d_init:", current_label_index_for);
+  temp_prog = prog;
   get();
   if(curr_token.tok != SEMICOLON){
-    back();
-    parse_expr();
+    if(type_detected() == 0){
+      prog = temp_prog;
+      declare_local();
+    }
+    else{
+      back();
+      parse_expr();
+    }
   }
   if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 

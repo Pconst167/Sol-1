@@ -4,6 +4,28 @@
 #define HASH_SIZE 16   // Simplified hash size
 
 
+char text[512];
+
+int main() {
+    unsigned char hash[HASH_SIZE];
+    int i;
+
+    do{
+        scanf("Enter a string to hash: %s", text);
+        if(text[0] == '\0') printf("\nEmpty string.\n");
+    } while(text[0] == '\0');
+
+    simple_hash(text, hash);
+
+    printf("Hash: ");
+    for (i = 0; i < HASH_SIZE; i++) {
+        printx8(hash[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
+
 // Rotates x right by n positions
 unsigned int rotr(unsigned int x, unsigned int n) {
     return (x >> n) | (x << (16 - n));
@@ -40,20 +62,4 @@ void simple_hash(const char *input, unsigned char output[HASH_SIZE]) {
         output[i * 2] = h[i] & 0xFF;
         output[i * 2 + 1] = (h[i] >> 8) & 0xFF;
     }
-}
-
-    char *text = "Hello World";
-int main() {
-    unsigned char hash[HASH_SIZE];
-    int i;
-
-    simple_hash(text, hash);
-
-    printf("Hash: ");
-    for (i = 0; i < HASH_SIZE; i++) {
-        printx8(hash[i]);
-    }
-    printf("\n");
-
-    return 0;
 }

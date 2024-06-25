@@ -10,7 +10,7 @@ void draw_board() {
     int i;
     char c;
     print(s);
-    printu(rand());
+    printf("%d", rand());
     print("\n");
     for (y = 0; y < 20; y++) {
         for (x = 0; x < 40; x++) {

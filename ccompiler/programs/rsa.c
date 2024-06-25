@@ -9,11 +9,11 @@ int main() {
     e = find_e(phi);
     d = find_d(e, phi);
 
-    printf("Public Key: (");
+    printf("Public Key: ");
     printf("%d, ", n);
     printf("%d\n", e);
 
-    print("Private Key: (");
+    print("Private Key: ");
     printf("%d, ", n);
     printf("%d\n", d);
 
