@@ -1799,7 +1799,6 @@ void parse_continue(void){
 
 void parse_for(void){
   char *update_loc;
-  char *temp_prog;
 
   override_return_is_last_statement = true;
   loop_type_stack[loop_type_tos] = current_loop_type;
@@ -1813,17 +1812,10 @@ void parse_for(void){
   get();
   if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   emitln("_for%d_init:", current_label_index_for);
-  temp_prog = prog;
   get();
   if(curr_token.tok != SEMICOLON){
-    if(type_detected() == 0){
-      prog = temp_prog;
-      declare_local();
-    }
-    else{
-      back();
-      parse_expr();
-    }
+    back();
+    parse_expr();
   }
   if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 
