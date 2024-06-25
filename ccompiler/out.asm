@@ -7,16 +7,15 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; for(unsigned int i = 0; i < 100; i++){ 
-_for1_init:
+; unsigned int i; 
   sub sp, 2
-; --- START LOCAL VAR INITIALIZATION
+; for(i = 0; i < 100; i++){ 
+_for1_init:
   lea d, [bp + -1] ; $i
   push d
   mov b, $0
   pop d
   mov [d], b
-; --- END LOCAL VAR INITIALIZATION
 _for1_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
