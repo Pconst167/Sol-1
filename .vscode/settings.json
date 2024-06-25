@@ -6,6 +6,7 @@
     "stdint-gcc.h": "c",
     "cstdint": "c",
     "stdio.h": "c",
-    "token.h": "c"
+    "token.h": "c",
+    "unistd.h": "c"
   }
 }
