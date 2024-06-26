@@ -1200,6 +1200,7 @@ char get_alu_cf_in(){
     case VCC:   return 0;
     case CF:    return 1;
     case UCF:   return 2;
+    case GND:   return 3;
     default:    error("Unknown field value for alu_cf_in.");
   }
 }

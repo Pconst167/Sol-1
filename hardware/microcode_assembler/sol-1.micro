@@ -4143,17 +4143,17 @@
     mdrh_wrt=true
   }
   18{
-    next=next_offset
-    offset=1
-    alu_x=bl
-    alu_op=plus
-    alu_cf_in=cf
-    zf_in_src=alu_zf_and_zf
-    alu_cf_in_inv=true
-    alu_cf_out_inv=true
-    cf_in_src=alu_final_cf
-    alu_y=mdrl
-    bl_wrt=true
+    next           = next_offset
+    offset         = 1
+    alu_x          = bl
+    alu_op         = plus
+    alu_cf_in      = cf
+    zf_in_src      = alu_zf_and_zf
+    alu_cf_in_inv  = true
+    alu_cf_out_inv = true
+    cf_in_src      = alu_final_cf
+    alu_y          = mdrl
+    bl_wrt         = true
   }
   19{
     next=next_offset
@@ -4591,7 +4591,7 @@
   }
 }
 
-0x19, "mov al, i8"{
+0x19, "mov al, i8 - sbb32 ga, cb"{
   0{
     next=next_offset
     offset=1
@@ -4622,6 +4622,82 @@
     alu_mode=logic
     alu_y=mdrl
     al_wrt=true
+  }
+
+  16{
+    next=next_offset
+    offset=1
+    alu_x=bl
+    alu_op=x
+    alu_mode=logic
+    mdrl_wrt=true
+  }
+  17{
+    next=next_offset
+    offset=1
+    alu_x=bh
+    alu_op=x
+    alu_mode=logic
+    mdrh_wrt=true
+  }
+  18{
+    next=next_offset
+    offset=1
+    alu_op=minus
+    alu_cf_in=cf
+    zf_in_src=alu_zf  
+    cf_in_src=alu_final_cf
+    alu_y=mdrl
+    al_wrt=true
+  }
+  19{
+    next=next_offset
+    offset=1
+    alu_x=ah
+    alu_op=minus
+    alu_cf_in=cf
+    zf_in_src=alu_zf_and_zf  
+    cf_in_src=alu_final_cf
+    alu_y=mdrh  
+    ah_wrt=true
+  }
+  20{
+    next=next_offset
+    offset=1
+    alu_x=cl
+    alu_op=x
+    alu_mode=logic
+    mdrl_wrt=true
+  }
+  21{
+    next=next_offset
+    offset=1
+    alu_x=ch
+    alu_op=x
+    alu_mode=logic
+    mdrh_wrt=true
+  }
+  22{
+    next=next_offset
+    offset=1
+    alu_op=minus
+    alu_cf_in=cf
+    zf_in_src=alu_zf_and_zf
+    cf_in_src=alu_final_cf
+    alu_y=mdrl
+    gl_wrt=true
+  }
+  23{
+    next=next_fetch
+    alu_x=ah
+    alu_op=minus
+    alu_cf_in=cf
+    zf_in_src=alu_zf_and_zf  
+    cf_in_src=alu_final_cf
+    sf_in_src=zbus_7
+    of_in_src=alu_of
+    alu_y=mdrh  
+    gh_wrt=true
   }
 }
 
@@ -4659,7 +4735,7 @@
   }
 }
 
-0x1C, "mov al, bh - sbb32 ga, cb"{
+0x1C, "mov al, bh - sub32 ga, cb"{
   0{
     next=next_fetch
     alu_x=bh
@@ -4689,7 +4765,6 @@
     offset=1
     alu_op=minus
     alu_cf_in=cf
-    alu_cf_in_inv=true
     zf_in_src=alu_zf  
     cf_in_src=alu_final_cf
     alu_y=mdrl
@@ -4703,8 +4778,6 @@
     alu_cf_in=cf
     zf_in_src=alu_zf_and_zf  
     cf_in_src=alu_final_cf
-    sf_in_src=zbus_7
-    of_in_src=alu_of
     alu_y=mdrh  
     ah_wrt=true
   }
@@ -4729,8 +4802,7 @@
     offset=1
     alu_op=minus
     alu_cf_in=cf
-    alu_cf_in_inv=true
-    zf_in_src=alu_zf  
+    zf_in_src=alu_zf_and_zf
     cf_in_src=alu_final_cf
     alu_y=mdrl
     gl_wrt=true
@@ -4749,7 +4821,7 @@
   }
 }
 
-0x1D, "mov al, [u16]"{
+0x1D, "mov al, [u16] - shl32 ga"{
   0{
     next=next_offset
     offset=1
@@ -4831,9 +4903,87 @@
     marh_wrt=true
     mar_in_src=pc
   }
+
+  16{
+    next=next_offset
+    offset=1
+    alu_x=cl
+    alu_op=x
+    alu_mode=logic
+    mdrl_wrt=true
+  }
+  17{
+    next=next_offset
+    offset=1
+    alu_x=al
+    cf_in_src=alu_out_7
+    zbus_out_src=shifted_left
+    alu_op=x
+    alu_mode=logic
+    zf_in_src=alu_zf  
+    al_wrt=true
+  }
+  18{
+    next=next_offset
+    offset=1
+    shift_src=cf
+    zbus_out_src=shifted_left
+    alu_x=ah
+    alu_op=x
+    alu_mode=logic
+    zf_in_src=alu_zf_and_zf  
+    cf_in_src=alu_out_7
+    ah_wrt=true
+  }
+  19{
+    next=next_offset
+    offset=1
+    alu_x=gl
+    cf_in_src=alu_out_7
+    zbus_out_src=shifted_left
+    alu_op=x
+    alu_mode=logic
+    zf_in_src=alu_zf_and_zf  
+    gl_wrt=true
+  }
+  20{
+    next=next_offset
+    offset=1
+    shift_src=cf
+    zbus_out_src=shifted_left
+    alu_x=gh
+    alu_op=x
+    alu_mode=logic
+    zf_in_src=alu_zf_and_zf  
+    cf_in_src=alu_out_7
+    sf_in_src=zbus_7
+    gh_wrt=true
+  }
+  21{
+    next=next_offset
+    offset=1
+    uzf_in_src=alu_zf  
+    alu_x=mdrl
+    alu_op=minus
+    alu_cf_in_inv=true
+    mdrl_wrt=true
+    immediate=1
+  }
+  22{
+    next=next_branch
+    offset=-5
+    condition_inv=true
+    cond_flags_src=micro_flags
+  }
+  23{
+    next=next_fetch
+    marl_wrt=true
+    marh_wrt=true
+    mar_in_src=pc
+  }
 }
 
-0x1E, "mov al, [d]"{
+0x1E, "mov al, [d] - shr32 ga"{
   0{
     next=next_offset
     offset=1
@@ -4863,6 +5013,82 @@
     alu_mode=logic
     alu_y=mdrl
     al_wrt=true
+    marl_wrt=true
+    marh_wrt=true
+    mar_in_src=pc
+  }
+
+  16{
+    next=next_offset
+    offset=1
+    alu_x=cl
+    alu_op=x
+    alu_mode=logic
+    mdrl_wrt=true
+  }
+  17{
+    next=next_offset
+    offset=1
+    cf_in_src=alu_out_0
+    zbus_out_src=shifted_right
+    alu_x=gh
+    alu_op=x
+    alu_mode=logic
+    zf_in_src=alu_zf  
+    sf_in_src=zbus_7
+    gh_wrt=true
+  }
+  18{
+    next=next_offset
+    offset=1
+    shift_src=cf
+    zbus_out_src=shifted_right
+    alu_op=x
+    alu_mode=logic
+    zf_in_src=alu_zf_and_zf  
+    cf_in_src=alu_out_0  
+    gl_wrt=true
+  }
+  19{
+    next=next_offset
+    offset=1
+    shift_src=cf
+    zbus_out_src=shifted_right
+    alu_op=x
+    alu_mode=logic
+    zf_in_src=alu_zf_and_zf  
+    cf_in_src=alu_out_0  
+    ah_wrt=true
+  }
+  20{
+    next=next_offset
+    offset=1
+    shift_src=cf
+    zbus_out_src=shifted_right
+    alu_op=x
+    alu_mode=logic
+    zf_in_src=alu_zf_and_zf  
+    cf_in_src=alu_out_0  
+    al_wrt=true
+  }
+  21{
+    next=next_offset
+    offset=1
+    uzf_in_src=alu_zf  
+    alu_x=mdrl
+    alu_op=minus
+    alu_cf_in_inv=true
+    mdrl_wrt=true
+    immediate=1
+  }
+  22{
+    next=next_branch
+    offset=-5
+    condition_inv=true
+    cond_flags_src=micro_flags
+  }
+  23{
+    next=next_fetch
     marl_wrt=true
     marh_wrt=true
     mar_in_src=pc
@@ -15960,6 +16186,7 @@
     alu_mode=logic
     bl_wrt=true
   }
+
   16{
     next=next_offset
     offset=1
