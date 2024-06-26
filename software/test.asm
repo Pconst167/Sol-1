@@ -7,23 +7,145 @@ main:
   mov sp, $FFFF
 
   call printnl
-  mov a, $FFFF
-  mov b, a
 
+
+  mov a, $0
+  mov g, $0
+  mov b, $0
+  mov c, $0
+  sub32 cb, ga
+  push b
+  mov b, c
   call print_u16x
-  and a, $0000
-
-  mov b, a
+  pop b
   call print_u16x
-
   call printnl
 
 
-  mov a, $FFFF
-  and al, $00
-  mov b, a
-  call print_u16x
 
+  mov a, $1
+  mov g, $0
+  mov b, $0
+  mov c, $0
+  sub32 cb, ga
+  push b
+  mov b, c
+  call print_u16x
+  pop b
+  call print_u16x
+  call printnl
+
+
+
+  mov a, $0
+  mov g, $1
+  mov b, $0
+  mov c, $0
+  sub32 cb, ga
+  push b
+  mov b, c
+  call print_u16x
+  pop b
+  call print_u16x
+  call printnl
+
+
+  mov a, $0
+  mov g, $0
+  mov b, $1
+  mov c, $0
+  sub32 cb, ga
+  push b
+  mov b, c
+  call print_u16x
+  pop b
+  call print_u16x
+  call printnl
+
+
+
+  mov a, $0
+  mov g, $0
+  mov b, $0
+  mov c, $1
+  sub32 cb, ga
+  push b
+  mov b, c
+  call print_u16x
+  pop b
+  call print_u16x
+  call printnl
+
+
+
+  mov a, $1
+  mov g, $0
+  mov b, $1
+  mov c, $0
+  sub32 cb, ga
+  push b
+  mov b, c
+  call print_u16x
+  pop b
+  call print_u16x
+  call printnl
+
+
+
+; ga + cb 
+  mov a, $0
+  mov g, $1
+  mov b, $1
+  mov c, $0
+  sub32 cb, ga
+  push b
+  mov b, c
+  call print_u16x
+  pop b
+  call print_u16x
+  call printnl
+
+
+; ga + cb 
+  mov a, $1
+  mov g, $0
+  mov b, $FFFF
+  mov c, $FFFF
+  sub32 cb, ga
+  push b
+  mov b, c
+  call print_u16x
+  pop b
+  call print_u16x
+  call printnl
+
+
+
+; ga + cb 
+  mov a, $1
+  mov g, $0
+  mov b, $FFFF
+  mov c, $1
+  sub32 cb, ga
+  push b
+  mov b, c
+  call print_u16x
+  pop b
+  call print_u16x
+  call printnl
+
+
+; ga + cb 
+  mov a, $123
+  mov g, $45
+  mov b, $123
+  mov c, $F32
+  sub32 cb, ga
+  push b
+  mov b, c
+  call print_u16x
+  pop b
+  call print_u16x
   call printnl
 
 

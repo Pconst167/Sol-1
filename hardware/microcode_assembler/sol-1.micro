@@ -4764,7 +4764,7 @@
     next=next_offset
     offset=1
     alu_op=minus
-    alu_cf_in=cf
+    alu_cf_in=gnd
     zf_in_src=alu_zf  
     cf_in_src=alu_final_cf
     alu_y=mdrl
@@ -4800,6 +4800,7 @@
   22{
     next=next_offset
     offset=1
+    alu_x=gl
     alu_op=minus
     alu_cf_in=cf
     zf_in_src=alu_zf_and_zf
@@ -4809,7 +4810,7 @@
   }
   23{
     next=next_fetch
-    alu_x=ah
+    alu_x=gh
     alu_op=minus
     alu_cf_in=cf
     zf_in_src=alu_zf_and_zf  
@@ -5029,13 +5030,12 @@
   17{
     next=next_offset
     offset=1
-    cf_in_src=alu_out_0
     zbus_out_src=shifted_right
     alu_x=gh
     alu_op=x
     alu_mode=logic
     zf_in_src=alu_zf  
-    sf_in_src=zbus_7
+    cf_in_src=alu_out_0
     gh_wrt=true
   }
   18{
@@ -5069,6 +5069,7 @@
     alu_mode=logic
     zf_in_src=alu_zf_and_zf  
     cf_in_src=alu_out_0  
+    sf_in_src=zbus_7
     al_wrt=true
   }
   21{
@@ -6398,7 +6399,7 @@
     alu_y=tdrh  
     bh_wrt=true
   }
-  16{
+  20{
     next=next_offset
     offset=1
     alu_x=gl
@@ -6406,7 +6407,7 @@
     alu_mode=logic
     tdrl_wrt=true
   }
-  17{
+  21{
     next=next_offset
     offset=1
     alu_x=gh
@@ -6414,7 +6415,7 @@
     alu_mode=logic
     tdrh_wrt=true
   }
-  18{
+  22{
     next=next_offset
     offset=1
     alu_x=cl
@@ -6424,7 +6425,7 @@
     alu_y=tdrl  
     cl_wrt=true
   }
-  19{
+  23{
     next=next_fetch
     alu_x=ch
     alu_op=and
@@ -18812,7 +18813,7 @@
     alu_op=x
     alu_mode=logic
     tdrl_wrt=true
-}
+  }
 
   17{
     next=next_offset
@@ -18876,7 +18877,6 @@
 
   23{
     next=next_fetch
-    offset=0
     alu_x=gh
     alu_y=tdrh
     alu_op=minus

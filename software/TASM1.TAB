@@ -18,8 +18,8 @@ JMP [@+BL]                      0BFD  4    NOP      1
 JMP @                           0A    3    NOP      1
 LODSTAT ""                      0C    1    NOP      1
 STOSTAT ""                      0D    1    NOP      1
-LODFLGS ""                      0E    1    NOP      1        
-STOFLGS ""                      0F    1    NOP      1
+LODFLG ""                       0E    1    NOP      1        
+STOFLG ""                       0F    1    NOP      1
 LODMSK ""                       0EFD  2    NOP      1
 STOMSK ""                       0FFD  2    NOP      1
 
@@ -279,8 +279,6 @@ MUL AL,BL                       AD    1    NOP      1
 MMA @                           13FD  4    NOP      1
 DIV A,B                         AE    1    NOP      1
 
-CMP32 GA,CB                     AFFD  1    NOP      1
-CMP32 GA,@                      B0FD  5    NOP      1
 
 CMP A,B                         B0    1    NOP      1
 CMP A,C                         B1    1    NOP      1
@@ -465,5 +463,22 @@ SGEU ""                         82FD  2    NOP      1
 SAND A,B                        A7FD  2    NOP      1              
 SOR  A,B                        A8FD  2    NOP      1                
 
-SAND32 GA,CB                    B1FD  6    NOP      1              
-SOR32  GA,CB                    B2FD  6    NOP      1                
+CMP32  GA,CB                    AFFD  2    NOP      1
+OR32   CB,GA                    29FD  2    NOP      1
+AND32  CB,GA                    2BFD  2    NOP      1
+ADD32  CB,GA                    15FD  2    NOP      1
+
+CMP32  GA,@                     B0FD  6    NOP      1
+XOR32  CB,GA                    25FD  2    NOP      1
+
+
+SAND32 GA,CB                    B1FD  2    NOP      1              
+SOR32  GA,CB                    B2FD  2    NOP      1                
+
+ADC32  CB,GA                    16FD  2    NOP      1
+
+SUB32  GA,CB                    1CFD  2    NOP      1
+SBB32  GA,CB                    19FD  2    NOP      1
+
+SHL32  CB,GA                    1DFD  2    NOP      1
+SHR32  CB,GA                    1EFD  2    NOP      1

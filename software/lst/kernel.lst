@@ -2521,49 +2521,50 @@
 2490   0F98 50            mov a, di
 2491   0F99 3C            mov d, a          ; start of string data block
 2492   0F9A 07 A5 10      call _gets        ; get program string
-2493   0F9D 4D            mov si, a
-2494   0F9E             __load_hex_loop:
-2495   0F9E F6            lodsb             ; load from [SI] to AL
-2496   0F9F B9 00         cmp al, 0         ; check if ASCII 0
-2497   0FA1 C6 AF 0F      jz __load_hex_ret
-2498   0FA4 36            mov bh, al
-2499   0FA5 F6            lodsb
-2500   0FA6 2F            mov bl, al
-2501   0FA7 07 5B 10      call _atoi        ; convert ASCII byte in B to int (to AL)
-2502   0FAA F7            stosb             ; store AL to [DI]
-2503   0FAB 78            inc c
-2504   0FAC 0A 9E 0F      jmp __load_hex_loop
-2505   0FAF             __load_hex_ret:
-2506   0FAF F0            pop di
-2507   0FB0 EF            pop si
-2508   0FB1 E7            pop d
-2509   0FB2 E5            pop b
-2510   0FB3 E4            pop a
-2511   0FB4 09            ret
-2512   0FB5             
-2513   0FB5             ; synopsis: look insIDE a certain DIRECTORY for files/directories
-2514   0FB5             ; BEFORE CALLING THIS FUNCTION, CD INTO REQUIRED DIRECTORY
-2515   0FB5             ; for each entry insIDE DIRECTORY:
-2516   0FB5             ;  if entry is a file:
-2517   0FB5             ;    compare filename to searched filename
-2518   0FB5             ;    if filenames are the same, print filename
-2519   0FB5             ;  else if entry is a directory:
-2520   0FB5             ;    cd to the given directory
-2521   0FB5             ;    recursively call cmd_find
-2522   0FB5             ;    cd outsIDE previous directory
-2523   0FB5             ;  if current entry == last entry, return
-2524   0FB5             ; endfor
-2525   0FB5             f_find:
-2526   0FB5 09            ret
-2527   0FB6             
-2528   0FB6             ; FILE INCLUDES
-2529   0FB6             .include "bios.exp"         ; to obtain the BIOS_RESET_VECTOR location (for reboots)
+2493   0F9D               ;call _puts        ; reprint to screen
+2494   0F9D 4D            mov si, a
+2495   0F9E             __load_hex_loop:
+2496   0F9E F6            lodsb             ; load from [SI] to AL
+2497   0F9F B9 00         cmp al, 0         ; check if ASCII 0
+2498   0FA1 C6 AF 0F      jz __load_hex_ret
+2499   0FA4 36            mov bh, al
+2500   0FA5 F6            lodsb
+2501   0FA6 2F            mov bl, al
+2502   0FA7 07 5B 10      call _atoi        ; convert ASCII byte in B to int (to AL)
+2503   0FAA F7            stosb             ; store AL to [DI]
+2504   0FAB 78            inc c
+2505   0FAC 0A 9E 0F      jmp __load_hex_loop
+2506   0FAF             __load_hex_ret:
+2507   0FAF F0            pop di
+2508   0FB0 EF            pop si
+2509   0FB1 E7            pop d
+2510   0FB2 E5            pop b
+2511   0FB3 E4            pop a
+2512   0FB4 09            ret
+2513   0FB5             
+2514   0FB5             ; synopsis: look insIDE a certain DIRECTORY for files/directories
+2515   0FB5             ; BEFORE CALLING THIS FUNCTION, CD INTO REQUIRED DIRECTORY
+2516   0FB5             ; for each entry insIDE DIRECTORY:
+2517   0FB5             ;  if entry is a file:
+2518   0FB5             ;    compare filename to searched filename
+2519   0FB5             ;    if filenames are the same, print filename
+2520   0FB5             ;  else if entry is a directory:
+2521   0FB5             ;    cd to the given directory
+2522   0FB5             ;    recursively call cmd_find
+2523   0FB5             ;    cd outsIDE previous directory
+2524   0FB5             ;  if current entry == last entry, return
+2525   0FB5             ; endfor
+2526   0FB5             f_find:
+2527   0FB5 09            ret
+2528   0FB6             
+2529   0FB6             ; FILE INCLUDES
+2530   0FB6             .include "bios.exp"         ; to obtain the BIOS_RESET_VECTOR location (for reboots)
 0001+  0FB6             BIOS_RESET_VECTOR .EQU  $01c0
 0002+  0FB6             IDE_buffer       .EQU  $8204
 0003+  0FB6             boot_origin      .EQU  $8004
 0004+  0FB6             bios_uart        .EQU  $0002
 0005+  0FB6             bios_ide         .EQU  $0003
-2530   0FB6             .include "lib/stdio.asm"
+2531   0FB6             .include "lib/stdio.asm"
 0001+  0FB6             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 0002+  0FB6             ; stdio.s
 0003+  0FB6             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -3348,7 +3349,7 @@
 0607+  1320 0A 00         .dw 10
 0608+  1322 64 00         .dw 100
 0609+  1324 E8 03         .dw 1000
-0610+  1326 10 27         .dw 100002531   1328             .include "lib/ctype.asm"
+0610+  1326 10 27         .dw 100002532   1328             .include "lib/ctype.asm"
 0001+  1328             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 0002+  1328             ; ctype.s
 0003+  1328             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -3500,7 +3501,7 @@
 0149+  13C4             _to_upper_ret:
 0150+  13C4 09          	ret
 0151+  13C5             
-2532   13C5             .include "lib/token.asm"
+2533   13C5             .include "lib/token.asm"
 0001+  13C5             TOKTYP_IDENTIFIER  .equ 0
 0002+  13C5             TOKTYP_KEYWORD     .equ 1
 0003+  13C5             TOKTYP_DELIMITER   .equ 2
@@ -3926,871 +3927,871 @@
 0362+  16E7 00 00 00 00 
 0362+  16EB 00 00 00 00 
 0362+  16EF 00 00 00 00 
-2533   16F3             
-2534   16F3             ; Kernel parameters
-2535   16F3 00          sys_debug_mode:     .db 0   ; debug modes: 0=normal mode, 1=debug mode
-2536   16F4 01          sys_echo_on:        .db 1
-2537   16F5 07          sys_uart0_lcr:      .db $07 ; 8 data bits, 2 stop bit, no parity
-2538   16F6 01          sys_uart0_inten:    .db 1
-2539   16F7 00          sys_uart0_fifoen:   .db 0
-2540   16F8 0C          sys_uart0_div0:     .db 12  ;
-2541   16F9 00          sys_uart0_div1:     .db 0   ; default baud = 9600
-2542   16FA             
-2543   16FA 00          nbr_active_procs:   .db 0
-2544   16FB 01          active_proc_index:  .db 1
-2545   16FC             
-2546   16FC 00 00       index:              .dw 0
-2547   16FE 00 00       buffer_addr:        .dw 0
-2548   1700             
-2549   1700 F2 1D       fifo_in:            .dw fifo
-2550   1702 F2 1D       fifo_out:           .dw fifo
-2551   1704             
-2552   1704             ; file system variables
-2553   1704 00 00       current_dir_id:     .dw 0     ; keep dirID of current directory
-2554   1706 2F 73 62 69 s_init_path:        .db "/sbin/init", 0
-2554   170A 6E 2F 69 6E 
-2554   170E 69 74 00 
-2555   1711             
-2556   1711 3E 20 00    s_dataentry:        .db "> ", 0
-2557   1714 2E 2E 00    s_parent_dir:       .db "..", 0
-2558   1717 2E 00       s_current_dir:      .db ".", 0
-2559   1719 2F 00       s_fslash:           .db "/", 0
-2560   171B 2D 72 77 20 file_attrib:        .db "-rw x"      ; chars at powers of 2
-2560   171F 78 
-2561   1720 2D 64 63    file_type:          .db "-dc"
-2562   1723 50 49 44 20 s_ps_header:        .db "PID COMMAND\n", 0
-2562   1727 43 4F 4D 4D 
-2562   172B 41 4E 44 0A 
-2562   172F 00 
-2563   1730 54 6F 74 61 s_ls_total:         .db "Total: ", 0
-2563   1734 6C 3A 20 00 
-2564   1738             
-2565   1738 49 52 51 73 s_int_en:           .db "IRQs enabled\n", 0
-2565   173C 20 65 6E 61 
-2565   1740 62 6C 65 64 
-2565   1744 0A 00 
-2566   1746 6B 65 72 6E s_kernel_started:   .db "kernel started\n", 0
-2566   174A 65 6C 20 73 
-2566   174E 74 61 72 74 
-2566   1752 65 64 0A 00 
-2567   1756 73 74 61 72 s_prompt_init:      .db "starting init\n", 0
-2567   175A 74 69 6E 67 
-2567   175E 20 69 6E 69 
-2567   1762 74 0A 00 
-2568   1765 0A 65 78 63 s_priviledge:       .db "\nexception: privilege\n", 0
-2568   1769 65 70 74 69 
-2568   176D 6F 6E 3A 20 
-2568   1771 70 72 69 76 
-2568   1775 69 6C 65 67 
-2568   1779 65 0A 00 
-2569   177C 0A 65 78 63 s_divzero:          .db "\nexception: zero division\n", 0
-2569   1780 65 70 74 69 
-2569   1784 6F 6E 3A 20 
-2569   1788 7A 65 72 6F 
-2569   178C 20 64 69 76 
-2569   1790 69 73 69 6F 
-2569   1794 6E 0A 00 
-2570   1797             
-2571   1797 59 65 61 72 s_set_year:         .db "Year: ", 0
-2571   179B 3A 20 00 
-2572   179E 4D 6F 6E 74 s_set_month:        .db "Month: ", 0
-2572   17A2 68 3A 20 00 
-2573   17A6 44 61 79 3A s_set_day:          .db "Day: ", 0
-2573   17AA 20 00 
-2574   17AC 57 65 65 6B s_set_week:         .db "Weekday: ", 0
-2574   17B0 64 61 79 3A 
-2574   17B4 20 00 
-2575   17B6 48 6F 75 72 s_set_hours:        .db "Hours: ", 0
-2575   17BA 73 3A 20 00 
-2576   17BE 4D 69 6E 75 s_set_minutes:      .db "Minutes: ", 0
-2576   17C2 74 65 73 3A 
-2576   17C6 20 00 
-2577   17C8 53 65 63 6F s_set_seconds:      .db "Seconds: ", 0
-2577   17CC 6E 64 73 3A 
-2577   17D0 20 00 
-2578   17D2             s_months:      
-2579   17D2 20 20 20 00   .db "   ", 0
-2580   17D6 4A 61 6E 00   .db "Jan", 0
-2581   17DA 46 65 62 00   .db "Feb", 0
-2582   17DE 4D 61 72 00   .db "Mar", 0
-2583   17E2 41 70 72 00   .db "Apr", 0
-2584   17E6 4D 61 79 00   .db "May", 0
-2585   17EA 4A 75 6E 00   .db "Jun", 0
-2586   17EE 4A 75 6C 00   .db "Jul", 0
-2587   17F2 41 75 67 00   .db "Aug", 0
-2588   17F6 53 65 70 00   .db "Sep", 0
-2589   17FA 4F 63 74 00   .db "Oct", 0
-2590   17FE 4E 6F 76 00   .db "Nov", 0
-2591   1802 44 65 63 00   .db "Dec", 0
-2592   1806             
-2593   1806             s_week:        
-2594   1806 53 75 6E 00   .db "Sun", 0 
-2595   180A 4D 6F 6E 00   .db "Mon", 0 
-2596   180E 54 75 65 00   .db "Tue", 0 
-2597   1812 57 65 64 00   .db "Wed", 0 
-2598   1816 54 68 75 00   .db "Thu", 0 
-2599   181A 46 72 69 00   .db "Fri", 0 
-2600   181E 53 61 74 00   .db "Sat", 0
-2601   1822             
-2602   1822 00 00 00 00 proc_state_table:   .fill 16 * 20, 0  ; for 15 processes max
-2602   1826 00 00 00 00 
-2602   182A 00 00 00 00 
-2602   182E 00 00 00 00 
-2602   1832 00 00 00 00 
-2602   1836 00 00 00 00 
-2602   183A 00 00 00 00 
-2602   183E 00 00 00 00 
-2602   1842 00 00 00 00 
-2602   1846 00 00 00 00 
-2602   184A 00 00 00 00 
-2602   184E 00 00 00 00 
-2602   1852 00 00 00 00 
-2602   1856 00 00 00 00 
-2602   185A 00 00 00 00 
-2602   185E 00 00 00 00 
-2602   1862 00 00 00 00 
-2602   1866 00 00 00 00 
-2602   186A 00 00 00 00 
-2602   186E 00 00 00 00 
-2602   1872 00 00 00 00 
-2602   1876 00 00 00 00 
-2602   187A 00 00 00 00 
-2602   187E 00 00 00 00 
-2602   1882 00 00 00 00 
-2602   1886 00 00 00 00 
-2602   188A 00 00 00 00 
-2602   188E 00 00 00 00 
-2602   1892 00 00 00 00 
-2602   1896 00 00 00 00 
-2602   189A 00 00 00 00 
-2602   189E 00 00 00 00 
-2602   18A2 00 00 00 00 
-2602   18A6 00 00 00 00 
-2602   18AA 00 00 00 00 
-2602   18AE 00 00 00 00 
-2602   18B2 00 00 00 00 
-2602   18B6 00 00 00 00 
-2602   18BA 00 00 00 00 
-2602   18BE 00 00 00 00 
-2602   18C2 00 00 00 00 
-2602   18C6 00 00 00 00 
-2602   18CA 00 00 00 00 
-2602   18CE 00 00 00 00 
-2602   18D2 00 00 00 00 
-2602   18D6 00 00 00 00 
-2602   18DA 00 00 00 00 
-2602   18DE 00 00 00 00 
-2602   18E2 00 00 00 00 
-2602   18E6 00 00 00 00 
-2602   18EA 00 00 00 00 
-2602   18EE 00 00 00 00 
-2602   18F2 00 00 00 00 
-2602   18F6 00 00 00 00 
-2602   18FA 00 00 00 00 
-2602   18FE 00 00 00 00 
-2602   1902 00 00 00 00 
-2602   1906 00 00 00 00 
-2602   190A 00 00 00 00 
-2602   190E 00 00 00 00 
-2602   1912 00 00 00 00 
-2602   1916 00 00 00 00 
-2602   191A 00 00 00 00 
-2602   191E 00 00 00 00 
-2602   1922 00 00 00 00 
-2602   1926 00 00 00 00 
-2602   192A 00 00 00 00 
-2602   192E 00 00 00 00 
-2602   1932 00 00 00 00 
-2602   1936 00 00 00 00 
-2602   193A 00 00 00 00 
-2602   193E 00 00 00 00 
-2602   1942 00 00 00 00 
-2602   1946 00 00 00 00 
-2602   194A 00 00 00 00 
-2602   194E 00 00 00 00 
-2602   1952 00 00 00 00 
-2602   1956 00 00 00 00 
-2602   195A 00 00 00 00 
-2602   195E 00 00 00 00 
-2603   1962 00 00 00 00 proc_availab_table: .fill 16, 0       ; space for 15 processes. 0 = process empty, 1 = process taken
-2603   1966 00 00 00 00 
-2603   196A 00 00 00 00 
-2603   196E 00 00 00 00 
-2604   1972 00 00 00 00 proc_names:         .fill 16 * 32, 0  ; process names
-2604   1976 00 00 00 00 
-2604   197A 00 00 00 00 
-2604   197E 00 00 00 00 
-2604   1982 00 00 00 00 
-2604   1986 00 00 00 00 
-2604   198A 00 00 00 00 
-2604   198E 00 00 00 00 
-2604   1992 00 00 00 00 
-2604   1996 00 00 00 00 
-2604   199A 00 00 00 00 
-2604   199E 00 00 00 00 
-2604   19A2 00 00 00 00 
-2604   19A6 00 00 00 00 
-2604   19AA 00 00 00 00 
-2604   19AE 00 00 00 00 
-2604   19B2 00 00 00 00 
-2604   19B6 00 00 00 00 
-2604   19BA 00 00 00 00 
-2604   19BE 00 00 00 00 
-2604   19C2 00 00 00 00 
-2604   19C6 00 00 00 00 
-2604   19CA 00 00 00 00 
-2604   19CE 00 00 00 00 
-2604   19D2 00 00 00 00 
-2604   19D6 00 00 00 00 
-2604   19DA 00 00 00 00 
-2604   19DE 00 00 00 00 
-2604   19E2 00 00 00 00 
-2604   19E6 00 00 00 00 
-2604   19EA 00 00 00 00 
-2604   19EE 00 00 00 00 
-2604   19F2 00 00 00 00 
-2604   19F6 00 00 00 00 
-2604   19FA 00 00 00 00 
-2604   19FE 00 00 00 00 
-2604   1A02 00 00 00 00 
-2604   1A06 00 00 00 00 
-2604   1A0A 00 00 00 00 
-2604   1A0E 00 00 00 00 
-2604   1A12 00 00 00 00 
-2604   1A16 00 00 00 00 
-2604   1A1A 00 00 00 00 
-2604   1A1E 00 00 00 00 
-2604   1A22 00 00 00 00 
-2604   1A26 00 00 00 00 
-2604   1A2A 00 00 00 00 
-2604   1A2E 00 00 00 00 
-2604   1A32 00 00 00 00 
-2604   1A36 00 00 00 00 
-2604   1A3A 00 00 00 00 
-2604   1A3E 00 00 00 00 
-2604   1A42 00 00 00 00 
-2604   1A46 00 00 00 00 
-2604   1A4A 00 00 00 00 
-2604   1A4E 00 00 00 00 
-2604   1A52 00 00 00 00 
-2604   1A56 00 00 00 00 
-2604   1A5A 00 00 00 00 
-2604   1A5E 00 00 00 00 
-2604   1A62 00 00 00 00 
-2604   1A66 00 00 00 00 
-2604   1A6A 00 00 00 00 
-2604   1A6E 00 00 00 00 
-2604   1A72 00 00 00 00 
-2604   1A76 00 00 00 00 
-2604   1A7A 00 00 00 00 
-2604   1A7E 00 00 00 00 
-2604   1A82 00 00 00 00 
-2604   1A86 00 00 00 00 
-2604   1A8A 00 00 00 00 
-2604   1A8E 00 00 00 00 
-2604   1A92 00 00 00 00 
-2604   1A96 00 00 00 00 
-2604   1A9A 00 00 00 00 
-2604   1A9E 00 00 00 00 
-2604   1AA2 00 00 00 00 
-2604   1AA6 00 00 00 00 
-2604   1AAA 00 00 00 00 
-2604   1AAE 00 00 00 00 
-2604   1AB2 00 00 00 00 
-2604   1AB6 00 00 00 00 
-2604   1ABA 00 00 00 00 
-2604   1ABE 00 00 00 00 
-2604   1AC2 00 00 00 00 
-2604   1AC6 00 00 00 00 
-2604   1ACA 00 00 00 00 
-2604   1ACE 00 00 00 00 
-2604   1AD2 00 00 00 00 
-2604   1AD6 00 00 00 00 
-2604   1ADA 00 00 00 00 
-2604   1ADE 00 00 00 00 
-2604   1AE2 00 00 00 00 
-2604   1AE6 00 00 00 00 
-2604   1AEA 00 00 00 00 
-2604   1AEE 00 00 00 00 
-2604   1AF2 00 00 00 00 
-2604   1AF6 00 00 00 00 
-2604   1AFA 00 00 00 00 
-2604   1AFE 00 00 00 00 
-2604   1B02 00 00 00 00 
-2604   1B06 00 00 00 00 
-2604   1B0A 00 00 00 00 
-2604   1B0E 00 00 00 00 
-2604   1B12 00 00 00 00 
-2604   1B16 00 00 00 00 
-2604   1B1A 00 00 00 00 
-2604   1B1E 00 00 00 00 
-2604   1B22 00 00 00 00 
-2604   1B26 00 00 00 00 
-2604   1B2A 00 00 00 00 
-2604   1B2E 00 00 00 00 
-2604   1B32 00 00 00 00 
-2604   1B36 00 00 00 00 
-2604   1B3A 00 00 00 00 
-2604   1B3E 00 00 00 00 
-2604   1B42 00 00 00 00 
-2604   1B46 00 00 00 00 
-2604   1B4A 00 00 00 00 
-2604   1B4E 00 00 00 00 
-2604   1B52 00 00 00 00 
-2604   1B56 00 00 00 00 
-2604   1B5A 00 00 00 00 
-2604   1B5E 00 00 00 00 
-2604   1B62 00 00 00 00 
-2604   1B66 00 00 00 00 
-2604   1B6A 00 00 00 00 
-2604   1B6E 00 00 00 00 
-2605   1B72 00 00 00 00 filename:           .fill 128, 0      ; holds a path for file search
-2605   1B76 00 00 00 00 
-2605   1B7A 00 00 00 00 
-2605   1B7E 00 00 00 00 
-2605   1B82 00 00 00 00 
-2605   1B86 00 00 00 00 
-2605   1B8A 00 00 00 00 
-2605   1B8E 00 00 00 00 
-2605   1B92 00 00 00 00 
-2605   1B96 00 00 00 00 
-2605   1B9A 00 00 00 00 
-2605   1B9E 00 00 00 00 
-2605   1BA2 00 00 00 00 
-2605   1BA6 00 00 00 00 
-2605   1BAA 00 00 00 00 
-2605   1BAE 00 00 00 00 
-2605   1BB2 00 00 00 00 
-2605   1BB6 00 00 00 00 
-2605   1BBA 00 00 00 00 
-2605   1BBE 00 00 00 00 
-2605   1BC2 00 00 00 00 
-2605   1BC6 00 00 00 00 
-2605   1BCA 00 00 00 00 
-2605   1BCE 00 00 00 00 
-2605   1BD2 00 00 00 00 
-2605   1BD6 00 00 00 00 
-2605   1BDA 00 00 00 00 
-2605   1BDE 00 00 00 00 
-2605   1BE2 00 00 00 00 
-2605   1BE6 00 00 00 00 
-2605   1BEA 00 00 00 00 
-2605   1BEE 00 00 00 00 
-2606   1BF2 00 00 00 00 user_data:          .fill 512, 0      ;  user space data
-2606   1BF6 00 00 00 00 
-2606   1BFA 00 00 00 00 
-2606   1BFE 00 00 00 00 
-2606   1C02 00 00 00 00 
-2606   1C06 00 00 00 00 
-2606   1C0A 00 00 00 00 
-2606   1C0E 00 00 00 00 
-2606   1C12 00 00 00 00 
-2606   1C16 00 00 00 00 
-2606   1C1A 00 00 00 00 
-2606   1C1E 00 00 00 00 
-2606   1C22 00 00 00 00 
-2606   1C26 00 00 00 00 
-2606   1C2A 00 00 00 00 
-2606   1C2E 00 00 00 00 
-2606   1C32 00 00 00 00 
-2606   1C36 00 00 00 00 
-2606   1C3A 00 00 00 00 
-2606   1C3E 00 00 00 00 
-2606   1C42 00 00 00 00 
-2606   1C46 00 00 00 00 
-2606   1C4A 00 00 00 00 
-2606   1C4E 00 00 00 00 
-2606   1C52 00 00 00 00 
-2606   1C56 00 00 00 00 
-2606   1C5A 00 00 00 00 
-2606   1C5E 00 00 00 00 
-2606   1C62 00 00 00 00 
-2606   1C66 00 00 00 00 
-2606   1C6A 00 00 00 00 
-2606   1C6E 00 00 00 00 
-2606   1C72 00 00 00 00 
-2606   1C76 00 00 00 00 
-2606   1C7A 00 00 00 00 
-2606   1C7E 00 00 00 00 
-2606   1C82 00 00 00 00 
-2606   1C86 00 00 00 00 
-2606   1C8A 00 00 00 00 
-2606   1C8E 00 00 00 00 
-2606   1C92 00 00 00 00 
-2606   1C96 00 00 00 00 
-2606   1C9A 00 00 00 00 
-2606   1C9E 00 00 00 00 
-2606   1CA2 00 00 00 00 
-2606   1CA6 00 00 00 00 
-2606   1CAA 00 00 00 00 
-2606   1CAE 00 00 00 00 
-2606   1CB2 00 00 00 00 
-2606   1CB6 00 00 00 00 
-2606   1CBA 00 00 00 00 
-2606   1CBE 00 00 00 00 
-2606   1CC2 00 00 00 00 
-2606   1CC6 00 00 00 00 
-2606   1CCA 00 00 00 00 
-2606   1CCE 00 00 00 00 
-2606   1CD2 00 00 00 00 
-2606   1CD6 00 00 00 00 
-2606   1CDA 00 00 00 00 
-2606   1CDE 00 00 00 00 
-2606   1CE2 00 00 00 00 
-2606   1CE6 00 00 00 00 
-2606   1CEA 00 00 00 00 
-2606   1CEE 00 00 00 00 
-2606   1CF2 00 00 00 00 
-2606   1CF6 00 00 00 00 
-2606   1CFA 00 00 00 00 
-2606   1CFE 00 00 00 00 
-2606   1D02 00 00 00 00 
-2606   1D06 00 00 00 00 
-2606   1D0A 00 00 00 00 
-2606   1D0E 00 00 00 00 
-2606   1D12 00 00 00 00 
-2606   1D16 00 00 00 00 
-2606   1D1A 00 00 00 00 
-2606   1D1E 00 00 00 00 
-2606   1D22 00 00 00 00 
-2606   1D26 00 00 00 00 
-2606   1D2A 00 00 00 00 
-2606   1D2E 00 00 00 00 
-2606   1D32 00 00 00 00 
-2606   1D36 00 00 00 00 
-2606   1D3A 00 00 00 00 
-2606   1D3E 00 00 00 00 
-2606   1D42 00 00 00 00 
-2606   1D46 00 00 00 00 
-2606   1D4A 00 00 00 00 
-2606   1D4E 00 00 00 00 
-2606   1D52 00 00 00 00 
-2606   1D56 00 00 00 00 
-2606   1D5A 00 00 00 00 
-2606   1D5E 00 00 00 00 
-2606   1D62 00 00 00 00 
-2606   1D66 00 00 00 00 
-2606   1D6A 00 00 00 00 
-2606   1D6E 00 00 00 00 
-2606   1D72 00 00 00 00 
-2606   1D76 00 00 00 00 
-2606   1D7A 00 00 00 00 
-2606   1D7E 00 00 00 00 
-2606   1D82 00 00 00 00 
-2606   1D86 00 00 00 00 
-2606   1D8A 00 00 00 00 
-2606   1D8E 00 00 00 00 
-2606   1D92 00 00 00 00 
-2606   1D96 00 00 00 00 
-2606   1D9A 00 00 00 00 
-2606   1D9E 00 00 00 00 
-2606   1DA2 00 00 00 00 
-2606   1DA6 00 00 00 00 
-2606   1DAA 00 00 00 00 
-2606   1DAE 00 00 00 00 
-2606   1DB2 00 00 00 00 
-2606   1DB6 00 00 00 00 
-2606   1DBA 00 00 00 00 
-2606   1DBE 00 00 00 00 
-2606   1DC2 00 00 00 00 
-2606   1DC6 00 00 00 00 
-2606   1DCA 00 00 00 00 
-2606   1DCE 00 00 00 00 
-2606   1DD2 00 00 00 00 
-2606   1DD6 00 00 00 00 
-2606   1DDA 00 00 00 00 
-2606   1DDE 00 00 00 00 
-2606   1DE2 00 00 00 00 
-2606   1DE6 00 00 00 00 
-2606   1DEA 00 00 00 00 
-2606   1DEE 00 00 00 00 
-2607   1DF2 FF FF FF FF fifo:               .fill FIFO_SIZE
-2607   1DF6 FF FF FF FF 
-2607   1DFA FF FF FF FF 
-2607   1DFE FF FF FF FF 
-2607   1E02 FF FF FF FF 
-2607   1E06 FF FF FF FF 
-2607   1E0A FF FF FF FF 
-2607   1E0E FF FF FF FF 
-2607   1E12 FF FF FF FF 
-2607   1E16 FF FF FF FF 
-2607   1E1A FF FF FF FF 
-2607   1E1E FF FF FF FF 
-2607   1E22 FF FF FF FF 
-2607   1E26 FF FF FF FF 
-2607   1E2A FF FF FF FF 
-2607   1E2E FF FF FF FF 
-2607   1E32 FF FF FF FF 
-2607   1E36 FF FF FF FF 
-2607   1E3A FF FF FF FF 
-2607   1E3E FF FF FF FF 
-2607   1E42 FF FF FF FF 
-2607   1E46 FF FF FF FF 
-2607   1E4A FF FF FF FF 
-2607   1E4E FF FF FF FF 
-2607   1E52 FF FF FF FF 
-2607   1E56 FF FF FF FF 
-2607   1E5A FF FF FF FF 
-2607   1E5E FF FF FF FF 
-2607   1E62 FF FF FF FF 
-2607   1E66 FF FF FF FF 
-2607   1E6A FF FF FF FF 
-2607   1E6E FF FF FF FF 
-2607   1E72 FF FF FF FF 
-2607   1E76 FF FF FF FF 
-2607   1E7A FF FF FF FF 
-2607   1E7E FF FF FF FF 
-2607   1E82 FF FF FF FF 
-2607   1E86 FF FF FF FF 
-2607   1E8A FF FF FF FF 
-2607   1E8E FF FF FF FF 
-2607   1E92 FF FF FF FF 
-2607   1E96 FF FF FF FF 
-2607   1E9A FF FF FF FF 
-2607   1E9E FF FF FF FF 
-2607   1EA2 FF FF FF FF 
-2607   1EA6 FF FF FF FF 
-2607   1EAA FF FF FF FF 
-2607   1EAE FF FF FF FF 
-2607   1EB2 FF FF FF FF 
-2607   1EB6 FF FF FF FF 
-2607   1EBA FF FF FF FF 
-2607   1EBE FF FF FF FF 
-2607   1EC2 FF FF FF FF 
-2607   1EC6 FF FF FF FF 
-2607   1ECA FF FF FF FF 
-2607   1ECE FF FF FF FF 
-2607   1ED2 FF FF FF FF 
-2607   1ED6 FF FF FF FF 
-2607   1EDA FF FF FF FF 
-2607   1EDE FF FF FF FF 
-2607   1EE2 FF FF FF FF 
-2607   1EE6 FF FF FF FF 
-2607   1EEA FF FF FF FF 
-2607   1EEE FF FF FF FF 
-2607   1EF2 FF FF FF FF 
-2607   1EF6 FF FF FF FF 
-2607   1EFA FF FF FF FF 
-2607   1EFE FF FF FF FF 
-2607   1F02 FF FF FF FF 
-2607   1F06 FF FF FF FF 
-2607   1F0A FF FF FF FF 
-2607   1F0E FF FF FF FF 
-2607   1F12 FF FF FF FF 
-2607   1F16 FF FF FF FF 
-2607   1F1A FF FF FF FF 
-2607   1F1E FF FF FF FF 
-2607   1F22 FF FF FF FF 
-2607   1F26 FF FF FF FF 
-2607   1F2A FF FF FF FF 
-2607   1F2E FF FF FF FF 
-2607   1F32 FF FF FF FF 
-2607   1F36 FF FF FF FF 
-2607   1F3A FF FF FF FF 
-2607   1F3E FF FF FF FF 
-2607   1F42 FF FF FF FF 
-2607   1F46 FF FF FF FF 
-2607   1F4A FF FF FF FF 
-2607   1F4E FF FF FF FF 
-2607   1F52 FF FF FF FF 
-2607   1F56 FF FF FF FF 
-2607   1F5A FF FF FF FF 
-2607   1F5E FF FF FF FF 
-2607   1F62 FF FF FF FF 
-2607   1F66 FF FF FF FF 
-2607   1F6A FF FF FF FF 
-2607   1F6E FF FF FF FF 
-2607   1F72 FF FF FF FF 
-2607   1F76 FF FF FF FF 
-2607   1F7A FF FF FF FF 
-2607   1F7E FF FF FF FF 
-2607   1F82 FF FF FF FF 
-2607   1F86 FF FF FF FF 
-2607   1F8A FF FF FF FF 
-2607   1F8E FF FF FF FF 
-2607   1F92 FF FF FF FF 
-2607   1F96 FF FF FF FF 
-2607   1F9A FF FF FF FF 
-2607   1F9E FF FF FF FF 
-2607   1FA2 FF FF FF FF 
-2607   1FA6 FF FF FF FF 
-2607   1FAA FF FF FF FF 
-2607   1FAE FF FF FF FF 
-2607   1FB2 FF FF FF FF 
-2607   1FB6 FF FF FF FF 
-2607   1FBA FF FF FF FF 
-2607   1FBE FF FF FF FF 
-2607   1FC2 FF FF FF FF 
-2607   1FC6 FF FF FF FF 
-2607   1FCA FF FF FF FF 
-2607   1FCE FF FF FF FF 
-2607   1FD2 FF FF FF FF 
-2607   1FD6 FF FF FF FF 
-2607   1FDA FF FF FF FF 
-2607   1FDE FF FF FF FF 
-2607   1FE2 FF FF FF FF 
-2607   1FE6 FF FF FF FF 
-2607   1FEA FF FF FF FF 
-2607   1FEE FF FF FF FF 
-2607   1FF2 FF FF FF FF 
-2607   1FF6 FF FF FF FF 
-2607   1FFA FF FF FF FF 
-2607   1FFE FF FF FF FF 
-2607   2002 FF FF FF FF 
-2607   2006 FF FF FF FF 
-2607   200A FF FF FF FF 
-2607   200E FF FF FF FF 
-2607   2012 FF FF FF FF 
-2607   2016 FF FF FF FF 
-2607   201A FF FF FF FF 
-2607   201E FF FF FF FF 
-2607   2022 FF FF FF FF 
-2607   2026 FF FF FF FF 
-2607   202A FF FF FF FF 
-2607   202E FF FF FF FF 
-2607   2032 FF FF FF FF 
-2607   2036 FF FF FF FF 
-2607   203A FF FF FF FF 
-2607   203E FF FF FF FF 
-2607   2042 FF FF FF FF 
-2607   2046 FF FF FF FF 
-2607   204A FF FF FF FF 
-2607   204E FF FF FF FF 
-2607   2052 FF FF FF FF 
-2607   2056 FF FF FF FF 
-2607   205A FF FF FF FF 
-2607   205E FF FF FF FF 
-2607   2062 FF FF FF FF 
-2607   2066 FF FF FF FF 
-2607   206A FF FF FF FF 
-2607   206E FF FF FF FF 
-2607   2072 FF FF FF FF 
-2607   2076 FF FF FF FF 
-2607   207A FF FF FF FF 
-2607   207E FF FF FF FF 
-2607   2082 FF FF FF FF 
-2607   2086 FF FF FF FF 
-2607   208A FF FF FF FF 
-2607   208E FF FF FF FF 
-2607   2092 FF FF FF FF 
-2607   2096 FF FF FF FF 
-2607   209A FF FF FF FF 
-2607   209E FF FF FF FF 
-2607   20A2 FF FF FF FF 
-2607   20A6 FF FF FF FF 
-2607   20AA FF FF FF FF 
-2607   20AE FF FF FF FF 
-2607   20B2 FF FF FF FF 
-2607   20B6 FF FF FF FF 
-2607   20BA FF FF FF FF 
-2607   20BE FF FF FF FF 
-2607   20C2 FF FF FF FF 
-2607   20C6 FF FF FF FF 
-2607   20CA FF FF FF FF 
-2607   20CE FF FF FF FF 
-2607   20D2 FF FF FF FF 
-2607   20D6 FF FF FF FF 
-2607   20DA FF FF FF FF 
-2607   20DE FF FF FF FF 
-2607   20E2 FF FF FF FF 
-2607   20E6 FF FF FF FF 
-2607   20EA FF FF FF FF 
-2607   20EE FF FF FF FF 
-2607   20F2 FF FF FF FF 
-2607   20F6 FF FF FF FF 
-2607   20FA FF FF FF FF 
-2607   20FE FF FF FF FF 
-2607   2102 FF FF FF FF 
-2607   2106 FF FF FF FF 
-2607   210A FF FF FF FF 
-2607   210E FF FF FF FF 
-2607   2112 FF FF FF FF 
-2607   2116 FF FF FF FF 
-2607   211A FF FF FF FF 
-2607   211E FF FF FF FF 
-2607   2122 FF FF FF FF 
-2607   2126 FF FF FF FF 
-2607   212A FF FF FF FF 
-2607   212E FF FF FF FF 
-2607   2132 FF FF FF FF 
-2607   2136 FF FF FF FF 
-2607   213A FF FF FF FF 
-2607   213E FF FF FF FF 
-2607   2142 FF FF FF FF 
-2607   2146 FF FF FF FF 
-2607   214A FF FF FF FF 
-2607   214E FF FF FF FF 
-2607   2152 FF FF FF FF 
-2607   2156 FF FF FF FF 
-2607   215A FF FF FF FF 
-2607   215E FF FF FF FF 
-2607   2162 FF FF FF FF 
-2607   2166 FF FF FF FF 
-2607   216A FF FF FF FF 
-2607   216E FF FF FF FF 
-2607   2172 FF FF FF FF 
-2607   2176 FF FF FF FF 
-2607   217A FF FF FF FF 
-2607   217E FF FF FF FF 
-2607   2182 FF FF FF FF 
-2607   2186 FF FF FF FF 
-2607   218A FF FF FF FF 
-2607   218E FF FF FF FF 
-2607   2192 FF FF FF FF 
-2607   2196 FF FF FF FF 
-2607   219A FF FF FF FF 
-2607   219E FF FF FF FF 
-2607   21A2 FF FF FF FF 
-2607   21A6 FF FF FF FF 
-2607   21AA FF FF FF FF 
-2607   21AE FF FF FF FF 
-2607   21B2 FF FF FF FF 
-2607   21B6 FF FF FF FF 
-2607   21BA FF FF FF FF 
-2607   21BE FF FF FF FF 
-2607   21C2 FF FF FF FF 
-2607   21C6 FF FF FF FF 
-2607   21CA FF FF FF FF 
-2607   21CE FF FF FF FF 
-2607   21D2 FF FF FF FF 
-2607   21D6 FF FF FF FF 
-2607   21DA FF FF FF FF 
-2607   21DE FF FF FF FF 
-2607   21E2 FF FF FF FF 
-2607   21E6 FF FF FF FF 
-2607   21EA FF FF FF FF 
-2607   21EE FF FF FF FF 
-2608   21F2             
-2609   21F2 FF FF FF FF scrap_sector:       .fill 512         ; scrap sector
-2609   21F6 FF FF FF FF 
-2609   21FA FF FF FF FF 
-2609   21FE FF FF FF FF 
-2609   2202 FF FF FF FF 
-2609   2206 FF FF FF FF 
-2609   220A FF FF FF FF 
-2609   220E FF FF FF FF 
-2609   2212 FF FF FF FF 
-2609   2216 FF FF FF FF 
-2609   221A FF FF FF FF 
-2609   221E FF FF FF FF 
-2609   2222 FF FF FF FF 
-2609   2226 FF FF FF FF 
-2609   222A FF FF FF FF 
-2609   222E FF FF FF FF 
-2609   2232 FF FF FF FF 
-2609   2236 FF FF FF FF 
-2609   223A FF FF FF FF 
-2609   223E FF FF FF FF 
-2609   2242 FF FF FF FF 
-2609   2246 FF FF FF FF 
-2609   224A FF FF FF FF 
-2609   224E FF FF FF FF 
-2609   2252 FF FF FF FF 
-2609   2256 FF FF FF FF 
-2609   225A FF FF FF FF 
-2609   225E FF FF FF FF 
-2609   2262 FF FF FF FF 
-2609   2266 FF FF FF FF 
-2609   226A FF FF FF FF 
-2609   226E FF FF FF FF 
-2609   2272 FF FF FF FF 
-2609   2276 FF FF FF FF 
-2609   227A FF FF FF FF 
-2609   227E FF FF FF FF 
-2609   2282 FF FF FF FF 
-2609   2286 FF FF FF FF 
-2609   228A FF FF FF FF 
-2609   228E FF FF FF FF 
-2609   2292 FF FF FF FF 
-2609   2296 FF FF FF FF 
-2609   229A FF FF FF FF 
-2609   229E FF FF FF FF 
-2609   22A2 FF FF FF FF 
-2609   22A6 FF FF FF FF 
-2609   22AA FF FF FF FF 
-2609   22AE FF FF FF FF 
-2609   22B2 FF FF FF FF 
-2609   22B6 FF FF FF FF 
-2609   22BA FF FF FF FF 
-2609   22BE FF FF FF FF 
-2609   22C2 FF FF FF FF 
-2609   22C6 FF FF FF FF 
-2609   22CA FF FF FF FF 
-2609   22CE FF FF FF FF 
-2609   22D2 FF FF FF FF 
-2609   22D6 FF FF FF FF 
-2609   22DA FF FF FF FF 
-2609   22DE FF FF FF FF 
-2609   22E2 FF FF FF FF 
-2609   22E6 FF FF FF FF 
-2609   22EA FF FF FF FF 
-2609   22EE FF FF FF FF 
-2609   22F2 FF FF FF FF 
-2609   22F6 FF FF FF FF 
-2609   22FA FF FF FF FF 
-2609   22FE FF FF FF FF 
-2609   2302 FF FF FF FF 
-2609   2306 FF FF FF FF 
-2609   230A FF FF FF FF 
-2609   230E FF FF FF FF 
-2609   2312 FF FF FF FF 
-2609   2316 FF FF FF FF 
-2609   231A FF FF FF FF 
-2609   231E FF FF FF FF 
-2609   2322 FF FF FF FF 
-2609   2326 FF FF FF FF 
-2609   232A FF FF FF FF 
-2609   232E FF FF FF FF 
-2609   2332 FF FF FF FF 
-2609   2336 FF FF FF FF 
-2609   233A FF FF FF FF 
-2609   233E FF FF FF FF 
-2609   2342 FF FF FF FF 
-2609   2346 FF FF FF FF 
-2609   234A FF FF FF FF 
-2609   234E FF FF FF FF 
-2609   2352 FF FF FF FF 
-2609   2356 FF FF FF FF 
-2609   235A FF FF FF FF 
-2609   235E FF FF FF FF 
-2609   2362 FF FF FF FF 
-2609   2366 FF FF FF FF 
-2609   236A FF FF FF FF 
-2609   236E FF FF FF FF 
-2609   2372 FF FF FF FF 
-2609   2376 FF FF FF FF 
-2609   237A FF FF FF FF 
-2609   237E FF FF FF FF 
-2609   2382 FF FF FF FF 
-2609   2386 FF FF FF FF 
-2609   238A FF FF FF FF 
-2609   238E FF FF FF FF 
-2609   2392 FF FF FF FF 
-2609   2396 FF FF FF FF 
-2609   239A FF FF FF FF 
-2609   239E FF FF FF FF 
-2609   23A2 FF FF FF FF 
-2609   23A6 FF FF FF FF 
-2609   23AA FF FF FF FF 
-2609   23AE FF FF FF FF 
-2609   23B2 FF FF FF FF 
-2609   23B6 FF FF FF FF 
-2609   23BA FF FF FF FF 
-2609   23BE FF FF FF FF 
-2609   23C2 FF FF FF FF 
-2609   23C6 FF FF FF FF 
-2609   23CA FF FF FF FF 
-2609   23CE FF FF FF FF 
-2609   23D2 FF FF FF FF 
-2609   23D6 FF FF FF FF 
-2609   23DA FF FF FF FF 
-2609   23DE FF FF FF FF 
-2609   23E2 FF FF FF FF 
-2609   23E6 FF FF FF FF 
-2609   23EA FF FF FF FF 
-2609   23EE FF FF FF FF 
-2610   23F2 00          transient_area:     .db 0             ; beginning of the transient memory area. used for disk reads and other purposes    
-2611   23F3             
+2534   16F3             
+2535   16F3             ; Kernel parameters
+2536   16F3 00          sys_debug_mode:     .db 0   ; debug modes: 0=normal mode, 1=debug mode
+2537   16F4 01          sys_echo_on:        .db 1
+2538   16F5 07          sys_uart0_lcr:      .db $07 ; 8 data bits, 2 stop bit, no parity
+2539   16F6 01          sys_uart0_inten:    .db 1
+2540   16F7 00          sys_uart0_fifoen:   .db 0
+2541   16F8 0C          sys_uart0_div0:     .db 12  ;
+2542   16F9 00          sys_uart0_div1:     .db 0   ; default baud = 9600
+2543   16FA             
+2544   16FA 00          nbr_active_procs:   .db 0
+2545   16FB 01          active_proc_index:  .db 1
+2546   16FC             
+2547   16FC 00 00       index:              .dw 0
+2548   16FE 00 00       buffer_addr:        .dw 0
+2549   1700             
+2550   1700 F2 1D       fifo_in:            .dw fifo
+2551   1702 F2 1D       fifo_out:           .dw fifo
+2552   1704             
+2553   1704             ; file system variables
+2554   1704 00 00       current_dir_id:     .dw 0     ; keep dirID of current directory
+2555   1706 2F 73 62 69 s_init_path:        .db "/sbin/init", 0
+2555   170A 6E 2F 69 6E 
+2555   170E 69 74 00 
+2556   1711             
+2557   1711 3E 20 00    s_dataentry:        .db "> ", 0
+2558   1714 2E 2E 00    s_parent_dir:       .db "..", 0
+2559   1717 2E 00       s_current_dir:      .db ".", 0
+2560   1719 2F 00       s_fslash:           .db "/", 0
+2561   171B 2D 72 77 20 file_attrib:        .db "-rw x"      ; chars at powers of 2
+2561   171F 78 
+2562   1720 2D 64 63    file_type:          .db "-dc"
+2563   1723 50 49 44 20 s_ps_header:        .db "PID COMMAND\n", 0
+2563   1727 43 4F 4D 4D 
+2563   172B 41 4E 44 0A 
+2563   172F 00 
+2564   1730 54 6F 74 61 s_ls_total:         .db "Total: ", 0
+2564   1734 6C 3A 20 00 
+2565   1738             
+2566   1738 49 52 51 73 s_int_en:           .db "IRQs enabled\n", 0
+2566   173C 20 65 6E 61 
+2566   1740 62 6C 65 64 
+2566   1744 0A 00 
+2567   1746 6B 65 72 6E s_kernel_started:   .db "kernel started\n", 0
+2567   174A 65 6C 20 73 
+2567   174E 74 61 72 74 
+2567   1752 65 64 0A 00 
+2568   1756 73 74 61 72 s_prompt_init:      .db "starting init\n", 0
+2568   175A 74 69 6E 67 
+2568   175E 20 69 6E 69 
+2568   1762 74 0A 00 
+2569   1765 0A 65 78 63 s_priviledge:       .db "\nexception: privilege\n", 0
+2569   1769 65 70 74 69 
+2569   176D 6F 6E 3A 20 
+2569   1771 70 72 69 76 
+2569   1775 69 6C 65 67 
+2569   1779 65 0A 00 
+2570   177C 0A 65 78 63 s_divzero:          .db "\nexception: zero division\n", 0
+2570   1780 65 70 74 69 
+2570   1784 6F 6E 3A 20 
+2570   1788 7A 65 72 6F 
+2570   178C 20 64 69 76 
+2570   1790 69 73 69 6F 
+2570   1794 6E 0A 00 
+2571   1797             
+2572   1797 59 65 61 72 s_set_year:         .db "Year: ", 0
+2572   179B 3A 20 00 
+2573   179E 4D 6F 6E 74 s_set_month:        .db "Month: ", 0
+2573   17A2 68 3A 20 00 
+2574   17A6 44 61 79 3A s_set_day:          .db "Day: ", 0
+2574   17AA 20 00 
+2575   17AC 57 65 65 6B s_set_week:         .db "Weekday: ", 0
+2575   17B0 64 61 79 3A 
+2575   17B4 20 00 
+2576   17B6 48 6F 75 72 s_set_hours:        .db "Hours: ", 0
+2576   17BA 73 3A 20 00 
+2577   17BE 4D 69 6E 75 s_set_minutes:      .db "Minutes: ", 0
+2577   17C2 74 65 73 3A 
+2577   17C6 20 00 
+2578   17C8 53 65 63 6F s_set_seconds:      .db "Seconds: ", 0
+2578   17CC 6E 64 73 3A 
+2578   17D0 20 00 
+2579   17D2             s_months:      
+2580   17D2 20 20 20 00   .db "   ", 0
+2581   17D6 4A 61 6E 00   .db "Jan", 0
+2582   17DA 46 65 62 00   .db "Feb", 0
+2583   17DE 4D 61 72 00   .db "Mar", 0
+2584   17E2 41 70 72 00   .db "Apr", 0
+2585   17E6 4D 61 79 00   .db "May", 0
+2586   17EA 4A 75 6E 00   .db "Jun", 0
+2587   17EE 4A 75 6C 00   .db "Jul", 0
+2588   17F2 41 75 67 00   .db "Aug", 0
+2589   17F6 53 65 70 00   .db "Sep", 0
+2590   17FA 4F 63 74 00   .db "Oct", 0
+2591   17FE 4E 6F 76 00   .db "Nov", 0
+2592   1802 44 65 63 00   .db "Dec", 0
+2593   1806             
+2594   1806             s_week:        
+2595   1806 53 75 6E 00   .db "Sun", 0 
+2596   180A 4D 6F 6E 00   .db "Mon", 0 
+2597   180E 54 75 65 00   .db "Tue", 0 
+2598   1812 57 65 64 00   .db "Wed", 0 
+2599   1816 54 68 75 00   .db "Thu", 0 
+2600   181A 46 72 69 00   .db "Fri", 0 
+2601   181E 53 61 74 00   .db "Sat", 0
+2602   1822             
+2603   1822 00 00 00 00 proc_state_table:   .fill 16 * 20, 0  ; for 15 processes max
+2603   1826 00 00 00 00 
+2603   182A 00 00 00 00 
+2603   182E 00 00 00 00 
+2603   1832 00 00 00 00 
+2603   1836 00 00 00 00 
+2603   183A 00 00 00 00 
+2603   183E 00 00 00 00 
+2603   1842 00 00 00 00 
+2603   1846 00 00 00 00 
+2603   184A 00 00 00 00 
+2603   184E 00 00 00 00 
+2603   1852 00 00 00 00 
+2603   1856 00 00 00 00 
+2603   185A 00 00 00 00 
+2603   185E 00 00 00 00 
+2603   1862 00 00 00 00 
+2603   1866 00 00 00 00 
+2603   186A 00 00 00 00 
+2603   186E 00 00 00 00 
+2603   1872 00 00 00 00 
+2603   1876 00 00 00 00 
+2603   187A 00 00 00 00 
+2603   187E 00 00 00 00 
+2603   1882 00 00 00 00 
+2603   1886 00 00 00 00 
+2603   188A 00 00 00 00 
+2603   188E 00 00 00 00 
+2603   1892 00 00 00 00 
+2603   1896 00 00 00 00 
+2603   189A 00 00 00 00 
+2603   189E 00 00 00 00 
+2603   18A2 00 00 00 00 
+2603   18A6 00 00 00 00 
+2603   18AA 00 00 00 00 
+2603   18AE 00 00 00 00 
+2603   18B2 00 00 00 00 
+2603   18B6 00 00 00 00 
+2603   18BA 00 00 00 00 
+2603   18BE 00 00 00 00 
+2603   18C2 00 00 00 00 
+2603   18C6 00 00 00 00 
+2603   18CA 00 00 00 00 
+2603   18CE 00 00 00 00 
+2603   18D2 00 00 00 00 
+2603   18D6 00 00 00 00 
+2603   18DA 00 00 00 00 
+2603   18DE 00 00 00 00 
+2603   18E2 00 00 00 00 
+2603   18E6 00 00 00 00 
+2603   18EA 00 00 00 00 
+2603   18EE 00 00 00 00 
+2603   18F2 00 00 00 00 
+2603   18F6 00 00 00 00 
+2603   18FA 00 00 00 00 
+2603   18FE 00 00 00 00 
+2603   1902 00 00 00 00 
+2603   1906 00 00 00 00 
+2603   190A 00 00 00 00 
+2603   190E 00 00 00 00 
+2603   1912 00 00 00 00 
+2603   1916 00 00 00 00 
+2603   191A 00 00 00 00 
+2603   191E 00 00 00 00 
+2603   1922 00 00 00 00 
+2603   1926 00 00 00 00 
+2603   192A 00 00 00 00 
+2603   192E 00 00 00 00 
+2603   1932 00 00 00 00 
+2603   1936 00 00 00 00 
+2603   193A 00 00 00 00 
+2603   193E 00 00 00 00 
+2603   1942 00 00 00 00 
+2603   1946 00 00 00 00 
+2603   194A 00 00 00 00 
+2603   194E 00 00 00 00 
+2603   1952 00 00 00 00 
+2603   1956 00 00 00 00 
+2603   195A 00 00 00 00 
+2603   195E 00 00 00 00 
+2604   1962 00 00 00 00 proc_availab_table: .fill 16, 0       ; space for 15 processes. 0 = process empty, 1 = process taken
+2604   1966 00 00 00 00 
+2604   196A 00 00 00 00 
+2604   196E 00 00 00 00 
+2605   1972 00 00 00 00 proc_names:         .fill 16 * 32, 0  ; process names
+2605   1976 00 00 00 00 
+2605   197A 00 00 00 00 
+2605   197E 00 00 00 00 
+2605   1982 00 00 00 00 
+2605   1986 00 00 00 00 
+2605   198A 00 00 00 00 
+2605   198E 00 00 00 00 
+2605   1992 00 00 00 00 
+2605   1996 00 00 00 00 
+2605   199A 00 00 00 00 
+2605   199E 00 00 00 00 
+2605   19A2 00 00 00 00 
+2605   19A6 00 00 00 00 
+2605   19AA 00 00 00 00 
+2605   19AE 00 00 00 00 
+2605   19B2 00 00 00 00 
+2605   19B6 00 00 00 00 
+2605   19BA 00 00 00 00 
+2605   19BE 00 00 00 00 
+2605   19C2 00 00 00 00 
+2605   19C6 00 00 00 00 
+2605   19CA 00 00 00 00 
+2605   19CE 00 00 00 00 
+2605   19D2 00 00 00 00 
+2605   19D6 00 00 00 00 
+2605   19DA 00 00 00 00 
+2605   19DE 00 00 00 00 
+2605   19E2 00 00 00 00 
+2605   19E6 00 00 00 00 
+2605   19EA 00 00 00 00 
+2605   19EE 00 00 00 00 
+2605   19F2 00 00 00 00 
+2605   19F6 00 00 00 00 
+2605   19FA 00 00 00 00 
+2605   19FE 00 00 00 00 
+2605   1A02 00 00 00 00 
+2605   1A06 00 00 00 00 
+2605   1A0A 00 00 00 00 
+2605   1A0E 00 00 00 00 
+2605   1A12 00 00 00 00 
+2605   1A16 00 00 00 00 
+2605   1A1A 00 00 00 00 
+2605   1A1E 00 00 00 00 
+2605   1A22 00 00 00 00 
+2605   1A26 00 00 00 00 
+2605   1A2A 00 00 00 00 
+2605   1A2E 00 00 00 00 
+2605   1A32 00 00 00 00 
+2605   1A36 00 00 00 00 
+2605   1A3A 00 00 00 00 
+2605   1A3E 00 00 00 00 
+2605   1A42 00 00 00 00 
+2605   1A46 00 00 00 00 
+2605   1A4A 00 00 00 00 
+2605   1A4E 00 00 00 00 
+2605   1A52 00 00 00 00 
+2605   1A56 00 00 00 00 
+2605   1A5A 00 00 00 00 
+2605   1A5E 00 00 00 00 
+2605   1A62 00 00 00 00 
+2605   1A66 00 00 00 00 
+2605   1A6A 00 00 00 00 
+2605   1A6E 00 00 00 00 
+2605   1A72 00 00 00 00 
+2605   1A76 00 00 00 00 
+2605   1A7A 00 00 00 00 
+2605   1A7E 00 00 00 00 
+2605   1A82 00 00 00 00 
+2605   1A86 00 00 00 00 
+2605   1A8A 00 00 00 00 
+2605   1A8E 00 00 00 00 
+2605   1A92 00 00 00 00 
+2605   1A96 00 00 00 00 
+2605   1A9A 00 00 00 00 
+2605   1A9E 00 00 00 00 
+2605   1AA2 00 00 00 00 
+2605   1AA6 00 00 00 00 
+2605   1AAA 00 00 00 00 
+2605   1AAE 00 00 00 00 
+2605   1AB2 00 00 00 00 
+2605   1AB6 00 00 00 00 
+2605   1ABA 00 00 00 00 
+2605   1ABE 00 00 00 00 
+2605   1AC2 00 00 00 00 
+2605   1AC6 00 00 00 00 
+2605   1ACA 00 00 00 00 
+2605   1ACE 00 00 00 00 
+2605   1AD2 00 00 00 00 
+2605   1AD6 00 00 00 00 
+2605   1ADA 00 00 00 00 
+2605   1ADE 00 00 00 00 
+2605   1AE2 00 00 00 00 
+2605   1AE6 00 00 00 00 
+2605   1AEA 00 00 00 00 
+2605   1AEE 00 00 00 00 
+2605   1AF2 00 00 00 00 
+2605   1AF6 00 00 00 00 
+2605   1AFA 00 00 00 00 
+2605   1AFE 00 00 00 00 
+2605   1B02 00 00 00 00 
+2605   1B06 00 00 00 00 
+2605   1B0A 00 00 00 00 
+2605   1B0E 00 00 00 00 
+2605   1B12 00 00 00 00 
+2605   1B16 00 00 00 00 
+2605   1B1A 00 00 00 00 
+2605   1B1E 00 00 00 00 
+2605   1B22 00 00 00 00 
+2605   1B26 00 00 00 00 
+2605   1B2A 00 00 00 00 
+2605   1B2E 00 00 00 00 
+2605   1B32 00 00 00 00 
+2605   1B36 00 00 00 00 
+2605   1B3A 00 00 00 00 
+2605   1B3E 00 00 00 00 
+2605   1B42 00 00 00 00 
+2605   1B46 00 00 00 00 
+2605   1B4A 00 00 00 00 
+2605   1B4E 00 00 00 00 
+2605   1B52 00 00 00 00 
+2605   1B56 00 00 00 00 
+2605   1B5A 00 00 00 00 
+2605   1B5E 00 00 00 00 
+2605   1B62 00 00 00 00 
+2605   1B66 00 00 00 00 
+2605   1B6A 00 00 00 00 
+2605   1B6E 00 00 00 00 
+2606   1B72 00 00 00 00 filename:           .fill 128, 0      ; holds a path for file search
+2606   1B76 00 00 00 00 
+2606   1B7A 00 00 00 00 
+2606   1B7E 00 00 00 00 
+2606   1B82 00 00 00 00 
+2606   1B86 00 00 00 00 
+2606   1B8A 00 00 00 00 
+2606   1B8E 00 00 00 00 
+2606   1B92 00 00 00 00 
+2606   1B96 00 00 00 00 
+2606   1B9A 00 00 00 00 
+2606   1B9E 00 00 00 00 
+2606   1BA2 00 00 00 00 
+2606   1BA6 00 00 00 00 
+2606   1BAA 00 00 00 00 
+2606   1BAE 00 00 00 00 
+2606   1BB2 00 00 00 00 
+2606   1BB6 00 00 00 00 
+2606   1BBA 00 00 00 00 
+2606   1BBE 00 00 00 00 
+2606   1BC2 00 00 00 00 
+2606   1BC6 00 00 00 00 
+2606   1BCA 00 00 00 00 
+2606   1BCE 00 00 00 00 
+2606   1BD2 00 00 00 00 
+2606   1BD6 00 00 00 00 
+2606   1BDA 00 00 00 00 
+2606   1BDE 00 00 00 00 
+2606   1BE2 00 00 00 00 
+2606   1BE6 00 00 00 00 
+2606   1BEA 00 00 00 00 
+2606   1BEE 00 00 00 00 
+2607   1BF2 00 00 00 00 user_data:          .fill 512, 0      ;  user space data
+2607   1BF6 00 00 00 00 
+2607   1BFA 00 00 00 00 
+2607   1BFE 00 00 00 00 
+2607   1C02 00 00 00 00 
+2607   1C06 00 00 00 00 
+2607   1C0A 00 00 00 00 
+2607   1C0E 00 00 00 00 
+2607   1C12 00 00 00 00 
+2607   1C16 00 00 00 00 
+2607   1C1A 00 00 00 00 
+2607   1C1E 00 00 00 00 
+2607   1C22 00 00 00 00 
+2607   1C26 00 00 00 00 
+2607   1C2A 00 00 00 00 
+2607   1C2E 00 00 00 00 
+2607   1C32 00 00 00 00 
+2607   1C36 00 00 00 00 
+2607   1C3A 00 00 00 00 
+2607   1C3E 00 00 00 00 
+2607   1C42 00 00 00 00 
+2607   1C46 00 00 00 00 
+2607   1C4A 00 00 00 00 
+2607   1C4E 00 00 00 00 
+2607   1C52 00 00 00 00 
+2607   1C56 00 00 00 00 
+2607   1C5A 00 00 00 00 
+2607   1C5E 00 00 00 00 
+2607   1C62 00 00 00 00 
+2607   1C66 00 00 00 00 
+2607   1C6A 00 00 00 00 
+2607   1C6E 00 00 00 00 
+2607   1C72 00 00 00 00 
+2607   1C76 00 00 00 00 
+2607   1C7A 00 00 00 00 
+2607   1C7E 00 00 00 00 
+2607   1C82 00 00 00 00 
+2607   1C86 00 00 00 00 
+2607   1C8A 00 00 00 00 
+2607   1C8E 00 00 00 00 
+2607   1C92 00 00 00 00 
+2607   1C96 00 00 00 00 
+2607   1C9A 00 00 00 00 
+2607   1C9E 00 00 00 00 
+2607   1CA2 00 00 00 00 
+2607   1CA6 00 00 00 00 
+2607   1CAA 00 00 00 00 
+2607   1CAE 00 00 00 00 
+2607   1CB2 00 00 00 00 
+2607   1CB6 00 00 00 00 
+2607   1CBA 00 00 00 00 
+2607   1CBE 00 00 00 00 
+2607   1CC2 00 00 00 00 
+2607   1CC6 00 00 00 00 
+2607   1CCA 00 00 00 00 
+2607   1CCE 00 00 00 00 
+2607   1CD2 00 00 00 00 
+2607   1CD6 00 00 00 00 
+2607   1CDA 00 00 00 00 
+2607   1CDE 00 00 00 00 
+2607   1CE2 00 00 00 00 
+2607   1CE6 00 00 00 00 
+2607   1CEA 00 00 00 00 
+2607   1CEE 00 00 00 00 
+2607   1CF2 00 00 00 00 
+2607   1CF6 00 00 00 00 
+2607   1CFA 00 00 00 00 
+2607   1CFE 00 00 00 00 
+2607   1D02 00 00 00 00 
+2607   1D06 00 00 00 00 
+2607   1D0A 00 00 00 00 
+2607   1D0E 00 00 00 00 
+2607   1D12 00 00 00 00 
+2607   1D16 00 00 00 00 
+2607   1D1A 00 00 00 00 
+2607   1D1E 00 00 00 00 
+2607   1D22 00 00 00 00 
+2607   1D26 00 00 00 00 
+2607   1D2A 00 00 00 00 
+2607   1D2E 00 00 00 00 
+2607   1D32 00 00 00 00 
+2607   1D36 00 00 00 00 
+2607   1D3A 00 00 00 00 
+2607   1D3E 00 00 00 00 
+2607   1D42 00 00 00 00 
+2607   1D46 00 00 00 00 
+2607   1D4A 00 00 00 00 
+2607   1D4E 00 00 00 00 
+2607   1D52 00 00 00 00 
+2607   1D56 00 00 00 00 
+2607   1D5A 00 00 00 00 
+2607   1D5E 00 00 00 00 
+2607   1D62 00 00 00 00 
+2607   1D66 00 00 00 00 
+2607   1D6A 00 00 00 00 
+2607   1D6E 00 00 00 00 
+2607   1D72 00 00 00 00 
+2607   1D76 00 00 00 00 
+2607   1D7A 00 00 00 00 
+2607   1D7E 00 00 00 00 
+2607   1D82 00 00 00 00 
+2607   1D86 00 00 00 00 
+2607   1D8A 00 00 00 00 
+2607   1D8E 00 00 00 00 
+2607   1D92 00 00 00 00 
+2607   1D96 00 00 00 00 
+2607   1D9A 00 00 00 00 
+2607   1D9E 00 00 00 00 
+2607   1DA2 00 00 00 00 
+2607   1DA6 00 00 00 00 
+2607   1DAA 00 00 00 00 
+2607   1DAE 00 00 00 00 
+2607   1DB2 00 00 00 00 
+2607   1DB6 00 00 00 00 
+2607   1DBA 00 00 00 00 
+2607   1DBE 00 00 00 00 
+2607   1DC2 00 00 00 00 
+2607   1DC6 00 00 00 00 
+2607   1DCA 00 00 00 00 
+2607   1DCE 00 00 00 00 
+2607   1DD2 00 00 00 00 
+2607   1DD6 00 00 00 00 
+2607   1DDA 00 00 00 00 
+2607   1DDE 00 00 00 00 
+2607   1DE2 00 00 00 00 
+2607   1DE6 00 00 00 00 
+2607   1DEA 00 00 00 00 
+2607   1DEE 00 00 00 00 
+2608   1DF2 FF FF FF FF fifo:               .fill FIFO_SIZE
+2608   1DF6 FF FF FF FF 
+2608   1DFA FF FF FF FF 
+2608   1DFE FF FF FF FF 
+2608   1E02 FF FF FF FF 
+2608   1E06 FF FF FF FF 
+2608   1E0A FF FF FF FF 
+2608   1E0E FF FF FF FF 
+2608   1E12 FF FF FF FF 
+2608   1E16 FF FF FF FF 
+2608   1E1A FF FF FF FF 
+2608   1E1E FF FF FF FF 
+2608   1E22 FF FF FF FF 
+2608   1E26 FF FF FF FF 
+2608   1E2A FF FF FF FF 
+2608   1E2E FF FF FF FF 
+2608   1E32 FF FF FF FF 
+2608   1E36 FF FF FF FF 
+2608   1E3A FF FF FF FF 
+2608   1E3E FF FF FF FF 
+2608   1E42 FF FF FF FF 
+2608   1E46 FF FF FF FF 
+2608   1E4A FF FF FF FF 
+2608   1E4E FF FF FF FF 
+2608   1E52 FF FF FF FF 
+2608   1E56 FF FF FF FF 
+2608   1E5A FF FF FF FF 
+2608   1E5E FF FF FF FF 
+2608   1E62 FF FF FF FF 
+2608   1E66 FF FF FF FF 
+2608   1E6A FF FF FF FF 
+2608   1E6E FF FF FF FF 
+2608   1E72 FF FF FF FF 
+2608   1E76 FF FF FF FF 
+2608   1E7A FF FF FF FF 
+2608   1E7E FF FF FF FF 
+2608   1E82 FF FF FF FF 
+2608   1E86 FF FF FF FF 
+2608   1E8A FF FF FF FF 
+2608   1E8E FF FF FF FF 
+2608   1E92 FF FF FF FF 
+2608   1E96 FF FF FF FF 
+2608   1E9A FF FF FF FF 
+2608   1E9E FF FF FF FF 
+2608   1EA2 FF FF FF FF 
+2608   1EA6 FF FF FF FF 
+2608   1EAA FF FF FF FF 
+2608   1EAE FF FF FF FF 
+2608   1EB2 FF FF FF FF 
+2608   1EB6 FF FF FF FF 
+2608   1EBA FF FF FF FF 
+2608   1EBE FF FF FF FF 
+2608   1EC2 FF FF FF FF 
+2608   1EC6 FF FF FF FF 
+2608   1ECA FF FF FF FF 
+2608   1ECE FF FF FF FF 
+2608   1ED2 FF FF FF FF 
+2608   1ED6 FF FF FF FF 
+2608   1EDA FF FF FF FF 
+2608   1EDE FF FF FF FF 
+2608   1EE2 FF FF FF FF 
+2608   1EE6 FF FF FF FF 
+2608   1EEA FF FF FF FF 
+2608   1EEE FF FF FF FF 
+2608   1EF2 FF FF FF FF 
+2608   1EF6 FF FF FF FF 
+2608   1EFA FF FF FF FF 
+2608   1EFE FF FF FF FF 
+2608   1F02 FF FF FF FF 
+2608   1F06 FF FF FF FF 
+2608   1F0A FF FF FF FF 
+2608   1F0E FF FF FF FF 
+2608   1F12 FF FF FF FF 
+2608   1F16 FF FF FF FF 
+2608   1F1A FF FF FF FF 
+2608   1F1E FF FF FF FF 
+2608   1F22 FF FF FF FF 
+2608   1F26 FF FF FF FF 
+2608   1F2A FF FF FF FF 
+2608   1F2E FF FF FF FF 
+2608   1F32 FF FF FF FF 
+2608   1F36 FF FF FF FF 
+2608   1F3A FF FF FF FF 
+2608   1F3E FF FF FF FF 
+2608   1F42 FF FF FF FF 
+2608   1F46 FF FF FF FF 
+2608   1F4A FF FF FF FF 
+2608   1F4E FF FF FF FF 
+2608   1F52 FF FF FF FF 
+2608   1F56 FF FF FF FF 
+2608   1F5A FF FF FF FF 
+2608   1F5E FF FF FF FF 
+2608   1F62 FF FF FF FF 
+2608   1F66 FF FF FF FF 
+2608   1F6A FF FF FF FF 
+2608   1F6E FF FF FF FF 
+2608   1F72 FF FF FF FF 
+2608   1F76 FF FF FF FF 
+2608   1F7A FF FF FF FF 
+2608   1F7E FF FF FF FF 
+2608   1F82 FF FF FF FF 
+2608   1F86 FF FF FF FF 
+2608   1F8A FF FF FF FF 
+2608   1F8E FF FF FF FF 
+2608   1F92 FF FF FF FF 
+2608   1F96 FF FF FF FF 
+2608   1F9A FF FF FF FF 
+2608   1F9E FF FF FF FF 
+2608   1FA2 FF FF FF FF 
+2608   1FA6 FF FF FF FF 
+2608   1FAA FF FF FF FF 
+2608   1FAE FF FF FF FF 
+2608   1FB2 FF FF FF FF 
+2608   1FB6 FF FF FF FF 
+2608   1FBA FF FF FF FF 
+2608   1FBE FF FF FF FF 
+2608   1FC2 FF FF FF FF 
+2608   1FC6 FF FF FF FF 
+2608   1FCA FF FF FF FF 
+2608   1FCE FF FF FF FF 
+2608   1FD2 FF FF FF FF 
+2608   1FD6 FF FF FF FF 
+2608   1FDA FF FF FF FF 
+2608   1FDE FF FF FF FF 
+2608   1FE2 FF FF FF FF 
+2608   1FE6 FF FF FF FF 
+2608   1FEA FF FF FF FF 
+2608   1FEE FF FF FF FF 
+2608   1FF2 FF FF FF FF 
+2608   1FF6 FF FF FF FF 
+2608   1FFA FF FF FF FF 
+2608   1FFE FF FF FF FF 
+2608   2002 FF FF FF FF 
+2608   2006 FF FF FF FF 
+2608   200A FF FF FF FF 
+2608   200E FF FF FF FF 
+2608   2012 FF FF FF FF 
+2608   2016 FF FF FF FF 
+2608   201A FF FF FF FF 
+2608   201E FF FF FF FF 
+2608   2022 FF FF FF FF 
+2608   2026 FF FF FF FF 
+2608   202A FF FF FF FF 
+2608   202E FF FF FF FF 
+2608   2032 FF FF FF FF 
+2608   2036 FF FF FF FF 
+2608   203A FF FF FF FF 
+2608   203E FF FF FF FF 
+2608   2042 FF FF FF FF 
+2608   2046 FF FF FF FF 
+2608   204A FF FF FF FF 
+2608   204E FF FF FF FF 
+2608   2052 FF FF FF FF 
+2608   2056 FF FF FF FF 
+2608   205A FF FF FF FF 
+2608   205E FF FF FF FF 
+2608   2062 FF FF FF FF 
+2608   2066 FF FF FF FF 
+2608   206A FF FF FF FF 
+2608   206E FF FF FF FF 
+2608   2072 FF FF FF FF 
+2608   2076 FF FF FF FF 
+2608   207A FF FF FF FF 
+2608   207E FF FF FF FF 
+2608   2082 FF FF FF FF 
+2608   2086 FF FF FF FF 
+2608   208A FF FF FF FF 
+2608   208E FF FF FF FF 
+2608   2092 FF FF FF FF 
+2608   2096 FF FF FF FF 
+2608   209A FF FF FF FF 
+2608   209E FF FF FF FF 
+2608   20A2 FF FF FF FF 
+2608   20A6 FF FF FF FF 
+2608   20AA FF FF FF FF 
+2608   20AE FF FF FF FF 
+2608   20B2 FF FF FF FF 
+2608   20B6 FF FF FF FF 
+2608   20BA FF FF FF FF 
+2608   20BE FF FF FF FF 
+2608   20C2 FF FF FF FF 
+2608   20C6 FF FF FF FF 
+2608   20CA FF FF FF FF 
+2608   20CE FF FF FF FF 
+2608   20D2 FF FF FF FF 
+2608   20D6 FF FF FF FF 
+2608   20DA FF FF FF FF 
+2608   20DE FF FF FF FF 
+2608   20E2 FF FF FF FF 
+2608   20E6 FF FF FF FF 
+2608   20EA FF FF FF FF 
+2608   20EE FF FF FF FF 
+2608   20F2 FF FF FF FF 
+2608   20F6 FF FF FF FF 
+2608   20FA FF FF FF FF 
+2608   20FE FF FF FF FF 
+2608   2102 FF FF FF FF 
+2608   2106 FF FF FF FF 
+2608   210A FF FF FF FF 
+2608   210E FF FF FF FF 
+2608   2112 FF FF FF FF 
+2608   2116 FF FF FF FF 
+2608   211A FF FF FF FF 
+2608   211E FF FF FF FF 
+2608   2122 FF FF FF FF 
+2608   2126 FF FF FF FF 
+2608   212A FF FF FF FF 
+2608   212E FF FF FF FF 
+2608   2132 FF FF FF FF 
+2608   2136 FF FF FF FF 
+2608   213A FF FF FF FF 
+2608   213E FF FF FF FF 
+2608   2142 FF FF FF FF 
+2608   2146 FF FF FF FF 
+2608   214A FF FF FF FF 
+2608   214E FF FF FF FF 
+2608   2152 FF FF FF FF 
+2608   2156 FF FF FF FF 
+2608   215A FF FF FF FF 
+2608   215E FF FF FF FF 
+2608   2162 FF FF FF FF 
+2608   2166 FF FF FF FF 
+2608   216A FF FF FF FF 
+2608   216E FF FF FF FF 
+2608   2172 FF FF FF FF 
+2608   2176 FF FF FF FF 
+2608   217A FF FF FF FF 
+2608   217E FF FF FF FF 
+2608   2182 FF FF FF FF 
+2608   2186 FF FF FF FF 
+2608   218A FF FF FF FF 
+2608   218E FF FF FF FF 
+2608   2192 FF FF FF FF 
+2608   2196 FF FF FF FF 
+2608   219A FF FF FF FF 
+2608   219E FF FF FF FF 
+2608   21A2 FF FF FF FF 
+2608   21A6 FF FF FF FF 
+2608   21AA FF FF FF FF 
+2608   21AE FF FF FF FF 
+2608   21B2 FF FF FF FF 
+2608   21B6 FF FF FF FF 
+2608   21BA FF FF FF FF 
+2608   21BE FF FF FF FF 
+2608   21C2 FF FF FF FF 
+2608   21C6 FF FF FF FF 
+2608   21CA FF FF FF FF 
+2608   21CE FF FF FF FF 
+2608   21D2 FF FF FF FF 
+2608   21D6 FF FF FF FF 
+2608   21DA FF FF FF FF 
+2608   21DE FF FF FF FF 
+2608   21E2 FF FF FF FF 
+2608   21E6 FF FF FF FF 
+2608   21EA FF FF FF FF 
+2608   21EE FF FF FF FF 
+2609   21F2             
+2610   21F2 FF FF FF FF scrap_sector:       .fill 512         ; scrap sector
+2610   21F6 FF FF FF FF 
+2610   21FA FF FF FF FF 
+2610   21FE FF FF FF FF 
+2610   2202 FF FF FF FF 
+2610   2206 FF FF FF FF 
+2610   220A FF FF FF FF 
+2610   220E FF FF FF FF 
+2610   2212 FF FF FF FF 
+2610   2216 FF FF FF FF 
+2610   221A FF FF FF FF 
+2610   221E FF FF FF FF 
+2610   2222 FF FF FF FF 
+2610   2226 FF FF FF FF 
+2610   222A FF FF FF FF 
+2610   222E FF FF FF FF 
+2610   2232 FF FF FF FF 
+2610   2236 FF FF FF FF 
+2610   223A FF FF FF FF 
+2610   223E FF FF FF FF 
+2610   2242 FF FF FF FF 
+2610   2246 FF FF FF FF 
+2610   224A FF FF FF FF 
+2610   224E FF FF FF FF 
+2610   2252 FF FF FF FF 
+2610   2256 FF FF FF FF 
+2610   225A FF FF FF FF 
+2610   225E FF FF FF FF 
+2610   2262 FF FF FF FF 
+2610   2266 FF FF FF FF 
+2610   226A FF FF FF FF 
+2610   226E FF FF FF FF 
+2610   2272 FF FF FF FF 
+2610   2276 FF FF FF FF 
+2610   227A FF FF FF FF 
+2610   227E FF FF FF FF 
+2610   2282 FF FF FF FF 
+2610   2286 FF FF FF FF 
+2610   228A FF FF FF FF 
+2610   228E FF FF FF FF 
+2610   2292 FF FF FF FF 
+2610   2296 FF FF FF FF 
+2610   229A FF FF FF FF 
+2610   229E FF FF FF FF 
+2610   22A2 FF FF FF FF 
+2610   22A6 FF FF FF FF 
+2610   22AA FF FF FF FF 
+2610   22AE FF FF FF FF 
+2610   22B2 FF FF FF FF 
+2610   22B6 FF FF FF FF 
+2610   22BA FF FF FF FF 
+2610   22BE FF FF FF FF 
+2610   22C2 FF FF FF FF 
+2610   22C6 FF FF FF FF 
+2610   22CA FF FF FF FF 
+2610   22CE FF FF FF FF 
+2610   22D2 FF FF FF FF 
+2610   22D6 FF FF FF FF 
+2610   22DA FF FF FF FF 
+2610   22DE FF FF FF FF 
+2610   22E2 FF FF FF FF 
+2610   22E6 FF FF FF FF 
+2610   22EA FF FF FF FF 
+2610   22EE FF FF FF FF 
+2610   22F2 FF FF FF FF 
+2610   22F6 FF FF FF FF 
+2610   22FA FF FF FF FF 
+2610   22FE FF FF FF FF 
+2610   2302 FF FF FF FF 
+2610   2306 FF FF FF FF 
+2610   230A FF FF FF FF 
+2610   230E FF FF FF FF 
+2610   2312 FF FF FF FF 
+2610   2316 FF FF FF FF 
+2610   231A FF FF FF FF 
+2610   231E FF FF FF FF 
+2610   2322 FF FF FF FF 
+2610   2326 FF FF FF FF 
+2610   232A FF FF FF FF 
+2610   232E FF FF FF FF 
+2610   2332 FF FF FF FF 
+2610   2336 FF FF FF FF 
+2610   233A FF FF FF FF 
+2610   233E FF FF FF FF 
+2610   2342 FF FF FF FF 
+2610   2346 FF FF FF FF 
+2610   234A FF FF FF FF 
+2610   234E FF FF FF FF 
+2610   2352 FF FF FF FF 
+2610   2356 FF FF FF FF 
+2610   235A FF FF FF FF 
+2610   235E FF FF FF FF 
+2610   2362 FF FF FF FF 
+2610   2366 FF FF FF FF 
+2610   236A FF FF FF FF 
+2610   236E FF FF FF FF 
+2610   2372 FF FF FF FF 
+2610   2376 FF FF FF FF 
+2610   237A FF FF FF FF 
+2610   237E FF FF FF FF 
+2610   2382 FF FF FF FF 
+2610   2386 FF FF FF FF 
+2610   238A FF FF FF FF 
+2610   238E FF FF FF FF 
+2610   2392 FF FF FF FF 
+2610   2396 FF FF FF FF 
+2610   239A FF FF FF FF 
+2610   239E FF FF FF FF 
+2610   23A2 FF FF FF FF 
+2610   23A6 FF FF FF FF 
+2610   23AA FF FF FF FF 
+2610   23AE FF FF FF FF 
+2610   23B2 FF FF FF FF 
+2610   23B6 FF FF FF FF 
+2610   23BA FF FF FF FF 
+2610   23BE FF FF FF FF 
+2610   23C2 FF FF FF FF 
+2610   23C6 FF FF FF FF 
+2610   23CA FF FF FF FF 
+2610   23CE FF FF FF FF 
+2610   23D2 FF FF FF FF 
+2610   23D6 FF FF FF FF 
+2610   23DA FF FF FF FF 
+2610   23DE FF FF FF FF 
+2610   23E2 FF FF FF FF 
+2610   23E6 FF FF FF FF 
+2610   23EA FF FF FF FF 
+2610   23EE FF FF FF FF 
+2611   23F2 00          transient_area:     .db 0             ; beginning of the transient memory area. used for disk reads and other purposes    
 2612   23F3             
-2613   23F3             .end
+2613   23F3             
+2614   23F3             .end
 tasm: Number of errors = 0
