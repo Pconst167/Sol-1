@@ -18939,8 +18939,7 @@
     mdrl_wrt=true
     marl_wrt=true
     immediate=1
-}
-
+  }
   17{
     next=next_offset
     offset=1
@@ -18950,7 +18949,6 @@
     alu_cf_in_inv=true
     marh_wrt=true
   }
-
   18{
     next=next_offset
     offset=1
@@ -18966,7 +18964,6 @@
     pcl_wrt=true
     immediate=1
   }
-
   19{
     next=next_offset
     offset=1
@@ -18977,7 +18974,6 @@
     marh_wrt=true
     pch_wrt=true
   }
-
   20{
     next=next_offset
     offset=1
@@ -18989,7 +18985,6 @@
     zf_in_src=alu_zf
     cf_in_src=alu_final_cf
   }
-
   21{
     next=next_offset
     offset=1
@@ -19000,7 +18995,6 @@
     zf_in_src=alu_zf_and_zf
     cf_in_src=alu_final_cf
   }
-
   22{
     next=next_offset
     offset=1
@@ -19016,7 +19010,6 @@
     marl_wrt=true
     immediate=1
   }
-
   23{
     next=next_offset
     offset=1
@@ -19026,7 +19019,6 @@
     alu_cf_in_inv=true
     marh_wrt=true
   }
-
   24{
     next=next_offset
     offset=1
@@ -19042,7 +19034,6 @@
     pcl_wrt=true
     immediate=1
   }
-
   25{
     next=next_offset
     offset=1
@@ -19053,7 +19044,6 @@
     marh_wrt=true
     pch_wrt=true
   }
-
   26{
     next=next_offset
     offset=1
@@ -19064,7 +19054,6 @@
     zf_in_src=alu_zf_and_zf
     cf_in_src=alu_final_cf
   }
-
   27{
     next=next_fetch
     alu_x=gh
@@ -19274,42 +19263,42 @@
     uzf_in_src=alu_zf_and_uzf
   }
   // test c and g
-  16{
+  20{
     next=next_offset
     offset=1
-    alu_x=gl
+    alu_x=cl
     alu_op=x
     alu_mode=logic
     tdrl_wrt=true
   }
-  17{
+  21{
     next=next_offset
     offset=1
-    alu_x=gh
+    alu_x=ch
     alu_op=x
     alu_mode=logic
     tdrh_wrt=true
   }
-  18{
+  22{
     next=next_offset
     offset=1
-    alu_x=cl
+    alu_x=gl
     alu_y=tdrl
     alu_op=or
     alu_mode=logic
     uzf_in_src=alu_zf_and_uzf
   }
-  19{
+  23{
     next=next_offset
     offset=1
-    alu_x=ch
+    alu_x=gh
     alu_y=tdrh
     alu_op=or
     alu_mode=logic
     uzf_in_src=alu_zf_and_uzf
   }
   // now use flags register to set b
-  20{
+  24{
     next=next_branch
     offset=2
     condition=zf
@@ -19321,7 +19310,7 @@
     immediate=0
     bh_wrt=true
   }
-  21{
+  25{
     next=next_fetch
     alu_y=immediate
     alu_op=y
@@ -19329,7 +19318,7 @@
     bl_wrt=true
     immediate=0
   }
-  22{
+  26{
     next=next_fetch
     alu_y=immediate
     alu_op=y
