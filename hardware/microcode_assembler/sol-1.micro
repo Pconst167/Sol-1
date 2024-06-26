@@ -4680,6 +4680,7 @@
   22{
     next=next_offset
     offset=1
+    alu_x=gl
     alu_op=minus
     alu_cf_in=cf
     zf_in_src=alu_zf_and_zf
@@ -4689,7 +4690,7 @@
   }
   23{
     next=next_fetch
-    alu_x=ah
+    alu_x=gh
     alu_op=minus
     alu_cf_in=cf
     zf_in_src=alu_zf_and_zf  
