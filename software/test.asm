@@ -8,18 +8,14 @@ main:
 
 
 
-  mov a, $FFF0
-  mov g, $FFFF
-  mov c, $0
-  mov b, $1
+  mov a, $1
+  mov g, $0
+  mov c, $8000
+  mov b, $2000
 
-  add32 cb, ga
+  sand32 ga, cb
 
-  push b
-  mov b, c
-  call print_u16x
-  pop b
-  call print_u16x
+  call print_u8x
 
 
   syscall sys_terminate_proc

@@ -2375,8 +2375,9 @@ t_type parse_assignment(){
     emitln("  push d"); // save 'd'. this is the array base address. save because expr below could use 'd' and overwrite it
     expr_in = parse_expr(); // evaluate expression, result in 'b'
     emitln("  pop d"); 
-    if(var_type.ind_level > 0)
+    if(var_type.ind_level > 0){
       emitln("  mov [d], b");
+    }
     else if(var_type.primitive_type == DT_INT && var_type.ind_level == 0 && var_type.size_modifier == MOD_LONG){
       if(expr_in.ind_level == 0 && expr_in.size_modifier == MOD_LONG){
         emitln("  mov [d], b");
@@ -2866,7 +2867,7 @@ t_type parse_terms(void){
             emitln("  mov g, 0");
           emitln("  sub32 ga, cb");
           emitln("  mov b, a");
-          emitln("  mov g, c");
+          emitln("  mov c, g");
         }
         else{
           emitln("  sub a, b");
@@ -2982,23 +2983,32 @@ t_type parse_atomic(void){
       expr_out = emit_var_addr_into_d(temp_name); // into 'b'
       // emit base address for variable, whether struct or not
       back();
-      if(is_array(expr_out))
+      if(is_array(expr_out)){
         emitln("  mov b, d");
-      else if(expr_out.ind_level > 0)
+        emitln("  mov c, 0");  // for long ints
+      }
+      else if(expr_out.ind_level > 0){
         emitln("  mov b, [d]"); 
+        emitln("  mov c, 0");  // for long ints
+      }
       else if(expr_out.primitive_type == DT_INT && expr_out.size_modifier == MOD_LONG){
         emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
         emitln("  mov c, b ; And place it into C"); 
         emitln("  mov b, [d] ; Lower Word in B"); 
       }
-      else if(expr_out.primitive_type == DT_INT)
+      else if(expr_out.primitive_type == DT_INT){
         emitln("  mov b, [d]"); 
+        emitln("  mov c, 0");  // for long ints
+      }
       else if(expr_out.primitive_type == DT_CHAR){
         emitln("  mov bl, [d]");
         emitln("  mov bh, 0"); 
+        emitln("  mov c, 0");  // for long ints
       }
-      else if(expr_out.primitive_type == DT_STRUCT)
+      else if(expr_out.primitive_type == DT_STRUCT){
         emitln("  mov b, d");
+        emitln("  mov c, 0");  // for long ints
+      }
     }
   }
 
@@ -3164,6 +3174,7 @@ t_type parse_integer_const(){
   }
   else{
     emitln("  mov b, $%x", (uint16_t)curr_token.int_const);
+    emitln("  mov c, 0");  // for long ints
   }
 
   expr_out.sign_modifier = curr_token.const_sign_modifier;
@@ -3225,6 +3236,7 @@ t_type parse_unary_minus(){
 t_type parse_char_const(){
   t_type expr_out;
   emitln("  mov b, $%x", curr_token.string_const[0]);
+  emitln("  mov c, 0");  // for long ints
   expr_out.primitive_type = DT_CHAR; //TODO: int or char? 
   expr_out.ind_level = 0;
   expr_out.sign_modifier = SNESS_UNSIGNED;

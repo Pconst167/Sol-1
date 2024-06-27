@@ -4769,7 +4769,7 @@
     next = next_offset
     offset = 1
     alu_op = minus
-    alu_cf_in = gnd
+    alu_cf_in_inv = true
     zf_in_src = alu_zf  
     cf_in_src = alu_final_cf
     alu_y = mdrl
@@ -19235,78 +19235,159 @@
     mar_in_src = pc
   }
 
-  // test a and b
+  // b != 0 -> jmp
+  // c != 0 -> jmp
+  // a != 0 -> jmp
+  // g != 0 -> jmp
   16{
     next = next_offset
     offset = 1
     alu_x = bl
     alu_op = x
     alu_mode = logic
-    tdrl_wrt = true
+    uzf_in_src = alu_zf
   }
   17{
+    next = next_branch
+    offset = 16
+    condition = zf
+    cond_flags_src = micro_flags
+    condition_inv = true
+    alu_y = immediate
+    alu_op = y
+    alu_mode = logic
+    immediate = 0
+    bh_wrt = true
+  }
+  18{
     next = next_offset
     offset = 1
     alu_x = bh
     alu_op = x
     alu_mode = logic
-    tdrh_wrt = true
-  }
-  18{
-    next = next_offset
-    offset = 1
-    alu_x = al
-    alu_y = tdrl
-    alu_op = or
-    alu_mode = logic
     uzf_in_src = alu_zf
   }
   19{
-    next = next_offset
-    offset = 1
-    alu_x = ah
-    alu_y = tdrh
-    alu_op = or
+    next = next_branch
+    offset = 14
+    condition = zf
+    cond_flags_src = micro_flags
+    condition_inv = true
+    alu_y = immediate
+    alu_op = y
     alu_mode = logic
-    uzf_in_src = alu_zf_and_uzf
+    immediate = 0
+    bh_wrt = true
   }
-  // test c and g
   20{
     next = next_offset
     offset = 1
     alu_x = cl
     alu_op = x
     alu_mode = logic
-    tdrl_wrt = true
+    uzf_in_src = alu_zf
   }
   21{
+    next = next_branch
+    offset = 12
+    condition = zf
+    cond_flags_src = micro_flags
+    condition_inv = true
+    alu_y = immediate
+    alu_op = y
+    alu_mode = logic
+    immediate = 0
+    bh_wrt = true
+  }
+  22{
     next = next_offset
     offset = 1
     alu_x = ch
     alu_op = x
     alu_mode = logic
-    tdrh_wrt = true
+    uzf_in_src = alu_zf
   }
-  22{
+  23{
+    next = next_branch
+    offset = 10
+    condition = zf
+    cond_flags_src = micro_flags
+    condition_inv = true
+    alu_y = immediate
+    alu_op = y
+    alu_mode = logic
+    immediate = 0
+    bh_wrt = true
+  }
+  24{
+    next = next_offset
+    offset = 1
+    alu_x = al
+    alu_op = x
+    alu_mode = logic
+    uzf_in_src = alu_zf
+  }
+  25{
+    next = next_branch
+    offset = 8
+    condition = zf
+    cond_flags_src = micro_flags
+    condition_inv = true
+    alu_y = immediate
+    alu_op = y
+    alu_mode = logic
+    immediate = 0
+    bh_wrt = true
+  }
+  26{
+    next = next_offset
+    offset = 1
+    alu_x = ah
+    alu_op = x
+    alu_mode = logic
+    uzf_in_src = alu_zf
+  }
+  27{
+    next = next_branch
+    offset = 6
+    condition = zf
+    cond_flags_src = micro_flags
+    condition_inv = true
+    alu_y = immediate
+    alu_op = y
+    alu_mode = logic
+    immediate = 0
+    bh_wrt = true
+  }
+  28{
     next = next_offset
     offset = 1
     alu_x = gl
-    alu_y = tdrl
-    alu_op = or
+    alu_op = x
     alu_mode = logic
-    uzf_in_src = alu_zf_and_uzf
+    uzf_in_src = alu_zf
   }
-  23{
+  29{
+    next = next_branch
+    offset = 4
+    condition = zf
+    cond_flags_src = micro_flags
+    condition_inv = true
+    alu_y = immediate
+    alu_op = y
+    alu_mode = logic
+    immediate = 0
+    bh_wrt = true
+  }
+  30{
     next = next_offset
     offset = 1
     alu_x = gh
-    alu_y = tdrh
-    alu_op = or
+    alu_op = x
     alu_mode = logic
-    uzf_in_src = alu_zf_and_uzf
+    uzf_in_src = alu_zf
   }
-  // now use flags register to set b
-  24{
+  31{
     next = next_branch
     offset = 2
     condition = zf
@@ -19318,7 +19399,7 @@
     immediate = 0
     bh_wrt = true
   }
-  25{
+  32{
     next = next_fetch
     alu_y = immediate
     alu_op = y
@@ -19326,7 +19407,7 @@
     bl_wrt = true
     immediate = 0
   }
-  26{
+  33{
     next = next_fetch
     alu_y = immediate
     alu_op = y

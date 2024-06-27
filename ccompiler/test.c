@@ -1,11 +1,12 @@
-
+#include <stdio.h>
 
 void main(void){
 
 	long int i, j;
 
 
-	i = 0xFFFFFFF0;
-	j = 0x00000001;
+	i = 0x0F0F0F0F;
+	j = 0x01010101;
 
+	printx32(i-j);
 }
