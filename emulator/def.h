@@ -462,6 +462,7 @@ struct t_opcode{
   "nop - strcmp", 0xfe,
   "halt", 0xff,
 };
+void do_reset();
 
 unsigned char typ_0      ;
 unsigned char typ_1      ;
@@ -621,6 +622,7 @@ uint8_t irq_req;
 uint8_t dma_req;
 uint8_t status_irq_enable;
 
+unsigned char reset;
 unsigned char clk;
 unsigned char memory[256][65536];
 unsigned char bios_memory[65536];
@@ -631,6 +633,6 @@ unsigned char program_in[65536];
 void load_program(char *filename);
 void load_bios_memory();
 void load_microcode_roms();
-void execute_instruction();
 void microcode_step();
 void main_loop();
+void execute_micro_instruction();

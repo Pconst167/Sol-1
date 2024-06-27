@@ -7,7 +7,7 @@ LIBS = -lm
 compile_file: emulator
 	./emulator $(FILE)
 
-emulator: emulator.c
+emulator: emulator.c def.h
 	$(CC) $(CFLAGS) -o emulator emulator.c $(LIBS)
 
 

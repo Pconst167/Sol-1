@@ -6,6 +6,8 @@
 #include <math.h>
 #include "def.h"
 
+char int_pending;
+
 int main(int argc, char *argv[]){
   if(argc > 1) load_program(argv[1]);  
   else{
@@ -17,6 +19,9 @@ int main(int argc, char *argv[]){
   load_microcode_roms();
   load_bios_memory();
 
+  load_program(argv[1]);
+
+  do_reset();
   main_loop();
 
   return 0;
@@ -45,15 +50,37 @@ void load_bios_memory(){
   puts("BIOS memory loaded successfully.");
 }
 
+void do_reset(){
+  a = 0;
+  b = 0;
+  c = 0;
+  d = 0;
+  g = 0;
+  pc = 0;
+  sp = 0;
+  ssp = 0;
+  bp = 0;
+  si = 0;
+  di = 0;
+  tdr = 0;
+  mdr = 0;
+  mar = 0;
+  ir = 0;
+}
+
 void main_loop(){
   for(;;){
     clk = ~clk;
-    execute_instruction();
+    if(reset){
+      if(clk){
+        reset_sync = 1;
+      }
+      else if(!clk){
+        reset_sync = 0;
+      }
+    }
+    execute_micro_instruction();
   }
-}
-
-void execute_instruction(){
-
 }
 
 void do_cycle(){
@@ -74,21 +101,25 @@ void execute_micro_instruction(){
       micro_offset = u_offset_0 | u_offset_1 << 1 | u_offset_2 << 2 | u_offset_3 << 3 | u_offset_4 << 4 | u_offset_5 << 5 | u_offset_6 << 6;
       // micro address next
 
-      mux_a = typ1 && (typ0 || !typ0 && any_interruption);
-      mux_b = typ1 && !typ0;
+      mux_a = typ_1 && (typ_0 || !typ_0 && any_interruption);
+      mux_b = typ_1 && !typ_0;
 
       if(typ_1 == 0 && typ_0 == 0){
         micro_addr += micro_offset;
+        puts("Next is Offset");
       }
       else if(typ_1 == 1 && typ_0 == 0){
         if(micro_condition == 0) micro_addr += 1;
         else micro_addr += micro_offset;
+        puts("Next is Condition");
       }
       else if(typ_1 == 0 && typ_0 == 1){
         micro_addr = 16;
+        puts("Next is Fetch");
       }
       else if(typ_1 == 1 && typ_0 == 1){
         micro_addr = ir << 6;
+        puts("Next is IR");
       }
 
       // register writes
@@ -262,6 +293,8 @@ void load_program(char *filename){
   } while(!feof(fp));
   *(p - 1) = '\0'; // overwrite the EOF char with NULL
   fclose(fp);
+
+  puts("Program loaded successfully.");
 }
 
 void load_microcode_roms(){
