@@ -27,46 +27,34 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408             ; unsigned int i; 
-0011   0408 52 02 00      sub sp, 2
-0012   040B             ; for(i = 0; i < 100; i++){ 
-0013   040B             _for1_init:
-0014   040B FA FF FF      lea d, [bp + -1] ; $i
-0015   040E DA            push d
-0016   040F 26 00 00      mov b, $0
-0017   0412 E7            pop d
-0018   0413 FD 43         mov [d], b
-0019   0415             _for1_cond:
-0020   0415 FA FF FF      lea d, [bp + -1] ; $i
-0021   0418 2A            mov b, [d]
-0022   0419             ; --- START RELATIONAL
-0023   0419 D7            push a
-0024   041A 11            mov a, b
-0025   041B 26 64 00      mov b, $64
-0026   041E B0            cmp a, b
-0027   041F FD 75         slu ; < (unsigned)
-0028   0421 E4            pop a
-0029   0422             ; --- END RELATIONAL
-0030   0422 C0 00 00      cmp b, 0
-0031   0425 C6 38 04      je _for1_exit
-0032   0428             _for1_block:
-0033   0428             _for1_update:
-0034   0428 FA FF FF      lea d, [bp + -1] ; $i
-0035   042B 2A            mov b, [d]
-0036   042C FD 77         inc b
-0037   042E FA FF FF      lea d, [bp + -1] ; $i
-0038   0431 FD 43         mov [d], b
-0039   0433 FD 7D         dec b
-0040   0435 0A 15 04      jmp _for1_cond
-0041   0438             _for1_exit:
-0042   0438 05 0B         syscall sys_terminate_proc
-0043   043A             ; --- END TEXT SEGMENT
-0044   043A             
-0045   043A             ; --- BEGIN DATA SEGMENT
-0046   043A             
-0047   043A 3C 04       _heap_top: .dw _heap
-0048   043C 00          _heap: .db 0
-0049   043D             ; --- END DATA SEGMENT
-0050   043D             
-0051   043D             .end
+0010   0408             ; long int i, j; 
+0011   0408 52 04 00      sub sp, 4
+0012   040B 52 04 00      sub sp, 4
+0013   040E             ; i = 0xFFFFFFF0; 
+0014   040E FA FD FF      lea d, [bp + -3] ; $i
+0015   0411 DA            push d
+0016   0412 26 F0 FF      mov b, 65520
+0017   0415 38 FF FF      mov c, 65535
+0018   0418 E7            pop d
+0019   0419 FD 43         mov [d], b
+0020   041B 28            mov b, c
+0021   041C FD 44 02 00   mov [d + 2], b
+0022   0420             ; j = 0x00000001; 
+0023   0420 FA F9 FF      lea d, [bp + -7] ; $j
+0024   0423 DA            push d
+0025   0424 26 01 00      mov b, $1
+0026   0427 E7            pop d
+0027   0428 FD 43         mov [d], b
+0028   042A 26 00 00      mov b, 0
+0029   042D FD 44 02 00   mov [d + 2], b
+0030   0431 05 0B         syscall sys_terminate_proc
+0031   0433             ; --- END TEXT SEGMENT
+0032   0433             
+0033   0433             ; --- BEGIN DATA SEGMENT
+0034   0433             
+0035   0433 35 04       _heap_top: .dw _heap
+0036   0435 00          _heap: .db 0
+0037   0436             ; --- END DATA SEGMENT
+0038   0436             
+0039   0436             .end
 tasm: Number of errors = 0

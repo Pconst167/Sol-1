@@ -1,16 +1,11 @@
-#include <stdio.h>
 
 
 void main(void){
 
-	unsigned int i;
-	for(i = 0; i < 100; i++){
-	}
+	long int i, j;
 
 
-	int i;
+	i = 0xFFFFFFF0;
+	j = 0x00000001;
 
-	char c;
-
-	c + i;
 }

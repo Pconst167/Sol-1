@@ -19,12 +19,32 @@ int main(int argc, char *argv[]){
   load_microcode_roms();
   load_bios_memory();
 
-  load_program(argv[1]);
-
   do_reset();
   main_loop();
 
   return 0;
+}
+
+void load_program(char *filename){
+  unsigned char *p;
+  FILE *fp;
+  int i;
+  
+  if((fp = fopen(filename, "rb")) == NULL){
+    printf("%s: Source file not found.\n", filename);
+    exit(1);
+  }
+  
+  p = program_in;
+  i = 0;
+  do{
+    *(p++) = getc(fp);
+    i++;
+  } while(!feof(fp));
+  *(p - 1) = '\0'; // overwrite the EOF char with NULL
+  fclose(fp);
+
+  puts("Program loaded successfully.");
 }
 
 void load_bios_memory(){
@@ -71,15 +91,14 @@ void do_reset(){
 void main_loop(){
   for(;;){
     clk = ~clk;
-    if(reset){
-      if(clk){
-        reset_sync = 1;
-      }
-      else if(!clk){
-        reset_sync = 0;
-      }
+    if(!clk){
+      if(arst) reset = 1;
+      else reset = 0;
     }
+    if(reset) do_reset();
     execute_micro_instruction();
+    printf("IR: %x\n", ir);
+    printf("PC: %x\n", pc);
   }
 }
 
@@ -94,208 +113,200 @@ void execute_micro_instruction(){
   uint16_t micro_offset;
   char mux_a, mux_b;
 
-  for(;;){
-    // Rising edge
-    if(clk){
-      // TODO: add sign extension to micro_offset
-      micro_offset = u_offset_0 | u_offset_1 << 1 | u_offset_2 << 2 | u_offset_3 << 3 | u_offset_4 << 4 | u_offset_5 << 5 | u_offset_6 << 6;
-      // micro address next
+  printf("\n\n\nClk: %c\n", clk ? 'H' : 'L');  
 
-      mux_a = typ_1 && (typ_0 || !typ_0 && any_interruption);
-      mux_b = typ_1 && !typ_0;
+  // Rising edge
+  if(clk){
+    // TODO: add sign extension to micro_offset
+    micro_offset = u_offset_0 | u_offset_1 << 1 | u_offset_2 << 2 | u_offset_3 << 3 | u_offset_4 << 4 | u_offset_5 << 5 | u_offset_6 << 6;
+    // micro address next
 
-      if(typ_1 == 0 && typ_0 == 0){
-        micro_addr += micro_offset;
-        puts("Next is Offset");
-      }
-      else if(typ_1 == 1 && typ_0 == 0){
-        if(micro_condition == 0) micro_addr += 1;
-        else micro_addr += micro_offset;
-        puts("Next is Condition");
-      }
-      else if(typ_1 == 0 && typ_0 == 1){
-        micro_addr = 16;
-        puts("Next is Fetch");
-      }
-      else if(typ_1 == 1 && typ_0 == 1){
-        micro_addr = ir << 6;
-        puts("Next is IR");
-      }
+    mux_a = typ_1 && (typ_0 || !typ_0 && any_interruption);
+    mux_b = typ_1 && !typ_0;
 
-      // register writes
-      if(al_wrt) a = (a & 0xFF00) | zbus;
-      if(ah_wrt) a = (a & 0x00FF) | (zbus << 8);
-      if(bl_wrt) b = (b & 0xFF00) | zbus;
-      if(bh_wrt) b = (b & 0x00FF) | (zbus << 8);
-      if(cl_wrt) c = (c & 0xFF00) | zbus;
-      if(ch_wrt) c = (c & 0x00FF) | (zbus << 8);
-      if(dl_wrt) d = (d & 0xFF00) | zbus;
-      if(dh_wrt) d = (d & 0x00FF) | (zbus << 8);
-
-      if(pcl_wrt) pc = (pc & 0xFF00) | zbus;
-      if(pch_wrt) pc = (pc & 0x00FF) | (zbus << 8);
-      if(marl_wrt) mar = (mar & 0xFF00) | zbus;
-      if(marh_wrt) mar = (mar & 0x00FF) | (zbus << 8);
-      if(mdrl_wrt) mdr = (mdr & 0xFF00) | zbus;
-      if(mdrh_wrt) mdr = (mdr & 0x00FF) | (zbus << 8);
+    if(typ_1 == 0 && typ_0 == 0){
+      micro_addr += micro_offset;
     }
-    // Falling edge
-    else{
-       typ_0                        = microcode[micro_addr].rom_0.typ_0      ;
-       typ_1                        = microcode[micro_addr].rom_0.typ_1      ;
-       u_offset_0                   = microcode[micro_addr].rom_0.u_offset_0 ;
-       u_offset_1                   = microcode[micro_addr].rom_0.u_offset_1 ;
-       u_offset_2                   = microcode[micro_addr].rom_0.u_offset_2 ;
-       u_offset_3                   = microcode[micro_addr].rom_0.u_offset_3 ;
-       u_offset_4                   = microcode[micro_addr].rom_0.u_offset_4 ;
-       u_offset_5                   = microcode[micro_addr].rom_0.u_offset_5 ;
-       
-       u_offset_6                   = microcode[micro_addr].rom_1.u_offset_6   ;
-       cond_invert                  = microcode[micro_addr].rom_1.cond_invert  ;
-       cond_flag_src                = microcode[micro_addr].rom_1.cond_flag_src;
-       cond_sel_0                   = microcode[micro_addr].rom_1.cond_sel_0   ;
-       cond_sel_1                   = microcode[micro_addr].rom_1.cond_sel_1   ;
-       cond_sel_2                   = microcode[micro_addr].rom_1.cond_sel_2   ;
-       cond_sel_3                   = microcode[micro_addr].rom_1.cond_sel_3   ;
-       escape                       = microcode[micro_addr].rom_1.escape       ;
-       
-       u_zf_in_src_0                = microcode[micro_addr].rom_2.u_zf_in_src_0    ;
-       u_zf_in_src_1                = microcode[micro_addr].rom_2.u_zf_in_src_1    ;
-       u_cf_in_src_0                = microcode[micro_addr].rom_2.u_cf_in_src_0    ;
-       u_cf_in_src_1                = microcode[micro_addr].rom_2.u_cf_in_src_1    ;
-       u_sf_in_src                  = microcode[micro_addr].rom_2.u_sf_in_src      ;
-       u_of_in_src                  = microcode[micro_addr].rom_2.u_of_in_src      ;
-       ir_wrt                       = microcode[micro_addr].rom_2.ir_wrt           ;
-       status_flags_wrt             = microcode[micro_addr].rom_2.status_flags_wrt ;
-       
-       shift_src_0                  = microcode[micro_addr].rom_3.shift_src_0      ;
-       shift_src_1                  = microcode[micro_addr].rom_3.shift_src_1      ;
-       shift_src_2                  = microcode[micro_addr].rom_3.shift_src_2      ;
-       zbus_in_src_0                = microcode[micro_addr].rom_3.zbus_in_src_0    ;
-       zbus_in_src_1                = microcode[micro_addr].rom_3.zbus_in_src_1    ;
-       alu_a_src_0                  = microcode[micro_addr].rom_3.alu_a_src_0      ;
-       alu_a_src_1                  = microcode[micro_addr].rom_3.alu_a_src_1      ;
-       alu_a_src_2                  = microcode[micro_addr].rom_3.alu_a_src_2      ;
-       
-       alu_a_src_3                  = microcode[micro_addr].rom_4.alu_a_src_3    ;
-       alu_a_src_4                  = microcode[micro_addr].rom_4.alu_a_src_4    ;
-       alu_a_src_5                  = microcode[micro_addr].rom_4.alu_a_src_5    ;
-       alu_op_0                     = microcode[micro_addr].rom_4.alu_op_0       ;
-       alu_op_1                     = microcode[micro_addr].rom_4.alu_op_1       ;
-       alu_op_2                     = microcode[micro_addr].rom_4.alu_op_2       ;
-       alu_op_3                     = microcode[micro_addr].rom_4.alu_op_3       ;
-       alu_mode                     = microcode[micro_addr].rom_4.alu_mode       ;
-       
-       alu_cf_in_src0               = microcode[micro_addr].rom_5.alu_cf_in_src0        ;
-       alu_cf_in_src1               = microcode[micro_addr].rom_5.alu_cf_in_src1        ;
-       alu_cf_in_invert             = microcode[micro_addr].rom_5.alu_cf_in_invert      ;
-       zf_in_src_0                  = microcode[micro_addr].rom_5.zf_in_src_0           ;
-       zf_in_src_1                  = microcode[micro_addr].rom_5.zf_in_src_1           ;
-       alu_cf_out_invert            = microcode[micro_addr].rom_5.alu_cf_out_invert     ;
-       cf_in_src_0                  = microcode[micro_addr].rom_5.cf_in_src_0           ;
-       cf_in_src_1                  = microcode[micro_addr].rom_5.cf_in_src_1           ;
-       
-       cf_in_src_2                  = microcode[micro_addr].rom_6.cf_in_src_2    ;
-       sf_in_src_0                  = microcode[micro_addr].rom_6.sf_in_src_0    ;
-       sf_in_src_1                  = microcode[micro_addr].rom_6.sf_in_src_1    ;
-       of_in_src_0                  = microcode[micro_addr].rom_6.of_in_src_0    ;
-       of_in_src_1                  = microcode[micro_addr].rom_6.of_in_src_1    ;
-       of_in_src_2                  = microcode[micro_addr].rom_6.of_in_src_2    ;
-       rd                           = microcode[micro_addr].rom_6.rd             ;
-       wr                           = microcode[micro_addr].rom_6.wr             ;
-
-       alu_b_src_0                  = microcode[micro_addr].rom_7.alu_b_src_0        ;
-       alu_b_src_1                  = microcode[micro_addr].rom_7.alu_b_src_1        ;
-       alu_b_src_2                  = microcode[micro_addr].rom_7.alu_b_src_2        ;
-       display_reg_load             = microcode[micro_addr].rom_7.display_reg_load   ;
-       dl_wrt                       = microcode[micro_addr].rom_7.dl_wrt             ;
-       dh_wrt                       = microcode[micro_addr].rom_7.dh_wrt             ;
-       cl_wrt                       = microcode[micro_addr].rom_7.cl_wrt             ;
-       ch_wrt                       = microcode[micro_addr].rom_7.ch_wrt             ;
-       
-       bl_wrt                       = microcode[micro_addr].rom_8.bl_wrt         ;
-       bh_wrt                       = microcode[micro_addr].rom_8.bh_wrt         ;
-       al_wrt                       = microcode[micro_addr].rom_8.al_wrt         ;
-       ah_wrt                       = microcode[micro_addr].rom_8.ah_wrt         ;
-       mdr_in_src                   = microcode[micro_addr].rom_8.mdr_in_src     ;
-       mdr_out_src                  = microcode[micro_addr].rom_8.mdr_out_src    ;
-       mdr_out_en                   = microcode[micro_addr].rom_8.mdr_out_en       ;
-       mdrl_wrt                    = microcode[micro_addr].rom_8.mdrl_wrt        ;
-       
-       mdrh_wrt                    = microcode[micro_addr].rom_9.mdrh_wrt   ;
-       tdrl_wrt                    = microcode[micro_addr].rom_9.tdrl_wrt   ;
-       tdrh_wrt                    = microcode[micro_addr].rom_9.tdrh_wrt   ;
-       dil_wrt                     = microcode[micro_addr].rom_9.dil_wrt    ;
-       dih_wrt                     = microcode[micro_addr].rom_9.dih_wrt    ;
-       sil_wrt                     = microcode[micro_addr].rom_9.sil_wrt    ;
-       sih_wrt                     = microcode[micro_addr].rom_9.sih_wrt    ;
-       marl_wrt                    = microcode[micro_addr].rom_9.marl_wrt   ;
-       
-       marh_wrt                    = microcode[micro_addr].rom_10.marh_wrt   ;
-       bpl_wrt                     = microcode[micro_addr].rom_10.bpl_wrt    ;
-       bph_wrt                     = microcode[micro_addr].rom_10.bph_wrt    ;
-       pcl_wrt                     = microcode[micro_addr].rom_10.pcl_wrt    ;
-       pch_wrt                     = microcode[micro_addr].rom_10.pch_wrt    ;
-       spl_wrt                     = microcode[micro_addr].rom_10.spl_wrt    ;
-       sph_wrt                     = microcode[micro_addr].rom_10.sph_wrt    ;
-       unused                       = microcode[micro_addr].rom_10.unused      ;
-       
-       unused                       = microcode[micro_addr].rom_11.unused           ;
-       irq_vector_wrt               = microcode[micro_addr].rom_11.irq_vector_wrt   ;
-       irq_masks_wrt                = microcode[micro_addr].rom_11.irq_masks_wrt    ;
-       mar_in_src                   = microcode[micro_addr].rom_11.mar_in_src       ;
-       int_ack                      = microcode[micro_addr].rom_11.int_ack          ;
-       clear_all_ints               = microcode[micro_addr].rom_11.clear_all_ints   ;
-       ptb_wrt                      = microcode[micro_addr].rom_11.ptb_wrt          ;
-       page_table_we                = microcode[micro_addr].rom_11.page_table_we    ;
-       
-       mdr_to_pagetable_data_buffer = microcode[micro_addr].rom_12.mdr_to_pagetable_data_buffer ;
-       force_user_ptb               = microcode[micro_addr].rom_12.force_user_ptb               ;
-       unused2                      = microcode[micro_addr].rom_12.unused2                      ;
-       unused3                      = microcode[micro_addr].rom_12.unused3                      ;
-       unused4                      = microcode[micro_addr].rom_12.unused4                      ;
-       unused5                      = microcode[micro_addr].rom_12.unused5                      ;
-       gl_wrt                       = microcode[micro_addr].rom_12.gl_wrt                       ;
-       gh_wrt                       = microcode[micro_addr].rom_12.gh_wrt                       ;
-       
-       immy_0                       = microcode[micro_addr].rom_13.immy_0 ;
-       immy_1                       = microcode[micro_addr].rom_13.immy_1 ;
-       immy_2                       = microcode[micro_addr].rom_13.immy_2 ;
-       immy_3                       = microcode[micro_addr].rom_13.immy_3 ;
-       immy_4                       = microcode[micro_addr].rom_13.immy_4 ;
-       immy_5                       = microcode[micro_addr].rom_13.immy_5 ;
-       immy_6                       = microcode[micro_addr].rom_13.immy_6 ;
-       immy_7                       = microcode[micro_addr].rom_13.immy_7 ;
+    else if(typ_1 == 0 && typ_0 == 1){
+      if(micro_condition == 0) micro_addr += 1;
+      else micro_addr += micro_offset;
     }
-       
+    else if(typ_1 == 1 && typ_0 == 0){
+      micro_addr = 16;
+    }
+    else if(typ_1 == 1 && typ_0 == 1){
+      micro_addr = ir << 6;
+    }
+
+    // register writes
+    if(ir_wrt) ir = databus;
+    if(al_wrt) a = (a & 0xFF00) | zbus;
+    if(ah_wrt) a = (a & 0x00FF) | (zbus << 8);
+    if(bl_wrt) b = (b & 0xFF00) | zbus;
+    if(bh_wrt) b = (b & 0x00FF) | (zbus << 8);
+    if(cl_wrt) c = (c & 0xFF00) | zbus;
+    if(ch_wrt) c = (c & 0x00FF) | (zbus << 8);
+    if(dl_wrt) d = (d & 0xFF00) | zbus;
+    if(dh_wrt) d = (d & 0x00FF) | (zbus << 8);
+
+    if(pcl_wrt) pc = (pc & 0xFF00) | zbus;
+    if(pch_wrt) pc = (pc & 0x00FF) | (zbus << 8);
+    if(marl_wrt) mar = (mar & 0xFF00) | zbus;
+    if(marh_wrt) mar = (mar & 0x00FF) | (zbus << 8);
+    if(mdrl_wrt){
+      if(mdr_in_src) mdr = (mdr & 0xFF00) | databus;
+      else mdr = (mdr & 0xFF00) | zbus;
+    }
+    if(mdrh_wrt){
+      if(mdr_in_src) mdr = (mdr & 0x00FF) | databus;
+      else mdr = (mdr & 0x00FF) | (zbus << 8);
+    }
+
   }
+  // Falling edge
+  else{
+      typ_0                        = microcode[micro_addr].rom_0.typ_0      ;
+      typ_1                        = microcode[micro_addr].rom_0.typ_1      ;
+      u_offset_0                   = microcode[micro_addr].rom_0.u_offset_0 ;
+      u_offset_1                   = microcode[micro_addr].rom_0.u_offset_1 ;
+      u_offset_2                   = microcode[micro_addr].rom_0.u_offset_2 ;
+      u_offset_3                   = microcode[micro_addr].rom_0.u_offset_3 ;
+      u_offset_4                   = microcode[micro_addr].rom_0.u_offset_4 ;
+      u_offset_5                   = microcode[micro_addr].rom_0.u_offset_5 ;
+      
+      u_offset_6                   = microcode[micro_addr].rom_1.u_offset_6   ;
+      cond_invert                  = microcode[micro_addr].rom_1.cond_invert  ;
+      cond_flag_src                = microcode[micro_addr].rom_1.cond_flag_src;
+      cond_sel_0                   = microcode[micro_addr].rom_1.cond_sel_0   ;
+      cond_sel_1                   = microcode[micro_addr].rom_1.cond_sel_1   ;
+      cond_sel_2                   = microcode[micro_addr].rom_1.cond_sel_2   ;
+      cond_sel_3                   = microcode[micro_addr].rom_1.cond_sel_3   ;
+      escape                       = microcode[micro_addr].rom_1.escape       ;
+      
+      u_zf_in_src_0                = microcode[micro_addr].rom_2.u_zf_in_src_0    ;
+      u_zf_in_src_1                = microcode[micro_addr].rom_2.u_zf_in_src_1    ;
+      u_cf_in_src_0                = microcode[micro_addr].rom_2.u_cf_in_src_0    ;
+      u_cf_in_src_1                = microcode[micro_addr].rom_2.u_cf_in_src_1    ;
+      u_sf_in_src                  = microcode[micro_addr].rom_2.u_sf_in_src      ;
+      u_of_in_src                  = microcode[micro_addr].rom_2.u_of_in_src      ;
+      ir_wrt                       = microcode[micro_addr].rom_2.ir_wrt           ;
+      status_flags_wrt             = microcode[micro_addr].rom_2.status_flags_wrt ;
+      
+      shift_src_0                  = microcode[micro_addr].rom_3.shift_src_0      ;
+      shift_src_1                  = microcode[micro_addr].rom_3.shift_src_1      ;
+      shift_src_2                  = microcode[micro_addr].rom_3.shift_src_2      ;
+      zbus_in_src_0                = microcode[micro_addr].rom_3.zbus_in_src_0    ;
+      zbus_in_src_1                = microcode[micro_addr].rom_3.zbus_in_src_1    ;
+      alu_a_src_0                  = microcode[micro_addr].rom_3.alu_a_src_0      ;
+      alu_a_src_1                  = microcode[micro_addr].rom_3.alu_a_src_1      ;
+      alu_a_src_2                  = microcode[micro_addr].rom_3.alu_a_src_2      ;
+      
+      alu_a_src_3                  = microcode[micro_addr].rom_4.alu_a_src_3    ;
+      alu_a_src_4                  = microcode[micro_addr].rom_4.alu_a_src_4    ;
+      alu_a_src_5                  = microcode[micro_addr].rom_4.alu_a_src_5    ;
+      alu_op_0                     = microcode[micro_addr].rom_4.alu_op_0       ;
+      alu_op_1                     = microcode[micro_addr].rom_4.alu_op_1       ;
+      alu_op_2                     = microcode[micro_addr].rom_4.alu_op_2       ;
+      alu_op_3                     = microcode[micro_addr].rom_4.alu_op_3       ;
+      alu_mode                     = microcode[micro_addr].rom_4.alu_mode       ;
+      
+      alu_cf_in_src0               = microcode[micro_addr].rom_5.alu_cf_in_src0        ;
+      alu_cf_in_src1               = microcode[micro_addr].rom_5.alu_cf_in_src1        ;
+      alu_cf_in_invert             = microcode[micro_addr].rom_5.alu_cf_in_invert      ;
+      zf_in_src_0                  = microcode[micro_addr].rom_5.zf_in_src_0           ;
+      zf_in_src_1                  = microcode[micro_addr].rom_5.zf_in_src_1           ;
+      alu_cf_out_invert            = microcode[micro_addr].rom_5.alu_cf_out_invert     ;
+      cf_in_src_0                  = microcode[micro_addr].rom_5.cf_in_src_0           ;
+      cf_in_src_1                  = microcode[micro_addr].rom_5.cf_in_src_1           ;
+      
+      cf_in_src_2                  = microcode[micro_addr].rom_6.cf_in_src_2    ;
+      sf_in_src_0                  = microcode[micro_addr].rom_6.sf_in_src_0    ;
+      sf_in_src_1                  = microcode[micro_addr].rom_6.sf_in_src_1    ;
+      of_in_src_0                  = microcode[micro_addr].rom_6.of_in_src_0    ;
+      of_in_src_1                  = microcode[micro_addr].rom_6.of_in_src_1    ;
+      of_in_src_2                  = microcode[micro_addr].rom_6.of_in_src_2    ;
+      rd                           = microcode[micro_addr].rom_6.rd             ;
+      wr                           = microcode[micro_addr].rom_6.wr             ;
+
+      alu_b_src_0                  = microcode[micro_addr].rom_7.alu_b_src_0        ;
+      alu_b_src_1                  = microcode[micro_addr].rom_7.alu_b_src_1        ;
+      alu_b_src_2                  = microcode[micro_addr].rom_7.alu_b_src_2        ;
+      display_reg_load             = microcode[micro_addr].rom_7.display_reg_load   ;
+      dl_wrt                       = microcode[micro_addr].rom_7.dl_wrt             ;
+      dh_wrt                       = microcode[micro_addr].rom_7.dh_wrt             ;
+      cl_wrt                       = microcode[micro_addr].rom_7.cl_wrt             ;
+      ch_wrt                       = microcode[micro_addr].rom_7.ch_wrt             ;
+      
+      bl_wrt                       = microcode[micro_addr].rom_8.bl_wrt         ;
+      bh_wrt                       = microcode[micro_addr].rom_8.bh_wrt         ;
+      al_wrt                       = microcode[micro_addr].rom_8.al_wrt         ;
+      ah_wrt                       = microcode[micro_addr].rom_8.ah_wrt         ;
+      mdr_in_src                   = microcode[micro_addr].rom_8.mdr_in_src     ;
+      mdr_out_src                  = microcode[micro_addr].rom_8.mdr_out_src    ;
+      mdr_out_en                   = microcode[micro_addr].rom_8.mdr_out_en       ;
+      mdrl_wrt                    = microcode[micro_addr].rom_8.mdrl_wrt        ;
+      
+      mdrh_wrt                    = microcode[micro_addr].rom_9.mdrh_wrt   ;
+      tdrl_wrt                    = microcode[micro_addr].rom_9.tdrl_wrt   ;
+      tdrh_wrt                    = microcode[micro_addr].rom_9.tdrh_wrt   ;
+      dil_wrt                     = microcode[micro_addr].rom_9.dil_wrt    ;
+      dih_wrt                     = microcode[micro_addr].rom_9.dih_wrt    ;
+      sil_wrt                     = microcode[micro_addr].rom_9.sil_wrt    ;
+      sih_wrt                     = microcode[micro_addr].rom_9.sih_wrt    ;
+      marl_wrt                    = microcode[micro_addr].rom_9.marl_wrt   ;
+      
+      marh_wrt                    = microcode[micro_addr].rom_10.marh_wrt   ;
+      bpl_wrt                     = microcode[micro_addr].rom_10.bpl_wrt    ;
+      bph_wrt                     = microcode[micro_addr].rom_10.bph_wrt    ;
+      pcl_wrt                     = microcode[micro_addr].rom_10.pcl_wrt    ;
+      pch_wrt                     = microcode[micro_addr].rom_10.pch_wrt    ;
+      spl_wrt                     = microcode[micro_addr].rom_10.spl_wrt    ;
+      sph_wrt                     = microcode[micro_addr].rom_10.sph_wrt    ;
+      unused                       = microcode[micro_addr].rom_10.unused      ;
+      
+      unused                       = microcode[micro_addr].rom_11.unused           ;
+      irq_vector_wrt               = microcode[micro_addr].rom_11.irq_vector_wrt   ;
+      irq_masks_wrt                = microcode[micro_addr].rom_11.irq_masks_wrt    ;
+      mar_in_src                   = microcode[micro_addr].rom_11.mar_in_src       ;
+      int_ack                      = microcode[micro_addr].rom_11.int_ack          ;
+      clear_all_ints               = microcode[micro_addr].rom_11.clear_all_ints   ;
+      ptb_wrt                      = microcode[micro_addr].rom_11.ptb_wrt          ;
+      page_table_we                = microcode[micro_addr].rom_11.page_table_we    ;
+      
+      mdr_to_pagetable_data_buffer = microcode[micro_addr].rom_12.mdr_to_pagetable_data_buffer ;
+      force_user_ptb               = microcode[micro_addr].rom_12.force_user_ptb               ;
+      unused2                      = microcode[micro_addr].rom_12.unused2                      ;
+      unused3                      = microcode[micro_addr].rom_12.unused3                      ;
+      unused4                      = microcode[micro_addr].rom_12.unused4                      ;
+      unused5                      = microcode[micro_addr].rom_12.unused5                      ;
+      gl_wrt                       = microcode[micro_addr].rom_12.gl_wrt                       ;
+      gh_wrt                       = microcode[micro_addr].rom_12.gh_wrt                       ;
+      
+      immy_0                       = microcode[micro_addr].rom_13.immy_0 ;
+      immy_1                       = microcode[micro_addr].rom_13.immy_1 ;
+      immy_2                       = microcode[micro_addr].rom_13.immy_2 ;
+      immy_3                       = microcode[micro_addr].rom_13.immy_3 ;
+      immy_4                       = microcode[micro_addr].rom_13.immy_4 ;
+      immy_5                       = microcode[micro_addr].rom_13.immy_5 ;
+      immy_6                       = microcode[micro_addr].rom_13.immy_6 ;
+      immy_7                       = microcode[micro_addr].rom_13.immy_7 ;
+  }
+
+  if(rd){
+    databus = bios_memory[mar];
+  }
+  if(wr){
+    bios_memory[mar] = databus;
+  }
+
+  printf("Typ: %d, %d\n", typ_1, typ_0);  
+  printf("uaddr: %d\n", micro_addr);  
 }
 
 void microcode_step(){
 
 }
 
-void load_program(char *filename){
-  unsigned char *p;
-  FILE *fp;
-  int i;
-  
-  if((fp = fopen(filename, "rb")) == NULL){
-    printf("%s: Source file not found.\n", filename);
-    exit(1);
-  }
-  
-  p = program_in;
-  i = 0;
-  do{
-    *(p++) = getc(fp);
-    i++;
-  } while(!feof(fp));
-  *(p - 1) = '\0'; // overwrite the EOF char with NULL
-  fclose(fp);
-
-  puts("Program loaded successfully.");
-}
 
 void load_microcode_roms(){
   FILE *fp;
@@ -317,6 +328,9 @@ void load_microcode_roms(){
           rom_addr++;
         } while(!feof(fp));
         fclose(fp);
+        for(int i =0;i<256*64;i++){
+          printf("ROM0: %x", microcode[0].rom_0.as_array);
+        }
         break;
       case 1:
         do{

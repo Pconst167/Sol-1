@@ -2352,7 +2352,7 @@ int is_assignment(){
 
 t_type parse_assignment(){
   char var_name[ID_LEN];
-  t_type expr_in, expr_out;
+  t_type expr_in, var_type, expr_out;
   int found_assignment;
 
   // Look for a '=' sign
@@ -2369,30 +2369,37 @@ t_type parse_assignment(){
     if(is_constant(curr_token.token_str)) 
       error(ERR_FATAL, "assignment of read-only variable: %s", curr_token.token_str);
     strcpy(var_name, curr_token.token_str);
-    expr_in = emit_var_addr_into_d(var_name);
+    var_type = emit_var_addr_into_d(var_name);
     get();
     // past '=' here
     emitln("  push d"); // save 'd'. this is the array base address. save because expr below could use 'd' and overwrite it
-    parse_expr(); // evaluate expression, result in 'b'
+    expr_in = parse_expr(); // evaluate expression, result in 'b'
     emitln("  pop d"); 
-    if(expr_in.ind_level > 0)
+    if(var_type.ind_level > 0)
       emitln("  mov [d], b");
-    else if(expr_in.primitive_type == DT_INT && expr_in.ind_level == 0 && expr_in.size_modifier == MOD_LONG){
-      emitln("  mov [d], b");
-      emitln("  mov b, c");
-      emitln("  mov [d + 2], b");
+    else if(var_type.primitive_type == DT_INT && var_type.ind_level == 0 && var_type.size_modifier == MOD_LONG){
+      if(expr_in.ind_level == 0 && expr_in.size_modifier == MOD_LONG){
+        emitln("  mov [d], b");
+        emitln("  mov b, c");
+        emitln("  mov [d + 2], b");
+      }
+      else{
+        emitln("  mov [d], b");
+        emitln("  mov b, 0");
+        emitln("  mov [d + 2], b");
+      }
     }
-    else if(expr_in.primitive_type == DT_INT)
+    else if(var_type.primitive_type == DT_INT)
       emitln("  mov [d], b");
-    else if(expr_in.primitive_type == DT_CHAR)
+    else if(var_type.primitive_type == DT_CHAR)
       emitln("  mov [d], bl");
-    else if(expr_in.primitive_type == DT_STRUCT){
+    else if(var_type.primitive_type == DT_STRUCT){
       emitln("  mov si, b");
       emitln("  mov di, d");
-      emitln("  mov c, %d", get_total_type_size(expr_in));
+      emitln("  mov c, %d", get_total_type_size(var_type));
       emitln("  rep movsb");
     }
-    expr_out = expr_in;
+    expr_out = var_type;
     return expr_out;
   }
   else if(curr_token.tok == STAR){ // tests if this is a pointer assignment
@@ -2564,19 +2571,11 @@ t_type parse_bitwise_or(void){
       if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_bitwise_xor();
       if(type_is_32bit(cast(expr_out, type2))){
-        emitln("  or a, b ; |");
-        emitln("  push a");
-        if(type_is_32bit(expr_out))
-          emitln("  mov a, g");
-        else
-          emitln("  mov a, 0");
-        if(type_is_32bit(type2))
-          emitln("  mov b, c");
-        else
-          emitln("  mov b, 0");
-        emitln("  or a, b ; |");
-        emitln("  mov c, a");
-        emitln("  pop b");
+        if(!type_is_32bit(type2))
+          emitln("  mov c, 0");
+        if(!type_is_32bit(expr_out))
+          emitln("  mov g, 0");
+        emitln("  or32 cb, ga");
       }
       else{
         emitln("  or b, a ; |");
@@ -2622,19 +2621,11 @@ t_type parse_bitwise_and(void){
       if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_relational();
       if(type_is_32bit(cast(expr_out, type2))){
-        emitln("  and a, b ; |");
-        emitln("  push a");
-        if(type_is_32bit(expr_out))
-          emitln("  mov a, g");
-        else
-          emitln("  mov a, 0");
-        if(type_is_32bit(type2))
-          emitln("  mov b, c");
-        else
-          emitln("  mov b, 0");
-        emitln("  and a, b ; |");
-        emitln("  mov c, a");
-        emitln("  pop b");
+        if(!type_is_32bit(type2))
+          emitln("  mov c, 0");
+        if(!type_is_32bit(expr_out))
+          emitln("  mov g, 0");
+        emitln("  and32 cb, ga");
       }
       else{
         emitln("  and b, a ; &");
@@ -2735,6 +2726,7 @@ t_type parse_relational(void){
             if(!type_is_32bit(type2))
               emitln("  mov c, 0");
 
+            emitln("  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
               emitln("  sleu"); // result in b
             else
@@ -2755,6 +2747,7 @@ t_type parse_relational(void){
             if(!type_is_32bit(type2))
               emitln("  mov c, 0");
 
+            emitln("  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
               emitln("  sgu"); // result in b
             else
@@ -2775,6 +2768,7 @@ t_type parse_relational(void){
             if(!type_is_32bit(type2))
               emitln("  mov c, 0");
 
+            emitln("  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
               emitln("  sgeu"); // result in b
             else
@@ -2854,20 +2848,30 @@ t_type parse_terms(void){
       // ga + cb
       if(temp_tok == PLUS){
         if(type_is_32bit(expr_out)){
-          emitln("  add a, b");
-          emitln("  push a");
-          emitln("  mov a, g");
-          emitln("  mov b, c");
-          emitln("  adc a, b");
-          emitln("  mov c, a");
-          emitln("  pop b");
+          if(!type_is_32bit(type2))
+            emitln("  mov c, 0");
+          if(!type_is_32bit(expr_out))
+            emitln("  mov g, 0");
+
+          emitln("  add32 cb, ga");
         }
         else
           emitln("  add b, a");
       }
       else if(temp_tok == MINUS){
-        emitln("  sub a, b");
-        emitln("  mov b, a");
+        if(type_is_32bit(expr_out)){
+          if(!type_is_32bit(type2))
+            emitln("  mov c, 0");
+          if(!type_is_32bit(expr_out))
+            emitln("  mov g, 0");
+          emitln("  sub32 ga, cb");
+          emitln("  mov b, a");
+          emitln("  mov g, c");
+        }
+        else{
+          emitln("  sub a, b");
+          emitln("  mov b, a");
+        }
       }
     }
     if(type_is_32bit(type1)) emitln("  pop g");
@@ -3401,6 +3405,8 @@ void parse_function_call(int func_id){
   int parenthesis_count;
   char *prog_at_end_of_header;
 
+
+  emitln("; --- START FUNCTION CALL");
   get();
   if(curr_token.tok == CLOSING_PAREN){
     if(function_table[func_id].num_fixed_args != 0)
@@ -3477,11 +3483,9 @@ void parse_function_call(int func_id){
       emitln("  rep movsb");
     }
     else if(arg_type.size_modifier == MOD_LONG){
-      emitln("  mov g, b");
-      emitln("  mov b, c");
-      emitln("  swp b");
-      emitln("  push b");
-      emitln("  mov b, g");
+      emitln("  mov a, c");
+      emitln("  swp a");
+      emitln("  push a");
       emitln("  swp b");
       emitln("  push b");
     }
@@ -3509,6 +3513,7 @@ void parse_function_call(int func_id){
 
   // recover prog, placing it at the end of the function header
   prog = prog_at_end_of_header;
+  emitln("; --- END FUNCTION CALL");
 }
 
 int get_struct_element_offset(int struct_id, char *name){

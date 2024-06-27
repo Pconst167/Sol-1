@@ -483,3 +483,5 @@ SHR32 GA,CL                     1EFD  2    NOP      1
 
 
 
+MOV CB,@                        1FFD  6    NOP      1
+MOV GA,@                        2DFD  6    NOP      1

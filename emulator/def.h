@@ -622,10 +622,12 @@ uint8_t irq_req;
 uint8_t dma_req;
 uint8_t status_irq_enable;
 
+unsigned char arst;
 unsigned char reset;
 unsigned char clk;
 unsigned char memory[256][65536];
 unsigned char bios_memory[65536];
+unsigned char databus;
 
 unsigned char program_in[65536];
 

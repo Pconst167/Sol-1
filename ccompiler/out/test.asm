@@ -7,38 +7,26 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; unsigned int i; 
-  sub sp, 2
-; for(i = 0; i < 100; i++){ 
-_for1_init:
-  lea d, [bp + -1] ; $i
+; long int i, j; 
+  sub sp, 4
+  sub sp, 4
+; i = 0xFFFFFFF0; 
+  lea d, [bp + -3] ; $i
   push d
-  mov b, $0
+  mov b, 65520
+  mov c, 65535
   pop d
   mov [d], b
-_for1_cond:
-  lea d, [bp + -1] ; $i
-  mov b, [d]
-; --- START RELATIONAL
-  push a
-  mov a, b
-  mov b, $64
-  cmp a, b
-  slu ; < (unsigned)
-  pop a
-; --- END RELATIONAL
-  cmp b, 0
-  je _for1_exit
-_for1_block:
-_for1_update:
-  lea d, [bp + -1] ; $i
-  mov b, [d]
-  inc b
-  lea d, [bp + -1] ; $i
+  mov b, c
+  mov [d + 2], b
+; j = 0x00000001; 
+  lea d, [bp + -7] ; $j
+  push d
+  mov b, $1
+  pop d
   mov [d], b
-  dec b
-  jmp _for1_cond
-_for1_exit:
+  mov b, 0
+  mov [d + 2], b
   syscall sys_terminate_proc
 ; --- END TEXT SEGMENT
 
