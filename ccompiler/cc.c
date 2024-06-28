@@ -462,8 +462,8 @@ void declare_heap(){
   global_var_table[global_var_tos].type.is_constant = false;
   global_var_table[global_var_tos].type.dims[0] = 0;
   global_var_table[global_var_tos].type.ind_level = 1;
-  global_var_table[global_var_tos].type.size_modifier = MOD_NORMAL;
-  global_var_table[global_var_tos].type.sign_modifier = SNESS_UNSIGNED;
+  global_var_table[global_var_tos].type.size_modifier = SIZEMOD_NORMAL;
+  global_var_table[global_var_tos].type.sign_modifier = SIGNMOD_UNSIGNED;
   global_var_tos++;
 }
 
@@ -813,14 +813,14 @@ t_type get_type(){
     type = typedef_table[typedef_id].type;                                     
   }                                                                            
   else{                                                                        
-    type.sign_modifier = SNESS_SIGNED; // set as signed by default             
-    type.size_modifier = MOD_NORMAL; // set as signed by default               
+    type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default             
+    type.size_modifier = SIZEMOD_NORMAL; // set as signed by default               
     type.is_constant = false;
     while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){    
-           if(curr_token.tok == SIGNED)   type.sign_modifier = SNESS_SIGNED;         
-      else if(curr_token.tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;            
-      else if(curr_token.tok == SHORT)    type.size_modifier = MOD_SHORT;                 
-      else if(curr_token.tok == LONG)     type.size_modifier = MOD_LONG;                  
+           if(curr_token.tok == SIGNED)   type.sign_modifier = SIGNMOD_SIGNED;         
+      else if(curr_token.tok == UNSIGNED) type.sign_modifier = SIGNMOD_UNSIGNED;            
+      else if(curr_token.tok == SHORT)    type.size_modifier = SIZEMOD_SHORT;                 
+      else if(curr_token.tok == LONG)     type.size_modifier = SIZEMOD_LONG;                  
       get();                                                                   
     }                                                                          
     type.primitive_type = get_primitive_type_from_tok();                       
@@ -888,13 +888,13 @@ int declare_struct(){
       get();
     }
     else{
-      new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
-      new_struct.elements[element_tos].type.size_modifier = MOD_NORMAL; // set as signed by default
+      new_struct.elements[element_tos].type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default
+      new_struct.elements[element_tos].type.size_modifier = SIZEMOD_NORMAL; // set as signed by default
       while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){
-            if(curr_token.tok == SIGNED)   new_struct.elements[element_tos].type.sign_modifier = SNESS_SIGNED;
-        else if(curr_token.tok == UNSIGNED) new_struct.elements[element_tos].type.sign_modifier = SNESS_UNSIGNED;
-        else if(curr_token.tok == SHORT)    new_struct.elements[element_tos].type.size_modifier   = MOD_SHORT;
-        else if(curr_token.tok == LONG)     new_struct.elements[element_tos].type.size_modifier   = MOD_LONG;
+            if(curr_token.tok == SIGNED)   new_struct.elements[element_tos].type.sign_modifier = SIGNMOD_SIGNED;
+        else if(curr_token.tok == UNSIGNED) new_struct.elements[element_tos].type.sign_modifier = SIGNMOD_UNSIGNED;
+        else if(curr_token.tok == SHORT)    new_struct.elements[element_tos].type.size_modifier   = SIZEMOD_SHORT;
+        else if(curr_token.tok == LONG)     new_struct.elements[element_tos].type.size_modifier   = SIZEMOD_LONG;
         get();
       }
       new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
@@ -1105,7 +1105,7 @@ int declare_local(void){
           emitln("  pop d");
           if(init_expr.ind_level > 0)
             emitln("  mov [d], b");
-          else if(init_expr.primitive_type == DT_INT && init_expr.ind_level == 0 && init_expr.size_modifier == MOD_LONG){
+          else if(init_expr.primitive_type == DT_INT && init_expr.ind_level == 0 && init_expr.size_modifier == SIZEMOD_LONG){
             emitln("  mov [d], b");
             emitln("  mov b, c");
             emitln("  mov [d + 2], b");
@@ -1298,14 +1298,14 @@ void declare_typedef(void){
   }
 
   get(); 
-  type.sign_modifier = SNESS_SIGNED; // set as signed by default
-  type.size_modifier = MOD_NORMAL; 
+  type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default
+  type.size_modifier = SIZEMOD_NORMAL; 
   while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == SHORT || curr_token.tok == LONG || curr_token.tok == CONST){
     if(curr_token.tok == CONST) type.is_constant = true;
-    else if(curr_token.tok == SIGNED)   type.sign_modifier = SNESS_SIGNED;
-    else if(curr_token.tok == UNSIGNED) type.sign_modifier = SNESS_UNSIGNED;
-    else if(curr_token.tok == SHORT)    type.size_modifier = MOD_SHORT;
-    else if(curr_token.tok == LONG)     type.size_modifier = MOD_LONG;
+    else if(curr_token.tok == SIGNED)   type.sign_modifier = SIGNMOD_SIGNED;
+    else if(curr_token.tok == UNSIGNED) type.sign_modifier = SIGNMOD_UNSIGNED;
+    else if(curr_token.tok == SHORT)    type.size_modifier = SIZEMOD_SHORT;
+    else if(curr_token.tok == LONG)     type.size_modifier = SIZEMOD_LONG;
     get();
   }
   type.primitive_type = get_primitive_type_from_tok();
@@ -1479,13 +1479,13 @@ void declare_func(void){
     function_table[function_table_tos].return_type = typedef_table[typedef_id].type;
   }
   else{
-    function_table[function_table_tos].return_type.sign_modifier = SNESS_SIGNED; // set as signed by default
-    function_table[function_table_tos].return_type.size_modifier = MOD_NORMAL; 
+    function_table[function_table_tos].return_type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default
+    function_table[function_table_tos].return_type.size_modifier = SIZEMOD_NORMAL; 
     while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == SHORT || curr_token.tok == LONG){
-           if(curr_token.tok == SIGNED)   function_table[function_table_tos].return_type.sign_modifier = SNESS_SIGNED;
-      else if(curr_token.tok == UNSIGNED) function_table[function_table_tos].return_type.sign_modifier = SNESS_UNSIGNED;
-      else if(curr_token.tok == SHORT)    function_table[function_table_tos].return_type.size_modifier = MOD_SHORT;
-      else if(curr_token.tok == LONG)     function_table[function_table_tos].return_type.size_modifier = MOD_LONG;
+           if(curr_token.tok == SIGNED)   function_table[function_table_tos].return_type.sign_modifier = SIGNMOD_SIGNED;
+      else if(curr_token.tok == UNSIGNED) function_table[function_table_tos].return_type.sign_modifier = SIGNMOD_UNSIGNED;
+      else if(curr_token.tok == SHORT)    function_table[function_table_tos].return_type.size_modifier = SIZEMOD_SHORT;
+      else if(curr_token.tok == LONG)     function_table[function_table_tos].return_type.size_modifier = SIZEMOD_LONG;
       get();
     }
     function_table[function_table_tos].return_type.primitive_type = get_primitive_type_from_tok();
@@ -1561,17 +1561,17 @@ void declare_func(void){
         get();
       }
       else{
-        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_SIGNED; // set as signed by default
-        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_NORMAL; 
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = SIZEMOD_NORMAL; 
         while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || 
               curr_token.tok == SHORT  || curr_token.tok == LONG      ||
               curr_token.tok == VOLATILE
         ){
                if(curr_token.tok == VOLATILE) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_volatile = true;
-          else if(curr_token.tok == SIGNED)   function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_SIGNED;
-          else if(curr_token.tok == UNSIGNED) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SNESS_UNSIGNED;
-          else if(curr_token.tok == SHORT)    function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_SHORT;
-          else if(curr_token.tok == LONG)     function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = MOD_LONG;
+          else if(curr_token.tok == SIGNED)   function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SIGNMOD_SIGNED;
+          else if(curr_token.tok == UNSIGNED) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SIGNMOD_UNSIGNED;
+          else if(curr_token.tok == SHORT)    function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = SIZEMOD_SHORT;
+          else if(curr_token.tok == LONG)     function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = SIZEMOD_LONG;
           get();
         }
         if(curr_token.tok != VOID   && curr_token.tok != CHAR   && 
@@ -1659,14 +1659,14 @@ int get_param_size(){
 
   data_size = 0;
   struct_enum_id = -1;
-  size_modifier = MOD_NORMAL;  
+  size_modifier = SIZEMOD_NORMAL;  
   get();
   while(curr_token.tok == CONST  || curr_token.tok == STATIC   ||
         curr_token.tok == SIGNED || curr_token.tok == UNSIGNED ||
         curr_token.tok == SHORT  || curr_token.tok == LONG     ||
         curr_token.tok == VOLATILE
   ){
-    if(curr_token.tok == LONG) size_modifier = MOD_LONG;
+    if(curr_token.tok == LONG) size_modifier = SIZEMOD_LONG;
     get();
   }
 
@@ -1681,7 +1681,7 @@ int get_param_size(){
       data_size = 1;
       break;
     case INT:
-      if(size_modifier == MOD_LONG)
+      if(size_modifier == SIZEMOD_LONG)
         data_size = 4;
       else  
         data_size = 2;
@@ -2305,8 +2305,8 @@ t_type parse_expr(){
   type.dims[0] = 0;
   type.ind_level = 0;
   type.primitive_type = DT_INT;
-  type.sign_modifier = SNESS_SIGNED;
-  type.size_modifier = MOD_NORMAL;
+  type.sign_modifier = SIGNMOD_SIGNED;
+  type.size_modifier = SIZEMOD_NORMAL;
   get();
   if(curr_token.tok == SEMICOLON) 
     return type;
@@ -2378,8 +2378,8 @@ t_type parse_assignment(){
     if(var_type.ind_level > 0){
       emitln("  mov [d], b");
     }
-    else if(var_type.primitive_type == DT_INT && var_type.ind_level == 0 && var_type.size_modifier == MOD_LONG){
-      if(expr_in.ind_level == 0 && expr_in.size_modifier == MOD_LONG){
+    else if(var_type.primitive_type == DT_INT && var_type.ind_level == 0 && var_type.size_modifier == SIZEMOD_LONG){
+      if(expr_in.ind_level == 0 && expr_in.size_modifier == SIZEMOD_LONG){
         emitln("  mov [d], b");
         emitln("  mov b, c");
         emitln("  mov [d + 2], b");
@@ -2420,7 +2420,7 @@ t_type parse_assignment(){
           emitln("  mov [d], bl");
         break;
       case DT_INT:
-        if(pointer_expr.ind_level == 1 && pointer_expr.size_modifier == MOD_LONG){
+        if(pointer_expr.ind_level == 1 && pointer_expr.size_modifier == SIZEMOD_LONG){
           emitln("  mov [d], b");
           emitln("  mov b, c");
           emitln("  mov [d + 2], b");
@@ -2697,14 +2697,14 @@ t_type parse_relational(void){
             if(!type_is_32bit(expr_out))
               emitln("  mov g, 0");
             emitln("  cmp32 ga, cb");
-            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
               emitln("  slu ; <");
             else
               emitln("  slt ; <");
           }
           else{
             emitln("  cmp a, b");
-            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
               emitln("  slu ; < (unsigned)");
             else
               emitln("  slt ; < (signed)");
@@ -2723,14 +2723,14 @@ t_type parse_relational(void){
               emitln("  mov g, 0");
 
             emitln("  cmp32 ga, cb");
-            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
               emitln("  sleu"); // result in b
             else
               emitln("  sle"); // result in b
           }
           else{
             emitln("  cmp a, b");
-            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
               emitln("  sleu ; <= (unsigned)");
             else
               emitln("  sle ; <= (signed)");
@@ -2742,14 +2742,14 @@ t_type parse_relational(void){
               emitln("  mov g, 0");
 
             emitln("  cmp32 ga, cb");
-            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
               emitln("  sgu"); // result in b
             else
               emitln("  sgt"); // result in b
           }
           else{
             emitln("  cmp a, b");
-            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
               emitln("  sgu ; > (unsigned)");
             else
               emitln("  sgt ; >");
@@ -2761,14 +2761,14 @@ t_type parse_relational(void){
               emitln("  mov g, 0");
 
             emitln("  cmp32 ga, cb");
-            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
               emitln("  sgeu"); // result in b
             else
               emitln("  sge"); // result in b
           }
           else{
             emitln("  cmp a, b");
-            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
+            if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
               emitln("  sgeu ; >= (unsigned)");
             else
               emitln("  sge ; >=");
@@ -2801,13 +2801,13 @@ t_type parse_bitwise_shift(void){
       expr_out = cast(expr_out, type2);
       emitln("  mov c, b"); // using 16bit values even though only cl is needed, because 'mov cl, bl' is not implemented as an opcode
       if(temp_tok == BITWISE_SHL){
-        if(type1.sign_modifier == SNESS_SIGNED) 
+        if(type1.sign_modifier == SIGNMOD_SIGNED) 
           emitln("  shl a, cl"); // there is no ashl, since it is equal to shl
         else 
           emitln("  shl a, cl");
       }
       else if(temp_tok == BITWISE_SHR){
-        if(type1.sign_modifier == SNESS_SIGNED) 
+        if(type1.sign_modifier == SIGNMOD_SIGNED) 
           emitln("  ashr a, cl");
         else 
           emitln("  shr a, cl");
@@ -2963,7 +2963,7 @@ t_type parse_atomic(void){
       emitln("  mov b, %d; %s", get_enum_val(temp_name), temp_name);
       expr_out.primitive_type = DT_INT;
       expr_out.ind_level = 0;
-      expr_out.sign_modifier = SNESS_SIGNED; // TODO: check enums can always be signed...
+      expr_out.sign_modifier = SIGNMOD_SIGNED; // TODO: check enums can always be signed...
     }
     else{
       back();
@@ -2978,7 +2978,7 @@ t_type parse_atomic(void){
         emitln("  mov b, [d]"); 
         emitln("  mov c, 0");  // for long ints
       }
-      else if(expr_out.primitive_type == DT_INT && expr_out.size_modifier == MOD_LONG){
+      else if(expr_out.primitive_type == DT_INT && expr_out.size_modifier == SIZEMOD_LONG){
         emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
         emitln("  mov c, b ; And place it into C"); 
         emitln("  mov b, [d] ; Lower Word in B"); 
@@ -3007,18 +3007,18 @@ t_type parse_atomic(void){
       if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing paren expected");
     }
     else{
-      sign_modifier = SNESS_SIGNED;
-      size_modifier  = MOD_NORMAL;
+      sign_modifier = SIGNMOD_SIGNED;
+      size_modifier  = SIZEMOD_NORMAL;
 
       while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){
         if(curr_token.tok == SIGNED)
-          sign_modifier = SNESS_SIGNED;
+          sign_modifier = SIGNMOD_SIGNED;
         else if(curr_token.tok == UNSIGNED)
-          sign_modifier = SNESS_UNSIGNED;
+          sign_modifier = SIGNMOD_UNSIGNED;
         else if(curr_token.tok == SHORT)
-          size_modifier = MOD_SHORT;
+          size_modifier = SIZEMOD_SHORT;
         else if(curr_token.tok == LONG)
-          size_modifier = MOD_LONG;
+          size_modifier = SIZEMOD_LONG;
         get();
       }
 
@@ -3046,21 +3046,21 @@ t_type parse_atomic(void){
         back();
       }
       else if(primitive_type == DT_INT){
-        if(size_modifier == MOD_NORMAL){
+        if(size_modifier == SIZEMOD_NORMAL){
           expr_out = parse_atomic();
-          if(sign_modifier == SNESS_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
+          if(sign_modifier == SIGNMOD_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
             emitln("  snex b"); // sign extend b
-          else if(sign_modifier == SNESS_UNSIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
+          else if(sign_modifier == SIGNMOD_UNSIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
             emitln("  mov bh, 0"); // zero extend b
           back();
         }
-        else if(size_modifier == MOD_LONG){
+        else if(size_modifier == SIZEMOD_LONG){
           expr_out = parse_atomic();
-          if(sign_modifier == SNESS_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR || expr_out.primitive_type == DT_INT){
+          if(sign_modifier == SIGNMOD_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR || expr_out.primitive_type == DT_INT){
             emitln("  snex b"); // sign extend b
             emitln("  mov c, b"); // sign extend c
           }
-          else if((sign_modifier == SNESS_UNSIGNED && ind_level == 0 && (expr_out.primitive_type == DT_CHAR) || expr_out.primitive_type == DT_INT)){
+          else if((sign_modifier == SIGNMOD_UNSIGNED && ind_level == 0 && (expr_out.primitive_type == DT_CHAR) || expr_out.primitive_type == DT_INT)){
             emitln("  mov bh, 0"); // zero extend b
             emitln("  mov c, 0"); // zero extend c
           }
@@ -3071,7 +3071,7 @@ t_type parse_atomic(void){
         expr_out = parse_atomic();
         if(ind_level == 0){
           emitln("  mov bh, 0"); // zero out bh to make it a char
-          if(expr_out.size_modifier == MOD_LONG)
+          if(expr_out.size_modifier == SIZEMOD_LONG)
             emitln("  mov c, 0"); // and if the type is longm then zero out c as well
         }
         back();
@@ -3130,7 +3130,7 @@ t_type parse_sizeof(){
   }
   type.primitive_type = DT_INT;
   type.ind_level = 0;
-  type.sign_modifier = SNESS_SIGNED;
+  type.sign_modifier = SIGNMOD_SIGNED;
   expect(CLOSING_PAREN, "Closing paren expected");
   return type;
 }
@@ -3145,10 +3145,10 @@ t_type parse_string_const(){
   }
   // now emit the reference to this string into the ASM
   emitln("  mov b, _s%d ; \"%s\"", string_id, curr_token.string_const);
-  expr_out.size_modifier = MOD_NORMAL;
+  expr_out.size_modifier = SIZEMOD_NORMAL;
   expr_out.primitive_type = DT_CHAR;
   expr_out.ind_level = 1;
-  expr_out.sign_modifier = SNESS_SIGNED;
+  expr_out.sign_modifier = SIGNMOD_SIGNED;
   return expr_out;
 }
 
@@ -3172,10 +3172,10 @@ t_type parse_unary_logical_not(){
   emitln("  cmp b, 0");
   emitln("  seq ; !");
   back();
-  expr_out.size_modifier = MOD_NORMAL;
+  expr_out.size_modifier = SIZEMOD_NORMAL;
   expr_out.primitive_type = DT_INT;
   expr_out.ind_level = 0;
-  expr_out.sign_modifier = SNESS_UNSIGNED;
+  expr_out.sign_modifier = SIGNMOD_UNSIGNED;
   return expr_out;
 }
 
@@ -3183,11 +3183,21 @@ t_type parse_bitwise_not(){
   t_type expr_out;
 
   expr_out = parse_atomic(); // in 'b'
-  if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT) 
+  if(expr_out.ind_level > 0)  
     emitln("  not b");
+  else if(expr_out.primitive_type == DT_INT){
+    if(expr_out.size_modifier == SIZEMOD_LONG){
+      emitln("  mov a, c");
+      emitln("  not a");
+      emitln("  not b");
+      emitln("  add b, 1");
+      emitln("  adc a, 0");
+      emitln("  mov c, a");
+    } 
+  }
   else 
     emitln("  not b"); // treating as int as an experiment
-  expr_out.size_modifier = MOD_NORMAL;
+  expr_out.size_modifier = SIZEMOD_NORMAL;
   expr_out.primitive_type = DT_INT;
   expr_out.ind_level = 0;
   expr_out.sign_modifier = expr_out.sign_modifier;
@@ -3202,15 +3212,25 @@ t_type parse_unary_minus(){
   expr_out = parse_atomic(); // TODO: add error if type is pointer since cant neg a pointer
   if(expr_out.ind_level > 0) 
     error(ERR_FATAL, "Negation of a pointer type.");
-  if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT) 
-    emitln("  neg b");
+  if(expr_out.primitive_type == DT_INT){
+    if(expr_out.size_modifier == SIZEMOD_LONG){
+      emitln("  mov a, c");
+      emitln("  not a");
+      emitln("  not b");
+      emitln("  add b, 1");
+      emitln("  adc a, 0");
+      emitln("  mov c, a");
+    } 
+    else
+      emitln("  neg b");
+  } 
   else 
     emitln("  neg b"); // treating as int as experiment
   back();
   expr_out.primitive_type = DT_INT; // convert to int
   expr_out.ind_level = 0;
   expr_out.sign_modifier = expr_out.sign_modifier;
-  expr_out.size_modifier = MOD_NORMAL;
+  expr_out.size_modifier = SIZEMOD_NORMAL;
   return expr_out;
 }
 t_type parse_char_const(){
@@ -3218,8 +3238,8 @@ t_type parse_char_const(){
   emitln("  mov32 cb, $000000%02x", curr_token.string_const[0]);
   expr_out.primitive_type = DT_CHAR; //TODO: int or char? 
   expr_out.ind_level = 0;
-  expr_out.sign_modifier = SNESS_UNSIGNED;
-  expr_out.size_modifier = MOD_NORMAL;
+  expr_out.sign_modifier = SIGNMOD_UNSIGNED;
+  expr_out.size_modifier = SIZEMOD_NORMAL;
   expr_out.dims[0] = 0;
   return expr_out;
 }
@@ -3350,7 +3370,7 @@ t_type parse_dereferencing(void){
     emitln("  mov b, [d]"); 
   }
   else if(expr_out.primitive_type == DT_INT){
-    if(expr_out.size_modifier == MOD_LONG){
+    if(expr_out.size_modifier == SIZEMOD_LONG){
       emitln("  mov d, b");// now we have the pointer value.
       emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
       emitln("  mov c, b ; And place it into C"); 
@@ -3475,7 +3495,7 @@ void parse_function_call(int func_id){
       emitln("  mov c, %d", get_type_size_for_func_arg_parsing(arg_type));
       emitln("  rep movsb");
     }
-    else if(arg_type.size_modifier == MOD_LONG){
+    else if(arg_type.size_modifier == SIZEMOD_LONG){
       emitln("  mov a, c");
       emitln("  swp a");
       emitln("  push a");
@@ -3621,9 +3641,9 @@ t_type cast(t_type t1, t_type t2){
           else{
             type.primitive_type = DT_INT;
             type.ind_level  = 0;
-            type.sign_modifier = SNESS_SIGNED;
+            type.sign_modifier = SIGNMOD_SIGNED;
             type.dims[0] = 0;
-            type.size_modifier = MOD_NORMAL;
+            type.size_modifier = SIZEMOD_NORMAL;
             type.struct_enum_id = -1;
           }
           break;
@@ -3661,17 +3681,17 @@ t_type cast(t_type t1, t_type t2){
           }
           else{
             type = t2;
-            if(t1.sign_modifier == SNESS_UNSIGNED || t2.sign_modifier == SNESS_UNSIGNED)
-              type.sign_modifier = SNESS_UNSIGNED;
+            if(t1.sign_modifier == SIGNMOD_UNSIGNED || t2.sign_modifier == SIGNMOD_UNSIGNED)
+              type.sign_modifier = SIGNMOD_UNSIGNED;
             else
-              type.sign_modifier = SNESS_SIGNED;
+              type.sign_modifier = SIGNMOD_SIGNED;
           }
       }
   }
-  if(t1.size_modifier == MOD_LONG || t2.size_modifier == MOD_LONG)
-    type.size_modifier = MOD_LONG;
+  if(t1.size_modifier == SIZEMOD_LONG || t2.size_modifier == SIZEMOD_LONG)
+    type.size_modifier = SIZEMOD_LONG;
   else
-    type.size_modifier = MOD_NORMAL;
+    type.size_modifier = SIZEMOD_NORMAL;
 
   return type;
 }
@@ -3883,7 +3903,7 @@ int get_primitive_type_size(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      if(type.size_modifier == MOD_LONG)
+      if(type.size_modifier == SIZEMOD_LONG)
         return 4;
       else
         return 2;
@@ -3904,7 +3924,7 @@ int get_type_size_for_func_arg_parsing(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      if(type.size_modifier == MOD_LONG)
+      if(type.size_modifier == SIZEMOD_LONG)
         return 4;
       else
         return 2;
@@ -3932,7 +3952,7 @@ int get_struct_size(int id){
           size += array_size * 1;
           break;
         case DT_INT:
-          if(struct_table[id].elements[i].type.size_modifier == MOD_LONG)
+          if(struct_table[id].elements[i].type.size_modifier == SIZEMOD_LONG)
             size += array_size * 4;
           else
             size += array_size * 2;
@@ -3976,7 +3996,7 @@ int get_data_size_for_indexing(t_type type){
     case DT_CHAR:
       return 1;
     case DT_INT:
-      if(type.size_modifier == MOD_LONG)
+      if(type.size_modifier == SIZEMOD_LONG)
         return 4;
       else
         return 2;
@@ -4124,7 +4144,7 @@ int find_array_initialization_size(t_size_modifier size_modifier){
           len += 1;
           break;
         case INTEGER_CONST:
-          if(size_modifier == MOD_LONG)
+          if(size_modifier == SIZEMOD_LONG)
             len += 4;
           else
             len += 2;
@@ -4302,7 +4322,7 @@ void emit_static_var_initialization(t_var *var){
 }
 
 uint8_t type_is_32bit(t_type type){
-  return type.primitive_type == DT_INT && type.ind_level == 0 && type.size_modifier == MOD_LONG;
+  return type.primitive_type == DT_INT && type.ind_level == 0 && type.size_modifier == SIZEMOD_LONG;
 }
 
 void emit_data_dbdw(t_type type){
@@ -4510,8 +4530,8 @@ void get(void){
   }
   else if(is_digit(*prog) || (*prog == '-' && is_digit(*(prog+1)) && prev_tok_is_binary_op(previous_tok))){
     curr_token.tok_type = INTEGER_CONST;
-    curr_token.const_size_modifier = MOD_NORMAL;
-    curr_token.const_sign_modifier = SNESS_SIGNED;
+    curr_token.const_size_modifier = SIZEMOD_NORMAL;
+    curr_token.const_sign_modifier = SIGNMOD_SIGNED;
     if(*prog == '-') *t++ = *prog++;
     if(*prog == '0' && *(prog+1) == 'x'){
       *t++ = *prog++;
@@ -4530,10 +4550,10 @@ void get(void){
     if(*prog == 'L' || *prog == 'l' || *prog == 'u' || *prog == 'U'){
       while(*prog == 'L' || *prog == 'l' || *prog == 'u' || *prog == 'U'){
         if(*prog == 'L' || *prog == 'l'){
-          curr_token.const_size_modifier = MOD_LONG;
+          curr_token.const_size_modifier = SIZEMOD_LONG;
         }
         else if(*prog == 'U' || *prog == 'u'){
-          curr_token.const_sign_modifier = SNESS_UNSIGNED;
+          curr_token.const_sign_modifier = SIGNMOD_UNSIGNED;
         }
         *t++ = *prog++;
       }
@@ -4541,18 +4561,18 @@ void get(void){
     }
     else{
       if(curr_token.int_const > 32767 && curr_token.int_const <= 65535)
-        curr_token.const_sign_modifier = SNESS_UNSIGNED;
+        curr_token.const_sign_modifier = SIGNMOD_UNSIGNED;
       else if(curr_token.int_const > 65535 && curr_token.int_const <= 2147483647)
-        curr_token.const_size_modifier = MOD_LONG;
+        curr_token.const_size_modifier = SIZEMOD_LONG;
       else if(curr_token.int_const > 2147483647){
-        curr_token.const_size_modifier = MOD_LONG;
-        curr_token.const_sign_modifier = SNESS_UNSIGNED;
+        curr_token.const_size_modifier = SIZEMOD_LONG;
+        curr_token.const_sign_modifier = SIGNMOD_UNSIGNED;
       }
       else if(curr_token.int_const > 4294967295){
         error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", curr_token.int_const);
       }
       else if(curr_token.int_const >= -2147483648 && curr_token.int_const < -32768)
-        curr_token.const_size_modifier = MOD_LONG;
+        curr_token.const_size_modifier = SIZEMOD_LONG;
       else if(curr_token.int_const < -2147483648)
         error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", curr_token.int_const);
     }

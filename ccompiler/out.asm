@@ -51,6 +51,7 @@ _while1_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   cmp b, 0
   je _while1_exit
 _while1_block:
@@ -73,6 +74,7 @@ _while1_block:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   pop d
   mov [d], bl
   jmp _while1_cond
@@ -98,6 +100,7 @@ _while2_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START LOGICAL AND
   push a
   mov a, b
@@ -107,6 +110,7 @@ _while2_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -116,6 +120,7 @@ _while2_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -151,6 +156,7 @@ _while2_exit:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
@@ -160,6 +166,7 @@ _while2_exit:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   sub a, b
   mov b, a
   pop a
@@ -464,6 +471,7 @@ _while6_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -493,6 +501,7 @@ _if7_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -510,6 +519,7 @@ _if7_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -532,6 +542,7 @@ _if8_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -547,7 +558,6 @@ _if8_true:
   lea d, [bp + -3] ; $sign
   push d
   mov32 cb, $00000001
-  neg b
   pop d
   mov [d], b
   jmp _if8_exit
@@ -570,6 +580,7 @@ _while9_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -587,6 +598,7 @@ _while9_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -625,6 +637,7 @@ _while9_block:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
@@ -873,6 +886,7 @@ _if11_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   cmp b, 0
   seq ; !
   cmp b, 0
@@ -890,6 +904,7 @@ _if12_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -917,6 +932,7 @@ _switch13_expr:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 _switch13_comparisons:
   cmp bl, $6c
   je _switch13_case0
@@ -954,6 +970,7 @@ _if14_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -971,6 +988,7 @@ _if14_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1014,6 +1032,7 @@ _if15_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1054,6 +1073,7 @@ _if16_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1121,6 +1141,7 @@ _switch13_case3:
   mov c, 0
   mov d, b
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call print_signed
@@ -1151,6 +1172,7 @@ _switch13_case4:
   mov c, 0
   mov d, b
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call print_unsigned
@@ -1280,6 +1302,7 @@ _if12_else:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   push bl
   call putchar
   add sp, 1
@@ -1345,6 +1368,7 @@ _if18_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   cmp b, 0
   seq ; !
   cmp b, 0
@@ -1362,6 +1386,7 @@ _if19_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1389,6 +1414,7 @@ _switch20_expr:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 _switch20_comparisons:
   cmp bl, $6c
   je _switch20_case0
@@ -1426,6 +1452,7 @@ _if21_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1443,6 +1470,7 @@ _if21_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1468,6 +1496,7 @@ _if22_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1490,6 +1519,7 @@ _if23_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1647,6 +1677,7 @@ _switch20_case6:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   pop d
   mov [d], b
 ; p = p + 1; 
@@ -1739,6 +1770,7 @@ _if19_else:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   push bl
   call putchar
   add sp, 1
@@ -1808,6 +1840,7 @@ _if25_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   cmp b, 0
   seq ; !
   cmp b, 0
@@ -1825,6 +1858,7 @@ _if26_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1852,6 +1886,7 @@ _switch27_expr:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 _switch27_comparisons:
   cmp bl, $6c
   je _switch27_case0
@@ -1889,6 +1924,7 @@ _if28_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1906,6 +1942,7 @@ _if28_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1949,6 +1986,7 @@ _if29_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -1989,6 +2027,7 @@ _if30_cond:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -2064,6 +2103,7 @@ _switch27_case3:
   mov c, 0
   mov d, b
   mov b, [d]
+  mov c, 0
   swp b
   push b
   lea d, [bp + -5] ; $sp
@@ -2112,6 +2152,7 @@ _switch27_case4:
   mov c, 0
   mov d, b
   mov b, [d]
+  mov c, 0
   swp b
   push b
   lea d, [bp + -5] ; $sp
@@ -2186,6 +2227,7 @@ _switch27_case6:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   pop d
   mov [d], bl
 ; p = p + 1; 
@@ -2315,6 +2357,7 @@ _if26_else:
   mov d, b
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   pop d
   mov [d], bl
 _if26_exit:
@@ -2742,7 +2785,6 @@ _if34_true:
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
-  neg b
   pop d
   mov [d], b
   jmp _if34_exit
@@ -3704,7 +3746,6 @@ _if51_true:
   lea d, [bp + 7] ; $num
   mov b, [d]
   mov c, 0
-  neg b
   pop d
   mov [d], b
 ; len++; 
@@ -4051,7 +4092,6 @@ _ternary55_true:
   lea d, [bp + 5] ; $i
   mov b, [d]
   mov c, 0
-  neg b
   jmp _ternary55_exit
 _ternary55_false:
   lea d, [bp + 5] ; $i

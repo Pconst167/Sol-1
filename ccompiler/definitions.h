@@ -46,11 +46,11 @@ typedef enum {
 } t_primitive_type;
 
 typedef enum {
-  MOD_NORMAL, MOD_SHORT, MOD_LONG
+  SIZEMOD_NORMAL, SIZEMOD_SHORT, SIZEMOD_LONG
 } t_size_modifier;
 
 typedef enum {
-  SNESS_SIGNED = 0, SNESS_UNSIGNED
+  SIGNMOD_SIGNED = 0, SIGNMOD_UNSIGNED
 } t_sign_modifier;
 
 typedef enum {
