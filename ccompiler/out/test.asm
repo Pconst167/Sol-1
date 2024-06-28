@@ -13,6 +13,7 @@ main:
   mov c, b
   mov b, [d]
   inc b
+  mov d, _p ; $p
   mov [d], b
   mov b, c
   mov [d+2], b

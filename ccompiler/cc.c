@@ -3374,14 +3374,15 @@ t_type parse_pre_incrementing(){
 
   size = get_incdec_unit(expr_out);
   if(size == 4) { // for long int
-    emitln("  mov32 ga, %d", size);
-    emitln("  add32 cb, ga", size);
+    emitln("  add b, 4");
   }
   else if(size > 1) {
     emitln("  add b, %d", size);
   }
   else 
     emitln("  inc b");
+
+  expr_out = emit_var_addr_into_d(temp_name);
 
   switch(expr_out.primitive_type){
     case DT_CHAR:
