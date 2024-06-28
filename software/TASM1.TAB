@@ -472,16 +472,10 @@ ADC32  CB,GA                    16FD  2    NOP      1
 SUB32  GA,CB                    1CFD  2    NOP      1
 SBB32  GA,CB                    19FD  2    NOP      1
 SHL32 GA,CL                     1DFD  2    NOP      1
-
-
-XOR32  CB,GA                    25FD  2    NOP      1
-
-
 SAND32 GA,CB                    B1FD  2    NOP      1              
 SOR32  GA,CB                    B2FD  2    NOP      1                
 SHR32 GA,CL                     1EFD  2    NOP      1
+XOR32  CB,GA                    25FD  2    NOP      1
 
-
-
-MOV CB,@                        2EFD  6    NOP      1
-MOV GA,@                        2DFD  6    NOP      1
+MOV32 CB,@                        2EFD  6    NOP      1
+MOV32 GA,@                        2DFD  6    NOP      1

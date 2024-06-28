@@ -19065,7 +19065,6 @@
     alu_mode = logic
     tdrl_wrt = true
   }
-
   17{
     next = next_offset
     offset = 1
@@ -19074,7 +19073,6 @@
     alu_mode = logic
     tdrh_wrt = true
   }
-
   18{
     next = next_offset
     offset = 1
@@ -19085,7 +19083,6 @@
     cf_in_src = alu_final_cf
     alu_y = tdrl
   }
-
   19{
     next = next_offset
     offset = 1
@@ -19096,7 +19093,6 @@
     cf_in_src = alu_final_cf
     alu_y = tdrh
   }
-
   20{
     next = next_offset
     offset = 1
@@ -19105,7 +19101,6 @@
     alu_mode = logic
     tdrl_wrt = true
   }
-
   21{
     next = next_offset
     offset = 1
@@ -19114,8 +19109,7 @@
     alu_mode = logic
     tdrh_wrt = true
   }
-
-22{
+  22{
     next = next_offset
     offset = 1
     alu_x = gl
@@ -19125,7 +19119,6 @@
     zf_in_src = alu_zf_and_zf
     cf_in_src = alu_final_cf
   }
-
   23{
     next = next_fetch
     alu_x = gh
