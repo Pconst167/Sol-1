@@ -10,9 +10,9 @@ main:
   call printnl
 
 
-  mov cl, 2
-  mov ga, $00010000
-  shr32 ga, cl
+  mov cl, 1
+  mov ga, $FFFFFFFF
+  shl32 ga, cl
 
   mov b, g
   call print_u16x

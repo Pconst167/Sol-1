@@ -24,10 +24,10 @@
 0010   040B 07 E7 05      call printnl
 0011   040E             
 0012   040E             
-0013   040E 3A 02         mov cl, 2
-0014   0410 FD 2D 00 00   mov ga, $00010000
-0014   0414 01 00 
-0015   0416 FD 1E         shr32 ga, cl
+0013   040E 3A 01         mov cl, 1
+0014   0410 FD 2D FF FF   mov ga, $FFFFFFFF
+0014   0414 FF FF 
+0015   0416 FD 1D         shl32 ga, cl
 0016   0418             
 0017   0418 FD 27         mov b, g
 0018   041A 07 96 06      call print_u16x
