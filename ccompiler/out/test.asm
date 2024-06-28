@@ -7,18 +7,10 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; 1L || 'A'; 
+; !1L; 
   mov32 cb, $00000001
-; --- START LOGICAL OR
-  push a
-  push g
-  mov a, b
-  mov g, c
-  mov32 cb, $00000041
-  sor32 ga, cb
-  pop g
-  pop a
-; --- END LOGICAL OR
+  cmp32 cb, 0
+  seq ; !
   syscall sys_terminate_proc
 
 strcpy:
@@ -558,6 +550,7 @@ _if8_true:
   lea d, [bp + -3] ; $sign
   push d
   mov32 cb, $00000001
+  neg b
   pop d
   mov [d], b
   jmp _if8_exit
@@ -2785,6 +2778,7 @@ _if34_true:
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
+  neg b
   pop d
   mov [d], b
   jmp _if34_exit
@@ -2986,7 +2980,12 @@ _if38_true:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  neg b
+  mov a, c
+  not a
+  not b
+  add b, 1
+  adc a, 0
+  mov c, a
   pop d
   mov [d], b
   mov b, 0
@@ -3746,6 +3745,7 @@ _if51_true:
   lea d, [bp + 7] ; $num
   mov b, [d]
   mov c, 0
+  neg b
   pop d
   mov [d], b
 ; len++; 
@@ -4092,6 +4092,7 @@ _ternary55_true:
   lea d, [bp + 5] ; $i
   mov b, [d]
   mov c, 0
+  neg b
   jmp _ternary55_exit
 _ternary55_false:
   lea d, [bp + 5] ; $i

@@ -3168,9 +3168,15 @@ t_type parse_integer_const(){
 t_type parse_unary_logical_not(){
   t_type expr_out;
 
-  expr_out = parse_atomic(); // in 'b'
-  emitln("  cmp b, 0");
-  emitln("  seq ; !");
+  expr_out = parse_atomic(); // in 'cb'
+  if(expr_out.ind_level > 0){
+    emitln("  cmp b, 0");
+    emitln("  seq ; !");
+  }
+  else if(expr_out.size_modifier == SIZEMOD_LONG){
+    emitln("  cmp32 cb, 0");
+    emitln("  seq ; !");
+  } 
   back();
   expr_out.size_modifier = SIZEMOD_NORMAL;
   expr_out.primitive_type = DT_INT;
@@ -3182,7 +3188,7 @@ t_type parse_unary_logical_not(){
 t_type parse_bitwise_not(){
   t_type expr_out;
 
-  expr_out = parse_atomic(); // in 'b'
+  expr_out = parse_atomic(); // in 'cb'
   if(expr_out.ind_level > 0)  
     emitln("  not b");
   else if(expr_out.primitive_type == DT_INT){
@@ -3190,8 +3196,6 @@ t_type parse_bitwise_not(){
       emitln("  mov a, c");
       emitln("  not a");
       emitln("  not b");
-      emitln("  add b, 1");
-      emitln("  adc a, 0");
       emitln("  mov c, a");
     } 
   }

@@ -4,5 +4,5 @@ void main(void){
 
 
 
-	1L || 'A';
+	!1L;
 }

@@ -19641,7 +19641,7 @@
   }
 }
 
-0xB3, "cmp word[u16], u16"{
+0xB3, "cmp word[u16], u16 - cmp32 cb, i32"{
   0{
     next = next_offset
     offset = 1
@@ -19818,6 +19818,148 @@
     sf_in_src = zbus_7
     of_in_src = alu_of
     alu_y = mdrh
+  }
+
+
+  // cmp32 cb, i32
+  16{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_in = vcc
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrl_wrt = true
+    marl_wrt = true
+    immediate = 1
+  }
+  17{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+  }
+  18{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_in = vcc
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrh_wrt = true
+    marl_wrt = true
+    pcl_wrt = true
+    immediate = 1
+  }
+  19{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+    pch_wrt = true
+  }
+  20{
+    next = next_offset
+    offset = 1
+    alu_x = bl
+    alu_y = mdrl
+    alu_op = minus
+    alu_cf_in = vcc
+    alu_cf_in_inv = true
+    zf_in_src = alu_zf
+    cf_in_src = alu_final_cf
+  }
+  21{
+    next = next_offset
+    offset = 1
+    alu_x = bh
+    alu_y = mdrh
+    alu_op = minus
+    alu_cf_in = cf
+    zf_in_src = alu_zf_and_zf
+    cf_in_src = alu_final_cf
+  }
+  22{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_in = vcc
+    alu_cf_in_inv = false
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrl_wrt = true
+    marl_wrt = true
+    immediate = 1
+  }
+  23{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+  }
+  24{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_in = vcc
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrh_wrt = true
+    marl_wrt = true
+    pcl_wrt = true
+    immediate = 1
+  }
+  25{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+    pch_wrt = true
+  }
+  26{
+    next = next_offset
+    offset = 1
+    alu_x = cl
+    alu_y = mdrl
+    alu_op = minus
+    alu_cf_in = cf
+    zf_in_src = alu_zf_and_zf
+    cf_in_src = alu_final_cf
+  }
+  27{
+    next = next_fetch
+    alu_x = ch
+    alu_y = mdrh
+    alu_op = minus
+    alu_cf_in = cf
+    zf_in_src = alu_zf_and_zf
+    cf_in_src = alu_final_cf
+    sf_in_src = zbus_7
+    of_in_src = alu_of
   }
 }
 
