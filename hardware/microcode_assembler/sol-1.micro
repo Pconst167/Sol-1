@@ -19116,21 +19116,24 @@
     mar_in_src = pc
   }
 
-// if c == 0 && b  ==  0 or g == 0 && a == 0 then b  =  0, else b  =  1
 // if a! = 0 || g! = 0 && c! = 0 || b! = 0 then b  =  1, else b  =  0
-  test c, save zf
-  test b save zf (anded uzf)
-  
+
+// if c == 0 && b  ==  0 or g == 0 && a == 0 then b  =  0, else b  =  1
+// test c, save zf
+// test b save zf (anded uzf)
+// branch on the AND condition. if true set result=0
+// tst g, save zf
+// test a, save zf
+// branch on the AND condition. if true set result=0
+// set result=1
+
   16{
     next = next_offset
     offset = 1
-    alu_x = al
-    alu_y = immediate
-    alu_op = minus
-    alu_cf_in_inv = true
-    immediate = 0
+    alu_x = cl
+    alu_op = x
+    alu_mode = logic
     uzf_in_src = alu_zf
-    ucf_in_src = alu_final_cf
   }
   17{
     next = next_offset
