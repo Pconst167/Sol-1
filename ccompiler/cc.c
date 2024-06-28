@@ -33,6 +33,7 @@
 
   ** implement 'register' keyworded type local variables  
 
+  ** change unary logical not operator to use cmp32 cb, i32 instead of cmo32 ga, i32, when the new instruction is burned in rom 
 */
 
 #include <stdio.h>
@@ -3174,7 +3175,9 @@ t_type parse_unary_logical_not(){
     emitln("  seq ; !");
   }
   else if(expr_out.size_modifier == SIZEMOD_LONG){
-    emitln("  cmp32 cb, 0");
+    emitln("  mov a, b"); // TODO: convert this to cmp32 cb, i32, when the instruction is burned in ROM
+    emitln("  mov g, c");
+    emitln("  cmp32 ga, 0");
     emitln("  seq ; !");
   } 
   back();
