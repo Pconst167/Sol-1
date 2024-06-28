@@ -2506,8 +2506,6 @@ t_type parse_logical_or(void){
       if(type_is_32bit(cast(expr_out, type2))){
         if(!type_is_32bit(expr_out)) 
           emitln("  mov g, 0");
-        if(!type_is_32bit(type2))
-          emitln("  mov c, 0");
 
         emitln("  sor32 ga, cb"); // result in b
       }
@@ -2542,8 +2540,6 @@ t_type parse_logical_and(void){
       if(type_is_32bit(cast(expr_out, type2))){
         if(!type_is_32bit(expr_out)) 
           emitln("  mov g, 0");
-        if(!type_is_32bit(type2))
-          emitln("  mov c, 0");
 
         emitln("  sand32 ga, cb"); // result in b
       }
@@ -2572,8 +2568,6 @@ t_type parse_bitwise_or(void){
       if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_bitwise_xor();
       if(type_is_32bit(cast(expr_out, type2))){
-        if(!type_is_32bit(type2))
-          emitln("  mov c, 0");
         if(!type_is_32bit(expr_out))
           emitln("  mov g, 0");
         emitln("  or32 cb, ga");
@@ -2597,13 +2591,24 @@ t_type parse_bitwise_xor(void){
   expr_out = type1;
   if(curr_token.tok == BITWISE_XOR){
     emitln("  push a");
+    if(type_is_32bit(type1)) emitln("  push g");
     emitln("  mov a, b");
+    if(type_is_32bit(expr_out)) emitln("  mov g, c");
     while(curr_token.tok == BITWISE_XOR){
       type2 = parse_bitwise_and();
+      if(type_is_32bit(cast(expr_out, type2))){
+        if(!type_is_32bit(expr_out))
+          emitln("  mov g, 0");
+        emitln("  xor32 ga, cb");
+      }
+      else{
+        emitln("  xor a, b ; ^");
+      }
       expr_out = cast(expr_out, type2);
-      emitln("  xor a, b ; ^");
     }
     emitln("  mov b, a");
+    if(type_is_32bit(expr_out)) emitln("  mov c, g");
+    if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
   }
   return expr_out;
@@ -2622,8 +2627,6 @@ t_type parse_bitwise_and(void){
       if(type_is_32bit(expr_out)) emitln("  mov g, c");
       type2 = parse_relational();
       if(type_is_32bit(cast(expr_out, type2))){
-        if(!type_is_32bit(type2))
-          emitln("  mov c, 0");
         if(!type_is_32bit(expr_out))
           emitln("  mov g, 0");
         emitln("  and32 cb, ga");
@@ -2662,8 +2665,6 @@ t_type parse_relational(void){
       switch(temp_tok){
         case EQUAL:
           if(type_is_32bit(cast(expr_out, type2))){
-            if(!type_is_32bit(type2))
-              emitln("  mov c, 0");
             if(!type_is_32bit(expr_out))
               emitln("  mov g, 0");
             emitln("  cmp32 ga, cb");
@@ -2676,8 +2677,6 @@ t_type parse_relational(void){
           break;
         case NOT_EQUAL:
           if(type_is_32bit(cast(expr_out, type2))){
-            if(!type_is_32bit(type2))
-              emitln("  mov c, 0");
             if(!type_is_32bit(expr_out))
               emitln("  mov g, 0");
             emitln("  cmp32 ga, cb");
@@ -2695,8 +2694,6 @@ t_type parse_relational(void){
         // cb is the current parsed long.  ga is the previously parsed long.   
         // check if g < c. save result. check that c==g && a < b. save result. or both results together
           if(type_is_32bit(cast(expr_out, type2))){
-            if(!type_is_32bit(type2))
-              emitln("  mov c, 0");
             if(!type_is_32bit(expr_out))
               emitln("  mov g, 0");
             emitln("  cmp32 ga, cb");
@@ -2724,8 +2721,6 @@ t_type parse_relational(void){
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out)) 
               emitln("  mov g, 0");
-            if(!type_is_32bit(type2))
-              emitln("  mov c, 0");
 
             emitln("  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
@@ -2745,8 +2740,6 @@ t_type parse_relational(void){
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out)) 
               emitln("  mov g, 0");
-            if(!type_is_32bit(type2))
-              emitln("  mov c, 0");
 
             emitln("  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
@@ -2766,8 +2759,6 @@ t_type parse_relational(void){
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out)) 
               emitln("  mov g, 0");
-            if(!type_is_32bit(type2))
-              emitln("  mov c, 0");
 
             emitln("  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SNESS_UNSIGNED)
@@ -2849,8 +2840,6 @@ t_type parse_terms(void){
       // ga + cb
       if(temp_tok == PLUS){
         if(type_is_32bit(expr_out)){
-          if(!type_is_32bit(type2))
-            emitln("  mov c, 0");
           if(!type_is_32bit(expr_out))
             emitln("  mov g, 0");
 
@@ -2861,8 +2850,6 @@ t_type parse_terms(void){
       }
       else if(temp_tok == MINUS){
         if(type_is_32bit(expr_out)){
-          if(!type_is_32bit(type2))
-            emitln("  mov c, 0");
           if(!type_is_32bit(expr_out))
             emitln("  mov g, 0");
           emitln("  sub32 ga, cb");
@@ -3372,12 +3359,14 @@ t_type parse_dereferencing(void){
     else{
       emitln("  mov d, b");// now we have the pointer value.
       emitln("  mov b, [d]"); 
+      emitln("  mov c, 0"); 
     }
   }
   else if(expr_out.primitive_type == DT_CHAR){
     emitln("  mov d, b");// now we have the pointer value.
     emitln("  mov bl, [d]"); 
     emitln("  mov bh, 0");
+    emitln("  mov c, 0"); 
   }
   
   back();

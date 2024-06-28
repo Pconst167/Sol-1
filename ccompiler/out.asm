@@ -15,7 +15,6 @@ main:
   mov a, b
   mov g, c
   mov32 cb, $00000041
-  mov c, 0
   sor32 ga, cb
   pop g
   pop a
@@ -2923,7 +2922,6 @@ _if38_cond:
   mov a, b
   mov g, c
   mov32 cb, $00000000
-  mov c, 0
   cmp32 ga, cb
   slt ; <
   pop g
@@ -2965,7 +2963,6 @@ _if39_cond:
   mov a, b
   mov g, c
   mov32 cb, $00000000
-  mov c, 0
   cmp32 ga, cb
   seq ; ==
   pop g
@@ -2999,7 +2996,6 @@ _while40_cond:
   mov a, b
   mov g, c
   mov32 cb, $00000000
-  mov c, 0
   cmp32 ga, cb
   sgt
   pop g
@@ -3141,7 +3137,6 @@ _if42_cond:
   mov a, b
   mov g, c
   mov32 cb, $00000000
-  mov c, 0
   cmp32 ga, cb
   seq ; ==
   pop g
@@ -3174,7 +3169,6 @@ _while43_cond:
   mov a, b
   mov g, c
   mov32 cb, $00000000
-  mov c, 0
   cmp32 ga, cb
   sgu
   pop g
