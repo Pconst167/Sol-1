@@ -465,7 +465,7 @@ SOR  A,B                        A8FD  2    NOP      1
 
 CMP32  GA,CB                    AFFD  2    NOP      1
 CMP32  GA,@                     B0FD  6    NOP      1
-CMP32  CB,@                     B0FD  6    NOP      1
+CMP32  CB,@                     B3FD  6    NOP      1
 OR32   CB,GA                    29FD  2    NOP      1
 AND32  CB,GA                    2BFD  2    NOP      1
 ADD32  CB,GA                    15FD  2    NOP      1
