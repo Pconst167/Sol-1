@@ -5048,7 +5048,7 @@
   18{
     next = next_offset
     offset = 1
-    alu_x=gh
+    alu_x = gl
     shift_src = cf
     zbus_out_src = shifted_right
     alu_op = x
@@ -5060,7 +5060,7 @@
   19{
     next = next_offset
     offset = 1
-    alu_x=ah
+    alu_x = ah
     shift_src = cf
     zbus_out_src = shifted_right
     alu_op = x
