@@ -3168,14 +3168,7 @@ t_type parse_string_const(){
 t_type parse_integer_const(){
   t_type expr_out;
 
-  if(curr_token.const_size_modifier == MOD_LONG){
-    emitln("  mov b, %d", (uint16_t)(curr_token.int_const & 0x0000FFFF));
-    emitln("  mov c, %d", (uint16_t)(curr_token.int_const >> 16));
-  }
-  else{
-    emitln("  mov b, $%x", (uint16_t)curr_token.int_const);
-    emitln("  mov c, 0");  // for long ints
-  }
+  emitln("  mov32 cb, $%08x", (uint32_t)(curr_token.int_const));
 
   expr_out.sign_modifier = curr_token.const_sign_modifier;
   expr_out.size_modifier = curr_token.const_size_modifier;
@@ -3235,8 +3228,7 @@ t_type parse_unary_minus(){
 }
 t_type parse_char_const(){
   t_type expr_out;
-  emitln("  mov b, $%x", curr_token.string_const[0]);
-  emitln("  mov c, 0");  // for long ints
+  emitln("  mov32 cb, $000000%02x", curr_token.string_const[0]);
   expr_out.primitive_type = DT_CHAR; //TODO: int or char? 
   expr_out.ind_level = 0;
   expr_out.sign_modifier = SNESS_UNSIGNED;
@@ -4555,8 +4547,8 @@ void get(void){
           curr_token.const_sign_modifier = SNESS_UNSIGNED;
         }
         *t++ = *prog++;
-        *t = '\0';
       }
+      *t = '\0';
     }
     else{
       if(curr_token.int_const > 32767 && curr_token.int_const <= 65535)
@@ -4570,7 +4562,7 @@ void get(void){
       else if(curr_token.int_const > 4294967295){
         error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", curr_token.int_const);
       }
-      else if(curr_token.int_const < -32768 && curr_token.int_const >= -2147483648)
+      else if(curr_token.int_const >= -2147483648 && curr_token.int_const < -32768)
         curr_token.const_size_modifier = MOD_LONG;
       else if(curr_token.int_const < -2147483648)
         error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", curr_token.int_const);
