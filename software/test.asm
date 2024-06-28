@@ -10,16 +10,121 @@ main:
   call printnl
 
 
-  mov cl, 1
-  mov ga, $FFFFFFFF
-  shl32 ga, cl
-
-  mov b, g
-  call print_u16x
-  mov b, a
-  call print_u16x
-
+  mov a, $0
+  mov g, $0
+  mov c, $0
+  mov b, $0
+  sand32 ga, cb
+  call print_u8x
   call printnl
+
+
+  mov a, $1
+  mov g, $0
+  mov c, $0
+  mov b, $0
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
+  mov a, $0
+  mov g, $1
+  mov c, $0
+  mov b, $0
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
+
+  mov a, $0
+  mov g, $0
+  mov c, $1
+  mov b, $0
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
+  mov a, $0
+  mov g, $0
+  mov c, $0
+  mov b, $1
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
+
+  mov a, $1
+  mov g, $0
+  mov c, $1
+  mov b, $0
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
+  mov a, $1
+  mov g, $0
+  mov c, $0
+  mov b, $1
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
+
+  mov a, $0
+  mov g, $1
+  mov c, $1
+  mov b, $0
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
+
+  mov a, $0
+  mov g, $1
+  mov c, $0
+  mov b, $1
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
+
+  mov a, $1
+  mov g, $1
+  mov c, $0
+  mov b, $0
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
+
+  mov a, $0
+  mov g, $0
+  mov c, $1
+  mov b, $1
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
+
+  mov a, $1
+  mov g, $1
+  mov c, $1
+  mov b, $1
+  sand32 ga, cb
+  call print_u8x
+  call printnl
+
+
 
 
 
