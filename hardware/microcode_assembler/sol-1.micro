@@ -19133,55 +19133,85 @@
     alu_x = cl
     alu_op = x
     alu_mode = logic
-    uzf_in_src = alu_zf
+    zf_in_src = alu_zf
   }
   17{
     next = next_offset
     offset = 1
-    alu_x = ah
-    alu_y = immediate
-    alu_op = minus
-    immediate = 0
-    alu_cf_in = ucf
-    uzf_in_src = alu_zf_and_uzf
+    alu_x = ch
+    alu_op = x
+    alu_mode = logic
+    zf_in_src = alu_zf_and_zf
   }
   18{
-    next = next_branch
-    offset = 5
-    cond_flags_src = micro_flags
+    next = next_offset
+    offset = 1
+    alu_x = bl
+    alu_op = x
+    alu_mode = logic
+    zf_in_src = alu_zf_and_zf
   }
   19{
     next = next_offset
     offset = 1
-    alu_x = bl
-    alu_y = immediate
-    alu_op = minus
-    alu_cf_in_inv = true
-    immediate = 0
-    uzf_in_src = alu_zf
-    ucf_in_src = alu_final_cf
+    alu_x = bh
+    alu_op = x
+    alu_mode = logic
+    zf_in_src = alu_zf_and_zf
   }
   20{
-    next = next_offset
-    offset = 1
-    alu_x = bh
+    next = next_branch
+    offset = 7
+    cond_flags_src = cpu_flags
     alu_y = immediate
-    alu_op = minus
+    alu_op = y
+    alu_mode = logic
+    bh_wrt = true
     immediate = 0
-    alu_cf_in = ucf
-    uzf_in_src = alu_zf_and_uzf
   }
   21{
+    next = next_offset
+    offset = 1
+    alu_x = al
+    alu_op = x
+    alu_mode = logic
+    zf_in_src = alu_zf_and_zf
+  }
+  22{
+    next = next_offset
+    offset = 1
+    alu_x = ah
+    alu_op = x
+    alu_mode = logic
+    zf_in_src = alu_zf_and_zf
+  }
+  23{
+    next = next_offset
+    offset = 1
+    alu_x = gl
+    alu_op = x
+    alu_mode = logic
+    zf_in_src = alu_zf_and_zf
+  }
+  24{
+    next = next_offset
+    offset = 1
+    alu_x = gh
+    alu_op = x
+    alu_mode = logic
+    zf_in_src = alu_zf_and_zf
+  }
+  25{
     next = next_branch
     offset = 2
     cond_flags_src = micro_flags
     alu_y = immediate
     alu_op = y
     alu_mode = logic
-    immediate = 0
     bh_wrt = true
+    immediate = 0
   }
-  22{
+  26{
     next = next_fetch
     alu_y = immediate
     alu_op = y
@@ -19189,13 +19219,12 @@
     bl_wrt = true
     immediate = 1
   }
-  23{
+  27{
     next = next_fetch
     alu_y = immediate
     alu_op = y
     alu_mode = logic
     bl_wrt = true
-    bh_wrt = true
     immediate = 0
   }
 }

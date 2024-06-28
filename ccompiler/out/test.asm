@@ -43,7 +43,7 @@ main:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  sbb32 ga, cb
+  sub32 ga, cb
   mov b, a
   mov c, g
   pop g

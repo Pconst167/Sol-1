@@ -63,7 +63,7 @@
 0043   0444 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
 0044   0447 FD 39         mov c, b ; And place it into C
 0045   0449 2A            mov b, [d] ; Lower Word in B
-0046   044A FD 19         sbb32 ga, cb
+0046   044A FD 1C         sub32 ga, cb
 0047   044C 27            mov b, a
 0048   044D FD 38         mov c, g
 0049   044F FD F1         pop g

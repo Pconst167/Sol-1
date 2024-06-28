@@ -18,12 +18,14 @@ main:
   lea d, [bp + -1] ; $p
   push d
   mov b, $d
+  mov c, 0
   pop d
   mov [d], b
 ; q = 11; 
   lea d, [bp + -3] ; $q
   push d
   mov b, $b
+  mov c, 0
   pop d
   mov [d], b
 ; n = p * q; 
@@ -31,11 +33,13 @@ main:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -3] ; $q
   mov b, [d]
+  mov c, 0
   mul a, b ; *
   mov a, b
   mov b, a
@@ -48,10 +52,12 @@ main:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $1
+  mov c, 0
   sub a, b
   mov b, a
   pop a
@@ -61,10 +67,12 @@ main:
   mov a, b
   lea d, [bp + -3] ; $q
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $1
+  mov c, 0
   sub a, b
   mov b, a
   pop a
@@ -79,38 +87,49 @@ main:
 ; e = find_e(phi); 
   lea d, [bp + -9] ; $e
   push d
+; --- START FUNCTION CALL
   lea d, [bp + -7] ; $phi
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call find_e
   add sp, 2
+; --- END FUNCTION CALL
   pop d
   mov [d], b
 ; d = find_d(e, phi); 
   lea d, [bp + -11] ; $d
   push d
+; --- START FUNCTION CALL
   lea d, [bp + -7] ; $phi
   mov b, [d]
+  mov c, 0
   swp b
   push b
   lea d, [bp + -9] ; $e
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call find_d
   add sp, 4
+; --- END FUNCTION CALL
   pop d
   mov [d], b
-; printf("Public Key: ("); 
-  mov b, _s0 ; "Public Key: ("
+; printf("Public Key: "); 
+; --- START FUNCTION CALL
+  mov b, _s0 ; "Public Key: "
   swp b
   push b
   call printf
   add sp, 2
+; --- END FUNCTION CALL
 ; printf("%d, ", n); 
+; --- START FUNCTION CALL
   lea d, [bp + -5] ; $n
   mov b, [d]
+  mov c, 0
   swp b
   push b
   mov b, _s1 ; "%d, "
@@ -118,9 +137,12 @@ main:
   push b
   call printf
   add sp, 4
+; --- END FUNCTION CALL
 ; printf("%d\n", e); 
+; --- START FUNCTION CALL
   lea d, [bp + -9] ; $e
   mov b, [d]
+  mov c, 0
   swp b
   push b
   mov b, _s2 ; "%d\n"
@@ -128,15 +150,20 @@ main:
   push b
   call printf
   add sp, 4
-; print("Private Key: ("); 
-  mov b, _s3 ; "Private Key: ("
+; --- END FUNCTION CALL
+; print("Private Key: "); 
+; --- START FUNCTION CALL
+  mov b, _s3 ; "Private Key: "
   swp b
   push b
   call print
   add sp, 2
+; --- END FUNCTION CALL
 ; printf("%d, ", n); 
+; --- START FUNCTION CALL
   lea d, [bp + -5] ; $n
   mov b, [d]
+  mov c, 0
   swp b
   push b
   mov b, _s1 ; "%d, "
@@ -144,9 +171,12 @@ main:
   push b
   call printf
   add sp, 4
+; --- END FUNCTION CALL
 ; printf("%d\n", d); 
+; --- START FUNCTION CALL
   lea d, [bp + -11] ; $d
   mov b, [d]
+  mov c, 0
   swp b
   push b
   mov b, _s2 ; "%d\n"
@@ -154,21 +184,27 @@ main:
   push b
   call printf
   add sp, 4
+; --- END FUNCTION CALL
 ; char input_str[100]; 
   sub sp, 100
 ; printf("Enter a string: "); 
+; --- START FUNCTION CALL
   mov b, _s4 ; "Enter a string: "
   swp b
   push b
   call printf
   add sp, 2
+; --- END FUNCTION CALL
 ; gets(input_str); 
+; --- START FUNCTION CALL
   lea d, [bp + -111] ; $input_str
   mov b, d
+  mov c, 0
   swp b
   push b
   call gets
   add sp, 2
+; --- END FUNCTION CALL
 ; int encrypted_chars[100]; 
   sub sp, 200
 ; int encrypted_chars_len ; 
@@ -177,14 +213,17 @@ main:
   lea d, [bp + -313] ; $encrypted_chars_len
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; printf("Encrypted text: "); 
+; --- START FUNCTION CALL
   mov b, _s5 ; "Encrypted text: "
   swp b
   push b
   call printf
   add sp, 2
+; --- END FUNCTION CALL
 ; int i; 
   sub sp, 2
 ; for (i = 0; input_str[i] != '\0' && input_str[i] != '\n'; i++) { 
@@ -192,6 +231,7 @@ _for1_init:
   lea d, [bp + -315] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 _for1_cond:
@@ -200,15 +240,18 @@ _for1_cond:
   push d
   lea d, [bp + -315] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sneq ; !=
   pop a
@@ -221,15 +264,18 @@ _for1_cond:
   push d
   lea d, [bp + -315] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   cmp a, b
   sneq ; !=
   pop a
@@ -246,16 +292,20 @@ _for1_block:
   push d
   lea d, [bp + -315] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
+; --- START FUNCTION CALL
   lea d, [bp + -5] ; $n
   mov b, [d]
+  mov c, 0
   swp b
   push b
   lea d, [bp + -9] ; $e
   mov b, [d]
+  mov c, 0
   swp b
   push b
   lea d, [bp + -111] ; $input_str
@@ -263,27 +313,33 @@ _for1_block:
   push d
   lea d, [bp + -315] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   swp b
   push b
   call mod_exp
   add sp, 6
+; --- END FUNCTION CALL
   pop d
   mov [d], b
 ; printf("%d ", encrypted_chars[i]); 
+; --- START FUNCTION CALL
   lea d, [bp + -311] ; $encrypted_chars
   push a
   push d
   lea d, [bp + -315] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
+  mov c, 0
   swp b
   push b
   mov b, _s6 ; "%d "
@@ -291,9 +347,11 @@ _for1_block:
   push b
   call printf
   add sp, 4
+; --- END FUNCTION CALL
 ; encrypted_chars_len++; 
   lea d, [bp + -313] ; $encrypted_chars_len
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -313] ; $encrypted_chars_len
   mov [d], b
@@ -301,6 +359,7 @@ _for1_block:
 _for1_update:
   lea d, [bp + -315] ; $i
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -315] ; $i
   mov [d], b
@@ -308,36 +367,43 @@ _for1_update:
   jmp _for1_cond
 _for1_exit:
 ; printf("\n"); 
+; --- START FUNCTION CALL
   mov b, _s7 ; "\n"
   swp b
   push b
   call printf
   add sp, 2
+; --- END FUNCTION CALL
 ; int decrypted_char; 
   sub sp, 2
 ; char c; 
   sub sp, 1
 ; printf("Decrypted text: "); 
+; --- START FUNCTION CALL
   mov b, _s8 ; "Decrypted text: "
   swp b
   push b
   call printf
   add sp, 2
+; --- END FUNCTION CALL
 ; for (i = 0; i < encrypted_chars_len; i++) { 
 _for2_init:
   lea d, [bp + -315] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 _for2_cond:
   lea d, [bp + -315] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -313] ; $encrypted_chars_len
   mov b, [d]
+  mov c, 0
   cmp a, b
   slt ; < (signed)
   pop a
@@ -348,12 +414,15 @@ _for2_block:
 ; decrypted_char = mod_exp(encrypted_chars[i], d, n); 
   lea d, [bp + -317] ; $decrypted_char
   push d
+; --- START FUNCTION CALL
   lea d, [bp + -5] ; $n
   mov b, [d]
+  mov c, 0
   swp b
   push b
   lea d, [bp + -11] ; $d
   mov b, [d]
+  mov c, 0
   swp b
   push b
   lea d, [bp + -311] ; $encrypted_chars
@@ -361,14 +430,17 @@ _for2_block:
   push d
   lea d, [bp + -315] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call mod_exp
   add sp, 6
+; --- END FUNCTION CALL
   pop d
   mov [d], b
 ; c = decrypted_char; 
@@ -376,18 +448,23 @@ _for2_block:
   push d
   lea d, [bp + -317] ; $decrypted_char
   mov b, [d]
+  mov c, 0
   pop d
   mov [d], bl
 ; putchar(c); 
+; --- START FUNCTION CALL
   lea d, [bp + -318] ; $c
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
 _for2_update:
   lea d, [bp + -315] ; $i
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -315] ; $i
   mov [d], b
@@ -395,13 +472,16 @@ _for2_update:
   jmp _for2_cond
 _for2_exit:
 ; printf("\n"); 
+; --- START FUNCTION CALL
   mov b, _s7 ; "\n"
   swp b
   push b
   call printf
   add sp, 2
+; --- END FUNCTION CALL
 ; return 0; 
   mov b, $0
+  mov c, 0
   leave
   syscall sys_terminate_proc
 
@@ -416,6 +496,7 @@ strcpy:
   push d
   lea d, [bp + 7] ; $src
   mov b, [d]
+  mov c, 0
   pop d
   mov [d], b
 ; pdest = dest; 
@@ -423,12 +504,14 @@ strcpy:
   push d
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   pop d
   mov [d], b
 ; while(*psrc) *pdest++ = *psrc++; 
 _while3_cond:
   lea d, [bp + -1] ; $psrc
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -438,6 +521,7 @@ _while3_block:
 ; *pdest++ = *psrc++; 
   lea d, [bp + -3] ; $pdest
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $pdest
   mov [d], b
@@ -445,6 +529,7 @@ _while3_block:
   push b
   lea d, [bp + -1] ; $psrc
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -1] ; $psrc
   mov [d], b
@@ -459,8 +544,10 @@ _while3_exit:
 ; *pdest = '\0'; 
   lea d, [bp + -3] ; $pdest
   mov b, [d]
+  mov c, 0
   push b
   mov b, $0
+  mov c, 0
   pop d
   mov [d], bl
   leave
@@ -472,6 +559,7 @@ strcmp:
 _while4_cond:
   lea d, [bp + 5] ; $s1
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -480,6 +568,7 @@ _while4_cond:
   mov a, b
   lea d, [bp + 5] ; $s1
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -488,6 +577,7 @@ _while4_cond:
   mov a, b
   lea d, [bp + 7] ; $s2
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -504,6 +594,7 @@ _while4_block:
 ; s1++; 
   lea d, [bp + 5] ; $s1
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + 5] ; $s1
   mov [d], b
@@ -511,6 +602,7 @@ _while4_block:
 ; s2++; 
   lea d, [bp + 7] ; $s2
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + 7] ; $s2
   mov [d], b
@@ -520,6 +612,7 @@ _while4_exit:
 ; return *s1 - *s2; 
   lea d, [bp + 5] ; $s1
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -528,6 +621,7 @@ _while4_exit:
   mov a, b
   lea d, [bp + 7] ; $s2
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -552,12 +646,15 @@ strcat:
 ; dest_len = strlen(dest); 
   lea d, [bp + -1] ; $dest_len
   push d
+; --- START FUNCTION CALL
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call strlen
   add sp, 2
+; --- END FUNCTION CALL
   pop d
   mov [d], b
 ; for (i = 0; src[i] != 0; i=i+1) { 
@@ -565,6 +662,7 @@ _for5_init:
   lea d, [bp + -3] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 _for5_cond:
@@ -574,15 +672,18 @@ _for5_cond:
   push d
   lea d, [bp + -3] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sneq ; !=
   pop a
@@ -597,11 +698,13 @@ _for5_block:
   push d
   lea d, [bp + -1] ; $dest_len
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -3] ; $i
   mov b, [d]
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -615,11 +718,13 @@ _for5_block:
   push d
   lea d, [bp + -3] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   pop d
   mov [d], bl
 _for5_update:
@@ -627,10 +732,12 @@ _for5_update:
   push d
   lea d, [bp + -3] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $1
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -645,11 +752,13 @@ _for5_exit:
   push d
   lea d, [bp + -1] ; $dest_len
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -3] ; $i
   mov b, [d]
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -658,11 +767,13 @@ _for5_exit:
   pop a
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], bl
 ; return dest; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   leave
   ret
 
@@ -674,6 +785,7 @@ strlen:
   lea d, [bp + -1] ; $length
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; while (str[length] != 0) { 
@@ -684,15 +796,18 @@ _while6_cond:
   push d
   lea d, [bp + -1] ; $length
   mov b, [d]
+  mov c, 0
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sneq ; !=
   pop a
@@ -703,6 +818,7 @@ _while6_block:
 ; length++; 
   lea d, [bp + -1] ; $length
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -1] ; $length
   mov [d], b
@@ -712,6 +828,7 @@ _while6_exit:
 ; return length; 
   lea d, [bp + -1] ; $length
   mov b, [d]
+  mov c, 0
   leave
   ret
 
@@ -734,16 +851,19 @@ _for7_init:
   lea d, [bp + -1] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 _for7_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + 8] ; $size
   mov b, [d]
+  mov c, 0
   cmp a, b
   slt ; < (signed)
   pop a
@@ -754,11 +874,13 @@ _for7_block:
 ; *(s+i) = c; 
   lea d, [bp + 5] ; $s
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -1] ; $i
   mov b, [d]
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -766,11 +888,13 @@ _for7_block:
   lea d, [bp + 7] ; $c
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   pop d
   mov [d], bl
 _for7_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
@@ -780,6 +904,7 @@ _for7_exit:
 ; return s; 
   lea d, [bp + 5] ; $s
   mov b, [d]
+  mov c, 0
   leave
   ret
 
@@ -791,6 +916,7 @@ atoi:
   lea d, [bp + -1] ; $result
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -800,6 +926,7 @@ atoi:
   lea d, [bp + -3] ; $sign
   push d
   mov b, $1
+  mov c, 0
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -807,6 +934,7 @@ atoi:
 _while8_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -814,6 +942,7 @@ _while8_cond:
   push a
   mov a, b
   mov b, $20
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -824,6 +953,7 @@ _while8_block:
 ; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + 5] ; $str
   mov [d], b
@@ -834,6 +964,7 @@ _while8_exit:
 _if9_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -841,6 +972,7 @@ _if9_cond:
   push a
   mov a, b
   mov b, $2d
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -850,6 +982,7 @@ _if9_cond:
   mov a, b
   lea d, [bp + 5] ; $str
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -857,6 +990,7 @@ _if9_cond:
   push a
   mov a, b
   mov b, $2b
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -871,6 +1005,7 @@ _if9_true:
 _if10_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -878,6 +1013,7 @@ _if10_cond:
   push a
   mov a, b
   mov b, $2d
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -889,6 +1025,7 @@ _if10_true:
   lea d, [bp + -3] ; $sign
   push d
   mov b, $1
+  mov c, 0
   neg b
   pop d
   mov [d], b
@@ -897,6 +1034,7 @@ _if10_exit:
 ; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + 5] ; $str
   mov [d], b
@@ -907,6 +1045,7 @@ _if9_exit:
 _while11_cond:
   lea d, [bp + 5] ; $str
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -914,6 +1053,7 @@ _while11_cond:
   push a
   mov a, b
   mov b, $30
+  mov c, 0
   cmp a, b
   sgeu ; >= (unsigned)
   pop a
@@ -923,6 +1063,7 @@ _while11_cond:
   mov a, b
   lea d, [bp + 5] ; $str
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -930,6 +1071,7 @@ _while11_cond:
   push a
   mov a, b
   mov b, $39
+  mov c, 0
   cmp a, b
   sleu ; <= (unsigned)
   pop a
@@ -945,10 +1087,12 @@ _while11_block:
   push d
   lea d, [bp + -1] ; $result
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   mul a, b ; *
   mov a, b
   mov b, a
@@ -959,6 +1103,7 @@ _while11_block:
   mov a, b
   lea d, [bp + 5] ; $str
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -966,6 +1111,7 @@ _while11_block:
   push a
   mov a, b
   mov b, $30
+  mov c, 0
   sub a, b
   mov b, a
   pop a
@@ -978,6 +1124,7 @@ _while11_block:
 ; str++; 
   lea d, [bp + 5] ; $str
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + 5] ; $str
   mov [d], b
@@ -987,11 +1134,13 @@ _while11_exit:
 ; return sign * result; 
   lea d, [bp + -3] ; $sign
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + -1] ; $result
   mov b, [d]
+  mov c, 0
   mul a, b ; *
   mov a, b
   mov b, a
@@ -1017,6 +1166,7 @@ rand:
 ; return sec; 
   lea d, [bp + -1] ; $sec
   mov b, [d]
+  mov c, 0
   leave
   ret
 
@@ -1027,11 +1177,13 @@ alloc:
   push d
   mov d, _heap_top ; $heap_top
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $bytes
   mov b, [d]
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1040,11 +1192,13 @@ alloc:
 ; return heap_top - bytes; 
   mov d, _heap_top ; $heap_top
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $bytes
   mov b, [d]
+  mov c, 0
   sub a, b
   mov b, a
   pop a
@@ -1059,11 +1213,13 @@ free:
   push d
   mov d, _heap_top ; $heap_top
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $bytes
   mov b, [d]
+  mov c, 0
   sub a, b
   mov b, a
   pop a
@@ -1082,26 +1238,32 @@ fopen:
 ; fp = alloc(sizeof(FILE)); 
   lea d, [bp + -1] ; $fp
   push d
+; --- START FUNCTION CALL
   mov b, 260
   swp b
   push b
   call alloc
   add sp, 2
+; --- END FUNCTION CALL
   pop d
   mov [d], b
 ; strcpy(fp->filename, filename); 
+; --- START FUNCTION CALL
   lea d, [bp + 5] ; $filename
   mov b, [d]
+  mov c, 0
   swp b
   push b
   lea d, [bp + -1] ; $fp
   mov d, [d]
   add d, 2
   mov b, d
+  mov c, 0
   swp b
   push b
   call strcpy
   add sp, 4
+; --- END FUNCTION CALL
 ; fp->handle = max_handle; 
   lea d, [bp + -1] ; $fp
   mov d, [d]
@@ -1109,6 +1271,7 @@ fopen:
   push d
   mov d, st_fopen_max_handle ; static max_handle
   mov b, [d]
+  mov c, 0
   pop d
   mov [d], b
 ; fp->mode = mode; 
@@ -1119,6 +1282,7 @@ fopen:
   lea d, [bp + 7] ; $mode
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   pop d
   mov [d], bl
 ; fp->loc = 0; 
@@ -1127,11 +1291,13 @@ fopen:
   add d, 259
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], bl
 ; max_handle++; 
   mov d, st_fopen_max_handle ; static max_handle
   mov b, [d]
+  mov c, 0
   inc b
   mov d, st_fopen_max_handle ; static max_handle
   mov [d], b
@@ -1142,11 +1308,13 @@ fopen:
 fclose:
   enter 0 ; (push bp; mov bp, sp)
 ; free(sizeof(FILE)); 
+; --- START FUNCTION CALL
   mov b, 260
   swp b
   push b
   call free
   add sp, 2
+; --- END FUNCTION CALL
   leave
   ret
 
@@ -1160,6 +1328,7 @@ printf:
   push d
   lea d, [bp + 5] ; $format
   mov b, [d]
+  mov c, 0
   pop d
   mov [d], b
 ; p = &format + 2; 
@@ -1171,6 +1340,7 @@ printf:
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1184,6 +1354,7 @@ _for12_block:
 _if13_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1200,6 +1371,7 @@ _if13_else:
 _if14_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1207,6 +1379,7 @@ _if14_cond:
   push a
   mov a, b
   mov b, $25
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -1217,6 +1390,7 @@ _if14_true:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -1225,6 +1399,7 @@ _if14_true:
 _switch15_expr:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1252,6 +1427,7 @@ _switch15_case1:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -1260,6 +1436,7 @@ _switch15_case1:
 _if16_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1267,6 +1444,7 @@ _if16_cond:
   push a
   mov a, b
   mov b, $64
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -1276,6 +1454,7 @@ _if16_cond:
   mov a, b
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1283,6 +1462,7 @@ _if16_cond:
   push a
   mov a, b
   mov b, $69
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -1294,29 +1474,31 @@ _if16_cond:
   je _if16_else
 _if16_true:
 ; print_signed_long(*(long *)p); 
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   snex b
   mov c, b
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  mov g, b
-  mov b, c
-  swp b
-  push b
-  mov b, g
+  mov a, c
+  swp a
+  push a
   swp b
   push b
   call print_signed_long
   add sp, 4
+; --- END FUNCTION CALL
   jmp _if16_exit
 _if16_else:
 ; if(*format_p == 'u') 
 _if17_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1324,6 +1506,7 @@ _if17_cond:
   push a
   mov a, b
   mov b, $75
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -1332,29 +1515,31 @@ _if17_cond:
   je _if17_else
 _if17_true:
 ; print_unsigned_long(*(unsigned long *)p); 
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov bh, 0
   mov c, 0
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  mov g, b
-  mov b, c
-  swp b
-  push b
-  mov b, g
+  mov a, c
+  swp a
+  push a
   swp b
   push b
   call print_unsigned_long
   add sp, 4
+; --- END FUNCTION CALL
   jmp _if17_exit
 _if17_else:
 ; if(*format_p == 'x') 
 _if18_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1362,6 +1547,7 @@ _if18_cond:
   push a
   mov a, b
   mov b, $78
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -1370,29 +1556,32 @@ _if18_cond:
   je _if18_else
 _if18_true:
 ; printx32(*(long int *)p); 
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  mov g, b
-  mov b, c
-  swp b
-  push b
-  mov b, g
+  mov a, c
+  swp a
+  push a
   swp b
   push b
   call printx32
   add sp, 4
+; --- END FUNCTION CALL
   jmp _if18_exit
 _if18_else:
 ; err("Unexpected format in printf."); 
+; --- START FUNCTION CALL
   mov b, _s9 ; "Unexpected format in printf."
   swp b
   push b
   call err
   add sp, 2
+; --- END FUNCTION CALL
 _if18_exit:
 _if17_exit:
 _if16_exit:
@@ -1401,10 +1590,12 @@ _if16_exit:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $4
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1415,23 +1606,28 @@ _if16_exit:
 _switch15_case2:
 _switch15_case3:
 ; print_signed(*(int*)p); 
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d]
   swp b
   push b
   call print_signed
   add sp, 2
+; --- END FUNCTION CALL
 ; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1441,23 +1637,28 @@ _switch15_case3:
   jmp _switch15_exit ; case break
 _switch15_case4:
 ; print_unsigned(*(unsigned int*)p); 
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d]
   swp b
   push b
   call print_unsigned
   add sp, 2
+; --- END FUNCTION CALL
 ; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1479,10 +1680,12 @@ _switch15_case5:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1505,10 +1708,12 @@ _switch15_case6:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $1
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1530,10 +1735,12 @@ _switch15_case7:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1543,15 +1750,18 @@ _switch15_case7:
   jmp _switch15_exit ; case break
 _switch15_default:
 ; print("Error: Unknown argument type.\n"); 
+; --- START FUNCTION CALL
   mov b, _s10 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
   add sp, 2
+; --- END FUNCTION CALL
 _switch15_exit:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -1559,17 +1769,21 @@ _switch15_exit:
   jmp _if14_exit
 _if14_else:
 ; putchar(*format_p); 
+; --- START FUNCTION CALL
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -1598,6 +1812,7 @@ scanf:
   push d
   lea d, [bp + 5] ; $format
   mov b, [d]
+  mov c, 0
   pop d
   mov [d], b
 ; p = &format + 2; 
@@ -1609,6 +1824,7 @@ scanf:
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1622,6 +1838,7 @@ _for19_block:
 _if20_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1638,6 +1855,7 @@ _if20_else:
 _if21_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1645,6 +1863,7 @@ _if21_cond:
   push a
   mov a, b
   mov b, $25
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -1655,6 +1874,7 @@ _if21_true:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -1663,6 +1883,7 @@ _if21_true:
 _switch22_expr:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1690,6 +1911,7 @@ _switch22_case1:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -1698,6 +1920,7 @@ _switch22_case1:
 _if23_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1705,6 +1928,7 @@ _if23_cond:
   push a
   mov a, b
   mov b, $64
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -1714,6 +1938,7 @@ _if23_cond:
   mov a, b
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1721,6 +1946,7 @@ _if23_cond:
   push a
   mov a, b
   mov b, $69
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -1738,6 +1964,7 @@ _if23_else:
 _if24_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1745,6 +1972,7 @@ _if24_cond:
   push a
   mov a, b
   mov b, $75
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -1759,6 +1987,7 @@ _if24_else:
 _if25_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1766,6 +1995,7 @@ _if25_cond:
   push a
   mov a, b
   mov b, $78
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -1777,11 +2007,13 @@ _if25_true:
   jmp _if25_exit
 _if25_else:
 ; err("Unexpected format in printf."); 
+; --- START FUNCTION CALL
   mov b, _s9 ; "Unexpected format in printf."
   swp b
   push b
   call err
   add sp, 2
+; --- END FUNCTION CALL
 _if25_exit:
 _if24_exit:
 _if23_exit:
@@ -1790,10 +2022,12 @@ _if23_exit:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $4
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1806,17 +2040,20 @@ _switch22_case3:
 ; i = scann(); 
   lea d, [bp + -6] ; $i
   push d
+; --- START FUNCTION CALL
   call scann
   pop d
   mov [d], b
 ; **(int **)p = i; 
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d]
   push b
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   mov [d], b
 ; p = p + 2; 
@@ -1824,10 +2061,12 @@ _switch22_case3:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1839,17 +2078,20 @@ _switch22_case4:
 ; i = scann(); 
   lea d, [bp + -6] ; $i
   push d
+; --- START FUNCTION CALL
   call scann
   pop d
   mov [d], b
 ; **(int **)p = i; 
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d]
   push b
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   mov [d], b
 ; p = p + 2; 
@@ -1857,10 +2099,12 @@ _switch22_case4:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1874,10 +2118,12 @@ _switch22_case5:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1889,18 +2135,21 @@ _switch22_case6:
 ; c = getchar(); 
   lea d, [bp + -4] ; $c
   push d
+; --- START FUNCTION CALL
   call getchar
   pop d
   mov [d], bl
 ; **(char **)p = *(char *)c; 
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d]
   push b
   lea d, [bp + -4] ; $c
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -1911,10 +2160,12 @@ _switch22_case6:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $1
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1924,34 +2175,43 @@ _switch22_case6:
   jmp _switch22_exit ; case break
 _switch22_case7:
 ; gets(input_string); 
+; --- START FUNCTION CALL
   lea d, [bp + -518] ; $input_string
   mov b, d
+  mov c, 0
   swp b
   push b
   call gets
   add sp, 2
+; --- END FUNCTION CALL
 ; strcpy(*(char **)p, input_string); 
+; --- START FUNCTION CALL
   lea d, [bp + -518] ; $input_string
   mov b, d
+  mov c, 0
   swp b
   push b
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d]
   swp b
   push b
   call strcpy
   add sp, 4
+; --- END FUNCTION CALL
 ; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -1961,15 +2221,18 @@ _switch22_case7:
   jmp _switch22_exit ; case break
 _switch22_default:
 ; print("Error: Unknown argument type.\n"); 
+; --- START FUNCTION CALL
   mov b, _s10 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
   add sp, 2
+; --- END FUNCTION CALL
 _switch22_exit:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -1977,17 +2240,21 @@ _switch22_exit:
   jmp _if21_exit
 _if21_else:
 ; putchar(*format_p); 
+; --- START FUNCTION CALL
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -2012,6 +2279,7 @@ sprintf:
   push d
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   pop d
   mov [d], b
 ; format_p = format; 
@@ -2019,6 +2287,7 @@ sprintf:
   push d
   lea d, [bp + 7] ; $format
   mov b, [d]
+  mov c, 0
   pop d
   mov [d], b
 ; p = &format + 2; 
@@ -2030,6 +2299,7 @@ sprintf:
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -2043,6 +2313,7 @@ _for26_block:
 _if27_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -2059,6 +2330,7 @@ _if27_else:
 _if28_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -2066,6 +2338,7 @@ _if28_cond:
   push a
   mov a, b
   mov b, $25
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -2076,6 +2349,7 @@ _if28_true:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -2084,6 +2358,7 @@ _if28_true:
 _switch29_expr:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -2111,6 +2386,7 @@ _switch29_case1:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -2119,6 +2395,7 @@ _switch29_case1:
 _if30_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -2126,6 +2403,7 @@ _if30_cond:
   push a
   mov a, b
   mov b, $64
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -2135,6 +2413,7 @@ _if30_cond:
   mov a, b
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -2142,6 +2421,7 @@ _if30_cond:
   push a
   mov a, b
   mov b, $69
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -2153,29 +2433,31 @@ _if30_cond:
   je _if30_else
 _if30_true:
 ; print_signed_long(*(long *)p); 
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   snex b
   mov c, b
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  mov g, b
-  mov b, c
-  swp b
-  push b
-  mov b, g
+  mov a, c
+  swp a
+  push a
   swp b
   push b
   call print_signed_long
   add sp, 4
+; --- END FUNCTION CALL
   jmp _if30_exit
 _if30_else:
 ; if(*format_p == 'u') 
 _if31_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -2183,6 +2465,7 @@ _if31_cond:
   push a
   mov a, b
   mov b, $75
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -2191,29 +2474,31 @@ _if31_cond:
   je _if31_else
 _if31_true:
 ; print_unsigned_long(*(unsigned long *)p); 
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov bh, 0
   mov c, 0
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  mov g, b
-  mov b, c
-  swp b
-  push b
-  mov b, g
+  mov a, c
+  swp a
+  push a
   swp b
   push b
   call print_unsigned_long
   add sp, 4
+; --- END FUNCTION CALL
   jmp _if31_exit
 _if31_else:
 ; if(*format_p == 'x') 
 _if32_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -2221,6 +2506,7 @@ _if32_cond:
   push a
   mov a, b
   mov b, $78
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -2229,29 +2515,32 @@ _if32_cond:
   je _if32_else
 _if32_true:
 ; printx32(*(long int *)p); 
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  mov g, b
-  mov b, c
-  swp b
-  push b
-  mov b, g
+  mov a, c
+  swp a
+  push a
   swp b
   push b
   call printx32
   add sp, 4
+; --- END FUNCTION CALL
   jmp _if32_exit
 _if32_else:
 ; err("Unexpected format in printf."); 
+; --- START FUNCTION CALL
   mov b, _s9 ; "Unexpected format in printf."
   swp b
   push b
   call err
   add sp, 2
+; --- END FUNCTION CALL
 _if32_exit:
 _if31_exit:
 _if30_exit:
@@ -2260,10 +2549,12 @@ _if30_exit:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $4
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -2278,21 +2569,26 @@ _switch29_case3:
   push d
   lea d, [bp + -5] ; $sp
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d]
   swp b
   push b
   lea d, [bp + -5] ; $sp
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call sprint_signed
   add sp, 4
+; --- END FUNCTION CALL
   add b, a
   pop a
 ; --- END TERMS
@@ -2303,10 +2599,12 @@ _switch29_case3:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -2320,21 +2618,26 @@ _switch29_case4:
   push d
   lea d, [bp + -5] ; $sp
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d]
   swp b
   push b
   lea d, [bp + -5] ; $sp
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call sprint_unsigned
   add sp, 4
+; --- END FUNCTION CALL
   add b, a
   pop a
 ; --- END TERMS
@@ -2345,10 +2648,12 @@ _switch29_case4:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -2370,10 +2675,12 @@ _switch29_case5:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -2385,6 +2692,7 @@ _switch29_case6:
 ; *sp++ = *(char *)p; 
   lea d, [bp + -5] ; $sp
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -5] ; $sp
   mov [d], b
@@ -2392,6 +2700,7 @@ _switch29_case6:
   push b
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov bl, [d]
   mov bh, 0
@@ -2402,10 +2711,12 @@ _switch29_case6:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $1
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -2419,40 +2730,49 @@ _switch29_case7:
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -7] ; $len
   push d
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d]
   swp b
   push b
   call strlen
   add sp, 2
+; --- END FUNCTION CALL
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
 ; strcpy(sp, *(char **)p); 
+; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
   mov d, b
   mov b, [d]
   swp b
   push b
   lea d, [bp + -5] ; $sp
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call strcpy
   add sp, 4
+; --- END FUNCTION CALL
 ; sp = sp + len; 
   lea d, [bp + -5] ; $sp
   push d
   lea d, [bp + -5] ; $sp
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + -7] ; $len
   mov b, [d]
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -2463,10 +2783,12 @@ _switch29_case7:
   push d
   lea d, [bp + -1] ; $p
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $2
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -2476,15 +2798,18 @@ _switch29_case7:
   jmp _switch29_exit ; case break
 _switch29_default:
 ; print("Error: Unknown argument type.\n"); 
+; --- START FUNCTION CALL
   mov b, _s10 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
   add sp, 2
+; --- END FUNCTION CALL
 _switch29_exit:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -2494,6 +2819,7 @@ _if28_else:
 ; *sp++ = *format_p++; 
   lea d, [bp + -5] ; $sp
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -5] ; $sp
   mov [d], b
@@ -2501,6 +2827,7 @@ _if28_else:
   push b
   lea d, [bp + -3] ; $format_p
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
   mov [d], b
@@ -2518,18 +2845,22 @@ _for26_exit:
 ; *sp = '\0'; 
   lea d, [bp + -5] ; $sp
   mov b, [d]
+  mov c, 0
   push b
   mov b, $0
+  mov c, 0
   pop d
   mov [d], bl
 ; return sp - dest; // return total number of chars written 
   lea d, [bp + -5] ; $sp
   mov b, [d]
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   sub a, b
   mov b, a
   pop a
@@ -2540,12 +2871,15 @@ _for26_exit:
 err:
   enter 0 ; (push bp; mov bp, sp)
 ; print(e); 
+; --- START FUNCTION CALL
   lea d, [bp + 5] ; $e
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call print
   add sp, 2
+; --- END FUNCTION CALL
   leave
   ret
 
@@ -2595,6 +2929,7 @@ hex_str_to_int:
   lea d, [bp + -1] ; $value
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -2607,12 +2942,15 @@ hex_str_to_int:
 ; len = strlen(hex_string); 
   lea d, [bp + -6] ; $len
   push d
+; --- START FUNCTION CALL
   lea d, [bp + 5] ; $hex_string
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call strlen
   add sp, 2
+; --- END FUNCTION CALL
   pop d
   mov [d], b
 ; for (i = 0; i < len; i++) { 
@@ -2620,16 +2958,19 @@ _for33_init:
   lea d, [bp + -3] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 _for33_cond:
   lea d, [bp + -3] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + -6] ; $len
   mov b, [d]
+  mov c, 0
   cmp a, b
   slt ; < (signed)
   pop a
@@ -2646,11 +2987,13 @@ _for33_block:
   push d
   lea d, [bp + -3] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   pop d
   mov [d], bl
 ; if (hex_char >= 'a' && hex_char <= 'f')  
@@ -2658,10 +3001,12 @@ _if34_cond:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $61
+  mov c, 0
   cmp a, b
   sge ; >=
   pop a
@@ -2672,10 +3017,12 @@ _if34_cond:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $66
+  mov c, 0
   cmp a, b
   sle ; <= (signed)
   pop a
@@ -2691,10 +3038,12 @@ _if34_true:
   push d
   lea d, [bp + -1] ; $value
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $10
+  mov c, 0
   mul a, b ; *
   mov a, b
   mov b, a
@@ -2706,14 +3055,17 @@ _if34_true:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $61
+  mov c, 0
   sub a, b
   mov b, a
   mov a, b
   mov b, $a
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -2729,10 +3081,12 @@ _if35_cond:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $41
+  mov c, 0
   cmp a, b
   sge ; >=
   pop a
@@ -2743,10 +3097,12 @@ _if35_cond:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $46
+  mov c, 0
   cmp a, b
   sle ; <= (signed)
   pop a
@@ -2762,10 +3118,12 @@ _if35_true:
   push d
   lea d, [bp + -1] ; $value
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $10
+  mov c, 0
   mul a, b ; *
   mov a, b
   mov b, a
@@ -2777,14 +3135,17 @@ _if35_true:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $41
+  mov c, 0
   sub a, b
   mov b, a
   mov a, b
   mov b, $a
+  mov c, 0
   add b, a
   pop a
 ; --- END TERMS
@@ -2800,10 +3161,12 @@ _if35_else:
   push d
   lea d, [bp + -1] ; $value
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $10
+  mov c, 0
   mul a, b ; *
   mov a, b
   mov b, a
@@ -2815,10 +3178,12 @@ _if35_else:
   lea d, [bp + -4] ; $hex_char
   mov bl, [d]
   mov bh, 0
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   mov b, $30
+  mov c, 0
   sub a, b
   mov b, a
   pop a
@@ -2833,6 +3198,7 @@ _if34_exit:
 _for33_update:
   lea d, [bp + -3] ; $i
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -3] ; $i
   mov [d], b
@@ -2842,6 +3208,7 @@ _for33_exit:
 ; return value; 
   lea d, [bp + -1] ; $value
   mov b, [d]
+  mov c, 0
   leave
   ret
 
@@ -2856,12 +3223,15 @@ gets:
 ; --- END INLINE ASM SEGMENT
 
 ; return strlen(s); 
+; --- START FUNCTION CALL
   lea d, [bp + 5] ; $s
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call strlen
   add sp, 2
+; --- END FUNCTION CALL
   leave
   ret
 
@@ -2875,6 +3245,7 @@ print_signed:
   lea d, [bp + -6] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -2882,10 +3253,12 @@ print_signed:
 _if36_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   slt ; < (signed)
   pop a
@@ -2894,15 +3267,19 @@ _if36_cond:
   je _if36_else
 _if36_true:
 ; putchar('-'); 
+; --- START FUNCTION CALL
   mov b, $2d
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
 ; num = -num; 
   lea d, [bp + 5] ; $num
   push d
   lea d, [bp + 5] ; $num
   mov b, [d]
+  mov c, 0
   neg b
   pop d
   mov [d], b
@@ -2912,10 +3289,12 @@ _if36_else:
 _if37_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -2924,10 +3303,13 @@ _if37_cond:
   je _if37_exit
 _if37_true:
 ; putchar('0'); 
+; --- START FUNCTION CALL
   mov b, $30
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
 ; return; 
   leave
   ret
@@ -2938,10 +3320,12 @@ _if36_exit:
 _while38_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgt ; >
   pop a
@@ -2955,20 +3339,24 @@ _while38_block:
   push d
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   push d
   mov b, $30
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b ; 
   mov a, b
   mov b, a
@@ -2984,10 +3372,12 @@ _while38_block:
   push d
   lea d, [bp + 5] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b
   mov b, a
   pop a
@@ -2997,6 +3387,7 @@ _while38_block:
 ; i++; 
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
@@ -3007,10 +3398,12 @@ _while38_exit:
 _while39_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgt ; >
   pop a
@@ -3021,24 +3414,29 @@ _while39_block:
 ; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
   inc b
 ; putchar(digits[i]); 
+; --- START FUNCTION CALL
   lea d, [bp + -4] ; $digits
   push a
   push d
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
   jmp _while39_cond
 _while39_exit:
   leave
@@ -3054,6 +3452,7 @@ print_signed_long:
   lea d, [bp + -11] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -3070,6 +3469,7 @@ _if40_cond:
   mov g, c
   mov b, $0
   mov c, 0
+  mov c, 0
   cmp32 ga, cb
   slt ; <
   pop g
@@ -3079,10 +3479,13 @@ _if40_cond:
   je _if40_else
 _if40_true:
 ; putchar('-'); 
+; --- START FUNCTION CALL
   mov b, $2d
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
 ; num = -num; 
   lea d, [bp + 5] ; $num
   push d
@@ -3093,7 +3496,7 @@ _if40_true:
   neg b
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
   jmp _if40_exit
 _if40_else:
@@ -3110,6 +3513,7 @@ _if41_cond:
   mov g, c
   mov b, $0
   mov c, 0
+  mov c, 0
   cmp32 ga, cb
   seq ; ==
   pop g
@@ -3119,10 +3523,13 @@ _if41_cond:
   je _if41_exit
 _if41_true:
 ; putchar('0'); 
+; --- START FUNCTION CALL
   mov b, $30
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
 ; return; 
   leave
   ret
@@ -3142,6 +3549,8 @@ _while42_cond:
   mov g, c
   mov b, $0
   mov c, 0
+  mov c, 0
+  cmp32 ga, cb
   sgt
   pop g
   pop a
@@ -3155,11 +3564,13 @@ _while42_block:
   push d
   lea d, [bp + -11] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   push d
   mov b, $30
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
@@ -3171,18 +3582,13 @@ _while42_block:
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b ; 
   mov a, b
   mov b, a
   pop a
 ; --- END FACTORS
-  add a, b
-  push a
-  mov a, g
-  mov b, c
-  adc a, b
-  mov c, a
-  pop b
+  add32 cb, ga
   pop a
 ; --- END TERMS
   pop d
@@ -3198,6 +3604,7 @@ _while42_block:
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b
   mov b, a
   pop a
@@ -3209,6 +3616,7 @@ _while42_block:
 ; i++; 
   lea d, [bp + -11] ; $i
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -11] ; $i
   mov [d], b
@@ -3219,10 +3627,12 @@ _while42_exit:
 _while43_cond:
   lea d, [bp + -11] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgt ; >
   pop a
@@ -3233,24 +3643,29 @@ _while43_block:
 ; i--; 
   lea d, [bp + -11] ; $i
   mov b, [d]
+  mov c, 0
   dec b
   lea d, [bp + -11] ; $i
   mov [d], b
   inc b
 ; putchar(digits[i]); 
+; --- START FUNCTION CALL
   lea d, [bp + -9] ; $digits
   push a
   push d
   lea d, [bp + -11] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
   jmp _while43_cond
 _while43_exit:
   leave
@@ -3266,6 +3681,7 @@ print_unsigned_long:
   lea d, [bp + -11] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; if(num == 0){ 
@@ -3281,6 +3697,7 @@ _if44_cond:
   mov g, c
   mov b, $0
   mov c, 0
+  mov c, 0
   cmp32 ga, cb
   seq ; ==
   pop g
@@ -3290,10 +3707,13 @@ _if44_cond:
   je _if44_exit
 _if44_true:
 ; putchar('0'); 
+; --- START FUNCTION CALL
   mov b, $30
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
 ; return; 
   leave
   ret
@@ -3312,6 +3732,8 @@ _while45_cond:
   mov g, c
   mov b, $0
   mov c, 0
+  mov c, 0
+  cmp32 ga, cb
   sgu
   pop g
   pop a
@@ -3325,11 +3747,13 @@ _while45_block:
   push d
   lea d, [bp + -11] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   push d
   mov b, $30
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
@@ -3341,18 +3765,13 @@ _while45_block:
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b ; 
   mov a, b
   mov b, a
   pop a
 ; --- END FACTORS
-  add a, b
-  push a
-  mov a, g
-  mov b, c
-  adc a, b
-  mov c, a
-  pop b
+  add32 cb, ga
   pop a
 ; --- END TERMS
   pop d
@@ -3368,6 +3787,7 @@ _while45_block:
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b
   mov b, a
   pop a
@@ -3379,6 +3799,7 @@ _while45_block:
 ; i++; 
   lea d, [bp + -11] ; $i
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -11] ; $i
   mov [d], b
@@ -3389,10 +3810,12 @@ _while45_exit:
 _while46_cond:
   lea d, [bp + -11] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgt ; >
   pop a
@@ -3403,24 +3826,29 @@ _while46_block:
 ; i--; 
   lea d, [bp + -11] ; $i
   mov b, [d]
+  mov c, 0
   dec b
   lea d, [bp + -11] ; $i
   mov [d], b
   inc b
 ; putchar(digits[i]); 
+; --- START FUNCTION CALL
   lea d, [bp + -9] ; $digits
   push a
   push d
   lea d, [bp + -11] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
   jmp _while46_cond
 _while46_exit:
   leave
@@ -3438,6 +3866,7 @@ sprint_unsigned:
   lea d, [bp + -8] ; $len
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -3445,16 +3874,19 @@ sprint_unsigned:
   lea d, [bp + -6] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; if(num == 0){ 
 _if47_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -3465,16 +3897,19 @@ _if47_true:
 ; *dest++ = '0'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
   mov [d], b
   dec b
   push b
   mov b, $30
+  mov c, 0
   pop d
   mov [d], bl
 ; return 1; 
   mov b, $1
+  mov c, 0
   leave
   ret
   jmp _if47_exit
@@ -3483,10 +3918,12 @@ _if47_exit:
 _while48_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgu ; > (unsigned)
   pop a
@@ -3500,20 +3937,24 @@ _while48_block:
   push d
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   push d
   mov b, $30
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 7] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b ; 
   mov a, b
   mov b, a
@@ -3529,10 +3970,12 @@ _while48_block:
   push d
   lea d, [bp + 7] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b
   mov b, a
   pop a
@@ -3542,6 +3985,7 @@ _while48_block:
 ; i++; 
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
@@ -3552,10 +3996,12 @@ _while48_exit:
 _while49_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgt ; >
   pop a
@@ -3566,6 +4012,7 @@ _while49_block:
 ; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
@@ -3573,6 +4020,7 @@ _while49_block:
 ; *dest++ = digits[i]; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
   mov [d], b
@@ -3583,16 +4031,19 @@ _while49_block:
   push d
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   pop d
   mov [d], bl
 ; len++; 
   lea d, [bp + -8] ; $len
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -8] ; $len
   mov [d], b
@@ -3602,13 +4053,16 @@ _while49_exit:
 ; *dest = '\0'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   push b
   mov b, $0
+  mov c, 0
   pop d
   mov [d], bl
 ; return len; 
   lea d, [bp + -8] ; $len
   mov b, [d]
+  mov c, 0
   leave
   ret
 
@@ -3622,16 +4076,19 @@ print_unsigned:
   lea d, [bp + -6] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; if(num == 0){ 
 _if50_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -3640,10 +4097,13 @@ _if50_cond:
   je _if50_exit
 _if50_true:
 ; putchar('0'); 
+; --- START FUNCTION CALL
   mov b, $30
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
 ; return; 
   leave
   ret
@@ -3653,10 +4113,12 @@ _if50_exit:
 _while51_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgu ; > (unsigned)
   pop a
@@ -3670,20 +4132,24 @@ _while51_block:
   push d
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   push d
   mov b, $30
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 5] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b ; 
   mov a, b
   mov b, a
@@ -3699,10 +4165,12 @@ _while51_block:
   push d
   lea d, [bp + 5] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b
   mov b, a
   pop a
@@ -3712,6 +4180,7 @@ _while51_block:
 ; i++; 
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
@@ -3722,10 +4191,12 @@ _while51_exit:
 _while52_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgt ; >
   pop a
@@ -3736,24 +4207,29 @@ _while52_block:
 ; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
   inc b
 ; putchar(digits[i]); 
+; --- START FUNCTION CALL
   lea d, [bp + -4] ; $digits
   push a
   push d
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   push bl
   call putchar
   add sp, 1
+; --- END FUNCTION CALL
   jmp _while52_cond
 _while52_exit:
   leave
@@ -3769,6 +4245,7 @@ sprint_signed:
   lea d, [bp + -6] ; $i
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -3778,6 +4255,7 @@ sprint_signed:
   lea d, [bp + -8] ; $len
   push d
   mov b, $0
+  mov c, 0
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
@@ -3785,10 +4263,12 @@ sprint_signed:
 _if53_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   slt ; < (signed)
   pop a
@@ -3799,12 +4279,14 @@ _if53_true:
 ; *dest++ = '-'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
   mov [d], b
   dec b
   push b
   mov b, $2d
+  mov c, 0
   pop d
   mov [d], bl
 ; num = -num; 
@@ -3812,12 +4294,14 @@ _if53_true:
   push d
   lea d, [bp + 7] ; $num
   mov b, [d]
+  mov c, 0
   neg b
   pop d
   mov [d], b
 ; len++; 
   lea d, [bp + -8] ; $len
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -8] ; $len
   mov [d], b
@@ -3828,10 +4312,12 @@ _if53_else:
 _if54_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -3842,23 +4328,28 @@ _if54_true:
 ; *dest++ = '0'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
   mov [d], b
   dec b
   push b
   mov b, $30
+  mov c, 0
   pop d
   mov [d], bl
 ; *dest = '\0'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   push b
   mov b, $0
+  mov c, 0
   pop d
   mov [d], bl
 ; return 1; 
   mov b, $1
+  mov c, 0
   leave
   ret
   jmp _if54_exit
@@ -3868,10 +4359,12 @@ _if53_exit:
 _while55_cond:
   lea d, [bp + 7] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgt ; >
   pop a
@@ -3885,20 +4378,24 @@ _while55_block:
   push d
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   push d
   mov b, $30
+  mov c, 0
 ; --- START TERMS
   push a
   mov a, b
   lea d, [bp + 7] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b ; 
   mov a, b
   mov b, a
@@ -3914,10 +4411,12 @@ _while55_block:
   push d
   lea d, [bp + 7] ; $num
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   mov b, $a
+  mov c, 0
   div a, b
   mov b, a
   pop a
@@ -3927,6 +4426,7 @@ _while55_block:
 ; i++; 
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
@@ -3937,10 +4437,12 @@ _while55_exit:
 _while56_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgt ; >
   pop a
@@ -3951,6 +4453,7 @@ _while56_block:
 ; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
@@ -3958,6 +4461,7 @@ _while56_block:
 ; *dest++ = digits[i]; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
   mov [d], b
@@ -3968,16 +4472,19 @@ _while56_block:
   push d
   lea d, [bp + -6] ; $i
   mov b, [d]
+  mov c, 0
   pop d
   add d, b
   pop a
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   pop d
   mov [d], bl
 ; len++; 
   lea d, [bp + -8] ; $len
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -8] ; $len
   mov [d], b
@@ -3987,13 +4494,16 @@ _while56_exit:
 ; *dest = '\0'; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
+  mov c, 0
   push b
   mov b, $0
+  mov c, 0
   pop d
   mov [d], bl
 ; return len; 
   lea d, [bp + -8] ; $len
   mov b, [d]
+  mov c, 0
   leave
   ret
 
@@ -4037,6 +4547,7 @@ getchar:
   lea d, [bp + 0] ; $c
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   leave
   ret
 
@@ -4054,6 +4565,7 @@ scann:
 ; return m; 
   lea d, [bp + -1] ; $m
   mov b, [d]
+  mov c, 0
   leave
   ret
 
@@ -4102,17 +4614,20 @@ getparam:
   lea d, [bp + 0] ; $data
   mov bl, [d]
   mov bh, 0
+  mov c, 0
   leave
   ret
 
 clear:
   enter 0 ; (push bp; mov bp, sp)
 ; print("\033[2J\033[H"); 
+; --- START FUNCTION CALL
   mov b, _s11 ; "\033[2J\033[H"
   swp b
   push b
   call print
   add sp, 2
+; --- END FUNCTION CALL
   leave
   ret
 
@@ -4122,10 +4637,12 @@ abs:
 _ternary57_cond:
   lea d, [bp + 5] ; $i
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   slt ; < (signed)
   pop a
@@ -4135,11 +4652,13 @@ _ternary57_cond:
 _ternary57_true:
   lea d, [bp + 5] ; $i
   mov b, [d]
+  mov c, 0
   neg b
   jmp _ternary57_exit
 _ternary57_false:
   lea d, [bp + 5] ; $i
   mov b, [d]
+  mov c, 0
 _ternary57_exit:
   leave
   ret
@@ -4184,11 +4703,14 @@ load_hex:
 ; temp = alloc(32768); 
   lea d, [bp + -1] ; $temp
   push d
+; --- START FUNCTION CALL
   mov b, $8000
+  mov c, 0
   swp b
   push b
   call alloc
   add sp, 2
+; --- END FUNCTION CALL
   pop d
   mov [d], b
 
@@ -4241,10 +4763,12 @@ gcd:
 _if58_cond:
   lea d, [bp + 7] ; $b
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -4255,18 +4779,22 @@ _if58_true:
 ; return a; 
   lea d, [bp + 5] ; $a
   mov b, [d]
+  mov c, 0
   leave
   ret
   jmp _if58_exit
 _if58_exit:
 ; return gcd(b, a % b); 
+; --- START FUNCTION CALL
   lea d, [bp + 5] ; $a
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + 7] ; $b
   mov b, [d]
+  mov c, 0
   div a, b ; 
   mov a, b
   mov b, a
@@ -4276,10 +4804,12 @@ _if58_exit:
   push b
   lea d, [bp + 7] ; $b
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call gcd
   add sp, 4
+; --- END FUNCTION CALL
   leave
   ret
 
@@ -4291,16 +4821,19 @@ mod_exp:
   lea d, [bp + -1] ; $result
   push d
   mov b, $1
+  mov c, 0
   pop d
   mov [d], b
 ; while (exp > 0) { 
 _while59_cond:
   lea d, [bp + 7] ; $exp
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $0
+  mov c, 0
   cmp a, b
   sgt ; >
   pop a
@@ -4312,9 +4845,11 @@ _while59_block:
 _if60_cond:
   lea d, [bp + 7] ; $exp
   mov b, [d]
+  mov c, 0
   push a
   mov a, b
   mov b, $1
+  mov c, 0
   and b, a ; &
   pop a
   cmp b, 0
@@ -4325,11 +4860,13 @@ _if60_true:
   push d
   lea d, [bp + -1] ; $result
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + 5] ; $base
   mov b, [d]
+  mov c, 0
   mul a, b ; *
   mov a, b
   mov b, a
@@ -4340,6 +4877,7 @@ _if60_true:
   mov a, b
   lea d, [bp + 9] ; $mod
   mov b, [d]
+  mov c, 0
   div a, b ; 
   mov a, b
   mov b, a
@@ -4354,10 +4892,12 @@ _if60_exit:
   push d
   lea d, [bp + 7] ; $exp
   mov b, [d]
+  mov c, 0
 ; --- START SHIFT
   push a
   mov a, b
   mov b, $1
+  mov c, 0
   mov c, b
   ashr a, cl
   mov b, a
@@ -4370,11 +4910,13 @@ _if60_exit:
   push d
   lea d, [bp + 5] ; $base
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + 5] ; $base
   mov b, [d]
+  mov c, 0
   mul a, b ; *
   mov a, b
   mov b, a
@@ -4385,6 +4927,7 @@ _if60_exit:
   mov a, b
   lea d, [bp + 9] ; $mod
   mov b, [d]
+  mov c, 0
   div a, b ; 
   mov a, b
   mov b, a
@@ -4397,6 +4940,7 @@ _while59_exit:
 ; return result; 
   lea d, [bp + -1] ; $result
   mov b, [d]
+  mov c, 0
   leave
   ret
 
@@ -4409,16 +4953,19 @@ _for61_init:
   lea d, [bp + -1] ; $e
   push d
   mov b, $2
+  mov c, 0
   pop d
   mov [d], b
 _for61_cond:
   lea d, [bp + -1] ; $e
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + 5] ; $phi
   mov b, [d]
+  mov c, 0
   cmp a, b
   slt ; < (signed)
   pop a
@@ -4428,20 +4975,25 @@ _for61_cond:
 _for61_block:
 ; if (gcd(e, phi) == 1) { 
 _if62_cond:
+; --- START FUNCTION CALL
   lea d, [bp + 5] ; $phi
   mov b, [d]
+  mov c, 0
   swp b
   push b
   lea d, [bp + -1] ; $e
   mov b, [d]
+  mov c, 0
   swp b
   push b
   call gcd
   add sp, 4
+; --- END FUNCTION CALL
 ; --- START RELATIONAL
   push a
   mov a, b
   mov b, $1
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -4452,6 +5004,7 @@ _if62_true:
 ; return e; 
   lea d, [bp + -1] ; $e
   mov b, [d]
+  mov c, 0
   leave
   ret
   jmp _if62_exit
@@ -4459,6 +5012,7 @@ _if62_exit:
 _for61_update:
   lea d, [bp + -1] ; $e
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -1] ; $e
   mov [d], b
@@ -4467,6 +5021,7 @@ _for61_update:
 _for61_exit:
 ; return 0; 
   mov b, $0
+  mov c, 0
   leave
   ret
 
@@ -4479,16 +5034,19 @@ _for63_init:
   lea d, [bp + -1] ; $d
   push d
   mov b, $2
+  mov c, 0
   pop d
   mov [d], b
 _for63_cond:
   lea d, [bp + -1] ; $d
   mov b, [d]
+  mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
   lea d, [bp + 7] ; $phi
   mov b, [d]
+  mov c, 0
   cmp a, b
   slt ; < (signed)
   pop a
@@ -4500,11 +5058,13 @@ _for63_block:
 _if64_cond:
   lea d, [bp + -1] ; $d
   mov b, [d]
+  mov c, 0
 ; --- START FACTORS
   push a
   mov a, b
   lea d, [bp + 5] ; $e
   mov b, [d]
+  mov c, 0
   mul a, b ; *
   mov a, b
   mov b, a
@@ -4515,6 +5075,7 @@ _if64_cond:
   mov a, b
   lea d, [bp + 7] ; $phi
   mov b, [d]
+  mov c, 0
   div a, b ; 
   mov a, b
   mov b, a
@@ -4524,6 +5085,7 @@ _if64_cond:
   push a
   mov a, b
   mov b, $1
+  mov c, 0
   cmp a, b
   seq ; ==
   pop a
@@ -4534,6 +5096,7 @@ _if64_true:
 ; return d; 
   lea d, [bp + -1] ; $d
   mov b, [d]
+  mov c, 0
   leave
   ret
   jmp _if64_exit
@@ -4541,6 +5104,7 @@ _if64_exit:
 _for63_update:
   lea d, [bp + -1] ; $d
   mov b, [d]
+  mov c, 0
   inc b
   lea d, [bp + -1] ; $d
   mov [d], b
@@ -4549,16 +5113,17 @@ _for63_update:
 _for63_exit:
 ; return 0; 
   mov b, $0
+  mov c, 0
   leave
   ret
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
 st_fopen_max_handle: .dw 0
-_s0: .db "Public Key: (", 0
+_s0: .db "Public Key: ", 0
 _s1: .db "%d, ", 0
 _s2: .db "%d\n", 0
-_s3: .db "Private Key: (", 0
+_s3: .db "Private Key: ", 0
 _s4: .db "Enter a string: ", 0
 _s5: .db "Encrypted text: ", 0
 _s6: .db "%d ", 0
