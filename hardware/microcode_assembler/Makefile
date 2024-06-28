@@ -8,8 +8,6 @@ compile_file: micro
 ifeq ($(FILE),)
 	@echo "Error: Please provide a file to compile using FILE=<filename>"
 	@exit 1
-else
-	./micro $(FILE) -v
 endif
 
 micro: micro.o 

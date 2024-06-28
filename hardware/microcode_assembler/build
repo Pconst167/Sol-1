@@ -7,3 +7,5 @@ fi
 
 make FILE=$1
 
+
+./micro $@ -v

@@ -89,7 +89,9 @@ void do_reset(){
 }
 
 void main_loop(){
-  for(;;){
+  int max = 50;
+
+  for(int cycles = 0; cycles < max; cycles++){
     clk = ~clk;
     if(!clk){
       if(arst) reset = 1;
@@ -97,8 +99,6 @@ void main_loop(){
     }
     if(reset) do_reset();
     execute_micro_instruction();
-    printf("IR: %x\n", ir);
-    printf("PC: %x\n", pc);
   }
 }
 
@@ -294,6 +294,7 @@ void execute_micro_instruction(){
 
   if(rd){
     databus = bios_memory[mar];
+    printf("databus: %x\n", databus);
   }
   if(wr){
     bios_memory[mar] = databus;
@@ -301,6 +302,9 @@ void execute_micro_instruction(){
 
   printf("Typ: %d, %d\n", typ_1, typ_0);  
   printf("uaddr: %d\n", micro_addr);  
+  printf("uaddr: %2x : %d\n", micro_addr >> 6, micro_addr & 0x3F);  
+  printf("IR: %x\n", ir);
+  printf("PC: %x\n", pc);
 }
 
 void microcode_step(){
@@ -328,9 +332,6 @@ void load_microcode_roms(){
           rom_addr++;
         } while(!feof(fp));
         fclose(fp);
-        for(int i =0;i<256*64;i++){
-          printf("ROM0: %x", microcode[0].rom_0.as_array);
-        }
         break;
       case 1:
         do{

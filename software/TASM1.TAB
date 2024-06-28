@@ -464,6 +464,7 @@ SAND A,B                        A7FD  2    NOP      1
 SOR  A,B                        A8FD  2    NOP      1                
 
 CMP32  GA,CB                    AFFD  2    NOP      1
+CMP32  GA,@                     B0FD  6    NOP      1
 OR32   CB,GA                    29FD  2    NOP      1
 AND32  CB,GA                    2BFD  2    NOP      1
 ADD32  CB,GA                    15FD  2    NOP      1
@@ -473,7 +474,6 @@ SBB32  GA,CB                    19FD  2    NOP      1
 SHL32 GA,CL                     1DFD  2    NOP      1
 
 
-CMP32  GA,@                     B0FD  6    NOP      1
 XOR32  CB,GA                    25FD  2    NOP      1
 
 
@@ -483,5 +483,5 @@ SHR32 GA,CL                     1EFD  2    NOP      1
 
 
 
-MOV CB,@                        1FFD  6    NOP      1
+MOV CB,@                        2EFD  6    NOP      1
 MOV GA,@                        2DFD  6    NOP      1

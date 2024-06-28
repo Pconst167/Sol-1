@@ -3422,6 +3422,7 @@
     alu_mode = logic
     alu_y = mdrh  ah_wrt = true
   }
+
   16{
     next = next_fetch
     alu_op = y
@@ -5040,6 +5041,7 @@
     alu_op = x
     alu_mode = logic
     zf_in_src = alu_zf  
+    sf_in_src = zbus_7
     cf_in_src = alu_out_0
     gh_wrt = true
   }
@@ -5076,7 +5078,6 @@
     alu_mode = logic
     zf_in_src = alu_zf_and_zf  
     cf_in_src = alu_out_0  
-    sf_in_src = zbus_7
     al_wrt = true
   }
   21{
@@ -6695,7 +6696,7 @@
   }
 }
 
-0x2D, "mov b, d"{
+0x2D, "mov b, d - mov ga, i32"{
   0{
     next = next_offset
     offset = 1
@@ -6711,9 +6712,134 @@
     alu_mode = logic
     bh_wrt = true
   }
+
+
+  16{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrl_wrt = true
+    marl_wrt = true
+    immediate = 1
+  }
+  17{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+  }
+  18{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrh_wrt = true
+    marl_wrt = true
+    pcl_wrt = true
+    immediate = 1
+  }
+  19{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+    pch_wrt = true
+  }
+  20{
+    next = next_offset
+    offset = 1
+    alu_op = y
+    alu_mode = logic
+    alu_y = mdrl
+    al_wrt = true
+  }
+  21{
+    next = next_offset
+    offset = 1
+    alu_op = y
+    alu_mode = logic
+    alu_y = mdrh  
+    ah_wrt = true
+  }
+  22{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrl_wrt = true
+    marl_wrt = true
+    immediate = 1
+  }
+  23{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+  }
+  24{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrh_wrt = true
+    marl_wrt = true
+    pcl_wrt = true
+    immediate = 1
+  }
+  25{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+    pch_wrt = true
+  }
+  26{
+    next = next_offset
+    offset = 1
+    alu_op = y
+    alu_mode = logic
+    alu_y = mdrl
+    gl_wrt = true
+  }
+  27{
+    next = next_fetch
+    alu_op = y
+    alu_mode = logic
+    alu_y = mdrh  
+    gh_wrt = true
+  }
 }
 
-0x2E, "mov bl, i8"{
+0x2E, "mov bl, i8 - mov cb, i32"{
   0{
     next = next_offset
     offset = 1
@@ -6747,6 +6873,132 @@
     marl_wrt = true
     marh_wrt = true
     mar_in_src = pc
+  }
+
+
+
+  16{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrl_wrt = true
+    marl_wrt = true
+    immediate = 1
+  }
+  17{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+  }
+  18{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrh_wrt = true
+    marl_wrt = true
+    pcl_wrt = true
+    immediate = 1
+  }
+  19{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+    pch_wrt = true
+  }
+  20{
+    next = next_offset
+    offset = 1
+    alu_op = y
+    alu_mode = logic
+    alu_y = mdrl
+    bl_wrt = true
+  }
+  21{
+    next = next_offset
+    offset = 1
+    alu_op = y
+    alu_mode = logic
+    alu_y = mdrh  
+    bh_wrt = true
+  }
+  22{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrl_wrt = true
+    marl_wrt = true
+    immediate = 1
+  }
+  23{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+  }
+  24{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = marl
+    alu_op = plus
+    alu_cf_out_inv = true
+    rd = true
+    mdr_in_src = databus
+    mdrh_wrt = true
+    marl_wrt = true
+    pcl_wrt = true
+    immediate = 1
+  }
+  25{
+    next = next_offset
+    offset = 1
+    alu_x = marh
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    marh_wrt = true
+    pch_wrt = true
+  }
+  26{
+    next = next_offset
+    offset = 1
+    alu_op = y
+    alu_mode = logic
+    alu_y = mdrl
+    cl_wrt = true
+  }
+  27{
+    next = next_fetch
+    alu_op = y
+    alu_mode = logic
+    alu_y = mdrh  
+    ch_wrt = true
   }
 }
 
@@ -17444,7 +17696,7 @@
   }
 }
 
-0xA7, "mov bh, u8 - sand"{
+0xA7, "mov bh, u8 - sand a, b"{
   0{
     next = next_offset
     offset = 1
@@ -17535,11 +17787,6 @@
     next = next_branch
     offset = 2
     cond_flags_src = micro_flags
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    immediate = 0
-    bh_wrt = true
   }
   22{
     next = next_fetch
@@ -17609,11 +17856,6 @@
     condition = zf
     cond_flags_src = micro_flags
     condition_inv = true
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    immediate = 0
-    bh_wrt = true
   }
   21{
     next = next_fetch
@@ -19162,7 +19404,6 @@
   20{
     next = next_branch
     offset = 7
-    cond_flags_src = cpu_flags
     alu_y = immediate
     alu_op = y
     alu_mode = logic
@@ -19175,7 +19416,7 @@
     alu_x = al
     alu_op = x
     alu_mode = logic
-    zf_in_src = alu_zf_and_zf
+    zf_in_src = alu_zf
   }
   22{
     next = next_offset
@@ -19204,12 +19445,6 @@
   25{
     next = next_branch
     offset = 2
-    cond_flags_src = micro_flags
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    bh_wrt = true
-    immediate = 0
   }
   26{
     next = next_fetch
@@ -19288,11 +19523,6 @@
     condition = zf
     cond_flags_src = micro_flags
     condition_inv = true
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    immediate = 0
-    bh_wrt = true
   }
   18{
     next = next_offset
@@ -19308,11 +19538,6 @@
     condition = zf
     cond_flags_src = micro_flags
     condition_inv = true
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    immediate = 0
-    bh_wrt = true
   }
   20{
     next = next_offset
@@ -19328,11 +19553,6 @@
     condition = zf
     cond_flags_src = micro_flags
     condition_inv = true
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    immediate = 0
-    bh_wrt = true
   }
   22{
     next = next_offset
@@ -19348,11 +19568,6 @@
     condition = zf
     cond_flags_src = micro_flags
     condition_inv = true
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    immediate = 0
-    bh_wrt = true
   }
   24{
     next = next_offset
@@ -19368,11 +19583,6 @@
     condition = zf
     cond_flags_src = micro_flags
     condition_inv = true
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    immediate = 0
-    bh_wrt = true
   }
   26{
     next = next_offset
@@ -19388,11 +19598,6 @@
     condition = zf
     cond_flags_src = micro_flags
     condition_inv = true
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    immediate = 0
-    bh_wrt = true
   }
   28{
     next = next_offset
@@ -19408,11 +19613,6 @@
     condition = zf
     cond_flags_src = micro_flags
     condition_inv = true
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    immediate = 0
-    bh_wrt = true
   }
   30{
     next = next_offset
@@ -19428,11 +19628,6 @@
     condition = zf
     cond_flags_src = micro_flags
     condition_inv = true
-    alu_y = immediate
-    alu_op = y
-    alu_mode = logic
-    immediate = 0
-    bh_wrt = true
   }
   32{
     next = next_fetch
