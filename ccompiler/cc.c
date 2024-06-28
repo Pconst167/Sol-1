@@ -34,6 +34,10 @@
   ** implement 'register' keyworded type local variables  
 
   ** change unary logical not operator to use cmp32 cb, i32 instead of cmo32 ga, i32, when the new instruction is burned in rom 
+
+  ** implement instructions: mov cl, bl; mov cl, bh; mov ch, al; mov ch, ah; etc...
+
+  ** implement mov32 b, [d] to move a 32bit integer address by 'd'
 */
 
 #include <stdio.h>
@@ -2961,7 +2965,7 @@ t_type parse_atomic(void){
     }
     else if(enum_element_exists(temp_name) != -1){
       back();
-      emitln("  mov b, %d; %s", get_enum_val(temp_name), temp_name);
+      emitln("  mov32 cb, %x ; enum element: %s", get_enum_val(temp_name), temp_name);
       expr_out.primitive_type = DT_INT;
       expr_out.ind_level = 0;
       expr_out.sign_modifier = SIGNMOD_SIGNED; // TODO: check enums can always be signed...
@@ -3002,7 +3006,12 @@ t_type parse_atomic(void){
 
   else if(curr_token.tok == OPENING_PAREN){
     get();
-    if(curr_token.tok != SIGNED && curr_token.tok != UNSIGNED && curr_token.tok != LONG && curr_token.tok != SHORT && curr_token.tok != INT && curr_token.tok != CHAR && curr_token.tok != VOID){
+    if(curr_token.tok != SIGNED && curr_token.tok != UNSIGNED && 
+       curr_token.tok != LONG   && curr_token.tok != SHORT    && 
+       curr_token.tok != INT    && curr_token.tok != CHAR     && 
+       curr_token.tok != VOID   && curr_token.tok != ENUM     &&
+       curr_token.tok != STRUCT
+    ){
       back();
       expr_out = parse_expr();  // parses expression between parenthesis and result will be in B
       if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing paren expected");
@@ -3011,7 +3020,9 @@ t_type parse_atomic(void){
       sign_modifier = SIGNMOD_SIGNED;
       size_modifier  = SIZEMOD_NORMAL;
 
-      while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){
+      while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || 
+            curr_token.tok == LONG   || curr_token.tok == SHORT
+      ){
         if(curr_token.tok == SIGNED)
           sign_modifier = SIGNMOD_SIGNED;
         else if(curr_token.tok == UNSIGNED)
@@ -3057,11 +3068,13 @@ t_type parse_atomic(void){
         }
         else if(size_modifier == SIZEMOD_LONG){
           expr_out = parse_atomic();
-          if(sign_modifier == SIGNMOD_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR || expr_out.primitive_type == DT_INT){
+          if(sign_modifier == SIGNMOD_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_INT){
             emitln("  snex b"); // sign extend b
-            emitln("  mov c, b"); // sign extend c
+            emitln("  mov al, bh");
+            emitln("  mov ah, al");
+            emitln("  mov c, a"); // sign extend c
           }
-          else if((sign_modifier == SIGNMOD_UNSIGNED && ind_level == 0 && (expr_out.primitive_type == DT_CHAR) || expr_out.primitive_type == DT_INT)){
+          else if(sign_modifier == SIGNMOD_UNSIGNED && ind_level == 0 && expr_out.primitive_type == DT_INT){
             emitln("  mov bh, 0"); // zero extend b
             emitln("  mov c, 0"); // zero extend c
           }
@@ -3254,7 +3267,7 @@ t_type parse_char_const(){
 t_type parse_post_decrementing(t_type expr_in, char *temp_name){
   t_type expr_out;
 
-  if(get_pointer_unit(expr_in) > 1){
+  if(get_incdec_unit(expr_in) > 1){
     emitln("  dec b");
     emitln("  dec b");
     emit_var_addr_into_d(temp_name);
@@ -3277,7 +3290,7 @@ t_type parse_post_decrementing(t_type expr_in, char *temp_name){
 t_type parse_post_incrementing(t_type expr_in, char *temp_name){
   t_type expr_out;
 
-  if(get_pointer_unit(expr_in) > 1){
+  if(get_incdec_unit(expr_in) > 1){
     emitln("  inc b");
     emitln("  inc b");
     emit_var_addr_into_d(temp_name);
@@ -3306,7 +3319,7 @@ t_type parse_pre_decrementing(){
   strcpy(temp_name, curr_token.token_str);
   expr_out = emit_var_addr_into_d(temp_name);
   emitln("  mov b, [d]");
-  if(get_pointer_unit(expr_out) > 1) {
+  if(get_incdec_unit(expr_out) > 1) {
     emitln("  dec b");
     emitln("  dec b");
   }
@@ -3328,27 +3341,71 @@ t_type parse_pre_decrementing(){
 t_type parse_pre_incrementing(){
   t_type expr_out;
   char temp_name[ID_LEN];
+  int size;
 
   get();
   if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
   strcpy(temp_name, curr_token.token_str);
   expr_out = emit_var_addr_into_d(temp_name);
-  emitln("  mov b, [d]");
-  if(get_pointer_unit(expr_out) > 1) {
-    emitln("  inc b");
-    emitln("  inc b");
+
+  switch(expr_out.primitive_type){
+    case DT_CHAR:
+      if(expr_out.ind_level > 0)
+        emitln("  mov b, [d]");
+      else
+        emitln("  mov bl, [d]");
+      break;
+    case DT_INT:
+      if(expr_out.ind_level == 0){
+        if(expr_out.size_modifier == SIZEMOD_LONG){
+          emitln("  mov b, [d+2]");
+          emitln("  mov c, b");
+          emitln("  mov b, [d]");
+        }
+        else
+          emitln("  mov b, [d]");
+      }
+      else
+        emitln("  mov b, [d]");
+      break;
+    default:
+      emitln("  mov b, [d]");
+  }
+
+  size = get_incdec_unit(expr_out);
+  if(size == 4) { // for long int
+    emitln("  mov32 ga, %d", size);
+    emitln("  add32 cb, ga", size);
+  }
+  else if(size > 1) {
+    emitln("  add b, %d", size);
   }
   else 
     emitln("  inc b");
 
-  //emit_var_addr_into_d(temp_name);
-
-  if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT)
-    emitln("  mov [d], b");
-  else if(expr_out.primitive_type == DT_CHAR)
-    emitln("  mov [d], bl");
-  else 
-    error(ERR_FATAL, "Not able to resolve variable type");
+  switch(expr_out.primitive_type){
+    case DT_CHAR:
+      if(expr_out.ind_level > 0)
+        emitln("  mov [d], b");
+      else
+        emitln("  mov [d], bl");
+      break;
+    case DT_INT:
+      if(expr_out.ind_level == 0){
+        if(expr_out.size_modifier == SIZEMOD_LONG){
+          emitln("  mov [d], b");
+          emitln("  mov b, c");
+          emitln("  mov [d+2], b");
+        }
+        else
+          emitln("  mov [d], b");
+      }
+      else
+        emitln("  mov [d], b");
+      break;
+    default:
+      emitln("  mov [d], b");
+  }
 
   return expr_out;
 }
@@ -3561,7 +3618,7 @@ whereas:
 char **p;
 p++ increases p by 2 since it is a pointer to pointer.
 */
-int get_pointer_unit(t_type type){
+int get_incdec_unit(t_type type){
   switch(type.primitive_type){
     case DT_VOID:
       return 1;
@@ -3575,7 +3632,12 @@ int get_pointer_unit(t_type type){
     case DT_INT:
       if(type.ind_level == 0) 
         return 1;
-      else 
+      else if(type.ind_level == 1)
+        if(type.size_modifier == SIZEMOD_LONG)
+          return 4;
+        else
+          return 2;
+      else if(type.ind_level > 1)
         return 2;
       break;
   }

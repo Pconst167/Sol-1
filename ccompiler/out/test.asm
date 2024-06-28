@@ -7,10 +7,15 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; !1L; 
-  mov32 cb, $00000001
-  cmp32 cb, 0
-  seq ; !
+; ++p; 
+  mov d, _p ; $p
+  mov b, [d+2]
+  mov c, b
+  mov b, [d]
+  inc b
+  mov [d], b
+  mov b, c
+  mov [d+2], b
   syscall sys_terminate_proc
 
 strcpy:
@@ -1001,8 +1006,6 @@ _if14_true:
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov c, 0
-  snex b
-  mov c, b
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -1041,8 +1044,6 @@ _if15_true:
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
-  mov c, 0
-  mov bh, 0
   mov c, 0
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -1955,8 +1956,6 @@ _if28_true:
   lea d, [bp + -1] ; $p
   mov b, [d]
   mov c, 0
-  snex b
-  mov c, b
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -1995,8 +1994,6 @@ _if29_true:
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
   mov b, [d]
-  mov c, 0
-  mov bh, 0
   mov c, 0
   mov d, b
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -4197,6 +4194,7 @@ include_stdio_asm:
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
+_p: .fill 4, 0
 st_fopen_max_handle: .dw 0
 _s0: .db "Unexpected format in printf.", 0
 _s1: .db "Error: Unknown argument type.\n", 0

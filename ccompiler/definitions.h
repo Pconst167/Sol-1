@@ -333,7 +333,7 @@ t_var get_internal_var_ptr(char *var_name);
 int get_total_type_size(t_type type);
 char *get_var_base_addr(char *dest, char *var_name);
 int get_param_size(void);
-int get_pointer_unit(t_type type);
+int get_incdec_unit(t_type type);
 int get_primitive_type_size(t_type type);
 int get_type_size_for_func_arg_parsing(t_type type);
 int get_struct_size(int id);
