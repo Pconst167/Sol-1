@@ -9,20 +9,13 @@ main:
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
 ; p++; 
   mov d, _p ; $p
-  mov b, [d + 2] ; Upper Word of the Long Int
-  mov c, b ; And place it into C
-  mov b, [d] ; Lower Word in B
-  mov32 ga, 1
-  add32 cb, ga
-  mov d, _p ; $p
-  mov b, c
-  mov [d+2], b
-  mov [d], b
-  mov g, c
+  mov b, [d]
+  mov c, 0
   mov a, b
-  mov32 cb, 1
-  sub32 ga, cb
-  mov c, g
+  inc b
+  inc b
+  mov d, _p ; $p
+  mov [d], b
   mov b, a
   syscall sys_terminate_proc
 
@@ -4215,7 +4208,7 @@ include_stdio_asm:
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
-_p: .fill 4, 0
+_p: .fill 2, 0
 st_fopen_max_handle: .dw 0
 _s0: .db "Unexpected format in printf.", 0
 _s1: .db "Error: Unknown argument type.\n", 0
