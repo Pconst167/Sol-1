@@ -19,14 +19,6 @@
     * run syntax checker on a construct basis such that when executing a construct, say IF, check entire syntax for that construct and clear syntax
     * and thenparse semantics for that construct
     
-  
-  ** when parsing expressions, right now i am testing for 32bit basd on type1 in places, however type1 is related to the left
-  hand-side term of the 2-term expression, and that left-hand-side of the expression changes as the expression goes on,
-  however since the "left side" whic is kept in "ga", can change as the expression goes on, such as when the expression
-  meets a pointer, and then a 32bit number will become a 16bit pointer, and this test for type1 for 32bit is no longer
-  valid. therefore we need to test for expr_out instead as that is changing with the expression.
-
-
   ** look at cast() function for improvements.
 
   ** implement parsing of concatenated string constants such as "strng 1" "string2" ... etc 
@@ -344,7 +336,9 @@ int main(int argc, char *argv[]){
 
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
-
+  expand_all_included_files();
+  strcat(include_file_buffer, c_in);
+  dbg(include_file_buffer);
   declare_heap();
   pre_processor();
   pre_scan();
@@ -3790,7 +3784,12 @@ void parse_function_call(int func_id){
       emitln("  push b");
     }
     else if(arg_type.primitive_type == DT_CHAR){
-      emitln("  push bl");
+      if(curr_arg_num > function_table[func_id].num_fixed_args) {
+        emitln("  mov bh, 0"); 
+        emitln("  push b"); 
+      }
+      else 
+        emitln("  push bl");
     }
     else if(arg_type.primitive_type == DT_INT){
       if(arg_type.primitive_type == DT_CHAR && arg_type.ind_level == 0) emitln("  snex b");
@@ -5217,10 +5216,6 @@ void expand_all_included_files(void){
   } 
 
   end_of_includes:
-
-  printf("%s", include_file_buffer);
-  exit(1);
-
   prog = c_in;
 }
 

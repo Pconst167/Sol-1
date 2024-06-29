@@ -106,7 +106,8 @@ main:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  push bl
+  mov bh, 0
+  push b
   mov b, _s3 ; "\nvar_type: %d\n"
   swp b
   push b
