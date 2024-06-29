@@ -9,6 +9,13 @@
   add them all to a single text file.
   scan thru main program, finding functions and then looking in the resulting include file for the function
   add function to main program.
+  then...
+  start parsing the main c program, looking for referenced functions.when a functon is found,
+  look for the function inside the include files buffer. when found, then enter the function and
+  look for refrenced functions there as well. when one is found, then recursively enter that as well and parse.
+  this goes on recursively until a function is parsed that does not reference any others,
+  after exiting that recursion, we are back in the main program and we do the same for all functions in the main
+  program. 
 
   ** fix goto: at present we cannot jump to a label that is declared after the goto.
 
@@ -386,6 +393,105 @@ int main(int argc, char *argv[]){
   if(switch_display_typedef_table) print_typedef_table();
 
   return 0;
+}
+
+void search_and_add_func(){
+  char *temp_prog;
+  char func_name[ID_LEN];
+
+  c_in[0] = '\0';
+
+  for(;;){
+    temp_prog = prog;
+    get();
+    if(curr_token.tok_type == IDENTIFIER){
+      strcpy(func_name, curr_token.token_str);
+      get();
+      if(curr_token.tok == OPENING_PAREN){
+               
+      }
+      else{
+        back();
+        continue;
+      }
+    }
+  }
+}
+
+void build_referenced_func_list(void){
+  uint16_t braces;
+}
+
+void expand_all_included_files(void){
+  FILE *fp;
+  int i, define_id;
+  char *p, *temp_prog, *temp_prog2;
+  char *pi;
+  char filename[256];
+  uint8_t found_include;
+
+  prog = c_in;
+  pi = include_file_buffer;
+
+  for(;;){
+    get(); 
+    back(); // So that we discard possible new line chars at end of lines
+    temp_prog2 = prog;
+    get();
+    if(curr_token.tok_type == END) break;
+    if(curr_token.tok == DIRECTIVE){
+      get();
+      if(curr_token.tok == INCLUDE){
+        get();
+        if(curr_token.tok_type == STRING_CONST) strcpy(filename, curr_token.string_const);
+        else if(curr_token.tok == LESS_THAN){
+          strcpy(filename, libc_directory);
+          for(;;){
+            get();
+            if(curr_token.tok == GREATER_THAN) break;
+            strcat(filename, curr_token.token_str);
+          }
+        }
+        else error(ERR_FATAL, "Syntax error in include directive.");
+        if((fp = fopen(filename, "rb")) == NULL){
+          printf("%s: Included source file not found.\n", filename);
+          exit(1);
+        }
+        delete(temp_prog2, prog - temp_prog2);
+        pi = include_file_buffer;
+        while(*pi) pi++;
+        do{
+          *pi = getc(fp);
+          if(*pi == '\n') include_files_total_lines++;
+          pi++;
+        } while(!feof(fp));
+        *(pi - 1) = '\0'; // overwrite the EOF char with NULL
+        fclose(fp);
+        prog = include_file_buffer;
+        found_include = FALSE;
+        for(;;){
+          temp_prog = prog;
+          get();
+          if(curr_token.tok_type == END){
+            goto end_of_includes;
+          }
+          else if(curr_token.tok == DIRECTIVE){
+            get();
+            if(curr_token.tok == INCLUDE){
+              found_include = TRUE;
+              prog = temp_prog;
+              break;
+            }
+          }
+        }
+        if(found_include == TRUE) continue;
+        else break;
+      }
+    }
+  } 
+
+  end_of_includes:
+  prog = c_in;
 }
 
 int optimize_asm(){
@@ -5143,81 +5249,6 @@ void error(t_error_type error_type, const char* format, ...){
     exit(1);
 }
 
-void build_referenced_func_list(void){
-  uint16_t braces;
-}
-
-void expand_all_included_files(void){
-  FILE *fp;
-  int i, define_id;
-  char *p, *temp_prog, *temp_prog2;
-  char *pi;
-  char filename[256];
-  uint8_t found_include;
-
-  prog = c_in;
-  pi = include_file_buffer;
-
-  for(;;){
-    get(); 
-    back(); // So that we discard possible new line chars at end of lines
-    temp_prog2 = prog;
-    get();
-    if(curr_token.tok_type == END) break;
-    if(curr_token.tok == DIRECTIVE){
-      get();
-      if(curr_token.tok == INCLUDE){
-        get();
-        if(curr_token.tok_type == STRING_CONST) strcpy(filename, curr_token.string_const);
-        else if(curr_token.tok == LESS_THAN){
-          strcpy(filename, libc_directory);
-          for(;;){
-            get();
-            if(curr_token.tok == GREATER_THAN) break;
-            strcat(filename, curr_token.token_str);
-          }
-        }
-        else error(ERR_FATAL, "Syntax error in include directive.");
-        if((fp = fopen(filename, "rb")) == NULL){
-          printf("%s: Included source file not found.\n", filename);
-          exit(1);
-        }
-        delete(temp_prog2, prog - temp_prog2);
-        pi = include_file_buffer;
-        while(*pi) pi++;
-        do{
-          *pi = getc(fp);
-          if(*pi == '\n') include_files_total_lines++;
-          pi++;
-        } while(!feof(fp));
-        *(pi - 1) = '\0'; // overwrite the EOF char with NULL
-        fclose(fp);
-        prog = include_file_buffer;
-        found_include = FALSE;
-        for(;;){
-          temp_prog = prog;
-          get();
-          if(curr_token.tok_type == END){
-            goto end_of_includes;
-          }
-          else if(curr_token.tok == DIRECTIVE){
-            get();
-            if(curr_token.tok == INCLUDE){
-              found_include = TRUE;
-              prog = temp_prog;
-              break;
-            }
-          }
-        }
-        if(found_include == TRUE) continue;
-        else break;
-      }
-    }
-  } 
-
-  end_of_includes:
-  prog = c_in;
-}
 
 char* basename(char* path) {
   static char bname[1024];
