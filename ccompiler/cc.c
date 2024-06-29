@@ -35,8 +35,6 @@
 
   ** change unary logical not operator to use cmp32 cb, i32 instead of cmo32 ga, i32, when the new instruction is burned in rom 
 
-  ** implement instructions: mov cl, bl; mov cl, bh; mov ch, al; mov ch, ah; etc...
-
   ** implement mov32 b, [d] to move a 32bit integer address by 'd'
 
   ** implement add32 ga, cb and sub32 cb, ga
@@ -3288,62 +3286,20 @@ t_type parse_char_const(){
 
 t_type parse_post_decrementing(t_type expr_in, char *temp_name){
   t_type expr_out;
-  int size;
 
-  size = get_incdec_unit(expr_in);
-  if(size == 2){
-    emitln("  mov a, b");
+  if(get_incdec_unit(expr_in) > 1){
     emitln("  dec b");
     emitln("  dec b");
     emit_var_addr_into_d(temp_name);
     emitln("  mov [d], b");
-    emitln("  mov b, a");
-  }
-  else if(size == 4){
-    emitln("  mov a, b");
-    emitln("  sub b, 4");
-    emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  mov b, a");
-  }
-  else if(size == 1){
-    if(expr_in.primitive_type == DT_INT){
-      if(expr_in.size_modifier == SIZEMOD_LONG){
-        emitln("  mov g, c");
-        emitln("  mov a, b");
-        emitln("  mov32 cb, 1");
-        emitln("  sub32 ga, cb");
-        emitln("  mov c, g");
-        emitln("  mov b, a");
-        emit_var_addr_into_d(temp_name);
-        emitln("  mov b, c");
-        emitln("  mov [d+2], b");
-        emitln("  mov [d], b");
-        emitln("  mov32 ga, 1");
-        emitln("  add32 cb, ga");
-      }
-      else{
-        emitln("  mov a, b");
-        emitln("  dec b");
-        emit_var_addr_into_d(temp_name);
-        emitln("  mov [d], b");
-        emitln("  mov b, a");
-      }
-    }
-    if(expr_in.primitive_type == DT_CHAR){
-      emitln("  dec b");
-      emit_var_addr_into_d(temp_name);
-      emitln("  mov [d], bl");
-      emitln("  inc b");
-    }
+    emitln("  inc b");
+    emitln("  inc b");
   }
   else{
-    emitln("  mov a, b");
-    emitln("  dec b");
     emitln("  dec b");
     emit_var_addr_into_d(temp_name);
     emitln("  mov [d], b");
-    emitln("  mov b, a");
+    emitln("  inc b");
   }
   expr_out = expr_in;
   get(); // gets the next curr_token.token_str (it must be a delimiter)
@@ -3353,62 +3309,20 @@ t_type parse_post_decrementing(t_type expr_in, char *temp_name){
 
 t_type parse_post_incrementing(t_type expr_in, char *temp_name){
   t_type expr_out;
-  int size;
 
-  size = get_incdec_unit(expr_in);
-  if(size == 2){
-    emitln("  mov a, b");
+  if(get_incdec_unit(expr_in) > 1){
     emitln("  inc b");
     emitln("  inc b");
     emit_var_addr_into_d(temp_name);
     emitln("  mov [d], b");
-    emitln("  mov b, a");
-  }
-  else if(size == 4){
-    emitln("  mov a, b");
-    emitln("  add b, 4");
-    emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  mov b, a");
-  }
-  else if(size == 1){
-    if(expr_in.primitive_type == DT_INT){
-      if(expr_in.size_modifier == SIZEMOD_LONG){
-        emitln("  mov32 ga, 1");
-        emitln("  add32 cb, ga");
-        emit_var_addr_into_d(temp_name);
-        emitln("  mov b, c");
-        emitln("  mov [d+2], b");
-        emitln("  mov [d], b");
-        emitln("  mov g, c");
-        emitln("  mov a, b");
-        emitln("  mov32 cb, 1");
-        emitln("  sub32 ga, cb");
-        emitln("  mov c, g");
-        emitln("  mov b, a");
-      }
-      else{
-        emitln("  mov a, b");
-        emitln("  inc b");
-        emit_var_addr_into_d(temp_name);
-        emitln("  mov [d], b");
-        emitln("  mov b, a");
-      }
-    }
-    if(expr_in.primitive_type == DT_CHAR){
-      emitln("  inc b");
-      emit_var_addr_into_d(temp_name);
-      emitln("  mov [d], bl");
-      emitln("  dec b");
-    }
+    emitln("  dec b");
+    emitln("  dec b");
   }
   else{
-    emitln("  mov a, b");
-    emitln("  inc b");
     emitln("  inc b");
     emit_var_addr_into_d(temp_name);
     emitln("  mov [d], b");
-    emitln("  mov b, a");
+    emitln("  dec b");
   }
   expr_out = expr_in;
   get(); // gets the next curr_token.token_str (it must be a delimiter)
