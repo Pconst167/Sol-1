@@ -396,6 +396,20 @@ int main(int argc, char *argv[]){
   return 0;
 }
 
+int optimize_asm(){
+  prog = asm_out;
+  for(;;){
+    get();
+    if(!strcmp(curr_token.token_str, "push")){
+      get();
+      if(!strcmp(curr_token.token_str, "a")){
+        
+      }
+      else back();
+    }
+  }
+}
+
 void emit_datablock_asm(){
   char *dp = data_block_asm;
   while(*dp){
