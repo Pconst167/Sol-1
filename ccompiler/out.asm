@@ -7,16 +7,23 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; ++p; 
+; p++; 
   mov d, _p ; $p
-  mov b, [d+2]
-  mov c, b
-  mov b, [d]
-  inc b
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+  mov32 ga, 1
+  add32 cb, ga
   mov d, _p ; $p
-  mov [d], b
   mov b, c
   mov [d+2], b
+  mov [d], b
+  mov g, c
+  mov a, b
+  mov32 cb, 1
+  sub32 ga, cb
+  mov c, g
+  mov b, a
   syscall sys_terminate_proc
 
 strcpy:
@@ -59,7 +66,7 @@ _while1_block:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $pdest
-  mov [d], b
+  mov [d], bl
   dec b
   push b
   lea d, [bp + -1] ; $psrc
@@ -67,7 +74,7 @@ _while1_block:
   mov c, 0
   inc b
   lea d, [bp + -1] ; $psrc
-  mov [d], b
+  mov [d], bl
   dec b
   mov d, b
   mov bl, [d]
@@ -135,7 +142,7 @@ _while2_block:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $s1
-  mov [d], b
+  mov [d], bl
   dec b
 ; s2++; 
   lea d, [bp + 7] ; $s2
@@ -143,7 +150,7 @@ _while2_block:
   mov c, 0
   inc b
   lea d, [bp + 7] ; $s2
-  mov [d], b
+  mov [d], bl
   dec b
   jmp _while2_cond
 _while2_exit:
@@ -353,10 +360,11 @@ _while4_block:
   lea d, [bp + -1] ; $length
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -1] ; $length
   mov [d], b
-  dec b
+  mov b, a
   jmp _while4_cond
 _while4_exit:
 ; return length; 
@@ -428,10 +436,11 @@ _for5_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _for5_cond
 _for5_exit:
 ; return s; 
@@ -487,7 +496,7 @@ _while6_block:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $str
-  mov [d], b
+  mov [d], bl
   dec b
   jmp _while6_cond
 _while6_exit:
@@ -567,7 +576,7 @@ _if8_exit:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $str
-  mov [d], b
+  mov [d], bl
   dec b
   jmp _if7_exit
 _if7_exit:
@@ -656,7 +665,7 @@ _while9_block:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $str
-  mov [d], b
+  mov [d], bl
   dec b
   jmp _while9_cond
 _while9_exit:
@@ -826,10 +835,11 @@ fopen:
   mov d, st_fopen_max_handle ; static max_handle
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   mov d, st_fopen_max_handle ; static max_handle
   mov [d], b
-  dec b
+  mov b, a
   leave
   ret
 
@@ -921,7 +931,7 @@ _if12_true:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
 ; switch(*format_p){ 
 _switch13_expr:
@@ -959,7 +969,7 @@ _switch13_case1:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
 ; if(*format_p == 'd' || *format_p == 'i') 
 _if14_cond:
@@ -1285,7 +1295,7 @@ _switch13_exit:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
   jmp _if12_exit
 _if12_else:
@@ -1308,7 +1318,7 @@ _if12_else:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
 _if12_exit:
 _if11_exit:
@@ -1399,7 +1409,7 @@ _if19_true:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
 ; switch(*format_p){ 
 _switch20_expr:
@@ -1437,7 +1447,7 @@ _switch20_case1:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
 ; if(*format_p == 'd' || *format_p == 'i'); 
 _if21_cond:
@@ -1753,7 +1763,7 @@ _switch20_exit:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
   jmp _if19_exit
 _if19_else:
@@ -1776,7 +1786,7 @@ _if19_else:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
 _if19_exit:
 _if18_exit:
@@ -1871,7 +1881,7 @@ _if26_true:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
 ; switch(*format_p){ 
 _switch27_expr:
@@ -1909,7 +1919,7 @@ _switch27_case1:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
 ; if(*format_p == 'd' || *format_p == 'i') 
 _if28_cond:
@@ -2209,7 +2219,7 @@ _switch27_case6:
   mov c, 0
   inc b
   lea d, [bp + -5] ; $sp
-  mov [d], b
+  mov [d], bl
   dec b
   push b
   lea d, [bp + -1] ; $p
@@ -2325,7 +2335,7 @@ _switch27_exit:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
   jmp _if26_exit
 _if26_else:
@@ -2335,7 +2345,7 @@ _if26_else:
   mov c, 0
   inc b
   lea d, [bp + -5] ; $sp
-  mov [d], b
+  mov [d], bl
   dec b
   push b
   lea d, [bp + -3] ; $format_p
@@ -2343,7 +2353,7 @@ _if26_else:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], b
+  mov [d], bl
   dec b
   mov d, b
   mov bl, [d]
@@ -2698,10 +2708,11 @@ _for31_update:
   lea d, [bp + -3] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -3] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _for31_cond
 _for31_exit:
 ; return value; 
@@ -2878,10 +2889,11 @@ _while36_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while36_cond
 _while36_exit:
 ; while (i > 0) { 
@@ -3099,10 +3111,11 @@ _while40_block:
   lea d, [bp + -11] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -11] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while40_cond
 _while40_exit:
 ; while (i > 0) { 
@@ -3272,10 +3285,11 @@ _while43_block:
   lea d, [bp + -11] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -11] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while43_cond
 _while43_exit:
 ; while (i > 0) { 
@@ -3368,7 +3382,7 @@ _if45_true:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
-  mov [d], b
+  mov [d], bl
   dec b
   push b
   mov32 cb, $00000030
@@ -3448,10 +3462,11 @@ _while46_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while46_cond
 _while46_exit:
 ; while (i > 0) { 
@@ -3484,7 +3499,7 @@ _while47_block:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
-  mov [d], b
+  mov [d], bl
   dec b
   push b
   lea d, [bp + -4] ; $digits
@@ -3505,10 +3520,11 @@ _while47_block:
   lea d, [bp + -8] ; $len
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -8] ; $len
   mov [d], b
-  dec b
+  mov b, a
   jmp _while47_cond
 _while47_exit:
 ; *dest = '\0'; 
@@ -3634,10 +3650,11 @@ _while49_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while49_cond
 _while49_exit:
 ; while (i > 0) { 
@@ -3731,7 +3748,7 @@ _if51_true:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
-  mov [d], b
+  mov [d], bl
   dec b
   push b
   mov32 cb, $0000002d
@@ -3750,10 +3767,11 @@ _if51_true:
   lea d, [bp + -8] ; $len
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -8] ; $len
   mov [d], b
-  dec b
+  mov b, a
   jmp _if51_exit
 _if51_else:
 ; if (num == 0) { 
@@ -3778,7 +3796,7 @@ _if52_true:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
-  mov [d], b
+  mov [d], bl
   dec b
   push b
   mov32 cb, $00000030
@@ -3867,10 +3885,11 @@ _while53_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while53_cond
 _while53_exit:
 ; while (i > 0) { 
@@ -3903,7 +3922,7 @@ _while54_block:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
-  mov [d], b
+  mov [d], bl
   dec b
   push b
   lea d, [bp + -4] ; $digits
@@ -3924,10 +3943,11 @@ _while54_block:
   lea d, [bp + -8] ; $len
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -8] ; $len
   mov [d], b
-  dec b
+  mov b, a
   jmp _while54_cond
 _while54_exit:
 ; *dest = '\0'; 

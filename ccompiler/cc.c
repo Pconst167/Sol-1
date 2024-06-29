@@ -3289,20 +3289,63 @@ t_type parse_post_decrementing(t_type expr_in, char *temp_name){
 
 t_type parse_post_incrementing(t_type expr_in, char *temp_name){
   t_type expr_out;
+  int size;
 
-  if(get_incdec_unit(expr_in) > 1){
+  size = get_incdec_unit(expr_in);
+  if(size == 2){
+    emitln("  mov a, b");
     emitln("  inc b");
     emitln("  inc b");
     emit_var_addr_into_d(temp_name);
     emitln("  mov [d], b");
-    emitln("  dec b");
-    emitln("  dec b");
+    emitln("  mov b, a");
+  }
+  else if(size == 4){
+    emitln("  mov a, b");
+    emitln("  inc b");
+    emitln("  inc b");
+    emit_var_addr_into_d(temp_name);
+    emitln("  mov [d], b");
+    emitln("  mov b, a");
+  }
+  else if(size == 1){
+    if(expr_in.primitive_type == DT_INT){
+      if(expr_in.size_modifier == SIZEMOD_LONG){
+        emitln("  mov32 ga, 1");
+        emitln("  add32 cb, ga");
+        emit_var_addr_into_d(temp_name);
+        emitln("  mov b, c");
+        emitln("  mov [d+2], b");
+        emitln("  mov [d], b");
+        emitln("  mov g, c");
+        emitln("  mov a, b");
+        emitln("  mov32 cb, 1");
+        emitln("  sub32 ga, cb");
+        emitln("  mov c, g");
+        emitln("  mov b, a");
+      }
+      else{
+        emitln("  mov a, b");
+        emitln("  inc b");
+        emit_var_addr_into_d(temp_name);
+        emitln("  mov [d], b");
+        emitln("  mov b, a");
+      }
+    }
+    if(expr_in.primitive_type == DT_CHAR){
+      emitln("  inc b");
+      emit_var_addr_into_d(temp_name);
+      emitln("  mov [d], bl");
+      emitln("  dec b");
+    }
   }
   else{
+    emitln("  mov a, b");
+    emitln("  inc b");
     emitln("  inc b");
     emit_var_addr_into_d(temp_name);
     emitln("  mov [d], b");
-    emitln("  dec b");
+    emitln("  mov b, a");
   }
   expr_out = expr_in;
   get(); // gets the next curr_token.token_str (it must be a delimiter)
@@ -3313,27 +3356,72 @@ t_type parse_post_incrementing(t_type expr_in, char *temp_name){
 t_type parse_pre_decrementing(){
   t_type expr_out;
   char temp_name[ID_LEN];
+  int size;
 
   get();
   if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
   strcpy(temp_name, curr_token.token_str);
   expr_out = emit_var_addr_into_d(temp_name);
-  emitln("  mov b, [d]");
-  if(get_incdec_unit(expr_out) > 1) {
-    emitln("  dec b");
-    emitln("  dec b");
+
+  switch(expr_out.primitive_type){
+    case DT_CHAR:
+      if(expr_out.ind_level > 0)
+        emitln("  mov b, [d]");
+      else
+        emitln("  mov bl, [d]");
+      break;
+    case DT_INT:
+      if(expr_out.ind_level == 0){
+        if(expr_out.size_modifier == SIZEMOD_LONG){
+          emitln("  mov b, [d+2]");
+          emitln("  mov c, b");
+          emitln("  mov b, [d]");
+        }
+        else
+          emitln("  mov b, [d]");
+      }
+      else
+        emitln("  mov b, [d]");
+      break;
+    default:
+      emitln("  mov b, [d]");
+  }
+
+  size = get_incdec_unit(expr_out);
+  if(size == 4) { // for long int
+    emitln("  sub b, 4");
+  }
+  else if(size > 1) {
+    emitln("  sub b, %d", size);
   }
   else 
     emitln("  dec b");
 
-  //emit_var_addr_into_d(temp_name);
+  expr_out = emit_var_addr_into_d(temp_name);
 
-  if(expr_out.ind_level > 0 || expr_out.primitive_type == DT_INT)
-    emitln("  mov [d], b");
-  else if(expr_out.primitive_type == DT_CHAR)
-    emitln("  mov [d], bl");
-  else 
-    error(ERR_FATAL, "Not able to resolve variable type");
+  switch(expr_out.primitive_type){
+    case DT_CHAR:
+      if(expr_out.ind_level > 0)
+        emitln("  mov [d], b");
+      else
+        emitln("  mov [d], bl");
+      break;
+    case DT_INT:
+      if(expr_out.ind_level == 0){
+        if(expr_out.size_modifier == SIZEMOD_LONG){
+          emitln("  mov [d], b");
+          emitln("  mov b, c");
+          emitln("  mov [d+2], b");
+        }
+        else
+          emitln("  mov [d], b");
+      }
+      else
+        emitln("  mov [d], b");
+      break;
+    default:
+      emitln("  mov [d], b");
+  }
 
   return expr_out;
 }
