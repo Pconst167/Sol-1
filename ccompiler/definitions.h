@@ -42,7 +42,7 @@ typedef enum{
 
 // basic data types
 typedef enum {
-  DT_VOID = 1, DT_CHAR, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRUCT, DT_ENUM
+  DT_VOID = 1, DT_CHAR, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRUCT, DT_ENUM, DT_FUNCPTR
 } t_primitive_type;
 
 typedef enum {

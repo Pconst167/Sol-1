@@ -702,6 +702,7 @@ void pre_processor(void){
 // -1 : not a type
 //  0 : variable
 //  1 : function
+// int (*fp)(int, char, int);
 int8_t type_detected(void){
   if(
     curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED || 
@@ -732,6 +733,11 @@ int8_t type_detected(void){
       if(curr_token.tok_type != IDENTIFIER) 
         error(ERR_FATAL, "Enum's type name expected.");
     }
+    get();
+    if(curr_token.tok == OPENING_PAREN){ // function pointer
+      return 0;
+    }
+    else back();
     // if not a struct or enum, then the var type has just been gotten
     get();
     if(curr_token.tok == STAR){
@@ -1191,7 +1197,7 @@ void declare_global(void){
       get();
     }
 // *********************************************************************************************
-    if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+    if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected in global variable declaration,");
     if(global_var_table[global_var_tos].type.primitive_type == DT_VOID && global_var_table[global_var_tos].type.ind_level == 0) 
       error(ERR_FATAL, "Invalid type in variable: %s", curr_token.token_str);
 
@@ -1216,7 +1222,7 @@ void declare_global(void){
               get();
               fixed_part_size = fixed_part_size * curr_token.int_const;
               get();
-              expect(CLOSING_BRACKET, "Closing brackets expected");
+              expect(CLOSING_BRACKET, "Closing brackets expected in global variable declaration.");
               get();
             } while(curr_token.tok == OPENING_BRACKET);
           }
@@ -1228,7 +1234,7 @@ void declare_global(void){
         else{
           global_var_table[global_var_tos].type.dims[dim] = atoi(curr_token.token_str);
           get();
-          if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
+          if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected in global variable declaration.");
         }
         get();
         dim++;
@@ -1254,7 +1260,7 @@ void declare_global(void){
     global_var_tos++;  
   } while(curr_token.tok == COMMA);
 
-  if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+  if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected in global variable declaration.");
 }
 
 // enum my_enum {item1, item2, item3};
