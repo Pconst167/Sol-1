@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-long int p;
+long int *p;
 
 void main(void){
 
