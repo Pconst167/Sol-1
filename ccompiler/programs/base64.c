@@ -6,16 +6,16 @@ int main() {
   char input[512];
   char output[256];
 
-  printf("Enter a base64 encoded string to decode: ");
+  printf("\nEnter a base64 encoded string to decode: ");
   gets(input);
 
   base64_encode(input, output);
 
-  printf("Encoded string: %s\n", output);
+  printf("\nEncoded string: %s\n", output);
 
   base64_decode(output, input);
 
-  printf("Decoded string: %s\n", input);
+  printf("\nDecoded string: %s\n", input);
 
   return 0;
 }
