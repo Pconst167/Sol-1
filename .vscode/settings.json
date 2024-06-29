@@ -9,6 +9,7 @@
     "token.h": "c",
     "unistd.h": "c",
     "libgen.h": "c",
-    "features.h": "c"
+    "features.h": "c",
+    "string.h": "c"
   }
 }

@@ -1,12 +1,10 @@
-#include <stdio.h>
 
-long int p;
 
-int (*fp)(int);
+
+int *p, q;
 
 void main(void){
 
-	p++ + 1;
 
 }
 

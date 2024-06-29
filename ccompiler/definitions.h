@@ -21,14 +21,13 @@
 #define ASM_SIZE                   512 * 1024
 #define TEMP_BUFFER_SIZE           4 * 1024
 
-#define true 1
-#define false 0
-
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
 #define tkn curr_token.token_str
 #define tokt curr_token.toktype
+
+typedef enum {FALSE = 0, TRUE} t_bool;
 
 typedef enum {ERR_WARNING, ERR_FATAL} t_error_type;
 
@@ -183,8 +182,9 @@ typedef struct {
   t_primitive_type primitive_type;
   t_sign_modifier  sign_modifier;
   t_size_modifier  size_modifier;
-  uint8_t          is_constant; // is it a constant?
-  uint8_t          ind_level; // holds the pointer indirection level
+  t_bool           is_func_ptr;
+  t_bool           is_constant; // is it a constant?
+  t_bool           ind_level; // holds the pointer indirection level
   int16_t          struct_enum_id; // struct ID or enum ID if var is a struct or enum
   uint16_t         dims[MAX_MATRIX_DIMS];
 } t_type;
@@ -206,10 +206,10 @@ typedef struct{
 typedef struct {
   char    name[ID_LEN];
   t_type  type; // holds the type of data and the value itself
-  uint8_t is_parameter;
-  uint8_t is_volatile;
-  uint8_t is_static;
-  uint8_t is_register;
+  t_bool  is_parameter;
+  t_bool  is_volatile;
+  t_bool  is_static;
+  t_bool  is_register;
   int     bp_offset; // if var is local, this holds the offset of the var from BP.
   int     function_id; // the function does var belong to? (if it is a local var)
 } t_var;
@@ -353,9 +353,9 @@ char is_hex_digit(char c);
 char is_digit(char c);
 
 
-void dbg_print_var_info(t_var *var);
-void dbg_print_type_info(t_type *type);
-void dbg_print_function_info(t_function *function);
+void dbg_print_var_info(t_var var);
+void dbg_print_type_info(t_type type);
+void dbg_print_function_info(t_function function);
 
 void print_typedef_table(void);
 void print_function_table(void);

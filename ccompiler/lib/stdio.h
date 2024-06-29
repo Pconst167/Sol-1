@@ -91,7 +91,7 @@ void printf(const char *format, ...){
 
         case 'x':
           asm{
-            addr mov d, p
+            ccmovd p
             mov d, [d]
             mov b, [d]
             call print_u16x
@@ -101,7 +101,7 @@ void printf(const char *format, ...){
 
         case 'c':
           asm{
-            addr mov d, p
+            ccmovd p
             mov d, [d]
             mov al, [d]
             mov ah, al
@@ -112,7 +112,7 @@ void printf(const char *format, ...){
 
         case 's':
           asm{
-            addr mov d, p
+            ccmovd p
             mov d, [d]
             mov d, [d]
             call _puts
@@ -238,7 +238,7 @@ void sprintf(char *dest, const char *format, ...){
 
         case 'x':
           asm{
-            addr mov d, p
+            ccmovd p
             mov d, [d]
             mov b, [d]
             call print_u16x
@@ -278,7 +278,7 @@ void err(char *e){
 
 void printx32(long int hex) {
   asm{
-    addr mov d, hex
+    ccmovd hex
     mov b, [d+2]
     call print_u16x
     mov b, [d]
@@ -288,7 +288,7 @@ void printx32(long int hex) {
 
 void printx16(int hex) {
   asm{
-    addr mov d, hex
+    ccmovd hex
     mov b, [d]
     call print_u16x
   }
@@ -296,7 +296,7 @@ void printx16(int hex) {
 
 void printx8(char hex) {
   asm{
-    addr mov d, hex
+    ccmovd hex
     mov bl, [d]
     call print_u8x
   }
@@ -323,7 +323,7 @@ int hex_str_to_int(char *hex_string) {
 
 int gets(char *s){
   asm{
-    addr mov d, s
+    ccmovd s
     mov a, [d]
     mov d, a
     call _gets
@@ -486,7 +486,7 @@ void date(){
 
 void putchar(char c){
   asm{
-    addr mov d, c
+    ccmovd c
     mov al, [d]
     mov ah, al
     call _putchar
@@ -498,7 +498,7 @@ char getchar(){
   asm{
     call getch
     mov al, ah
-    addr mov d, c
+    ccmovd c
     mov [d], al
   }
   return c;
@@ -508,7 +508,7 @@ int scann(){
   int m;
   asm{
     call scan_u16d
-    addr mov d, m
+    ccmovd m
     mov [d], a
   }
   
@@ -517,7 +517,7 @@ int scann(){
 
 void puts(char *s){
   asm{
-    addr mov d, s
+    ccmovd s
     mov a, [d]
     mov d, a
     call _puts
@@ -528,7 +528,7 @@ void puts(char *s){
 
 void print(char *s){
   asm{
-    addr mov d, s
+    ccmovd s
     mov d, [d]
     call _puts
   }
@@ -539,10 +539,10 @@ unsigned char getparam(char *address){
 
   asm{
     mov al, 4
-    addr mov d, address
+    ccmovd address
     mov d, [d]
     syscall sys_system
-    addr mov d, data
+    ccmovd data
     mov [d], bl
   }
   return data;
@@ -558,10 +558,10 @@ int abs(int i){
 
 int loadfile(char *filename, char *destination){
   asm{
-    addr mov d, destination
+    ccmovd destination
     mov a, [d]
     mov di, a
-    addr mov d, filename
+    ccmovd filename
     mov d, [d]
     mov al, 20
     syscall sys_filesystem
@@ -573,7 +573,7 @@ int create_file(char *filename, char *content){
 
 int delete_file(char *filename){
   asm{
-    addr mov d, filename
+    ccmovd filename
     mov al, 10
     syscall sys_filesystem
   }
@@ -589,10 +589,10 @@ void load_hex(char *destination){
     ; di = destination address
     ; return length in bytes in C
     _load_hex:
-      addr mov d, destination
+      ccmovd destination
       mov d, [d]
       mov di, d
-      addr mov d, temp
+      ccmovd temp
       mov d, [d]
       mov c, 0
       mov a, sp

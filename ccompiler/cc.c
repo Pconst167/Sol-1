@@ -247,7 +247,7 @@ char string_table[STRING_TABLE_SIZE][TOKEN_LEN];
 
 uint8_t return_is_last_statement;
 uint8_t override_return_is_last_statement; // used to indicate a return statement was found while executing an IF.
-                                       // i.e if a return is found but is inside an IF, then it is not a true final
+                                       // i.e if a return is found but is inside an IF, then it is not a TRUE final
                                        // return statement inside a function.
 
 int current_function_var_bp_offset;    // this is used to position local variables correctly relative to BP.
@@ -478,7 +478,7 @@ int is_register(char *name){
 void declare_heap(){
   strcpy(global_var_table[global_var_tos].name, "heap_top");
   global_var_table[global_var_tos].type.primitive_type = DT_CHAR;
-  global_var_table[global_var_tos].type.is_constant = false;
+  global_var_table[global_var_tos].type.is_constant = FALSE;
   global_var_table[global_var_tos].type.dims[0] = 0;
   global_var_table[global_var_tos].type.ind_level = 1;
   global_var_table[global_var_tos].type.size_modifier = SIZEMOD_NORMAL;
@@ -568,7 +568,7 @@ void parse_functions(void){
       prog = function_table[i].code_location;
       parse_block(); // starts parsing the function block;
 
-      if(return_is_last_statement == false){ // generate code for a 'return'
+      if(return_is_last_statement == FALSE){ // generate code for a 'return'
         emitln("  syscall sys_terminate_proc");
       }
       break;
@@ -586,7 +586,7 @@ void parse_functions(void){
       current_func_id = i;
       prog = function_table[i].code_location;
       parse_block(); // starts parsing the function block;
-      if(return_is_last_statement == false){ // generate code for a 'return'
+      if(return_is_last_statement == FALSE){ // generate code for a 'return'
         emitln("  leave");
         emitln("  ret");
       }
@@ -828,6 +828,7 @@ void pre_scan(void){
   } while(curr_token.tok_type != END);
 }
 
+//int (*fp)(int);
 t_type get_type(){
   t_type type = {0};
   int typedef_id;
@@ -840,7 +841,7 @@ t_type get_type(){
   else{                                                                        
     type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default             
     type.size_modifier = SIZEMOD_NORMAL; // set as signed by default               
-    type.is_constant = false;
+    type.is_constant = FALSE;
     while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){    
            if(curr_token.tok == SIGNED)   type.sign_modifier = SIGNMOD_SIGNED;         
       else if(curr_token.tok == UNSIGNED) type.sign_modifier = SIGNMOD_UNSIGNED;            
@@ -850,6 +851,7 @@ t_type get_type(){
     }                                                                          
     type.primitive_type = get_primitive_type_from_tok();                       
     type.struct_enum_id = -1;                                                       
+
     if(type.primitive_type == DT_STRUCT){                                      
       get();                                                                   
       if((struct_enum_id = search_struct(curr_token.token_str)) == -1) 
@@ -862,6 +864,12 @@ t_type get_type(){
         error(ERR_FATAL, "Undeclared enum: %s", curr_token.token_str);
       type.struct_enum_id = struct_enum_id;
     }
+    // check if is function pointer
+    get();
+    if(curr_token.tok == OPENING_PAREN){
+      type.is_func_ptr = TRUE;
+    }
+    back();
   }
 
   return type;
@@ -1018,10 +1026,10 @@ int declare_local(void){
     while(curr_token.tok == STATIC   || curr_token.tok == CONST || 
           curr_token.tok == REGISTER || curr_token.tok == VOLATILE
     ){
-      if(curr_token.tok == REGISTER)      is_register = true;
-      else if(curr_token.tok == VOLATILE) is_volatile = true;
-      else if(curr_token.tok == STATIC)   is_static = true;
-      else if(curr_token.tok == CONST)    is_const = true;
+      if(curr_token.tok == REGISTER)      is_register = TRUE;
+      else if(curr_token.tok == VOLATILE) is_volatile = TRUE;
+      else if(curr_token.tok == STATIC)   is_static = TRUE;
+      else if(curr_token.tok == CONST)    is_const = TRUE;
       get();
     }
     back();
@@ -1030,7 +1038,7 @@ int declare_local(void){
   new_var.type = get_type();
   do{
     if(function_table[current_func_id].local_var_tos == MAX_LOCAL_VARS) error(ERR_FATAL, "Local var declaration limit reached");
-    new_var.is_parameter     = false;
+    new_var.is_parameter     = FALSE;
     new_var.is_static        = is_static;
     new_var.is_volatile      = is_volatile;
     new_var.is_register      = is_register;
@@ -1168,6 +1176,9 @@ int declare_local(void){
   return total_sp;
 } 
 
+// void (*fp)();
+// void (*fp)(void);
+// void (*fp)(int, char);
 void declare_global(void){
   char *temp_prog;
   int dim;
@@ -1176,9 +1187,9 @@ void declare_global(void){
   int fixed_part_size;
   int initialization_size;
 
-  is_volatile = false;
-  is_static   = false;
-  is_const    = false;
+  is_volatile = FALSE;
+  is_static   = FALSE;
+  is_const    = FALSE;
   get();
   if(curr_token.tok == STATIC || curr_token.tok == CONST ||
      curr_token.tok == VOLATILE
@@ -1186,9 +1197,9 @@ void declare_global(void){
     while(curr_token.tok == STATIC || curr_token.tok == CONST ||
           curr_token.tok == VOLATILE
     ){
-      if(curr_token.tok == STATIC) is_static          = true;
-      else if(curr_token.tok == VOLATILE) is_volatile = true;
-      else if(curr_token.tok == CONST) is_const       = true;
+      if(curr_token.tok == STATIC) is_static          = TRUE;
+      else if(curr_token.tok == VOLATILE) is_volatile = TRUE;
+      else if(curr_token.tok == CONST) is_const       = TRUE;
       get();
     }
     back();
@@ -1326,7 +1337,7 @@ void declare_typedef(void){
   type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default
   type.size_modifier = SIZEMOD_NORMAL; 
   while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == SHORT || curr_token.tok == LONG || curr_token.tok == CONST){
-    if(curr_token.tok == CONST) type.is_constant = true;
+    if(curr_token.tok == CONST) type.is_constant = TRUE;
     else if(curr_token.tok == SIGNED)   type.sign_modifier = SIGNMOD_SIGNED;
     else if(curr_token.tok == UNSIGNED) type.sign_modifier = SIGNMOD_UNSIGNED;
     else if(curr_token.tok == SHORT)    type.size_modifier = SIZEMOD_SHORT;
@@ -1401,7 +1412,7 @@ void declare_typedef(void){
 // declare struct variables right after struct declaration
 void declare_struct_global_vars(int struct_id){
   int ind_level;
-  char is_constant = false;
+  char is_constant = FALSE;
 
   do{
     if(global_var_tos == MAX_GLOBAL_VARS) error(ERR_FATAL, "Global variable declaration limit exceeded");
@@ -1494,8 +1505,8 @@ void declare_func(void){
   int dimension;
   int typedef_id;
 
-  add_argc_argv = false;
-  is_main = false;
+  add_argc_argv = FALSE;
+  is_main = FALSE;
 
   if(function_table_tos == MAX_USER_FUNC - 1) error(ERR_FATAL, "Maximum number of function declarations exceeded. Max: %d", MAX_USER_FUNC);
 
@@ -1534,10 +1545,10 @@ void declare_func(void){
   }
 
   strcpy(function_table[function_table_tos].name, curr_token.token_str);
-  if(!strcmp(curr_token.token_str, "main")) is_main = true;
+  if(!strcmp(curr_token.token_str, "main")) is_main = TRUE;
   get(); // gets past "("
 
-  function_table[function_table_tos].has_var_args = false;
+  function_table[function_table_tos].has_var_args = FALSE;
   function_table[function_table_tos].local_var_tos = 0;
   function_table[function_table_tos].num_fixed_args = 0;
   prog_before_void_tok = prog;
@@ -1565,19 +1576,19 @@ void declare_func(void){
       dimension = 0;
       // set as parameter so that we can tell that if a array is declared, the argument is also a pointer
       // even though it may not be declared with any '*' curr_token.token_strs;
-      function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_parameter = true;
-      function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_volatile = false;
+      function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_parameter = TRUE;
+      function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_volatile = FALSE;
       temp_prog = prog;
       get();
       if(curr_token.tok == VAR_ARG_DOTS){
-        function_table[function_table_tos].has_var_args = true;
+        function_table[function_table_tos].has_var_args = TRUE;
         get();
         break; // exit parameter loop as '...' has to be the last curr_token.token_str in the param definition
       }
 
       while(curr_token.tok == VOLATILE || curr_token.tok == CONST){
-              if(curr_token.tok == VOLATILE) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_volatile = true;
-        else if(curr_token.tok == CONST) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.is_constant = true;
+              if(curr_token.tok == VOLATILE) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_volatile = TRUE;
+        else if(curr_token.tok == CONST) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.is_constant = TRUE;
         get();
       }
 
@@ -1592,7 +1603,7 @@ void declare_func(void){
               curr_token.tok == SHORT  || curr_token.tok == LONG      ||
               curr_token.tok == VOLATILE
         ){
-               if(curr_token.tok == VOLATILE) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_volatile = true;
+               if(curr_token.tok == VOLATILE) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].is_volatile = TRUE;
           else if(curr_token.tok == SIGNED)   function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SIGNMOD_SIGNED;
           else if(curr_token.tok == UNSIGNED) function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.sign_modifier = SIGNMOD_UNSIGNED;
           else if(curr_token.tok == SHORT)    function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.size_modifier = SIZEMOD_SHORT;
@@ -1629,8 +1640,8 @@ void declare_func(void){
       strcpy(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].name, curr_token.token_str);
       // Check if this is main, and argc or argv are declared
       // TODO: argc/argv need to be local to main but right now they are global
-      if(is_main == true && (!strcmp(curr_token.token_str, "argc") || !strcmp(curr_token.token_str, "argv"))){
-        add_argc_argv = true;
+      if(is_main == TRUE && (!strcmp(curr_token.token_str, "argc") || !strcmp(curr_token.token_str, "argv"))){
+        add_argc_argv = TRUE;
       }
       // checks if this is a array declaration
       get();
@@ -1790,14 +1801,11 @@ void parse_asm(void){
          || strstr(curr_token.string_const, ".EQU")){
       emitln(curr_token.string_const);
     } 
-    else if(strstr(curr_token.string_const, "addr mov")){
+    else if(strstr(curr_token.string_const, "ccmovd")){
       prog = temp_prog;
-      get(); // get 'addr' operator
-      get(); // get 'mov'
-      get(); // get 'd' register
-      if(strcmp(curr_token.token_str, "d") && strcmp(curr_token.token_str, "D")) error(ERR_FATAL, "'d' register expected in 'addr mov' operation.");
-      get(); if(curr_token.tok != COMMA) error(ERR_FATAL, "Comma expected.");
-      get(); if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected.");
+      get();  // get 'ccmovd'
+      get();  // get identifier
+      if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected.");
       emit_var_addr_into_d(curr_token.token_str);
     }
     else{
@@ -1825,7 +1833,7 @@ void parse_continue(void){
 void parse_for(void){
   char *update_loc;
 
-  override_return_is_last_statement = true;
+  override_return_is_last_statement = TRUE;
   loop_type_stack[loop_type_tos] = current_loop_type;
   loop_type_tos++;
   current_loop_type = FOR_LOOP;
@@ -1845,7 +1853,7 @@ void parse_for(void){
   if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 
   emitln("_for%d_cond:", current_label_index_for);
-  // checks for an empty condition, which means always true
+  // checks for an empty condition, which means always TRUE
   get();
   if(curr_token.tok != SEMICOLON){
     back();
@@ -1884,11 +1892,11 @@ void parse_for(void){
   loop_type_tos--;
   current_loop_type = loop_type_stack[loop_type_tos];
 
-  override_return_is_last_statement = false;
+  override_return_is_last_statement = FALSE;
 }
 
 void parse_while(void){
-  override_return_is_last_statement = true;
+  override_return_is_last_statement = TRUE;
   loop_type_stack[loop_type_tos] = current_loop_type;
   loop_type_tos++;
   current_loop_type = WHILE_LOOP;
@@ -1913,11 +1921,11 @@ void parse_while(void){
   current_label_index_while = label_stack_while[label_tos_while];
   loop_type_tos--;
   current_loop_type = loop_type_stack[loop_type_tos];
-  override_return_is_last_statement = false;
+  override_return_is_last_statement = FALSE;
 }
 
 void parse_do(void){
-  override_return_is_last_statement = true;
+  override_return_is_last_statement = TRUE;
   loop_type_stack[loop_type_tos] = current_loop_type;
   loop_type_tos++;
   current_loop_type = DO_LOOP;
@@ -1951,7 +1959,7 @@ void parse_do(void){
   current_label_index_do = label_stack_do[label_tos_do];
   loop_type_tos--;
   current_loop_type = loop_type_stack[loop_type_tos];
-  override_return_is_last_statement = false;
+  override_return_is_last_statement = FALSE;
 }
 
 void parse_goto(void){
@@ -1975,7 +1983,7 @@ void parse_goto(void){
 void parse_if(void){
   char *temp_p;
 
-  override_return_is_last_statement = true;
+  override_return_is_last_statement = TRUE;
   highest_label_index++;
   label_stack_if[label_tos_if] = current_label_index_if;
   label_tos_if++;
@@ -1994,7 +2002,7 @@ void parse_if(void){
   if(curr_token.tok == ELSE) emitln("  je _if%d_else", current_label_index_if);
   else emitln("  je _if%d_exit", current_label_index_if);
   prog = temp_p;
-  emitln("_if%d_true:", current_label_index_if);
+  emitln("_if%d_TRUE:", current_label_index_if);
   parse_block();  // parse the positive condition block
   emitln("  jmp _if%d_exit", current_label_index_if);
   get(); // look for 'else'
@@ -2008,7 +2016,7 @@ void parse_if(void){
   label_tos_if--;
   current_label_index_if = label_stack_if[label_tos_if];
 
-  override_return_is_last_statement = false;
+  override_return_is_last_statement = FALSE;
 }
 
 void parse_return(void){
@@ -2043,7 +2051,7 @@ void parse_switch(void){
   char *temp_p;
   int current_case_nbr;
 
-  override_return_is_last_statement = true;
+  override_return_is_last_statement = TRUE;
   loop_type_stack[loop_type_tos] = current_loop_type;
   loop_type_tos++;
   current_loop_type = SWITCH_CONSTRUCT;
@@ -2139,7 +2147,7 @@ void parse_switch(void){
   loop_type_tos--;
   current_loop_type = loop_type_stack[loop_type_tos];
 
-  override_return_is_last_statement = false;
+  override_return_is_last_statement = FALSE;
 }
 
 void parse_case(void){
@@ -2178,7 +2186,7 @@ void parse_block(void){
   do{
     temp_prog = prog;
     get();
-    if(curr_token.tok != CLOSING_BRACE) return_is_last_statement = false;
+    if(curr_token.tok != CLOSING_BRACE) return_is_last_statement = FALSE;
     if(search_typedef(curr_token.token_str) != -1){
       emit_c_header_line();
       prog = temp_prog;
@@ -2248,7 +2256,7 @@ void parse_block(void){
       case RETURN:
         emit_c_header_line();
         parse_return();
-        if(!override_return_is_last_statement) return_is_last_statement = true; // only consider this return as a final return if we are not inside an IF statement.
+        if(!override_return_is_last_statement) return_is_last_statement = TRUE; // only consider this return as a final return if we are not inside an IF statement.
         break;
       default:
         if(curr_token.tok_type == END) error(ERR_FATAL, "Closing brace expected");
@@ -2475,7 +2483,7 @@ char is_constant(char *varname){
   return 0;
 }
 
-// A = cond1 ? true_val : false_val;
+// A = cond1 ? TRUE_val : FALSE_val;
 t_type parse_ternary_op(void){
   char *temp_prog, *temp_asm_p;
   t_type type1, type2, expr_out;
@@ -2496,12 +2504,12 @@ t_type parse_ternary_op(void){
   label_tos_ter++;
   current_label_index_ter = highest_label_index;
   emitln("  cmp b, 0");
-  emitln("  je _ternary%d_false", current_label_index_ter);
-  emitln("_ternary%d_true:", current_label_index_ter);
+  emitln("  je _ternary%d_FALSE", current_label_index_ter);
+  emitln("_ternary%d_TRUE:", current_label_index_ter);
   type1 = parse_ternary_op(); // result in 'b'
   if(curr_token.tok != COLON) error(ERR_FATAL, "Colon expected");
   emitln("  jmp _ternary%d_exit", current_label_index_ter);
-  emitln("_ternary%d_false:", current_label_index_ter);
+  emitln("_ternary%d_FALSE:", current_label_index_ter);
   type2 = parse_ternary_op(); // result in 'b'
   emitln("_ternary%d_exit:", current_label_index_ter);
 
@@ -2985,7 +2993,7 @@ t_type parse_atomic(void){
     }
     else if(enum_element_exists(temp_name) != -1){
       back();
-      emitln("  mov32 cb, %x ; enum element: %s", get_enum_val(temp_name), temp_name);
+      emitln("  mov32 cb, $%x ; enum element: %s", get_enum_val(temp_name), temp_name);
       expr_out.primitive_type = DT_INT;
       expr_out.ind_level = 0;
       expr_out.sign_modifier = SIGNMOD_SIGNED; // TODO: check enums can always be signed...
@@ -3139,17 +3147,17 @@ t_type parse_sizeof(){
   if((search_typedef(curr_token.token_str)) != -1){                              
     back();
     type = get_type();
-    emitln("  mov b, %d", get_total_type_size(type));
+    emitln("  mov32 cb, %d", get_total_type_size(type));
     get();
   }
   else if(curr_token.tok_type == IDENTIFIER){
     if(local_var_exists(curr_token.token_str) != -1){ // is a local variable
       var_id = local_var_exists(curr_token.token_str);
-      emitln("  mov b, %d", get_total_type_size(function_table[current_func_id].local_vars[var_id].type));
+      emitln("  mov32 cb, %d", get_total_type_size(function_table[current_func_id].local_vars[var_id].type));
     }
     else if(global_var_exists(curr_token.token_str) != -1){  // is a global variable
       var_id = global_var_exists(curr_token.token_str);
-      emitln("  mov b, %d", get_total_type_size(global_var_table[var_id].type));
+      emitln("  mov32 cb, %d", get_total_type_size(global_var_table[var_id].type));
     }
     else{
       error(ERR_FATAL, "(Parse atomic) Undeclared identifier: %s", curr_token.token_str);
@@ -3159,7 +3167,7 @@ t_type parse_sizeof(){
   else{
     back();
     type = get_type();
-    emitln("  mov b, %d", get_total_type_size(type));
+    emitln("  mov32 cb, %d", get_total_type_size(type));
     get();
   }
   type.primitive_type = DT_INT;
@@ -4663,7 +4671,7 @@ void expect_type(t_tok tok, char *message){
   if(curr_token.tok != tok) error(ERR_FATAL, message);
 }
 
-// converts a literal string or char constant into constants with true escape sequences
+// converts a literal string or char constant into constants with TRUE escape sequences
 void convert_constant(){
   char *s = curr_token.string_const;
   char *t = curr_token.token_str;
@@ -5186,7 +5194,7 @@ void expand_all_included_files(void){
         *(pi - 1) = '\0'; // overwrite the EOF char with NULL
         fclose(fp);
         prog = include_file_buffer;
-        found_include = false;
+        found_include = FALSE;
         for(;;){
           temp_prog = prog;
           get();
@@ -5196,13 +5204,13 @@ void expand_all_included_files(void){
           else if(curr_token.tok == DIRECTIVE){
             get();
             if(curr_token.tok == INCLUDE){
-              found_include = true;
+              found_include = TRUE;
               prog = temp_prog;
               break;
             }
           }
         }
-        if(found_include == true) continue;
+        if(found_include == TRUE) continue;
         else break;
       }
     }

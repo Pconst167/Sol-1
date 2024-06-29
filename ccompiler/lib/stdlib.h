@@ -50,7 +50,7 @@ int rand(){
       mov al, 0
       syscall sys_rtc					; get seconds
       mov al, ah
-      addr mov d, sec
+      ccmovd sec
       mov al, [d]
       mov ah, 0
   }

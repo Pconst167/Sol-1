@@ -43,7 +43,7 @@ int main(){
     print_cwd(); 
     printf(" # ");
     gets(command);
-    print("\n\r");
+    printf("\n\r");
     if(command[0]) strcpy(last_cmd, command);
     prog = command;
     // Loop through the shell command
@@ -190,7 +190,7 @@ int show_var(char *varname){
   for(i = 0; i < vars_tos; i++){
     if(!strcmp(variables[i].varname, varname)){
       if(variables[i].var_type == SHELL_VAR_TYP_INT){
-        printu(variables[i].as_int);
+        printf("%d", variables[i].as_int);
       }
       else if(variables[i].var_type == SHELL_VAR_TYP_STR){
         printf(variables[i].as_string);
@@ -214,11 +214,11 @@ int get_shell_var_intval(int index){
 int file_exists(char *filename){
   int file_exists;
   asm{
-    meta mov d, filename
+    ccmovd filename
     mov d, [d]
     mov al, 21
     syscall sys_filesystem
-    meta mov d, file_exists
+    ccmovd file_exists
     mov [d], a
   }
   return file_exists;
@@ -251,11 +251,11 @@ void command_cd(){
 void cd_to_dir(char *dir){
   int dirID;
   asm{
-    meta mov d, dir
+    ccmovd dir
     mov d, [d]
     mov al, 19
     syscall sys_filesystem ; get dirID in 'A'
-    meta mov d, dirID
+    ccmovd dirID
     mov d, [d]
     mov [d], a ; set dirID
     push a
@@ -284,9 +284,9 @@ void print_cwd(){
 
 int spawn_new_proc(char *executable_path, char *args){
   asm{
-    meta mov d, args
+    ccmovd args
     mov b, [d]
-    meta mov d, executable_path
+    ccmovd executable_path
     mov d, [d]
     syscall sys_spawn_proc
   }
