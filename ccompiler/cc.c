@@ -38,6 +38,8 @@
   ** implement instructions: mov cl, bl; mov cl, bh; mov ch, al; mov ch, ah; etc...
 
   ** implement mov32 b, [d] to move a 32bit integer address by 'd'
+
+  ** implement add32 ga, cb and sub32 cb, ga
 */
 
 #include <stdio.h>
