@@ -7,7 +7,7 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; p++; 
+; p++ + 1; 
   mov d, _p ; $p
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -24,6 +24,16 @@ main:
   sub32 ga, cb
   mov c, g
   mov b, a
+; --- START TERMS
+  push a
+  push g
+  mov a, b
+  mov g, c
+  mov32 cb, $00000001
+  add32 cb, ga
+  pop g
+  pop a
+; --- END TERMS
   syscall sys_terminate_proc
 
 strcpy:
@@ -4216,6 +4226,11 @@ include_stdio_asm:
 .include "lib/asm/stdio.asm"
 ; --- END INLINE ASM SEGMENT
 
+  leave
+  ret
+
+func:
+  enter 0 ; (push bp; mov bp, sp)
   leave
   ret
 ; --- END TEXT SEGMENT

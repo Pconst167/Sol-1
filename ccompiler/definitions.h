@@ -42,7 +42,7 @@ typedef enum{
 
 // basic data types
 typedef enum {
-  DT_VOID = 1, DT_CHAR, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRUCT, DT_ENUM
+  DT_VOID = 1, DT_CHAR, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRUCT, DT_ENUM, DT_FUNCPTR
 } t_primitive_type;
 
 typedef enum {
@@ -401,3 +401,4 @@ int insert_var_name(char *name, char array[32][ID_LEN]);
 
 char *find_next_func_header();
 char* basename(char* path);
+int optimize_asm();

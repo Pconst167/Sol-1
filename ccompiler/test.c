@@ -2,8 +2,14 @@
 
 long int p;
 
+int (*fp)(int);
+
 void main(void){
 
-	p++;
+	p++ + 1;
+
+}
+
+int func(int i){
 
 }
