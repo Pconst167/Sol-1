@@ -1,5 +1,4 @@
 // Solarium Shell Environment
-//
 
 #include "lib/token.h"
 

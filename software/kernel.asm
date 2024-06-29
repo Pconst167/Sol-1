@@ -2490,7 +2490,7 @@ _load_hex:
   mov a, di
   mov d, a          ; start of string data block
   call _gets        ; get program string
-  call _puts        ; reprint to screen
+  ;call _puts        ; reprint to screen
   mov si, a
 __load_hex_loop:
   lodsb             ; load from [SI] to AL
@@ -2532,7 +2532,7 @@ f_find:
 .include "lib/ctype.asm"
 .include "lib/token.asm"
 
-; Kernel parameters
+; kernel parameters
 sys_debug_mode:     .db 0   ; debug modes: 0=normal mode, 1=debug mode
 sys_echo_on:        .db 1
 sys_uart0_lcr:      .db $07 ; 8 data bits, 2 stop bit, no parity
@@ -2564,7 +2564,7 @@ s_ps_header:        .db "PID COMMAND\n", 0
 s_ls_total:         .db "Total: ", 0
 
 s_int_en:           .db "IRQs enabled\n", 0
-s_kernel_started:   .db "kernel started\n", 0
+s_kernel_started:   .db "kernel started(version 1.0)\n", 0
 s_prompt_init:      .db "starting init\n", 0
 s_priviledge:       .db "\nexception: privilege\n", 0
 s_divzero:          .db "\nexception: zero division\n", 0
