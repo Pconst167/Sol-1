@@ -3279,8 +3279,7 @@ t_type parse_post_decrementing(t_type expr_in, char *temp_name){
   }
   else if(size == 4){
     emitln("  mov a, b");
-    emitln("  dec b");
-    emitln("  dec b");
+    emitln("  sub b, 4");
     emit_var_addr_into_d(temp_name);
     emitln("  mov [d], b");
     emitln("  mov b, a");
@@ -3345,8 +3344,7 @@ t_type parse_post_incrementing(t_type expr_in, char *temp_name){
   }
   else if(size == 4){
     emitln("  mov a, b");
-    emitln("  inc b");
-    emitln("  inc b");
+    emitln("  add b, 4");
     emit_var_addr_into_d(temp_name);
     emitln("  mov [d], b");
     emitln("  mov b, a");

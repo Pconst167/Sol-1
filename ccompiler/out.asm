@@ -9,13 +9,20 @@ main:
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
 ; p++; 
   mov d, _p ; $p
-  mov b, [d]
-  mov c, 0
-  mov a, b
-  inc b
-  inc b
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+  mov32 ga, 1
+  add32 cb, ga
   mov d, _p ; $p
+  mov b, c
+  mov [d+2], b
   mov [d], b
+  mov g, c
+  mov a, b
+  mov32 cb, 1
+  sub32 ga, cb
+  mov c, g
   mov b, a
   syscall sys_terminate_proc
 
@@ -2909,10 +2916,11 @@ _while37_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; putchar(digits[i]); 
 ; --- START FUNCTION CALL
   lea d, [bp + -4] ; $digits
@@ -3131,10 +3139,11 @@ _while41_block:
   lea d, [bp + -11] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -11] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; putchar(digits[i]); 
 ; --- START FUNCTION CALL
   lea d, [bp + -9] ; $digits
@@ -3305,10 +3314,11 @@ _while44_block:
   lea d, [bp + -11] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -11] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; putchar(digits[i]); 
 ; --- START FUNCTION CALL
   lea d, [bp + -9] ; $digits
@@ -3482,10 +3492,11 @@ _while47_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; *dest++ = digits[i]; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
@@ -3670,10 +3681,11 @@ _while50_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; putchar(digits[i]); 
 ; --- START FUNCTION CALL
   lea d, [bp + -4] ; $digits
@@ -3905,10 +3917,11 @@ _while54_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; *dest++ = digits[i]; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
@@ -4208,7 +4221,7 @@ include_stdio_asm:
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
-_p: .fill 2, 0
+_p: .fill 4, 0
 st_fopen_max_handle: .dw 0
 _s0: .db "Unexpected format in printf.", 0
 _s1: .db "Error: Unknown argument type.\n", 0
