@@ -1,6 +1,9 @@
 "TASMSOL"
 .ALTWILD
 
+; there is really no ESC instruction per se, but I list it here as a reminder.
+; when the CPU meets an FD opcode, it will then read the following byte as the next value of IR
+; and hence the next instruction. so this really is an escape opcode.
 ESC ""                          FD    1    NOP      1
 SETPTB ""                       01    1    NOP      1
 PAGEMAP ""                      02    1    NOP      1

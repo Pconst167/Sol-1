@@ -424,10 +424,11 @@ _while4_block:
   lea d, [bp + -1] ; $length
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -1] ; $length
   mov [d], b
-  dec b
+  mov b, a
   jmp _while4_cond
 _while4_exit:
 ; return length; 
@@ -499,10 +500,11 @@ _for5_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _for5_cond
 _for5_exit:
 ; return s; 
@@ -897,10 +899,11 @@ fopen:
   mov d, st_fopen_max_handle ; static max_handle
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   mov d, st_fopen_max_handle ; static max_handle
   mov [d], b
-  dec b
+  mov b, a
   leave
   ret
 
@@ -2769,10 +2772,11 @@ _for31_update:
   lea d, [bp + -3] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -3] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _for31_cond
 _for31_exit:
 ; return value; 
@@ -2949,10 +2953,11 @@ _while36_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while36_cond
 _while36_exit:
 ; while (i > 0) { 
@@ -2975,10 +2980,11 @@ _while37_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; putchar(digits[i]); 
 ; --- START FUNCTION CALL
   lea d, [bp + -4] ; $digits
@@ -3170,10 +3176,11 @@ _while40_block:
   lea d, [bp + -11] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -11] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while40_cond
 _while40_exit:
 ; while (i > 0) { 
@@ -3196,10 +3203,11 @@ _while41_block:
   lea d, [bp + -11] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -11] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; putchar(digits[i]); 
 ; --- START FUNCTION CALL
   lea d, [bp + -9] ; $digits
@@ -3343,10 +3351,11 @@ _while43_block:
   lea d, [bp + -11] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -11] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while43_cond
 _while43_exit:
 ; while (i > 0) { 
@@ -3369,10 +3378,11 @@ _while44_block:
   lea d, [bp + -11] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -11] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; putchar(digits[i]); 
 ; --- START FUNCTION CALL
   lea d, [bp + -9] ; $digits
@@ -3519,10 +3529,11 @@ _while46_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while46_cond
 _while46_exit:
 ; while (i > 0) { 
@@ -3545,10 +3556,11 @@ _while47_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; *dest++ = digits[i]; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
@@ -3576,10 +3588,11 @@ _while47_block:
   lea d, [bp + -8] ; $len
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -8] ; $len
   mov [d], b
-  dec b
+  mov b, a
   jmp _while47_cond
 _while47_exit:
 ; *dest = '\0'; 
@@ -3705,10 +3718,11 @@ _while49_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while49_cond
 _while49_exit:
 ; while (i > 0) { 
@@ -3731,10 +3745,11 @@ _while50_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; putchar(digits[i]); 
 ; --- START FUNCTION CALL
   lea d, [bp + -4] ; $digits
@@ -3821,10 +3836,11 @@ _if51_true:
   lea d, [bp + -8] ; $len
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -8] ; $len
   mov [d], b
-  dec b
+  mov b, a
   jmp _if51_exit
 _if51_else:
 ; if (num == 0) { 
@@ -3938,10 +3954,11 @@ _while53_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -6] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _while53_cond
 _while53_exit:
 ; while (i > 0) { 
@@ -3964,10 +3981,11 @@ _while54_block:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -6] ; $i
   mov [d], b
-  inc b
+  mov b, a
 ; *dest++ = digits[i]; 
   lea d, [bp + 5] ; $dest
   mov b, [d]
@@ -3995,10 +4013,11 @@ _while54_block:
   lea d, [bp + -8] ; $len
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -8] ; $len
   mov [d], b
-  dec b
+  mov b, a
   jmp _while54_cond
 _while54_exit:
 ; *dest = '\0'; 
@@ -4311,10 +4330,11 @@ _while56_cond:
   lea d, [bp + -7] ; $input_len
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -7] ; $input_len
   mov [d], b
-  inc b
+  mov b, a
   cmp b, 0
   je _while56_exit
 _while56_block:
@@ -4325,10 +4345,11 @@ _while56_block:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  dec b
+  mov b, a
   pop d
   add d, b
   pop a
@@ -4583,10 +4604,11 @@ _for58_block:
   lea d, [bp + -3] ; $j
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  dec b
+  mov b, a
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
@@ -4619,10 +4641,11 @@ _for58_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _for58_cond
 _for58_exit:
 ; i = 0; 
@@ -4685,10 +4708,11 @@ _for60_update:
   lea d, [bp + -5] ; $k
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -5] ; $k
   mov [d], b
-  dec b
+  mov b, a
   jmp _for60_cond
 _for60_exit:
 ; output_buffer[0] = (input_buffer[0] & 0xFC) >> 2; 
@@ -4895,10 +4919,11 @@ _for61_block:
   lea d, [bp + -3] ; $j
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  dec b
+  mov b, a
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
@@ -4931,10 +4956,11 @@ _for61_update:
   lea d, [bp + -5] ; $k
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -5] ; $k
   mov [d], b
-  dec b
+  mov b, a
   jmp _for61_cond
 _for61_exit:
 ; while (i++ < 3) { 
@@ -4942,10 +4968,11 @@ _while62_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  dec b
+  mov b, a
 ; --- START RELATIONAL
   push a
   mov a, b
@@ -4965,10 +4992,11 @@ _while62_block:
   lea d, [bp + -3] ; $j
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  dec b
+  mov b, a
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
@@ -5266,10 +5294,11 @@ _while68_cond:
   lea d, [bp + -7] ; $input_len
   mov b, [d]
   mov c, 0
+  mov a, b
   dec b
   lea d, [bp + -7] ; $input_len
   mov [d], b
-  inc b
+  mov b, a
 ; --- START LOGICAL AND
   push a
   mov a, b
@@ -5336,10 +5365,11 @@ _while68_block:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  dec b
+  mov b, a
   pop d
   add d, b
   pop a
@@ -5351,10 +5381,11 @@ _while68_block:
   lea d, [bp + -5] ; $k
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -5] ; $k
   mov [d], b
-  dec b
+  mov b, a
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
@@ -5435,10 +5466,11 @@ _for70_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _for70_cond
 _for70_exit:
 ; output_buffer[0] = (input_buffer[0] << 2) + ((input_buffer[1] & 0x30) >> 4); 
@@ -5647,10 +5679,11 @@ _for71_block:
   lea d, [bp + -3] ; $j
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  dec b
+  mov b, a
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
@@ -5673,10 +5706,11 @@ _for71_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -1] ; $i
   mov [d], b
-  dec b
+  mov b, a
   jmp _for71_cond
 _for71_exit:
 ; i = 0; 
@@ -5739,10 +5773,11 @@ _for73_update:
   lea d, [bp + -5] ; $k
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -5] ; $k
   mov [d], b
-  dec b
+  mov b, a
   jmp _for73_cond
 _for73_exit:
 ; for (k = 0; k < 4; k++) { 
@@ -5801,10 +5836,11 @@ _for74_update:
   lea d, [bp + -5] ; $k
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -5] ; $k
   mov [d], b
-  dec b
+  mov b, a
   jmp _for74_cond
 _for74_exit:
 ; output_buffer[0] = (input_buffer[0] << 2) + ((input_buffer[1] & 0x30) >> 4); 
@@ -5972,10 +6008,11 @@ _for75_block:
   lea d, [bp + -3] ; $j
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -3] ; $j
   mov [d], b
-  dec b
+  mov b, a
   pop d
   mma 1 ; mov a, 1; mul a b; add d, b
   pop a
@@ -5998,10 +6035,11 @@ _for75_update:
   lea d, [bp + -5] ; $k
   mov b, [d]
   mov c, 0
+  mov a, b
   inc b
   lea d, [bp + -5] ; $k
   mov [d], b
-  dec b
+  mov b, a
   jmp _for75_cond
 _for75_exit:
   jmp _if72_exit

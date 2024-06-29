@@ -66,7 +66,7 @@ _while1_block:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $pdest
-  mov [d], bl
+  mov [d], b
   dec b
   push b
   lea d, [bp + -1] ; $psrc
@@ -74,7 +74,7 @@ _while1_block:
   mov c, 0
   inc b
   lea d, [bp + -1] ; $psrc
-  mov [d], bl
+  mov [d], b
   dec b
   mov d, b
   mov bl, [d]
@@ -142,7 +142,7 @@ _while2_block:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $s1
-  mov [d], bl
+  mov [d], b
   dec b
 ; s2++; 
   lea d, [bp + 7] ; $s2
@@ -150,7 +150,7 @@ _while2_block:
   mov c, 0
   inc b
   lea d, [bp + 7] ; $s2
-  mov [d], bl
+  mov [d], b
   dec b
   jmp _while2_cond
 _while2_exit:
@@ -496,7 +496,7 @@ _while6_block:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $str
-  mov [d], bl
+  mov [d], b
   dec b
   jmp _while6_cond
 _while6_exit:
@@ -576,7 +576,7 @@ _if8_exit:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $str
-  mov [d], bl
+  mov [d], b
   dec b
   jmp _if7_exit
 _if7_exit:
@@ -665,7 +665,7 @@ _while9_block:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $str
-  mov [d], bl
+  mov [d], b
   dec b
   jmp _while9_cond
 _while9_exit:
@@ -931,7 +931,7 @@ _if12_true:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
 ; switch(*format_p){ 
 _switch13_expr:
@@ -969,7 +969,7 @@ _switch13_case1:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
 ; if(*format_p == 'd' || *format_p == 'i') 
 _if14_cond:
@@ -1295,7 +1295,7 @@ _switch13_exit:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
   jmp _if12_exit
 _if12_else:
@@ -1318,7 +1318,7 @@ _if12_else:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
 _if12_exit:
 _if11_exit:
@@ -1409,7 +1409,7 @@ _if19_true:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
 ; switch(*format_p){ 
 _switch20_expr:
@@ -1447,7 +1447,7 @@ _switch20_case1:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
 ; if(*format_p == 'd' || *format_p == 'i'); 
 _if21_cond:
@@ -1763,7 +1763,7 @@ _switch20_exit:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
   jmp _if19_exit
 _if19_else:
@@ -1786,7 +1786,7 @@ _if19_else:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
 _if19_exit:
 _if18_exit:
@@ -1881,7 +1881,7 @@ _if26_true:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
 ; switch(*format_p){ 
 _switch27_expr:
@@ -1919,7 +1919,7 @@ _switch27_case1:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
 ; if(*format_p == 'd' || *format_p == 'i') 
 _if28_cond:
@@ -2219,7 +2219,7 @@ _switch27_case6:
   mov c, 0
   inc b
   lea d, [bp + -5] ; $sp
-  mov [d], bl
+  mov [d], b
   dec b
   push b
   lea d, [bp + -1] ; $p
@@ -2335,7 +2335,7 @@ _switch27_exit:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
   jmp _if26_exit
 _if26_else:
@@ -2345,7 +2345,7 @@ _if26_else:
   mov c, 0
   inc b
   lea d, [bp + -5] ; $sp
-  mov [d], bl
+  mov [d], b
   dec b
   push b
   lea d, [bp + -3] ; $format_p
@@ -2353,7 +2353,7 @@ _if26_else:
   mov c, 0
   inc b
   lea d, [bp + -3] ; $format_p
-  mov [d], bl
+  mov [d], b
   dec b
   mov d, b
   mov bl, [d]
@@ -3385,7 +3385,7 @@ _if45_true:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
-  mov [d], bl
+  mov [d], b
   dec b
   push b
   mov32 cb, $00000030
@@ -3503,7 +3503,7 @@ _while47_block:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
-  mov [d], bl
+  mov [d], b
   dec b
   push b
   lea d, [bp + -4] ; $digits
@@ -3753,7 +3753,7 @@ _if51_true:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
-  mov [d], bl
+  mov [d], b
   dec b
   push b
   mov32 cb, $0000002d
@@ -3801,7 +3801,7 @@ _if52_true:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
-  mov [d], bl
+  mov [d], b
   dec b
   push b
   mov32 cb, $00000030
@@ -3928,7 +3928,7 @@ _while54_block:
   mov c, 0
   inc b
   lea d, [bp + 5] ; $dest
-  mov [d], bl
+  mov [d], b
   dec b
   push b
   lea d, [bp + -4] ; $digits

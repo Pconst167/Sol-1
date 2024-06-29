@@ -2,7 +2,7 @@
 #define ID_LEN            256
 #define CONST_LEN         512
 #define STRING_CONST_SIZE 512
-#define PROG_SIZE         1024 * 1024 * 30  // 30MB
+#define PROG_SIZE         1024 * 1024  // 1MB
 #define MAX_DEFS          4096
 #define ROM_SIZE          65536
 

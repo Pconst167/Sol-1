@@ -88,7 +88,7 @@
 0066   0470 38 00 00      mov c, 0
 0067   0473 FD 77         inc b
 0068   0475 FA FD FF      lea d, [bp + -3] ; $pdest
-0069   0478 FD 3E         mov [d], bl
+0069   0478 FD 43         mov [d], b
 0070   047A FD 7D         dec b
 0071   047C D8            push b
 0072   047D FA FF FF      lea d, [bp + -1] ; $psrc
@@ -96,7 +96,7 @@
 0074   0481 38 00 00      mov c, 0
 0075   0484 FD 77         inc b
 0076   0486 FA FF FF      lea d, [bp + -1] ; $psrc
-0077   0489 FD 3E         mov [d], bl
+0077   0489 FD 43         mov [d], b
 0078   048B FD 7D         dec b
 0079   048D 74            mov d, b
 0080   048E 32            mov bl, [d]
@@ -165,7 +165,7 @@
 0142   04EF 38 00 00      mov c, 0
 0143   04F2 FD 77         inc b
 0144   04F4 FA 05 00      lea d, [bp + 5] ; $s1
-0145   04F7 FD 3E         mov [d], bl
+0145   04F7 FD 43         mov [d], b
 0146   04F9 FD 7D         dec b
 0147   04FB             ; s2++; 
 0148   04FB FA 07 00      lea d, [bp + 7] ; $s2
@@ -173,7 +173,7 @@
 0150   04FF 38 00 00      mov c, 0
 0151   0502 FD 77         inc b
 0152   0504 FA 07 00      lea d, [bp + 7] ; $s2
-0153   0507 FD 3E         mov [d], bl
+0153   0507 FD 43         mov [d], b
 0154   0509 FD 7D         dec b
 0155   050B 0A B0 04      jmp _while2_cond
 0156   050E             _while2_exit:
@@ -529,7 +529,7 @@
 0496   072A 38 00 00      mov c, 0
 0497   072D FD 77         inc b
 0498   072F FA 05 00      lea d, [bp + 5] ; $str
-0499   0732 FD 3E         mov [d], bl
+0499   0732 FD 43         mov [d], b
 0500   0734 FD 7D         dec b
 0501   0736 0A 06 07      jmp _while6_cond
 0502   0739             _while6_exit:
@@ -613,7 +613,7 @@
 0576   07AE 38 00 00      mov c, 0
 0577   07B1 FD 77         inc b
 0578   07B3 FA 05 00      lea d, [bp + 5] ; $str
-0579   07B6 FD 3E         mov [d], bl
+0579   07B6 FD 43         mov [d], b
 0580   07B8 FD 7D         dec b
 0581   07BA 0A BD 07      jmp _if7_exit
 0582   07BD             _if7_exit:
@@ -706,7 +706,7 @@
 0665   0837 38 00 00      mov c, 0
 0666   083A FD 77         inc b
 0667   083C FA 05 00      lea d, [bp + 5] ; $str
-0668   083F FD 3E         mov [d], bl
+0668   083F FD 43         mov [d], b
 0669   0841 FD 7D         dec b
 0670   0843 0A BD 07      jmp _while9_cond
 0671   0846             _while9_exit:
@@ -975,7 +975,7 @@
 0931   09CD 38 00 00      mov c, 0
 0932   09D0 FD 77         inc b
 0933   09D2 FA FD FF      lea d, [bp + -3] ; $format_p
-0934   09D5 FD 3E         mov [d], bl
+0934   09D5 FD 43         mov [d], b
 0935   09D7 FD 7D         dec b
 0936   09D9             ; switch(*format_p){ 
 0937   09D9             _switch13_expr:
@@ -1013,7 +1013,7 @@
 0969   0A19 38 00 00      mov c, 0
 0970   0A1C FD 77         inc b
 0971   0A1E FA FD FF      lea d, [bp + -3] ; $format_p
-0972   0A21 FD 3E         mov [d], bl
+0972   0A21 FD 43         mov [d], b
 0973   0A23 FD 7D         dec b
 0974   0A25             ; if(*format_p == 'd' || *format_p == 'i') 
 0975   0A25             _if14_cond:
@@ -1349,7 +1349,7 @@
 1295   0C03 38 00 00      mov c, 0
 1296   0C06 FD 77         inc b
 1297   0C08 FA FD FF      lea d, [bp + -3] ; $format_p
-1298   0C0B FD 3E         mov [d], bl
+1298   0C0B FD 43         mov [d], b
 1299   0C0D FD 7D         dec b
 1300   0C0F 0A 37 0C      jmp _if12_exit
 1301   0C12             _if12_else:
@@ -1372,7 +1372,7 @@
 1318   0C2B 38 00 00      mov c, 0
 1319   0C2E FD 77         inc b
 1320   0C30 FA FD FF      lea d, [bp + -3] ; $format_p
-1321   0C33 FD 3E         mov [d], bl
+1321   0C33 FD 43         mov [d], b
 1322   0C35 FD 7D         dec b
 1323   0C37             _if12_exit:
 1324   0C37             _if11_exit:
@@ -1465,7 +1465,7 @@
 1409   0CB4 38 00 00      mov c, 0
 1410   0CB7 FD 77         inc b
 1411   0CB9 FA FD FF      lea d, [bp + -3] ; $format_p
-1412   0CBC FD 3E         mov [d], bl
+1412   0CBC FD 43         mov [d], b
 1413   0CBE FD 7D         dec b
 1414   0CC0             ; switch(*format_p){ 
 1415   0CC0             _switch20_expr:
@@ -1503,7 +1503,7 @@
 1447   0D00 38 00 00      mov c, 0
 1448   0D03 FD 77         inc b
 1449   0D05 FA FD FF      lea d, [bp + -3] ; $format_p
-1450   0D08 FD 3E         mov [d], bl
+1450   0D08 FD 43         mov [d], b
 1451   0D0A FD 7D         dec b
 1452   0D0C             ; if(*format_p == 'd' || *format_p == 'i'); 
 1453   0D0C             _if21_cond:
@@ -1829,7 +1829,7 @@
 1763   0EE1 38 00 00      mov c, 0
 1764   0EE4 FD 77         inc b
 1765   0EE6 FA FD FF      lea d, [bp + -3] ; $format_p
-1766   0EE9 FD 3E         mov [d], bl
+1766   0EE9 FD 43         mov [d], b
 1767   0EEB FD 7D         dec b
 1768   0EED 0A 15 0F      jmp _if19_exit
 1769   0EF0             _if19_else:
@@ -1852,7 +1852,7 @@
 1786   0F09 38 00 00      mov c, 0
 1787   0F0C FD 77         inc b
 1788   0F0E FA FD FF      lea d, [bp + -3] ; $format_p
-1789   0F11 FD 3E         mov [d], bl
+1789   0F11 FD 43         mov [d], b
 1790   0F13 FD 7D         dec b
 1791   0F15             _if19_exit:
 1792   0F15             _if18_exit:
@@ -1949,7 +1949,7 @@
 1881   0F9A 38 00 00      mov c, 0
 1882   0F9D FD 77         inc b
 1883   0F9F FA FD FF      lea d, [bp + -3] ; $format_p
-1884   0FA2 FD 3E         mov [d], bl
+1884   0FA2 FD 43         mov [d], b
 1885   0FA4 FD 7D         dec b
 1886   0FA6             ; switch(*format_p){ 
 1887   0FA6             _switch27_expr:
@@ -1987,7 +1987,7 @@
 1919   0FE6 38 00 00      mov c, 0
 1920   0FE9 FD 77         inc b
 1921   0FEB FA FD FF      lea d, [bp + -3] ; $format_p
-1922   0FEE FD 3E         mov [d], bl
+1922   0FEE FD 43         mov [d], b
 1923   0FF0 FD 7D         dec b
 1924   0FF2             ; if(*format_p == 'd' || *format_p == 'i') 
 1925   0FF2             _if28_cond:
@@ -2295,7 +2295,7 @@
 2219   11B2 38 00 00      mov c, 0
 2220   11B5 FD 77         inc b
 2221   11B7 FA FB FF      lea d, [bp + -5] ; $sp
-2222   11BA FD 3E         mov [d], bl
+2222   11BA FD 43         mov [d], b
 2223   11BC FD 7D         dec b
 2224   11BE D8            push b
 2225   11BF FA FF FF      lea d, [bp + -1] ; $p
@@ -2413,7 +2413,7 @@
 2335   1267 38 00 00      mov c, 0
 2336   126A FD 77         inc b
 2337   126C FA FD FF      lea d, [bp + -3] ; $format_p
-2338   126F FD 3E         mov [d], bl
+2338   126F FD 43         mov [d], b
 2339   1271 FD 7D         dec b
 2340   1273 0A A1 12      jmp _if26_exit
 2341   1276             _if26_else:
@@ -2423,7 +2423,7 @@
 2345   127A 38 00 00      mov c, 0
 2346   127D FD 77         inc b
 2347   127F FA FB FF      lea d, [bp + -5] ; $sp
-2348   1282 FD 3E         mov [d], bl
+2348   1282 FD 43         mov [d], b
 2349   1284 FD 7D         dec b
 2350   1286 D8            push b
 2351   1287 FA FD FF      lea d, [bp + -3] ; $format_p
@@ -2431,7 +2431,7 @@
 2353   128B 38 00 00      mov c, 0
 2354   128E FD 77         inc b
 2355   1290 FA FD FF      lea d, [bp + -3] ; $format_p
-2356   1293 FD 3E         mov [d], bl
+2356   1293 FD 43         mov [d], b
 2357   1295 FD 7D         dec b
 2358   1297 74            mov d, b
 2359   1298 32            mov bl, [d]
@@ -3509,7 +3509,7 @@
 3385   18DA 38 00 00      mov c, 0
 3386   18DD FD 77         inc b
 3387   18DF FA 05 00      lea d, [bp + 5] ; $dest
-3388   18E2 FD 3E         mov [d], bl
+3388   18E2 FD 43         mov [d], b
 3389   18E4 FD 7D         dec b
 3390   18E6 D8            push b
 3391   18E7 FD 2E 30 00   mov32 cb, $00000030
@@ -3634,7 +3634,7 @@
 3503   199D 38 00 00      mov c, 0
 3504   19A0 FD 77         inc b
 3505   19A2 FA 05 00      lea d, [bp + 5] ; $dest
-3506   19A5 FD 3E         mov [d], bl
+3506   19A5 FD 43         mov [d], b
 3507   19A7 FD 7D         dec b
 3508   19A9 D8            push b
 3509   19AA FA FC FF      lea d, [bp + -4] ; $digits
@@ -3896,7 +3896,7 @@
 3753   1B32 38 00 00      mov c, 0
 3754   1B35 FD 77         inc b
 3755   1B37 FA 05 00      lea d, [bp + 5] ; $dest
-3756   1B3A FD 3E         mov [d], bl
+3756   1B3A FD 43         mov [d], b
 3757   1B3C FD 7D         dec b
 3758   1B3E D8            push b
 3759   1B3F FD 2E 2D 00   mov32 cb, $0000002d
@@ -3946,7 +3946,7 @@
 3801   1B88 38 00 00      mov c, 0
 3802   1B8B FD 77         inc b
 3803   1B8D FA 05 00      lea d, [bp + 5] ; $dest
-3804   1B90 FD 3E         mov [d], bl
+3804   1B90 FD 43         mov [d], b
 3805   1B92 FD 7D         dec b
 3806   1B94 D8            push b
 3807   1B95 FD 2E 30 00   mov32 cb, $00000030
@@ -4081,7 +4081,7 @@
 3928   1C5C 38 00 00      mov c, 0
 3929   1C5F FD 77         inc b
 3930   1C61 FA 05 00      lea d, [bp + 5] ; $dest
-3931   1C64 FD 3E         mov [d], bl
+3931   1C64 FD 43         mov [d], b
 3932   1C66 FD 7D         dec b
 3933   1C68 D8            push b
 3934   1C69 FA FC FF      lea d, [bp + -4] ; $digits
