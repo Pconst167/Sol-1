@@ -35,8 +35,6 @@
 
   ** change unary logical not operator to use cmp32 cb, i32 instead of cmo32 ga, i32, when the new instruction is burned in rom 
 
-  ** implement instructions: mov cl, bl; mov cl, bh; mov ch, al; mov ch, ah; etc...
-
   ** implement mov32 b, [d] to move a 32bit integer address by 'd'
 
   ** implement add32 ga, cb and sub32 cb, ga

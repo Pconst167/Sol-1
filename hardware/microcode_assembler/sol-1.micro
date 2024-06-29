@@ -7036,7 +7036,7 @@
   }
 }
 
-0x31, "mov bl, [u16]"{
+0x31, "mov bl, [u16] - mov cl, bl"{
   0{
     next = next_offset
     offset = 1
@@ -7118,9 +7118,18 @@
     marh_wrt = true
     mar_in_src = pc
   }
+
+
+  16{
+    next = next_fetch
+    alu_x = bl
+    alu_op = x
+    alu_mode = logic
+    cl_wrt = true
+  }
 }
 
-0x32, "mov bl, [d]"{
+0x32, "mov bl, [d] - mov cl, bh"{
   0{
     next = next_offset
     offset = 1
@@ -7154,9 +7163,17 @@
     marh_wrt = true
     mar_in_src = pc
   }
+
+  16{
+    next = next_fetch
+    alu_x = bh
+    alu_op = x
+    alu_mode = logic
+    cl_wrt = true
+  }
 }
 
-0x33, "mov bl, [d + i16]"{
+0x33, "mov bl, [d + i16] - mov cl, ah"{
   0{
     next = next_offset
     offset = 1
@@ -7239,6 +7256,15 @@
     marl_wrt = true
     marh_wrt = true
     mar_in_src = pc
+  }
+
+
+  16{
+    next = next_fetch
+    alu_x = ah
+    alu_op = x
+    alu_mode = logic
+    cl_wrt = true
   }
 }
 
@@ -9634,7 +9660,7 @@
   }
 }
 
-0x48, "mov a, sp"{
+0x48, "mov a, sp - mov bl, cl"{
   0{
     next = next_offset
     offset = 1
@@ -9652,6 +9678,14 @@
     marl_wrt = true
     marh_wrt = true
     mar_in_src = pc
+  }
+
+  16{
+    next = next_fetch
+    alu_x = cl
+    alu_op = x
+    alu_mode = logic
+    bl_wrt = true
   }
 }
 
@@ -19963,7 +19997,7 @@
   }
 }
 
-0xB4, "cmp word[d], u16"{
+0xB4, "cmp word[d], u16 - mov bl, ch"{
   0{
     next = next_offset
     offset = 1
@@ -20092,6 +20126,14 @@
     sf_in_src = zbus_7
     of_in_src = alu_of
     alu_y = mdrh
+  }
+
+  16{
+    next = next_fetch
+    alu_x = ch
+    alu_op = x
+    alu_mode = logic
+    bl_wrt = true
   }
 }
 

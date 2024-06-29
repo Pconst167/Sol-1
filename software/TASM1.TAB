@@ -480,3 +480,10 @@ XOR32  GA,CB                    25FD  2    NOP      1
 
 MOV32  CB,@                     2EFD  6    NOP      1
 MOV32  GA,@                     2DFD  6    NOP      1
+
+MOV CL, BL                      31FD  2    NOP      1
+MOV CL, BH                      32FD  2    NOP      1
+MOV CL, AH                      33FD  2    NOP      1
+
+MOV BL, CL
+MOV BL, CH
