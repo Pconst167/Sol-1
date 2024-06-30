@@ -403,3 +403,4 @@ char *find_next_func_header();
 char* basename(char* path);
 int optimize_asm();
 void search_and_add_func();
+char *is_function_in_main_prog(char *name);

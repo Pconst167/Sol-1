@@ -345,6 +345,7 @@ int main(int argc, char *argv[]){
   data_block_p = data_block_asm; // data block pointer
   //expand_all_included_files();
   search_and_add_func();
+  dbg("");
 
   declare_heap();
   pre_processor();
@@ -437,8 +438,8 @@ void search_and_add_func(){
       get();
       if(curr_token.tok == OPENING_PAREN){
         printf("\nFunc found: %s\n", func_name);
-        temp_prog2 = prog;
-        prog = include_files_buffer;
+        char *p = is_function_in_main_prog(func_name);
+        printf("Found? %s", p != NULL ? "yes" : "no");
       }
       else{
         back();
@@ -446,6 +447,33 @@ void search_and_add_func(){
       }
     }
   }
+}
+
+// unsigned long int my_func(int a, char b){}
+char *is_function_in_main_prog(char *name){
+  char *orig_prog = prog;
+  char *temp_prog;
+
+  prog = c_in;
+  for(;;){
+    temp_prog = prog;
+    get();
+    if(curr_token.tok_type == END) return NULL;
+    if(type_detected() == 1){ // if is a function declaration. prog will be pointing to identifier
+      get();
+      if(curr_token.tok_type == IDENTIFIER){
+        if(!strcmp(curr_token.token_str, name)){
+          return temp_prog;
+        }
+      }
+    }
+  }
+
+}
+
+int is_function_included(char *name){
+  char *orig_prog = prog;
+
 }
 
 void build_referenced_func_list(void){
@@ -846,6 +874,8 @@ void pre_processor(void){
 //  1 : function
 // int (*fp)(int, char, int);
 int8_t type_detected(void){
+  char *prog_at_identifier;
+
   if(
     curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED || 
     curr_token.tok == LONG     || curr_token.tok == CONST    || 
@@ -881,20 +911,23 @@ int8_t type_detected(void){
     }
     else back();
     // if not a struct or enum, then the var type has just been gotten
+    prog_at_identifier = prog;
     get();
     if(curr_token.tok == STAR){
-      while(curr_token.tok == STAR) 
+      while(curr_token.tok == STAR){
+        prog_at_identifier = prog;
         get();
+      }
     }
-    else{
-      if(curr_token.tok_type != IDENTIFIER) 
-        error(ERR_FATAL, "Identifier expected in variable or function declaration.");
-    }
+    if(curr_token.tok_type != IDENTIFIER) 
+      error(ERR_FATAL, "Identifier expected in variable or function declaration.");
     get(); // get semicolon, assignment, comma, or opening braces
     if(curr_token.tok == OPENING_PAREN){ //it must be a function declaration
+      prog = prog_at_identifier;
       return 1;
     }
     else{ // it must be a variable declaration
+      prog = prog_at_identifier;
       return 0;
     }
   }
