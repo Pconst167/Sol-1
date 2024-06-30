@@ -454,15 +454,20 @@ char *is_function_in_main_prog(char *name){
   char *orig_prog = prog;
   char *temp_prog;
 
+  orig_prog = prog;
   prog = c_in;
   for(;;){
     temp_prog = prog;
     get();
-    if(curr_token.tok_type == END) return NULL;
+    if(curr_token.tok_type == END){
+      prog = orig_prog;
+      return NULL;
+    }
     if(type_detected() == 1){ // if is a function declaration. prog will be pointing to identifier
       get();
       if(curr_token.tok_type == IDENTIFIER){
         if(!strcmp(curr_token.token_str, name)){
+          prog = orig_prog;
           return temp_prog;
         }
       }
