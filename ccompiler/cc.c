@@ -271,7 +271,7 @@ char included_functions_table[512][ID_LEN];
 t_token curr_token;
 
 char c_in[PROG_SIZE];               // C program-in buffer
-char include_file_buffer[PROG_SIZE];     // buffer for reading in include files
+char include_files_buffer[PROG_SIZE];     // buffer for reading in include files
 char asm_out[ASM_SIZE];             // ASM output
 char data_block_asm[ASM_SIZE];
 char tempbuffer[TEMP_BUFFER_SIZE];
@@ -344,6 +344,7 @@ int main(int argc, char *argv[]){
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
   //expand_all_included_files();
+  search_and_add_func();
 
   declare_heap();
   pre_processor();
@@ -395,38 +396,49 @@ int main(int argc, char *argv[]){
 }
 
 void search_and_add_func(){
-  char *temp_prog;
+  char *temp_prog, *temp_prog2;
   char func_name[ID_LEN];
+  char *main_loc = NULL;
+  int braces = 1;
 
   prog = c_in;
   // search for main()
   for(;;){
     temp_prog = prog;
     get();
+    if(curr_token.tok_type == END) error(ERR_FATAL, "main function not declared.");
     if(curr_token.tok == INT || curr_token.tok == VOID){
       get();
       if(curr_token.tok_type == IDENTIFIER){
         if(!strcmp(curr_token.token_str, "main")){
-
-
+          get(); // get '('
+          while(curr_token.tok != CLOSING_PAREN) get();
+          get(); // get '{'
+          main_loc = prog;
+          break;
         }
-
-      }
-      else{
-        back();
-        continue;
       }
     }
   }
 
+  if(main_loc == NULL) error(ERR_FATAL, "main function not declared.");
+  // here, the main function has been found, start parsing it for function references
+
   for(;;){
     temp_prog = prog;
     get();
+    if(curr_token.tok == OPENING_BRACE) braces++;
+    else if(curr_token.tok == CLOSING_BRACE) braces--;
+    if(braces == 0){ // end of function
+      break;
+    }
     if(curr_token.tok_type == IDENTIFIER){
       strcpy(func_name, curr_token.token_str);
       get();
       if(curr_token.tok == OPENING_PAREN){
-               
+        printf("\nFunc found: %s\n", func_name);
+        temp_prog2 = prog;
+        prog = include_files_buffer;
       }
       else{
         back();
@@ -449,7 +461,7 @@ void expand_all_included_files(void){
   uint8_t found_include;
 
   prog = c_in;
-  pi = include_file_buffer;
+  pi = include_files_buffer;
 
   for(;;){
     get(); 
@@ -476,7 +488,7 @@ void expand_all_included_files(void){
           exit(1);
         }
         delete(temp_prog2, prog - temp_prog2);
-        pi = include_file_buffer;
+        pi = include_files_buffer;
         while(*pi) pi++;
         do{
           *pi = getc(fp);
@@ -485,7 +497,7 @@ void expand_all_included_files(void){
         } while(!feof(fp));
         *(pi - 1) = '\0'; // overwrite the EOF char with NULL
         fclose(fp);
-        prog = include_file_buffer;
+        prog = include_files_buffer;
         found_include = FALSE;
         for(;;){
           temp_prog = prog;
@@ -798,7 +810,7 @@ void pre_processor(void){
           printf("%s: Included source file not found.\n", filename);
           exit(1);
         }
-        p = include_file_buffer;
+        p = include_files_buffer;
         do{
           *p = getc(fp);
           if(*p == '\n') include_files_total_lines++;
@@ -807,7 +819,7 @@ void pre_processor(void){
         *(p - 1) = '\0'; // overwrite the EOF char with NULL
         fclose(fp);
         delete(temp_prog, prog - temp_prog);
-        insert(temp_prog, include_file_buffer);
+        insert(temp_prog, include_files_buffer);
         prog = c_in;
         continue;
       }
