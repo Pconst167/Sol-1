@@ -343,9 +343,8 @@ int main(int argc, char *argv[]){
 
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
-  expand_all_included_files();
-  strcat(include_file_buffer, c_in);
-  dbg(include_file_buffer);
+  //expand_all_included_files();
+
   declare_heap();
   pre_processor();
   pre_scan();
@@ -399,7 +398,26 @@ void search_and_add_func(){
   char *temp_prog;
   char func_name[ID_LEN];
 
-  c_in[0] = '\0';
+  prog = c_in;
+  // search for main()
+  for(;;){
+    temp_prog = prog;
+    get();
+    if(curr_token.tok == INT || curr_token.tok == VOID){
+      get();
+      if(curr_token.tok_type == IDENTIFIER){
+        if(!strcmp(curr_token.token_str, "main")){
+
+
+        }
+
+      }
+      else{
+        back();
+        continue;
+      }
+    }
+  }
 
   for(;;){
     temp_prog = prog;
