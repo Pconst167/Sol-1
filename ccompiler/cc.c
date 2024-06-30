@@ -345,8 +345,6 @@ int main(int argc, char *argv[]){
   data_block_p = data_block_asm; // data block pointer
   expand_all_included_files();
   search_and_add_func();
-  dbg("");
-
   declare_heap_global_var();
   pre_processor();
   pre_scan();
@@ -397,11 +395,13 @@ int main(int argc, char *argv[]){
 }
 
 void search_and_add_func(){
-  char *temp_prog, *temp_prog2;
-  char *function_p;
+  char *temp_prog;
   char func_name[ID_LEN];
   char *main_loc = NULL;
   int braces = 1;
+  t_function_endpoints endpoints = {NULL};
+  char function[FUNCTION_SIZE_MAX_LEN];
+  char *origin, *dest;
 
   prog = c_in;
   // search for main()
@@ -426,6 +426,21 @@ void search_and_add_func(){
   if(main_loc == NULL) error(ERR_FATAL, "main function not declared.");
   // here, the main function has been found, start parsing it for function references
 
+  fetch_included_functions(main_loc);
+
+  prog = c_in;
+}
+
+void fetch_included_functions(char *func_loc){
+  char *temp_prog, *c_in_p;
+  char func_name[ID_LEN];
+  int braces = 1;
+  t_function_endpoints endpoints = {NULL};
+  char function[FUNCTION_SIZE_MAX_LEN];
+  char *origin, *dest;
+
+  prog = func_loc;
+
   for(;;){
     temp_prog = prog;
     get();
@@ -438,14 +453,27 @@ void search_and_add_func(){
       strcpy(func_name, curr_token.token_str);
       get();
       if(curr_token.tok == OPENING_PAREN){
-        printf("\nFunc found: %s\n", func_name);
-        function_p = is_function_in_main_prog(func_name);
-        if(function_p != NULL){
-          printf("Found in program? %s", function_p != NULL ? "yes" : "no");
-        }
-        else{
-          function_p = is_function_included(func_name);
-          printf("Found in includes? %s", function_p != NULL ? "yes" : "no");
+        endpoints = is_function_in_main_prog(func_name);
+        if(endpoints.start == NULL){
+          endpoints = is_function_included(func_name);
+          if(endpoints.start != NULL){ // include function if it exists
+            origin = endpoints.start;
+            dest = function;
+            while(origin != endpoints.end){
+              *dest++ = *origin++;
+            }
+            *dest = '\0';
+            push_prog(); // save current prog location
+            c_in_p = c_in + strlen(c_in); // pointer to the end of c_in, before the concatenation happens
+            strcat(c_in, "\n\n");
+            strcat(c_in, function);
+            prog = c_in_p; // set prog to beginning of the new function so it can be parsed
+            while(*prog != '{') prog++;
+            prog++; // skip '{'
+            // now we are about to start parsing the new function, searching for function references inside of it recursively
+            fetch_included_functions(prog);
+            pop_prog(); // and now resume where we were before we found the function reference and added its code
+          }
         }
       }
       else{
@@ -454,12 +482,14 @@ void search_and_add_func(){
       }
     }
   }
+
 }
 
 // unsigned long int my_func(int a, char b){}
-char *is_function_in_main_prog(char *name){
+t_function_endpoints is_function_in_main_prog(char *name){
   char *orig_prog = prog;
   char *temp_prog;
+  t_function_endpoints endpoints = {NULL};
 
   orig_prog = prog;
   prog = c_in;
@@ -468,23 +498,31 @@ char *is_function_in_main_prog(char *name){
     get();
     if(curr_token.tok_type == END){
       prog = orig_prog;
-      return NULL;
+      endpoints.start = NULL;
+      endpoints.end = NULL;
+      return endpoints;
     }
     if(type_detected() == 1){ // if is a function declaration. prog will be pointing to identifier
       get();
       if(curr_token.tok_type == IDENTIFIER){
         if(!strcmp(curr_token.token_str, name)){
+          endpoints.start = temp_prog;
+          while(*prog != '{') prog++;
+          prog++;
+          skip_block(1); // find final '}' of function block
+          endpoints.end = prog;
           prog = orig_prog;
-          return temp_prog;
+          return endpoints;
         }
       }
     }
   }
 }
 
-char *is_function_included(char *name){
+t_function_endpoints is_function_included(char *name){
   char *orig_prog = prog;
   char *temp_prog;
+  t_function_endpoints endpoints = {NULL};
 
   orig_prog = prog;
   prog = include_files_buffer;
@@ -492,20 +530,26 @@ char *is_function_included(char *name){
     temp_prog = prog;
     get();
     if(curr_token.tok_type == END){
+      endpoints.start = NULL;
+      endpoints.end = NULL;
       prog = orig_prog;
-      return NULL;
+      return endpoints;
     }
     if(type_detected() == 1){ // if is a function declaration. prog will be pointing to identifier
       get();
       if(curr_token.tok_type == IDENTIFIER){
         if(!strcmp(curr_token.token_str, name)){
+          endpoints.start = temp_prog;
+          while(*prog != '{') prog++;
+          prog++;
+          skip_block(1); // find final '}' of function block
+          endpoints.end = prog;
           prog = orig_prog;
-          return temp_prog;
+          return endpoints;
         }
       }
     }
   }
-  dbg("OK");
 }
 
 void build_referenced_func_list(void){
@@ -555,7 +599,9 @@ void expand_all_included_files(void){
           if(*pi == '\n') include_files_total_lines++;
           pi++;
         } while(!feof(fp));
-        *(pi - 1) = '\0'; // overwrite the EOF char with NULL
+        *(pi-1) = '\n';
+        *pi++ = '\n';
+        *(pi) = '\0'; // overwrite the EOF char with NULL
         fclose(fp);
         prog = include_files_buffer;
         found_include = FALSE;
@@ -807,12 +853,12 @@ void delete(char *start, int len){
   }
 }
 
-void insert(char *text, char *new_text){
-  char *p = text;
+void insert(char *destination, char *new_text){
+  char *p = destination;
   char *p2 = new_text;
   int len = strlen(new_text);
   while(*p) p++; // fast forwards to end of text
-  while(p > text){
+  while(p > destination){
     *(p + len) = *p;
     *p = ' ';
     p--;
@@ -998,7 +1044,7 @@ void pre_scan(void){
     else if(declaration_kind == 1){
       prog = tp;
       declare_func();
-      skip_block();
+      skip_block(0);
       continue;
     }
     else if(declaration_kind == -1){
@@ -1861,7 +1907,7 @@ void declare_func(void){
     function_table[function_table_tos].code_location = prog; // sets the function starting point to  just after the "(" curr_token.token_str
     get(); // gets to the "{" curr_token.token_str
     if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening curly braces expected");
-    back(); // puts the "{" back so that it can be found by skip_block()
+    back(); // puts the "{" back so that it can be found by skip_block(0)
     function_table_tos++;
 }
 
@@ -2217,7 +2263,7 @@ void skip_case(void){
     get();
     if(curr_token.tok == OPENING_BRACE){
       back();
-      skip_block();
+      skip_block(0);
       get();
     }
   } while(curr_token.tok != CASE && curr_token.tok != DEFAULT && curr_token.tok != CLOSING_BRACE);
@@ -2476,7 +2522,7 @@ void skip_statements(void){
       break;
     case OPENING_BRACE: // if it's a block, then the block is skipped
       back();
-      skip_block();
+      skip_block(0);
       break;
     case FOR:
       get();
@@ -2502,9 +2548,7 @@ void skip_statements(void){
   }
 }
 
-void skip_block(void){
-  int braces = 0;
-  
+void skip_block(int braces){
   do{
     get();
     if(curr_token.tok == OPENING_BRACE) braces++;

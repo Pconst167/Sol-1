@@ -28,10 +28,6 @@ FILE *fopen(char *filename, uint8_t mode){
   max_handle++;
 }
 
-void fclose(FILE *fp){
-  free(sizeof(FILE));
-}
-
 /*
 struct va_list_t{
   char *current_arg; // pointer to current argument
@@ -52,6 +48,11 @@ void va_end(struct va_list_t *argp) {
   argp->current_arg = NULL;
 }
 */
+
+void fclose(FILE *fp){
+  free(sizeof(FILE));
+}
+
 
 void printf(const char *format, ...){
   char *p, *format_p;

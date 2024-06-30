@@ -8,9 +8,19 @@ void main(){
 
   print_signed(123);
 
+
+  strcpy("Hello", "World");
+
+
+  strcat("Hi", "Hello");
 }
 
 
 int myfunc(int a){
 
+}
+void include_stdio_asm(){
+  asm{
+    .include "lib/asm/stdio.asm"
+  }
 }

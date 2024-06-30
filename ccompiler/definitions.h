@@ -4,6 +4,7 @@
 #define TOKEN_LEN                  4096
 #define CONST_LEN                  4096
 #define ID_LEN                     512
+#define FUNCTION_SIZE_MAX_LEN      6 * 1024
 #define MAX_DEFINES                512
 #define MAX_DEFINE_LEN             4096
 #define MAX_ENUM_DECLARATIONS      32
@@ -227,6 +228,11 @@ typedef struct {
   uint8_t  num_fixed_args;
 } t_function;
 
+typedef struct{
+  char *start;
+  char *end;
+} t_function_endpoints;
+
 // functions
 char is_delimiter(char c);
 char is_identifier_char(char c);
@@ -272,7 +278,7 @@ void emit_static_var_initialization(t_var *var);
 t_type emit_var_addr_into_d(char *var_name);
 
 void skip_statements(void);
-void skip_block(void);
+void skip_block(int braces);
 void skip_case(void);
 
 int count_cases(void);
@@ -365,7 +371,7 @@ char find_cmdline_switch(int argc, char **argv, char *_switch);
 void insert_runtime(void);
 void declare_heap_global_var(void);
 void delete(char *start, int len);
-void insert(char *text, char *new_text);
+void insert(char *destination, char *new_text);
 
 int is_register(char *name);
 int is_assignment(void);
@@ -403,5 +409,6 @@ char *find_next_func_header();
 char* basename(char* path);
 int optimize_asm();
 void search_and_add_func();
-char *is_function_in_main_prog(char *name);
-char *is_function_included(char *name);
+t_function_endpoints is_function_in_main_prog(char *name);
+t_function_endpoints is_function_included(char *name);
+void fetch_included_functions(char *func_loc);
