@@ -5,9 +5,9 @@
 void main(){
 	120 + myfunc(1);
   printf("Hello");
-  strcpy("ss", "sss");
 
-  1 + 2 || strcat("HH","JJJ");
+  print_signed(123);
+
 }
 
 

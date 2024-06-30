@@ -343,11 +343,11 @@ int main(int argc, char *argv[]){
 
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
-  //expand_all_included_files();
+  expand_all_included_files();
   search_and_add_func();
   dbg("");
 
-  declare_heap();
+  declare_heap_global_var();
   pre_processor();
   pre_scan();
 
@@ -398,6 +398,7 @@ int main(int argc, char *argv[]){
 
 void search_and_add_func(){
   char *temp_prog, *temp_prog2;
+  char *function_p;
   char func_name[ID_LEN];
   char *main_loc = NULL;
   int braces = 1;
@@ -438,8 +439,14 @@ void search_and_add_func(){
       get();
       if(curr_token.tok == OPENING_PAREN){
         printf("\nFunc found: %s\n", func_name);
-        char *p = is_function_in_main_prog(func_name);
-        printf("Found? %s", p != NULL ? "yes" : "no");
+        function_p = is_function_in_main_prog(func_name);
+        if(function_p != NULL){
+          printf("Found in program? %s", function_p != NULL ? "yes" : "no");
+        }
+        else{
+          function_p = is_function_included(func_name);
+          printf("Found in includes? %s", function_p != NULL ? "yes" : "no");
+        }
       }
       else{
         back();
@@ -473,12 +480,32 @@ char *is_function_in_main_prog(char *name){
       }
     }
   }
-
 }
 
-int is_function_included(char *name){
+char *is_function_included(char *name){
   char *orig_prog = prog;
+  char *temp_prog;
 
+  orig_prog = prog;
+  prog = include_files_buffer;
+  for(;;){
+    temp_prog = prog;
+    get();
+    if(curr_token.tok_type == END){
+      prog = orig_prog;
+      return NULL;
+    }
+    if(type_detected() == 1){ // if is a function declaration. prog will be pointing to identifier
+      get();
+      if(curr_token.tok_type == IDENTIFIER){
+        if(!strcmp(curr_token.token_str, name)){
+          prog = orig_prog;
+          return temp_prog;
+        }
+      }
+    }
+  }
+  dbg("OK");
 }
 
 void build_referenced_func_list(void){
@@ -638,7 +665,7 @@ int is_register(char *name){
   else return 0;
 }
 
-void declare_heap(){
+void declare_heap_global_var(){
   strcpy(global_var_table[global_var_tos].name, "heap_top");
   global_var_table[global_var_tos].type.primitive_type = DT_CHAR;
   global_var_table[global_var_tos].type.is_constant = FALSE;
@@ -899,33 +926,15 @@ int8_t type_detected(void){
     ){
       get();
     }
-    
-    if(curr_token.tok == STRUCT){
-      get(); // get struct's type name
-      if(curr_token.tok_type != IDENTIFIER) 
-        error(ERR_FATAL, "Struct's type name expected.");
-    }
-    else if(curr_token.tok == ENUM){
-      get(); // get enum's type name
-      if(curr_token.tok_type != IDENTIFIER) 
-        error(ERR_FATAL, "Enum's type name expected.");
-    }
-    get();
-    if(curr_token.tok == OPENING_PAREN){ // function pointer
-      return 0;
-    }
-    else back();
-    // if not a struct or enum, then the var type has just been gotten
     prog_at_identifier = prog;
     get();
+    // if not a struct or enum, then the var type has just been gotten
     if(curr_token.tok == STAR){
       while(curr_token.tok == STAR){
         prog_at_identifier = prog;
         get();
       }
     }
-    if(curr_token.tok_type != IDENTIFIER) 
-      error(ERR_FATAL, "Identifier expected in variable or function declaration.");
     get(); // get semicolon, assignment, comma, or opening braces
     if(curr_token.tok == OPENING_PAREN){ //it must be a function declaration
       prog = prog_at_identifier;
@@ -984,15 +993,18 @@ void pre_scan(void){
     if(declaration_kind == 0){
       prog = tp;
       declare_global();
+      continue;
     }
     else if(declaration_kind == 1){
       prog = tp;
       declare_func();
       skip_block();
+      continue;
     }
     else if(declaration_kind == -1){
       error(ERR_FATAL, "Unexpected token during pre-scan phase: %s", curr_token.token_str);
     }
+    get();
   } while(curr_token.tok_type != END);
 }
 
@@ -1377,6 +1389,7 @@ void declare_global(void){
   do{
     if(global_var_tos == MAX_GLOBAL_VARS) error(ERR_FATAL, "Max number of global variable declarations exceeded");
     global_var_table[global_var_tos].type             = type;
+    global_var_table[global_var_tos].is_register      = FALSE;
     global_var_table[global_var_tos].is_volatile      = is_volatile;
     global_var_table[global_var_tos].is_static        = is_static;
     global_var_table[global_var_tos].type.is_constant = is_const;

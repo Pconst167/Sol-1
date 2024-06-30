@@ -363,7 +363,7 @@ char find_cmdline_switch(int argc, char **argv, char *_switch);
 
 
 void insert_runtime(void);
-void declare_heap(void);
+void declare_heap_global_var(void);
 void delete(char *start, int len);
 void insert(char *text, char *new_text);
 
@@ -404,3 +404,4 @@ char* basename(char* path);
 int optimize_asm();
 void search_and_add_func();
 char *is_function_in_main_prog(char *name);
+char *is_function_included(char *name);
