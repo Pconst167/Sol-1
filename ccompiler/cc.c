@@ -1101,6 +1101,126 @@ t_type get_type(){
 
   return type;
 }
+
+/*
+union my_union_t{
+  char c;
+  int i;
+  char ca[10];
+  struct struct_t my_struct[5];
+} i1[5];
+*/
+int declare_union(){
+  int element_tos;
+  int curr_struct_enum_union_id;
+  int struct_enum_union_id;
+  t_struct new_struct;
+  int struct_is_embedded = 0;
+  int typedef_id;
+
+  if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error(ERR_FATAL, "Max number of struct declarations reached");
+  
+  curr_struct_enum_union_id = struct_table_tos;
+  get(); // 'struct'
+  if(curr_token.tok != OPENING_BRACE) get(); // try getting struct name, but only if the current curr_token.token_str is not a brace, which means we are inside a struct declaration already and one of the members was an implicit struct that had no name, but is an elememnt of a previous struct
+  if(curr_token.tok_type == IDENTIFIER){
+    strcpy(new_struct.name, curr_token.token_str);
+    strcpy(struct_table[struct_table_tos].name, curr_token.token_str);
+    get(); // '{'
+    if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
+    // Add the new struct to the struct table prematurely so that any elements in this struct that are pointers of this struct type can be recognized by a search
+    struct_table_tos++;
+  }
+  else if(curr_token.tok == OPENING_BRACE){ // implicit struct declaration inside a struct itself
+    struct_is_embedded = 1;
+  // assign a null string to the struct name then
+    *new_struct.name = '\0'; // okay to do since we dont use struct names as the end point of search loops. we use 'struct_table_tos'
+    struct_table_tos++;
+  }
+
+  element_tos = 0;
+  do{
+    if(element_tos == MAX_STRUCT_ELEMENTS) error(ERR_FATAL, "Max number of struct elements reached");
+    get();
+    if((typedef_id = search_typedef(curr_token.token_str)) != -1){
+      new_struct.elements[element_tos].type = typedef_table[typedef_id].type;
+      get();
+    }
+    else{
+      new_struct.elements[element_tos].type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default
+      new_struct.elements[element_tos].type.size_modifier = SIZEMOD_NORMAL; // set as signed by default
+      while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){
+            if(curr_token.tok == SIGNED)   new_struct.elements[element_tos].type.sign_modifier = SIGNMOD_SIGNED;
+        else if(curr_token.tok == UNSIGNED) new_struct.elements[element_tos].type.sign_modifier = SIGNMOD_UNSIGNED;
+        else if(curr_token.tok == SHORT)    new_struct.elements[element_tos].type.size_modifier   = SIZEMOD_SHORT;
+        else if(curr_token.tok == LONG)     new_struct.elements[element_tos].type.size_modifier   = SIZEMOD_LONG;
+        get();
+      }
+      new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
+      new_struct.elements[element_tos].type.struct_enum_union_id = -1;
+      if(new_struct.elements[element_tos].type.primitive_type == DT_STRUCT){
+        get();
+        if(curr_token.tok == OPENING_BRACE){ // internal struct declaration!
+          back();
+          struct_enum_union_id = declare_struct();
+          get(); // get element name
+        }
+        else{
+          if((struct_enum_union_id = search_struct(curr_token.token_str)) == -1) error(ERR_FATAL, "Undeclared struct");
+          get();
+        }
+        new_struct.elements[element_tos].type.struct_enum_union_id = struct_enum_union_id;
+      }
+      else get();
+
+      new_struct.elements[element_tos].type.ind_level = 0;
+      while(curr_token.tok == STAR){
+        new_struct.elements[element_tos].type.ind_level++;
+        get();
+      }
+    }
+
+    if(new_struct.elements[element_tos].type.primitive_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) 
+      error(ERR_FATAL, "Invalid type in variable");
+
+    strcpy(new_struct.elements[element_tos].name, curr_token.token_str);
+    new_struct.elements[element_tos].type.dims[0] = 0;
+    get();
+    // checks if this is a array declaration
+    int dim = 0;
+    if(curr_token.tok == OPENING_BRACKET){
+      while(curr_token.tok == OPENING_BRACKET){
+        get();
+        if(curr_token.tok_type != INTEGER_CONST) error(ERR_FATAL, "Constant expected");
+        new_struct.elements[element_tos].type.dims[dim] = atoi(curr_token.token_str);
+        get();
+        if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
+        get();
+        dim++;
+      }
+      new_struct.elements[element_tos].type.dims[dim] = 0; // sets the last dimention to 0, to mark the end of the list
+    }
+    element_tos++;
+    get();
+    if(curr_token.tok != CLOSING_BRACE) back();
+  } while(curr_token.tok != CLOSING_BRACE);
+  
+  new_struct.elements[element_tos].name[0] = '\0'; // end elements list
+  struct_table[curr_struct_enum_union_id] = new_struct; 
+
+  get();
+
+  if(curr_token.tok_type == IDENTIFIER && struct_is_embedded){
+    back();
+  }
+  else if (curr_token.tok_type == IDENTIFIER){ // declare variables if present
+    back();
+    declare_struct_global_vars(curr_struct_enum_union_id);
+  }
+  else if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected after struct declaration.");
+
+  return curr_struct_enum_union_id; // return struct_enum_union_id
+}
              
 /*
 struct t_shell_var{
