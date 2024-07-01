@@ -15,6 +15,8 @@
 #define MAX_MATRIX_DIMS            8
 #define MAX_STRUCT_DECLARATIONS    64
 #define MAX_STRUCT_ELEMENTS        32
+#define MAX_UNION_DECLARATIONS     64
+#define MAX_UNION_ELEMENTS         32
 #define MAX_TYPEDEFS               128
 #define MAX_USER_FUNC              512
 #define PROG_SIZE                  512 * 1024
@@ -42,7 +44,7 @@ typedef enum{
 
 // basic data types
 typedef enum {
-  DT_VOID = 1, DT_CHAR, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRUCT, DT_ENUM, DT_FUNCPTR
+  DT_VOID = 1, DT_CHAR, DT_INT, DT_FLOAT, DT_DOUBLE, DT_STRUCT, DT_ENUM, DT_UNION, DT_FUNCPTR
 } t_primitive_type;
 
 typedef enum {
@@ -186,7 +188,7 @@ typedef struct {
   t_bool           is_func_ptr;
   t_bool           is_constant; // is it a constant?
   t_bool           ind_level; // holds the pointer indirection level
-  int16_t          struct_enum_id; // struct ID or enum ID if var is a struct or enum
+  int16_t          struct_enum_union_id; // struct ID or enum ID if var is a struct or enum
   uint16_t         dims[MAX_MATRIX_DIMS];
 } t_type;
 
@@ -203,6 +205,13 @@ typedef struct{
   } elements[MAX_STRUCT_ELEMENTS];
 } t_struct;
 
+typedef struct{
+  char name[ID_LEN];
+  struct{
+    char name[ID_LEN];
+    t_type type;
+  } elements[MAX_UNION_ELEMENTS];
+} t_union;
 
 typedef struct {
   char    name[ID_LEN];

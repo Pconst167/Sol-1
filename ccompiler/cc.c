@@ -241,6 +241,7 @@ t_function function_table[MAX_USER_FUNC];
 t_function included_functions[MAX_USER_FUNC];
 t_enum enum_table[MAX_ENUM_DECLARATIONS];
 t_struct struct_table[MAX_STRUCT_DECLARATIONS];
+t_struct union_table[MAX_UNION_DECLARATIONS];
 t_var global_var_table[MAX_GLOBAL_VARS];
 char string_table[STRING_TABLE_SIZE][TOKEN_LEN];
 
@@ -255,6 +256,7 @@ int function_table_tos;
 int global_var_tos;
 int enum_table_tos;
 int struct_table_tos;
+int union_table_tos;
 int defines_tos;
 int typedef_table_tos;
 int string_table_tos;
@@ -1057,7 +1059,7 @@ void pre_scan(void){
 t_type get_type(){
   t_type type = {0};
   int typedef_id;
-  int struct_enum_id;
+  int struct_enum_union_id;
   
   get();                                                                       
   if((typedef_id = search_typedef(curr_token.token_str)) != -1){                              
@@ -1075,19 +1077,19 @@ t_type get_type(){
       get();                                                                   
     }                                                                          
     type.primitive_type = get_primitive_type_from_tok();                       
-    type.struct_enum_id = -1;                                                       
+    type.struct_enum_union_id = -1;                                                       
 
     if(type.primitive_type == DT_STRUCT){                                      
       get();                                                                   
-      if((struct_enum_id = search_struct(curr_token.token_str)) == -1) 
+      if((struct_enum_union_id = search_struct(curr_token.token_str)) == -1) 
         error(ERR_FATAL, "Undeclared struct: %s", curr_token.token_str);
-      type.struct_enum_id = struct_enum_id;
+      type.struct_enum_union_id = struct_enum_union_id;
     }
     else if(type.primitive_type == DT_ENUM){                                      
       get();                                                                   
-      if((struct_enum_id = search_enum(curr_token.token_str)) == -1) 
+      if((struct_enum_union_id = search_enum(curr_token.token_str)) == -1) 
         error(ERR_FATAL, "Undeclared enum: %s", curr_token.token_str);
-      type.struct_enum_id = struct_enum_id;
+      type.struct_enum_union_id = struct_enum_union_id;
     }
     // check if is function pointer
     get();
@@ -1111,15 +1113,15 @@ int vars_tos;
 */
 int declare_struct(){
   int element_tos;
-  int curr_struct_enum_id;
-  int struct_enum_id;
+  int curr_struct_enum_union_id;
+  int struct_enum_union_id;
   t_struct new_struct;
   int struct_is_embedded = 0;
   int typedef_id;
 
   if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error(ERR_FATAL, "Max number of struct declarations reached");
   
-  curr_struct_enum_id = struct_table_tos;
+  curr_struct_enum_union_id = struct_table_tos;
   get(); // 'struct'
   if(curr_token.tok != OPENING_BRACE) get(); // try getting struct name, but only if the current curr_token.token_str is not a brace, which means we are inside a struct declaration already and one of the members was an implicit struct that had no name, but is an elememnt of a previous struct
   if(curr_token.tok_type == IDENTIFIER){
@@ -1156,19 +1158,19 @@ int declare_struct(){
         get();
       }
       new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
-      new_struct.elements[element_tos].type.struct_enum_id = -1;
+      new_struct.elements[element_tos].type.struct_enum_union_id = -1;
       if(new_struct.elements[element_tos].type.primitive_type == DT_STRUCT){
         get();
         if(curr_token.tok == OPENING_BRACE){ // internal struct declaration!
           back();
-          struct_enum_id = declare_struct();
+          struct_enum_union_id = declare_struct();
           get(); // get element name
         }
         else{
-          if((struct_enum_id = search_struct(curr_token.token_str)) == -1) error(ERR_FATAL, "Undeclared struct");
+          if((struct_enum_union_id = search_struct(curr_token.token_str)) == -1) error(ERR_FATAL, "Undeclared struct");
           get();
         }
-        new_struct.elements[element_tos].type.struct_enum_id = struct_enum_id;
+        new_struct.elements[element_tos].type.struct_enum_union_id = struct_enum_union_id;
       }
       else get();
 
@@ -1205,7 +1207,7 @@ int declare_struct(){
   } while(curr_token.tok != CLOSING_BRACE);
   
   new_struct.elements[element_tos].name[0] = '\0'; // end elements list
-  struct_table[curr_struct_enum_id] = new_struct; 
+  struct_table[curr_struct_enum_union_id] = new_struct; 
 
   get();
 
@@ -1214,11 +1216,11 @@ int declare_struct(){
   }
   else if (curr_token.tok_type == IDENTIFIER){ // declare variables if present
     back();
-    declare_struct_global_vars(curr_struct_enum_id);
+    declare_struct_global_vars(curr_struct_enum_union_id);
   }
   else if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected after struct declaration.");
 
-  return curr_struct_enum_id; // return struct_enum_id
+  return curr_struct_enum_union_id; // return struct_enum_union_id
 }
 
 int insert_var_name(char *name, char array[32][ID_LEN]){
@@ -1571,16 +1573,16 @@ void declare_typedef(void){
     get();
   }
   type.primitive_type = get_primitive_type_from_tok();
-  type.struct_enum_id = -1;
+  type.struct_enum_union_id = -1;
   if(type.primitive_type == DT_STRUCT){ // check if this is a struct
     get();
-    type.struct_enum_id = search_struct(curr_token.token_str);
-    if(type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared struct in typedef declaration: %s", curr_token.token_str);
+    type.struct_enum_union_id = search_struct(curr_token.token_str);
+    if(type.struct_enum_union_id == -1) error(ERR_FATAL, "Undeclared struct in typedef declaration: %s", curr_token.token_str);
   }
   else if(type.primitive_type == DT_ENUM){ // check if this is an enum 
     get();
-    type.struct_enum_id = search_enum(curr_token.token_str);
-    if(type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared enum in typedef declaration: %s", curr_token.token_str);
+    type.struct_enum_union_id = search_enum(curr_token.token_str);
+    if(type.struct_enum_union_id == -1) error(ERR_FATAL, "Undeclared enum in typedef declaration: %s", curr_token.token_str);
   }
 
   get();
@@ -1658,7 +1660,7 @@ void declare_struct_global_vars(int struct_id){
     
     global_var_table[global_var_tos].type.primitive_type = DT_STRUCT;
     global_var_table[global_var_tos].type.ind_level = ind_level;
-    global_var_table[global_var_tos].type.struct_enum_id = struct_id;
+    global_var_table[global_var_tos].type.struct_enum_union_id = struct_id;
     global_var_table[global_var_tos].type.dims[0] = 0;
     strcpy(global_var_table[global_var_tos].name, curr_token.token_str);
     get();
@@ -1751,16 +1753,16 @@ void declare_func(void){
       get();
     }
     function_table[function_table_tos].return_type.primitive_type = get_primitive_type_from_tok();
-    function_table[function_table_tos].return_type.struct_enum_id = -1;
+    function_table[function_table_tos].return_type.struct_enum_union_id = -1;
     if(function_table[function_table_tos].return_type.primitive_type == DT_STRUCT){ // check if this is a struct
       get();
-      function_table[function_table_tos].return_type.struct_enum_id = search_struct(curr_token.token_str);
-      if(function_table[function_table_tos].return_type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared struct '%s' in function return type", curr_token.token_str);
+      function_table[function_table_tos].return_type.struct_enum_union_id = search_struct(curr_token.token_str);
+      if(function_table[function_table_tos].return_type.struct_enum_union_id == -1) error(ERR_FATAL, "Undeclared struct '%s' in function return type", curr_token.token_str);
     }
     else if(function_table[function_table_tos].return_type.primitive_type == DT_ENUM){
       get();
-      function_table[function_table_tos].return_type.struct_enum_id = search_enum(curr_token.token_str);
-      if(function_table[function_table_tos].return_type.struct_enum_id == -1) error(ERR_FATAL, "Undeclared enum '%s' in function return type", curr_token.token_str);
+      function_table[function_table_tos].return_type.struct_enum_union_id = search_enum(curr_token.token_str);
+      if(function_table[function_table_tos].return_type.struct_enum_union_id == -1) error(ERR_FATAL, "Undeclared enum '%s' in function return type", curr_token.token_str);
     }
   }
 
@@ -1842,17 +1844,17 @@ void declare_func(void){
           error(ERR_FATAL, "unknown or undeclared type given in argument declaration for function: %s", function_table[function_table_tos].name);
         // gets the parameter type
         function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type = get_primitive_type_from_tok();
-        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id = -1;
+        function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_union_id = -1;
         if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type == DT_STRUCT){ // check if this is a struct
           get();
-          function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id = search_struct(curr_token.token_str);
-          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id == -1) 
+          function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_union_id = search_struct(curr_token.token_str);
+          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_union_id == -1) 
             error(ERR_FATAL, "Undeclared struct: %s", curr_token.token_str);
         }
         else if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.primitive_type == DT_ENUM){ 
           get();
-          function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id = search_enum(curr_token.token_str);
-          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_id == -1) 
+          function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_union_id = search_enum(curr_token.token_str);
+          if(function_table[function_table_tos].local_vars[function_table[function_table_tos].local_var_tos].type.struct_enum_union_id == -1) 
             error(ERR_FATAL, "Undeclared enum: %s", curr_token.token_str);
         }
         get();
@@ -1915,12 +1917,12 @@ void declare_goto_label(void) {
 
 int get_param_size(){
   int data_size;
-  int struct_enum_id;
+  int struct_enum_union_id;
   t_size_modifier size_modifier;
   int typedef_id;
 
   data_size = 0;
-  struct_enum_id = -1;
+  struct_enum_union_id = -1;
   size_modifier = SIZEMOD_NORMAL;  
   get();
   while(curr_token.tok == CONST  || curr_token.tok == STATIC   ||
@@ -1956,8 +1958,8 @@ int get_param_size(){
       break;
     case STRUCT:
       get(); // get struct name
-      struct_enum_id = search_struct(curr_token.token_str);
-      data_size = get_struct_size(struct_enum_id);
+      struct_enum_union_id = search_struct(curr_token.token_str);
+      data_size = get_struct_size(struct_enum_union_id);
       break;
     case ENUM:
       get(); // get enum name
@@ -4165,7 +4167,7 @@ t_type cast(t_type t1, t_type t2){
             type.sign_modifier = SIGNMOD_SIGNED;
             type.dims[0] = 0;
             type.size_modifier = SIZEMOD_NORMAL;
-            type.struct_enum_id = -1;
+            type.struct_enum_union_id = -1;
           }
           break;
         case DT_INT:
@@ -4343,15 +4345,15 @@ t_type emit_var_addr_into_d(char *var_name){
       else if(curr_token.tok == STRUCT_DOT){
         get(); // get element name
         strcpy(element_name, curr_token.token_str);
-        offset = get_struct_element_offset(type.struct_enum_id, element_name);
-        type = get_struct_element_type(type.struct_enum_id, element_name);
+        offset = get_struct_element_offset(type.struct_enum_union_id, element_name);
+        type = get_struct_element_type(type.struct_enum_union_id, element_name);
         emitln("  add d, %d", offset);
       }
       else if(curr_token.tok == STRUCT_ARROW){
         get(); // get element name
         strcpy(element_name, curr_token.token_str);
-        offset = get_struct_element_offset(type.struct_enum_id, element_name);
-        type = get_struct_element_type(type.struct_enum_id, element_name);
+        offset = get_struct_element_offset(type.struct_enum_union_id, element_name);
+        type = get_struct_element_type(type.struct_enum_union_id, element_name);
         //get_var_base_addr(temp, var_name);
         emitln("  mov d, [d]");
         emitln("  add d, %d", offset);
@@ -4429,7 +4431,7 @@ int get_primitive_type_size(t_type type){
       else
         return 2;
     case DT_STRUCT:
-      return get_struct_size(type.struct_enum_id);
+      return get_struct_size(type.struct_enum_union_id);
     case DT_ENUM:
       return 2;
   }
@@ -4450,7 +4452,7 @@ int get_type_size_for_func_arg_parsing(t_type type){
       else
         return 2;
     case DT_STRUCT:
-      return get_struct_size(type.struct_enum_id);
+      return get_struct_size(type.struct_enum_union_id);
     case DT_ENUM:
       return 2;
   }
@@ -4479,7 +4481,7 @@ int get_struct_size(int id){
             size += array_size * 2;
           break;
         case DT_STRUCT:
-          size += array_size * get_struct_size(struct_table[id].elements[i].type.struct_enum_id);
+          size += array_size * get_struct_size(struct_table[id].elements[i].type.struct_enum_union_id);
           break;
         case DT_ENUM:
           size += array_size * 2;
@@ -4522,7 +4524,7 @@ int get_data_size_for_indexing(t_type type){
       else
         return 2;
     case DT_STRUCT:
-      return get_struct_size(type.struct_enum_id);
+      return get_struct_size(type.struct_enum_union_id);
     case DT_ENUM:
       return 2;
   }
@@ -4558,7 +4560,7 @@ void parse_struct_initialization_data(int struct_id, int array_size){
         switch(struct_table[struct_id].elements[i].type.primitive_type){
           case DT_STRUCT:
             expect(OPENING_BRACE, "Opening braces expected for array or struct element initialization.");
-            parse_struct_initialization_data(struct_table[struct_id].elements[i].type.struct_enum_id, 1);
+            parse_struct_initialization_data(struct_table[struct_id].elements[i].type.struct_enum_union_id, 1);
             break;
           case DT_VOID:
             emit_data(".dw $%04x\n", curr_token.int_const);
@@ -4619,9 +4621,9 @@ void parse_struct_initialization_data(int struct_id, int array_size){
   }
 }
 
-int get_struct_elements_count(int struct_enum_id){
+int get_struct_elements_count(int struct_enum_union_id){
   int total;
-  for(total = 0; *struct_table[struct_enum_id].elements[total].name; total++);
+  for(total = 0; *struct_table[struct_enum_union_id].elements[total].name; total++);
   return total;
 }
 
