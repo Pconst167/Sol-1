@@ -411,3 +411,4 @@ int optimize_asm();
 void search_and_add_func();
 t_function_endpoints locate_function(char *location, char *name);
 void fetch_included_functions(char *func_loc);
+void declare_all_defines();

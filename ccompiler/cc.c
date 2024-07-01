@@ -344,6 +344,7 @@ int main(int argc, char *argv[]){
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
   expand_all_included_files();
+  declare_all_defines();
   search_and_add_func();
   declare_heap_global_var();
   pre_processor();
@@ -521,6 +522,40 @@ t_function_endpoints locate_function(char *location, char *name){
 
 void build_referenced_func_list(void){
   uint16_t braces;
+}
+
+void declare_all_defines(){
+  FILE *fp;
+  int i, define_id;
+  char *p, *temp_prog, *temp_prog2;
+  char *pi;
+  char filename[256];
+
+  prog = c_in;
+  for(;;){
+    get(); 
+    if(curr_token.tok_type == END) break;
+    if(curr_token.tok == DIRECTIVE){
+      get();
+      if(curr_token.tok == DEFINE){
+        declare_define();
+      }
+    }
+  } 
+
+  prog = include_files_buffer;
+  for(;;){
+    get(); 
+    if(curr_token.tok_type == END) break;
+    if(curr_token.tok == DIRECTIVE){
+      get();
+      if(curr_token.tok == DEFINE){
+        declare_define();
+      }
+    }
+  } 
+
+  prog = c_in;
 }
 
 void expand_all_included_files(void){
