@@ -409,6 +409,5 @@ char *find_next_func_header();
 char* basename(char* path);
 int optimize_asm();
 void search_and_add_func();
-t_function_endpoints is_function_in_main_prog(char *name);
-t_function_endpoints is_function_included(char *name);
+t_function_endpoints locate_function(char *location, char *name);
 void fetch_included_functions(char *func_loc);

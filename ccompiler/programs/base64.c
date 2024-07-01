@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <stdio2.h>
 
 char *base64_table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 

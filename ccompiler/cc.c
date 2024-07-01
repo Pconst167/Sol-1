@@ -233,7 +233,7 @@ char *runtime_argc_argv_getter = "\n\n\
     argc++;\n\
   }\n";
 */
-char libc_directory[] = "./lib/";
+char *libc_directory = "./lib/";
 
 defines_table_t defines_table[MAX_DEFINES];
 t_typedef typedef_table[MAX_TYPEDEFS];
@@ -453,9 +453,9 @@ void fetch_included_functions(char *func_loc){
       strcpy(func_name, curr_token.token_str);
       get();
       if(curr_token.tok == OPENING_PAREN){
-        endpoints = is_function_in_main_prog(func_name);
+        endpoints = locate_function(c_in, func_name);
         if(endpoints.start == NULL){
-          endpoints = is_function_included(func_name);
+          endpoints = locate_function(include_files_buffer, func_name);
           if(endpoints.start != NULL){ // include function if it exists
             origin = endpoints.start;
             dest = function;
@@ -486,13 +486,13 @@ void fetch_included_functions(char *func_loc){
 }
 
 // unsigned long int my_func(int a, char b){}
-t_function_endpoints is_function_in_main_prog(char *name){
+t_function_endpoints locate_function(char *location, char *name){
   char *orig_prog = prog;
   char *temp_prog;
   t_function_endpoints endpoints = {NULL};
 
   orig_prog = prog;
-  prog = c_in;
+  prog = location;
   for(;;){
     temp_prog = prog;
     get();
@@ -500,39 +500,6 @@ t_function_endpoints is_function_in_main_prog(char *name){
       prog = orig_prog;
       endpoints.start = NULL;
       endpoints.end = NULL;
-      return endpoints;
-    }
-    if(type_detected() == 1){ // if is a function declaration. prog will be pointing to identifier
-      get();
-      if(curr_token.tok_type == IDENTIFIER){
-        if(!strcmp(curr_token.token_str, name)){
-          endpoints.start = temp_prog;
-          while(*prog != '{') prog++;
-          prog++;
-          skip_block(1); // find final '}' of function block
-          endpoints.end = prog;
-          prog = orig_prog;
-          return endpoints;
-        }
-      }
-    }
-  }
-}
-
-t_function_endpoints is_function_included(char *name){
-  char *orig_prog = prog;
-  char *temp_prog;
-  t_function_endpoints endpoints = {NULL};
-
-  orig_prog = prog;
-  prog = include_files_buffer;
-  for(;;){
-    temp_prog = prog;
-    get();
-    if(curr_token.tok_type == END){
-      endpoints.start = NULL;
-      endpoints.end = NULL;
-      prog = orig_prog;
       return endpoints;
     }
     if(type_detected() == 1){ // if is a function declaration. prog will be pointing to identifier
@@ -587,10 +554,7 @@ void expand_all_included_files(void){
           }
         }
         else error(ERR_FATAL, "Syntax error in include directive.");
-        if((fp = fopen(filename, "rb")) == NULL){
-          printf("%s: Included source file not found.\n", filename);
-          exit(1);
-        }
+        if((fp = fopen(filename, "rb")) == NULL) error(ERR_FATAL, "%s: Included source file not found.\n", filename);
         delete(temp_prog2, prog - temp_prog2);
         pi = include_files_buffer;
         while(*pi) pi++;
@@ -900,7 +864,7 @@ void pre_processor(void){
           delete(temp_prog, prog - temp_prog);
         }
       }
-      else if(curr_token.tok == INCLUDE){
+      /*else if(curr_token.tok == INCLUDE){
         get();
         if(curr_token.tok_type == STRING_CONST) strcpy(filename, curr_token.string_const);
         else if(curr_token.tok == LESS_THAN){
@@ -928,7 +892,7 @@ void pre_processor(void){
         insert(temp_prog, include_files_buffer);
         prog = c_in;
         continue;
-      }
+      }*/
       else if(curr_token.tok == DEFINE){
         declare_define();
         delete(temp_prog, prog - temp_prog);
@@ -2014,7 +1978,7 @@ void parse_asm(void){
   
   get();
   if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
-  emitln("\n; --- BEGIN INLINE ASM SEGMENT");
+  emitln("; --- BEGIN INLINE ASM SEGMENT");
   for(;;){
     while(is_space(*prog)) prog++;
     temp_prog = prog;
@@ -2039,7 +2003,7 @@ void parse_asm(void){
       emitln("  %s", curr_token.string_const);
     }
   }
-  emitln("; --- END INLINE ASM SEGMENT\n");
+  emitln("; --- END INLINE ASM SEGMENT");
 }
 
 void parse_break(void){

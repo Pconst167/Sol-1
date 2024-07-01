@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <stdio2.h>
 
 
 // error: var_type is a char and is being pushed into printf as a one byte, but printf is printing 2 bytes and incrementing pointer by 2 hence error
@@ -13,14 +13,11 @@ void main(){
 
 
   strcat("Hi", "Hello");
+
+  print_signed(555);
 }
 
 
 int myfunc(int a){
 
-}
-void include_stdio_asm(){
-  asm{
-    .include "lib/asm/stdio.asm"
-  }
 }
