@@ -15,6 +15,8 @@ union my_union_t{
 
 void main(){
 
+  u1[0].c;
+
   return;
 }
 

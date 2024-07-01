@@ -1481,7 +1481,7 @@ int declare_local(void){
       if(curr_token.tok == ASSIGNMENT)
         emit_static_var_initialization(&new_var);
       else{
-        if(new_var.type.dims[0] > 0 || new_var.type.primitive_type == DT_STRUCT){
+        if(new_var.type.dims[0] > 0 || new_var.type.primitive_type == DT_STRUCT || new_var.type.primitive_type == DT_UNION){
           emit_data("st_%s_%s_dt: .fill %u, 0\n", function_table[current_func_id].name, new_var.name, get_total_type_size(new_var.type));
           //emit_data("st_%s_%s_: .dw st_%s_%s_dt\n", function_table[current_func_id].name, new_var.name, function_table[current_func_id].name, new_var.name);
         }
@@ -1515,7 +1515,7 @@ int declare_local(void){
             emitln("  mov [d], b");
           else if(init_expr.primitive_type == DT_CHAR)
             emitln("  mov [d], bl");
-          else if(init_expr.primitive_type == DT_STRUCT){
+          else if(init_expr.primitive_type == DT_STRUCT || init_expr.primitive_type == DT_UNION){
             emitln("  mov si, b");
             emitln("  mov di, d");
             emitln("  mov c, %d", get_total_type_size(init_expr));
@@ -3481,6 +3481,10 @@ t_type parse_atomic(void){
         emitln("  mov b, d");
         emitln("  mov c, 0");  // for long ints
       }
+      else if(expr_out.primitive_type == DT_UNION){
+        emitln("  mov b, d");
+        emitln("  mov c, 0");  // for long ints
+      }
     }
   }
 
@@ -4516,7 +4520,12 @@ t_type emit_var_addr_into_d(char *var_name){
   if((var_id = local_var_exists(var_name)) != -1){ // is a local variable
     type = function_table[current_func_id].local_vars[var_id].type;
     if(function_table[current_func_id].local_vars[var_id].is_static){
-      if(is_array(function_table[current_func_id].local_vars[var_id].type) || (function_table[current_func_id].local_vars[var_id].type.primitive_type == DT_STRUCT && function_table[current_func_id].local_vars[var_id].type.ind_level == 0))
+      if(is_array(function_table[current_func_id].local_vars[var_id].type)         || 
+          (function_table[current_func_id].local_vars[var_id].type.primitive_type == DT_STRUCT && 
+           function_table[current_func_id].local_vars[var_id].type.ind_level == 0) ||
+          (function_table[current_func_id].local_vars[var_id].type.primitive_type == DT_UNION && 
+           function_table[current_func_id].local_vars[var_id].type.ind_level == 0)
+      )
         emitln("  mov d, st_%s_%s_dt ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
       else
         emitln("  mov d, st_%s_%s ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
@@ -4535,7 +4544,10 @@ t_type emit_var_addr_into_d(char *var_name){
   }
   else if((var_id = global_var_exists(var_name)) != -1){  // is a global variable
     type = global_var_table[var_id].type;
-    if(is_array(global_var_table[var_id].type) || (global_var_table[var_id].type.primitive_type == DT_STRUCT && global_var_table[var_id].type.ind_level == 0)) 
+    if(is_array(global_var_table[var_id].type) || 
+        (global_var_table[var_id].type.primitive_type == DT_STRUCT && global_var_table[var_id].type.ind_level == 0) ||
+        (global_var_table[var_id].type.primitive_type == DT_UNION && global_var_table[var_id].type.ind_level == 0)
+    ) 
       emitln("  mov d, _%s_data ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
     else
       emitln("  mov d, _%s ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
@@ -5224,7 +5236,7 @@ void emit_static_var_initialization(t_var *var){
         emit_data("st_%s_%s: ", function_table[current_func_id].name, var->name);
         emit_data_dbdw(var->type);
         if(var->type.ind_level > 0)
-            emit_data("%u\n", atoi(curr_token.token_str));
+          emit_data("%u\n", atoi(curr_token.token_str));
         else
           emit_data("%u\n", atoi(curr_token.token_str));
         break;
