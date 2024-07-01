@@ -10,9 +10,8 @@ union my_union_t{
   int i;
   char ca[10];
   int ii[5];
-};
+}u1[10];
 
-union my_union_t u1;
 
 void main(){
 

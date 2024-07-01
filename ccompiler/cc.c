@@ -1169,7 +1169,8 @@ int declare_union(){
     else{
       new_union.elements[element_tos].type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default
       new_union.elements[element_tos].type.size_modifier = SIZEMOD_NORMAL; // set as signed by default
-      while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){
+      while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || 
+            curr_token.tok == LONG   || curr_token.tok == SHORT){
              if(curr_token.tok == SIGNED)   new_union.elements[element_tos].type.sign_modifier = SIGNMOD_SIGNED;
         else if(curr_token.tok == UNSIGNED) new_union.elements[element_tos].type.sign_modifier = SIGNMOD_UNSIGNED;
         else if(curr_token.tok == SHORT)    new_union.elements[element_tos].type.size_modifier = SIZEMOD_SHORT;
@@ -1235,7 +1236,7 @@ int declare_union(){
   }
   else if (curr_token.tok_type == IDENTIFIER){ // declare variables if present
     back();
-    //declare_union_global_vars(curr_struct_enum_union_id);
+    declare_union_global_vars(curr_struct_enum_union_id);
   }
   else if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected after union declaration.");
 
@@ -1775,6 +1776,91 @@ void declare_typedef(void){
   typedef_table[typedef_table_tos].type = type;
   typedef_table_tos++;
   expect(SEMICOLON, "Semicolon expected.");
+}
+
+void declare_union_global_vars(int union_id){
+  int ind_level;
+  char is_constant = FALSE;
+
+  do{
+    if(global_var_tos == MAX_GLOBAL_VARS) error(ERR_FATAL, "Global variable declaration limit exceeded");
+    global_var_table[global_var_tos].type.is_constant = is_constant;
+    get();
+// **************** checks whether this is a pointer declaration *******************************
+    ind_level = 0;
+    while(curr_token.tok == STAR){
+      ind_level++;
+      get();
+    }
+// *********************************************************************************************
+    if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+
+    // checks if there is another global variable with the same name
+    if(search_global_var(curr_token.token_str) != -1) error(ERR_FATAL, "Duplicate global variable");
+    
+    global_var_table[global_var_tos].type.primitive_type = DT_STRUCT;
+    global_var_table[global_var_tos].type.ind_level = ind_level;
+    global_var_table[global_var_tos].type.struct_enum_union_id = union_id;
+    global_var_table[global_var_tos].type.dims[0] = 0;
+    strcpy(global_var_table[global_var_tos].name, curr_token.token_str);
+    get();
+    // checks if this is a array declaration
+    int dim = 0;
+    if(curr_token.tok == OPENING_BRACKET){
+      while(curr_token.tok == OPENING_BRACKET){
+        get();
+        if(curr_token.tok == CLOSING_BRACKET){ // variable length array
+          int fixed_part_size = 1, initialization_size;
+          get();
+          if(curr_token.tok == OPENING_BRACKET){
+            do{
+              get();
+              fixed_part_size = fixed_part_size * curr_token.int_const;
+              get();
+              expect(CLOSING_BRACKET, "Closing brackets expected");
+              get();
+            } while(curr_token.tok == OPENING_BRACKET);
+          }
+          back();
+          initialization_size = find_array_initialization_size(global_var_table[global_var_tos].type.size_modifier);
+          global_var_table[global_var_tos].type.dims[dim] = (int)ceil((float)initialization_size / (float)fixed_part_size);
+          get();
+          if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
+          break;
+        }
+        else{
+          global_var_table[global_var_tos].type.dims[dim] = atoi(curr_token.token_str);
+          get();
+          if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
+        }
+        get();
+        dim++;
+      }
+      global_var_table[global_var_tos].type.dims[dim] = 0; // sets the last variable dimention to 0, to mark the end of the list
+    }
+
+    if(curr_token.tok == ASSIGNMENT){
+      int array_size = 1;
+      array_size = get_num_array_elements(global_var_table[global_var_tos].type);
+      get();
+      expect(OPENING_BRACE, "Opening braces expected in union initialization.");
+      emit_data("_%s_data:\n", global_var_table[global_var_tos].name);
+      parse_union_initialization_data(union_id, array_size);
+      get();
+    }
+    else{
+      if(dim > 0 || (global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0)){
+        emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
+      }
+      else
+        emit_data("_%s: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
+    }
+
+    global_var_tos++;  
+
+    get();
+  } while(curr_token.tok == COMMA);
+  back();
 }
 
 // declare struct variables right after struct declaration
@@ -4826,9 +4912,102 @@ void parse_struct_initialization_data(int struct_id, int array_size){
   }
 }
 
+void parse_union_initialization_data(int union_id, int array_size){
+  int i, j, k;
+  int element_array_size, total_elements;
+
+  total_elements = get_union_elements_count(union_id);
+  
+  for(j = 0; j < array_size; j++){
+    for(i = 0; *union_table[union_id].elements[i].name; i++){
+      // Array but not union
+      if(is_array(union_table[union_id].elements[i].type)){
+        get(); expect(OPENING_BRACE, "Opening braces expected for array or union element initialization.");
+        element_array_size = get_num_array_elements(union_table[union_id].elements[i].type);
+      }
+      else{
+        element_array_size = 1;
+      }
+      // Read array elements
+      for(k = 0; k < element_array_size; k++){
+        get();
+        if(curr_token.tok_type == IDENTIFIER && enum_element_exists(curr_token.token_str) != -1){ // obtain enum values if curr_token.token_str is an enum element
+          curr_token.int_const = get_enum_val(curr_token.token_str);
+          curr_token.tok_type = INTEGER_CONST;
+        }
+        switch(union_table[union_id].elements[i].type.primitive_type){
+          case DT_STRUCT:
+            expect(OPENING_BRACE, "Opening braces expected for array or union element initialization.");
+            parse_union_initialization_data(union_table[union_id].elements[i].type.struct_enum_union_id, 1);
+            break;
+          case DT_VOID:
+            emit_data(".dw $%04x\n", curr_token.int_const);
+            break;
+          case DT_CHAR:
+            if(union_table[union_id].elements[i].type.ind_level > 0){
+              switch(curr_token.tok_type){
+                case CHAR_CONST:
+                  emit_data(".dw %s\n", curr_token.token_str);
+                  break;
+                case INTEGER_CONST:
+                  emit_data(".dw $%04x\n", curr_token.int_const);
+                  break;
+                case STRING_CONST:
+                  int string_id = add_string_data(curr_token.string_const);
+                  emit_data(".dw _s%u\n", string_id);
+              }
+            }
+            else{
+              switch(curr_token.tok_type){
+                case CHAR_CONST:
+                  emit_data(".db %s\n", curr_token.token_str);
+                  break;
+                case INTEGER_CONST:
+                  emit_data(".db %d\n", (char)curr_token.int_const);
+                  break;
+                case STRING_CONST:
+                  error(ERR_FATAL, "Incompatible data type for union element in initialization.");
+              }
+            }
+            break;
+          case DT_INT:
+            switch(curr_token.tok_type){
+              case CHAR_CONST:
+                emit_data(".dw %s\n", curr_token.token_str);
+                break;
+              case INTEGER_CONST:
+                emit_data(".dw %d\n", curr_token.int_const);
+                break;
+              case STRING_CONST:
+                int string_id = add_string_data(curr_token.string_const);
+                emit_data(".dw _s%u\n", string_id);
+                break;
+            }
+            break;
+        }
+        if(is_array(union_table[union_id].elements[i].type)){
+          get();
+          if(curr_token.tok == CLOSING_BRACE) break;
+          else if(curr_token.tok != COMMA) error(ERR_FATAL, "Comma expected in union initialization.");
+        }
+      }
+      get();
+      if(curr_token.tok == CLOSING_BRACE) break;
+      else if(curr_token.tok != COMMA) error(ERR_FATAL, "Comma expected in union initialization.");
+    }
+    if(curr_token.tok == CLOSING_BRACE) break;
+  }
+}
+
 int get_struct_elements_count(int struct_enum_union_id){
   int total;
   for(total = 0; *struct_table[struct_enum_union_id].elements[total].name; total++);
+  return total;
+}
+
+int get_union_elements_count(int struct_enum_union_id){
+  int total;
+  for(total = 0; *union_table[struct_enum_union_id].elements[total].name; total++);
   return total;
 }
 

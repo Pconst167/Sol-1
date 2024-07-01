@@ -423,3 +423,6 @@ void search_and_add_func();
 t_function_endpoints locate_function(char *location, char *name);
 void fetch_included_functions(char *func_loc);
 void declare_all_defines();
+void declare_union_global_vars(int union_id);
+void parse_union_initialization_data(int union_id, int array_size);
+int get_union_elements_count(int struct_enum_union_id);
