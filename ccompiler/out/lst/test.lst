@@ -33,10 +33,13 @@
 0013   040B             ; --- END TEXT SEGMENT
 0014   040B             
 0015   040B             ; --- BEGIN DATA SEGMENT
-0016   040B             
-0017   040B 0D 04       _heap_top: .dw _heap
-0018   040D 00          _heap: .db 0
-0019   040E             ; --- END DATA SEGMENT
-0020   040E             
-0021   040E             .end
+0016   040B 00 00 00 00 _u1: .fill 10, 0
+0016   040F 00 00 00 00 
+0016   0413 00 00 
+0017   0415             
+0018   0415 17 04       _heap_top: .dw _heap
+0019   0417 00          _heap: .db 0
+0020   0418             ; --- END DATA SEGMENT
+0021   0418             
+0022   0418             .end
 tasm: Number of errors = 0

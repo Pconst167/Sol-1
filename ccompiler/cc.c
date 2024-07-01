@@ -241,7 +241,7 @@ t_function function_table[MAX_USER_FUNC];
 t_function included_functions[MAX_USER_FUNC];
 t_enum enum_table[MAX_ENUM_DECLARATIONS];
 t_struct struct_table[MAX_STRUCT_DECLARATIONS];
-t_struct union_table[MAX_UNION_DECLARATIONS];
+t_union union_table[MAX_UNION_DECLARATIONS];
 t_var global_var_table[MAX_GLOBAL_VARS];
 char string_table[STRING_TABLE_SIZE][TOKEN_LEN];
 
@@ -962,8 +962,9 @@ int8_t type_detected(void){
     curr_token.tok == INT      || curr_token.tok == FLOAT    || 
     curr_token.tok == DOUBLE   || curr_token.tok == STRUCT   ||
     curr_token.tok == SHORT    || curr_token.tok == STATIC   ||
-    curr_token.tok == ENUM     || curr_token.tok == REGISTER ||
-    curr_token.tok == VOLATILE || search_typedef(curr_token.token_str) != -1 
+    curr_token.tok == ENUM     || curr_token.tok == UNION    ||
+    curr_token.tok == REGISTER || curr_token.tok == VOLATILE || 
+    search_typedef(curr_token.token_str) != -1 
   ){
     while(
       curr_token.tok == CONST    || curr_token.tok == STATIC   || 
@@ -975,7 +976,7 @@ int8_t type_detected(void){
     }
     prog_at_identifier = prog;
     get();
-    // if not a struct or enum, then the var type has just been gotten
+    // if not a struct, union, or enum, then the var type has just been gotten
     if(curr_token.tok == STAR){
       while(curr_token.tok == STAR){
         prog_at_identifier = prog;
@@ -1029,6 +1030,19 @@ void pre_scan(void){
       if(curr_token.tok == OPENING_BRACE){
         prog = tp;
         declare_struct();
+        continue;
+      }
+      else{
+        prog = tp;
+        get();
+      }
+    }
+    else if(curr_token.tok == UNION){
+      get();
+      get();
+      if(curr_token.tok == OPENING_BRACE){
+        prog = tp;
+        declare_union();
         continue;
       }
       else{
@@ -1091,6 +1105,12 @@ t_type get_type(){
         error(ERR_FATAL, "Undeclared enum: %s", curr_token.token_str);
       type.struct_enum_union_id = struct_enum_union_id;
     }
+    if(type.primitive_type == DT_UNION){                                      
+      get();                                                                   
+      if((struct_enum_union_id = search_union(curr_token.token_str)) == -1) 
+        error(ERR_FATAL, "Undeclared union: %s", curr_token.token_str);
+      type.struct_enum_union_id = struct_enum_union_id;
+    }
     // check if is function pointer
     get();
     if(curr_token.tok == OPENING_PAREN){
@@ -1114,77 +1134,77 @@ int declare_union(){
   int element_tos;
   int curr_struct_enum_union_id;
   int struct_enum_union_id;
-  t_struct new_struct;
-  int struct_is_embedded = 0;
+  t_union new_union;
+  int union_is_embedded = 0;
   int typedef_id;
 
-  if(struct_table_tos == MAX_STRUCT_DECLARATIONS) error(ERR_FATAL, "Max number of struct declarations reached");
+  if(union_table_tos == MAX_UNION_DECLARATIONS) error(ERR_FATAL, "Max number of union declarations reached");
   
-  curr_struct_enum_union_id = struct_table_tos;
-  get(); // 'struct'
-  if(curr_token.tok != OPENING_BRACE) get(); // try getting struct name, but only if the current curr_token.token_str is not a brace, which means we are inside a struct declaration already and one of the members was an implicit struct that had no name, but is an elememnt of a previous struct
+  curr_struct_enum_union_id = union_table_tos;
+  get(); // 'union'
+  if(curr_token.tok != OPENING_BRACE) get(); // try getting union name, but only if the current curr_token.token_str is not a brace, which means we are inside a union declaration already and one of the members was an implicit union that had no name, but is an elememnt of a previou sunion  
   if(curr_token.tok_type == IDENTIFIER){
-    strcpy(new_struct.name, curr_token.token_str);
-    strcpy(struct_table[struct_table_tos].name, curr_token.token_str);
+    strcpy(new_union.name, curr_token.token_str);
+    strcpy(union_table[union_table_tos].name, curr_token.token_str);
     get(); // '{'
     if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
-    // Add the new struct to the struct table prematurely so that any elements in this struct that are pointers of this struct type can be recognized by a search
-    struct_table_tos++;
+    // Add the new union to the union table prematurely so that any elements in this union that are pointers of this union type can be recognized by a search
+    union_table_tos++;
   }
-  else if(curr_token.tok == OPENING_BRACE){ // implicit struct declaration inside a struct itself
-    struct_is_embedded = 1;
-  // assign a null string to the struct name then
-    *new_struct.name = '\0'; // okay to do since we dont use struct names as the end point of search loops. we use 'struct_table_tos'
-    struct_table_tos++;
+  else if(curr_token.tok == OPENING_BRACE){ // implicit union declaration inside a union itself
+    union_is_embedded = 1;
+  // assign a null string to the union name then
+    *new_union.name = '\0'; // okay to do since we dont use union names as the end point of search loops. we use 'union_table_tos'
+    union_table_tos++;
   }
 
   element_tos = 0;
   do{
-    if(element_tos == MAX_STRUCT_ELEMENTS) error(ERR_FATAL, "Max number of struct elements reached");
+    if(element_tos == MAX_UNION_ELEMENTS) error(ERR_FATAL, "Max number of union elements reached");
     get();
     if((typedef_id = search_typedef(curr_token.token_str)) != -1){
-      new_struct.elements[element_tos].type = typedef_table[typedef_id].type;
+      new_union.elements[element_tos].type = typedef_table[typedef_id].type;
       get();
     }
     else{
-      new_struct.elements[element_tos].type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default
-      new_struct.elements[element_tos].type.size_modifier = SIZEMOD_NORMAL; // set as signed by default
+      new_union.elements[element_tos].type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default
+      new_union.elements[element_tos].type.size_modifier = SIZEMOD_NORMAL; // set as signed by default
       while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == LONG || curr_token.tok == SHORT){
-            if(curr_token.tok == SIGNED)   new_struct.elements[element_tos].type.sign_modifier = SIGNMOD_SIGNED;
-        else if(curr_token.tok == UNSIGNED) new_struct.elements[element_tos].type.sign_modifier = SIGNMOD_UNSIGNED;
-        else if(curr_token.tok == SHORT)    new_struct.elements[element_tos].type.size_modifier   = SIZEMOD_SHORT;
-        else if(curr_token.tok == LONG)     new_struct.elements[element_tos].type.size_modifier   = SIZEMOD_LONG;
+             if(curr_token.tok == SIGNED)   new_union.elements[element_tos].type.sign_modifier = SIGNMOD_SIGNED;
+        else if(curr_token.tok == UNSIGNED) new_union.elements[element_tos].type.sign_modifier = SIGNMOD_UNSIGNED;
+        else if(curr_token.tok == SHORT)    new_union.elements[element_tos].type.size_modifier = SIZEMOD_SHORT;
+        else if(curr_token.tok == LONG)     new_union.elements[element_tos].type.size_modifier = SIZEMOD_LONG;
         get();
       }
-      new_struct.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
-      new_struct.elements[element_tos].type.struct_enum_union_id = -1;
-      if(new_struct.elements[element_tos].type.primitive_type == DT_STRUCT){
+      new_union.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
+      new_union.elements[element_tos].type.struct_enum_union_id = -1;
+      if(new_union.elements[element_tos].type.primitive_type == DT_UNION){
         get();
-        if(curr_token.tok == OPENING_BRACE){ // internal struct declaration!
+        if(curr_token.tok == OPENING_BRACE){ // internal union declaration!
           back();
-          struct_enum_union_id = declare_struct();
+          struct_enum_union_id = declare_union();
           get(); // get element name
         }
         else{
-          if((struct_enum_union_id = search_struct(curr_token.token_str)) == -1) error(ERR_FATAL, "Undeclared struct");
+          if((struct_enum_union_id = search_union(curr_token.token_str)) == -1) error(ERR_FATAL, "Undeclared union");
           get();
         }
-        new_struct.elements[element_tos].type.struct_enum_union_id = struct_enum_union_id;
+        new_union.elements[element_tos].type.struct_enum_union_id = struct_enum_union_id;
       }
       else get();
 
-      new_struct.elements[element_tos].type.ind_level = 0;
+      new_union.elements[element_tos].type.ind_level = 0;
       while(curr_token.tok == STAR){
-        new_struct.elements[element_tos].type.ind_level++;
+        new_union.elements[element_tos].type.ind_level++;
         get();
       }
     }
 
-    if(new_struct.elements[element_tos].type.primitive_type == DT_VOID && new_struct.elements[element_tos].type.ind_level == 0) 
+    if(new_union.elements[element_tos].type.primitive_type == DT_VOID && new_union.elements[element_tos].type.ind_level == 0) 
       error(ERR_FATAL, "Invalid type in variable");
 
-    strcpy(new_struct.elements[element_tos].name, curr_token.token_str);
-    new_struct.elements[element_tos].type.dims[0] = 0;
+    strcpy(new_union.elements[element_tos].name, curr_token.token_str);
+    new_union.elements[element_tos].type.dims[0] = 0;
     get();
     // checks if this is a array declaration
     int dim = 0;
@@ -1192,32 +1212,32 @@ int declare_union(){
       while(curr_token.tok == OPENING_BRACKET){
         get();
         if(curr_token.tok_type != INTEGER_CONST) error(ERR_FATAL, "Constant expected");
-        new_struct.elements[element_tos].type.dims[dim] = atoi(curr_token.token_str);
+        new_union.elements[element_tos].type.dims[dim] = atoi(curr_token.token_str);
         get();
         if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
         get();
         dim++;
       }
-      new_struct.elements[element_tos].type.dims[dim] = 0; // sets the last dimention to 0, to mark the end of the list
+      new_union.elements[element_tos].type.dims[dim] = 0; // sets the last dimention to 0, to mark the end of the list
     }
     element_tos++;
     get();
     if(curr_token.tok != CLOSING_BRACE) back();
   } while(curr_token.tok != CLOSING_BRACE);
   
-  new_struct.elements[element_tos].name[0] = '\0'; // end elements list
-  struct_table[curr_struct_enum_union_id] = new_struct; 
+  new_union.elements[element_tos].name[0] = '\0'; // end elements list
+  union_table[curr_struct_enum_union_id] = new_union; 
 
   get();
 
-  if(curr_token.tok_type == IDENTIFIER && struct_is_embedded){
+  if(curr_token.tok_type == IDENTIFIER && union_is_embedded){
     back();
   }
   else if (curr_token.tok_type == IDENTIFIER){ // declare variables if present
     back();
-    declare_struct_global_vars(curr_struct_enum_union_id);
+    //declare_union_global_vars(curr_struct_enum_union_id);
   }
-  else if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected after struct declaration.");
+  else if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected after union declaration.");
 
   return curr_struct_enum_union_id; // return struct_enum_union_id
 }
@@ -4487,9 +4507,9 @@ t_type emit_var_addr_into_d(char *var_name){
 }
 
 int get_num_array_elements(t_type type){
-  int i;
   int size = 1;
-  for(i = 0; type.dims[i]; i++){
+
+  for(int i = 0; type.dims[i]; i++){
     size *= type.dims[i];
   }
   return size;
@@ -4513,6 +4533,10 @@ int is_enum(t_type type){
 
 int is_struct(t_type type){
   return type.primitive_type == DT_STRUCT;
+}
+
+int is_union(t_type type){
+  return type.primitive_type == DT_UNION;
 }
 
 int is_array(t_type type){
@@ -4545,13 +4569,19 @@ int get_primitive_type_size(t_type type){
   else switch(type.primitive_type){
     case DT_CHAR:
       return 1;
+
     case DT_INT:
       if(type.size_modifier == SIZEMOD_LONG)
         return 4;
       else
         return 2;
+
     case DT_STRUCT:
       return get_struct_size(type.struct_enum_union_id);
+
+    case DT_UNION:
+      return get_union_size(type.struct_enum_union_id);
+
     case DT_ENUM:
       return 2;
   }
@@ -4560,19 +4590,24 @@ int get_primitive_type_size(t_type type){
 int get_type_size_for_func_arg_parsing(t_type type){
   if(type.ind_level > 0) 
     return 2;
-  else if(is_array(type)){
+  else if(is_array(type))
     return 2;
-  }
   else switch(type.primitive_type){
     case DT_CHAR:
       return 1;
+
     case DT_INT:
       if(type.size_modifier == SIZEMOD_LONG)
         return 4;
       else
         return 2;
+
     case DT_STRUCT:
       return get_struct_size(type.struct_enum_union_id);
+
+    case DT_UNION:
+      return get_union_size(type.struct_enum_union_id);
+
     case DT_ENUM:
       return 2;
   }
@@ -4611,6 +4646,52 @@ int get_struct_size(int id){
   return size;
 }
 
+int get_union_size(int id){
+  int size, array_size;
+
+  size = 0;
+  
+  for(int i = 0; *union_table[id].elements[i].name; i++){
+    array_size = get_num_array_elements(union_table[id].elements[i].type);
+    if(union_table[id].elements[i].type.ind_level > 0){
+      if(array_size * 2 > size) size = array_size * 2;
+      //size += array_size * 2;
+    }
+    else 
+      switch(union_table[id].elements[i].type.primitive_type){
+        case DT_CHAR:
+          if(array_size * 1 > size) size = array_size * 1;
+          //size += array_size * 1;
+          break;
+        case DT_INT:
+          if(union_table[id].elements[i].type.size_modifier == SIZEMOD_LONG){
+            if(array_size * 4 > size) size = array_size * 4;
+            size += array_size * 4;
+          }
+          else{
+            if(array_size * 2 > size) size = array_size * 2;
+            //size += array_size * 2;
+          }
+          break;
+        case DT_STRUCT:
+          if(array_size * get_struct_size(union_table[id].elements[i].type.struct_enum_union_id) > size) 
+            size = array_size * get_struct_size(union_table[id].elements[i].type.struct_enum_union_id);
+          //size += array_size * get_struct_size(union_table[id].elements[i].type.struct_enum_union_id);
+          break;
+        case DT_UNION:
+          if(array_size * get_union_size(union_table[id].elements[i].type.struct_enum_union_id) > size) 
+            size = array_size * get_union_size(union_table[id].elements[i].type.struct_enum_union_id);
+          //size += array_size * get_union_size(union_table[id].elements[i].type.struct_enum_union_id);
+          break;
+        case DT_ENUM:
+          if(array_size * 2 > size) size = array_size * 2;
+          //size += array_size * 2;
+      }
+  }
+
+  return size;
+}
+
 t_primitive_type get_primitive_type_from_tok(){
   switch(curr_token.tok){
     case VOID:
@@ -4625,6 +4706,8 @@ t_primitive_type get_primitive_type_from_tok(){
       return DT_DOUBLE;
     case STRUCT:
       return DT_STRUCT;
+    case UNION:
+      return DT_UNION;
     case ENUM:
       return DT_ENUM;
     default:
@@ -4645,6 +4728,8 @@ int get_data_size_for_indexing(t_type type){
         return 2;
     case DT_STRUCT:
       return get_struct_size(type.struct_enum_union_id);
+    case DT_UNION:
+      return get_union_size(type.struct_enum_union_id);
     case DT_ENUM:
       return 2;
   }
@@ -4880,6 +4965,11 @@ void emit_global_var_initialization(t_var *var){
           emit_data("%u\n", atoi(curr_token.token_str));
         break;
       case DT_STRUCT:
+        if(curr_token.tok_type == IDENTIFIER){
+          get_var_base_addr(temp, curr_token.token_str);
+          emit_data("_%s: .dw _%s_data\n", var->name, temp);
+        }
+      case DT_UNION:
         if(curr_token.tok_type == IDENTIFIER){
           get_var_base_addr(temp, curr_token.token_str);
           emit_data("_%s: .dw _%s_data\n", var->name, temp);

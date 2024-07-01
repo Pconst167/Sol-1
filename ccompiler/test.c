@@ -1,11 +1,18 @@
-#include <stdio2.h>
+
+struct struct_t{
+  char C;
+  int I;
+  int array[10];
+};
 
 union my_union_t{
   char c;
   int i;
   char ca[10];
-  struct struct_t my_struct[5];
-} i1[5];
+  int ii[5];
+};
+
+union my_union_t u1;
 
 void main(){
 

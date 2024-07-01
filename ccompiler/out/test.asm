@@ -13,6 +13,7 @@ main:
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
+_u1: .fill 10, 0
 
 _heap_top: .dw _heap
 _heap: .db 0

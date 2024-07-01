@@ -3,6 +3,7 @@
 extern defines_table_t defines_table[MAX_DEFINES];
 extern keyword_table_t keyword_table[];
 extern t_struct struct_table[MAX_STRUCT_DECLARATIONS];
+extern t_union union_table[MAX_UNION_DECLARATIONS];
 extern t_enum enum_table[MAX_ENUM_DECLARATIONS];
 extern t_typedef typedef_table[MAX_TYPEDEFS];
 extern t_function function_table[MAX_USER_FUNC];
@@ -14,6 +15,7 @@ extern int function_table_tos;
 extern int defines_tos;
 extern int enum_table_tos;
 extern int struct_table_tos;
+extern int union_table_tos;
 extern int typedef_table_tos;
 
 int search_global_var(char *var_name){
@@ -30,6 +32,14 @@ int search_enum(char *name){
   
   for(i = 0; i < enum_table_tos; i++)
     if(!strcmp(enum_table[i].name, name)) return i;
+  return -1;
+}
+
+int search_union(char *name){
+  int i;
+  
+  for(i = 0; i < union_table_tos; i++)
+    if(!strcmp(union_table[i].name, name)) return i;
   return -1;
 }
 
