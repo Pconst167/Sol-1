@@ -3400,6 +3400,8 @@ t_type parse_factors(void){
       type2 = parse_atomic();
       expr_out = cast(expr_out, type2);
       if(temp_tok == STAR){
+        // mul ga, cb
+        // mul a, b; mul g, b, = result(msb1); mul a, c, 
         emitln("  mul a, b ; *");
         emitln("  mov a, b");
       }
