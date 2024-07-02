@@ -4276,6 +4276,7 @@ void parse_function_call(int func_id){
     }
     else if(arg_type.primitive_type == DT_CHAR){
       if(curr_arg_num > function_table[func_id].num_fixed_args) {
+        emitln("  swp a");
         emitln("  push b"); 
       }
       else 

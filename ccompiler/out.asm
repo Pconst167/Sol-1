@@ -31,6 +31,7 @@ main:
   mov bl, [d]
   mov bh, 0
   mov c, 0
+  swp a
   push b
   mov d, _u_data ; $u
   add d, 0
@@ -38,6 +39,7 @@ main:
   mov bl, [d]
   mov bh, 0
   mov c, 0
+  swp a
   push b
   mov b, _s0 ; "\nc1: %x, c2: %x\n"
   swp b
