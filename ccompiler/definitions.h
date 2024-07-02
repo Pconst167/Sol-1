@@ -426,3 +426,5 @@ void declare_all_defines();
 void declare_union_global_vars(int union_id);
 void parse_union_initialization_data(int union_id, int array_size);
 int get_union_elements_count(int struct_enum_union_id);
+int get_union_element_offset(int union_id, char *name);
+t_type get_union_element_type(int union_id, char *name);

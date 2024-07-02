@@ -1,21 +1,26 @@
+#include <stdio2.h>
 
-struct struct_t{
-  char C;
-  int I;
-  int array[10];
+struct bytes{
+  char lsb;
+  char msb;
 };
 
-union my_union_t{
-  char c;
+union u_t{
+  struct bytes bytes;
   int i;
-  char ca[10];
-  int ii[5];
-}u1[10];
+};
+
+union u_t u;
 
 
 void main(){
 
-  u1[0].c;
+  u.bytes.lsb = 0xCD;
+  u.bytes.msb = 0xAB;
+
+  printf("\nc1: %x, c2: %x\n", u.bytes.msb, u.bytes.lsb);
+  printf("\ninteger val: %x\n", u.i);
+
 
   return;
 }

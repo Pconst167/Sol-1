@@ -1179,7 +1179,20 @@ int declare_union(){
       }
       new_union.elements[element_tos].type.primitive_type = get_primitive_type_from_tok();
       new_union.elements[element_tos].type.struct_enum_union_id = -1;
-      if(new_union.elements[element_tos].type.primitive_type == DT_UNION){
+      if(new_union.elements[element_tos].type.primitive_type == DT_STRUCT){
+        get();
+        if(curr_token.tok == OPENING_BRACE){ // internal union declaration!
+          back();
+          struct_enum_union_id = declare_struct();
+          get(); // get element name
+        }
+        else{
+          if((struct_enum_union_id = search_struct(curr_token.token_str)) == -1) error(ERR_FATAL, "undeclared struct");
+          get();
+        }
+        new_union.elements[element_tos].type.struct_enum_union_id = struct_enum_union_id;
+      }
+      else if(new_union.elements[element_tos].type.primitive_type == DT_UNION){
         get();
         if(curr_token.tok == OPENING_BRACE){ // internal union declaration!
           back();
@@ -1187,7 +1200,7 @@ int declare_union(){
           get(); // get element name
         }
         else{
-          if((struct_enum_union_id = search_union(curr_token.token_str)) == -1) error(ERR_FATAL, "Undeclared union");
+          if((struct_enum_union_id = search_union(curr_token.token_str)) == -1) error(ERR_FATAL, "undeclared union");
           get();
         }
         new_union.elements[element_tos].type.struct_enum_union_id = struct_enum_union_id;
@@ -1308,7 +1321,20 @@ int declare_struct(){
           get(); // get element name
         }
         else{
-          if((struct_enum_union_id = search_struct(curr_token.token_str)) == -1) error(ERR_FATAL, "Undeclared struct");
+          if((struct_enum_union_id = search_struct(curr_token.token_str)) == -1) error(ERR_FATAL, "undeclared struct");
+          get();
+        }
+        new_struct.elements[element_tos].type.struct_enum_union_id = struct_enum_union_id;
+      }
+      else if(new_struct.elements[element_tos].type.primitive_type == DT_UNION){
+        get();
+        if(curr_token.tok == OPENING_BRACE){ // internal union declaration!
+          back();
+          struct_enum_union_id = declare_union();
+          get(); // get element name
+        }
+        else{
+          if((struct_enum_union_id = search_union(curr_token.token_str)) == -1) error(ERR_FATAL, "undeclared union");
           get();
         }
         new_struct.elements[element_tos].type.struct_enum_union_id = struct_enum_union_id;
@@ -1642,7 +1668,10 @@ void declare_global(void){
       emit_global_var_initialization(&global_var_table[global_var_tos]);
     }
     else{ // no assignment!
-      if(dim > 0 || (global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0)){
+      if(dim > 0 || 
+         global_var_table[global_var_tos].type.ind_level == 0 && 
+        (global_var_table[global_var_tos].type.primitive_type == DT_STRUCT || global_var_table[global_var_tos].type.primitive_type == DT_UNION)
+      ){
         emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
       }
       else{
@@ -4247,7 +4276,6 @@ void parse_function_call(int func_id){
     }
     else if(arg_type.primitive_type == DT_CHAR){
       if(curr_arg_num > function_table[func_id].num_fixed_args) {
-        emitln("  mov bh, 0"); 
         emitln("  push b"); 
       }
       else 
@@ -4287,11 +4315,22 @@ int get_struct_element_offset(int struct_id, char *name){
       offset += get_total_type_size(struct_table[struct_id].elements[i].type);
 }
 
+int get_union_element_offset(int union_id, char *name){
+  return 0; // union element offsets always start at 0 since they all share the same space
+}
+
 t_type get_struct_element_type(int struct_id, char *name){
   for(int i = 0; *struct_table[struct_id].elements[i].name; i++)
     if(!strcmp(struct_table[struct_id].elements[i].name, name))
       return struct_table[struct_id].elements[i].type;
   error(ERR_FATAL, "Undeclared struct element: %s", name);
+}
+
+t_type get_union_element_type(int union_id, char *name){
+  for(int i = 0; *union_table[union_id].elements[i].name; i++)
+    if(!strcmp(union_table[union_id].elements[i].name, name))
+      return union_table[union_id].elements[i].type;
+  error(ERR_FATAL, "Undeclared union element: %s", name);
 }
 
 /* function used for dealihg with pointer arithmetic.
@@ -4584,14 +4623,20 @@ t_type emit_var_addr_into_d(char *var_name){
         get(); // get element name
         strcpy(element_name, curr_token.token_str);
         offset = get_struct_element_offset(type.struct_enum_union_id, element_name);
-        type = get_struct_element_type(type.struct_enum_union_id, element_name);
+        if(type.primitive_type == DT_STRUCT)
+          type = get_struct_element_type(type.struct_enum_union_id, element_name);
+        else if(type.primitive_type == DT_UNION)
+          type = get_union_element_type(type.struct_enum_union_id, element_name);
         emitln("  add d, %d", offset);
       }
       else if(curr_token.tok == STRUCT_ARROW){
         get(); // get element name
         strcpy(element_name, curr_token.token_str);
         offset = get_struct_element_offset(type.struct_enum_union_id, element_name);
-        type = get_struct_element_type(type.struct_enum_union_id, element_name);
+        if(type.primitive_type == DT_STRUCT)
+          type = get_struct_element_type(type.struct_enum_union_id, element_name);
+        else if(type.primitive_type == DT_UNION)
+          type = get_union_element_type(type.struct_enum_union_id, element_name);
         //get_var_base_addr(temp, var_name);
         emitln("  mov d, [d]");
         emitln("  add d, %d", offset);
