@@ -3394,16 +3394,27 @@ t_type parse_factors(void){
   if(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
     emitln("; --- START FACTORS");
     emitln("  push a");
+    if(type_is_32bit(type1)) emitln("  push g");
     emitln("  mov a, b");
+    if(type_is_32bit(expr_out)) emitln("  mov g, c");
     while(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
       temp_tok = curr_token.tok;
       type2 = parse_atomic();
       expr_out = cast(expr_out, type2);
       if(temp_tok == STAR){
-        // mul ga, cb
-        // mul a, b; mul g, b, = result(msb1); mul a, c, 
-        emitln("  mul a, b ; *");
-        emitln("  mov a, b");
+        if(type_is_32bit(expr_out)){
+          if(!type_is_32bit(expr_out))
+            emitln("  mov g, 0");
+
+          // ga * cb
+          // b*a + b*g<<16 + c*a<<16 + c*g<<32
+          emitln("  mul a, b ; *"); // result in 
+
+        }
+        else{
+          emitln("  mul a, b ; *");
+          emitln("  mov a, b");
+        }
       }
       else if(temp_tok == FSLASH){
         emitln("  div a, b");
@@ -3412,6 +3423,10 @@ t_type parse_factors(void){
         emitln("  div a, b ; %");
         emitln("  mov a, b");
       }
+    }
+    if(type_is_32bit(type1)){
+      emitln("  pop g");
+      emitln("  mov b, c");
     }
     emitln("  mov b, a");
     emitln("  pop a");
