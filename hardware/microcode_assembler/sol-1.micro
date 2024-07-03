@@ -20137,7 +20137,7 @@
   }
 }
 
-0xB5, "cmp word[d + i16], u16"{
+0xB5, "cmp word[d + i16], u16  -  mov ah, [d]"{
   0{
     next = next_offset
     offset = 1
@@ -20318,6 +20318,42 @@
     sf_in_src = zbus_7
     of_in_src = alu_of
     alu_y = mdrh
+  }
+
+
+
+  16{
+    next = next_offset
+    offset = 1
+    alu_x = dl
+    alu_op = x
+    alu_mode = logic
+    marl_wrt = true
+  }
+  17{
+    next = next_offset
+    offset = 1
+    alu_x = dh
+    alu_op = x
+    alu_mode = logic
+    marh_wrt = true
+  }
+  18{
+    next = next_offset
+    offset = 1
+    rd = true
+    mdr_in_src = databus
+    mdrl_wrt = true
+  }
+  19{
+    next = next_fetch
+    alu_op = y
+    alu_mode = logic
+    alu_y = mdrl
+    ah_wrt = true
+    marl_wrt = true
+    marh_wrt = true
+    mar_in_src = pc
   }
 }
 
@@ -20686,7 +20722,7 @@
   }
 }
 
-0xB7, "mov a, [a + i16]"{
+0xB7, "mov a, [a + i16]  -  mov [d], ah"{
   0{
     next = next_offset
     offset = 1
@@ -20790,6 +20826,46 @@
     alu_op = y
     alu_mode = logic
     alu_y = mdrh  ah_wrt = true
+    marl_wrt = true
+    marh_wrt = true
+    mar_in_src = pc
+  }
+
+
+  16{
+    next = next_offset
+    offset = 1
+    alu_x = dl
+    alu_op = x
+    alu_mode = logic
+    marl_wrt = true
+  }
+  17{
+    next = next_offset
+    offset = 1
+    alu_x = dh
+    alu_op = x
+    alu_mode = logic
+    marh_wrt = true
+  }
+  18{
+    next = next_offset
+    offset = 1
+    alu_x = ah
+    alu_op = x
+    alu_mode = logic
+    mdr_out_en = true
+    mdrl_wrt = true
+  }
+  19{
+    next = next_offset
+    offset = 1
+    wr = true
+    mdr_out_en = true
+  }
+  20{
+    next = next_fetch
+    mdr_out_en = true
     marl_wrt = true
     marh_wrt = true
     mar_in_src = pc

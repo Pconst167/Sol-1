@@ -79,6 +79,7 @@ MOV AH,BH                       25    1    NOP      1
 MOV AH,GL                       23FD  2    NOP      1
 MOV AH,GH                       24FD  2    NOP      1
 MOV AH,@                        22    2    NOP      1
+MOV AH,[D]                      B5FD  2    NOP      1
 MOV B,A                         27    1    NOP      1
 MOV B,C                         28    1    NOP      1
 MOV B,D                         2D    1    NOP      1
@@ -124,6 +125,7 @@ MOV D,C                         3CFD  2    NOP      1
 MOV D,G                         3BFD  2    NOP      1
 MOV D,@                         3B    3    NOP      1
 MOV [D],AL                      3E    1    NOP      1
+MOV [D],AH                      B7FD  2    NOP      1
 MOV [D],BL                      3EFD  2    NOP      1
 MOV [D+@],AL                    3F    3    NOP      1
 MOV [BP+@],AL                   40    3    NOP      1

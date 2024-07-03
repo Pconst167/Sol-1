@@ -586,12 +586,13 @@ void expand_all_included_files(void){
           strcpy(filename, libc_directory);
           for(;;){
             get();
+            if(curr_token.tok_type == END) error(ERR_FATAL, "syntax error in include directive: ('>' expected)");
             if(curr_token.tok == GREATER_THAN) break;
             strcat(filename, curr_token.token_str);
           }
         }
-        else error(ERR_FATAL, "Syntax error in include directive.");
-        if((fp = fopen(filename, "rb")) == NULL) error(ERR_FATAL, "%s: Included source file not found.\n", filename);
+        else error(ERR_FATAL, "syntax error in include directive");
+        if((fp = fopen(filename, "rb")) == NULL) error(ERR_FATAL, "%s: included source file not found\n", filename);
         delete(temp_prog2, prog - temp_prog2);
         pi = include_files_buffer;
         while(*pi) pi++;
@@ -1530,6 +1531,7 @@ int declare_local(void){
           emitln("  push d");
           init_expr = parse_expr();
           emitln("  pop d");
+          printf("%d %d %d", init_expr.ind_level, init_expr.size_modifier, init_expr.primitive_type);
           if(init_expr.ind_level > 0)
             emitln("  mov [d], b");
           else if(init_expr.primitive_type == DT_INT && init_expr.ind_level == 0 && init_expr.size_modifier == SIZEMOD_LONG){
@@ -3394,26 +3396,24 @@ t_type parse_factors(void){
   if(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
     emitln("; --- START FACTORS");
     emitln("  push a");
-    if(type_is_32bit(type1)) emitln("  push g");
+    emitln("  push g");
     emitln("  mov a, b");
-    if(type_is_32bit(expr_out)) emitln("  mov g, c");
+    emitln("  mov g, c");
     while(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
       temp_tok = curr_token.tok;
       type2 = parse_atomic();
       expr_out = cast(expr_out, type2);
       if(temp_tok == STAR){
         if(type_is_32bit(expr_out)){
-          if(!type_is_32bit(expr_out))
-            emitln("  mov g, 0");
-
-          // ga * cb
-          // b*a + b*g<<16 + c*a<<16 + c*g<<32
-          emitln("  mul a, b ; *"); // result in 
+          if(type_is_32bit(type2)){ error(ERR_WARNING, "multiplying two 32bit numbers results in a 64bit number overflow");}
 
         }
         else{
           emitln("  mul a, b ; *");
+          emitln("  mov g, a");
           emitln("  mov a, b");
+          expr_out.size_modifier = SIZEMOD_LONG; // set it as a 32bit int
+          puts("result is 32bit");
         }
       }
       else if(temp_tok == FSLASH){
@@ -3424,11 +3424,9 @@ t_type parse_factors(void){
         emitln("  mov a, b");
       }
     }
-    if(type_is_32bit(type1)){
-      emitln("  pop g");
-      emitln("  mov b, c");
-    }
+    emitln("  mov c, g");
     emitln("  mov b, a");
+    emitln("  pop g");
     emitln("  pop a");
     emitln("; --- END FACTORS");
   }
@@ -3700,6 +3698,7 @@ t_type parse_integer_const(){
   t_type expr_out;
 
   emitln("  mov32 cb, $%08x", (uint32_t)(curr_token.int_const));
+
 
   expr_out.sign_modifier = curr_token.const_sign_modifier;
   expr_out.size_modifier = curr_token.const_size_modifier;
@@ -5431,18 +5430,6 @@ void convert_constant(){
   *s = '\0';
 }
 
-uint8_t prev_tok_is_binary_op(t_tok prev_tok){
-  return prev_tok == PLUS || prev_tok == MINUS ||
-         prev_tok == STAR || prev_tok ==  FSLASH ||
-         prev_tok == LESS_THAN || prev_tok ==  LESS_THAN_OR_EQUAL ||
-         prev_tok == GREATER_THAN || prev_tok ==  GREATER_THAN_OR_EQUAL ||
-         prev_tok == LOGICAL_AND || prev_tok == LOGICAL_OR ||
-         prev_tok == MOD|| prev_tok == AMPERSAND ||
-         prev_tok == BITWISE_OR || prev_tok == BITWISE_XOR ||
-         prev_tok == BITWISE_SHL || prev_tok ==  BITWISE_SHR ||
-         prev_tok == COMMA || prev_tok == CASE;
-}
-
 void get(void){
   static t_tok previous_tok = TOK_UNDEF;
   char *t;
@@ -5515,11 +5502,10 @@ void get(void){
     curr_token.tok_type = STRING_CONST;
     convert_constant(); // converts this string curr_token.token_str qith quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
   }
-  else if(is_digit(*prog) || (*prog == '-' && is_digit(*(prog+1)) && prev_tok_is_binary_op(previous_tok))){
+  else if(is_digit(*prog)){
     curr_token.tok_type = INTEGER_CONST;
     curr_token.const_size_modifier = SIZEMOD_NORMAL;
     curr_token.const_sign_modifier = SIGNMOD_SIGNED;
-    if(*prog == '-') *t++ = *prog++;
     if(*prog == '0' && *(prog+1) == 'x'){
       *t++ = *prog++;
       *t++ = *prog++;
@@ -5536,12 +5522,10 @@ void get(void){
     }
     if(*prog == 'L' || *prog == 'l' || *prog == 'u' || *prog == 'U'){
       while(*prog == 'L' || *prog == 'l' || *prog == 'u' || *prog == 'U'){
-        if(*prog == 'L' || *prog == 'l'){
+        if(*prog == 'L' || *prog == 'l')
           curr_token.const_size_modifier = SIZEMOD_LONG;
-        }
-        else if(*prog == 'U' || *prog == 'u'){
+        else if(*prog == 'U' || *prog == 'u')
           curr_token.const_sign_modifier = SIGNMOD_UNSIGNED;
-        }
         *t++ = *prog++;
       }
       *t = '\0';
@@ -5753,7 +5737,7 @@ void get(void){
 
 void back(void){
   char *t = curr_token.token_str;
-
+  
   while(*t){
     prog--;
     t++;
