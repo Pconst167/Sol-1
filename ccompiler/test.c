@@ -2,8 +2,10 @@
 
 
 void main(){
-  long int i = -65536l;
+  int i = 100;
+  int j = -200;
 
+  printx32(i*j);
 
 
 }

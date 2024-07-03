@@ -27,32 +27,154 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408             ; long int i = -65536l; 
-0011   0408 52 04 00      sub sp, 4
+0010   0408             ; int i = 100; 
+0011   0408 52 02 00      sub sp, 2
 0012   040B             ; --- START LOCAL VAR INITIALIZATION
-0013   040B FA FD FF      lea d, [bp + -3] ; $i
+0013   040B FA FF FF      lea d, [bp + -1] ; $i
 0014   040E DA            push d
-0015   040F FD 2E 00 00   mov32 cb, $00010000
-0015   0413 01 00 
-0016   0415 12            mov a, c
-0017   0416 95            not a
-0018   0417 97            not b
-0019   0418 55 01 00      add b, 1
-0020   041B 5B 00 00      adc a, 0
-0021   041E 39            mov c, a
-0022   041F E7            pop d
-0023   0420 FD 43         mov [d], b
-0024   0422 28            mov b, c
-0025   0423 FD 44 02 00   mov [d + 2], b
-0026   0427             ; --- END LOCAL VAR INITIALIZATION
-0027   0427 05 0B         syscall sys_terminate_proc
-0028   0429             ; --- END TEXT SEGMENT
-0029   0429             
-0030   0429             ; --- BEGIN DATA SEGMENT
-0031   0429             
-0032   0429 2B 04       _heap_top: .dw _heap
-0033   042B 00          _heap: .db 0
-0034   042C             ; --- END DATA SEGMENT
-0035   042C             
-0036   042C             .end
+0015   040F FD 2E 64 00   mov32 cb, $00000064
+0015   0413 00 00 
+0016   0415 E7            pop d
+0017   0416 FD 43         mov [d], b
+0018   0418             ; --- END LOCAL VAR INITIALIZATION
+0019   0418             ; int j = -200; 
+0020   0418 52 02 00      sub sp, 2
+0021   041B             ; --- START LOCAL VAR INITIALIZATION
+0022   041B FA FD FF      lea d, [bp + -3] ; $j
+0023   041E DA            push d
+0024   041F FD 2E C8 00   mov32 cb, $000000c8
+0024   0423 00 00 
+0025   0425 FD 97         neg b
+0026   0427 E7            pop d
+0027   0428 FD 43         mov [d], b
+0028   042A             ; --- END LOCAL VAR INITIALIZATION
+0029   042A             ; printx32(i*j); 
+0030   042A             ; --- START FUNCTION CALL
+0031   042A FA FF FF      lea d, [bp + -1] ; $i
+0032   042D 2A            mov b, [d]
+0033   042E 38 00 00      mov c, 0
+0034   0431             ; --- START FACTORS
+0035   0431 D7            push a
+0036   0432 FD D8         push g
+0037   0434 11            mov a, b
+0038   0435 FD 7A         mov g, c
+0039   0437 FA FD FF      lea d, [bp + -3] ; $j
+0040   043A 2A            mov b, [d]
+0041   043B 38 00 00      mov c, 0
+0042   043E D7            push a     ; save left operand
+0043   043F 8E            xor a, b   ; xor sign bits
+0044   0440 FD AA         swp a      ; swap bytes
+0045   0442 83            mov cl, al ; save result of xor into 'dl'
+0046   0443 E4            pop a      ; restore left side operator
+0047   0444 DF            push cl    ; save result of xor above
+0048   0445 91 00 80      test a, $8000  
+0049   0448 C6 4D 04      jz skip_invert_a_0  
+0050   044B FD 95          neg a 
+0051   044D             skip_invert_a_0:   
+0052   044D FD AB         swp b
+0053   044F FD 93 80      test bl, $80  
+0054   0452 FD AB         swp b
+0055   0454 C6 59 04      jz skip_invert_b_0  
+0056   0457 FD 97          neg b 
+0057   0459             skip_invert_b_0:   
+0058   0459 AC            mul a, b ; *
+0059   045A FD 78         mov g, a
+0060   045C 11            mov a, b
+0061   045D EA            pop bl
+0062   045E FD 93 80      test bl, $80
+0063   0461 C6 73 04      jz _same_signs_0
+0064   0464 27            mov b, a
+0065   0465 FD 12         mov a, g
+0066   0467 95            not a
+0067   0468 97            not b
+0068   0469 55 01 00      add b, 1
+0069   046C 5B 00 00      adc a, 0
+0070   046F 39            mov c, a
+0071   0470 FD 7A         mov g, c
+0072   0472 11            mov a, b
+0073   0473             _same_signs_0:
+0074   0473 FD 38         mov c, g
+0075   0475 27            mov b, a
+0076   0476 FD F1         pop g
+0077   0478 E4            pop a
+0078   0479             ; --- END FACTORS
+0079   0479 12            mov a, c
+0080   047A FD AA         swp a
+0081   047C D7            push a
+0082   047D FD AB         swp b
+0083   047F D8            push b
+0084   0480 07 88 04      call printx32
+0085   0483 51 04 00      add sp, 4
+0086   0486             ; --- END FUNCTION CALL
+0087   0486 05 0B         syscall sys_terminate_proc
+0088   0488             
+0089   0488             printx32:
+0090   0488 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0091   048B             ; --- BEGIN INLINE ASM SEGMENT
+0092   048B FA 05 00      lea d, [bp + 5] ; $hex
+0093   048E 2B 02 00      mov b, [d+2]
+0094   0491 07 9A 04      call print_u16x_printx32
+0095   0494 2A            mov b, [d]
+0096   0495 07 9A 04      call print_u16x_printx32
+0097   0498             ; --- END INLINE ASM SEGMENT
+0098   0498             ; return; 
+0099   0498 F9            leave
+0100   0499 09            ret
+0101   049A             ; --- BEGIN INLINE ASM SEGMENT
+0102   049A             print_u16x_printx32:
+0103   049A D7            push a
+0104   049B D8            push b
+0105   049C DD            push bl
+0106   049D 30            mov bl, bh
+0107   049E 07 BC 04      call _itoa_printx32        
+0108   04A1 2F            mov bl, al        
+0109   04A2 19 00         mov al, 0
+0110   04A4 05 03         syscall sys_io        
+0111   04A6 24            mov ah, bl        
+0112   04A7 19 00         mov al, 0
+0113   04A9 05 03         syscall sys_io        
+0114   04AB EA            pop bl
+0115   04AC 07 BC 04      call _itoa_printx32        
+0116   04AF 2F            mov bl, al        
+0117   04B0 19 00         mov al, 0
+0118   04B2 05 03         syscall sys_io        
+0119   04B4 24            mov ah, bl        
+0120   04B5 19 00         mov al, 0
+0121   04B7 05 03         syscall sys_io        
+0122   04B9 E5            pop b
+0123   04BA E4            pop a
+0124   04BB 09            ret
+0125   04BC             _itoa_printx32:
+0126   04BC DA            push d
+0127   04BD D8            push b
+0128   04BE A7 00         mov bh, 0
+0129   04C0 FD A4 04      shr bl, 4  
+0130   04C3 74            mov d, b
+0131   04C4 1F D6 04      mov al, [d + s_hex_digits_printx32]
+0132   04C7 23            mov ah, al
+0133   04C8 E5            pop b
+0134   04C9 D8            push b
+0135   04CA A7 00         mov bh, 0
+0136   04CC FD 87 0F      and bl, $0F
+0137   04CF 74            mov d, b
+0138   04D0 1F D6 04      mov al, [d + s_hex_digits_printx32]
+0139   04D3 E5            pop b
+0140   04D4 E7            pop d
+0141   04D5 09            ret
+0142   04D6 30 31 32 33 s_hex_digits_printx32: .db "0123456789ABCDEF"  
+0142   04DA 34 35 36 37 
+0142   04DE 38 39 41 42 
+0142   04E2 43 44 45 46 
+0143   04E6             ; --- END INLINE ASM SEGMENT
+0144   04E6 F9            leave
+0145   04E7 09            ret
+0146   04E8             ; --- END TEXT SEGMENT
+0147   04E8             
+0148   04E8             ; --- BEGIN DATA SEGMENT
+0149   04E8             
+0150   04E8 EA 04       _heap_top: .dw _heap
+0151   04EA 00          _heap: .db 0
+0152   04EB             ; --- END DATA SEGMENT
+0153   04EB             
+0154   04EB             .end
 tasm: Number of errors = 0

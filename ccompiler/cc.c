@@ -3408,9 +3408,46 @@ t_type parse_factors(void){
 
         }
         else{
+          emitln("  push a     ; save left operand");
+          emitln("  xor a, b   ; xor sign bits");
+          emitln("  swp a      ; swap bytes");
+          emitln("  mov cl, al ; save result of xor into 'dl'");
+          emitln("  pop a      ; restore left side operator");
+          emitln("  push cl    ; save result of xor above");
+
+          emitln("  test a, $8000  ");
+          emitln("  jz skip_invert_a_%d  ", current_func_id);
+          emitln("   neg a ");
+          emitln("skip_invert_a_%d:   ", current_func_id);
+          emitln("  swp b");
+          emitln("  test bl, $80  ");
+          emitln("  swp b");
+          emitln("  jz skip_invert_b_%d  ", current_func_id);
+          emitln("   neg b ");
+          emitln("skip_invert_b_%d:   ", current_func_id);
+
           emitln("  mul a, b ; *");
           emitln("  mov g, a");
           emitln("  mov a, b");
+
+          emitln("  pop bl");
+          emitln("  test bl, $80");
+          emitln("  jz _same_signs_%d", current_func_id);
+
+          emitln("  mov b, a");
+          emitln("  mov a, g");
+          emitln("  not a");
+          emitln("  not b");
+          emitln("  add b, 1");
+          emitln("  adc a, 0");
+          emitln("  mov c, a");
+
+          emitln("  mov g, c");
+          emitln("  mov a, b");
+
+          emitln("_same_signs_%d:", current_func_id);
+
+
           expr_out.size_modifier = SIZEMOD_LONG; // set it as a 32bit int
           puts("result is 32bit");
         }
