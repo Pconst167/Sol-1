@@ -1531,7 +1531,6 @@ int declare_local(void){
           emitln("  push d");
           init_expr = parse_expr();
           emitln("  pop d");
-          printf("%d %d %d", init_expr.ind_level, init_expr.size_modifier, init_expr.primitive_type);
           if(init_expr.ind_level > 0)
             emitln("  mov [d], b");
           else if(init_expr.primitive_type == DT_INT && init_expr.ind_level == 0 && init_expr.size_modifier == SIZEMOD_LONG){
@@ -3778,10 +3777,9 @@ t_type parse_unary_minus(){
   back();
   expr_out.primitive_type = DT_INT; // convert to int
   expr_out.ind_level = 0;
-  expr_out.sign_modifier = expr_out.sign_modifier;
-  expr_out.size_modifier = SIZEMOD_NORMAL;
   return expr_out;
 }
+
 t_type parse_char_const(){
   t_type expr_out;
   emitln("  mov32 cb, $000000%02x", curr_token.string_const[0]);

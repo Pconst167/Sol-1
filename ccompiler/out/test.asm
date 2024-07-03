@@ -21,6 +21,8 @@ main:
   mov c, a
   pop d
   mov [d], b
+  mov b, c
+  mov [d + 2], b
 ; --- END LOCAL VAR INITIALIZATION
   syscall sys_terminate_proc
 ; --- END TEXT SEGMENT

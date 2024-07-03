@@ -42,15 +42,17 @@
 0021   041E 39            mov c, a
 0022   041F E7            pop d
 0023   0420 FD 43         mov [d], b
-0024   0422             ; --- END LOCAL VAR INITIALIZATION
-0025   0422 05 0B         syscall sys_terminate_proc
-0026   0424             ; --- END TEXT SEGMENT
-0027   0424             
-0028   0424             ; --- BEGIN DATA SEGMENT
-0029   0424             
-0030   0424 26 04       _heap_top: .dw _heap
-0031   0426 00          _heap: .db 0
-0032   0427             ; --- END DATA SEGMENT
-0033   0427             
-0034   0427             .end
+0024   0422 28            mov b, c
+0025   0423 FD 44 02 00   mov [d + 2], b
+0026   0427             ; --- END LOCAL VAR INITIALIZATION
+0027   0427 05 0B         syscall sys_terminate_proc
+0028   0429             ; --- END TEXT SEGMENT
+0029   0429             
+0030   0429             ; --- BEGIN DATA SEGMENT
+0031   0429             
+0032   0429 2B 04       _heap_top: .dw _heap
+0033   042B 00          _heap: .db 0
+0034   042C             ; --- END DATA SEGMENT
+0035   042C             
+0036   042C             .end
 tasm: Number of errors = 0
