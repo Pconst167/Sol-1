@@ -26,6 +26,42 @@ main:
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
+; printx16(i); 
+; --- START FUNCTION CALL
+  lea d, [bp + -1] ; $i
+  mov b, [d]
+  mov c, 0
+  swp b
+  push b
+  call printx16
+  add sp, 2
+; --- END FUNCTION CALL
+; print("\n"); 
+; --- START FUNCTION CALL
+  mov b, _s0 ; "\n"
+  swp b
+  push b
+  call print
+  add sp, 2
+; --- END FUNCTION CALL
+; printx16(j); 
+; --- START FUNCTION CALL
+  lea d, [bp + -3] ; $j
+  mov b, [d]
+  mov c, 0
+  swp b
+  push b
+  call printx16
+  add sp, 2
+; --- END FUNCTION CALL
+; print("\n"); 
+; --- START FUNCTION CALL
+  mov b, _s0 ; "\n"
+  swp b
+  push b
+  call print
+  add sp, 2
+; --- END FUNCTION CALL
 ; printx32(i*j); 
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $i
@@ -45,7 +81,9 @@ main:
   mov cl, al ; save result of xor into 'dl'
   pop a      ; restore left side operator
   push cl    ; save result of xor above
-  test a, $8000  
+  swp a  
+  test al, $80  
+  swp a  
   jz skip_invert_a_0  
    neg a 
 skip_invert_a_0:   
@@ -85,6 +123,75 @@ _same_signs_0:
   add sp, 4
 ; --- END FUNCTION CALL
   syscall sys_terminate_proc
+
+printx16:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  lea d, [bp + 5] ; $hex
+  mov b, [d]
+print_u16x_printx16:
+  push bl
+  mov bl, bh
+  call _itoa_printx16        
+  mov bl, al        
+  mov al, 0
+  syscall sys_io        
+  mov ah, bl        
+  mov al, 0
+  syscall sys_io        
+  pop bl
+  call _itoa_printx16        
+  mov bl, al        
+  mov al, 0
+  syscall sys_io        
+  mov ah, bl        
+  mov al, 0
+  syscall sys_io        
+; --- END INLINE ASM SEGMENT
+; return; 
+  leave
+  ret
+; --- BEGIN INLINE ASM SEGMENT
+_itoa_printx16:
+  push d
+  push b
+  mov bh, 0
+  shr bl, 4  
+  mov d, b
+  mov al, [d + s_hex_digits_printx16]
+  mov ah, al
+  pop b
+  push b
+  mov bh, 0
+  and bl, $0F
+  mov d, b
+  mov al, [d + s_hex_digits_printx16]
+  pop b
+  pop d
+  ret
+s_hex_digits_printx16:    .db "0123456789ABCDEF"  
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+print:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  lea d, [bp + 5] ; $s
+  mov d, [d]
+_puts_L1_print:
+  mov al, [d]
+  cmp al, 0
+  jz _puts_END_print
+  mov ah, al
+  mov al, 0
+  syscall sys_io
+  inc d
+  jmp _puts_L1_print
+_puts_END_print:
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
 
 printx32:
   enter 0 ; (push bp; mov bp, sp)
@@ -146,6 +253,7 @@ s_hex_digits_printx32: .db "0123456789ABCDEF"
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
+_s0: .db "\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

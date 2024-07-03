@@ -3415,7 +3415,9 @@ t_type parse_factors(void){
           emitln("  pop a      ; restore left side operator");
           emitln("  push cl    ; save result of xor above");
 
-          emitln("  test a, $8000  ");
+          emitln("  swp a  ");
+          emitln("  test al, $80  ");
+          emitln("  swp a  ");
           emitln("  jz skip_invert_a_%d  ", current_func_id);
           emitln("   neg a ");
           emitln("skip_invert_a_%d:   ", current_func_id);

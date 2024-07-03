@@ -16032,7 +16032,8 @@
   5{
     next = next_fetch
     alu_x = ah
-    alu_op = plus
+    alu_op = and
+    alu_mode = logic
     zf_in_src = alu_zf_and_zf  
     sf_in_src = zbus_7
     alu_y = mdrh
@@ -16040,6 +16041,7 @@
     marh_wrt = true
     mar_in_src = pc
   }
+
   16{
     next = next_offset
     offset = 1
@@ -16264,6 +16266,7 @@
     marh_wrt = true
     mar_in_src = pc
   }
+
   16{
     next = next_offset
     offset = 1
@@ -18085,7 +18088,7 @@
   }
 }
 
-0xAA, "snex a - swp A"{
+0xAA, "snex a - swp a"{
   0{
     next = next_fetch
     zbus_out_src = sign_extended
