@@ -1,9 +1,3 @@
-void include_ctype_lib(){
-  asm{
-    .include "lib/asm/ctype.asm"
-  }
-}
-
 char is_space(char c){
   return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }

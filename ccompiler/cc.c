@@ -345,8 +345,9 @@ int main(int argc, char *argv[]){
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
   expand_all_included_files();
-  declare_all_defines();
   search_and_add_func();
+  declare_all_defines();
+  //dbg(c_in);
   declare_heap_global_var();
   pre_processor();
   pre_scan();
@@ -537,7 +538,7 @@ void declare_all_defines(){
     if(curr_token.tok == DIRECTIVE){
       get();
       if(curr_token.tok == DEFINE){
-        //declare_define();
+        declare_define();
       }
       else back();
     }
@@ -553,12 +554,13 @@ void declare_all_defines(){
     if(curr_token.tok == DIRECTIVE){
       get();
       if(curr_token.tok == DEFINE){
-        //declare_define();
+        declare_define();
       }
       else back();
     }
   } 
 
+puts("OK");
   prog = c_in;
 }
 
@@ -606,30 +608,49 @@ void expand_all_included_files(void){
         *pi++ = '\n';
         *(pi) = '\0'; // overwrite the EOF char with NULL
         fclose(fp);
-        prog = include_files_buffer;
-        found_include = FALSE;
-        for(;;){
-          temp_prog = prog;
-          get();
-          if(curr_token.tok_type == END){
-            goto end_of_includes;
-          }
-          else if(curr_token.tok == DIRECTIVE){
-            get();
-            if(curr_token.tok == INCLUDE){
-              found_include = TRUE;
-              prog = temp_prog;
-              break;
-            }
-          }
-        }
-        if(found_include == TRUE) continue;
-        else break;
       }
     }
-  } 
+  }
 
-  end_of_includes:
+
+  prog = include_files_buffer;
+  for(;;){
+    get(); 
+    back(); // So that we discard possible new line chars at end of lines
+    temp_prog2 = prog;
+    get();
+    if(curr_token.tok_type == END) break;
+    if(curr_token.tok == DIRECTIVE){
+      get();
+      if(curr_token.tok == INCLUDE){
+        get();
+        if(curr_token.tok_type == STRING_CONST) strcpy(filename, curr_token.string_const);
+        else if(curr_token.tok == LESS_THAN){
+          strcpy(filename, libc_directory);
+          for(;;){
+            get();
+            if(curr_token.tok_type == END) error(ERR_FATAL, "syntax error in include directive: ('>' expected)");
+            if(curr_token.tok == GREATER_THAN) break;
+            strcat(filename, curr_token.token_str);
+          }
+        }
+        else error(ERR_FATAL, "syntax error in include directive");
+        if((fp = fopen(filename, "rb")) == NULL) error(ERR_FATAL, "%s: included source file not found\n", filename);
+        delete(temp_prog2, prog - temp_prog2);
+        pi = include_files_buffer;
+        while(*pi) pi++;
+        do{
+          *pi = getc(fp);
+          pi++;
+        } while(!feof(fp));
+        *(pi-1) = '\n';
+        *pi++ = '\n';
+        *(pi) = '\0'; // overwrite the EOF char with NULL
+        fclose(fp);
+      }
+    }
+  }
+
   prog = c_in;
 }
 
@@ -840,6 +861,8 @@ void declare_define(){
   get(); // get define's name
   strcpy(defines_table[defines_tos].name, curr_token.token_str);
   // get value
+  get(); // get define's name
+  back(); // skip spaces
   while(*prog != '\n' && *prog != '\0' && *prog != '/' && *(prog+1) != '/'){
     *p++ = *prog++;
   }
