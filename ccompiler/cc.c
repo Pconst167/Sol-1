@@ -347,10 +347,11 @@ int main(int argc, char *argv[]){
   expand_all_included_files();
   search_and_add_func();
   declare_all_defines();
-  //dbg(c_in);
   declare_heap_global_var();
   pre_processor();
+  dbg(c_in);
   pre_scan();
+  dbg(c_in);
 
   if((main_index = search_function("main")) != -1){
     if(search_function_parameter(main_index, "argc") != -1 && search_function_parameter(main_index, "argv") != -1){
@@ -527,9 +528,12 @@ void build_referenced_func_list(void){
 }
 
 void declare_all_defines(){
+  char *p;
+
   prog = c_in;
 
   for(;;){
+    p = prog;
     get(); 
     if(curr_token.tok_type == END) {
       prog = c_in;
@@ -538,14 +542,15 @@ void declare_all_defines(){
     if(curr_token.tok == DIRECTIVE){
       get();
       if(curr_token.tok == DEFINE){
+        prog = p;
         declare_define();
       }
-      else back();
     }
   } 
 
   prog = include_files_buffer;
   for(;;){
+    p = prog;
     get(); 
     if(curr_token.tok_type == END){
       prog = c_in;
@@ -554,13 +559,12 @@ void declare_all_defines(){
     if(curr_token.tok == DIRECTIVE){
       get();
       if(curr_token.tok == DEFINE){
+        prog = p;
         declare_define();
       }
-      else back();
     }
   } 
 
-puts("OK");
   prog = c_in;
 }
 
@@ -856,19 +860,19 @@ void parse_functions(void){
 
 void declare_define(){
   char *p;
+  char *d = prog;
 
+  get();
+  get();
   p = defines_table[defines_tos].content;
   get(); // get define's name
   strcpy(defines_table[defines_tos].name, curr_token.token_str);
   // get value
-  get(); // get define's name
-  back(); // skip spaces
-  while(*prog != '\n' && *prog != '\0' && *prog != '/' && *(prog+1) != '/'){
-    *p++ = *prog++;
-  }
-  *p = '\0';
-  if(*prog == '/' && *(prog+1) == '/') while(*prog != '\0' && *prog != '\n') prog++;
+  get(); 
+  strcpy(defines_table[defines_tos].content, curr_token.token_str);
   defines_tos++;
+
+  delete(d, prog - d);
 }
 
 void delete(char *start, int len){
@@ -953,12 +957,12 @@ void pre_processor(void){
         insert(temp_prog, include_files_buffer);
         prog = c_in;
         continue;
-      }*/
+      }
       else if(curr_token.tok == DEFINE){
         declare_define();
         delete(temp_prog, prog - temp_prog);
         continue;
-      }
+      }*/
     }
     else{
       if((define_id = search_define(curr_token.token_str)) != -1){
@@ -5543,13 +5547,7 @@ void get(void){
   else if(*prog == '\"'){
     *t++ = *prog++;
     while(*prog != '\"' && *prog){
-      if(*prog == '\\' && *(prog + 1) == '\"'){
-        *t++ = '\\';
-        *t++ = '\"';
-        prog += 2;
-      }
-      else
-        *t++ = *prog++;
+      *t++ = *prog++;
     }
     if(*prog != '\"') error(ERR_FATAL, "Double quotes expected");
     *t++ = *prog++;
