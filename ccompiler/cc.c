@@ -267,7 +267,6 @@ int prog_tos;
 
 char include_kernel_exp = 1;
 char org[64] = "text_org";
-int include_files_total_lines;
 char included_functions_table[512][ID_LEN];
 
 t_token curr_token;
@@ -527,33 +526,36 @@ void build_referenced_func_list(void){
 }
 
 void declare_all_defines(){
-  FILE *fp;
-  int i, define_id;
-  char *p, *temp_prog, *temp_prog2;
-  char *pi;
-  char filename[256];
-
   prog = c_in;
+
   for(;;){
     get(); 
-    if(curr_token.tok_type == END) break;
+    if(curr_token.tok_type == END) {
+      prog = c_in;
+      return;
+    }
     if(curr_token.tok == DIRECTIVE){
       get();
       if(curr_token.tok == DEFINE){
-        declare_define();
+        //declare_define();
       }
+      else back();
     }
   } 
 
   prog = include_files_buffer;
   for(;;){
     get(); 
-    if(curr_token.tok_type == END) break;
+    if(curr_token.tok_type == END){
+      prog = c_in;
+      return;
+    }
     if(curr_token.tok == DIRECTIVE){
       get();
       if(curr_token.tok == DEFINE){
-        declare_define();
+        //declare_define();
       }
+      else back();
     }
   } 
 
@@ -598,7 +600,6 @@ void expand_all_included_files(void){
         while(*pi) pi++;
         do{
           *pi = getc(fp);
-          if(*pi == '\n') include_files_total_lines++;
           pi++;
         } while(!feof(fp));
         *(pi-1) = '\n';
@@ -921,7 +922,6 @@ void pre_processor(void){
         p = include_files_buffer;
         do{
           *p = getc(fp);
-          if(*p == '\n') include_files_total_lines++;
           p++;
         } while(!feof(fp));
         *(p - 1) = '\0'; // overwrite the EOF char with NULL
@@ -1064,7 +1064,7 @@ void pre_scan(void){
       continue;
     }
     else if(declaration_kind == -1){
-      error(ERR_FATAL, "Unexpected token during pre-scan phase: %s", curr_token.token_str);
+      error(ERR_FATAL, "unexpected token during pre-scan phase: %s", curr_token.token_str);
     }
     get();
   } while(curr_token.tok_type != END);
@@ -3399,15 +3399,12 @@ t_type parse_factors(void){
     emitln("  mov a, b");
     emitln("  mov g, c");
     while(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
+      highest_label_index++;
       temp_tok = curr_token.tok;
       type2 = parse_atomic();
       expr_out = cast(expr_out, type2);
       if(temp_tok == STAR){
         if(type_is_32bit(expr_out)){
-          if(type_is_32bit(type2)){ error(ERR_WARNING, "multiplying two 32bit numbers results in a 64bit number overflow");}
-
-        }
-        else{
           emitln("  push a     ; save left operand");
           emitln("  xor a, b   ; xor sign bits");
           emitln("  swp a      ; swap bytes");
@@ -3418,15 +3415,15 @@ t_type parse_factors(void){
           emitln("  swp a  ");
           emitln("  test al, $80  ");
           emitln("  swp a  ");
-          emitln("  jz skip_invert_a_%d  ", current_func_id);
+          emitln("  jz skip_invert_a_%d  ", highest_label_index);
           emitln("   neg a ");
-          emitln("skip_invert_a_%d:   ", current_func_id);
+          emitln("skip_invert_a_%d:   ", highest_label_index);
           emitln("  swp b");
           emitln("  test bl, $80  ");
           emitln("  swp b");
-          emitln("  jz skip_invert_b_%d  ", current_func_id);
+          emitln("  jz skip_invert_b_%d  ", highest_label_index);
           emitln("   neg b ");
-          emitln("skip_invert_b_%d:   ", current_func_id);
+          emitln("skip_invert_b_%d:   ", highest_label_index);
 
           emitln("  mul a, b ; *");
           emitln("  mov g, a");
@@ -3434,7 +3431,7 @@ t_type parse_factors(void){
 
           emitln("  pop bl");
           emitln("  test bl, $80");
-          emitln("  jz _same_signs_%d", current_func_id);
+          emitln("  jz _same_signs_%d", highest_label_index);
 
           emitln("  mov b, a");
           emitln("  mov a, g");
@@ -3447,11 +3444,9 @@ t_type parse_factors(void){
           emitln("  mov g, c");
           emitln("  mov a, b");
 
-          emitln("_same_signs_%d:", current_func_id);
-
+          emitln("_same_signs_%d:", highest_label_index);
 
           expr_out.size_modifier = SIZEMOD_LONG; // set it as a 32bit int
-          puts("result is 32bit");
         }
       }
       else if(temp_tok == FSLASH){
@@ -5845,7 +5840,7 @@ void error(t_error_type error_type, const char* format, ...){
   else 
     printf("\nerror       : %s\n", tempbuffer);
 
-  printf("at line %d   : ", line - include_files_total_lines);
+  printf("at line %d   : ", line);
   while(*prog != '\n' && prog != c_in) prog--;
   prog++;
   while(*prog != '\n') putchar(*prog++);

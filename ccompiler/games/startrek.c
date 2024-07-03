@@ -77,7 +77,7 @@
  *
  */
 
-#include <stdio.h>
+#include <stdio2.h>
 #include <ctype.h>
 
 #define TREK_DIR	"./STAR_TREK"
@@ -1702,4 +1702,3 @@ void showfile(char *filename)
 	fclose(fp);
 	*/
 }
-
