@@ -242,6 +242,11 @@ typedef struct{
   char *end;
 } t_function_endpoints;
 
+typedef struct{
+  char name[ID_LEN];
+  t_function_endpoints endpoints;
+} t_included_function_list_item;
+
 // functions
 char is_delimiter(char c);
 char is_identifier_char(char c);
@@ -428,3 +433,6 @@ void parse_union_initialization_data(int union_id, int array_size);
 int get_union_elements_count(int struct_enum_union_id);
 int get_union_element_offset(int union_id, char *name);
 t_type get_union_element_type(int union_id, char *name);
+void add_included_function_to_list(char *name);
+t_included_function_list_item find_included_function(char *name);
+uint8_t is_function_declaration();

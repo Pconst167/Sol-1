@@ -780,7 +780,7 @@ int scann(){
     pop d
     ret
 
-  table_power:
+  table_power_scann:
     .dw 1
     .dw 10
     .dw 100

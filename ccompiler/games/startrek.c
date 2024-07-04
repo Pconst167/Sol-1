@@ -78,14 +78,13 @@ const char *dcr_1 = "Damage Control report:";
 
 /* Main Program */
 
-int main(int argc, char *argv[])
+int main()
 {
-	//chdir(TREK_DIR);
 	intro();
 
 	new_game();
 
-	return (0);
+	return 0;
 }
 
 /* We probably need double digit for co-ordinate maths, single for time */
@@ -145,7 +144,9 @@ uint8_t yesno(void)
 {
 	char b[2];
 	input(b,2);
-	if (tolower(*b) == 'y')
+
+	tolower(*b);
+
 		return 1;
 	return 0;
 }
@@ -228,7 +229,7 @@ void intro(void)
 	stardate = TO_FIXED((get_rand(20) + 20) * 100);
 }
 
-void new_game(void)
+static void new_game(void)
 {
 	char cmd[4];
 
@@ -244,7 +245,7 @@ void new_game(void)
 			end_of_time();
 		}
 
-		puts("Command? ");
+		fputs("Command? ", stdout);
 
 		input(cmd, 4);
 		putchar('\n');
@@ -1379,8 +1380,6 @@ void end_of_game(void)
 		     puts(" enter 'aye': ");
 
 		input(x,4);
-		if (!strncmp(x, "aye", 3))
-			new_game();
 	}
 	exit();
 }
@@ -1604,38 +1603,12 @@ int distance_to(struct klingon *k)
 
 	/* Find the integer square root */
 	j = isqrt(j);
-	/* Correct back into 0.00 fixed point */
-	j =j* 10;
-
-	return j;
+	/* Correct back into 0.00 fixed po
+	fclose(fp);
+	*/
 }
-
-
-/* Round off floating point numbers instead of truncating */
 
 int cint100(int16_t d)
 {
 	return (d + 50) / 100;
-}
-
-void showfile(char *filename)
-{
-	/*FILE *fp;
-	char buffer[MAXCOL];
-	int row = 0;
-
-	fp = fopen(filename, "r");
-	if (fp == NULL) {
-		perror(filename);
-		return;
-	}
-	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-		puts(buffer);
-		if (row++ > MAXROW - 3) {
-			getchar();
-			row = 0;
-		}
-	}
-	fclose(fp);
-	*/
 }

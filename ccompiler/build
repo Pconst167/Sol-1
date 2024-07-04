@@ -10,7 +10,7 @@ file_name=$(basename "$full_path")
 file_name="${file_name%.*}"
 
 
-make FILE=$full_path
+make 
 
 ./cc "$full_path" $@
 

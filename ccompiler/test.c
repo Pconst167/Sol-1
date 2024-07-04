@@ -7,10 +7,20 @@
 
 
 void main(){
-  myfunc();
+  myfunc(2);
   printf(str1);
   atoi(2);
 }
 
 int myfunc(int a){
+  func();
+}
+
+void func(){
+  haha();
+}
+
+void haha(){
+
+  tolower('a');
 }

@@ -262,7 +262,7 @@ int typedef_table_tos;
 int string_table_tos;
 
 char *prog;                           // pointer to the current program position
-char *prog_stack[1024];
+char *prog_stack[2048];
 int prog_tos;
 
 char include_kernel_exp = 1;
@@ -309,6 +309,30 @@ int label_tos_while;
 int label_tos_switch;
 int label_tos_cmp;
 
+
+t_included_function_list_item included_function_list[1024];
+int included_function_list_tos;
+
+void add_included_function_to_list(char *name){
+  printf("New function added: %s\n", name);
+  if(included_function_list_tos == 1024) error(ERR_FATAL, "maximum number of included functions in list is reached");
+  strcpy(included_function_list[included_function_list_tos].name, name);
+  included_function_list_tos++;
+}
+
+t_included_function_list_item find_included_function(char *name){
+  register int i;
+  t_included_function_list_item item = {0};
+
+  for(i = 0; i < included_function_list_tos; i++){
+    if(!strcmp(included_function_list[i].name, name)){
+      return included_function_list[i];
+    }
+  }
+  return item;
+}
+
+
 // --- MAIN
 int main(int argc, char *argv[]){
   int main_index;
@@ -346,6 +370,7 @@ int main(int argc, char *argv[]){
   data_block_p = data_block_asm; // data block pointer
   declare_heap_global_var();
   pre_processor();
+  puts("Finished pre-processor");
   pre_scan();
 
   if((main_index = search_function("main")) != -1){
@@ -392,7 +417,9 @@ int main(int argc, char *argv[]){
 
   return 0;
 }
+/*
 
+*/
 void search_and_add_func(){
   char *temp_prog;
   char func_name[ID_LEN];
@@ -427,7 +454,6 @@ void search_and_add_func(){
 
   fetch_included_functions(main_loc);
 
-  dbg("");
   prog = c_in;
 }
 
@@ -438,9 +464,9 @@ void fetch_included_functions(char *func_loc){
   t_function_endpoints endpoints = {NULL};
   char function[FUNCTION_SIZE_MAX_LEN];
   char *origin, *dest;
+  t_included_function_list_item included_function;
 
   prog = func_loc;
-
   for(;;){
     temp_prog = prog;
     get();
@@ -454,9 +480,12 @@ void fetch_included_functions(char *func_loc){
       get();
       if(curr_token.tok == OPENING_PAREN){
         endpoints = locate_function(c_in, func_name);
+        included_function = find_included_function(func_name);
+        if(included_function.name[0] != '\0') continue; // if the function is in the list, it was already added previously
         if(endpoints.start == NULL){
           endpoints = locate_function(include_files_buffer, func_name);
           if(endpoints.start != NULL){ // include function if it exists
+            add_included_function_to_list(func_name); // add new function to the list
             origin = endpoints.start;
             dest = function;
             while(origin != endpoints.end){
@@ -495,7 +524,7 @@ void fetch_included_functions(char *func_loc){
 
 // unsigned long int my_func(int a, char b){}
 t_function_endpoints locate_function(char *location, char *name){
-  char *orig_prog = prog;
+  char *orig_prog;
   char *temp_prog;
   t_function_endpoints endpoints = {NULL};
 
@@ -510,21 +539,20 @@ t_function_endpoints locate_function(char *location, char *name){
       endpoints.end = NULL;
       return endpoints;
     }
-    if(type_detected() == 1){ // if is a function declaration. prog will be pointing to identifier
+    if(is_function_declaration()){ // if is a function declaration. prog will be pointing to identifier
       get();
-      if(curr_token.tok_type == IDENTIFIER){
-        if(!strcmp(curr_token.token_str, name)){
-          endpoints.start = temp_prog;
-          while(*prog != '{') prog++;
-          prog++;
-          skip_block(1); // find final '}' of function block
-          endpoints.end = prog;
-          prog = orig_prog;
-          return endpoints;
-        }
+      if(!strcmp(curr_token.token_str, name)){
+        endpoints.start = temp_prog;
+        while(*prog != '{') prog++;
+        prog++;
+        skip_block(1); // find final '}' of function block
+        endpoints.end = prog;
+        prog = orig_prog;
+        return endpoints;
       }
     }
   }
+  error(ERR_FATAL, "unterminated file while trying to locate function");
 }
 
 void build_referenced_func_list(void){
@@ -915,8 +943,8 @@ void pre_processor(void){
   char filename[256];
 
   expand_all_included_files();
-  search_and_add_func();
   declare_all_defines();
+  search_and_add_func();
 
   prog = c_in; 
   for(;;){
@@ -933,6 +961,63 @@ void pre_processor(void){
     }
   }
   prog = c_in;
+}
+
+uint8_t is_function_declaration(void){
+  char *prog_at_identifier;
+  int paren;
+
+  if(
+    curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED || 
+    curr_token.tok == LONG     || curr_token.tok == CONST    || 
+    curr_token.tok == VOID     || curr_token.tok == CHAR     ||
+    curr_token.tok == INT      || curr_token.tok == FLOAT    || 
+    curr_token.tok == DOUBLE   || curr_token.tok == STRUCT   ||
+    curr_token.tok == SHORT    || 
+    curr_token.tok == ENUM     || curr_token.tok == UNION    ||
+    curr_token.tok_type == IDENTIFIER
+  ){
+    while(
+      curr_token.tok == CONST    || 
+      curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED ||
+      curr_token.tok == LONG     || curr_token.tok == SHORT   
+    ){
+      get();
+    }
+    if(curr_token.tok == STRUCT || curr_token.tok == ENUM || curr_token.tok == UNION){
+      get();
+    }
+    prog_at_identifier = prog;
+    get();
+    if(curr_token.tok_type != IDENTIFIER && curr_token.tok != STAR) return 0;
+    if(curr_token.tok == STAR){
+      while(curr_token.tok == STAR){
+        prog_at_identifier = prog;
+        get();
+      }
+    }
+    if(curr_token.tok_type != IDENTIFIER) return 0;
+    get(); 
+    if(curr_token.tok == OPENING_PAREN){ 
+      paren = 1;
+      for(;;){
+        get();
+        if(curr_token.tok == OPENING_PAREN) paren++;
+        else if(curr_token.tok == CLOSING_PAREN) paren--;
+        if(paren == 0) break;
+      }
+      get();
+      prog = prog_at_identifier;
+      if(curr_token.tok == OPENING_BRACE) return 1;
+      else return 0;
+    }
+    else{
+      prog = prog_at_identifier;
+      return 0;
+    }
+  }
+
+  return 0;
 }
 
 // -1 : not a type
@@ -959,6 +1044,9 @@ int8_t type_detected(void){
       curr_token.tok == LONG     || curr_token.tok == SHORT    ||
       curr_token.tok == REGISTER || curr_token.tok == VOLATILE
     ){
+      get();
+    }
+    if(curr_token.tok == STRUCT || curr_token.tok == ENUM || curr_token.tok == UNION){
       get();
     }
     prog_at_identifier = prog;
@@ -4889,7 +4977,7 @@ t_primitive_type get_primitive_type_from_tok(){
     case ENUM:
       return DT_ENUM;
     default:
-      error(ERR_FATAL, "Unknown data type.");
+      error(ERR_FATAL, "Unknown data type (get_primitive_type_from_tok)");
   }
 }
 
@@ -5761,7 +5849,7 @@ void back(void){
 }
 
 void push_prog(){
-  if(prog_tos == 1024) error(ERR_FATAL, "cannot push prog. Stack overflow.");
+  if(prog_tos == 2048) error(ERR_FATAL, "cannot push prog. Stack overflow.");
   prog_stack[prog_tos] = prog;
   prog_tos++;
 }
@@ -5816,19 +5904,25 @@ void error(t_error_type error_type, const char* format, ...){
     prog++;
   }
 
-  if(error_type == ERR_WARNING)
-    printf("\nwarning     : %s\n", tempbuffer);
-  else 
-    printf("\nerror       : %s\n", tempbuffer);
+  printf("\n************************************************");
 
-  printf("at line %d   : ", line);
+  if(error_type == ERR_WARNING)
+    printf("\n* warning       : %s\n", tempbuffer);
+  else 
+    printf("\n* error         : %s\n", tempbuffer);
+
+  printf("* in function   : %s\n", function_table[current_func_id].name);
+  printf("* at line %05d : ", line);
   while(*prog != '\n' && prog != c_in) prog--;
   prog++;
   while(*prog != '\n') putchar(*prog++);
   printf("\n");
-  printf("token       : %s\n", error_token);
-  printf("tok         : %s\n", tok_to_str(curr_token.tok));
-  printf("toktype     : %s\n\n", tok_type_to_str[curr_token.tok_type].as_str);
+  printf("* token string  : %s\n", error_token);
+  printf("* string const  : %s\n", curr_token.string_const);
+  printf("* int const     : %ld\n", curr_token.int_const);
+  printf("* tok           : %s\n", tok_to_str(curr_token.tok));
+  printf("* toktype       : %s\n", tok_type_to_str[curr_token.tok_type].as_str);
+  printf("************************************************\n");
 
   if(error_type == ERR_WARNING)
     prog = temp_prog;

@@ -192,7 +192,7 @@ void shoot() {
     while (k < len) {
         path[k] = getnum("ROOM #") - 1;
 
-        if ((k>1) && (path[k] == path[k-2])) {
+        if ((k>1) && (path[k] == path[k - 2])) {
             print("ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n");
             continue; 
        } 
@@ -245,7 +245,7 @@ void move() {
     scratchloc = -1;
     while (scratchloc == -1) {
 
-        scratchloc = getnum("\nWHERE TO: ")-1;
+        scratchloc = getnum("\nWHERE TO: ")- 1;
 
         if (scratchloc < 0 || scratchloc > 19) {
             scratchloc = -1;
@@ -298,7 +298,7 @@ void game_setup() {
             v = rand2();
             loc[j] = v % 20;
             
-            for (k=0; k<j-1; k++) {
+            for (k=0; k < j - 1; k++) {
                 if (loc[j] == loc[k]) {
                     loc[j] = -1;
                 }

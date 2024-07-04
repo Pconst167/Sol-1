@@ -12,7 +12,7 @@ main:
   sub sp, 2
 ; int n; 
   sub sp, 2
-; for(i = 0; i < 30      ; i++){ 
+; for(i = 0; i <  30      ; i++){ 
 _for1_init:
   lea d, [bp + -1] ; $i
   push d
@@ -34,7 +34,7 @@ _for1_cond:
   cmp b, 0
   je _for1_exit
 _for1_block:
-; for(j = 0; j < 40     ; j++){ 
+; for(j = 0; j <   40     ; j++){ 
 _for2_init:
   lea d, [bp + -3] ; $j
   push d
@@ -119,7 +119,7 @@ _for1_exit:
 _for3_init:
 _for3_cond:
 _for3_block:
-; for(i = 1; i < 30      +-1; i++){ 
+; for(i = 1; i <  30      +-1; i++){ 
 _for4_init:
   lea d, [bp + -1] ; $i
   push d
@@ -137,8 +137,7 @@ _for4_cond:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   add b, a
   pop a
 ; --- END TERMS
@@ -149,7 +148,7 @@ _for4_cond:
   cmp b, 0
   je _for4_exit
 _for4_block:
-; for(j = 1; j < 40     +-1; j++){ 
+; for(j = 1; j <   40     +-1; j++){ 
 _for5_init:
   lea d, [bp + -3] ; $j
   push d
@@ -167,8 +166,7 @@ _for5_cond:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   add b, a
   pop a
 ; --- END TERMS
@@ -314,7 +312,7 @@ _for4_update:
   mov b, a
   jmp _for4_cond
 _for4_exit:
-; for(i = 1; i < 30      +-1; i++){ 
+; for(i = 1; i <  30      +-1; i++){ 
 _for8_init:
   lea d, [bp + -1] ; $i
   push d
@@ -332,8 +330,7 @@ _for8_cond:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   add b, a
   pop a
 ; --- END TERMS
@@ -344,7 +341,7 @@ _for8_cond:
   cmp b, 0
   je _for8_exit
 _for8_block:
-; for(j = 1; j < 40     +-1; j++){ 
+; for(j = 1; j <   40     +-1; j++){ 
 _for9_init:
   lea d, [bp + -3] ; $j
   push d
@@ -362,8 +359,7 @@ _for9_cond:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   add b, a
   pop a
 ; --- END TERMS
@@ -464,7 +460,7 @@ show:
 ; int i, j; 
   sub sp, 2
   sub sp, 2
-; for(i = 0; i < 30      ; i++){ 
+; for(i = 0; i <  30      ; i++){ 
 _for10_init:
   lea d, [bp + -1] ; $i
   push d
@@ -486,7 +482,7 @@ _for10_cond:
   cmp b, 0
   je _for10_exit
 _for10_block:
-; for(j = 0; j < 40     ; j++){ 
+; for(j = 0; j <   40     ; j++){ 
 _for11_init:
   lea d, [bp + -3] ; $j
   push d
@@ -656,8 +652,7 @@ _if14_cond:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   add b, a
   pop a
 ; --- END TERMS
@@ -706,8 +701,7 @@ _if15_cond:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   add b, a
   pop a
 ; --- END TERMS
@@ -720,8 +714,7 @@ _if15_cond:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   add b, a
   pop a
 ; --- END TERMS
@@ -764,8 +757,7 @@ _if16_cond:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   add b, a
   pop a
 ; --- END TERMS
@@ -827,8 +819,7 @@ _if17_cond:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   add b, a
   pop a
 ; --- END TERMS
@@ -933,8 +924,7 @@ _if19_cond:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   add b, a
   pop a
 ; --- END TERMS

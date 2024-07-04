@@ -7,10 +7,6 @@ BASENAME = $(notdir $(basename $(FILE)))
 .PHONY: compile_file clean
 
 compile_file: cc
-ifeq ($(FILE),)
-	@echo "Error: Please provide a file to compile using FILE=<filename>"
-	@exit 1
-endif
 
 cc: cc.o char.o debug.o search.o
 	$(CC) $(CFLAGS) -o cc cc.o char.o debug.o search.o $(LIBS)
