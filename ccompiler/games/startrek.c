@@ -229,7 +229,7 @@ void intro(void)
 	stardate = TO_FIXED((get_rand(20) + 20) * 100);
 }
 
-static void new_game(void)
+void new_game(void)
 {
 	char cmd[4];
 
@@ -245,7 +245,7 @@ static void new_game(void)
 			end_of_time();
 		}
 
-		fputs("Command? ", stdout);
+		puts("Command? ");
 
 		input(cmd, 4);
 		putchar('\n');
@@ -1062,14 +1062,14 @@ void shield_control(void)
 	i = input_int();
 
 	if (i < 0 || shield == i) {
-unchanged:
+//unchanged:
 		puts("<Shields Unchanged>\n");
 		return;
 	}
 
 	if (i >= energy + shield) {
 		puts("Shield Control Reports:\n  'This is not the Federation Treasury.'");
-		goto unchanged;
+	//	goto unchanged;
 	}
 
 	energy = energy + shield - i;
@@ -1299,7 +1299,7 @@ void compute_vector(int16_t w1, int16_t x, int16_t c1, int16_t a)
 	if (x < 0) {
 		if (a > 0) {
 			c1 = 300;
-estimate2:
+//estimate2:
 		/* Multiply the top half by 100 to keep in fixed0 */
 			if (al >= xl)
 				printf("%s", print100(c1 + ((xl * 100) / al)));
@@ -1327,7 +1327,7 @@ estimate2:
 		//goto estimate1;
 	} else {
 		c1 = 100;
-estimate1:
+//estimate1:
 		/* Multiply the top half by 100 as well so that we keep it in fixed00
 		   format. Our larget value is int 9 (900) so we must do this 32bit */
 		if (al <= xl)
@@ -1611,4 +1611,27 @@ int distance_to(struct klingon *k)
 int cint100(int16_t d)
 {
 	return (d + 50) / 100;
+}
+
+void showfile(char *filename)
+{
+	/*
+	FILE *fp;
+	char buffer[MAXCOL];
+	int row = 0;
+
+	fp = fopen(filename, "r");
+	if (fp == NULL) {
+		perror(filename);
+		return;
+	}
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+		puts(buffer
+		if (row++ > MAXROW - 3) {
+			getchar();
+			row = 0;
+		}
+	}
+	fclose(fp);
+	*/
 }
