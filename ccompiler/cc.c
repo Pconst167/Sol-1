@@ -541,10 +541,11 @@ void declare_all_defines(){
       if(curr_token.tok == DEFINE){
         prog = p;
         declare_define();
+        prog = c_in;
       }
     }
   } 
-  dbg("OK2");
+  
   prog = include_files_buffer;
   for(;;){
     p = prog;
@@ -558,6 +559,7 @@ void declare_all_defines(){
       if(curr_token.tok == DEFINE){
         prog = p;
         declare_define();
+        prog = c_in;
       }
     }
   } 
