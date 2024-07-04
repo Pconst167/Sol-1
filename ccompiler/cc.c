@@ -349,9 +349,7 @@ int main(int argc, char *argv[]){
   declare_all_defines();
   declare_heap_global_var();
   pre_processor();
-  dbg(c_in);
   pre_scan();
-  dbg(c_in);
 
   if((main_index = search_function("main")) != -1){
     if(search_function_parameter(main_index, "argc") != -1 && search_function_parameter(main_index, "argv") != -1){
@@ -531,7 +529,6 @@ void declare_all_defines(){
   char *p;
 
   prog = c_in;
-
   for(;;){
     p = prog;
     get(); 
@@ -547,7 +544,7 @@ void declare_all_defines(){
       }
     }
   } 
-
+  dbg("OK2");
   prog = include_files_buffer;
   for(;;){
     p = prog;

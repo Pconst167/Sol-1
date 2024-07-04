@@ -1,7 +1,7 @@
 #include <stdio2.h>
 #include <ctype.h>
 
-#define TREK_DIR	"./STAR_TREK"
+#define str	"STARTREK"
 
 /* Standard Terminal Sizes */
 
@@ -10,5 +10,7 @@
 
 
 void main(){
-	printf(TREK_DIR);
+	printf(str);
 }
+
+

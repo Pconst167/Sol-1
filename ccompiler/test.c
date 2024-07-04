@@ -1,11 +1,10 @@
-#include <stdio2.h>
-#include <ctype.h>
 
-#define baa 23
+#define str	"STARTREK"
+
+
 
 void main(){
-
-  printf("Hi");
+  str;
 }
 
 
