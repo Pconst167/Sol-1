@@ -91,36 +91,33 @@ void printf(const char *format, ...){
           break;
 
         case 'x':
-          printx16(*(int*)p);
-          /*asm{
+          asm{
             ccmovd p
             mov d, [d]
             mov b, [d]
             call print_u16x
-          }*/
+          }
           p = p + 2;
           break;
 
         case 'c':
-          putchar(*(char*)p);
-          /*asm{
+          asm{
             ccmovd p
             mov d, [d]
             mov al, [d]
             mov ah, al
             call _putchar
-          }*/
+          }
           p = p + 1;
           break;
 
         case 's':
-          print(*(char**)p);
-          /*asm{
+          asm{
             ccmovd p
             mov d, [d]
             mov d, [d]
             call _puts
-          }*/
+          }
           p = p + 2;
           break;
 
@@ -241,6 +238,12 @@ void sprintf(char *dest, const char *format, ...){
           break;
 
         case 'x':
+          asm{
+            ccmovd p
+            mov d, [d]
+            mov b, [d]
+            call print_u16x
+          }
           p = p + 2;
           break;
 
@@ -278,58 +281,9 @@ void printx32(long int hex) {
   asm{
     ccmovd hex
     mov b, [d+2]
-    call print_u16x_printx32
+    call print_u16x
     mov b, [d]
-    call print_u16x_printx32
-  }
-  return;
-  asm{
-  print_u16x_printx32:
-    push a
-    push b
-    push bl
-    mov bl, bh
-    call _itoa_printx32        ; convert bh to char in A
-    mov bl, al        ; save al
-    mov al, 0
-    syscall sys_io        ; display AH
-    mov ah, bl        ; retrieve al
-    mov al, 0
-    syscall sys_io        ; display AL
-
-    pop bl
-    call _itoa_printx32        ; convert bh to char in A
-    mov bl, al        ; save al
-    mov al, 0
-    syscall sys_io        ; display AH
-    mov ah, bl        ; retrieve al
-    mov al, 0
-    syscall sys_io        ; display AL
-
-    pop b
-    pop a
-    ret
-
-  _itoa_printx32:
-    push d
-    push b
-    mov bh, 0
-    shr bl, 4  
-    mov d, b
-    mov al, [d + s_hex_digits_printx32]
-    mov ah, al
-    
-    pop b
-    push b
-    mov bh, 0
-    and bl, $0F
-    mov d, b
-    mov al, [d + s_hex_digits_printx32]
-    pop b
-    pop d
-    ret
-
-    s_hex_digits_printx32: .db "0123456789ABCDEF"  
+    call print_u16x
   }
 }
 
@@ -337,47 +291,7 @@ void printx16(int hex) {
   asm{
     ccmovd hex
     mov b, [d]
-  print_u16x_printx16:
-    push bl
-    mov bl, bh
-    call _itoa_printx16        ; convert bh to char in A
-    mov bl, al        ; save al
-    mov al, 0
-    syscall sys_io        ; display AH
-    mov ah, bl        ; retrieve al
-    mov al, 0
-    syscall sys_io        ; display AL
-
-    pop bl
-    call _itoa_printx16        ; convert bh to char in A
-    mov bl, al        ; save al
-    mov al, 0
-    syscall sys_io        ; display AH
-    mov ah, bl        ; retrieve al
-    mov al, 0
-    syscall sys_io        ; display AL
-  }
-  return;
-  asm{
-  _itoa_printx16:
-    push d
-    push b
-    mov bh, 0
-    shr bl, 4  
-    mov d, b
-    mov al, [d + s_hex_digits_printx16]
-    mov ah, al
-    pop b
-    push b
-    mov bh, 0
-    and bl, $0F
-    mov d, b
-    mov al, [d + s_hex_digits_printx16]
-    pop b
-    pop d
-    ret
-
-    s_hex_digits_printx16:    .db "0123456789ABCDEF"  
+    call print_u16x
   }
 }
 
@@ -385,36 +299,7 @@ void printx8(char hex) {
   asm{
     ccmovd hex
     mov bl, [d]
-    call _itoa_printx8        ; convert bl to char in A
-    mov bl, al        ; save al
-    mov al, 0
-    syscall sys_io        ; display AH
-    mov ah, bl        ; retrieve al
-    mov al, 0
-    syscall sys_io        ; display AL
-  }
-  return;
-  asm{
-  _itoa_printx8:
-    push d
-    push b
-    mov bh, 0
-    shr bl, 4  
-    mov d, b
-    mov al, [d + s_hex_digits_printx8]
-    mov ah, al
-    
-    pop b
-    push b
-    mov bh, 0
-    and bl, $0F
-    mov d, b
-    mov al, [d + s_hex_digits_printx8]
-    pop b
-    pop d
-    ret
-
-    s_hex_digits_printx8:    .db "0123456789ABCDEF"  
+    call print_u8x
   }
 }
 
@@ -442,106 +327,9 @@ int gets(char *s){
     ccmovd s
     mov a, [d]
     mov d, a
-    call _gets_gets
+    call _gets
   }
   return strlen(s);
-
-  asm{
-  _gets_gets:
-    push a
-    push d
-  _gets_loop_gets:
-    mov al, 1
-    syscall sys_io      ; receive in AH
-    cmp al, 0        ; check error code (AL)
-    je _gets_loop_gets      ; if no char received, retry
-
-    cmp ah, 27
-    je _gets_ansi_esc_gets
-    cmp ah, $0A        ; LF
-    je _gets_end_gets
-    cmp ah, $0D        ; CR
-    je _gets_end_gets
-    cmp ah, $5C        ; '\\'
-    je _gets_escape_gets
-    
-    cmp ah, $08      ; check for backspace
-    je _gets_backspace_gets
-
-    mov al, ah
-    mov [d], al
-    inc d
-    jmp _gets_loop_gets
-  _gets_backspace_gets:
-    dec d
-    jmp _gets_loop_gets
-  _gets_ansi_esc_gets:
-    mov al, 1
-    syscall sys_io        ; receive in AH without echo
-    cmp al, 0          ; check error code (AL)
-    je _gets_ansi_esc_gets    ; if no char received, retry
-    cmp ah, '['
-    jne _gets_loop_gets
-  _gets_ansi_esc_2_gets:
-    mov al, 1
-    syscall sys_io          ; receive in AH without echo
-    cmp al, 0            ; check error code (AL)
-    je _gets_ansi_esc_2_gets  ; if no char received, retry
-    cmp ah, 'D'
-    je _gets_left_arrow_gets
-    cmp ah, 'C'
-    je _gets_right_arrow_gets
-    jmp _gets_loop_gets
-  _gets_left_arrow_gets:
-    dec d
-    jmp _gets_loop_gets
-  _gets_right_arrow_gets:
-    inc d
-    jmp _gets_loop_gets
-  _gets_escape_gets:
-    mov al, 1
-    syscall sys_io      ; receive in AH
-    cmp al, 0        ; check error code (AL)
-    je _gets_escape_gets      ; if no char received, retry
-    cmp ah, 'n'
-    je _gets_LF_gets
-    cmp ah, 'r'
-    je _gets_CR_gets
-    cmp ah, '0'
-    je _gets_NULL_gets
-    cmp ah, $5C  
-    je _gets_slash_gets
-    mov al, ah        ; if not a known escape, it is just a normal letter
-    mov [d], al
-    inc d
-    jmp _gets_loop_gets
-  _gets_slash_gets:
-    mov al, $5C
-    mov [d], al
-    inc d
-    jmp _gets_loop_gets
-  _gets_LF_gets:
-    mov al, $0A
-    mov [d], al
-    inc d
-    jmp _gets_loop_gets
-  _gets_CR_gets:
-    mov al, $0D
-    mov [d], al
-    inc d
-    jmp _gets_loop_gets
-  _gets_NULL_gets:
-    mov al, $00
-    mov [d], al
-    inc d
-    jmp _gets_loop_gets
-  _gets_end_gets:
-    mov al, 0
-    mov [d], al        ; terminate string
-    pop d
-    pop a
-    ret
-  }
 }
 
 void print_signed(int num) {
@@ -702,16 +490,14 @@ void putchar(char c){
     ccmovd c
     mov al, [d]
     mov ah, al
-    mov al, 0
-    syscall sys_io      ; char in AH
+    call _putchar
   }
 }
 
 char getchar(){
   char c;
   asm{
-    mov al, 1
-    syscall sys_io      ; receive in AH
+    call getch
     mov al, ah
     ccmovd c
     mov [d], al
@@ -721,167 +507,13 @@ char getchar(){
 
 int scann(){
   int m;
-
   asm{
-    enter 8
-    push si
-    push b
-    push c
-    push d
-    lea d, [bp +- 7]
-    call _gets_scann
-    call _strlen_scann      ; get string length in C
-    dec c
-    mov si, d
-    mov a, c
-    shl a
-    mov d, table_power_scann
-    add d, a
-    mov c, 0
-  mul_loop_scann:
-    lodsb      ; load ASCII to al
-    cmp al, 0
-    je mul_exit_scann
-    sub al, $30    ; make into integer
-    mov ah, 0
-    mov b, [d]
-    mul a, b      ; result in B since it fits in 16bits
-    mov a, b
-    mov b, c
-    add a, b
-    mov c, a
-    sub d, 2
-    jmp mul_loop_scann
-  mul_exit_scann:
-    mov a, c
-    pop d
-    pop c
-    pop b
-    pop si
-    leave
-
+    call scan_u16d
     ccmovd m
     mov [d], a
   }
   
   return m;
-
-  asm{
-  _strlen_scann:
-    push d
-    mov c, 0
-  _strlen_L1_scann:
-    cmp byte [d], 0
-    je _strlen_ret_scann
-    inc d
-    inc c
-    jmp _strlen_L1_scann
-  _strlen_ret_scann:
-    pop d
-    ret
-
-  table_power:
-    .dw 1
-    .dw 10
-    .dw 100
-    .dw 1000
-    .dw 10000
-
-  _gets_scann:
-    push a
-    push d
-  _gets_loop_scann:
-    mov al, 1
-    syscall sys_io      ; receive in AH
-    cmp al, 0        ; check error code (AL)
-    je _gets_loop_scann      ; if no char received, retry
-
-    cmp ah, 27
-    je _gets_ansi_esc_scann
-    cmp ah, $0A        ; LF
-    je _gets_end_scann
-    cmp ah, $0D        ; CR
-    je _gets_end_scann
-    cmp ah, $5C        ; '\\'
-    je _gets_escape_scann
-    
-    cmp ah, $08      ; check for backspace
-    je _gets_backspace_scann
-
-    mov al, ah
-    mov [d], al
-    inc d
-    jmp _gets_loop_scann
-  _gets_backspace_scann:
-    dec d
-    jmp _gets_loop_scann
-  _gets_ansi_esc_scann:
-    mov al, 1
-    syscall sys_io        ; receive in AH without echo
-    cmp al, 0          ; check error code (AL)
-    je _gets_ansi_esc_scann    ; if no char received, retry
-    cmp ah, '['
-    jne _gets_loop_scann
-  _gets_ansi_esc_2_scann:
-    mov al, 1
-    syscall sys_io          ; receive in AH without echo
-    cmp al, 0            ; check error code (AL)
-    je _gets_ansi_esc_2_scann  ; if no char received, retry
-    cmp ah, 'D'
-    je _gets_left_arrow_scann
-    cmp ah, 'C'
-    je _gets_right_arrow_scann
-    jmp _gets_loop_scann
-  _gets_left_arrow_scann:
-    dec d
-    jmp _gets_loop_scann
-  _gets_right_arrow_scann:
-    inc d
-    jmp _gets_loop_scann
-  _gets_escape_scann:
-    mov al, 1
-    syscall sys_io      ; receive in AH
-    cmp al, 0        ; check error code (AL)
-    je _gets_escape_scann      ; if no char received, retry
-    cmp ah, 'n'
-    je _gets_LF_scann
-    cmp ah, 'r'
-    je _gets_CR_scann
-    cmp ah, '0'
-    je _gets_NULL_scann
-    cmp ah, $5C  
-    je _gets_slash_scann
-    mov al, ah        ; if not a known escape, it is just a normal letter
-    mov [d], al
-    inc d
-    jmp _gets_loop_scann
-  _gets_slash_scann:
-    mov al, $5C
-    mov [d], al
-    inc d
-    jmp _gets_loop_scann
-  _gets_LF_scann:
-    mov al, $0A
-    mov [d], al
-    inc d
-    jmp _gets_loop_scann
-  _gets_CR_scann:
-    mov al, $0D
-    mov [d], al
-    inc d
-    jmp _gets_loop_scann
-  _gets_NULL_scann:
-    mov al, $00
-    mov [d], al
-    inc d
-    jmp _gets_loop_scann
-  _gets_end_scann:
-    mov al, 0
-    mov [d], al        ; terminate string
-    pop d
-    pop a
-    ret
-  }
 }
 
 void puts(char *s){
@@ -899,17 +531,22 @@ void print(char *s){
   asm{
     ccmovd s
     mov d, [d]
-  _puts_L1_print:
-    mov al, [d]
-    cmp al, 0
-    jz _puts_END_print
-    mov ah, al
-    mov al, 0
-    syscall sys_io
-    inc d
-    jmp _puts_L1_print
-  _puts_END_print:
+    call _puts
   }
+}
+
+unsigned char getparam(char *address){
+  char data;
+
+  asm{
+    mov al, 4
+    ccmovd address
+    mov d, [d]
+    syscall sys_system
+    ccmovd data
+    mov [d], bl
+  }
+  return data;
 }
 
 void clear(){
@@ -918,4 +555,69 @@ void clear(){
 
 int abs(int i){
   return i < 0 ? -i : i;
+}
+
+int loadfile(char *filename, char *destination){
+  asm{
+    ccmovd destination
+    mov a, [d]
+    mov di, a
+    ccmovd filename
+    mov d, [d]
+    mov al, 20
+    syscall sys_filesystem
+  }
+}
+
+int create_file(char *filename, char *content){
+}
+
+int delete_file(char *filename){
+  asm{
+    ccmovd filename
+    mov al, 10
+    syscall sys_filesystem
+  }
+}
+
+void load_hex(char *destination){
+  char *temp;
+  
+  temp = alloc(32768);
+
+  asm{
+    ; GET HEX FILE
+    ; di = destination address
+    ; return length in bytes in C
+    _load_hex:
+      ccmovd destination
+      mov d, [d]
+      mov di, d
+      ccmovd temp
+      mov d, [d]
+      mov c, 0
+      mov a, sp
+      inc a
+      mov d, a          ; start of string data block
+      call _gets        ; get program string
+      mov si, a
+    __load_hex_loop:
+      lodsb             ; load from [SI] to AL
+      cmp al, 0         ; check if ASCII 0
+      jz __load_hex_ret
+      mov bh, al
+      lodsb
+      mov bl, al
+      call _atoi        ; convert ASCII byte in B to int (to AL)
+      stosb             ; store AL to [DI]
+      inc c
+      jmp __load_hex_loop
+    __load_hex_ret:
+  }
+}
+
+void include_stdio_asm(){
+  asm{
+    .include "lib/asm/stdio.asm"
+  }
 }

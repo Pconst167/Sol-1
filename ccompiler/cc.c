@@ -344,9 +344,6 @@ int main(int argc, char *argv[]){
 
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
-  expand_all_included_files();
-  search_and_add_func();
-  declare_all_defines();
   declare_heap_global_var();
   pre_processor();
   pre_scan();
@@ -430,6 +427,7 @@ void search_and_add_func(){
 
   fetch_included_functions(main_loc);
 
+  dbg("");
   prog = c_in;
 }
 
@@ -477,6 +475,15 @@ void fetch_included_functions(char *func_loc){
             pop_prog(); // and now resume where we were before we found the function reference and added its code
           }
         }
+        else{
+          push_prog(); // save current prog location
+          prog = endpoints.start; // set prog to beginning of the new function so it can be parsed
+          while(*prog != '{') prog++;
+          prog++; // skip '{'
+          // now we are about to start parsing the new function, searching for function references inside of it recursively
+          fetch_included_functions(prog);
+          pop_prog(); // and now resume where we were before we found the function reference and added its code
+        }
       }
       else{
         back();
@@ -484,7 +491,6 @@ void fetch_included_functions(char *func_loc){
       }
     }
   }
-
 }
 
 // unsigned long int my_func(int a, char b){}
@@ -533,8 +539,7 @@ void declare_all_defines(){
     p = prog;
     get(); 
     if(curr_token.tok_type == END) {
-      prog = c_in;
-      return;
+      break;
     }
     if(curr_token.tok == DIRECTIVE){
       get();
@@ -551,15 +556,14 @@ void declare_all_defines(){
     p = prog;
     get(); 
     if(curr_token.tok_type == END){
-      prog = c_in;
-      return;
+      break;
     }
     if(curr_token.tok == DIRECTIVE){
       get();
       if(curr_token.tok == DEFINE){
         prog = p;
         declare_define();
-        prog = c_in;
+        prog = include_files_buffer;
       }
     }
   } 
@@ -653,7 +657,6 @@ void expand_all_included_files(void){
       }
     }
   }
-
   prog = c_in;
 }
 
@@ -859,16 +862,20 @@ void parse_functions(void){
 
 void declare_define(){
   char *p;
-  char *d = prog;
+  char *d;
 
-  get();
-  get();
+  d = prog;
   p = defines_table[defines_tos].content;
+  get(); // '#'
+  get(); // define
   get(); // get define's name
   strcpy(defines_table[defines_tos].name, curr_token.token_str);
   // get value
-  get(); 
-  strcpy(defines_table[defines_tos].content, curr_token.token_str);
+  while(*prog != '\n' && *prog != '\0'){
+    *p++ = *prog++;
+  }
+  *p = '\0';
+
   defines_tos++;
 
   delete(d, prog - d);
@@ -886,8 +893,9 @@ void insert(char *destination, char *new_text){
   char *p = destination;
   char *p2 = new_text;
   int len = strlen(new_text);
-  while(*p) p++; // fast forwards to end of text
-  while(p > destination){
+
+  while(*p) p++; // fast forwards to end of text 
+  while(p >= destination){
     *(p + len) = *p;
     *p = ' ';
     p--;
@@ -895,7 +903,8 @@ void insert(char *destination, char *new_text){
   p++;
   while(*p2){
     *p = *p2;
-    p++; p2++;
+    p++; 
+    p2++;
   }
 }
 
@@ -905,73 +914,24 @@ void pre_processor(void){
   char *p, *temp_prog;
   char filename[256];
 
+  expand_all_included_files();
+  search_and_add_func();
+  declare_all_defines();
+
   prog = c_in; 
-  do{
+  for(;;){
     get(); 
     back(); // So that we discard possible new line chars at end of lines
     temp_prog = prog;
     get();
     if(curr_token.tok_type == END) break;
 
-    if(curr_token.tok == DIRECTIVE){
-      get();
-      if(curr_token.tok == PRAGMA){
-        get();
-        if(!strcmp(curr_token.token_str, "org")){
-          get();
-          if(curr_token.tok_type == STRING_CONST) strcpy(org, curr_token.string_const);
-          else strcpy(org, curr_token.token_str);
-          delete(temp_prog, prog - temp_prog);
-        }
-        else if(!strcmp(curr_token.token_str, "noinclude")){
-          get();
-          if(!strcmp(curr_token.string_const, "kernel.exp")) include_kernel_exp = 0;
-          delete(temp_prog, prog - temp_prog);
-        }
-      }
-      /*else if(curr_token.tok == INCLUDE){
-        get();
-        if(curr_token.tok_type == STRING_CONST) strcpy(filename, curr_token.string_const);
-        else if(curr_token.tok == LESS_THAN){
-          strcpy(filename, libc_directory);
-          for(;;){
-            get();
-            if(curr_token.tok == GREATER_THAN) break;
-            strcat(filename, curr_token.token_str);
-          }
-        }
-        else error(ERR_FATAL, "Syntax error in include directive.");
-        if((fp = fopen(filename, "rb")) == NULL){
-          printf("%s: Included source file not found.\n", filename);
-          exit(1);
-        }
-        p = include_files_buffer;
-        do{
-          *p = getc(fp);
-          p++;
-        } while(!feof(fp));
-        *(p - 1) = '\0'; // overwrite the EOF char with NULL
-        fclose(fp);
-        delete(temp_prog, prog - temp_prog);
-        insert(temp_prog, include_files_buffer);
-        prog = c_in;
-        continue;
-      }
-      else if(curr_token.tok == DEFINE){
-        declare_define();
-        delete(temp_prog, prog - temp_prog);
-        continue;
-      }*/
+    if((define_id = search_define(curr_token.token_str)) != -1){
+      delete(temp_prog, prog - temp_prog);
+      insert(temp_prog, defines_table[define_id].content);
+      prog = c_in;
     }
-    else{
-      if((define_id = search_define(curr_token.token_str)) != -1){
-        delete(temp_prog, prog - temp_prog);
-        insert(temp_prog, defines_table[define_id].content);
-        continue;
-      }
-    }
-  } while(curr_token.tok_type != END);
-
+  }
   prog = c_in;
 }
 
@@ -5554,10 +5514,11 @@ void get(void){
     curr_token.tok_type = STRING_CONST;
     convert_constant(); // converts this string curr_token.token_str qith quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
   }
-  else if(is_digit(*prog)){
+  else if(is_digit(*prog) || *prog == '-' && is_digit(*(prog+1))){
     curr_token.tok_type = INTEGER_CONST;
     curr_token.const_size_modifier = SIZEMOD_NORMAL;
     curr_token.const_sign_modifier = SIGNMOD_SIGNED;
+    if(*prog == '-') *t++ = *prog++;
     if(*prog == '0' && *(prog+1) == 'x'){
       *t++ = *prog++;
       *t++ = *prog++;
@@ -5800,13 +5761,13 @@ void back(void){
 }
 
 void push_prog(){
-  if(prog_tos == 10) error(ERR_FATAL, "Cannot push prog. Stack overflow.");
+  if(prog_tos == 1024) error(ERR_FATAL, "cannot push prog. Stack overflow.");
   prog_stack[prog_tos] = prog;
   prog_tos++;
 }
 
 void pop_prog(){
-  if(prog_tos == 0) error(ERR_FATAL, "Cannot pop prog. Stack overflow.");
+  if(prog_tos == 0) error(ERR_FATAL, "cannot pop prog. Stack overflow.");
   prog_tos--;
   prog = prog_stack[prog_tos];
 }
