@@ -15747,14 +15747,14 @@ _c_data:
 .fill 9, 0
 _docked: .fill 1, 0
 _energy: .fill 2, 0
-_energy0: .dw 3000
+_energy0: .dw $0bb8
 _map_data: .fill 162, 0
 _kdata_data: .fill 12, 0
 _klingons: .fill 1, 0
 _total_klingons: .fill 1, 0
 _klingons_left: .fill 1, 0
 _torps: .fill 1, 0
-_torps0: .db 10
+_torps0: .db $0a
 _quad_y: .fill 2, 0
 _quad_x: .fill 2, 0
 _shield: .fill 2, 0

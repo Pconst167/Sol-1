@@ -16325,7 +16325,7 @@
 15747  67D1 00 
 15748  67D2 00          _docked: .fill 1, 0
 15749  67D3 00 00       _energy: .fill 2, 0
-15750  67D5 B8 0B       _energy0: .dw 3000
+15750  67D5 B8 0B       _energy0: .dw $0bb8
 15751  67D7 00 00 00 00 _map_data: .fill 162, 0
 15751  67DB 00 00 00 00 
 15751  67DF 00 00 00 00 
@@ -16374,7 +16374,7 @@
 15754  6886 00          _total_klingons: .fill 1, 0
 15755  6887 00          _klingons_left: .fill 1, 0
 15756  6888 00          _torps: .fill 1, 0
-15757  6889 0A          _torps0: .db 10
+15757  6889 0A          _torps0: .db $0a
 15758  688A 00 00       _quad_y: .fill 2, 0
 15759  688C 00 00       _quad_x: .fill 2, 0
 15760  688E 00 00       _shield: .fill 2, 0

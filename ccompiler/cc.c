@@ -313,24 +313,6 @@ int label_tos_cmp;
 t_included_function_list_item included_function_list[1024];
 int included_function_list_tos;
 
-void add_included_function_to_list(char *name){
-  printf("New function added: %s\n", name);
-  if(included_function_list_tos == 1024) error(ERR_FATAL, "maximum number of included functions in list is reached");
-  strcpy(included_function_list[included_function_list_tos].name, name);
-  included_function_list_tos++;
-}
-
-t_included_function_list_item find_included_function(char *name){
-  register int i;
-  t_included_function_list_item item = {0};
-
-  for(i = 0; i < included_function_list_tos; i++){
-    if(!strcmp(included_function_list[i].name, name)){
-      return included_function_list[i];
-    }
-  }
-  return item;
-}
 
 
 // --- MAIN
@@ -370,7 +352,6 @@ int main(int argc, char *argv[]){
   data_block_p = data_block_asm; // data block pointer
   declare_heap_global_var();
   pre_processor();
-  puts("Finished pre-processor");
   pre_scan();
 
   if((main_index = search_function("main")) != -1){
@@ -417,9 +398,25 @@ int main(int argc, char *argv[]){
 
   return 0;
 }
-/*
 
-*/
+void add_included_function_to_list(char *name){
+  if(included_function_list_tos == 1024) error(ERR_FATAL, "maximum number of included functions in list is reached");
+  strcpy(included_function_list[included_function_list_tos].name, name);
+  included_function_list_tos++;
+}
+
+t_included_function_list_item find_included_function(char *name){
+  register int i;
+  t_included_function_list_item item = {0};
+
+  for(i = 0; i < included_function_list_tos; i++){
+    if(!strcmp(included_function_list[i].name, name)){
+      return included_function_list[i];
+    }
+  }
+  return item;
+}
+
 void search_and_add_func(){
   char *temp_prog;
   char func_name[ID_LEN];
@@ -429,6 +426,7 @@ void search_and_add_func(){
   char function[FUNCTION_SIZE_MAX_LEN];
   char *origin, *dest;
 
+  puts("adding library functions...");
   prog = c_in;
   // search for main()
   for(;;){
@@ -562,6 +560,7 @@ void build_referenced_func_list(void){
 void declare_all_defines(){
   char *p;
 
+  puts("declaring all defines...");
   prog = c_in;
   for(;;){
     p = prog;
@@ -770,6 +769,7 @@ int is_register(char *name){
 }
 
 void declare_heap_global_var(){
+  printf("declaring the heap memory...\n");
   strcpy(global_var_table[global_var_tos].name, "heap_top");
   global_var_table[global_var_tos].type.primitive_type = DT_CHAR;
   global_var_table[global_var_tos].type.is_constant = FALSE;
@@ -942,10 +942,12 @@ void pre_processor(void){
   char *p, *temp_prog;
   char filename[256];
 
+  puts("starting pre-processor...");
   expand_all_included_files();
   declare_all_defines();
   search_and_add_func();
 
+  puts("replacing defines with their declared values...");
   prog = c_in; 
   for(;;){
     get(); 
@@ -1075,6 +1077,7 @@ void pre_scan(void){
   char *tp;
   int8_t declaration_kind;
 
+  puts("starting pre-scan...");
   prog = c_in;
   do{
     tp = prog;
@@ -1839,6 +1842,7 @@ void declare_typedef(void){
   }
 // *********************************************************************************************
   if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
+  printf("typedef: %s\n", tkn);
   if(type.primitive_type == DT_VOID && type.ind_level == 0) error(ERR_FATAL, "Invalid type in variable: %s", curr_token.token_str);
 
   type.dims[0] = 0;
