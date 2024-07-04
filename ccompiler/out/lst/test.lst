@@ -38,7 +38,7 @@
 0017   0417             ; --- END FUNCTION CALL
 0018   0417             ; printf(	"hello world"    ); 
 0019   0417             ; --- START FUNCTION CALL
-0020   0417 26 2C 0F      mov b, _s0 ; "hello world"
+0020   0417 26 30 0F      mov b, _s0 ; "hello world"
 0021   041A FD AB         swp b
 0022   041C D8            push b
 0023   041D 07 BC 04      call printf
@@ -417,7 +417,7 @@
 0384   065C             _if8_else:
 0385   065C             ; err("Unexpected format in printf."); 
 0386   065C             ; --- START FUNCTION CALL
-0387   065C 26 38 0F      mov b, _s1 ; "Unexpected format in printf."
+0387   065C 26 3C 0F      mov b, _s1 ; "Unexpected format in printf."
 0388   065F FD AB         swp b
 0389   0661 D8            push b
 0390   0662 07 D0 0A      call err
@@ -607,7 +607,7 @@
 0568   0770             _switch5_default:
 0569   0770             ; print("Error: Unknown argument type.\n"); 
 0570   0770             ; --- START FUNCTION CALL
-0571   0770 26 55 0F      mov b, _s2 ; "Error: Unknown argument type.\n"
+0571   0770 26 59 0F      mov b, _s2 ; "Error: Unknown argument type.\n"
 0572   0773 FD AB         swp b
 0573   0775 D8            push b
 0574   0776 07 E5 0A      call print
@@ -1894,29 +1894,32 @@
 1802   0F2C             ; --- END TEXT SEGMENT
 1803   0F2C             
 1804   0F2C             ; --- BEGIN DATA SEGMENT
-1805   0F2C 68 65 6C 6C _s0: .db "hello world", 0
-1805   0F30 6F 20 77 6F 
-1805   0F34 72 6C 64 00 
-1806   0F38 55 6E 65 78 _s1: .db "Unexpected format in printf.", 0
-1806   0F3C 70 65 63 74 
-1806   0F40 65 64 20 66 
-1806   0F44 6F 72 6D 61 
-1806   0F48 74 20 69 6E 
-1806   0F4C 20 70 72 69 
-1806   0F50 6E 74 66 2E 
-1806   0F54 00 
-1807   0F55 45 72 72 6F _s2: .db "Error: Unknown argument type.\n", 0
-1807   0F59 72 3A 20 55 
-1807   0F5D 6E 6B 6E 6F 
-1807   0F61 77 6E 20 61 
-1807   0F65 72 67 75 6D 
-1807   0F69 65 6E 74 20 
-1807   0F6D 74 79 70 65 
-1807   0F71 2E 0A 00 
-1808   0F74             
-1809   0F74 76 0F       _heap_top: .dw _heap
-1810   0F76 00          _heap: .db 0
-1811   0F77             ; --- END DATA SEGMENT
-1812   0F77             
-1813   0F77             .end
+1805   0F2C 41          _c: .db $41
+1806   0F2D 7B 00       _i: .dw $007b
+1807   0F2F 2B          _c2: .db $2b
+1808   0F30 68 65 6C 6C _s0: .db "hello world", 0
+1808   0F34 6F 20 77 6F 
+1808   0F38 72 6C 64 00 
+1809   0F3C 55 6E 65 78 _s1: .db "Unexpected format in printf.", 0
+1809   0F40 70 65 63 74 
+1809   0F44 65 64 20 66 
+1809   0F48 6F 72 6D 61 
+1809   0F4C 74 20 69 6E 
+1809   0F50 20 70 72 69 
+1809   0F54 6E 74 66 2E 
+1809   0F58 00 
+1810   0F59 45 72 72 6F _s2: .db "Error: Unknown argument type.\n", 0
+1810   0F5D 72 3A 20 55 
+1810   0F61 6E 6B 6E 6F 
+1810   0F65 77 6E 20 61 
+1810   0F69 72 67 75 6D 
+1810   0F6D 65 6E 74 20 
+1810   0F71 74 79 70 65 
+1810   0F75 2E 0A 00 
+1811   0F78             
+1812   0F78 7A 0F       _heap_top: .dw _heap
+1813   0F7A 00          _heap: .db 0
+1814   0F7B             ; --- END DATA SEGMENT
+1815   0F7B             
+1816   0F7B             .end
 tasm: Number of errors = 0

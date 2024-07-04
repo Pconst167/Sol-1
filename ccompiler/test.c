@@ -5,6 +5,9 @@
 
 #define TREK_DIR "STAR_TREK"  /* Hello */ 
 
+char c = 'A';
+int i = 123;
+char c2 = 555;
 
 void main(){
   myfunc(2);

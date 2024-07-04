@@ -5262,9 +5262,13 @@ void emit_global_var_initialization(t_var *var){
       if(curr_token.tok == OPENING_BRACE) braces++;
       else if(curr_token.tok == CLOSING_BRACE) braces--;
       else if(curr_token.tok_type == CHAR_CONST)
-        emit_data("$%x,", curr_token.string_const[0]);
-      else if(curr_token.tok_type == INTEGER_CONST)
-        emit_data("$%x,", (uint16_t)curr_token.int_const);
+        emit_data("$%02x,", (uint8_t)curr_token.string_const[0]);
+      else if(curr_token.tok_type == INTEGER_CONST){
+        if(var->type.primitive_type == DT_INT)
+          emit_data("$%04x,", (uint16_t)curr_token.int_const);
+        else
+          emit_data("$%02x,", (uint8_t)curr_token.int_const);
+      }
       else if(curr_token.tok_type == STRING_CONST){
         emit_data("_s%u, ", add_string_data(curr_token.string_const));
       }
@@ -5290,7 +5294,7 @@ void emit_global_var_initialization(t_var *var){
       case DT_VOID:
         emit_data("_%s: ", var->name);
         emit_data_dbdw(var->type);
-        emit_data("%u, ", atoi(curr_token.token_str));
+        emit_data("$%04x, ", (uint16_t)atoi(curr_token.token_str));
         break;
       case DT_CHAR:
         if(var->type.ind_level > 0){ // if is a string
@@ -5310,18 +5314,15 @@ void emit_global_var_initialization(t_var *var){
           emit_data("_%s: ", var->name);
           emit_data_dbdw(var->type);
           if(curr_token.tok_type == CHAR_CONST)
-            emit_data("$%x\n", curr_token.string_const[0]);
+            emit_data("$%02x\n", (uint8_t)curr_token.string_const[0]);
           else if(curr_token.tok_type == INTEGER_CONST)
-            emit_data("%u\n", (char)atoi(curr_token.token_str));
+            emit_data("$%02x\n", (uint8_t)curr_token.int_const);
         }
         break;
       case DT_INT:
         emit_data("_%s: ", var->name);
         emit_data_dbdw(var->type);
-        if(var->type.ind_level > 0)
-            emit_data("%u\n", atoi(curr_token.token_str));
-        else
-          emit_data("%u\n", atoi(curr_token.token_str));
+        emit_data("$%04x\n", (uint16_t)curr_token.int_const);
         break;
       case DT_STRUCT:
         if(curr_token.tok_type == IDENTIFIER){

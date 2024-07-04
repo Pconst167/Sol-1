@@ -1802,6 +1802,9 @@ _while50_exit:
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
+_c: .db $41
+_i: .dw $007b
+_c2: .db $2b
 _s0: .db "hello world", 0
 _s1: .db "Unexpected format in printf.", 0
 _s2: .db "Error: Unknown argument type.\n", 0

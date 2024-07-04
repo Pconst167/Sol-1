@@ -15743,7 +15743,7 @@ _starbases_left: .fill 1, 0
 _c_data: 
 .db 
 .db 
-.db $0,$0,$0,$ffff,$ffff,$ffff,$0,$1,$1,$1,$0,$1,$1,$1,$0,$ffff,$ffff,$ffff,$0,$1,$1,
+.db $00,$00,$00,$ff,$ff,$ff,$00,$01,$01,$01,$00,$01,$01,$01,$00,$ff,$ff,$ff,$00,$01,$01,
 .fill 9, 0
 _docked: .fill 1, 0
 _energy: .fill 2, 0
@@ -15782,14 +15782,14 @@ _dcr_1_data: .db "Damage Control report:", 0
 _dcr_1: .dw _dcr_1_data
 _plural_2_data: 
 .db 
-.db $0,$0,
+.db $00,$00,
 _plural_data: 
 .db 
-.db $69,$73,$0,
+.db $69,$73,$00,
 .fill 1, 0
 _warpmax_data: 
 .db 
-.db $8,
+.db $08,
 .fill 3, 0
 _srs_1_data: .db "------------------------", 0
 _srs_1: .dw _srs_1_data
