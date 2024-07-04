@@ -7,7 +7,7 @@ It is published here for educational purposes.
 ### Hardware
 - User and Kernel privilege modes, with up to 256 processes running in parallel.
 - Paged virtual memory, such that each process can have a total of 64KB RAM for itself.
-- Two serial ports (16550), a real time clock(M48T02), 2 parallel ports(8255), a programmable timer(8253), an IDE hard-drive interface(2.5 Inch HDD), and a soundboard(AY-3-8910).
+- Two serial ports (16550), a real time clock(M48T02), 2 parallel ports(8255), a programmable timer(8253), an IDE hard-drive interface(2.5 Inch HDD), and a sound chip(AY-3-8910).
 - 8 prioritized external interrupts
 - DMA channel
 - The sequencer is microcoded, with 15 ROMS operating horizontally
@@ -42,7 +42,7 @@ It is published here for educational purposes.
 
 ### Software
 - Unix-like operating system (in progress and very early)
-- C compiler that generates a Sol-1 assembly output file (The output assembly is then assembled separately.)
+- C compiler that generates a Sol-1 assembly output file
 - SystemVerilog model
 
 [Video demonstrations here](https://www.youtube.com/@PauloConstantino167/videos)
