@@ -16329,7 +16329,8 @@
   17{
     next = next_offset
     offset = 1
-    alu_x = ah  alu_mode = logic
+    alu_x = ah  
+    alu_mode = logic
     zf_in_src = alu_zf_and_zf
     ah_wrt = true
   }

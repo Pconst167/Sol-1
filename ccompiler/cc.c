@@ -3621,11 +3621,9 @@ t_type parse_factors(void){
           emitln("  test bl, $80");
           emitln("  jz _same_signs_%d", highest_label_index);
 
-          emitln("  mov b, a");
-          emitln("  mov a, g");
+          emitln("  mov bl, al");
           emitln("  not a");
-          emitln("  not b");
-          emitln("  add b, 1");
+          emitln("  neg b");
           emitln("  adc a, 0");
           emitln("  mov g, a");
           emitln("  mov a, b");
