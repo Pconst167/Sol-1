@@ -251,9 +251,9 @@ _same_signs_4:
   mov32 cb, $00000000
   pop d
   mov [d], b
-; printf("Encrypted text: \n"); 
+; printf("\nEncrypted text: "); 
 ; --- START FUNCTION CALL
-  mov b, _s3 ; "Encrypted text: \n"
+  mov b, _s3 ; "\nEncrypted text: "
   swp b
   push b
   call printf
@@ -398,17 +398,9 @@ _for5_update:
   mov b, a
   jmp _for5_cond
 _for5_exit:
-; printf("\n"); 
+; printf("\nDecrypted text: "); 
 ; --- START FUNCTION CALL
-  mov b, _s5 ; "\n"
-  swp b
-  push b
-  call printf
-  add sp, 2
-; --- END FUNCTION CALL
-; printf("Decrypted text: \n"); 
-; --- START FUNCTION CALL
-  mov b, _s6 ; "Decrypted text: \n"
+  mov b, _s5 ; "\nDecrypted text: "
   swp b
   push b
   call printf
@@ -501,7 +493,7 @@ _for6_update:
 _for6_exit:
 ; printf("\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s5 ; "\n"
+  mov b, _s6 ; "\n"
   swp b
   push b
   call printf
@@ -885,19 +877,6 @@ _for28_cond:
   cmp b, 0
   je _for28_exit
 _for28_block:
-; printf("%d\n", d); 
-; --- START FUNCTION CALL
-  lea d, [bp + -1] ; $d
-  mov b, [d]
-  mov c, 0
-  swp b
-  push b
-  mov b, _s7 ; "%d\n"
-  swp b
-  push b
-  call printf
-  add sp, 4
-; --- END FUNCTION CALL
 ; if ((d * e) % phi == 1) {   
 _if29_cond:
   lea d, [bp + -1] ; $d
@@ -1254,7 +1233,7 @@ _if42_TRUE:
 _if42_else:
 ; err("Unexpected format in printf."); 
 ; --- START FUNCTION CALL
-  mov b, _s8 ; "Unexpected format in printf."
+  mov b, _s7 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -1438,7 +1417,7 @@ _switch39_case7:
 _switch39_default:
 ; print("Error: Unknown argument type.\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s9 ; "Error: Unknown argument type.\n"
+  mov b, _s8 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -2621,13 +2600,12 @@ _while81_exit:
 _s0: .db "Public Key: %d, %d\n", 0
 _s1: .db "Private Key: %d, %d\n", 0
 _s2: .db "Enter a string: ", 0
-_s3: .db "Encrypted text: \n", 0
+_s3: .db "\nEncrypted text: ", 0
 _s4: .db "%d ", 0
-_s5: .db "\n", 0
-_s6: .db "Decrypted text: \n", 0
-_s7: .db "%d\n", 0
-_s8: .db "Unexpected format in printf.", 0
-_s9: .db "Error: Unknown argument type.\n", 0
+_s5: .db "\nDecrypted text: ", 0
+_s6: .db "\n", 0
+_s7: .db "Unexpected format in printf.", 0
+_s8: .db "Error: Unknown argument type.\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

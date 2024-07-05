@@ -23,15 +23,14 @@ int main() {
     gets(input_str);
 
     encrypted_chars_len = 0;
-    printf("Encrypted text: ");
+    printf("\nEncrypted text: ");
     for (i = 0; input_str[i] != '\0' && input_str[i] != '\n'; i++) {
         encrypted_chars[i] = mod_exp(input_str[i], e, n);
         printf("%d ", encrypted_chars[i]);
         encrypted_chars_len++;
     }
-    printf("\n");
 
-    printf("Decrypted text: ");
+    printf("\nDecrypted text: ");
     for (i = 0; i < encrypted_chars_len; i++) {
         decrypted_char = mod_exp(encrypted_chars[i], d, n);
         c = decrypted_char;
