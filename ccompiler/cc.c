@@ -376,7 +376,7 @@ int main(int argc, char *argv[]){
 
   emit_string_table_data();
 
-  // Emit heap
+  // emit heap
   emit_data("\n_heap_top: .dw _heap\n");
   emit_data("_heap: .db 0\n");
   
@@ -405,7 +405,7 @@ void add_library_type_declarations(){
   int paren, braces;
   uint8_t is_struct_enum_union;
 
-  puts("adding library type definitions...");
+  printf("adding library type definitions...");
 
   strcat(c_in, "\n");
   prog = include_files_buffer;
@@ -495,6 +495,7 @@ void add_library_type_declarations(){
       }
     }
   }
+  printf(" OK\n");
 }
 
 void add_included_function_to_list(char *name){
@@ -658,7 +659,7 @@ void build_referenced_func_list(void){
 void declare_all_defines(){
   char *p;
 
-  puts("declaring all defines...");
+  printf("declaring all defines...");
   prog = c_in;
   for(;;){
     p = prog;
@@ -694,6 +695,7 @@ void declare_all_defines(){
   } 
 
   prog = c_in;
+  printf(" OK\n");
 }
 
 void expand_all_included_files(void){
@@ -801,9 +803,12 @@ int optimize_asm(){
 
 void emit_datablock_asm(){
   char *dp = data_block_asm;
+
+  printf("emitting data block...");
   while(*dp){
     *asm_p++ = *dp++;
   }
+  printf(" OK\n");
 }
 
 char find_cmdline_switch(int argc, char **argv, char *_switch){
@@ -813,13 +818,13 @@ char find_cmdline_switch(int argc, char **argv, char *_switch){
   return 0;
 }
 
-  // Declare int argc, char argv [] variables
-  // if argc and argv variables are in main(), then we create two new local variables inside main
-  // such that int argc contains the number of arguments given in 0x00, with a space separator
-  // and char argv[], will contain the string argument entries as a vector.
-  // char argv[] is an array of pointers so each entry contains a pointer to an argument string.
-  // 
-  // for calculating argc, we need to write assembly that will count space separated arguments.
+// Declare int argc, char argv [] variables
+// if argc and argv variables are in main(), then we create two new local variables inside main
+// such that int argc contains the number of arguments given in 0x00, with a space separator
+// and char argv[], will contain the string argument entries as a vector.
+// char argv[] is an array of pointers so each entry contains a pointer to an argument string.
+// 
+// for calculating argc, we need to write assembly that will count space separated arguments.
 void insert_runtime() {
   /*
   int i;
@@ -867,7 +872,7 @@ int is_register(char *name){
 }
 
 void declare_heap_global_var(){
-  printf("declaring the heap memory...\n");
+  printf("declaring the heap memory...");
   strcpy(global_var_table[global_var_tos].name, "heap_top");
   global_var_table[global_var_tos].type.primitive_type = DT_CHAR;
   global_var_table[global_var_tos].type.is_constant = FALSE;
@@ -876,6 +881,7 @@ void declare_heap_global_var(){
   global_var_table[global_var_tos].type.size_modifier = SIZEMOD_NORMAL;
   global_var_table[global_var_tos].type.sign_modifier = SIGNMOD_UNSIGNED;
   global_var_tos++;
+  printf(" OK\n");
 }
 
 void emit_data(const char* format, ...){
@@ -946,6 +952,7 @@ void load_program(char *filename){
 void parse_functions(void){
   register int i;
   
+  printf("parsing main function...");
   for(i = 0; *function_table[i].name; i++){
     // parse main function first
     if(strcmp(function_table[i].name, "main") == 0){
@@ -966,7 +973,9 @@ void parse_functions(void){
       break;
     }
   }
+  printf(" OK\n");
 
+  printf("parsing all functions...");
   for(i = 0; *function_table[i].name; i++){
     if(strcmp(function_table[i].name, "main") != 0){ // skip 'main'
       // this is used to position local variables correctly relative to BP.
@@ -984,6 +993,7 @@ void parse_functions(void){
       }
     }
   }
+  printf(" OK\n");
 }
 
 void declare_define(){
@@ -1046,7 +1056,7 @@ void pre_processor(void){
   search_and_add_func();
   add_library_type_declarations();
 
-  puts("replacing defines with their declared values...");
+  printf("replacing defines with their declared values...");
   prog = c_in; 
   for(;;){
     get(); 
@@ -1062,6 +1072,7 @@ void pre_processor(void){
     }
   }
   prog = c_in;
+  printf(" OK\n");
 }
 
 uint8_t is_function_declaration(void){
@@ -1178,10 +1189,10 @@ void pre_scan(void){
 
   puts("starting pre-scan...");
   prog = c_in;
-  do{
+  for(;;){
     tp = prog;
     get();
-    if(curr_token.tok_type == END) return;
+    if(curr_token.tok_type == END) break;
 
     if(curr_token.tok == TYPEDEF){
       declare_typedef();
@@ -1242,8 +1253,9 @@ void pre_scan(void){
     else if(declaration_kind == -1){
       error(ERR_FATAL, "unexpected token during pre-scan phase: %s", curr_token.token_str);
     }
-    get();
-  } while(curr_token.tok_type != END);
+  }
+
+  printf("pre-scan finished.\n");
 }
 
 //int (*fp)(int);
@@ -1941,7 +1953,6 @@ void declare_typedef(void){
   }
 // *********************************************************************************************
   if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
-  printf("typedef: %s\n", tkn);
   if(type.primitive_type == DT_VOID && type.ind_level == 0) error(ERR_FATAL, "Invalid type in variable: %s", curr_token.token_str);
 
   type.dims[0] = 0;
@@ -4735,7 +4746,9 @@ void emit_string_table_data(void){
   int i, j;
   char *p;
 
-    //emit_data("_s%d: .db \"%s\", 0\n", i, string_table[i]);
+  printf("emitting string constant table data...");
+
+  //emit_data("_s%d: .db \"%s\", 0\n", i, string_table[i]);
   for(i = 0; i < string_table_tos; i++){
     emit_data("_s%d: .db \"", i); // emit string header
     for(j = 0; ; j++){
@@ -4755,6 +4768,7 @@ void emit_string_table_data(void){
       }
     }
   }
+  printf(" OK\n");
 }
 
 char *get_var_base_addr(char *dest, char *var_name){

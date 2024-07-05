@@ -10,6 +10,8 @@ main:
 ; int i, j; 
   sub sp, 2
   sub sp, 2
+; struct _FILE fp; 
+  sub sp, 260
 ; for(i=0;i<30;i++){ 
 _for1_init:
   lea d, [bp + -1] ; $i
@@ -99,7 +101,7 @@ putchar:
   mov al, [d]
   mov ah, al
   mov al, 0
-  syscall sys_io      
+  syscall sys_io      ; char in AH
 ; --- END INLINE ASM SEGMENT
   leave
   ret

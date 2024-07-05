@@ -30,112 +30,114 @@
 0010   0408             ; int i, j; 
 0011   0408 52 02 00      sub sp, 2
 0012   040B 52 02 00      sub sp, 2
-0013   040E             ; for(i=0;i<30;i++){ 
-0014   040E             _for1_init:
-0015   040E FA FF FF      lea d, [bp + -1] ; $i
-0016   0411 DA            push d
-0017   0412 FD 2E 00 00   mov32 cb, $00000000
-0017   0416 00 00 
-0018   0418 E7            pop d
-0019   0419 FD 43         mov [d], b
-0020   041B             _for1_cond:
-0021   041B FA FF FF      lea d, [bp + -1] ; $i
-0022   041E 2A            mov b, [d]
-0023   041F 38 00 00      mov c, 0
-0024   0422             ; --- START RELATIONAL
-0025   0422 D7            push a
-0026   0423 11            mov a, b
-0027   0424 FD 2E 1E 00   mov32 cb, $0000001e
-0027   0428 00 00 
-0028   042A B0            cmp a, b
-0029   042B FD 73         slt ; < (signed)
-0030   042D E4            pop a
-0031   042E             ; --- END RELATIONAL
-0032   042E C0 00 00      cmp b, 0
-0033   0431 C6 9A 04      je _for1_exit
-0034   0434             _for1_block:
-0035   0434             ; for(j=0;j<80;j++){ 
-0036   0434             _for2_init:
-0037   0434 FA FD FF      lea d, [bp + -3] ; $j
-0038   0437 DA            push d
-0039   0438 FD 2E 00 00   mov32 cb, $00000000
-0039   043C 00 00 
-0040   043E E7            pop d
-0041   043F FD 43         mov [d], b
-0042   0441             _for2_cond:
-0043   0441 FA FD FF      lea d, [bp + -3] ; $j
-0044   0444 2A            mov b, [d]
-0045   0445 38 00 00      mov c, 0
-0046   0448             ; --- START RELATIONAL
-0047   0448 D7            push a
-0048   0449 11            mov a, b
-0049   044A FD 2E 50 00   mov32 cb, $00000050
-0049   044E 00 00 
-0050   0450 B0            cmp a, b
-0051   0451 FD 73         slt ; < (signed)
-0052   0453 E4            pop a
-0053   0454             ; --- END RELATIONAL
-0054   0454 C0 00 00      cmp b, 0
-0055   0457 C6 7A 04      je _for2_exit
-0056   045A             _for2_block:
-0057   045A             ; putchar('#'); 
-0058   045A             ; --- START FUNCTION CALL
-0059   045A FD 2E 23 00   mov32 cb, $00000023
-0059   045E 00 00 
-0060   0460 DD            push bl
-0061   0461 07 9C 04      call putchar
-0062   0464 51 01 00      add sp, 1
-0063   0467             ; --- END FUNCTION CALL
-0064   0467             _for2_update:
-0065   0467 FA FD FF      lea d, [bp + -3] ; $j
-0066   046A 2A            mov b, [d]
-0067   046B 38 00 00      mov c, 0
-0068   046E 11            mov a, b
-0069   046F FD 77         inc b
-0070   0471 FA FD FF      lea d, [bp + -3] ; $j
-0071   0474 FD 43         mov [d], b
-0072   0476 27            mov b, a
-0073   0477 0A 41 04      jmp _for2_cond
-0074   047A             _for2_exit:
-0075   047A             ; putchar('\n'); 
-0076   047A             ; --- START FUNCTION CALL
-0077   047A FD 2E 0A 00   mov32 cb, $0000000a
-0077   047E 00 00 
-0078   0480 DD            push bl
-0079   0481 07 9C 04      call putchar
-0080   0484 51 01 00      add sp, 1
-0081   0487             ; --- END FUNCTION CALL
-0082   0487             _for1_update:
-0083   0487 FA FF FF      lea d, [bp + -1] ; $i
-0084   048A 2A            mov b, [d]
-0085   048B 38 00 00      mov c, 0
-0086   048E 11            mov a, b
-0087   048F FD 77         inc b
-0088   0491 FA FF FF      lea d, [bp + -1] ; $i
-0089   0494 FD 43         mov [d], b
-0090   0496 27            mov b, a
-0091   0497 0A 1B 04      jmp _for1_cond
-0092   049A             _for1_exit:
-0093   049A 05 0B         syscall sys_terminate_proc
-0094   049C             
-0095   049C             putchar:
-0096   049C F8 00 00      enter 0 ; (push bp; mov bp, sp)
-0097   049F             ; --- BEGIN INLINE ASM SEGMENT
-0098   049F FA 05 00      lea d, [bp + 5] ; $c
-0099   04A2 1E            mov al, [d]
-0100   04A3 23            mov ah, al
-0101   04A4 19 00         mov al, 0
-0102   04A6 05 03         syscall sys_io      
-0103   04A8             ; --- END INLINE ASM SEGMENT
-0104   04A8 F9            leave
-0105   04A9 09            ret
-0106   04AA             ; --- END TEXT SEGMENT
-0107   04AA             
-0108   04AA             ; --- BEGIN DATA SEGMENT
-0109   04AA             
-0110   04AA AC 04       _heap_top: .dw _heap
-0111   04AC 00          _heap: .db 0
-0112   04AD             ; --- END DATA SEGMENT
-0113   04AD             
-0114   04AD             .end
+0013   040E             ; struct _FILE fp; 
+0014   040E 52 04 01      sub sp, 260
+0015   0411             ; for(i=0;i<30;i++){ 
+0016   0411             _for1_init:
+0017   0411 FA FF FF      lea d, [bp + -1] ; $i
+0018   0414 DA            push d
+0019   0415 FD 2E 00 00   mov32 cb, $00000000
+0019   0419 00 00 
+0020   041B E7            pop d
+0021   041C FD 43         mov [d], b
+0022   041E             _for1_cond:
+0023   041E FA FF FF      lea d, [bp + -1] ; $i
+0024   0421 2A            mov b, [d]
+0025   0422 38 00 00      mov c, 0
+0026   0425             ; --- START RELATIONAL
+0027   0425 D7            push a
+0028   0426 11            mov a, b
+0029   0427 FD 2E 1E 00   mov32 cb, $0000001e
+0029   042B 00 00 
+0030   042D B0            cmp a, b
+0031   042E FD 73         slt ; < (signed)
+0032   0430 E4            pop a
+0033   0431             ; --- END RELATIONAL
+0034   0431 C0 00 00      cmp b, 0
+0035   0434 C6 9D 04      je _for1_exit
+0036   0437             _for1_block:
+0037   0437             ; for(j=0;j<80;j++){ 
+0038   0437             _for2_init:
+0039   0437 FA FD FF      lea d, [bp + -3] ; $j
+0040   043A DA            push d
+0041   043B FD 2E 00 00   mov32 cb, $00000000
+0041   043F 00 00 
+0042   0441 E7            pop d
+0043   0442 FD 43         mov [d], b
+0044   0444             _for2_cond:
+0045   0444 FA FD FF      lea d, [bp + -3] ; $j
+0046   0447 2A            mov b, [d]
+0047   0448 38 00 00      mov c, 0
+0048   044B             ; --- START RELATIONAL
+0049   044B D7            push a
+0050   044C 11            mov a, b
+0051   044D FD 2E 50 00   mov32 cb, $00000050
+0051   0451 00 00 
+0052   0453 B0            cmp a, b
+0053   0454 FD 73         slt ; < (signed)
+0054   0456 E4            pop a
+0055   0457             ; --- END RELATIONAL
+0056   0457 C0 00 00      cmp b, 0
+0057   045A C6 7D 04      je _for2_exit
+0058   045D             _for2_block:
+0059   045D             ; putchar('#'); 
+0060   045D             ; --- START FUNCTION CALL
+0061   045D FD 2E 23 00   mov32 cb, $00000023
+0061   0461 00 00 
+0062   0463 DD            push bl
+0063   0464 07 9F 04      call putchar
+0064   0467 51 01 00      add sp, 1
+0065   046A             ; --- END FUNCTION CALL
+0066   046A             _for2_update:
+0067   046A FA FD FF      lea d, [bp + -3] ; $j
+0068   046D 2A            mov b, [d]
+0069   046E 38 00 00      mov c, 0
+0070   0471 11            mov a, b
+0071   0472 FD 77         inc b
+0072   0474 FA FD FF      lea d, [bp + -3] ; $j
+0073   0477 FD 43         mov [d], b
+0074   0479 27            mov b, a
+0075   047A 0A 44 04      jmp _for2_cond
+0076   047D             _for2_exit:
+0077   047D             ; putchar('\n'); 
+0078   047D             ; --- START FUNCTION CALL
+0079   047D FD 2E 0A 00   mov32 cb, $0000000a
+0079   0481 00 00 
+0080   0483 DD            push bl
+0081   0484 07 9F 04      call putchar
+0082   0487 51 01 00      add sp, 1
+0083   048A             ; --- END FUNCTION CALL
+0084   048A             _for1_update:
+0085   048A FA FF FF      lea d, [bp + -1] ; $i
+0086   048D 2A            mov b, [d]
+0087   048E 38 00 00      mov c, 0
+0088   0491 11            mov a, b
+0089   0492 FD 77         inc b
+0090   0494 FA FF FF      lea d, [bp + -1] ; $i
+0091   0497 FD 43         mov [d], b
+0092   0499 27            mov b, a
+0093   049A 0A 1E 04      jmp _for1_cond
+0094   049D             _for1_exit:
+0095   049D 05 0B         syscall sys_terminate_proc
+0096   049F             
+0097   049F             putchar:
+0098   049F F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0099   04A2             ; --- BEGIN INLINE ASM SEGMENT
+0100   04A2 FA 05 00      lea d, [bp + 5] ; $c
+0101   04A5 1E            mov al, [d]
+0102   04A6 23            mov ah, al
+0103   04A7 19 00         mov al, 0
+0104   04A9 05 03         syscall sys_io      ; char in AH
+0105   04AB             ; --- END INLINE ASM SEGMENT
+0106   04AB F9            leave
+0107   04AC 09            ret
+0108   04AD             ; --- END TEXT SEGMENT
+0109   04AD             
+0110   04AD             ; --- BEGIN DATA SEGMENT
+0111   04AD             
+0112   04AD AF 04       _heap_top: .dw _heap
+0113   04AF 00          _heap: .db 0
+0114   04B0             ; --- END DATA SEGMENT
+0115   04B0             
+0116   04B0             .end
 tasm: Number of errors = 0
