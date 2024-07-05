@@ -30,6 +30,37 @@ TO_FIXED:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_2  
+  neg a 
+skip_invert_a_2:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_2  
+  neg b 
+skip_invert_b_2:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_2
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_2:
   mov c, g
   mov b, a
   pop g
@@ -50,7 +81,9 @@ FROM_FIXED:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -71,6 +104,37 @@ TO_FIXED00:
   mov a, b
   mov g, c
   mov32 cb, $00000064
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_6  
+  neg a 
+skip_invert_a_6:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_6  
+  neg b 
+skip_invert_b_6:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_6
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_6:
   mov c, g
   mov b, a
   pop g
@@ -91,7 +155,9 @@ FROM_FIXED00:
   mov a, b
   mov g, c
   mov32 cb, $00000064
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -156,8 +222,10 @@ get_rand:
   lea d, [bp + 5] ; $spread
   mov b, [d]
   mov c, 0
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -402,6 +470,37 @@ _if20_exit:
   mov b, a
   pop a
 ; --- END TERMS
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_22  
+  neg a 
+skip_invert_a_22:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_22  
+  neg b 
+skip_invert_b_22:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_22
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_22:
   mov c, g
   mov b, a
   pop g
@@ -524,12 +623,43 @@ _if25_exit:
   mov b, a
   pop a
 ; --- END TERMS
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_27  
+  neg a 
+skip_invert_a_27:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_27  
+  neg b 
+skip_invert_b_27:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_27
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_27:
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add b, a
+  add32 cb, ga
   pop a
 ; --- END TERMS
   pop d
@@ -869,6 +999,37 @@ _if35_exit:
   mov a, b
   mov g, c
   mov32 cb, $00000064
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_39  
+  neg a 
+skip_invert_a_39:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_39  
+  neg b 
+skip_invert_b_39:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_39
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_39:
   mov c, g
   mov b, a
   pop g
@@ -3080,6 +3241,37 @@ _if76_exit:
   mov a, b
   mov g, c
   mov32 cb, $00000008
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_78  
+  neg a 
+skip_invert_a_78:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_78  
+  neg b 
+skip_invert_b_78:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_78
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_78:
   mov c, g
   mov b, a
   pop g
@@ -3360,6 +3552,37 @@ _if79_exit:
   mov bl, [d]
   mov bh, 0
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_83  
+  neg a 
+skip_invert_a_83:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_83  
+  neg b 
+skip_invert_b_83:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_83
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_83:
   mov c, g
   mov b, a
   pop g
@@ -3367,7 +3590,9 @@ _if79_exit:
 ; --- END FACTORS
 ; --- START TERMS
   push a
+  push g
   mov a, b
+  mov g, c
   mov d, _c_data ; $c
   push a
   push d
@@ -3415,12 +3640,44 @@ _if79_exit:
   lea d, [bp + -13] ; $c4
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_84  
+  neg a 
+skip_invert_a_84:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_84  
+  neg b 
+skip_invert_b_84:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_84
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_84:
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add b, a
+  add32 cb, ga
+  pop g
   pop a
 ; --- END TERMS
   pop d
@@ -3450,6 +3707,37 @@ _if79_exit:
   mov bl, [d]
   mov bh, 0
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_87  
+  neg a 
+skip_invert_a_87:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_87  
+  neg b 
+skip_invert_b_87:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_87
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_87:
   mov c, g
   mov b, a
   pop g
@@ -3457,7 +3745,9 @@ _if79_exit:
 ; --- END FACTORS
 ; --- START TERMS
   push a
+  push g
   mov a, b
+  mov g, c
   mov d, _c_data ; $c
   push a
   push d
@@ -3505,12 +3795,44 @@ _if79_exit:
   lea d, [bp + -13] ; $c4
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_88  
+  neg a 
+skip_invert_a_88:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_88  
+  neg b 
+skip_invert_b_88:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_88
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_88:
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add b, a
+  add32 cb, ga
+  pop g
   pop a
 ; --- END TERMS
   pop d
@@ -3710,6 +4032,37 @@ _if90_TRUE:
   mov d, _quad_y ; $quad_y
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_96  
+  neg a 
+skip_invert_a_96:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_96  
+  neg b 
+skip_invert_b_96:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_96
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_96:
   mov c, g
   mov b, a
   pop g
@@ -3734,6 +4087,37 @@ _if90_TRUE:
   lea d, [bp + -19] ; $x1
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_98  
+  neg a 
+skip_invert_a_98:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_98  
+  neg b 
+skip_invert_b_98:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_98
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_98:
   mov c, g
   mov b, a
   pop g
@@ -3756,6 +4140,37 @@ _if90_TRUE:
   mov d, _quad_x ; $quad_x
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_104  
+  neg a 
+skip_invert_a_104:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_104  
+  neg b 
+skip_invert_b_104:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_104
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_104:
   mov c, g
   mov b, a
   pop g
@@ -3780,6 +4195,37 @@ _if90_TRUE:
   lea d, [bp + -21] ; $x2
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_106  
+  neg a 
+skip_invert_a_106:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_106  
+  neg b 
+skip_invert_b_106:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_106
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_106:
   mov c, g
   mov b, a
   pop g
@@ -3802,7 +4248,9 @@ _if90_TRUE:
   mov a, b
   mov g, c
   mov32 cb, $00000320
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -3822,7 +4270,9 @@ _if90_TRUE:
   mov a, b
   mov g, c
   mov32 cb, $00000320
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -3848,6 +4298,37 @@ _if90_TRUE:
   mov a, b
   mov g, c
   mov32 cb, $00000320
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_114  
+  neg a 
+skip_invert_a_114:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_114  
+  neg b 
+skip_invert_b_114:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_114
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_114:
   mov c, g
   mov b, a
   pop g
@@ -3877,6 +4358,37 @@ _if90_TRUE:
   mov a, b
   mov g, c
   mov32 cb, $00000320
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_118  
+  neg a 
+skip_invert_a_118:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_118  
+  neg b 
+skip_invert_b_118:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_118
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_118:
   mov c, g
   mov b, a
   pop g
@@ -4728,7 +5240,9 @@ _if133_cond:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -5366,13 +5880,13 @@ _if148_TRUE:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   mov b, _s84 ; "    Photon Torpedoes    %d\n"
   swp b
   push b
   call printf
-  add sp, 3
+  add sp, 4
 ; --- END FUNCTION CALL
   jmp _if148_exit
 _if148_exit:
@@ -5469,13 +5983,13 @@ _if151_TRUE:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   mov b, _s87 ; "    Klingons Remaining  %d\n"
   swp b
   push b
   call printf
-  add sp, 3
+  add sp, 4
 ; --- END FUNCTION CALL
   jmp _if151_exit
 _if151_exit:
@@ -6250,13 +6764,13 @@ _if162_TRUE:
   test al, $80  
   swp a  
   jz skip_invert_a_164  
-   neg a 
+  neg a 
 skip_invert_a_164:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_164  
-   neg b 
+  neg b 
 skip_invert_b_164:   
   mul a, b ; *
   mov g, a
@@ -6264,14 +6778,11 @@ skip_invert_b_164:
   pop bl
   test bl, $80
   jz _same_signs_164
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_164:
   mov c, g
@@ -6281,7 +6792,7 @@ _same_signs_164:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
   jmp _if162_exit
 _if162_else:
@@ -6308,13 +6819,13 @@ _if162_else:
   test al, $80  
   swp a  
   jz skip_invert_a_166  
-   neg a 
+  neg a 
 skip_invert_a_166:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_166  
-   neg b 
+  neg b 
 skip_invert_b_166:   
   mul a, b ; *
   mov g, a
@@ -6322,14 +6833,11 @@ skip_invert_b_166:
   pop bl
   test bl, $80
   jz _same_signs_166
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_166:
   mov c, g
@@ -6339,7 +6847,7 @@ _same_signs_166:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 _if162_exit:
 ; h1 = phaser_energy / klingons; 
@@ -6358,7 +6866,9 @@ _if162_exit:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -6366,7 +6876,7 @@ _if162_exit:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; for (i = 0; i <= 2; i++) { 
 _for169_init:
@@ -6444,13 +6954,13 @@ _if170_TRUE:
   test al, $80  
   swp a  
   jz skip_invert_a_172  
-   neg a 
+  neg a 
 skip_invert_a_172:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_172  
-   neg b 
+  neg b 
 skip_invert_b_172:   
   mul a, b ; *
   mov g, a
@@ -6458,14 +6968,11 @@ skip_invert_b_172:
   pop bl
   test bl, $80
   jz _same_signs_172
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_172:
   mov c, g
@@ -6475,7 +6982,7 @@ _same_signs_172:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; h1 =h1/ distance_to(k); 
   lea d, [bp + -9] ; $h1
@@ -6498,7 +7005,9 @@ _same_signs_172:
   call distance_to
   add sp, 2
 ; --- END FUNCTION CALL
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -6506,7 +7015,7 @@ _same_signs_172:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; if (h1 <= 15 * k->energy) {	/* was 0.15 */ 
 _if175_cond:
@@ -6530,6 +7039,37 @@ _if175_cond:
   add d, 2
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_177  
+  neg a 
+skip_invert_a_177:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_177  
+  neg b 
+skip_invert_b_177:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_177
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_177:
   mov c, g
   mov b, a
   pop g
@@ -6551,7 +7091,7 @@ _if175_TRUE:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   lea d, [bp + -13] ; $k
   mov d, [d]
@@ -6559,13 +7099,13 @@ _if175_TRUE:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   mov b, _s97 ; "Sensors show no damage to enemy at %d, %d\n\n"
   swp b
   push b
   call printf
-  add sp, 4
+  add sp, 6
 ; --- END FUNCTION CALL
   jmp _if175_exit
 _if175_else:
@@ -6614,7 +7154,7 @@ _if175_else:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   lea d, [bp + -13] ; $k
   mov d, [d]
@@ -6622,7 +7162,7 @@ _if175_else:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   lea d, [bp + -11] ; $h
   mov b, [d]
@@ -6633,7 +7173,7 @@ _if175_else:
   swp b
   push b
   call printf
-  add sp, 6
+  add sp, 8
 ; --- END FUNCTION CALL
 ; if (k->energy <= 0) { 
 _if178_cond:
@@ -7066,6 +7606,37 @@ _if183_exit:
   mov bl, [d]
   mov bh, 0
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_186  
+  neg a 
+skip_invert_a_186:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_186  
+  neg b 
+skip_invert_b_186:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_186
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_186:
   mov c, g
   mov b, a
   pop g
@@ -7073,7 +7644,9 @@ _if183_exit:
 ; --- END FACTORS
 ; --- START TERMS
   push a
+  push g
   mov a, b
+  mov g, c
   mov d, _c_data ; $c
   push a
   push d
@@ -7121,12 +7694,44 @@ _if183_exit:
   lea d, [bp + -11] ; $c4
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_187  
+  neg a 
+skip_invert_a_187:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_187  
+  neg b 
+skip_invert_b_187:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_187
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_187:
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add b, a
+  add32 cb, ga
+  pop g
   pop a
 ; --- END TERMS
   pop d
@@ -7156,6 +7761,37 @@ _if183_exit:
   mov bl, [d]
   mov bh, 0
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_190  
+  neg a 
+skip_invert_a_190:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_190  
+  neg b 
+skip_invert_b_190:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_190
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_190:
   mov c, g
   mov b, a
   pop g
@@ -7163,7 +7799,9 @@ _if183_exit:
 ; --- END FACTORS
 ; --- START TERMS
   push a
+  push g
   mov a, b
+  mov g, c
   mov d, _c_data ; $c
   push a
   push d
@@ -7211,12 +7849,44 @@ _if183_exit:
   lea d, [bp + -11] ; $c4
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_191  
+  neg a 
+skip_invert_a_191:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_191  
+  neg b 
+skip_invert_b_191:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_191
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_191:
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add b, a
+  add32 cb, ga
+  pop g
   pop a
 ; --- END TERMS
   pop d
@@ -7598,19 +8268,19 @@ _switch194_case0:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   lea d, [bp + 5] ; $yp
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   mov b, _s106 ; "Star at %d, %d absorbed torpedo energy.\n\n"
   swp b
   push b
   call printf
-  add sp, 4
+  add sp, 6
 ; --- END FUNCTION CALL
 ; return; 
   leave
@@ -8346,7 +9016,9 @@ _for206_exit:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -9122,8 +9794,10 @@ _if220_exit:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -9146,7 +9820,7 @@ _if220_exit:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   lea d, [bp + -1] ; $plural
   mov b, [d]
@@ -9157,7 +9831,7 @@ _if220_exit:
   swp b
   push b
   call printf
-  add sp, 9
+  add sp, 10
 ; --- END FUNCTION CALL
 ; if (starbases_left < 1) { 
 _if225_cond:
@@ -9232,13 +9906,13 @@ _if226_exit:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   mov b, _s136 ; "The Federation is maintaining %d starbase%s in the galaxy\n\n"
   swp b
   push b
   call printf
-  add sp, 5
+  add sp, 6
 ; --- END FUNCTION CALL
 _if225_exit:
   leave
@@ -9910,7 +10584,9 @@ _for236_block:
   mov a, b
   mov g, c
   mov32 cb, $00000002
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -10033,8 +10709,10 @@ _if247_cond:
   mov a, b
   mov g, c
   mov32 cb, $00000002
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -10087,7 +10765,9 @@ _if247_exit:
   mov a, b
   mov g, c
   mov32 cb, $00000002
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -10346,13 +11026,13 @@ _if263_TRUE:
   test al, $80  
   swp a  
   jz skip_invert_a_310  
-   neg a 
+  neg a 
 skip_invert_a_310:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_310  
-   neg b 
+  neg b 
 skip_invert_b_310:   
   mul a, b ; *
   mov g, a
@@ -10360,14 +11040,11 @@ skip_invert_b_310:
   pop bl
   test bl, $80
   jz _same_signs_310
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_310:
   mov c, g
@@ -10384,13 +11061,15 @@ _same_signs_310:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   swp b
@@ -10437,13 +11116,13 @@ _if263_else:
   test al, $80  
   swp a  
   jz skip_invert_a_485  
-   neg a 
+  neg a 
 skip_invert_a_485:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_485  
-   neg b 
+  neg b 
 skip_invert_b_485:   
   mul a, b ; *
   mov g, a
@@ -10451,14 +11130,11 @@ skip_invert_b_485:
   pop bl
   test bl, $80
   jz _same_signs_485
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_485:
   mov c, g
@@ -10468,9 +11144,7 @@ _same_signs_485:
 ; --- END FACTORS
 ; --- START TERMS
   push a
-  push g
   mov a, b
-  mov g, c
   lea d, [bp + -7] ; $al
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -10478,7 +11152,6 @@ _same_signs_485:
   sub32 ga, cb
   mov b, a
   mov c, g
-  pop g
   pop a
 ; --- END TERMS
 ; --- START FACTORS
@@ -10497,13 +11170,13 @@ _same_signs_485:
   test al, $80  
   swp a  
   jz skip_invert_a_486  
-   neg a 
+  neg a 
 skip_invert_a_486:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_486  
-   neg b 
+  neg b 
 skip_invert_b_486:   
   mul a, b ; *
   mov g, a
@@ -10511,14 +11184,11 @@ skip_invert_b_486:
   pop bl
   test bl, $80
   jz _same_signs_486
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_486:
   mov c, g
@@ -10535,13 +11205,15 @@ _same_signs_486:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   swp b
@@ -10774,13 +11446,13 @@ _if496_TRUE:
   test al, $80  
   swp a  
   jz skip_invert_a_543  
-   neg a 
+  neg a 
 skip_invert_a_543:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_543  
-   neg b 
+  neg b 
 skip_invert_b_543:   
   mul a, b ; *
   mov g, a
@@ -10788,14 +11460,11 @@ skip_invert_b_543:
   pop bl
   test bl, $80
   jz _same_signs_543
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_543:
   mov c, g
@@ -10812,13 +11481,15 @@ _same_signs_543:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   swp b
@@ -10865,13 +11536,13 @@ _if496_else:
   test al, $80  
   swp a  
   jz skip_invert_a_718  
-   neg a 
+  neg a 
 skip_invert_a_718:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_718  
-   neg b 
+  neg b 
 skip_invert_b_718:   
   mul a, b ; *
   mov g, a
@@ -10879,14 +11550,11 @@ skip_invert_b_718:
   pop bl
   test bl, $80
   jz _same_signs_718
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_718:
   mov c, g
@@ -10896,9 +11564,7 @@ _same_signs_718:
 ; --- END FACTORS
 ; --- START TERMS
   push a
-  push g
   mov a, b
-  mov g, c
   lea d, [bp + -3] ; $xl
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -10906,7 +11572,6 @@ _same_signs_718:
   sub32 ga, cb
   mov b, a
   mov c, g
-  pop g
   pop a
 ; --- END TERMS
 ; --- START FACTORS
@@ -10925,13 +11590,13 @@ _same_signs_718:
   test al, $80  
   swp a  
   jz skip_invert_a_719  
-   neg a 
+  neg a 
 skip_invert_a_719:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_719  
-   neg b 
+  neg b 
 skip_invert_b_719:   
   mul a, b ; *
   mov g, a
@@ -10939,14 +11604,11 @@ skip_invert_b_719:
   pop bl
   test bl, $80
   jz _same_signs_719
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_719:
   mov c, g
@@ -10963,13 +11625,15 @@ _same_signs_719:
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   swp b
@@ -11095,13 +11759,13 @@ resign_commision:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   mov b, _s150 ; "There were %d Klingon Battlecruisers left at the end of your mission.\n\n"
   swp b
   push b
   call printf
-  add sp, 3
+  add sp, 4
 ; --- END FUNCTION CALL
 ; end_of_game(); 
 ; --- START FUNCTION CALL
@@ -11189,7 +11853,9 @@ _if725_TRUE:
   mov b, a
   pop a
 ; --- END TERMS
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -11553,13 +12219,13 @@ _if748_TRUE:
   test al, $80  
   swp a  
   jz skip_invert_a_750  
-   neg a 
+  neg a 
 skip_invert_a_750:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_750  
-   neg b 
+  neg b 
 skip_invert_b_750:   
   mul a, b ; *
   mov g, a
@@ -11567,14 +12233,11 @@ skip_invert_b_750:
   pop bl
   test bl, $80
   jz _same_signs_750
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_750:
   mov c, g
@@ -11584,7 +12247,7 @@ _same_signs_750:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; h =h* 100;	/* Ready for division in fixed */ 
   lea d, [bp + -4] ; $h
@@ -11609,13 +12272,13 @@ _same_signs_750:
   test al, $80  
   swp a  
   jz skip_invert_a_752  
-   neg a 
+  neg a 
 skip_invert_a_752:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_752  
-   neg b 
+  neg b 
 skip_invert_b_752:   
   mul a, b ; *
   mov g, a
@@ -11623,14 +12286,11 @@ skip_invert_b_752:
   pop bl
   test bl, $80
   jz _same_signs_752
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_752:
   mov c, g
@@ -11640,7 +12300,7 @@ _same_signs_752:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; h =h/ distance_to(k); 
   lea d, [bp + -4] ; $h
@@ -11663,7 +12323,9 @@ _same_signs_752:
   call distance_to
   add sp, 2
 ; --- END FUNCTION CALL
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -11671,7 +12333,7 @@ _same_signs_752:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; shield = shield - FROM_FIXED00(h); 
   mov d, _shield ; $shield
@@ -11714,6 +12376,37 @@ _same_signs_752:
   mov a, b
   mov g, c
   mov32 cb, $00000064
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_759  
+  neg a 
+skip_invert_a_759:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_759  
+  neg b 
+skip_invert_b_759:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_759
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_759:
   mov c, g
   mov b, a
   pop g
@@ -11738,7 +12431,9 @@ _same_signs_752:
   add b, a
   pop a
 ; --- END TERMS
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -11754,7 +12449,7 @@ _same_signs_752:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   lea d, [bp + -7] ; $k
   mov d, [d]
@@ -11762,7 +12457,7 @@ _same_signs_752:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  swp a
+  swp b
   push b
   lea d, [bp + -4] ; $h
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -11774,7 +12469,7 @@ _same_signs_752:
   swp b
   push b
   call printf
-  add sp, 6
+  add sp, 8
 ; --- END FUNCTION CALL
 ; if (shield <= 0) { 
 _if761_cond:
@@ -11852,7 +12547,9 @@ _if762_TRUE:
   mov d, _shield ; $shield
   mov b, [d]
   mov c, 0
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -11897,8 +12594,7 @@ _if765_cond:
   pop g
   pop a
 ; --- END RELATIONAL
-  mov g, 0
-  sand32 ga, cb
+  sand a, b
   pop a
 ; --- END LOGICAL AND
   cmp b, 0
@@ -13148,7 +13844,9 @@ _if784_TRUE:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -13170,6 +13868,37 @@ _if784_TRUE:
   lea d, [bp + 5] ; $t
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_788  
+  neg a 
+skip_invert_a_788:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_788  
+  neg b 
+skip_invert_b_788:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_788
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_788:
   mov c, g
   mov b, a
   pop g
@@ -13193,6 +13922,37 @@ _if784_else:
   lea d, [bp + 5] ; $t
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_790  
+  neg a 
+skip_invert_a_790:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_790  
+  neg b 
+skip_invert_b_790:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_790
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_790:
   mov c, g
   mov b, a
   pop g
@@ -13212,7 +13972,9 @@ _if784_else:
   mov a, b
   mov g, c
   mov32 cb, $00000064
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -13343,7 +14105,9 @@ cint100:
   mov a, b
   mov g, c
   mov32 cb, $00000064
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -14270,7 +15034,7 @@ _if806_TRUE:
   mov c, a
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
   jmp _if806_exit
 _if806_else:
@@ -14352,14 +15116,16 @@ _while808_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   pop d
@@ -14377,7 +15143,9 @@ _while808_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -14385,7 +15153,7 @@ _while808_block:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; i++; 
   lea d, [bp + -11] ; $i
@@ -14547,14 +15315,16 @@ _while817_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   pop d
@@ -14572,7 +15342,9 @@ _while817_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -14580,7 +15352,7 @@ _while817_block:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; i++; 
   lea d, [bp + -11] ; $i
@@ -14849,8 +15621,10 @@ _while827_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -14873,7 +15647,9 @@ _while827_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -15020,8 +15796,10 @@ _while836_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -15044,7 +15822,9 @@ _while836_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -15229,7 +16009,7 @@ _for844_block:
   mov bh, 0
   mov c, 0
   pop d
-  mov [d], bl
+  mov [d], b
 _for844_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
@@ -15676,6 +16456,37 @@ _while852_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_854  
+  neg a 
+skip_invert_a_854:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_854  
+  neg b 
+skip_invert_b_854:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_854
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_854:
   mov c, g
   mov b, a
   pop g
@@ -15683,7 +16494,9 @@ _while852_block:
 ; --- END FACTORS
 ; --- START TERMS
   push a
+  push g
   mov a, b
+  mov g, c
   lea d, [bp + 5] ; $str
   mov b, [d]
   mov c, 0
@@ -15699,7 +16512,8 @@ _while852_block:
   mov b, a
   pop a
 ; --- END TERMS
-  add b, a
+  add32 cb, ga
+  pop g
   pop a
 ; --- END TERMS
   pop d
@@ -15726,6 +16540,37 @@ _while852_exit:
   lea d, [bp + -1] ; $result
   mov b, [d]
   mov c, 0
+  push a     ; save left operand
+  xor a, b   ; xor sign bits
+  swp a      ; swap bytes
+  mov cl, al ; save result of xor into 'dl'
+  pop a      ; restore left side operator
+  push cl    ; save result of xor above
+  swp a  
+  test al, $80  
+  swp a  
+  jz skip_invert_a_856  
+  neg a 
+skip_invert_a_856:   
+  swp b
+  test bl, $80  
+  swp b
+  jz skip_invert_b_856  
+  neg b 
+skip_invert_b_856:   
+  mul a, b ; *
+  mov g, a
+  mov a, b
+  pop bl
+  test bl, $80
+  jz _same_signs_856
+  mov bl, al
+  not a
+  neg b
+  adc a, 0
+  mov g, a
+  mov a, b
+_same_signs_856:
   mov c, g
   mov b, a
   pop g

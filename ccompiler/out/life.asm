@@ -1608,7 +1608,7 @@ _if29_TRUE:
   mov c, a
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
   jmp _if29_exit
 _if29_else:
@@ -1690,14 +1690,16 @@ _while31_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   pop d
@@ -1715,7 +1717,9 @@ _while31_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -1723,7 +1727,7 @@ _while31_block:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; i++; 
   lea d, [bp + -11] ; $i
@@ -1885,14 +1889,16 @@ _while40_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   pop d
@@ -1910,7 +1916,9 @@ _while40_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -1918,7 +1926,7 @@ _while40_block:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; i++; 
   lea d, [bp + -11] ; $i
@@ -2187,8 +2195,10 @@ _while50_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2211,7 +2221,9 @@ _while50_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2358,8 +2370,10 @@ _while59_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2382,7 +2396,9 @@ _while59_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g

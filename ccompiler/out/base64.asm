@@ -169,8 +169,7 @@ _while1_block:
   mov [d], b
   dec b
   mov d, b
-  mov bl, [d]
-  mov bh, 0
+  mov b, [d]
   mov c, 0
   pop d
   mov [d], bl
@@ -219,7 +218,7 @@ _if2_TRUE:
   mov a, b
   mov32 cb, $00000002
   mov c, b
-  ashr a, cl
+  shr a, cl
   mov b, a
   pop a
 ; --- END SHIFT
@@ -281,7 +280,7 @@ _if2_TRUE:
   mov a, b
   mov32 cb, $00000004
   mov c, b
-  ashr a, cl
+  shr a, cl
   mov b, a
   pop a
 ; --- END SHIFT
@@ -346,7 +345,7 @@ _if2_TRUE:
   mov a, b
   mov32 cb, $00000006
   mov c, b
-  ashr a, cl
+  shr a, cl
   mov b, a
   pop a
 ; --- END SHIFT
@@ -551,7 +550,7 @@ _for5_exit:
   mov a, b
   mov32 cb, $00000002
   mov c, b
-  ashr a, cl
+  shr a, cl
   mov b, a
   pop a
 ; --- END SHIFT
@@ -613,7 +612,7 @@ _for5_exit:
   mov a, b
   mov32 cb, $00000004
   mov c, b
-  ashr a, cl
+  shr a, cl
   mov b, a
   pop a
 ; --- END SHIFT
@@ -678,7 +677,7 @@ _for5_exit:
   mov a, b
   mov32 cb, $00000006
   mov c, b
-  ashr a, cl
+  shr a, cl
   mov b, a
   pop a
 ; --- END SHIFT
@@ -1329,7 +1328,7 @@ _for15_exit:
   mov a, b
   mov32 cb, $00000004
   mov c, b
-  ashr a, cl
+  shr a, cl
   mov b, a
   pop a
 ; --- END SHIFT
@@ -1394,7 +1393,7 @@ _for15_exit:
   mov a, b
   mov32 cb, $00000002
   mov c, b
-  ashr a, cl
+  shr a, cl
   mov b, a
   pop a
 ; --- END SHIFT
@@ -1699,7 +1698,7 @@ _for19_exit:
   mov a, b
   mov32 cb, $00000004
   mov c, b
-  ashr a, cl
+  shr a, cl
   mov b, a
   pop a
 ; --- END SHIFT
@@ -1764,7 +1763,7 @@ _for19_exit:
   mov a, b
   mov32 cb, $00000002
   mov c, b
-  ashr a, cl
+  shr a, cl
   mov b, a
   pop a
 ; --- END SHIFT
@@ -2407,7 +2406,7 @@ _if28_TRUE:
   mov c, a
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
   jmp _if28_exit
 _if28_else:
@@ -2489,14 +2488,16 @@ _while30_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   pop d
@@ -2514,7 +2515,9 @@ _while30_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2522,7 +2525,7 @@ _while30_block:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; i++; 
   lea d, [bp + -11] ; $i
@@ -2684,14 +2687,16 @@ _while39_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   pop d
@@ -2709,7 +2714,9 @@ _while39_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2717,7 +2724,7 @@ _while39_block:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; i++; 
   lea d, [bp + -11] ; $i
@@ -2986,8 +2993,10 @@ _while49_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -3010,7 +3019,9 @@ _while49_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -3157,8 +3168,10 @@ _while58_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -3181,7 +3194,9 @@ _while58_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g

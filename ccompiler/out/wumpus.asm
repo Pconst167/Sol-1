@@ -968,8 +968,10 @@ move_wumpus:
   mov a, b
   mov g, c
   mov32 cb, $00000004
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -1475,8 +1477,10 @@ _if18_else:
   mov a, b
   mov g, c
   mov32 cb, $00000003
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -1967,8 +1971,10 @@ _while30_block:
   mov a, b
   mov g, c
   mov32 cb, $00000014
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2214,8 +2220,10 @@ _while36_block:
   mov a, b
   mov g, c
   mov32 cb, $00000014
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2671,7 +2679,7 @@ getchar:
   sub sp, 1
 ; --- BEGIN INLINE ASM SEGMENT
   mov al, 1
-  syscall sys_io      
+  syscall sys_io      ; receive in AH
   mov al, ah
   lea d, [bp + 0] ; $c
   mov [d], al
@@ -2832,8 +2840,10 @@ _while49_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2856,7 +2866,9 @@ _while49_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2930,7 +2942,7 @@ putchar:
   mov al, [d]
   mov ah, al
   mov al, 0
-  syscall sys_io      
+  syscall sys_io      ; char in AH
 ; --- END INLINE ASM SEGMENT
   leave
   ret
@@ -2947,7 +2959,7 @@ scann:
   push d
   lea d, [bp +- 7]
   call _gets_scann
-  call _strlen_scann      
+  call _strlen_scann      ; get string length in C
   dec c
   mov si, d
   mov a, c
@@ -2956,13 +2968,13 @@ scann:
   add d, a
   mov c, 0
 mul_loop_scann:
-  lodsb      
+  lodsb      ; load ASCII to al
   cmp al, 0
   je mul_exit_scann
-  sub al, $30    
+  sub al, $30    ; make into integer
   mov ah, 0
   mov b, [d]
-  mul a, b      
+  mul a, b      ; result in B since it fits in 16bits
   mov a, b
   mov b, c
   add a, b
@@ -2998,29 +3010,23 @@ _strlen_L1_scann:
 _strlen_ret_scann:
   pop d
   ret
-table_power_scann:
-.dw 1
-.dw 10
-.dw 100
-.dw 1000
-.dw 10000
 _gets_scann:
   push a
   push d
 _gets_loop_scann:
   mov al, 1
-  syscall sys_io      
-  cmp al, 0        
-  je _gets_loop_scann      
+  syscall sys_io      ; receive in AH
+  cmp al, 0        ; check error code (AL)
+  je _gets_loop_scann      ; if no char received, retry
   cmp ah, 27
   je _gets_ansi_esc_scann
-  cmp ah, $0A        
+  cmp ah, $0A        ; LF
   je _gets_end_scann
-  cmp ah, $0D        
+  cmp ah, $0D        ; CR
   je _gets_end_scann
-  cmp ah, $5C        
+  cmp ah, $5C        ; '\\'
   je _gets_escape_scann
-  cmp ah, $08      
+  cmp ah, $08      ; check for backspace
   je _gets_backspace_scann
   mov al, ah
   mov [d], al
@@ -3031,16 +3037,16 @@ _gets_backspace_scann:
   jmp _gets_loop_scann
 _gets_ansi_esc_scann:
   mov al, 1
-  syscall sys_io        
-  cmp al, 0          
-  je _gets_ansi_esc_scann    
+  syscall sys_io        ; receive in AH without echo
+  cmp al, 0          ; check error code (AL)
+  je _gets_ansi_esc_scann    ; if no char received, retry
   cmp ah, '['
   jne _gets_loop_scann
 _gets_ansi_esc_2_scann:
   mov al, 1
-  syscall sys_io          
-  cmp al, 0            
-  je _gets_ansi_esc_2_scann  
+  syscall sys_io          ; receive in AH without echo
+  cmp al, 0            ; check error code (AL)
+  je _gets_ansi_esc_2_scann  ; if no char received, retry
   cmp ah, 'D'
   je _gets_left_arrow_scann
   cmp ah, 'C'
@@ -3054,9 +3060,9 @@ _gets_right_arrow_scann:
   jmp _gets_loop_scann
 _gets_escape_scann:
   mov al, 1
-  syscall sys_io      
-  cmp al, 0        
-  je _gets_escape_scann      
+  syscall sys_io      ; receive in AH
+  cmp al, 0        ; check error code (AL)
+  je _gets_escape_scann      ; if no char received, retry
   cmp ah, 'n'
   je _gets_LF_scann
   cmp ah, 'r'
@@ -3065,7 +3071,7 @@ _gets_escape_scann:
   je _gets_NULL_scann
   cmp ah, $5C  
   je _gets_slash_scann
-  mov al, ah        
+  mov al, ah        ; if not a known escape, it is just a normal letter
   mov [d], al
   inc d
   jmp _gets_loop_scann
@@ -3091,10 +3097,16 @@ _gets_NULL_scann:
   jmp _gets_loop_scann
 _gets_end_scann:
   mov al, 0
-  mov [d], al        
+  mov [d], al        ; terminate string
   pop d
   pop a
   ret
+table_power_scann:
+.dw 1
+.dw 10
+.dw 100
+.dw 1000
+.dw 10000
 ; --- END INLINE ASM SEGMENT
   leave
   ret
@@ -3110,18 +3122,18 @@ exit:
 
 ; --- BEGIN DATA SEGMENT
 _arrows: .fill 2, 0
-_debug: .dw 0
-_rand_val: .dw 29
-_rand_inc: .dw 1
+_debug: .dw $0000
+_rand_val: .dw $001d
+_rand_inc: .dw $0001
 _loc_data: .fill 12, 0
 _finished: .fill 2, 0
 _cave_data: 
 .dw 
 .dw 
-.dw $1,$4,$7,$0,$2,$9,$1,$3,$b,$2,$4,$d,$0,$3,$5,$4,$6,$e,$5,$7,$10,$0,$6,$8,$7,$9,$11,$1,$8,$a,
+.dw $0001,$0004,$0007,$0000,$0002,$0009,$0001,$0003,$000b,$0002,$0004,$000d,$0000,$0003,$0005,$0004,$0006,$000e,$0005,$0007,$0010,$0000,$0006,$0008,$0007,$0009,$0011,$0001,$0008,$000a,
 .dw 
 .dw 
-.dw $9,$b,$12,$2,$a,$c,$b,$d,$13,$3,$c,$e,$5,$d,$f,$e,$10,$13,$6,$f,$11,$8,$10,$12,$a,$11,$13,$c,$f,$12,
+.dw $0009,$000b,$0012,$0002,$000a,$000c,$000b,$000d,$0013,$0003,$000c,$000e,$0005,$000d,$000f,$000e,$0010,$0013,$0006,$000f,$0011,$0008,$0010,$0012,$000a,$0011,$0013,$000c,$000f,$0012,
 .dw 
 .dw 
 _s0: .db "INSTRUCTIONS (Y-N): ", 0

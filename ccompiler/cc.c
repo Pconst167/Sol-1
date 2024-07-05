@@ -1720,22 +1720,48 @@ int declare_local(void){
           emitln("  push d");
           init_expr = parse_expr();
           emitln("  pop d");
-          if(init_expr.ind_level > 0)
-            emitln("  mov [d], b");
-          else if(init_expr.primitive_type == DT_INT && init_expr.ind_level == 0 && init_expr.size_modifier == SIZEMOD_LONG){
-            emitln("  mov [d], b");
-            emitln("  mov b, c");
-            emitln("  mov [d + 2], b");
-          }
-          else if(init_expr.primitive_type == DT_INT)
-            emitln("  mov [d], b");
-          else if(init_expr.primitive_type == DT_CHAR)
-            emitln("  mov [d], bl");
-          else if(init_expr.primitive_type == DT_STRUCT || init_expr.primitive_type == DT_UNION){
-            emitln("  mov si, b");
-            emitln("  mov di, d");
-            emitln("  mov c, %d", get_total_type_size(init_expr));
-            emitln("  rep movsb");
+          switch(new_var.type.primitive_type){
+            case DT_CHAR:
+              if(new_var.type.ind_level > 0){
+                emitln("  mov [d], b");
+              }
+              else
+                emitln("  mov [d], bl");
+              break;
+            case DT_INT:
+              if(new_var.type.ind_level == 0 && new_var.type.size_modifier == SIZEMOD_LONG){
+                if(init_expr.primitive_type == DT_INT && init_expr.ind_level == 0 && init_expr.size_modifier == SIZEMOD_LONG){
+                  emitln("  mov [d], b");
+                  emitln("  mov b, c");
+                  emitln("  mov [d + 2], b");
+                }
+                else{
+                  if(init_expr.primitive_type == DT_CHAR && init_expr.ind_level == 0){
+                    emitln("  mov bh, 0");
+                    emitln("  mov [d], b");
+                    emitln("  mov b, 0");
+                    emitln("  mov [d + 2], b");
+                  }
+                  else{
+                    emitln("  mov [d], b");
+                    emitln("  mov b, 0");
+                    emitln("  mov [d + 2], b");
+                  }
+                } 
+              }
+              else{
+                emitln("  mov [d], b");
+              }
+              break;
+            case DT_STRUCT:
+            case DT_UNION:
+              emitln("  mov si, b");
+              emitln("  mov di, d");
+              emitln("  mov c, %d", get_total_type_size(init_expr));
+              emitln("  rep movsb");
+              break;
+            default:
+              emitln("  mov [d], b");
           }
           emitln("; --- END LOCAL VAR INITIALIZATION");
         }

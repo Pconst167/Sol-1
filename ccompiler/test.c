@@ -2,7 +2,8 @@
 
 void main(){
 
-  printf("%d", 10 * 5 % 49 == 1);
+  print("Hello World");
+
 }
 
 
