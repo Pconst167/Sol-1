@@ -1,8 +1,22 @@
-#include <stdio.h>
+struct sss{
+  char yy;
+  int uu;
+
+};
+
+
+struct s1{
+  char c;
+  int i;
+  int y;
+  int x;
+};
+
+struct s1 mys1;
 
 void main(){
+  struct s1 mys2 = mys1;
 
-  print("Hello World");
 
 }
 

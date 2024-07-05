@@ -967,7 +967,6 @@ void parse_functions(void){
       current_func_id = i;
       prog = function_table[i].code_location;
       parse_block(); // starts parsing the function block;
-
       if(return_is_last_statement == FALSE){ // generate code for a 'return'
         emitln("  syscall sys_terminate_proc");
       }
@@ -1719,6 +1718,8 @@ int declare_local(void){
           emit_var_addr_into_d(new_var.name);
           emitln("  push d");
           init_expr = parse_expr();
+
+          dbg_print_type_info(init_expr);
           emitln("  pop d");
           switch(new_var.type.primitive_type){
             case DT_CHAR:
@@ -2184,8 +2185,9 @@ void declare_struct_global_vars(int struct_id){
       if(dim > 0 || (global_var_table[global_var_tos].type.primitive_type == DT_STRUCT && global_var_table[global_var_tos].type.ind_level == 0)){
         emit_data("_%s_data: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
       }
-      else
+      else{
         emit_data("_%s: .fill %u, 0\n", global_var_table[global_var_tos].name, get_total_type_size(global_var_table[global_var_tos].type));
+      }
     }
 
     global_var_tos++;  
@@ -3184,15 +3186,22 @@ char is_constant(char *varname){
 t_type parse_ternary_op(void){
   char *temp_prog, *temp_asm_p;
   t_type type1, type2, expr_out;
+  t_type logical_or_result;
+  char s[256];
+  int len;
 
   temp_prog = prog;
   temp_asm_p = asm_p; // save current assembly output pointer
+  sprintf(s, "_ternary%d_cond:", highest_label_index + 1); // this is used to count the number of chars in the ternary operator label string
+  len = strlen(s);                                         // so that we can delete that label if there was no ternary operator afterall
   emitln("_ternary%d_cond:", highest_label_index + 1); // +1 because we are emitting the label ahead
-  parse_logical_or(); // evaluate condition
+  logical_or_result = parse_logical_or(); // evaluate condition
   if(curr_token.tok != TERNARY_OP){
-    prog = temp_prog;
-    asm_p = temp_asm_p; // recover asm output pointer
-    return parse_logical_or();
+    delete(temp_asm_p, len); // delete the ternary operator condition in the assembly file output
+    return logical_or_result;
+    //prog = temp_prog;
+    //asm_p = temp_asm_p; // recover asm output pointer
+    //return parse_logical_or();
   }
 
   // '?' was found
@@ -3248,13 +3257,14 @@ t_type parse_logical_or(void){
       emitln("  pop g");
     emitln("  pop a");
     emitln("; --- END LOGICAL OR");
+
+    expr_out.primitive_type = DT_INT;
+    expr_out.ind_level = 0;
+    expr_out.dims[0] = 0;
+    expr_out.is_constant = FALSE;
+    expr_out.sign_modifier = SIGNMOD_UNSIGNED;
+    expr_out.size_modifier = SIZEMOD_NORMAL;
   }
-  expr_out.primitive_type = DT_INT;
-  expr_out.ind_level = 0;
-  expr_out.dims[0] = 0;
-  expr_out.is_constant = FALSE;
-  expr_out.sign_modifier = SIGNMOD_UNSIGNED;
-  expr_out.size_modifier = SIZEMOD_NORMAL;
   return expr_out;
 }
 
@@ -3287,13 +3297,14 @@ t_type parse_logical_and(void){
     if(type_is_32bit(type1)) emitln("  pop g");
     emitln("  pop a");
     emitln("; --- END LOGICAL AND");
+
+    expr_out.primitive_type = DT_INT;
+    expr_out.ind_level = 0;
+    expr_out.dims[0] = 0;
+    expr_out.is_constant = FALSE;
+    expr_out.sign_modifier = SIGNMOD_UNSIGNED;
+    expr_out.size_modifier = SIZEMOD_NORMAL;
   }
-  expr_out.primitive_type = DT_INT;
-  expr_out.ind_level = 0;
-  expr_out.dims[0] = 0;
-  expr_out.is_constant = FALSE;
-  expr_out.sign_modifier = SIGNMOD_UNSIGNED;
-  expr_out.size_modifier = SIZEMOD_NORMAL;
   return expr_out;
 }
 
@@ -3522,13 +3533,14 @@ t_type parse_relational(void){
       emitln("  pop g");
     emitln("  pop a");
     emitln("; --- END RELATIONAL");
+
+    expr_out.primitive_type = DT_INT;
+    expr_out.ind_level = 0;
+    expr_out.dims[0] = 0;
+    expr_out.is_constant = FALSE;
+    expr_out.sign_modifier = SIGNMOD_UNSIGNED;
+    expr_out.size_modifier = SIZEMOD_NORMAL;
   }
-  expr_out.primitive_type = DT_INT;
-  expr_out.ind_level = 0;
-  expr_out.dims[0] = 0;
-  expr_out.is_constant = FALSE;
-  expr_out.sign_modifier = SIGNMOD_UNSIGNED;
-  expr_out.size_modifier = SIZEMOD_NORMAL;
   return expr_out;
 }
 
@@ -3787,11 +3799,12 @@ t_type parse_atomic(void){
       }
       else if(expr_out.primitive_type == DT_STRUCT){
         emitln("  mov b, d");
-        emitln("  mov c, 0");  // for long ints
+        emitln("  mov c, 0");  
+        dbg_print_type_info(expr_out);
       }
       else if(expr_out.primitive_type == DT_UNION){
         emitln("  mov b, d");
-        emitln("  mov c, 0");  // for long ints
+        emitln("  mov c, 0");  
       }
     }
   }
@@ -5051,30 +5064,29 @@ int get_struct_size(int id){
   int i, j;
   int size = 0;
   int array_size;
-  
+
   for(i = 0; *struct_table[id].elements[i].name; i++){
     array_size = 1;
     for(j = 0; struct_table[id].elements[i].type.dims[j]; j++)
       array_size *= struct_table[id].elements[i].type.dims[j];
     if(struct_table[id].elements[i].type.ind_level > 0) 
       size += array_size * 2;
-    else 
-      switch(struct_table[id].elements[i].type.primitive_type){
-        case DT_CHAR:
-          size += array_size * 1;
-          break;
-        case DT_INT:
-          if(struct_table[id].elements[i].type.size_modifier == SIZEMOD_LONG)
-            size += array_size * 4;
-          else
-            size += array_size * 2;
-          break;
-        case DT_STRUCT:
-          size += array_size * get_struct_size(struct_table[id].elements[i].type.struct_enum_union_id);
-          break;
-        case DT_ENUM:
+    else switch(struct_table[id].elements[i].type.primitive_type){
+      case DT_CHAR:
+        size += array_size * 1;
+        break;
+      case DT_INT:
+        if(struct_table[id].elements[i].type.size_modifier == SIZEMOD_LONG)
+          size += array_size * 4;
+        else
           size += array_size * 2;
-      }
+        break;
+      case DT_STRUCT:
+        size += array_size * get_struct_size(struct_table[id].elements[i].type.struct_enum_union_id);
+        break;
+      case DT_ENUM:
+        size += array_size * 2;
+    }
   }
 
   return size;
