@@ -597,7 +597,7 @@ _for4_cond:
   cmp b, 0
   je _for4_exit
 _for4_block:
-; room = cave[loc[	    0]][k]; 
+; room = cave[loc[	    0   ]][k]; 
   lea d, [bp + -1] ; $room
   push d
                
@@ -629,7 +629,7 @@ _for4_block:
   mov c, 0
   pop d
   mov [d], b
-; if (room == loc[	1]) { 
+; if (room == loc[	1      ]) { 
 _if5_cond:
                
   lea d, [bp + -1] ; $room
@@ -667,7 +667,7 @@ _if5_TRUE:
 ; --- END FUNCTION CALL
   jmp _if5_exit
 _if5_else:
-; if (room == loc[	2] || room == loc[	3]) { 
+; if (room == loc[	2    ] || room == loc[	3    ]) { 
 _if6_cond:
                
   lea d, [bp + -1] ; $room
@@ -731,7 +731,7 @@ _if6_TRUE:
 ; --- END FUNCTION CALL
   jmp _if6_exit
 _if6_else:
-; if (room == loc[	4] || room == loc[	5]) { 
+; if (room == loc[	4     ] || room == loc[	5     ]) { 
 _if7_cond:
                
   lea d, [bp + -1] ; $room
@@ -809,7 +809,7 @@ _for4_update:
   mov b, a
   jmp _for4_cond
 _for4_exit:
-; print("YOU ARE IN ROOM "); print_unsigned(loc[	    0]+1); print("\n"); 
+; print("YOU ARE IN ROOM "); print_unsigned(loc[	    0   ]+1); print("\n"); 
                
 ; --- START FUNCTION CALL
                
@@ -819,7 +819,7 @@ _for4_exit:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; print_unsigned(loc[	    0]+1); print("\n"); 
+; print_unsigned(loc[	    0   ]+1); print("\n"); 
                
 ; --- START FUNCTION CALL
                
@@ -865,7 +865,7 @@ _for4_exit:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; print_unsigned(cave[loc[	    0]][0]+1); print(", "); 
+; print_unsigned(cave[loc[	    0   ]][0]+1); print(", "); 
                
 ; --- START FUNCTION CALL
                
@@ -915,7 +915,7 @@ _for4_exit:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; print_unsigned(cave[loc[	    0]][1]+1); print(", "); 
+; print_unsigned(cave[loc[	    0   ]][1]+1); print(", "); 
                
 ; --- START FUNCTION CALL
                
@@ -965,7 +965,7 @@ _for4_exit:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; print_unsigned(cave[loc[	    0]][2]+1); 
+; print_unsigned(cave[loc[	    0   ]][2]+1); 
                
 ; --- START FUNCTION CALL
                
@@ -1153,7 +1153,7 @@ _if11_cond:
   cmp b, 0
   je _if11_exit
 _if11_TRUE:
-; loc[	1] = cave[loc[	1]][k]; 
+; loc[	1      ] = cave[loc[	1      ]][k]; 
   mov d, _loc_data ; $loc
   push a
   push d
@@ -1194,7 +1194,7 @@ _if11_TRUE:
   mov [d], b
   jmp _if11_exit
 _if11_exit:
-; if (loc[	1] == loc[	    0]) { 
+; if (loc[	1      ] == loc[	    0   ]) { 
 _if12_cond:
                 
   mov d, _loc_data ; $loc
@@ -1237,7 +1237,7 @@ _if12_TRUE:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; finished = 	2; 
+; finished = 	2    ; 
   mov d, _finished ; $finished
   push d
                 
@@ -1266,7 +1266,7 @@ shoot:
 ; int len, k; 
   sub sp, 2
   sub sp, 2
-; finished = 	     0; 
+; finished = 	     0   ; 
   mov d, _finished ; $finished
   push d
                 
@@ -1477,7 +1477,7 @@ _if15_exit:
   mov b, a
   jmp _while14_cond
 _while14_exit:
-; scratchloc = loc[	    0]; 
+; scratchloc = loc[	    0   ]; 
   lea d, [bp + -11] ; $scratchloc
   push d
                 
@@ -1704,7 +1704,7 @@ _if17_else:
   pop d
   mov [d], b
 _if17_exit:
-; if (scratchloc == loc[	1]) { 
+; if (scratchloc == loc[	1      ]) { 
 _if19_cond:
                 
   lea d, [bp + -11] ; $scratchloc
@@ -1740,7 +1740,7 @@ _if19_TRUE:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; finished = 	     1; 
+; finished = 	     1   ; 
   mov d, _finished ; $finished
   push d
                 
@@ -1749,7 +1749,7 @@ _if19_TRUE:
   mov [d], b
   jmp _if19_exit
 _if19_else:
-; if (scratchloc == loc[	    0]) { 
+; if (scratchloc == loc[	    0   ]) { 
 _if20_cond:
                 
   lea d, [bp + -11] ; $scratchloc
@@ -1785,7 +1785,7 @@ _if20_TRUE:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; finished = 	2; 
+; finished = 	2    ; 
   mov d, _finished ; $finished
   push d
                 
@@ -1795,7 +1795,7 @@ _if20_TRUE:
   jmp _if20_exit
 _if20_exit:
 _if19_exit:
-; if (finished != 	     0) { 
+; if (finished != 	     0   ) { 
 _if21_cond:
                 
   mov d, _finished ; $finished
@@ -1862,7 +1862,7 @@ _if22_cond:
   cmp b, 0
   je _if22_exit
 _if22_TRUE:
-; finished = 	2; 
+; finished = 	2    ; 
   mov d, _finished ; $finished
   push d
                 
@@ -1969,7 +1969,7 @@ _if24_TRUE:
   jmp _while23_cond ; while continue
   jmp _if24_exit
 _if24_exit:
-; if ((cave[loc[	    0]][0] != scratchloc) & 
+; if ((cave[loc[	    0   ]][0] != scratchloc) & 
 _if25_cond:
                 
                 
@@ -2132,7 +2132,7 @@ _if25_TRUE:
 _if25_exit:
   jmp _while23_cond
 _while23_exit:
-; loc[	    0] = scratchloc; 
+; loc[	    0   ] = scratchloc; 
   mov d, _loc_data ; $loc
   push a
   push d
@@ -2148,7 +2148,7 @@ _while23_exit:
   mov c, 0
   pop d
   mov [d], b
-; while ((scratchloc == loc[	4]) || (scratchloc == loc[	5])) { 
+; while ((scratchloc == loc[	4     ]) || (scratchloc == loc[	5     ])) { 
 _while26_cond:
                 
                 
@@ -2212,7 +2212,7 @@ _while26_block:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; scratchloc = loc[	    0] = rand2()%20; 
+; scratchloc = loc[	    0   ] = rand2()%20; 
   lea d, [bp + -1] ; $scratchloc
   push d
   mov d, _loc_data ; $loc
@@ -2248,7 +2248,7 @@ _while26_block:
   mov [d], b
   jmp _while26_cond
 _while26_exit:
-; if (scratchloc == loc[	1]) { 
+; if (scratchloc == loc[	1      ]) { 
 _if28_cond:
                 
   lea d, [bp + -1] ; $scratchloc
@@ -2290,7 +2290,7 @@ _if28_TRUE:
   call move_wumpus
   jmp _if28_exit
 _if28_exit:
-; if (scratchloc == loc[	2] || scratchloc == loc[	3]) { 
+; if (scratchloc == loc[	2    ] || scratchloc == loc[	3    ]) { 
 _if29_cond:
                 
   lea d, [bp + -1] ; $scratchloc
@@ -2352,7 +2352,7 @@ _if29_TRUE:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; finished = 	2; 
+; finished = 	2    ; 
   mov d, _finished ; $finished
   push d
                 
@@ -2409,7 +2409,7 @@ game_setup:
   sub sp, 2
 ; int v; 
   sub sp, 2
-; for (j = 0; j < 	6; j++) { 
+; for (j = 0; j < 	6    ; j++) { 
 _for30_init:
   lea d, [bp + -1] ; $j
   push d
@@ -2662,7 +2662,7 @@ _if35_cond:
   cmp b, 0
   je _if35_exit
 _if35_TRUE:
-; print("Wumpus is at "); print_unsigned(loc[	1]+1); 
+; print("Wumpus is at "); print_unsigned(loc[	1      ]+1); 
                 
 ; --- START FUNCTION CALL
                 
@@ -2672,7 +2672,7 @@ _if35_TRUE:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; print_unsigned(loc[	1]+1); 
+; print_unsigned(loc[	1      ]+1); 
                 
 ; --- START FUNCTION CALL
                 
@@ -2698,7 +2698,7 @@ _if35_TRUE:
   call print_unsigned
   add sp, 2
 ; --- END FUNCTION CALL
-; print(", pits at "); print_unsigned(loc[	2]+1); 
+; print(", pits at "); print_unsigned(loc[	2    ]+1); 
                 
 ; --- START FUNCTION CALL
                 
@@ -2708,7 +2708,7 @@ _if35_TRUE:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; print_unsigned(loc[	2]+1); 
+; print_unsigned(loc[	2    ]+1); 
                 
 ; --- START FUNCTION CALL
                 
@@ -2734,7 +2734,7 @@ _if35_TRUE:
   call print_unsigned
   add sp, 2
 ; --- END FUNCTION CALL
-; print(" & "); print_unsigned(loc[	3]+1); 
+; print(" & "); print_unsigned(loc[	3    ]+1); 
                 
 ; --- START FUNCTION CALL
                 
@@ -2744,7 +2744,7 @@ _if35_TRUE:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; print_unsigned(loc[	3]+1); 
+; print_unsigned(loc[	3    ]+1); 
                 
 ; --- START FUNCTION CALL
                 
@@ -2770,7 +2770,7 @@ _if35_TRUE:
   call print_unsigned
   add sp, 2
 ; --- END FUNCTION CALL
-; print(", bats at "); print_unsigned(loc[	4]+1); 
+; print(", bats at "); print_unsigned(loc[	4     ]+1); 
                 
 ; --- START FUNCTION CALL
                 
@@ -2780,7 +2780,7 @@ _if35_TRUE:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; print_unsigned(loc[	4]+1); 
+; print_unsigned(loc[	4     ]+1); 
                 
 ; --- START FUNCTION CALL
                 
@@ -2806,7 +2806,7 @@ _if35_TRUE:
   call print_unsigned
   add sp, 2
 ; --- END FUNCTION CALL
-; print(" & "); print_unsigned(loc[	5]+1); 
+; print(" & "); print_unsigned(loc[	5     ]+1); 
                 
 ; --- START FUNCTION CALL
                 
@@ -2816,7 +2816,7 @@ _if35_TRUE:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-; print_unsigned(loc[	5]+1); 
+; print_unsigned(loc[	5     ]+1); 
                 
 ; --- START FUNCTION CALL
                 
@@ -2844,14 +2844,14 @@ _if35_TRUE:
 ; --- END FUNCTION CALL
   jmp _if35_exit
 _if35_exit:
-; finished = 	     0; 
+; finished = 	     0   ; 
   mov d, _finished ; $finished
   push d
                 
   mov32 cb, $00000000
   pop d
   mov [d], b
-; while (finished == 	     0) { 
+; while (finished == 	     0   ) { 
 _while36_cond:
                 
   mov d, _finished ; $finished
@@ -2893,7 +2893,7 @@ _if37_else:
 _if37_exit:
   jmp _while36_cond
 _while36_exit:
-; if (finished == 	     1) { 
+; if (finished == 	     1   ) { 
 _if38_cond:
                 
   mov d, _finished ; $finished
@@ -2922,7 +2922,7 @@ _if38_TRUE:
 ; --- END FUNCTION CALL
   jmp _if38_exit
 _if38_exit:
-; if (finished == 	2) { 
+; if (finished == 	2    ) { 
 _if39_cond:
                 
   mov d, _finished ; $finished

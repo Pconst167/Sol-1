@@ -200,7 +200,7 @@
 0175   04FF             
 0176   04FF             get_rand:
 0177   04FF F8 00 00      enter 0 ; (push bp; mov bp, sp)
-0178   0502             ; unsigned int r ; 
+0178   0502             ; unsigned int         r ; 
 0179   0502 52 02 00      sub sp, 2
 0180   0505             ; r = rand(); 
 0181   0505 FA FF FF      lea d, [bp + -1] ; $r
@@ -461,7 +461,7 @@
 0425   0667             
 0426   0667             input_f00:
 0427   0667 F8 00 00      enter 0 ; (push bp; mov bp, sp)
-0428   066A             ; int v; 
+0428   066A             ; int        v; 
 0429   066A 52 02 00      sub sp, 2
 0430   066D             ; char buf[8]; 
 0431   066D 52 08 00      sub sp, 8
@@ -1741,10 +1741,10 @@
 1666   0D5D             ; int i, j; 
 1667   0D5D 52 02 00      sub sp, 2
 1668   0D60 52 02 00      sub sp, 2
-1669   0D63             ; unsigned char yp, xp; 
+1669   0D63             ; unsigned char        yp, xp; 
 1670   0D63 52 01 00      sub sp, 1
 1671   0D66 52 01 00      sub sp, 1
-1672   0D69             ; unsigned char r; 
+1672   0D69             ; unsigned char        r; 
 1673   0D69 52 01 00      sub sp, 1
 1674   0D6C             ; time_start = FROM_FIXED(stardate); 
 1675   0D6C 3B 40 6E      mov d, _time_start ; $time_start
@@ -2588,7 +2588,7 @@
 2480   1244             
 2481   1244             place_ship:
 2482   1244 F8 00 00      enter 0 ; (push bp; mov bp, sp)
-2483   1247             ; quad[FROM_FIXED00(ship_y) - 1][FROM_FIXED00(ship_x) - 1] = 		4; 
+2483   1247             ; quad[FROM_FIXED00(ship_y) - 1][FROM_FIXED00(ship_x) - 1] = 		4      ; 
 2484   1247 3B 5E 6E      mov d, _quad_data ; $quad
 2485   124A D7            push a
 2486   124B DA            push d
@@ -2651,7 +2651,7 @@
 2540   1297 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 2541   129A             ; int i; 
 2542   129A 52 02 00      sub sp, 2
-2543   129D             ; unsigned int tmp; 
+2543   129D             ; unsigned int         tmp; 
 2544   129D 52 02 00      sub sp, 2
 2545   12A0             ; struct klingon *k; 
 2546   12A0 52 02 00      sub sp, 2
@@ -2711,7 +2711,7 @@
 2595   12F3             ; --- END TERMS
 2596   12F3 E7            pop d
 2597   12F4 FD 43         mov [d], b
-2598   12F6             ; map[quad_y][quad_x] = map[quad_y][quad_x] |  0x1000		/* Set if this sector was mapped */; 
+2598   12F6             ; map[quad_y][quad_x] = map[quad_y][quad_x] |  0x1000		/* Set if this sector was mapped */           ; 
 2599   12F6 3B 86 6D      mov d, _map_data ; $map
 2600   12F9 D7            push a
 2601   12FA DA            push d
@@ -3147,7 +3147,7 @@
 3013   1580 27            mov b, a
 3014   1581 0A 10 15      jmp _for49_cond
 3015   1584             _for49_exit:
-3016   1584             ; memset(quad, 		0, 64); 
+3016   1584             ; memset(quad, 		0       , 64); 
 3017   1584                             
 3018   1584             ; --- START FUNCTION CALL
 3019   1584                             
@@ -3228,7 +3228,7 @@
 3090   15F3 C0 00 00      cmp b, 0
 3091   15F6 C6 72 16      je _for51_exit
 3092   15F9             _for51_block:
-3093   15F9             ; find_set_empty_place(	3, k->y, k->x); 
+3093   15F9             ; find_set_empty_place(	3         , k->y, k->x); 
 3094   15F9                             
 3095   15F9             ; --- START FUNCTION CALL
 3096   15F9                             
@@ -3325,7 +3325,7 @@
 3183   168A C0 00 00      cmp b, 0
 3184   168D C6 AE 16      je _if52_exit
 3185   1690             _if52_TRUE:
-3186   1690             ; find_set_empty_place(		2, &base_y, &base_x); 
+3186   1690             ; find_set_empty_place(		2      , &base_y, &base_x); 
 3187   1690                             
 3188   1690             ; --- START FUNCTION CALL
 3189   1690                             
@@ -3375,7 +3375,7 @@
 3231   16D1 C0 00 00      cmp b, 0
 3232   16D4 C6 09 17      je _for53_exit
 3233   16D7             _for53_block:
-3234   16D7             ; find_set_empty_place(		1,  0,  0); 
+3234   16D7             ; find_set_empty_place(		1      ,  0    ,  0    ); 
 3235   16D7                             
 3236   16D7             ; --- START FUNCTION CALL
 3237   16D7                             
@@ -3414,26 +3414,26 @@
 3267   170B F8 00 00      enter 0 ; (push bp; mov bp, sp)
 3268   170E             ; int i; 
 3269   170E 52 02 00      sub sp, 2
-3270   1711             ; int c1; 
+3270   1711             ; int        c1; 
 3271   1711 52 02 00      sub sp, 2
-3272   1714             ; int warp; 
+3272   1714             ; int        warp; 
 3273   1714 52 02 00      sub sp, 2
-3274   1717             ; unsigned int n; 
+3274   1717             ; unsigned int         n; 
 3275   1717 52 02 00      sub sp, 2
 3276   171A             ; int c2, c3, c4; 
 3277   171A 52 02 00      sub sp, 2
 3278   171D 52 02 00      sub sp, 2
 3279   1720 52 02 00      sub sp, 2
-3280   1723             ; int z1, z2; 
+3280   1723             ; int        z1, z2; 
 3281   1723 52 02 00      sub sp, 2
 3282   1726 52 02 00      sub sp, 2
-3283   1729             ; int x1, x2; 
+3283   1729             ; int        x1, x2; 
 3284   1729 52 02 00      sub sp, 2
 3285   172C 52 02 00      sub sp, 2
-3286   172F             ; int x, y; 
+3286   172F             ; int        x, y; 
 3287   172F 52 02 00      sub sp, 2
 3288   1732 52 02 00      sub sp, 2
-3289   1735             ; unsigned char outside = 0;		/* Outside galaxy flag */ 
+3289   1735             ; unsigned char        outside = 0;		/* Outside galaxy flag */ 
 3290   1735 52 01 00      sub sp, 1
 3291   1738             ; --- START LOCAL VAR INITIALIZATION
 3292   1738 FA E6 FF      lea d, [bp + -26] ; $outside
@@ -3444,9 +3444,9 @@
 3296   1742 E7            pop d
 3297   1743 FD 3E         mov [d], bl
 3298   1745             ; --- END LOCAL VAR INITIALIZATION
-3299   1745             ; unsigned char quad_y_old; 
+3299   1745             ; unsigned char        quad_y_old; 
 3300   1745 52 01 00      sub sp, 1
-3301   1748             ; unsigned char quad_x_old; 
+3301   1748             ; unsigned char        quad_x_old; 
 3302   1748 52 01 00      sub sp, 1
 3303   174B             ; puts("Course (0-9): " ); 
 3304   174B                             
@@ -3982,7 +3982,7 @@
 3819   1A2B             ; --- END FUNCTION CALL
 3820   1A2B E7            pop d
 3821   1A2C FD 43         mov [d], b
-3822   1A2E             ; quad[z1+-1][z2+-1] = 		0; 
+3822   1A2E             ; quad[z1+-1][z2+-1] = 		0       ; 
 3823   1A2E 3B 5E 6E      mov d, _quad_data ; $quad
 3824   1A31 D7            push a
 3825   1A32 DA            push d
@@ -5528,7 +5528,7 @@
 5317   2330 09            ret
 5318   2331 0A 34 23      jmp _if68_exit
 5319   2334             _if68_exit:
-5320   2334             ; if (quad[z1+-1][z2+-1] != 		0) {	/* Sector not empty */ 
+5320   2334             ; if (quad[z1+-1][z2+-1] != 		0       ) {	/* Sector not empty */ 
 5321   2334             _if86_cond:
 5322   2334                             
 5323   2334 3B 5E 6E      mov d, _quad_data ; $quad
@@ -5693,7 +5693,7 @@
 5478   241A             
 5479   241A             complete_maneuver:
 5480   241A F8 00 00      enter 0 ; (push bp; mov bp, sp)
-5481   241D             ; unsigned int time_used; 
+5481   241D             ; unsigned int         time_used; 
 5482   241D 52 02 00      sub sp, 2
 5483   2420             ; place_ship(); 
 5484   2420                             
@@ -6230,7 +6230,7 @@
 5997   26F5 C0 00 00      cmp b, 0
 5998   26F8 C6 97 27      je _if96_exit
 5999   26FB             _if96_TRUE:
-6000   26FB             ; if (quad[i+-1][j+-1] == 		2) { 
+6000   26FB             ; if (quad[i+-1][j+-1] == 		2      ) { 
 6001   26FB             _if97_cond:
 6002   26FB                             
 6003   26FB 3B 5E 6E      mov d, _quad_data ; $quad
@@ -7211,7 +7211,7 @@
 6944   2C56 C0 00 00      cmp b, 0
 6945   2C59 C6 DC 2C      je _if112_else
 6946   2C5C             _if112_TRUE:
-6947   2C5C             ; map[i][j] = map[i][j] |  0x1000		/* Set if this sector was mapped */; 
+6947   2C5C             ; map[i][j] = map[i][j] |  0x1000		/* Set if this sector was mapped */           ; 
 6948   2C5C 3B 86 6D      mov d, _map_data ; $map
 6949   2C5F D7            push a
 6950   2C60 DA            push d
@@ -7410,7 +7410,7 @@
 7138   2D7C             
 7139   2D7C             wipe_klingon:
 7140   2D7C F8 00 00      enter 0 ; (push bp; mov bp, sp)
-7141   2D7F             ; quad[k->y+-1][k->x+-1] = 		0; 
+7141   2D7F             ; quad[k->y+-1][k->x+-1] = 		0       ; 
 7142   2D7F 3B 5E 6E      mov d, _quad_data ; $quad
 7143   2D82 D7            push a
 7144   2D83 DA            push d
@@ -7463,9 +7463,9 @@
 7188   2DC9 F8 00 00      enter 0 ; (push bp; mov bp, sp)
 7189   2DCC             ; int i; 
 7190   2DCC 52 02 00      sub sp, 2
-7191   2DCF             ; long int phaser_energy; 
+7191   2DCF             ; long int        phaser_energy; 
 7192   2DCF 52 04 00      sub sp, 4
-7193   2DD2             ; long unsigned int h1; 
+7193   2DD2             ; long unsigned int         h1; 
 7194   2DD2 52 04 00      sub sp, 4
 7195   2DD5             ; int h; 
 7196   2DD5 52 02 00      sub sp, 2
@@ -8376,13 +8376,13 @@
 8082   3331             ; int x3, y3; 
 8083   3331 52 02 00      sub sp, 2
 8084   3334 52 02 00      sub sp, 2
-8085   3337             ; int c1; 
+8085   3337             ; int        c1; 
 8086   3337 52 02 00      sub sp, 2
 8087   333A             ; int c2, c3, c4; 
 8088   333A 52 02 00      sub sp, 2
 8089   333D 52 02 00      sub sp, 2
 8090   3340 52 02 00      sub sp, 2
-8091   3343             ; int x, y, x1, x2; 
+8091   3343             ; int        x, y, x1, x2; 
 8092   3343 52 02 00      sub sp, 2
 8093   3346 52 02 00      sub sp, 2
 8094   3349 52 02 00      sub sp, 2
@@ -9107,7 +9107,7 @@
 8793   3768 C0 00 00      cmp b, 0
 8794   376B C6 84 38      je _while139_exit
 8795   376E             _while139_block:
-8796   376E             ; unsigned char p; 
+8796   376E             ; unsigned char        p; 
 8797   376E 52 01 00      sub sp, 1
 8798   3771             ; printf("    %d, %d\n", x3, y3); 
 8799   3771                              
@@ -9173,7 +9173,7 @@
 8857   37C8 38 00 00      mov c, 0
 8858   37CB E7            pop d
 8859   37CC FD 3E         mov [d], bl
-8860   37CE             ; if (p != 		0 && p != 		4) { 
+8860   37CE             ; if (p != 		0        && p != 		4      ) { 
 8861   37CE             _if140_cond:
 8862   37CE                              
 8863   37CE FA EC FF      lea d, [bp + -20] ; $p
@@ -9840,7 +9840,7 @@
 9512   3B90             ; break; 
 9513   3B90 0A 93 3B      jmp _switch141_exit ; case break
 9514   3B93             _switch141_exit:
-9515   3B93             ; quad[yp+-1][xp+-1] = 		0; 
+9515   3B93             ; quad[yp+-1][xp+-1] = 		0       ; 
 9516   3B93 3B 5E 6E      mov d, _quad_data ; $quad
 9517   3B96 D7            push a
 9518   3B97 DA            push d
@@ -9887,7 +9887,7 @@
 9556   3BD3             
 9557   3BD3             damage_control:
 9558   3BD3 F8 00 00      enter 0 ; (push bp; mov bp, sp)
-9559   3BD6             ; int repair_cost = 0; 
+9559   3BD6             ; int        repair_cost = 0; 
 9560   3BD6 52 02 00      sub sp, 2
 9561   3BD9             ; --- START LOCAL VAR INITIALIZATION
 9562   3BD9 FA FF FF      lea d, [bp + -1] ; $repair_cost
@@ -10896,7 +10896,7 @@
 10537  4142 07 4F 60      call printf
 10538  4145 51 02 00      add sp, 2
 10539  4148             ; --- END FUNCTION CALL
-10540  4148             ; if (map[i][j] &  0x1000		/* Set if this sector was mapped */) 
+10540  4148             ; if (map[i][j] &  0x1000		/* Set if this sector was mapped */           ) 
 10541  4148             _if165_cond:
 10542  4148                              
 10543  4148 3B 86 6D      mov d, _map_data ; $map
@@ -11042,7 +11042,7 @@
 10680  421D             ; --- END TERMS
 10681  421D E7            pop d
 10682  421E FD 43         mov [d], b
-10683  4220             ; unsigned int left; 
+10683  4220             ; unsigned int         left; 
 10684  4220 52 02 00      sub sp, 2
 10685  4223             ; left = TO_FIXED(time_start + time_up) - stardate; 
 10686  4223 FA FD FF      lea d, [bp + -3] ; $left
@@ -11578,7 +11578,7 @@
 11206  451F             
 11207  451F             dirdist_calc:
 11208  451F F8 00 00      enter 0 ; (push bp; mov bp, sp)
-11209  4522             ; int c1, a, w1, x; 
+11209  4522             ; int        c1, a, w1, x; 
 11210  4522 52 02 00      sub sp, 2
 11211  4525 52 02 00      sub sp, 2
 11212  4528 52 02 00      sub sp, 2
@@ -12359,7 +12359,7 @@
 11961  4958             
 11962  4958             compute_vector:
 11963  4958 F8 00 00      enter 0 ; (push bp; mov bp, sp)
-11964  495B             ; long unsigned int xl, al; 
+11964  495B             ; long unsigned int         xl, al; 
 11965  495B 52 04 00      sub sp, 4
 11966  495E 52 04 00      sub sp, 4
 11967  4961             ; puts("  DIRECTION = "); 
@@ -13663,7 +13663,7 @@
 13240  508D 07 7C 2D      call wipe_klingon
 13241  5090 51 02 00      add sp, 2
 13242  5093             ; --- END FUNCTION CALL
-13243  5093             ; find_set_empty_place(	3, k->y, k->x); 
+13243  5093             ; find_set_empty_place(	3         , k->y, k->x); 
 13244  5093                              
 13245  5093             ; --- START FUNCTION CALL
 13246  5093                              
@@ -13725,15 +13725,15 @@
 13301  50EF             
 13302  50EF             klingons_shoot:
 13303  50EF F8 00 00      enter 0 ; (push bp; mov bp, sp)
-13304  50F2             ; unsigned char r; 
+13304  50F2             ; unsigned char        r; 
 13305  50F2 52 01 00      sub sp, 1
-13306  50F5             ; long unsigned int h; 
+13306  50F5             ; long unsigned int         h; 
 13307  50F5 52 04 00      sub sp, 4
-13308  50F8             ; unsigned char i; 
+13308  50F8             ; unsigned char        i; 
 13309  50F8 52 01 00      sub sp, 1
 13310  50FB             ; struct klingon *k; 
 13311  50FB 52 02 00      sub sp, 2
-13312  50FE             ; long unsigned int ratio; 
+13312  50FE             ; long unsigned int         ratio; 
 13313  50FE 52 04 00      sub sp, 4
 13314  5101             ; k = &kdata; 
 13315  5101 FA F9 FF      lea d, [bp + -7] ; $k
@@ -14425,7 +14425,7 @@
 13984  5509 52 02 00      sub sp, 2
 13985  550C             ; int d1; 
 13986  550C 52 02 00      sub sp, 2
-13987  550F             ; unsigned int repair_factor;		/* Repair Factor */ 
+13987  550F             ; unsigned int         repair_factor;		/* Repair Factor */ 
 13988  550F 52 02 00      sub sp, 2
 13989  5512             ; repair_factor = warp; 
 13990  5512 FA FB FF      lea d, [bp + -5] ; $repair_factor
@@ -14757,7 +14757,7 @@
 14304  56F6 27            mov b, a
 14305  56F7 0A 5F 55      jmp _for226_cond
 14306  56FA             _for226_exit:
-14307  56FA             ; unsigned char r; 
+14307  56FA             ; unsigned char        r; 
 14308  56FA 52 01 00      sub sp, 1
 14309  56FD             ; if (get_rand(10) <= 2) { 
 14310  56FD             _if231_cond:
@@ -14999,7 +14999,7 @@
 14538  584C             
 14539  584C             find_set_empty_place:
 14540  584C F8 00 00      enter 0 ; (push bp; mov bp, sp)
-14541  584F             ; unsigned char r1, r2; 
+14541  584F             ; unsigned char        r1, r2; 
 14542  584F 52 01 00      sub sp, 1
 14543  5852 52 01 00      sub sp, 1
 14544  5855             ; do { 
@@ -15020,7 +15020,7 @@
 14559  5863 07 6F 05      call rand8
 14560  5866 E7            pop d
 14561  5867 FD 3E         mov [d], bl
-14562  5869             ; } while (quad[r1+-1][r2+-1] != 		0 ); 
+14562  5869             ; } while (quad[r1+-1][r2+-1] != 		0        ); 
 14563  5869             _do233_cond:
 14564  5869                              
 14565  5869 3B 5E 6E      mov d, _quad_data ; $quad
@@ -15502,7 +15502,7 @@
 15024  5B22             
 15025  5B22             isqrt:
 15026  5B22 F8 00 00      enter 0 ; (push bp; mov bp, sp)
-15027  5B25             ; unsigned int b, q, r, t; 
+15027  5B25             ; unsigned int         b, q, r, t; 
 15028  5B25 52 02 00      sub sp, 2
 15029  5B28 52 02 00      sub sp, 2
 15030  5B2B 52 02 00      sub sp, 2
@@ -15859,7 +15859,7 @@
 15374  5D34             
 15375  5D34             distance_to:
 15376  5D34 F8 00 00      enter 0 ; (push bp; mov bp, sp)
-15377  5D37             ; unsigned int j; 
+15377  5D37             ; unsigned int         j; 
 15378  5D37 52 02 00      sub sp, 2
 15379  5D3A             ; j = square00(TO_FIXED00(k->y) - ship_y); 
 15380  5D3A FA FF FF      lea d, [bp + -1] ; $j

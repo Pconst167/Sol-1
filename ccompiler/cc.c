@@ -1078,7 +1078,7 @@ void pre_processor(void){
     if(curr_token.tok_type == END) break;
 
     if((define_id = search_define(curr_token.token_str)) != -1){
-      delete(temp_prog, prog - temp_prog);
+      overwrite_with_spaces(temp_prog, prog - temp_prog);
       insert(temp_prog, defines_table[define_id].content);
       prog = c_in;
     }

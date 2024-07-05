@@ -175,7 +175,7 @@ FROM_FIXED00:
 
 get_rand:
   enter 0 ; (push bp; mov bp, sp)
-; unsigned int r ; 
+; unsigned int         r ; 
   sub sp, 2
 ; r = rand(); 
   lea d, [bp + -1] ; $r
@@ -425,7 +425,7 @@ yesno:
 
 input_f00:
   enter 0 ; (push bp; mov bp, sp)
-; int v; 
+; int        v; 
   sub sp, 2
 ; char buf[8]; 
   sub sp, 8
@@ -1666,10 +1666,10 @@ initialize:
 ; int i, j; 
   sub sp, 2
   sub sp, 2
-; unsigned char yp, xp; 
+; unsigned char        yp, xp; 
   sub sp, 1
   sub sp, 1
-; unsigned char r; 
+; unsigned char        r; 
   sub sp, 1
 ; time_start = FROM_FIXED(stardate); 
   mov d, _time_start ; $time_start
@@ -2480,7 +2480,7 @@ _if44_exit:
 
 place_ship:
   enter 0 ; (push bp; mov bp, sp)
-; quad[FROM_FIXED00(ship_y) - 1][FROM_FIXED00(ship_x) - 1] = 		4; 
+; quad[FROM_FIXED00(ship_y) - 1][FROM_FIXED00(ship_x) - 1] = 		4      ; 
   mov d, _quad_data ; $quad
   push a
   push d
@@ -2540,7 +2540,7 @@ new_quadrant:
   enter 0 ; (push bp; mov bp, sp)
 ; int i; 
   sub sp, 2
-; unsigned int tmp; 
+; unsigned int         tmp; 
   sub sp, 2
 ; struct klingon *k; 
   sub sp, 2
@@ -2595,7 +2595,7 @@ new_quadrant:
 ; --- END TERMS
   pop d
   mov [d], b
-; map[quad_y][quad_x] = map[quad_y][quad_x] |  0x1000		/* Set if this sector was mapped */; 
+; map[quad_y][quad_x] = map[quad_y][quad_x] |  0x1000		/* Set if this sector was mapped */           ; 
   mov d, _map_data ; $map
   push a
   push d
@@ -3013,7 +3013,7 @@ _for49_update:
   mov b, a
   jmp _for49_cond
 _for49_exit:
-; memset(quad, 		0, 64); 
+; memset(quad, 		0       , 64); 
                 
 ; --- START FUNCTION CALL
                 
@@ -3090,7 +3090,7 @@ _for51_cond:
   cmp b, 0
   je _for51_exit
 _for51_block:
-; find_set_empty_place(	3, k->y, k->x); 
+; find_set_empty_place(	3         , k->y, k->x); 
                 
 ; --- START FUNCTION CALL
                 
@@ -3183,7 +3183,7 @@ _if52_cond:
   cmp b, 0
   je _if52_exit
 _if52_TRUE:
-; find_set_empty_place(		2, &base_y, &base_x); 
+; find_set_empty_place(		2      , &base_y, &base_x); 
                 
 ; --- START FUNCTION CALL
                 
@@ -3231,7 +3231,7 @@ _for53_cond:
   cmp b, 0
   je _for53_exit
 _for53_block:
-; find_set_empty_place(		1,  0,  0); 
+; find_set_empty_place(		1      ,  0    ,  0    ); 
                 
 ; --- START FUNCTION CALL
                 
@@ -3267,26 +3267,26 @@ course_control:
   enter 0 ; (push bp; mov bp, sp)
 ; int i; 
   sub sp, 2
-; int c1; 
+; int        c1; 
   sub sp, 2
-; int warp; 
+; int        warp; 
   sub sp, 2
-; unsigned int n; 
+; unsigned int         n; 
   sub sp, 2
 ; int c2, c3, c4; 
   sub sp, 2
   sub sp, 2
   sub sp, 2
-; int z1, z2; 
+; int        z1, z2; 
   sub sp, 2
   sub sp, 2
-; int x1, x2; 
+; int        x1, x2; 
   sub sp, 2
   sub sp, 2
-; int x, y; 
+; int        x, y; 
   sub sp, 2
   sub sp, 2
-; unsigned char outside = 0;		/* Outside galaxy flag */ 
+; unsigned char        outside = 0;		/* Outside galaxy flag */ 
   sub sp, 1
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -26] ; $outside
@@ -3296,9 +3296,9 @@ course_control:
   pop d
   mov [d], bl
 ; --- END LOCAL VAR INITIALIZATION
-; unsigned char quad_y_old; 
+; unsigned char        quad_y_old; 
   sub sp, 1
-; unsigned char quad_x_old; 
+; unsigned char        quad_x_old; 
   sub sp, 1
 ; puts("Course (0-9): " ); 
                 
@@ -3819,7 +3819,7 @@ _if61_exit:
 ; --- END FUNCTION CALL
   pop d
   mov [d], b
-; quad[z1+-1][z2+-1] = 		0; 
+; quad[z1+-1][z2+-1] = 		0       ; 
   mov d, _quad_data ; $quad
   push a
   push d
@@ -5317,7 +5317,7 @@ _if85_exit:
   ret
   jmp _if68_exit
 _if68_exit:
-; if (quad[z1+-1][z2+-1] != 		0) {	/* Sector not empty */ 
+; if (quad[z1+-1][z2+-1] != 		0       ) {	/* Sector not empty */ 
 _if86_cond:
                 
   mov d, _quad_data ; $quad
@@ -5478,7 +5478,7 @@ _for67_exit:
 
 complete_maneuver:
   enter 0 ; (push bp; mov bp, sp)
-; unsigned int time_used; 
+; unsigned int         time_used; 
   sub sp, 2
 ; place_ship(); 
                 
@@ -5997,7 +5997,7 @@ _if96_cond:
   cmp b, 0
   je _if96_exit
 _if96_TRUE:
-; if (quad[i+-1][j+-1] == 		2) { 
+; if (quad[i+-1][j+-1] == 		2      ) { 
 _if97_cond:
                 
   mov d, _quad_data ; $quad
@@ -6944,7 +6944,7 @@ _if112_cond:
   cmp b, 0
   je _if112_else
 _if112_TRUE:
-; map[i][j] = map[i][j] |  0x1000		/* Set if this sector was mapped */; 
+; map[i][j] = map[i][j] |  0x1000		/* Set if this sector was mapped */           ; 
   mov d, _map_data ; $map
   push a
   push d
@@ -7138,7 +7138,7 @@ _if113_exit:
 
 wipe_klingon:
   enter 0 ; (push bp; mov bp, sp)
-; quad[k->y+-1][k->x+-1] = 		0; 
+; quad[k->y+-1][k->x+-1] = 		0       ; 
   mov d, _quad_data ; $quad
   push a
   push d
@@ -7188,9 +7188,9 @@ phaser_control:
   enter 0 ; (push bp; mov bp, sp)
 ; int i; 
   sub sp, 2
-; long int phaser_energy; 
+; long int        phaser_energy; 
   sub sp, 4
-; long unsigned int h1; 
+; long unsigned int         h1; 
   sub sp, 4
 ; int h; 
   sub sp, 2
@@ -8082,13 +8082,13 @@ photon_torpedoes:
 ; int x3, y3; 
   sub sp, 2
   sub sp, 2
-; int c1; 
+; int        c1; 
   sub sp, 2
 ; int c2, c3, c4; 
   sub sp, 2
   sub sp, 2
   sub sp, 2
-; int x, y, x1, x2; 
+; int        x, y, x1, x2; 
   sub sp, 2
   sub sp, 2
   sub sp, 2
@@ -8793,7 +8793,7 @@ _while139_cond:
   cmp b, 0
   je _while139_exit
 _while139_block:
-; unsigned char p; 
+; unsigned char        p; 
   sub sp, 1
 ; printf("    %d, %d\n", x3, y3); 
                  
@@ -8857,7 +8857,7 @@ _while139_block:
   mov c, 0
   pop d
   mov [d], bl
-; if (p != 		0 && p != 		4) { 
+; if (p != 		0        && p != 		4      ) { 
 _if140_cond:
                  
   lea d, [bp + -20] ; $p
@@ -9512,7 +9512,7 @@ _if145_exit:
 ; break; 
   jmp _switch141_exit ; case break
 _switch141_exit:
-; quad[yp+-1][xp+-1] = 		0; 
+; quad[yp+-1][xp+-1] = 		0       ; 
   mov d, _quad_data ; $quad
   push a
   push d
@@ -9556,7 +9556,7 @@ _switch141_exit:
 
 damage_control:
   enter 0 ; (push bp; mov bp, sp)
-; int repair_cost = 0; 
+; int        repair_cost = 0; 
   sub sp, 2
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -1] ; $repair_cost
@@ -10537,7 +10537,7 @@ _for164_block:
   call printf
   add sp, 2
 ; --- END FUNCTION CALL
-; if (map[i][j] &  0x1000		/* Set if this sector was mapped */) 
+; if (map[i][j] &  0x1000		/* Set if this sector was mapped */           ) 
 _if165_cond:
                  
   mov d, _map_data ; $map
@@ -10680,7 +10680,7 @@ status_report:
 ; --- END TERMS
   pop d
   mov [d], b
-; unsigned int left; 
+; unsigned int         left; 
   sub sp, 2
 ; left = TO_FIXED(time_start + time_up) - stardate; 
   lea d, [bp + -3] ; $left
@@ -11206,7 +11206,7 @@ _if174_exit:
 
 dirdist_calc:
   enter 0 ; (push bp; mov bp, sp)
-; int c1, a, w1, x; 
+; int        c1, a, w1, x; 
   sub sp, 2
   sub sp, 2
   sub sp, 2
@@ -11961,7 +11961,7 @@ _for179_exit:
 
 compute_vector:
   enter 0 ; (push bp; mov bp, sp)
-; long unsigned int xl, al; 
+; long unsigned int         xl, al; 
   sub sp, 4
   sub sp, 4
 ; puts("  DIRECTION = "); 
@@ -13240,7 +13240,7 @@ _if211_TRUE:
   call wipe_klingon
   add sp, 2
 ; --- END FUNCTION CALL
-; find_set_empty_place(	3, k->y, k->x); 
+; find_set_empty_place(	3         , k->y, k->x); 
                  
 ; --- START FUNCTION CALL
                  
@@ -13301,15 +13301,15 @@ _for210_exit:
 
 klingons_shoot:
   enter 0 ; (push bp; mov bp, sp)
-; unsigned char r; 
+; unsigned char        r; 
   sub sp, 1
-; long unsigned int h; 
+; long unsigned int         h; 
   sub sp, 4
-; unsigned char i; 
+; unsigned char        i; 
   sub sp, 1
 ; struct klingon *k; 
   sub sp, 2
-; long unsigned int ratio; 
+; long unsigned int         ratio; 
   sub sp, 4
 ; k = &kdata; 
   lea d, [bp + -7] ; $k
@@ -13984,7 +13984,7 @@ repair_damage:
   sub sp, 2
 ; int d1; 
   sub sp, 2
-; unsigned int repair_factor;		/* Repair Factor */ 
+; unsigned int         repair_factor;		/* Repair Factor */ 
   sub sp, 2
 ; repair_factor = warp; 
   lea d, [bp + -5] ; $repair_factor
@@ -14304,7 +14304,7 @@ _for226_update:
   mov b, a
   jmp _for226_cond
 _for226_exit:
-; unsigned char r; 
+; unsigned char        r; 
   sub sp, 1
 ; if (get_rand(10) <= 2) { 
 _if231_cond:
@@ -14538,7 +14538,7 @@ _if231_exit:
 
 find_set_empty_place:
   enter 0 ; (push bp; mov bp, sp)
-; unsigned char r1, r2; 
+; unsigned char        r1, r2; 
   sub sp, 1
   sub sp, 1
 ; do { 
@@ -14559,7 +14559,7 @@ _do233_block:
   call rand8
   pop d
   mov [d], bl
-; } while (quad[r1+-1][r2+-1] != 		0 ); 
+; } while (quad[r1+-1][r2+-1] != 		0        ); 
 _do233_cond:
                  
   mov d, _quad_data ; $quad
@@ -15024,7 +15024,7 @@ _if239_exit:
 
 isqrt:
   enter 0 ; (push bp; mov bp, sp)
-; unsigned int b, q, r, t; 
+; unsigned int         b, q, r, t; 
   sub sp, 2
   sub sp, 2
   sub sp, 2
@@ -15374,7 +15374,7 @@ _if243_exit:
 
 distance_to:
   enter 0 ; (push bp; mov bp, sp)
-; unsigned int j; 
+; unsigned int         j; 
   sub sp, 2
 ; j = square00(TO_FIXED00(k->y) - ship_y); 
   lea d, [bp + -1] ; $j

@@ -32,7 +32,7 @@
 0012   040B 52 02 00      sub sp, 2
 0013   040E             ; int n; 
 0014   040E 52 02 00      sub sp, 2
-0015   0411             ; for(i = 0; i <  30; i++){ 
+0015   0411             ; for(i = 0; i <  30      ; i++){ 
 0016   0411             _for1_init:
 0017   0411 FA FF FF      lea d, [bp + -1] ; $i
 0018   0414 DA            push d
@@ -58,7 +58,7 @@
 0036   0431 C0 00 00      cmp b, 0
 0037   0434 C6 C5 04      je _for1_exit
 0038   0437             _for1_block:
-0039   0437             ; for(j = 0; j <   40; j++){ 
+0039   0437             ; for(j = 0; j <   40     ; j++){ 
 0040   0437             _for2_init:
 0041   0437 FA FD FF      lea d, [bp + -3] ; $j
 0042   043A DA            push d
@@ -154,7 +154,7 @@
 0130   04C5             _for3_init:
 0131   04C5             _for3_cond:
 0132   04C5             _for3_block:
-0133   04C5             ; for(i = 1; i <  30+-1; i++){ 
+0133   04C5             ; for(i = 1; i <  30      +-1; i++){ 
 0134   04C5             _for4_init:
 0135   04C5 FA FF FF      lea d, [bp + -1] ; $i
 0136   04C8 DA            push d
@@ -188,7 +188,7 @@
 0161   04EF C0 00 00      cmp b, 0
 0162   04F2 C6 08 06      je _for4_exit
 0163   04F5             _for4_block:
-0164   04F5             ; for(j = 1; j <   40+-1; j++){ 
+0164   04F5             ; for(j = 1; j <   40     +-1; j++){ 
 0165   04F5             _for5_init:
 0166   04F5 FA FD FF      lea d, [bp + -3] ; $j
 0167   04F8 DA            push d
@@ -375,7 +375,7 @@
 0340   0604 27            mov b, a
 0341   0605 0A D2 04      jmp _for4_cond
 0342   0608             _for4_exit:
-0343   0608             ; for(i = 1; i <  30+-1; i++){ 
+0343   0608             ; for(i = 1; i <  30      +-1; i++){ 
 0344   0608             _for8_init:
 0345   0608 FA FF FF      lea d, [bp + -1] ; $i
 0346   060B DA            push d
@@ -409,7 +409,7 @@
 0371   0632 C0 00 00      cmp b, 0
 0372   0635 C6 D0 06      je _for8_exit
 0373   0638             _for8_block:
-0374   0638             ; for(j = 1; j <   40+-1; j++){ 
+0374   0638             ; for(j = 1; j <   40     +-1; j++){ 
 0375   0638             _for9_init:
 0376   0638 FA FD FF      lea d, [bp + -3] ; $j
 0377   063B DA            push d
@@ -545,7 +545,7 @@
 0504   06F7             ; int i, j; 
 0505   06F7 52 02 00      sub sp, 2
 0506   06FA 52 02 00      sub sp, 2
-0507   06FD             ; for(i = 0; i <  30; i++){ 
+0507   06FD             ; for(i = 0; i <  30      ; i++){ 
 0508   06FD             _for10_init:
 0509   06FD FA FF FF      lea d, [bp + -1] ; $i
 0510   0700 DA            push d
@@ -571,7 +571,7 @@
 0528   071D C0 00 00      cmp b, 0
 0529   0720 C6 CB 07      je _for10_exit
 0530   0723             _for10_block:
-0531   0723             ; for(j = 0; j <   40; j++){ 
+0531   0723             ; for(j = 0; j <   40     ; j++){ 
 0532   0723             _for11_init:
 0533   0723 FA FD FF      lea d, [bp + -3] ; $j
 0534   0726 DA            push d
