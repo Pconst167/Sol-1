@@ -602,6 +602,7 @@ void fetch_included_functions(char *func_loc){
           }
         }
         else{
+          add_included_function_to_list(func_name); // add new function to the list
           push_prog(); // save current prog location
           prog = endpoints.start; // set prog to beginning of the new function so it can be parsed
           while(*prog != '{') prog++;
@@ -3592,7 +3593,6 @@ t_type parse_factors(void){
       type2 = parse_atomic();
       expr_out = cast(expr_out, type2);
       if(temp_tok == STAR){
-        if(type_is_32bit(expr_out)){
           emitln("  push a     ; save left operand");
           emitln("  xor a, b   ; xor sign bits");
           emitln("  swp a      ; swap bytes");
@@ -3604,13 +3604,13 @@ t_type parse_factors(void){
           emitln("  test al, $80  ");
           emitln("  swp a  ");
           emitln("  jz skip_invert_a_%d  ", highest_label_index);
-          emitln("   neg a ");
+          emitln("  neg a ");
           emitln("skip_invert_a_%d:   ", highest_label_index);
           emitln("  swp b");
           emitln("  test bl, $80  ");
           emitln("  swp b");
           emitln("  jz skip_invert_b_%d  ", highest_label_index);
-          emitln("   neg b ");
+          emitln("  neg b ");
           emitln("skip_invert_b_%d:   ", highest_label_index);
 
           emitln("  mul a, b ; *");
@@ -3627,21 +3627,18 @@ t_type parse_factors(void){
           emitln("  not b");
           emitln("  add b, 1");
           emitln("  adc a, 0");
-          emitln("  mov c, a");
-
-          emitln("  mov g, c");
+          emitln("  mov g, a");
           emitln("  mov a, b");
 
           emitln("_same_signs_%d:", highest_label_index);
 
           expr_out.size_modifier = SIZEMOD_LONG; // set it as a 32bit int
-        }
       }
       else if(temp_tok == FSLASH){
-        emitln("  div a, b");
+        emitln("  div a, b ; /, a: quotient, b: remainder");
       }
       else if(temp_tok == MOD){
-        emitln("  div a, b ; %");
+        emitln("  div a, b ; %, a: quotient, b: remainder");
         emitln("  mov a, b");
       }
     }

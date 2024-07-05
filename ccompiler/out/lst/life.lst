@@ -1884,7 +1884,7 @@
 1791   0F65 1E            mov al, [d]
 1792   0F66 23            mov ah, al
 1793   0F67 19 00         mov al, 0
-1794   0F69 05 03         syscall sys_io      
+1794   0F69 05 03         syscall sys_io      ; char in AH
 1795   0F6B             ; --- END INLINE ASM SEGMENT
 1796   0F6B F9            leave
 1797   0F6C 09            ret
@@ -2098,21 +2098,21 @@
 1997   10AC D8            push b
 1998   10AD DD            push bl
 1999   10AE 30            mov bl, bh
-2000   10AF 07 CD 10      call _itoa_printx32        
-2001   10B2 2F            mov bl, al        
+2000   10AF 07 CD 10      call _itoa_printx32        ; convert bh to char in A
+2001   10B2 2F            mov bl, al        ; save al
 2002   10B3 19 00         mov al, 0
-2003   10B5 05 03         syscall sys_io        
-2004   10B7 24            mov ah, bl        
+2003   10B5 05 03         syscall sys_io        ; display AH
+2004   10B7 24            mov ah, bl        ; retrieve al
 2005   10B8 19 00         mov al, 0
-2006   10BA 05 03         syscall sys_io        
+2006   10BA 05 03         syscall sys_io        ; display AL
 2007   10BC EA            pop bl
-2008   10BD 07 CD 10      call _itoa_printx32        
-2009   10C0 2F            mov bl, al        
+2008   10BD 07 CD 10      call _itoa_printx32        ; convert bh to char in A
+2009   10C0 2F            mov bl, al        ; save al
 2010   10C1 19 00         mov al, 0
-2011   10C3 05 03         syscall sys_io        
-2012   10C5 24            mov ah, bl        
+2011   10C3 05 03         syscall sys_io        ; display AH
+2012   10C5 24            mov ah, bl        ; retrieve al
 2013   10C6 19 00         mov al, 0
-2014   10C8 05 03         syscall sys_io        
+2014   10C8 05 03         syscall sys_io        ; display AL
 2015   10CA E5            pop b
 2016   10CB E4            pop a
 2017   10CC 09            ret
@@ -2579,21 +2579,21 @@
 2457   1387             print_u16x_printx16:
 2458   1387 DD            push bl
 2459   1388 30            mov bl, bh
-2460   1389 07 A6 13      call _itoa_printx16        
-2461   138C 2F            mov bl, al        
+2460   1389 07 A6 13      call _itoa_printx16        ; convert bh to char in A
+2461   138C 2F            mov bl, al        ; save al
 2462   138D 19 00         mov al, 0
-2463   138F 05 03         syscall sys_io        
-2464   1391 24            mov ah, bl        
+2463   138F 05 03         syscall sys_io        ; display AH
+2464   1391 24            mov ah, bl        ; retrieve al
 2465   1392 19 00         mov al, 0
-2466   1394 05 03         syscall sys_io        
+2466   1394 05 03         syscall sys_io        ; display AL
 2467   1396 EA            pop bl
-2468   1397 07 A6 13      call _itoa_printx16        
-2469   139A 2F            mov bl, al        
+2468   1397 07 A6 13      call _itoa_printx16        ; convert bh to char in A
+2469   139A 2F            mov bl, al        ; save al
 2470   139B 19 00         mov al, 0
-2471   139D 05 03         syscall sys_io        
-2472   139F 24            mov ah, bl        
+2471   139D 05 03         syscall sys_io        ; display AH
+2472   139F 24            mov ah, bl        ; retrieve al
 2473   13A0 19 00         mov al, 0
-2474   13A2 05 03         syscall sys_io        
+2474   13A2 05 03         syscall sys_io        ; display AL
 2475   13A4             ; --- END INLINE ASM SEGMENT
 2476   13A4             ; return; 
 2477   13A4 F9            leave
@@ -2649,7 +2649,7 @@
 2524   13F0             ; --- BEGIN DATA SEGMENT
 2525   13F0             _clear_data: 
 2526   13F0 00          .db 
-2527   13F1 1B 5B 32 4A .db $1b,$5b,$32,$4a,$1b,$5b,$48,$0,
+2527   13F1 1B 5B 32 4A .db $1b,$5b,$32,$4a,$1b,$5b,$48,$00,
 2527   13F5 1B 5B 48 00 
 2528   13F9 00 00 00    .fill 3, 0
 2529   13FC 00 00 00 00 _nextState_data: .fill 1200, 0

@@ -1791,7 +1791,7 @@ putchar:
   mov al, [d]
   mov ah, al
   mov al, 0
-  syscall sys_io      
+  syscall sys_io      ; char in AH
 ; --- END INLINE ASM SEGMENT
   leave
   ret
@@ -1997,21 +1997,21 @@ print_u16x_printx32:
   push b
   push bl
   mov bl, bh
-  call _itoa_printx32        
-  mov bl, al        
+  call _itoa_printx32        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
   pop bl
-  call _itoa_printx32        
-  mov bl, al        
+  call _itoa_printx32        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
   pop b
   pop a
   ret
@@ -2457,21 +2457,21 @@ printx16:
 print_u16x_printx16:
   push bl
   mov bl, bh
-  call _itoa_printx16        
-  mov bl, al        
+  call _itoa_printx16        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
   pop bl
-  call _itoa_printx16        
-  mov bl, al        
+  call _itoa_printx16        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
 ; --- END INLINE ASM SEGMENT
 ; return; 
   leave
@@ -2524,7 +2524,7 @@ _puts_END_puts:
 ; --- BEGIN DATA SEGMENT
 _clear_data: 
 .db 
-.db $1b,$5b,$32,$4a,$1b,$5b,$48,$0,
+.db $1b,$5b,$32,$4a,$1b,$5b,$48,$00,
 .fill 3, 0
 _nextState_data: .fill 1200, 0
 _currState_data: 

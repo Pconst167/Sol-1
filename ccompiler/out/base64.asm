@@ -1044,8 +1044,7 @@ _if12_TRUE:
   jmp _if12_exit
 _if12_exit:
 ; return -1; 
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   leave
   ret
 
@@ -1153,8 +1152,7 @@ _while13_cond:
 ; --- START RELATIONAL
   push a
   mov a, b
-  mov32 cb, $00000001
-  neg b
+  mov32 cb, $ffffffff
   cmp a, b
   sneq ; !=
   pop a
@@ -2592,7 +2590,7 @@ putchar:
   mov al, [d]
   mov ah, al
   mov al, 0
-  syscall sys_io      
+  syscall sys_io      ; char in AH
 ; --- END INLINE ASM SEGMENT
   leave
   ret
@@ -2798,21 +2796,21 @@ print_u16x_printx32:
   push b
   push bl
   mov bl, bh
-  call _itoa_printx32        
-  mov bl, al        
+  call _itoa_printx32        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
   pop bl
-  call _itoa_printx32        
-  mov bl, al        
+  call _itoa_printx32        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
   pop b
   pop a
   ret
@@ -3258,21 +3256,21 @@ printx16:
 print_u16x_printx16:
   push bl
   mov bl, bh
-  call _itoa_printx16        
-  mov bl, al        
+  call _itoa_printx16        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
   pop bl
-  call _itoa_printx16        
-  mov bl, al        
+  call _itoa_printx16        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
 ; --- END INLINE ASM SEGMENT
 ; return; 
   leave
@@ -3326,18 +3324,18 @@ _gets_gets:
   push d
 _gets_loop_gets:
   mov al, 1
-  syscall sys_io      
-  cmp al, 0        
-  je _gets_loop_gets      
+  syscall sys_io      ; receive in AH
+  cmp al, 0        ; check error code (AL)
+  je _gets_loop_gets      ; if no char received, retry
   cmp ah, 27
   je _gets_ansi_esc_gets
-  cmp ah, $0A        
+  cmp ah, $0A        ; LF
   je _gets_end_gets
-  cmp ah, $0D        
+  cmp ah, $0D        ; CR
   je _gets_end_gets
-  cmp ah, $5C        
+  cmp ah, $5C        ; '\\'
   je _gets_escape_gets
-  cmp ah, $08      
+  cmp ah, $08      ; check for backspace
   je _gets_backspace_gets
   mov al, ah
   mov [d], al
@@ -3348,16 +3346,16 @@ _gets_backspace_gets:
   jmp _gets_loop_gets
 _gets_ansi_esc_gets:
   mov al, 1
-  syscall sys_io        
-  cmp al, 0          
-  je _gets_ansi_esc_gets    
+  syscall sys_io        ; receive in AH without echo
+  cmp al, 0          ; check error code (AL)
+  je _gets_ansi_esc_gets    ; if no char received, retry
   cmp ah, '['
   jne _gets_loop_gets
 _gets_ansi_esc_2_gets:
   mov al, 1
-  syscall sys_io          
-  cmp al, 0            
-  je _gets_ansi_esc_2_gets  
+  syscall sys_io          ; receive in AH without echo
+  cmp al, 0            ; check error code (AL)
+  je _gets_ansi_esc_2_gets  ; if no char received, retry
   cmp ah, 'D'
   je _gets_left_arrow_gets
   cmp ah, 'C'
@@ -3371,9 +3369,9 @@ _gets_right_arrow_gets:
   jmp _gets_loop_gets
 _gets_escape_gets:
   mov al, 1
-  syscall sys_io      
-  cmp al, 0        
-  je _gets_escape_gets      
+  syscall sys_io      ; receive in AH
+  cmp al, 0        ; check error code (AL)
+  je _gets_escape_gets      ; if no char received, retry
   cmp ah, 'n'
   je _gets_LF_gets
   cmp ah, 'r'
@@ -3382,7 +3380,7 @@ _gets_escape_gets:
   je _gets_NULL_gets
   cmp ah, $5C  
   je _gets_slash_gets
-  mov al, ah        
+  mov al, ah        ; if not a known escape, it is just a normal letter
   mov [d], al
   inc d
   jmp _gets_loop_gets
@@ -3408,7 +3406,7 @@ _gets_NULL_gets:
   jmp _gets_loop_gets
 _gets_end_gets:
   mov al, 0
-  mov [d], al        
+  mov [d], al        ; terminate string
   pop d
   pop a
   ret
