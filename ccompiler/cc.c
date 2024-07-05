@@ -260,11 +260,13 @@ int union_table_tos;
 int defines_tos;
 int typedef_table_tos;
 int string_table_tos;
+int included_function_list_tos;
 
 char *prog;                           // pointer to the current program position
 char *prog_stack[2048];
 int prog_tos;
 
+t_included_function_list_item included_function_list[1024];
 char include_kernel_exp = 1;
 char org[64] = "text_org";
 char included_functions_table[512][ID_LEN];
@@ -308,11 +310,6 @@ int label_tos_do;
 int label_tos_while;
 int label_tos_switch;
 int label_tos_cmp;
-
-
-t_included_function_list_item included_function_list[1024];
-int included_function_list_tos;
-
 
 
 // --- MAIN
@@ -732,7 +729,7 @@ void expand_all_included_files(void){
         }
         else error(ERR_FATAL, "syntax error in include directive");
         if((fp = fopen(filename, "rb")) == NULL) error(ERR_FATAL, "%s: included source file not found\n", filename);
-        delete(temp_prog2, prog - temp_prog2);
+        overwrite_with_spaces(temp_prog2, prog - temp_prog2);
         pi = include_files_buffer;
         while(*pi) pi++;
         do{
@@ -771,7 +768,7 @@ void expand_all_included_files(void){
         }
         else error(ERR_FATAL, "syntax error in include directive");
         if((fp = fopen(filename, "rb")) == NULL) error(ERR_FATAL, "%s: included source file not found\n", filename);
-        delete(temp_prog2, prog - temp_prog2);
+        overwrite_with_spaces(temp_prog2, prog - temp_prog2);
         pi = include_files_buffer;
         while(*pi) pi++;
         do{
@@ -1014,10 +1011,10 @@ void declare_define(){
 
   defines_tos++;
 
-  delete(d, prog - d);
+  overwrite_with_spaces(d, prog - d);
 }
 
-void delete(char *start, int len){
+void overwrite_with_spaces(char *start, int len){
   char *p = start;
   while(p < start + len){
     *p = ' ';
@@ -1033,15 +1030,30 @@ void insert(char *destination, char *new_text){
   while(*p) p++; // fast forwards to end of text 
   while(p >= destination){
     *(p + len) = *p;
-    *p = ' ';
     p--;
   }
   p++;
   while(*p2){
-    *p = *p2;
-    p++; 
-    p2++;
+    *p++ = *p2++;
   }
+}
+
+// hello world my name is sol-1.
+void delete(char *start, int len){
+  char *p;
+  int length;
+
+  length = strlen(start);
+  if(len > length){
+    printf("\nerror: trying to delete a sub-string that is larger than the original string\n");
+    exit(1);
+  }
+  p = start + len;
+  while(*p){
+    *(p-len) = *p;
+    p++;
+  }
+  *(p-len) = '\0';
 }
 
 void pre_processor(void){
@@ -1719,7 +1731,6 @@ int declare_local(void){
           emitln("  push d");
           init_expr = parse_expr();
 
-          dbg_print_type_info(init_expr);
           emitln("  pop d");
           switch(new_var.type.primitive_type){
             case DT_CHAR:
@@ -3197,7 +3208,7 @@ t_type parse_ternary_op(void){
   emitln("_ternary%d_cond:", highest_label_index + 1); // +1 because we are emitting the label ahead
   logical_or_result = parse_logical_or(); // evaluate condition
   if(curr_token.tok != TERNARY_OP){
-    delete(temp_asm_p, len); // delete the ternary operator condition in the assembly file output
+    overwrite_with_spaces(temp_asm_p, len); // delete the ternary operator condition in the assembly file output
     return logical_or_result;
     //prog = temp_prog;
     //asm_p = temp_asm_p; // recover asm output pointer
@@ -3800,7 +3811,6 @@ t_type parse_atomic(void){
       else if(expr_out.primitive_type == DT_STRUCT){
         emitln("  mov b, d");
         emitln("  mov c, 0");  
-        dbg_print_type_info(expr_out);
       }
       else if(expr_out.primitive_type == DT_UNION){
         emitln("  mov b, d");

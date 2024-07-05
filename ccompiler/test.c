@@ -14,9 +14,12 @@ struct s1{
 
 struct s1 mys1;
 
+#define str "hello world"
+
 void main(){
   struct s1 mys2 = mys1;
 
+    str;
 
 }
 

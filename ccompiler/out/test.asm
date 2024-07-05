@@ -22,11 +22,15 @@ main:
   mov c, 7
   rep movsb
 ; --- END LOCAL VAR INITIALIZATION
+; "hello world"; 
+               
+  mov b, _s0 ; "hello world"
   syscall sys_terminate_proc
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
 _mys1_data: .fill 7, 0
+_s0: .db "hello world", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

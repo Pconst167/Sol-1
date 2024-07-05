@@ -386,6 +386,7 @@ char find_cmdline_switch(int argc, char **argv, char *_switch);
 
 void insert_runtime(void);
 void declare_heap_global_var(void);
+void overwrite_with_spaces(char *start, int len);
 void delete(char *start, int len);
 void insert(char *destination, char *new_text);
 

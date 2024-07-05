@@ -33,7 +33,7 @@
 0013   040B FA FA FF      lea d, [bp + -6] ; $mys2
 0014   040E DA            push d
 0015   040F                            
-0016   040F 3B 22 04      mov d, _mys1_data ; $mys1
+0016   040F 3B 25 04      mov d, _mys1_data ; $mys1
 0017   0412 2D            mov b, d
 0018   0413 38 00 00      mov c, 0
 0019   0416 E7            pop d
@@ -42,16 +42,22 @@
 0022   041B 38 07 00      mov c, 7
 0023   041E FD F5         rep movsb
 0024   0420             ; --- END LOCAL VAR INITIALIZATION
-0025   0420 05 0B         syscall sys_terminate_proc
-0026   0422             ; --- END TEXT SEGMENT
-0027   0422             
-0028   0422             ; --- BEGIN DATA SEGMENT
-0029   0422 00 00 00 00 _mys1_data: .fill 7, 0
-0029   0426 00 00 00 
-0030   0429             
-0031   0429 2B 04       _heap_top: .dw _heap
-0032   042B 00          _heap: .db 0
-0033   042C             ; --- END DATA SEGMENT
-0034   042C             
-0035   042C             .end
+0025   0420             ; "hello world"; 
+0026   0420                            
+0027   0420 26 2C 04      mov b, _s0 ; "hello world"
+0028   0423 05 0B         syscall sys_terminate_proc
+0029   0425             ; --- END TEXT SEGMENT
+0030   0425             
+0031   0425             ; --- BEGIN DATA SEGMENT
+0032   0425 00 00 00 00 _mys1_data: .fill 7, 0
+0032   0429 00 00 00 
+0033   042C 68 65 6C 6C _s0: .db "hello world", 0
+0033   0430 6F 20 77 6F 
+0033   0434 72 6C 64 00 
+0034   0438             
+0035   0438 3A 04       _heap_top: .dw _heap
+0036   043A 00          _heap: .db 0
+0037   043B             ; --- END DATA SEGMENT
+0038   043B             
+0039   043B             .end
 tasm: Number of errors = 0
