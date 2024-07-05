@@ -62,13 +62,13 @@ main:
   test al, $80  
   swp a  
   jz skip_invert_a_2  
-   neg a 
+  neg a 
 skip_invert_a_2:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_2  
-   neg b 
+  neg b 
 skip_invert_b_2:   
   mul a, b ; *
   mov g, a
@@ -76,14 +76,11 @@ skip_invert_b_2:
   pop bl
   test bl, $80
   jz _same_signs_2
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_2:
   mov c, g
@@ -133,13 +130,13 @@ _same_signs_2:
   test al, $80  
   swp a  
   jz skip_invert_a_4  
-   neg a 
+  neg a 
 skip_invert_a_4:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_4  
-   neg b 
+  neg b 
 skip_invert_b_4:   
   mul a, b ; *
   mov g, a
@@ -147,14 +144,11 @@ skip_invert_b_4:
   pop bl
   test bl, $80
   jz _same_signs_4
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_4:
   mov c, g
@@ -557,8 +551,10 @@ _if7_exit:
   lea d, [bp + 7] ; $b
   mov b, [d]
   mov c, 0
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -640,13 +636,13 @@ _if13_TRUE:
   test al, $80  
   swp a  
   jz skip_invert_a_18  
-   neg a 
+  neg a 
 skip_invert_a_18:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_18  
-   neg b 
+  neg b 
 skip_invert_b_18:   
   mul a, b ; *
   mov g, a
@@ -654,14 +650,11 @@ skip_invert_b_18:
   pop bl
   test bl, $80
   jz _same_signs_18
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_18:
   mov c, g
@@ -677,8 +670,10 @@ _same_signs_18:
   lea d, [bp + 9] ; $mod
   mov b, [d]
   mov c, 0
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -729,13 +724,13 @@ _if13_exit:
   test al, $80  
   swp a  
   jz skip_invert_a_24  
-   neg a 
+  neg a 
 skip_invert_a_24:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_24  
-   neg b 
+  neg b 
 skip_invert_b_24:   
   mul a, b ; *
   mov g, a
@@ -743,14 +738,11 @@ skip_invert_b_24:
   pop bl
   test bl, $80
   jz _same_signs_24
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_24:
   mov c, g
@@ -766,8 +758,10 @@ _same_signs_24:
   lea d, [bp + 9] ; $mod
   mov b, [d]
   mov c, 0
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -904,7 +898,7 @@ _for28_block:
   call printf
   add sp, 4
 ; --- END FUNCTION CALL
-; if ((d * e) % phi == 1) { 
+; if ((d * e) % phi == 1) {   
 _if29_cond:
   lea d, [bp + -1] ; $d
   mov b, [d]
@@ -927,13 +921,13 @@ _if29_cond:
   test al, $80  
   swp a  
   jz skip_invert_a_34  
-   neg a 
+  neg a 
 skip_invert_a_34:   
   swp b
   test bl, $80  
   swp b
   jz skip_invert_b_34  
-   neg b 
+  neg b 
 skip_invert_b_34:   
   mul a, b ; *
   mov g, a
@@ -941,14 +935,11 @@ skip_invert_b_34:
   pop bl
   test bl, $80
   jz _same_signs_34
-  mov b, a
-  mov a, g
+  mov bl, al
   not a
-  not b
-  add b, 1
+  neg b
   adc a, 0
-  mov c, a
-  mov g, c
+  mov g, a
   mov a, b
 _same_signs_34:
   mov c, g
@@ -964,8 +955,10 @@ _same_signs_34:
   lea d, [bp + 7] ; $phi
   mov b, [d]
   mov c, 0
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -973,13 +966,10 @@ _same_signs_34:
 ; --- END FACTORS
 ; --- START RELATIONAL
   push a
-  push g
   mov a, b
-  mov g, c
   mov32 cb, $00000001
-  cmp32 ga, cb
+  cmp a, b
   seq ; ==
-  pop g
   pop a
 ; --- END RELATIONAL
   cmp b, 0
@@ -1549,7 +1539,7 @@ _if43_TRUE:
   mov c, a
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
   jmp _if43_exit
 _if43_else:
@@ -1631,14 +1621,16 @@ _while45_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   pop d
@@ -1656,7 +1648,9 @@ _while45_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -1664,7 +1658,7 @@ _while45_block:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; i++; 
   lea d, [bp + -11] ; $i
@@ -1826,14 +1820,16 @@ _while54_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
   pop a
 ; --- END FACTORS
-  add32 cb, ga
+  add b, a
   pop a
 ; --- END TERMS
   pop d
@@ -1851,7 +1847,9 @@ _while54_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -1859,7 +1857,7 @@ _while54_block:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, c
+  mov b, 0
   mov [d + 2], b
 ; i++; 
   lea d, [bp + -11] ; $i
@@ -2128,8 +2126,10 @@ _while64_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2152,7 +2152,9 @@ _while64_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2299,8 +2301,10 @@ _while73_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b ; 
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; %, a: quotient, b: remainder
   mov a, b
+  pop g
   mov c, g
   mov b, a
   pop g
@@ -2323,7 +2327,9 @@ _while73_block:
   mov a, b
   mov g, c
   mov32 cb, $0000000a
-  div a, b
+  push g ; save 'g' as the div instruction uses it
+  div a, b ; /, a: quotient, b: remainder
+  pop g
   mov c, g
   mov b, a
   pop g

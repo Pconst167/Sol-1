@@ -3223,6 +3223,12 @@ t_type parse_logical_or(void){
     emitln("  pop a");
     emitln("; --- END LOGICAL OR");
   }
+  expr_out.primitive_type = DT_INT;
+  expr_out.ind_level = 0;
+  expr_out.dims[0] = 0;
+  expr_out.is_constant = FALSE;
+  expr_out.sign_modifier = SIGNMOD_UNSIGNED;
+  expr_out.size_modifier = SIZEMOD_NORMAL;
   return expr_out;
 }
 
@@ -3256,6 +3262,12 @@ t_type parse_logical_and(void){
     emitln("  pop a");
     emitln("; --- END LOGICAL AND");
   }
+  expr_out.primitive_type = DT_INT;
+  expr_out.ind_level = 0;
+  expr_out.dims[0] = 0;
+  expr_out.is_constant = FALSE;
+  expr_out.sign_modifier = SIGNMOD_UNSIGNED;
+  expr_out.size_modifier = SIZEMOD_NORMAL;
   return expr_out;
 }
 
@@ -3485,6 +3497,12 @@ t_type parse_relational(void){
     emitln("  pop a");
     emitln("; --- END RELATIONAL");
   }
+  expr_out.primitive_type = DT_INT;
+  expr_out.ind_level = 0;
+  expr_out.dims[0] = 0;
+  expr_out.is_constant = FALSE;
+  expr_out.sign_modifier = SIGNMOD_UNSIGNED;
+  expr_out.size_modifier = SIZEMOD_NORMAL;
   return expr_out;
 }
 
@@ -3633,11 +3651,15 @@ t_type parse_factors(void){
           expr_out.size_modifier = SIZEMOD_LONG; // set it as a 32bit int
       }
       else if(temp_tok == FSLASH){
+        emitln("  push g ; save 'g' as the div instruction uses it");
         emitln("  div a, b ; /, a: quotient, b: remainder");
+        emitln("  pop g");
       }
       else if(temp_tok == MOD){
+        emitln("  push g ; save 'g' as the div instruction uses it");
         emitln("  div a, b ; %, a: quotient, b: remainder");
         emitln("  mov a, b");
+        emitln("  pop g");
       }
     }
     emitln("  mov c, g");
@@ -3758,7 +3780,7 @@ t_type parse_atomic(void){
     ){
       back();
       expr_out = parse_expr();  // parses expression between parenthesis and result will be in B
-      if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing paren expected");
+      if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "closing paren expected");
     }
     else{
       sign_modifier = SIGNMOD_SIGNED;
@@ -3814,9 +3836,11 @@ t_type parse_atomic(void){
           expr_out = parse_atomic();
           if(sign_modifier == SIGNMOD_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_INT){
             emitln("  snex b"); // sign extend b
+            emitln("  push a");
             emitln("  mov al, bh");
             emitln("  mov ah, al");
             emitln("  mov c, a"); // sign extend c
+            emitln("  pop a");
           }
           else if(sign_modifier == SIGNMOD_UNSIGNED && ind_level == 0 && expr_out.primitive_type == DT_INT){
             emitln("  mov bh, 0"); // zero extend b
@@ -3860,13 +3884,7 @@ t_type parse_sizeof(){
   get();
   expect(OPENING_PAREN, "Opening parenthesis expected");
   get();
-  if((search_typedef(curr_token.token_str)) != -1){                              
-    back();
-    type = get_type();
-    emitln("  mov32 cb, %d", get_total_type_size(type));
-    get();
-  }
-  else if(curr_token.tok_type == IDENTIFIER){
+  if(curr_token.tok_type == IDENTIFIER){
     if(local_var_exists(curr_token.token_str) != -1){ // is a local variable
       var_id = local_var_exists(curr_token.token_str);
       emitln("  mov32 cb, %d", get_total_type_size(function_table[current_func_id].local_vars[var_id].type));
@@ -3880,15 +3898,30 @@ t_type parse_sizeof(){
     }
     get();
   }
-  else{
+  else if(
+    curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED || 
+    curr_token.tok == LONG     || curr_token.tok == CONST    || 
+    curr_token.tok == VOID     || curr_token.tok == CHAR     ||
+    curr_token.tok == INT      || curr_token.tok == FLOAT    || 
+    curr_token.tok == DOUBLE   || curr_token.tok == STRUCT   ||
+    curr_token.tok == SHORT    || curr_token.tok == STATIC   ||
+    curr_token.tok == ENUM     || curr_token.tok == UNION    ||
+    search_typedef(curr_token.token_str) != -1 
+  ){
     back();
     type = get_type();
     emitln("  mov32 cb, %d", get_total_type_size(type));
     get();
   }
+  else{
+    back();
+    type = parse_expr();
+    emitln("  mov32 cb, %d", get_total_type_size(type));
+  }
   type.primitive_type = DT_INT;
   type.ind_level = 0;
   type.sign_modifier = SIGNMOD_SIGNED;
+  type.size_modifier = SIZEMOD_NORMAL;
   expect(CLOSING_PAREN, "Closing paren expected");
   return type;
 }
@@ -3915,7 +3948,6 @@ t_type parse_integer_const(){
 
   emitln("  mov32 cb, $%08x", (uint32_t)(curr_token.int_const));
 
-
   expr_out.sign_modifier = curr_token.const_sign_modifier;
   expr_out.size_modifier = curr_token.const_size_modifier;
   expr_out.primitive_type = DT_INT;
@@ -3933,9 +3965,7 @@ t_type parse_unary_logical_not(){
     emitln("  seq ; !");
   }
   else if(expr_out.size_modifier == SIZEMOD_LONG){
-    emitln("  mov a, b"); // TODO: convert this to cmp32 cb, i32, when the instruction is burned in ROM
-    emitln("  mov g, c");
-    emitln("  cmp32 ga, 0");
+    emitln("  cmp32 cb, 0");
     emitln("  seq ; !");
   } 
   back();
