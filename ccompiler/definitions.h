@@ -436,3 +436,4 @@ t_type get_union_element_type(int union_id, char *name);
 void add_included_function_to_list(char *name);
 t_included_function_list_item find_included_function(char *name);
 uint8_t is_function_declaration();
+void add_library_type_declarations();

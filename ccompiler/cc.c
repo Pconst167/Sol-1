@@ -399,6 +399,104 @@ int main(int argc, char *argv[]){
   return 0;
 }
 
+void add_library_type_declarations(){
+  char *temp_prog, *temp_prog2;
+  char *prog_at_identifier;
+  int paren, braces;
+  uint8_t is_struct_enum_union;
+
+  puts("adding library type definitions...");
+
+  strcat(c_in, "\n");
+  prog = include_files_buffer;
+  for(;;){
+    is_struct_enum_union = 0;
+    temp_prog = prog;
+    get();
+    temp_prog2 = prog;
+    if(curr_token.tok_type == END) break;
+    if(curr_token.tok == TYPEDEF){
+      prog = temp_prog;
+      get_line();
+      strcat(c_in, "\n");
+      strcat(c_in, curr_token.string_const);
+    }
+    else if(
+      curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED || 
+      curr_token.tok == LONG     || curr_token.tok == CONST    || 
+      curr_token.tok == VOID     || curr_token.tok == CHAR     ||
+      curr_token.tok == INT      || curr_token.tok == FLOAT    || 
+      curr_token.tok == DOUBLE   || curr_token.tok == STRUCT   ||
+      curr_token.tok == SHORT    || curr_token.tok == STATIC   ||
+      curr_token.tok == ENUM     || curr_token.tok == UNION    ||
+      curr_token.tok == REGISTER || curr_token.tok == VOLATILE || 
+      curr_token.tok_type == IDENTIFIER
+    ){
+      while(
+        curr_token.tok == CONST    || curr_token.tok == STATIC   || 
+        curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED ||
+        curr_token.tok == LONG     || curr_token.tok == SHORT    ||
+        curr_token.tok == REGISTER || curr_token.tok == VOLATILE
+      ){
+        get();
+      }
+      if(curr_token.tok == STRUCT || curr_token.tok == ENUM || curr_token.tok == UNION){
+        is_struct_enum_union = 1;
+        get();
+      }
+      get();
+      // if not a struct, union, or enum, then the var type has just been gotten
+      if(curr_token.tok == STAR){
+        while(curr_token.tok == STAR){
+          get();
+        }
+      }
+      get(); // get semicolon, assignment, comma, or opening braces
+      if(curr_token.tok != OPENING_PAREN){ //it must be a function declaration
+        if(is_struct_enum_union){
+          strcat(c_in, "\n");
+          prog = temp_prog;
+          for(;;){ // copy everything before the '{'
+            get();
+            if(curr_token.tok == OPENING_BRACE) break;
+            strcat(c_in, curr_token.token_str);
+            strcat(c_in, " ");
+          }
+          strcat(c_in, curr_token.token_str); // concat '{' which was got before the loop broke
+          braces = 1;
+          for(;;){ // now copy whats inside the braces
+            get();
+            strcat(c_in, curr_token.token_str);
+            strcat(c_in, " ");
+            if(curr_token.tok == OPENING_BRACE) braces++;
+            else if(curr_token.tok == CLOSING_BRACE) braces--;
+            if(braces == 0) break;
+          }
+          get(); if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "semicolon expected in struct declaration");
+          strcat(c_in, curr_token.token_str);
+        }
+        else{
+          prog = temp_prog;
+          get_line();
+          strcat(c_in, "\n");
+          strcat(c_in, curr_token.string_const);
+        }
+      }
+      else{ // is a function, skip it
+        paren = 1;
+        for(;;){
+          get();
+          if(curr_token.tok == OPENING_PAREN) paren++;
+          else if(curr_token.tok == CLOSING_PAREN) paren--;
+          if(paren == 0) break;
+        }
+        get(); // get '{'
+        skip_block(1);
+      }
+    }
+  }
+}
+
 void add_included_function_to_list(char *name){
   if(included_function_list_tos == 1024) error(ERR_FATAL, "maximum number of included functions in list is reached");
   strcpy(included_function_list[included_function_list_tos].name, name);
@@ -946,6 +1044,8 @@ void pre_processor(void){
   expand_all_included_files();
   declare_all_defines();
   search_and_add_func();
+  add_library_type_declarations();
+  dbg(c_in);
 
   puts("replacing defines with their declared values...");
   prog = c_in; 
@@ -5871,10 +5971,9 @@ void get_line(void){
   t = curr_token.string_const;
   *t = '\0';
   
-  while(*prog != 0x0A && *prog && *prog != ';'){
+  while(*prog != 0x0A && *prog){
     *t++ = *prog++;
   }
-  if(*prog == ';') while(*prog != 0x0A && *prog) prog++;
 
   if(*prog == '\0' && curr_token.string_const[0] == '\0') error(ERR_FATAL, "Unexpected EOF");
 

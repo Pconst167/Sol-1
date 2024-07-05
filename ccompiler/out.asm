@@ -10,7 +10,7 @@ main:
 ; int i, j; 
   sub sp, 2
   sub sp, 2
-; for(i=0;i<80;i++){ 
+; for(i=0;i<30;i++){ 
 _for1_init:
   lea d, [bp + -1] ; $i
   push d
@@ -24,7 +24,7 @@ _for1_cond:
 ; --- START RELATIONAL
   push a
   mov a, b
-  mov32 cb, $00000050
+  mov32 cb, $0000001e
   cmp a, b
   slt ; < (signed)
   pop a

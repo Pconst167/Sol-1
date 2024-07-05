@@ -30,7 +30,7 @@
 0010   0408             ; int i, j; 
 0011   0408 52 02 00      sub sp, 2
 0012   040B 52 02 00      sub sp, 2
-0013   040E             ; for(i=0;i<80;i++){ 
+0013   040E             ; for(i=0;i<30;i++){ 
 0014   040E             _for1_init:
 0015   040E FA FF FF      lea d, [bp + -1] ; $i
 0016   0411 DA            push d
@@ -45,7 +45,7 @@
 0024   0422             ; --- START RELATIONAL
 0025   0422 D7            push a
 0026   0423 11            mov a, b
-0027   0424 FD 2E 50 00   mov32 cb, $00000050
+0027   0424 FD 2E 1E 00   mov32 cb, $0000001e
 0027   0428 00 00 
 0028   042A B0            cmp a, b
 0029   042B FD 73         slt ; < (signed)
