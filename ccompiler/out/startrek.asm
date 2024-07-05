@@ -13363,7 +13363,7 @@ getchar:
   sub sp, 1
 ; --- BEGIN INLINE ASM SEGMENT
   mov al, 1
-  syscall sys_io      
+  syscall sys_io      ; receive in AH
   mov al, ah
   lea d, [bp + 0] ; $c
   mov [d], al
@@ -13458,7 +13458,7 @@ rand:
   sub sp, 2
 ; --- BEGIN INLINE ASM SEGMENT
   mov al, 0
-  syscall sys_rtc					
+  syscall sys_rtc					; get seconds
   mov al, ah
   lea d, [bp + -1] ; $sec
   mov al, [d]
@@ -14453,7 +14453,7 @@ putchar:
   mov al, [d]
   mov ah, al
   mov al, 0
-  syscall sys_io      
+  syscall sys_io      ; char in AH
 ; --- END INLINE ASM SEGMENT
   leave
   ret
@@ -14659,21 +14659,21 @@ print_u16x_printx32:
   push b
   push bl
   mov bl, bh
-  call _itoa_printx32        
-  mov bl, al        
+  call _itoa_printx32        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
   pop bl
-  call _itoa_printx32        
-  mov bl, al        
+  call _itoa_printx32        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
   pop b
   pop a
   ret
@@ -15119,21 +15119,21 @@ printx16:
 print_u16x_printx16:
   push bl
   mov bl, bh
-  call _itoa_printx16        
-  mov bl, al        
+  call _itoa_printx16        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
   pop bl
-  call _itoa_printx16        
-  mov bl, al        
+  call _itoa_printx16        ; convert bh to char in A
+  mov bl, al        ; save al
   mov al, 0
-  syscall sys_io        
-  mov ah, bl        
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
   mov al, 0
-  syscall sys_io        
+  syscall sys_io        ; display AL
 ; --- END INLINE ASM SEGMENT
 ; return; 
   leave

@@ -13850,7 +13850,7 @@
 13363  58D6 52 01 00      sub sp, 1
 13364  58D9             ; --- BEGIN INLINE ASM SEGMENT
 13365  58D9 19 01         mov al, 1
-13366  58DB 05 03         syscall sys_io      
+13366  58DB 05 03         syscall sys_io      ; receive in AH
 13367  58DD 1A            mov al, ah
 13368  58DE FA 00 00      lea d, [bp + 0] ; $c
 13369  58E1 3E            mov [d], al
@@ -13949,7 +13949,7 @@
 13458  595D 52 02 00      sub sp, 2
 13459  5960             ; --- BEGIN INLINE ASM SEGMENT
 13460  5960 19 00         mov al, 0
-13461  5962 05 01         syscall sys_rtc					
+13461  5962 05 01         syscall sys_rtc					; get seconds
 13462  5964 1A            mov al, ah
 13463  5965 FA FF FF      lea d, [bp + -1] ; $sec
 13464  5968 1E            mov al, [d]
@@ -14973,7 +14973,7 @@
 14453  5FAC 1E            mov al, [d]
 14454  5FAD 23            mov ah, al
 14455  5FAE 19 00         mov al, 0
-14456  5FB0 05 03         syscall sys_io      
+14456  5FB0 05 03         syscall sys_io      ; char in AH
 14457  5FB2             ; --- END INLINE ASM SEGMENT
 14458  5FB2 F9            leave
 14459  5FB3 09            ret
@@ -15187,21 +15187,21 @@
 14659  60F3 D8            push b
 14660  60F4 DD            push bl
 14661  60F5 30            mov bl, bh
-14662  60F6 07 14 61      call _itoa_printx32        
-14663  60F9 2F            mov bl, al        
+14662  60F6 07 14 61      call _itoa_printx32        ; convert bh to char in A
+14663  60F9 2F            mov bl, al        ; save al
 14664  60FA 19 00         mov al, 0
-14665  60FC 05 03         syscall sys_io        
-14666  60FE 24            mov ah, bl        
+14665  60FC 05 03         syscall sys_io        ; display AH
+14666  60FE 24            mov ah, bl        ; retrieve al
 14667  60FF 19 00         mov al, 0
-14668  6101 05 03         syscall sys_io        
+14668  6101 05 03         syscall sys_io        ; display AL
 14669  6103 EA            pop bl
-14670  6104 07 14 61      call _itoa_printx32        
-14671  6107 2F            mov bl, al        
+14670  6104 07 14 61      call _itoa_printx32        ; convert bh to char in A
+14671  6107 2F            mov bl, al        ; save al
 14672  6108 19 00         mov al, 0
-14673  610A 05 03         syscall sys_io        
-14674  610C 24            mov ah, bl        
+14673  610A 05 03         syscall sys_io        ; display AH
+14674  610C 24            mov ah, bl        ; retrieve al
 14675  610D 19 00         mov al, 0
-14676  610F 05 03         syscall sys_io        
+14676  610F 05 03         syscall sys_io        ; display AL
 14677  6111 E5            pop b
 14678  6112 E4            pop a
 14679  6113 09            ret
@@ -15668,21 +15668,21 @@
 15119  63CE             print_u16x_printx16:
 15120  63CE DD            push bl
 15121  63CF 30            mov bl, bh
-15122  63D0 07 ED 63      call _itoa_printx16        
-15123  63D3 2F            mov bl, al        
+15122  63D0 07 ED 63      call _itoa_printx16        ; convert bh to char in A
+15123  63D3 2F            mov bl, al        ; save al
 15124  63D4 19 00         mov al, 0
-15125  63D6 05 03         syscall sys_io        
-15126  63D8 24            mov ah, bl        
+15125  63D6 05 03         syscall sys_io        ; display AH
+15126  63D8 24            mov ah, bl        ; retrieve al
 15127  63D9 19 00         mov al, 0
-15128  63DB 05 03         syscall sys_io        
+15128  63DB 05 03         syscall sys_io        ; display AL
 15129  63DD EA            pop bl
-15130  63DE 07 ED 63      call _itoa_printx16        
-15131  63E1 2F            mov bl, al        
+15130  63DE 07 ED 63      call _itoa_printx16        ; convert bh to char in A
+15131  63E1 2F            mov bl, al        ; save al
 15132  63E2 19 00         mov al, 0
-15133  63E4 05 03         syscall sys_io        
-15134  63E6 24            mov ah, bl        
+15133  63E4 05 03         syscall sys_io        ; display AH
+15134  63E6 24            mov ah, bl        ; retrieve al
 15135  63E7 19 00         mov al, 0
-15136  63E9 05 03         syscall sys_io        
+15136  63E9 05 03         syscall sys_io        ; display AL
 15137  63EB             ; --- END INLINE ASM SEGMENT
 15138  63EB             ; return; 
 15139  63EB F9            leave

@@ -1045,7 +1045,6 @@ void pre_processor(void){
   declare_all_defines();
   search_and_add_func();
   add_library_type_declarations();
-  dbg(c_in);
 
   puts("replacing defines with their declared values...");
   prog = c_in; 
