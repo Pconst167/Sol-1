@@ -31,10 +31,8 @@ cmd_cat_read:
 cmd_cat_write:
 	call get_token
 	mov si, tokstr
-	mov di, transient_area + 1
+	mov di, transient_area
 	call _strcpy				; copy filename
-	mov d, transient_area + 512		; get text contents
-	call _gettxt
 	mov d, transient_area
 	mov al, 5
 	syscall sys_filesystem
