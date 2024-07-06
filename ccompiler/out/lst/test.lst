@@ -42,7 +42,7 @@
 0022   041B 38 07 00      mov c, 7
 0023   041E FD F5         rep movsb
 0024   0420             ; --- END LOCAL VAR INITIALIZATION
-0025   0420             ; "hello world"; 
+0025   0420             ; "hello world"   ; 
 0026   0420                            
 0027   0420 26 2C 04      mov b, _s0 ; "hello world"
 0028   0423 05 0B         syscall sys_terminate_proc
