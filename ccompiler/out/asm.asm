@@ -1471,39 +1471,7 @@ _for37_cond:
   cmp b, 0
   je _for37_exit
 _for37_block:
-; print(label_table[i].name); 
-                
-; --- START FUNCTION CALL
-                
-  mov d, _label_table_data ; $label_table
-  push a
-  push d
-                
-  lea d, [bp + -3] ; $i
-  mov b, [d]
-  mov c, 0
-  pop d
-  mma 18 ; mov a, 18; mul a, b; add d, b
-  pop a
-  add d, 0
-  mov b, d
-  mov c, 0
-  swp b
-  push b
-  call print
-  add sp, 2
-; --- END FUNCTION CALL
-; print(": "); 
-                
-; --- START FUNCTION CALL
-                
-  mov b, _s24 ; ": "
-  swp b
-  push b
-  call print
-  add sp, 2
-; --- END FUNCTION CALL
-; printx16(label_table[i].address); 
+; printf("%s: %x\n", label_table[i].name, label_table[i].address); 
                 
 ; --- START FUNCTION CALL
                 
@@ -1522,18 +1490,28 @@ _for37_block:
   mov c, 0
   swp b
   push b
-  call printx16
-  add sp, 2
-; --- END FUNCTION CALL
-; print("\n"); 
                 
-; --- START FUNCTION CALL
+  mov d, _label_table_data ; $label_table
+  push a
+  push d
                 
-  mov b, _s10 ; "\n"
+  lea d, [bp + -3] ; $i
+  mov b, [d]
+  mov c, 0
+  pop d
+  mma 18 ; mov a, 18; mul a, b; add d, b
+  pop a
+  add d, 0
+  mov b, d
+  mov c, 0
   swp b
   push b
-  call print
-  add sp, 2
+                
+  mov b, _s24 ; "%s: %x\n"
+  swp b
+  push b
+  call printf
+  add sp, 6
 ; --- END FUNCTION CALL
 _for37_update:
                 
@@ -8683,17 +8661,7 @@ _if162_cond:
   cmp b, 0
   je _if162_exit
 _if162_TRUE:
-; print("TOKEN ERROR. Prog: "); printx16((int)(prog-program));  
-                 
-; --- START FUNCTION CALL
-                 
-  mov b, _s75 ; "TOKEN ERROR. Prog: "
-  swp b
-  push b
-  call print
-  add sp, 2
-; --- END FUNCTION CALL
-; printx16((int)(prog-program));  
+; printf("TOKEN ERROR. Prog: %x\n", (int)(prog-program));  
                  
 ; --- START FUNCTION CALL
                  
@@ -8714,20 +8682,14 @@ _if162_TRUE:
   snex b
   swp b
   push b
-  call printx16
-  add sp, 2
-; --- END FUNCTION CALL
-; print(", ProgVal: "); putchar(*prog);  
                  
-; --- START FUNCTION CALL
-                 
-  mov b, _s76 ; ", ProgVal: "
+  mov b, _s75 ; "TOKEN ERROR. Prog: %x\n"
   swp b
   push b
-  call print
-  add sp, 2
+  call printf
+  add sp, 4
 ; --- END FUNCTION CALL
-; putchar(*prog);  
+; printf("ProgVal: %x", *prog);  
                  
 ; --- START FUNCTION CALL
                  
@@ -8738,21 +8700,16 @@ _if162_TRUE:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  push bl
-  call putchar
-  add sp, 1
-; --- END FUNCTION CALL
-; print("\n Text after prog: \n"); 
-                 
-; --- START FUNCTION CALL
-                 
-  mov b, _s77 ; "\n Text after prog: \n"
   swp b
   push b
-  call print
-  add sp, 2
+                 
+  mov b, _s76 ; "ProgVal: %x"
+  swp b
+  push b
+  call printf
+  add sp, 4
 ; --- END FUNCTION CALL
-; print(prog); 
+; printf("\n Text after prog: %s\n", prog); 
                  
 ; --- START FUNCTION CALL
                  
@@ -8761,8 +8718,12 @@ _if162_TRUE:
   mov c, 0
   swp b
   push b
-  call print
-  add sp, 2
+                 
+  mov b, _s77 ; "\n Text after prog: %s\n"
+  swp b
+  push b
+  call printf
+  add sp, 4
 ; --- END FUNCTION CALL
 ; exit(); 
                  
@@ -9188,17 +9149,7 @@ _if163_exit:
 
 error:
   enter 0 ; (push bp; mov bp, sp)
-; print("\nError: "); 
-                 
-; --- START FUNCTION CALL
-                 
-  mov b, _s78 ; "\nError: "
-  swp b
-  push b
-  call print
-  add sp, 2
-; --- END FUNCTION CALL
-; print(msg); 
+; printf("\nError: %s\n", msg); 
                  
 ; --- START FUNCTION CALL
                  
@@ -9207,18 +9158,12 @@ error:
   mov c, 0
   swp b
   push b
-  call print
-  add sp, 2
-; --- END FUNCTION CALL
-; print("\n"); 
                  
-; --- START FUNCTION CALL
-                 
-  mov b, _s10 ; "\n"
+  mov b, _s78 ; "\nError: %s\n"
   swp b
   push b
-  call print
-  add sp, 2
+  call printf
+  add sp, 4
 ; --- END FUNCTION CALL
 ; exit(); 
                  
@@ -9229,29 +9174,7 @@ error:
 
 error_s:
   enter 0 ; (push bp; mov bp, sp)
-; print("\nError: "); 
-                 
-; --- START FUNCTION CALL
-                 
-  mov b, _s78 ; "\nError: "
-  swp b
-  push b
-  call print
-  add sp, 2
-; --- END FUNCTION CALL
-; print(msg); 
-                 
-; --- START FUNCTION CALL
-                 
-  lea d, [bp + 5] ; $msg
-  mov b, [d]
-  mov c, 0
-  swp b
-  push b
-  call print
-  add sp, 2
-; --- END FUNCTION CALL
-; print(param); 
+; printf("\nError: %s %s\n", msg, param); 
                  
 ; --- START FUNCTION CALL
                  
@@ -9260,18 +9183,18 @@ error_s:
   mov c, 0
   swp b
   push b
-  call print
-  add sp, 2
-; --- END FUNCTION CALL
-; print("\n"); 
                  
-; --- START FUNCTION CALL
-                 
-  mov b, _s10 ; "\n"
+  lea d, [bp + 5] ; $msg
+  mov b, [d]
+  mov c, 0
   swp b
   push b
-  call print
-  add sp, 2
+                 
+  mov b, _s79 ; "\nError: %s %s\n"
+  swp b
+  push b
+  call printf
+  add sp, 6
 ; --- END FUNCTION CALL
 ; exit(); 
                  
@@ -9303,7 +9226,7 @@ _if168_TRUE:
                  
 ; --- START FUNCTION CALL
                  
-  mov b, _s79 ; "Cannot push prog. Stack overflow."
+  mov b, _s80 ; "Cannot push prog. Stack overflow."
   swp b
   push b
   call error
@@ -9365,7 +9288,7 @@ _if169_TRUE:
                  
 ; --- START FUNCTION CALL
                  
-  mov b, _s80 ; "Cannot pop prog. Stack overflow."
+  mov b, _s81 ; "Cannot pop prog. Stack overflow."
   swp b
   push b
   call error
@@ -10758,298 +10681,6 @@ _same_signs_187:
   leave
   ret
 
-exit:
-  enter 0 ; (push bp; mov bp, sp)
-; --- BEGIN INLINE ASM SEGMENT
-  syscall sys_terminate_proc
-; --- END INLINE ASM SEGMENT
-  leave
-  ret
-
-printx16:
-  enter 0 ; (push bp; mov bp, sp)
-; --- BEGIN INLINE ASM SEGMENT
-  lea d, [bp + 5] ; $hex
-  mov b, [d]
-print_u16x_printx16:
-  push bl
-  mov bl, bh
-  call _itoa_printx16        ; convert bh to char in A
-  mov bl, al        ; save al
-  mov al, 0
-  syscall sys_io        ; display AH
-  mov ah, bl        ; retrieve al
-  mov al, 0
-  syscall sys_io        ; display AL
-  pop bl
-  call _itoa_printx16        ; convert bh to char in A
-  mov bl, al        ; save al
-  mov al, 0
-  syscall sys_io        ; display AH
-  mov ah, bl        ; retrieve al
-  mov al, 0
-  syscall sys_io        ; display AL
-; --- END INLINE ASM SEGMENT
-; return; 
-  leave
-  ret
-; --- BEGIN INLINE ASM SEGMENT
-_itoa_printx16:
-  push d
-  push b
-  mov bh, 0
-  shr bl, 4  
-  mov d, b
-  mov al, [d + s_hex_digits_printx16]
-  mov ah, al
-  pop b
-  push b
-  mov bh, 0
-  and bl, $0F
-  mov d, b
-  mov al, [d + s_hex_digits_printx16]
-  pop b
-  pop d
-  ret
-s_hex_digits_printx16:    .db "0123456789ABCDEF"  
-; --- END INLINE ASM SEGMENT
-  leave
-  ret
-
-putchar:
-  enter 0 ; (push bp; mov bp, sp)
-; --- BEGIN INLINE ASM SEGMENT
-  lea d, [bp + 5] ; $c
-  mov al, [d]
-  mov ah, al
-  mov al, 0
-  syscall sys_io      ; char in AH
-; --- END INLINE ASM SEGMENT
-  leave
-  ret
-
-strcpy:
-  enter 0 ; (push bp; mov bp, sp)
-; char *psrc; 
-  sub sp, 2
-; char *pdest; 
-  sub sp, 2
-; psrc = src; 
-  lea d, [bp + -1] ; $psrc
-  push d
-                 
-  lea d, [bp + 7] ; $src
-  mov b, [d]
-  mov c, 0
-  pop d
-  mov [d], b
-; pdest = dest; 
-  lea d, [bp + -3] ; $pdest
-  push d
-                 
-  lea d, [bp + 5] ; $dest
-  mov b, [d]
-  mov c, 0
-  pop d
-  mov [d], b
-; while(*psrc) *pdest++ = *psrc++; 
-_while188_cond:
-                 
-  lea d, [bp + -1] ; $psrc
-  mov b, [d]
-  mov c, 0
-  mov d, b
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  cmp b, 0
-  je _while188_exit
-_while188_block:
-; *pdest++ = *psrc++; 
-  lea d, [bp + -3] ; $pdest
-  mov b, [d]
-  mov c, 0
-  inc b
-  lea d, [bp + -3] ; $pdest
-  mov [d], b
-  dec b
-  push b
-                 
-  lea d, [bp + -1] ; $psrc
-  mov b, [d]
-  mov c, 0
-  inc b
-  lea d, [bp + -1] ; $psrc
-  mov [d], b
-  dec b
-  mov d, b
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  pop d
-  mov [d], bl
-  jmp _while188_cond
-_while188_exit:
-; *pdest = '\0'; 
-  lea d, [bp + -3] ; $pdest
-  mov b, [d]
-  mov c, 0
-  push b
-                 
-  mov32 cb, $00000000
-  pop d
-  mov [d], bl
-  leave
-  ret
-
-strcat:
-  enter 0 ; (push bp; mov bp, sp)
-; int dest_len; 
-  sub sp, 2
-; int i; 
-  sub sp, 2
-; dest_len = strlen(dest); 
-  lea d, [bp + -1] ; $dest_len
-  push d
-                 
-; --- START FUNCTION CALL
-                 
-  lea d, [bp + 5] ; $dest
-  mov b, [d]
-  mov c, 0
-  swp b
-  push b
-  call strlen
-  add sp, 2
-; --- END FUNCTION CALL
-  pop d
-  mov [d], b
-; for (i = 0; src[i] != 0; i=i+1) { 
-_for189_init:
-  lea d, [bp + -3] ; $i
-  push d
-                 
-  mov32 cb, $00000000
-  pop d
-  mov [d], b
-_for189_cond:
-                 
-  lea d, [bp + 7] ; $src
-  mov d, [d]
-  push a
-  push d
-                 
-  lea d, [bp + -3] ; $i
-  mov b, [d]
-  mov c, 0
-  pop d
-  mma 1 ; mov a, 1; mul a b; add d, b
-  pop a
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-; --- START RELATIONAL
-  push a
-  mov a, b
-  mov32 cb, $00000000
-  cmp a, b
-  sneq ; !=
-  pop a
-; --- END RELATIONAL
-  cmp b, 0
-  je _for189_exit
-_for189_block:
-; dest[dest_len + i] = src[i]; 
-  lea d, [bp + 5] ; $dest
-  mov d, [d]
-  push a
-  push d
-                 
-  lea d, [bp + -1] ; $dest_len
-  mov b, [d]
-  mov c, 0
-; --- START TERMS
-  push a
-  mov a, b
-  lea d, [bp + -3] ; $i
-  mov b, [d]
-  mov c, 0
-  add b, a
-  pop a
-; --- END TERMS
-  pop d
-  mma 1 ; mov a, 1; mul a b; add d, b
-  pop a
-  push d
-                 
-  lea d, [bp + 7] ; $src
-  mov d, [d]
-  push a
-  push d
-                 
-  lea d, [bp + -3] ; $i
-  mov b, [d]
-  mov c, 0
-  pop d
-  mma 1 ; mov a, 1; mul a b; add d, b
-  pop a
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  pop d
-  mov [d], bl
-_for189_update:
-  lea d, [bp + -3] ; $i
-  push d
-                 
-  lea d, [bp + -3] ; $i
-  mov b, [d]
-  mov c, 0
-; --- START TERMS
-  push a
-  mov a, b
-  mov32 cb, $00000001
-  add b, a
-  pop a
-; --- END TERMS
-  pop d
-  mov [d], b
-  jmp _for189_cond
-_for189_exit:
-; dest[dest_len + i] = 0; 
-  lea d, [bp + 5] ; $dest
-  mov d, [d]
-  push a
-  push d
-                 
-  lea d, [bp + -1] ; $dest_len
-  mov b, [d]
-  mov c, 0
-; --- START TERMS
-  push a
-  mov a, b
-  lea d, [bp + -3] ; $i
-  mov b, [d]
-  mov c, 0
-  add b, a
-  pop a
-; --- END TERMS
-  pop d
-  mma 1 ; mov a, 1; mul a b; add d, b
-  pop a
-  push d
-                 
-  mov32 cb, $00000000
-  pop d
-  mov [d], bl
-; return dest; 
-                 
-  lea d, [bp + 5] ; $dest
-  mov b, [d]
-  mov c, 0
-  leave
-  ret
-
 printf:
   enter 0 ; (push bp; mov bp, sp)
 ; char *p, *format_p; 
@@ -11080,11 +10711,11 @@ printf:
   pop d
   mov [d], b
 ; for(;;){ 
-_for190_init:
-_for190_cond:
-_for190_block:
+_for188_init:
+_for188_cond:
+_for188_block:
 ; if(!*format_p) break; 
-_if191_cond:
+_if189_cond:
                  
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -11096,14 +10727,14 @@ _if191_cond:
   cmp b, 0
   seq ; !
   cmp b, 0
-  je _if191_else
-_if191_TRUE:
+  je _if189_else
+_if189_TRUE:
 ; break; 
-  jmp _for190_exit ; for break
-  jmp _if191_exit
-_if191_else:
+  jmp _for188_exit ; for break
+  jmp _if189_exit
+_if189_else:
 ; if(*format_p == '%'){ 
-_if192_cond:
+_if190_cond:
                  
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -11121,8 +10752,8 @@ _if192_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if192_else
-_if192_TRUE:
+  je _if190_else
+_if190_TRUE:
 ; format_p++; 
                  
   lea d, [bp + -3] ; $format_p
@@ -11133,7 +10764,7 @@ _if192_TRUE:
   mov [d], b
   dec b
 ; switch(*format_p){ 
-_switch193_expr:
+_switch191_expr:
                  
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -11142,27 +10773,27 @@ _switch193_expr:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-_switch193_comparisons:
+_switch191_comparisons:
   cmp bl, $6c
-  je _switch193_case0
+  je _switch191_case0
   cmp bl, $4c
-  je _switch193_case1
+  je _switch191_case1
   cmp bl, $64
-  je _switch193_case2
+  je _switch191_case2
   cmp bl, $69
-  je _switch193_case3
+  je _switch191_case3
   cmp bl, $75
-  je _switch193_case4
+  je _switch191_case4
   cmp bl, $78
-  je _switch193_case5
+  je _switch191_case5
   cmp bl, $63
-  je _switch193_case6
+  je _switch191_case6
   cmp bl, $73
-  je _switch193_case7
-  jmp _switch193_default
-  jmp _switch193_exit
-_switch193_case0:
-_switch193_case1:
+  je _switch191_case7
+  jmp _switch191_default
+  jmp _switch191_exit
+_switch191_case0:
+_switch191_case1:
 ; format_p++; 
                  
   lea d, [bp + -3] ; $format_p
@@ -11173,7 +10804,7 @@ _switch193_case1:
   mov [d], b
   dec b
 ; if(*format_p == 'd' || *format_p == 'i') 
-_if194_cond:
+_if192_cond:
                  
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -11212,8 +10843,8 @@ _if194_cond:
   pop a
 ; --- END LOGICAL OR
   cmp b, 0
-  je _if194_else
-_if194_TRUE:
+  je _if192_else
+_if192_TRUE:
 ; print_signed_long(*(long *)p); 
                  
 ; --- START FUNCTION CALL
@@ -11233,10 +10864,10 @@ _if194_TRUE:
   call print_signed_long
   add sp, 4
 ; --- END FUNCTION CALL
-  jmp _if194_exit
-_if194_else:
+  jmp _if192_exit
+_if192_else:
 ; if(*format_p == 'u') 
-_if195_cond:
+_if193_cond:
                  
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -11254,8 +10885,8 @@ _if195_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if195_else
-_if195_TRUE:
+  je _if193_else
+_if193_TRUE:
 ; print_unsigned_long(*(unsigned long *)p); 
                  
 ; --- START FUNCTION CALL
@@ -11275,10 +10906,10 @@ _if195_TRUE:
   call print_unsigned_long
   add sp, 4
 ; --- END FUNCTION CALL
-  jmp _if195_exit
-_if195_else:
+  jmp _if193_exit
+_if193_else:
 ; if(*format_p == 'x') 
-_if196_cond:
+_if194_cond:
                  
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -11296,8 +10927,8 @@ _if196_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if196_else
-_if196_TRUE:
+  je _if194_else
+_if194_TRUE:
 ; printx32(*(long int *)p); 
                  
 ; --- START FUNCTION CALL
@@ -11317,21 +10948,21 @@ _if196_TRUE:
   call printx32
   add sp, 4
 ; --- END FUNCTION CALL
-  jmp _if196_exit
-_if196_else:
+  jmp _if194_exit
+_if194_else:
 ; err("Unexpected format in printf."); 
                  
 ; --- START FUNCTION CALL
                  
-  mov b, _s81 ; "Unexpected format in printf."
+  mov b, _s82 ; "Unexpected format in printf."
   swp b
   push b
   call err
   add sp, 2
 ; --- END FUNCTION CALL
-_if196_exit:
-_if195_exit:
 _if194_exit:
+_if193_exit:
+_if192_exit:
 ; p = p + 4; 
   lea d, [bp + -1] ; $p
   push d
@@ -11349,9 +10980,9 @@ _if194_exit:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch193_exit ; case break
-_switch193_case2:
-_switch193_case3:
+  jmp _switch191_exit ; case break
+_switch191_case2:
+_switch191_case3:
 ; print_signed(*(int*)p); 
                  
 ; --- START FUNCTION CALL
@@ -11384,8 +11015,8 @@ _switch193_case3:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch193_exit ; case break
-_switch193_case4:
+  jmp _switch191_exit ; case break
+_switch191_case4:
 ; print_unsigned(*(unsigned int*)p); 
                  
 ; --- START FUNCTION CALL
@@ -11418,8 +11049,8 @@ _switch193_case4:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch193_exit ; case break
-_switch193_case5:
+  jmp _switch191_exit ; case break
+_switch191_case5:
 ; printx16(*(int*)p); 
                  
 ; --- START FUNCTION CALL
@@ -11452,8 +11083,8 @@ _switch193_case5:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch193_exit ; case break
-_switch193_case6:
+  jmp _switch191_exit ; case break
+_switch191_case6:
 ; putchar(*(char*)p); 
                  
 ; --- START FUNCTION CALL
@@ -11486,8 +11117,8 @@ _switch193_case6:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch193_exit ; case break
-_switch193_case7:
+  jmp _switch191_exit ; case break
+_switch191_case7:
 ; print(*(char**)p); 
                  
 ; --- START FUNCTION CALL
@@ -11519,19 +11150,19 @@ _switch193_case7:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch193_exit ; case break
-_switch193_default:
+  jmp _switch191_exit ; case break
+_switch191_default:
 ; print("Error: Unknown argument type.\n"); 
                  
 ; --- START FUNCTION CALL
                  
-  mov b, _s82 ; "Error: Unknown argument type.\n"
+  mov b, _s83 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-_switch193_exit:
+_switch191_exit:
 ; format_p++; 
                  
   lea d, [bp + -3] ; $format_p
@@ -11541,8 +11172,8 @@ _switch193_exit:
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
-  jmp _if192_exit
-_if192_else:
+  jmp _if190_exit
+_if190_else:
 ; putchar(*format_p); 
                  
 ; --- START FUNCTION CALL
@@ -11567,11 +11198,11 @@ _if192_else:
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
-_if192_exit:
-_if191_exit:
-_for190_update:
-  jmp _for190_cond
-_for190_exit:
+_if190_exit:
+_if189_exit:
+_for188_update:
+  jmp _for188_cond
+_for188_exit:
   leave
   ret
 
@@ -11590,7 +11221,7 @@ print_signed_long:
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
 ; if (num < 0) { 
-_if197_cond:
+_if195_cond:
                  
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -11608,8 +11239,8 @@ _if197_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if197_else
-_if197_TRUE:
+  je _if195_else
+_if195_TRUE:
 ; putchar('-'); 
                  
 ; --- START FUNCTION CALL
@@ -11637,10 +11268,10 @@ _if197_TRUE:
   mov [d], b
   mov b, c
   mov [d + 2], b
-  jmp _if197_exit
-_if197_else:
+  jmp _if195_exit
+_if195_else:
 ; if (num == 0) { 
-_if198_cond:
+_if196_cond:
                  
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -11658,8 +11289,8 @@ _if198_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if198_exit
-_if198_TRUE:
+  je _if196_exit
+_if196_TRUE:
 ; putchar('0'); 
                  
 ; --- START FUNCTION CALL
@@ -11672,11 +11303,11 @@ _if198_TRUE:
 ; return; 
   leave
   ret
-  jmp _if198_exit
-_if198_exit:
-_if197_exit:
+  jmp _if196_exit
+_if196_exit:
+_if195_exit:
 ; while (num > 0) { 
-_while199_cond:
+_while197_cond:
                  
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -11694,8 +11325,8 @@ _while199_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while199_exit
-_while199_block:
+  je _while197_exit
+_while197_block:
 ; digits[i] = '0' + (num % 10); 
   lea d, [bp + -9] ; $digits
   push a
@@ -11774,10 +11405,10 @@ _while199_block:
   lea d, [bp + -11] ; $i
   mov [d], b
   mov b, a
-  jmp _while199_cond
-_while199_exit:
+  jmp _while197_cond
+_while197_exit:
 ; while (i > 0) { 
-_while202_cond:
+_while200_cond:
                  
   lea d, [bp + -11] ; $i
   mov b, [d]
@@ -11791,8 +11422,8 @@ _while202_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while202_exit
-_while202_block:
+  je _while200_exit
+_while200_block:
 ; i--; 
                  
   lea d, [bp + -11] ; $i
@@ -11824,8 +11455,20 @@ _while202_block:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _while202_cond
-_while202_exit:
+  jmp _while200_cond
+_while200_exit:
+  leave
+  ret
+
+putchar:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  lea d, [bp + 5] ; $c
+  mov al, [d]
+  mov ah, al
+  mov al, 0
+  syscall sys_io      ; char in AH
+; --- END INLINE ASM SEGMENT
   leave
   ret
 
@@ -11843,7 +11486,7 @@ print_unsigned_long:
   pop d
   mov [d], b
 ; if(num == 0){ 
-_if203_cond:
+_if201_cond:
                  
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -11861,8 +11504,8 @@ _if203_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if203_exit
-_if203_TRUE:
+  je _if201_exit
+_if201_TRUE:
 ; putchar('0'); 
                  
 ; --- START FUNCTION CALL
@@ -11875,10 +11518,10 @@ _if203_TRUE:
 ; return; 
   leave
   ret
-  jmp _if203_exit
-_if203_exit:
+  jmp _if201_exit
+_if201_exit:
 ; while (num > 0) { 
-_while204_cond:
+_while202_cond:
                  
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
@@ -11896,8 +11539,8 @@ _while204_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while204_exit
-_while204_block:
+  je _while202_exit
+_while202_block:
 ; digits[i] = '0' + (num % 10); 
   lea d, [bp + -9] ; $digits
   push a
@@ -11976,10 +11619,10 @@ _while204_block:
   lea d, [bp + -11] ; $i
   mov [d], b
   mov b, a
-  jmp _while204_cond
-_while204_exit:
+  jmp _while202_cond
+_while202_exit:
 ; while (i > 0) { 
-_while207_cond:
+_while205_cond:
                  
   lea d, [bp + -11] ; $i
   mov b, [d]
@@ -11993,8 +11636,8 @@ _while207_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while207_exit
-_while207_block:
+  je _while205_exit
+_while205_block:
 ; i--; 
                  
   lea d, [bp + -11] ; $i
@@ -12026,8 +11669,8 @@ _while207_block:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _while207_cond
-_while207_exit:
+  jmp _while205_cond
+_while205_exit:
   leave
   ret
 
@@ -12121,7 +11764,7 @@ print_signed:
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
 ; if (num < 0) { 
-_if208_cond:
+_if206_cond:
                  
   lea d, [bp + 5] ; $num
   mov b, [d]
@@ -12135,8 +11778,8 @@ _if208_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if208_else
-_if208_TRUE:
+  je _if206_else
+_if206_TRUE:
 ; putchar('-'); 
                  
 ; --- START FUNCTION CALL
@@ -12156,10 +11799,10 @@ _if208_TRUE:
   neg b
   pop d
   mov [d], b
-  jmp _if208_exit
-_if208_else:
+  jmp _if206_exit
+_if206_else:
 ; if (num == 0) { 
-_if209_cond:
+_if207_cond:
                  
   lea d, [bp + 5] ; $num
   mov b, [d]
@@ -12173,8 +11816,8 @@ _if209_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if209_exit
-_if209_TRUE:
+  je _if207_exit
+_if207_TRUE:
 ; putchar('0'); 
                  
 ; --- START FUNCTION CALL
@@ -12187,11 +11830,11 @@ _if209_TRUE:
 ; return; 
   leave
   ret
-  jmp _if209_exit
-_if209_exit:
-_if208_exit:
+  jmp _if207_exit
+_if207_exit:
+_if206_exit:
 ; while (num > 0) { 
-_while210_cond:
+_while208_cond:
                  
   lea d, [bp + 5] ; $num
   mov b, [d]
@@ -12205,8 +11848,8 @@ _while210_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while210_exit
-_while210_block:
+  je _while208_exit
+_while208_block:
 ; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
@@ -12281,10 +11924,10 @@ _while210_block:
   lea d, [bp + -6] ; $i
   mov [d], b
   mov b, a
-  jmp _while210_cond
-_while210_exit:
+  jmp _while208_cond
+_while208_exit:
 ; while (i > 0) { 
-_while213_cond:
+_while211_cond:
                  
   lea d, [bp + -6] ; $i
   mov b, [d]
@@ -12298,8 +11941,8 @@ _while213_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while213_exit
-_while213_block:
+  je _while211_exit
+_while211_block:
 ; i--; 
                  
   lea d, [bp + -6] ; $i
@@ -12331,8 +11974,8 @@ _while213_block:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _while213_cond
-_while213_exit:
+  jmp _while211_cond
+_while211_exit:
   leave
   ret
 
@@ -12350,7 +11993,7 @@ print_unsigned:
   pop d
   mov [d], b
 ; if(num == 0){ 
-_if214_cond:
+_if212_cond:
                  
   lea d, [bp + 5] ; $num
   mov b, [d]
@@ -12364,8 +12007,8 @@ _if214_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if214_exit
-_if214_TRUE:
+  je _if212_exit
+_if212_TRUE:
 ; putchar('0'); 
                  
 ; --- START FUNCTION CALL
@@ -12378,10 +12021,10 @@ _if214_TRUE:
 ; return; 
   leave
   ret
-  jmp _if214_exit
-_if214_exit:
+  jmp _if212_exit
+_if212_exit:
 ; while (num > 0) { 
-_while215_cond:
+_while213_cond:
                  
   lea d, [bp + 5] ; $num
   mov b, [d]
@@ -12395,8 +12038,8 @@ _while215_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while215_exit
-_while215_block:
+  je _while213_exit
+_while213_block:
 ; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
@@ -12471,10 +12114,10 @@ _while215_block:
   lea d, [bp + -6] ; $i
   mov [d], b
   mov b, a
-  jmp _while215_cond
-_while215_exit:
+  jmp _while213_cond
+_while213_exit:
 ; while (i > 0) { 
-_while218_cond:
+_while216_cond:
                  
   lea d, [bp + -6] ; $i
   mov b, [d]
@@ -12488,8 +12131,8 @@ _while218_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while218_exit
-_while218_block:
+  je _while216_exit
+_while216_block:
 ; i--; 
                  
   lea d, [bp + -6] ; $i
@@ -12521,8 +12164,288 @@ _while218_block:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _while218_cond
-_while218_exit:
+  jmp _while216_cond
+_while216_exit:
+  leave
+  ret
+
+printx16:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  lea d, [bp + 5] ; $hex
+  mov b, [d]
+print_u16x_printx16:
+  push bl
+  mov bl, bh
+  call _itoa_printx16        ; convert bh to char in A
+  mov bl, al        ; save al
+  mov al, 0
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
+  mov al, 0
+  syscall sys_io        ; display AL
+  pop bl
+  call _itoa_printx16        ; convert bh to char in A
+  mov bl, al        ; save al
+  mov al, 0
+  syscall sys_io        ; display AH
+  mov ah, bl        ; retrieve al
+  mov al, 0
+  syscall sys_io        ; display AL
+; --- END INLINE ASM SEGMENT
+; return; 
+  leave
+  ret
+; --- BEGIN INLINE ASM SEGMENT
+_itoa_printx16:
+  push d
+  push b
+  mov bh, 0
+  shr bl, 4  
+  mov d, b
+  mov al, [d + s_hex_digits_printx16]
+  mov ah, al
+  pop b
+  push b
+  mov bh, 0
+  and bl, $0F
+  mov d, b
+  mov al, [d + s_hex_digits_printx16]
+  pop b
+  pop d
+  ret
+s_hex_digits_printx16:    .db "0123456789ABCDEF"  
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+exit:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  syscall sys_terminate_proc
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+strcpy:
+  enter 0 ; (push bp; mov bp, sp)
+; char *psrc; 
+  sub sp, 2
+; char *pdest; 
+  sub sp, 2
+; psrc = src; 
+  lea d, [bp + -1] ; $psrc
+  push d
+                 
+  lea d, [bp + 7] ; $src
+  mov b, [d]
+  mov c, 0
+  pop d
+  mov [d], b
+; pdest = dest; 
+  lea d, [bp + -3] ; $pdest
+  push d
+                 
+  lea d, [bp + 5] ; $dest
+  mov b, [d]
+  mov c, 0
+  pop d
+  mov [d], b
+; while(*psrc) *pdest++ = *psrc++; 
+_while217_cond:
+                 
+  lea d, [bp + -1] ; $psrc
+  mov b, [d]
+  mov c, 0
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+  mov c, 0
+  cmp b, 0
+  je _while217_exit
+_while217_block:
+; *pdest++ = *psrc++; 
+  lea d, [bp + -3] ; $pdest
+  mov b, [d]
+  mov c, 0
+  inc b
+  lea d, [bp + -3] ; $pdest
+  mov [d], b
+  dec b
+  push b
+                 
+  lea d, [bp + -1] ; $psrc
+  mov b, [d]
+  mov c, 0
+  inc b
+  lea d, [bp + -1] ; $psrc
+  mov [d], b
+  dec b
+  mov d, b
+  mov bl, [d]
+  mov bh, 0
+  mov c, 0
+  pop d
+  mov [d], bl
+  jmp _while217_cond
+_while217_exit:
+; *pdest = '\0'; 
+  lea d, [bp + -3] ; $pdest
+  mov b, [d]
+  mov c, 0
+  push b
+                 
+  mov32 cb, $00000000
+  pop d
+  mov [d], bl
+  leave
+  ret
+
+strcat:
+  enter 0 ; (push bp; mov bp, sp)
+; int dest_len; 
+  sub sp, 2
+; int i; 
+  sub sp, 2
+; dest_len = strlen(dest); 
+  lea d, [bp + -1] ; $dest_len
+  push d
+                 
+; --- START FUNCTION CALL
+                 
+  lea d, [bp + 5] ; $dest
+  mov b, [d]
+  mov c, 0
+  swp b
+  push b
+  call strlen
+  add sp, 2
+; --- END FUNCTION CALL
+  pop d
+  mov [d], b
+; for (i = 0; src[i] != 0; i=i+1) { 
+_for218_init:
+  lea d, [bp + -3] ; $i
+  push d
+                 
+  mov32 cb, $00000000
+  pop d
+  mov [d], b
+_for218_cond:
+                 
+  lea d, [bp + 7] ; $src
+  mov d, [d]
+  push a
+  push d
+                 
+  lea d, [bp + -3] ; $i
+  mov b, [d]
+  mov c, 0
+  pop d
+  mma 1 ; mov a, 1; mul a b; add d, b
+  pop a
+  mov bl, [d]
+  mov bh, 0
+  mov c, 0
+; --- START RELATIONAL
+  push a
+  mov a, b
+  mov32 cb, $00000000
+  cmp a, b
+  sneq ; !=
+  pop a
+; --- END RELATIONAL
+  cmp b, 0
+  je _for218_exit
+_for218_block:
+; dest[dest_len + i] = src[i]; 
+  lea d, [bp + 5] ; $dest
+  mov d, [d]
+  push a
+  push d
+                 
+  lea d, [bp + -1] ; $dest_len
+  mov b, [d]
+  mov c, 0
+; --- START TERMS
+  push a
+  mov a, b
+  lea d, [bp + -3] ; $i
+  mov b, [d]
+  mov c, 0
+  add b, a
+  pop a
+; --- END TERMS
+  pop d
+  mma 1 ; mov a, 1; mul a b; add d, b
+  pop a
+  push d
+                 
+  lea d, [bp + 7] ; $src
+  mov d, [d]
+  push a
+  push d
+                 
+  lea d, [bp + -3] ; $i
+  mov b, [d]
+  mov c, 0
+  pop d
+  mma 1 ; mov a, 1; mul a b; add d, b
+  pop a
+  mov bl, [d]
+  mov bh, 0
+  mov c, 0
+  pop d
+  mov [d], bl
+_for218_update:
+  lea d, [bp + -3] ; $i
+  push d
+                 
+  lea d, [bp + -3] ; $i
+  mov b, [d]
+  mov c, 0
+; --- START TERMS
+  push a
+  mov a, b
+  mov32 cb, $00000001
+  add b, a
+  pop a
+; --- END TERMS
+  pop d
+  mov [d], b
+  jmp _for218_cond
+_for218_exit:
+; dest[dest_len + i] = 0; 
+  lea d, [bp + 5] ; $dest
+  mov d, [d]
+  push a
+  push d
+                 
+  lea d, [bp + -1] ; $dest_len
+  mov b, [d]
+  mov c, 0
+; --- START TERMS
+  push a
+  mov a, b
+  lea d, [bp + -3] ; $i
+  mov b, [d]
+  mov c, 0
+  add b, a
+  pop a
+; --- END TERMS
+  pop d
+  mma 1 ; mov a, 1; mul a b; add d, b
+  pop a
+  push d
+                 
+  mov32 cb, $00000000
+  pop d
+  mov [d], bl
+; return dest; 
+                 
+  lea d, [bp + 5] ; $dest
+  mov b, [d]
+  mov c, 0
   leave
   ret
 
@@ -12628,7 +12551,7 @@ _s20: .db ".", 0
 _s21: .db "\nDone.\n", 0
 _s22: .db "Org: %s\n", 0
 _s23: .db "\nLabels list:\n", 0
-_s24: .db ": ", 0
+_s24: .db "%s: %x\n", 0
 _s25: .db " .", 0
 _s26: .db " ", 0
 _s27: .db "Maximum number of operands per instruction is 2.", 0
@@ -12679,14 +12602,15 @@ _s71: .db "define", 0
 _s72: .db "Label does not exist: ", 0
 _s73: .db "Closing single quotes expected.", 0
 _s74: .db "Double quotes expected", 0
-_s75: .db "TOKEN ERROR. Prog: ", 0
-_s76: .db ", ProgVal: ", 0
-_s77: .db "\n Text after prog: \n", 0
-_s78: .db "\nError: ", 0
-_s79: .db "Cannot push prog. Stack overflow.", 0
-_s80: .db "Cannot pop prog. Stack overflow.", 0
-_s81: .db "Unexpected format in printf.", 0
-_s82: .db "Error: Unknown argument type.\n", 0
+_s75: .db "TOKEN ERROR. Prog: %x\n", 0
+_s76: .db "ProgVal: %x", 0
+_s77: .db "\n Text after prog: %s\n", 0
+_s78: .db "\nError: %s\n", 0
+_s79: .db "\nError: %s %s\n", 0
+_s80: .db "Cannot push prog. Stack overflow.", 0
+_s81: .db "Cannot pop prog. Stack overflow.", 0
+_s82: .db "Unexpected format in printf.", 0
+_s83: .db "Error: Unknown argument type.\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

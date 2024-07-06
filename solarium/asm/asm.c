@@ -258,10 +258,7 @@ void label_directive_scan(){
   printf("Org: %s\n", _org);
   print("\nLabels list:\n");
   for(i = 0; label_table[i].name[0]; i++){
-    print(label_table[i].name);
-    print(": ");
-    printx16(label_table[i].address);
-    print("\n");
+    printf("%s: %x\n", label_table[i].name, label_table[i].address);
   }
   print("\n");
 }
@@ -910,10 +907,9 @@ void get(){
   *t = '\0';
 
   if(toktype == TYPE_UNDEF){
-    print("TOKEN ERROR. Prog: "); printx16((int)(prog-program)); 
-    print(", ProgVal: "); putchar(*prog); 
-    print("\n Text after prog: \n");
-    print(prog);
+    printf("TOKEN ERROR. Prog: %x\n", (int)(prog-program)); 
+    printf("ProgVal: %x", *prog); 
+    printf("\n Text after prog: %s\n", prog);
     exit();
   }
 }
@@ -979,17 +975,12 @@ void convert_constant(){
 }
 
 void error(char *msg){
-  print("\nError: ");
-  print(msg);
-  print("\n");
+  printf("\nError: %s\n", msg);
   exit();
 }
 
 void error_s(char *msg, char *param){
-  print("\nError: ");
-  print(msg);
-  print(param);
-  print("\n");
+  printf("\nError: %s %s\n", msg, param);
   exit();
 }
 
