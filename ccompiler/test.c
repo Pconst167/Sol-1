@@ -16,7 +16,7 @@ struct s1 mys1;
 
 #define str "hello world"
 
-void main(){
+static void main(){
   struct s1 mys2 = mys1;
 
     str;

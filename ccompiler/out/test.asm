@@ -22,7 +22,7 @@ main:
   mov c, 7
   rep movsb
 ; --- END LOCAL VAR INITIALIZATION
-; "hello world"; 
+; "hello world"   ; 
                
   mov b, _s0 ; "hello world"
   syscall sys_terminate_proc

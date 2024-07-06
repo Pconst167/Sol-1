@@ -45,7 +45,7 @@
 0031   0434             cmd_cat_write:
 0032   0434 07 D6 04    	call get_token
 0033   0437 FD 4D 79 06 	mov si, tokstr
-0034   043B FD 4F 89 0B 	mov di, transient_area + 1
+0034   043B FD 4F 88 0B 	mov di, transient_area
 0035   043F 07 E5 07    	call _strcpy				; copy filename
 0036   0442 3B 88 0B    	mov d, transient_area
 0037   0445 19 05       	mov al, 5

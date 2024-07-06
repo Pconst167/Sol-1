@@ -235,6 +235,7 @@ typedef struct {
   int      goto_labels_table_tos;
   uint8_t  has_var_args;
   uint8_t  num_fixed_args;
+  t_bool   is_static;
 } t_function;
 
 typedef struct{

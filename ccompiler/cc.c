@@ -1160,13 +1160,14 @@ int8_t type_detected(void){
     curr_token.tok == SHORT    || curr_token.tok == STATIC   ||
     curr_token.tok == ENUM     || curr_token.tok == UNION    ||
     curr_token.tok == REGISTER || curr_token.tok == VOLATILE || 
-    search_typedef(curr_token.token_str) != -1 
+    curr_token.tok == STATIC   || search_typedef(curr_token.token_str) != -1 
   ){
     while(
       curr_token.tok == CONST    || curr_token.tok == STATIC   || 
       curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED ||
       curr_token.tok == LONG     || curr_token.tok == SHORT    ||
-      curr_token.tok == REGISTER || curr_token.tok == VOLATILE
+      curr_token.tok == REGISTER || curr_token.tok == VOLATILE ||
+      curr_token.tok == STATIC
     ){
       get();
     }
@@ -2223,13 +2224,22 @@ void declare_func(void){
   if(function_table_tos == MAX_USER_FUNC - 1) error(ERR_FATAL, "Maximum number of function declarations exceeded. Max: %d", MAX_USER_FUNC);
 
   get();
+  if(curr_token.tok == STATIC){
+    function_table[function_table_tos].is_static = TRUE;
+    get();
+  }
+  else 
+    function_table[function_table_tos].is_static = FALSE;
+
   if((typedef_id = search_typedef(curr_token.token_str)) != -1){
     function_table[function_table_tos].return_type = typedef_table[typedef_id].type;
   }
   else{
     function_table[function_table_tos].return_type.sign_modifier = SIGNMOD_SIGNED; // set as signed by default
     function_table[function_table_tos].return_type.size_modifier = SIZEMOD_NORMAL; 
-    while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || curr_token.tok == SHORT || curr_token.tok == LONG){
+    while(curr_token.tok == SIGNED || curr_token.tok == UNSIGNED || 
+          curr_token.tok == SHORT || curr_token.tok == LONG
+    ){
            if(curr_token.tok == SIGNED)   function_table[function_table_tos].return_type.sign_modifier = SIGNMOD_SIGNED;
       else if(curr_token.tok == UNSIGNED) function_table[function_table_tos].return_type.sign_modifier = SIGNMOD_UNSIGNED;
       else if(curr_token.tok == SHORT)    function_table[function_table_tos].return_type.size_modifier = SIZEMOD_SHORT;
