@@ -1035,10 +1035,10 @@ int hex_to_int(char *hex_string) {
 
 int loadfile(char *filename, char *destination){
   asm{
-    ccmovd, destination
+    ccmovd destination
     mov a, [d]
     mov di, a
-    ccmovd, filename
+    ccmovd filename
     mov d, [d]
     mov al, 20
     syscall sys_filesystem

@@ -9921,10 +9921,10 @@ _for172_exit:
 loadfile:
   enter 0 ; (push bp; mov bp, sp)
 ; --- BEGIN INLINE ASM SEGMENT
-  meta mov d, destination
+  lea d, [bp + 7] ; $destination
   mov a, [d]
   mov di, a
-  meta mov d, filename
+  lea d, [bp + 5] ; $filename
   mov d, [d]
   mov al, 20
   syscall sys_filesystem
