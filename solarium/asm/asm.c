@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <ctype.h>
+
 #define DEFAULT_ORG 1024
 #define ID_LEN 32
 #define MAX_LABELS 16
@@ -252,7 +255,7 @@ void label_directive_scan(){
     }
   }
   print("\nDone.\n");
-  print_info2("Org: ", _org, "\n");
+  printf("Org: %s\n", _org);
   print("\nLabels list:\n");
   for(i = 0; label_table[i].name[0]; i++){
     print(label_table[i].name);
@@ -436,8 +439,7 @@ void parse_instr(char emit_override){
     }
     emit_byte(op.opcode, emit_override);
     if(!emit_override){
-      printx16(old_pc); print(" ("); printu(instr_len); print(") : ");
-      print(code_line); putchar('\n');
+      printf("%x(%d): %s\n", old_pc, instr_len, code_line);
     }
   } 
   else{
@@ -512,8 +514,7 @@ void parse_instr(char emit_override){
         }
       }
       if(!emit_override){
-        printx16(old_pc); print(" ("); printu(instr_len); print(") : ");
-        print(code_line); putchar('\n');
+        printf("%x(%d): %s\n", old_pc, instr_len, code_line);
       }
       break;
     }
@@ -562,22 +563,21 @@ void parse_text(){
 }
 
 void debug(){
-  print("\n");
-  print("Prog Offset: "); printx16(prog-program); print(", ");
-  print("Prog value : "); putchar(*prog); print("\n");
-  print("Token       : "); print(token); print(", ");
-  print("Tok: "); printu(tok); print(", ");
-  print("Toktype: "); printu(toktype); print("\n");
-  print("StringConst : "); print(string_const); print("\n");
-  print("PC          : "); printx16(pc);
-  print("\n");
+  printf("\n");
+  printf("Prog Offset: %x\n", prog - program);
+  printf("Prog value : %c\n", *prog);
+  printf("Token      : %s\n", token);
+  printf("Tok        : %d\n", tok);
+  printf("Toktype    : %d\n", toktype);
+  printf("StringConst: %s\n", string_const);
+  printf("PC         : %x\n", pc);
 }
 
 void display_output(){
   int i;
   unsigned char *p;
   print("\nAssembly complete.\n");
-  print_info2("Program size: ", prog_size, "\n");
+  printf("Program size: %d\n", prog_size);
 
 
   print("Listing: \n");
@@ -660,23 +660,6 @@ int label_exists(char *name){
   }
   return -1;
 }
-
-void print_info(char *s1, char *s2, char *s3){
-  if(print_information){
-    print(s1);
-    print(s2);
-    print(s3);
-  }
-}
-
-void print_info2(char *s1, unsigned int n, char *s2){
-  if(print_information){
-    print(s1);
-    printu(n);
-    print(s2);
-  }
-}
-
 
 struct t_opcode search_opcode(char *what_opcode){
   char opcode_str[24];
@@ -1031,22 +1014,6 @@ int search_keyword(char *keyword){
   return -1;
 }
 
-void printx16(int hex) {
-  asm{
-    meta mov d, hex
-    mov b, [d]
-    call print_u16x
-  }
-}
-
-void printx8(char hex) {
-  asm{
-    meta mov d, hex
-    mov bl, [d]
-    call print_u8x
-  }
-}
-
 int hex_to_int(char *hex_string) {
   int value = 0;
   int i;
@@ -1066,99 +1033,17 @@ int hex_to_int(char *hex_string) {
   return value;
 }
 
-int atoi(char *str) {
-    int result = 0;  // Initialize result
-    int sign = 1;    // Initialize sign as positive
-
-    // Skip leading whitespaces
-    while (*str == ' ') str++;
-
-    // Check for optional sign
-    if (*str == '-' || *str == '+') {
-        if (*str == '-') sign = -1;
-        str++;
-    }
-
-    // Loop through all digits of input string
-    while (*str >= '0' && *str <= '9') {
-        result = result * 10 + (*str - '0');
-        str++;
-    }
-
-    return sign * result;
-}
-
-void printu(unsigned int num) {
-  char digits[5];
-  int i;
-  i = 0;
-  if(num == 0){
-    putchar('0');
-    return;
-  }
-  while (num > 0) {
-      digits[i] = '0' + (num % 10);
-      num = num / 10;
-      i++;
-  }
-  // Print the digits in reverse order using putchar()
-  while (i > 0) {
-      i--;
-      putchar(digits[i]);
-  }
-}
-
-
-void putchar(char c){
-  asm{
-    meta mov d, c
-    mov al, [d]
-    mov ah, al
-    call _putchar
-  }
-}
-
-
-void print(char *s){
-  asm{
-    meta mov d, s
-    mov a, [d]
-    mov d, a
-    call _puts
-  }
-}
-
-
 int loadfile(char *filename, char *destination){
   asm{
-    meta mov d, destination
+    ccmovd, destination
     mov a, [d]
     mov di, a
-    meta mov d, filename
+    ccmovd, filename
     mov d, [d]
     mov al, 20
     syscall sys_filesystem
   }
 }
-
-// heap and heap_top are defined internally by the compiler
-// so that 'heap' is the last variable in memory and therefore can grow upwards
-// towards the stack
-char *alloc(int bytes){
-  heap_top = heap_top + bytes;
-  return heap_top - bytes;
-}
-
-char *free(int bytes){
-  return heap_top = heap_top - bytes;
-}
-
-void exit(){
-  asm{
-    syscall sys_terminate_proc
-  }
-}
-
 
 int exp(int base, int exp){
   int i;
@@ -1167,68 +1052,4 @@ int exp(int base, int exp){
     result = result * base;
   }
   return result;
-}
-
-void strcpy(char *dest, char *src) {
-  char *psrc;
-  char *pdest;
-  psrc = src;
-  pdest = dest;
-
-  while(*psrc){
-    *pdest = *psrc;
-    pdest++;
-    psrc++;
-  }
-  *pdest = '\0';
-}
-
-int strcmp(char *s1, char *s2) {
-  while (*s1 && (*s1 == *s2)) {
-    s1++;
-    s2++;
-  }
-  return *s1 - *s2;
-}
-
-char *strcat(char *dest, char *src) {
-    int dest_len;
-    int i;
-    dest_len = strlen(dest);
-    
-    for (i = 0; src[i] != 0; i=i+1) {
-        dest[dest_len + i] = src[i];
-    }
-    dest[dest_len + i] = 0;
-    
-    return dest;
-}
-
-int strlen(char *str) {
-    int length;
-    length = 0;
-    
-    while (str[length] != 0) {
-        length++;
-    }
-    
-    return length;
-}
-
-char is_space(char c){
-  return c == ' ' || c == '\t' || c == '\n' || c == '\r';
-}
-
-char is_digit(char c){
-  return c >= '0' && c <= '9';
-}
-
-char is_alpha(char c){
-  return(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_');
-}
-
-void include_stdio_asm(){
-  asm{
-    .include "lib/stdio.asm"
-  }
 }

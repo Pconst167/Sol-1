@@ -3934,7 +3934,7 @@
 2538   16F5 07          sys_uart0_lcr:      .db $07 ; 8 data bits, 2 stop bit, no parity
 2539   16F6 01          sys_uart0_inten:    .db 1
 2540   16F7 00          sys_uart0_fifoen:   .db 0
-2541   16F8 0C          sys_uart0_div0:     .db 12  ;
+2541   16F8 06          sys_uart0_div0:     .db 6  ;
 2542   16F9 00          sys_uart0_div1:     .db 0   ; default baud = 9600
 2543   16FA             
 2544   16FA 00          nbr_active_procs:   .db 0
