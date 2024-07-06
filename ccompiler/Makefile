@@ -4,9 +4,6 @@ LIBS = -lm -lncurses
 
 BASENAME = $(notdir $(basename $(FILE)))
 
-.PHONY: compile_file clean
-
-compile_file: cc
 
 cc: cc.o char.o debug.o search.o
 	$(CC) $(CFLAGS) -o cc cc.o char.o debug.o search.o $(LIBS)

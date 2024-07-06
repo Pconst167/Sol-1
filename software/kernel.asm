@@ -2538,8 +2538,17 @@ sys_echo_on:        .db 1
 sys_uart0_lcr:      .db $07 ; 8 data bits, 2 stop bit, no parity
 sys_uart0_inten:    .db 1
 sys_uart0_fifoen:   .db 0
-sys_uart0_div0:     .db 6  ;
-sys_uart0_div1:     .db 0   ; default baud = 19200
+sys_uart0_div0:     .db 12  ;
+sys_uart0_div1:     .db 0   ; default baud = 9600
+; Baud  Divisor
+; 50    2304
+; 110   1047
+; 300    384
+; 600    192
+; 1200    96
+; 9600    12
+; 19200    6
+; 38400    3
 
 nbr_active_procs:   .db 0
 active_proc_index:  .db 1

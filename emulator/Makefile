@@ -2,12 +2,9 @@ CC = gcc
 CFLAGS = -std=c99
 LIBS = -lm
 
-.PHONY: compile_file
+.PHONY: compile
 
-compile_file: emulator
-	./emulator $(FILE)
-
-emulator: emulator.c def.h
+compile: emulator.c def.h
 	$(CC) $(CFLAGS) -o emulator emulator.c $(LIBS)
 
 
