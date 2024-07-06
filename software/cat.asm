@@ -33,8 +33,6 @@ cmd_cat_write:
 	mov si, tokstr
 	mov di, transient_area + 1
 	call _strcpy				; copy filename
-	mov d, transient_area + 512		; get text contents
-	call _gettxt
 	mov d, transient_area
 	mov al, 5
 	syscall sys_filesystem

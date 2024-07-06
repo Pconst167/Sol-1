@@ -15,8 +15,8 @@ jmp [@+bl]          0bfd
 jmp @               0a 
 lodstat .           0c 
 stostat .           0d 
-lodflgs .           0e 
-stoflgs .           0f 
+lodflg .            0e 
+stoflg .            0f 
 lodmsk .            0efd
 stomsk .            0ffd
 
@@ -73,6 +73,7 @@ mov ah,bh           25
 mov ah,gl           23fd
 mov ah,gh           24fd
 mov ah,#            22 
+mov ah,[d]          b5fd
 mov b,a             27 
 mov b,c             28 
 mov b,d             2d 
@@ -80,7 +81,7 @@ mov b,g             27fd
 mov b,[d]           2a 
 mov b,[d+@]         2b 
 mov b,[bp+@]        2c 
-mov b,[bp+d]        2d 
+mov b,[bp+d]        26fd
 mov b,[sp+@]        2cfd
 mov b,[@]           29 
 mov b,@             26 
@@ -117,6 +118,7 @@ mov d,b             74
 mov d,c             3cfd
 mov d,g             3bfd
 mov d,@             3b 
+mov [d],ah          b7fd
 mov [d],al          3e 
 mov [d],bl          3efd
 mov [d+@],al        3f 
@@ -377,7 +379,8 @@ mov g,b             79fd
 mov g,c             7afd
 mov g,d             7bfd
 mov g,si            7cfd
-mov g,di            7dfd
+mov g,di            7efd
+mov g,@             22fd
 
 sti .               0cfd
 cli .               0dfd
@@ -456,3 +459,4 @@ sgu .               81fd
 sgeu .              82fd
 sand a,b            a7fd
 sor a,b             a8fd
+

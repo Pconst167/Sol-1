@@ -490,5 +490,5 @@ MOV CL, BL                      31FD  2    NOP      1
 MOV CL, BH                      32FD  2    NOP      1
 MOV CL, AH                      33FD  2    NOP      1
 
-MOV BL, CL
+MOV BL, CL                      
 MOV BL, CH
