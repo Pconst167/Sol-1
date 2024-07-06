@@ -37,7 +37,7 @@ void show(void){
 		for(j = 0; j < WIDTH; j++){
 			currState[i][j] == '@' ? printf("@ ") : printf(". ");
 		}
-		putchar(10);
+		printf("\n\r");
 	}
 }
 
