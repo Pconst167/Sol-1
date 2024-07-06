@@ -1852,7 +1852,7 @@
 1821   0B11 3B 11 17    	mov d, s_dataentry
 1822   0B14 07 CA 11    	call _puts
 1823   0B17 3B FF 25    	mov d, transient_area + 512			; pointer to file contents
-1824   0B1A 07 A5 10    	call _gets
+1824   0B1A 07 30 11    	call _gettxt
 1825   0B1D 07 FD 0F    	call _strlen						; get length of file
 1826   0B20 D9          	push c							; save length
 1827   0B21 19 01       	mov al, 1

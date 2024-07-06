@@ -1821,7 +1821,7 @@ fs_mktxt_found_null:
 	mov d, s_dataentry
 	call _puts
 	mov d, transient_area + 512			; pointer to file contents
-	call _gets
+	call _gettxt
 	call _strlen						; get length of file
 	push c							; save length
 	mov al, 1
