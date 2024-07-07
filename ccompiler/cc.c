@@ -845,39 +845,45 @@ void insert_runtime() {
 }
 
 int is_register(char *name){
-  if(!strcmp(name, "a") ||
+  if(!strcmp(name, "a")  ||
      !strcmp(name, "ah") ||
      !strcmp(name, "al") ||
-     !strcmp(name, "b") ||
+     !strcmp(name, "b")  ||
      !strcmp(name, "bh") ||
      !strcmp(name, "bl") ||
-     !strcmp(name, "c") ||
+     !strcmp(name, "c")  ||
      !strcmp(name, "ch") ||
      !strcmp(name, "cl") ||
-     !strcmp(name, "d") ||
+     !strcmp(name, "d")  ||
      !strcmp(name, "dh") ||
      !strcmp(name, "dl") ||
      !strcmp(name, "gh") ||
      !strcmp(name, "gl") ||
-     !strcmp(name, "g") ||
+     !strcmp(name, "g")  ||
      !strcmp(name, "si") ||
      !strcmp(name, "di") ||
      !strcmp(name, "sp") ||
      !strcmp(name, "bp")
   )
     return 1;
-  else return 0;
+  else 
+    return 0;
 }
 
 void declare_heap_global_var(){
   printf("declaring the heap memory...");
   strcpy(global_var_table[global_var_tos].name, "heap_top");
   global_var_table[global_var_tos].type.primitive_type = DT_CHAR;
-  global_var_table[global_var_tos].type.is_constant = FALSE;
-  global_var_table[global_var_tos].type.dims[0] = 0;
-  global_var_table[global_var_tos].type.ind_level = 1;
-  global_var_table[global_var_tos].type.size_modifier = SIZEMOD_NORMAL;
-  global_var_table[global_var_tos].type.sign_modifier = SIGNMOD_UNSIGNED;
+  global_var_table[global_var_tos].type.is_constant    = FALSE;
+  global_var_table[global_var_tos].type.dims[0]        = 0;
+  global_var_table[global_var_tos].type.ind_level      = 1;
+  global_var_table[global_var_tos].type.size_modifier  = SIZEMOD_NORMAL;
+  global_var_table[global_var_tos].type.sign_modifier  = SIGNMOD_UNSIGNED;
+  global_var_table[global_var_tos].type.is_func_ptr    = FALSE;
+  global_var_table[global_var_tos].is_parameter        = FALSE;
+  global_var_table[global_var_tos].is_volatile         = FALSE;
+  global_var_table[global_var_tos].is_static           = FALSE;
+  global_var_table[global_var_tos].is_register         = FALSE;
   global_var_tos++;
   printf(" OK\n");
 }
@@ -4596,8 +4602,8 @@ void parse_function_call(int func_id){
     }
     else if(arg_type.primitive_type == DT_CHAR){
       if(curr_arg_num > function_table[func_id].num_fixed_args) {
-        emitln("  swp a");
-        emitln("  push b"); 
+        //emitln("  swp b");
+        emitln("  push bl"); 
       }
       else 
         emitln("  push bl");
@@ -4909,7 +4915,7 @@ t_type emit_var_addr_into_d(char *var_name){
     type = global_var_table[var_id].type;
     if(is_array(global_var_table[var_id].type) || 
         (global_var_table[var_id].type.primitive_type == DT_STRUCT && global_var_table[var_id].type.ind_level == 0) ||
-        (global_var_table[var_id].type.primitive_type == DT_UNION && global_var_table[var_id].type.ind_level == 0)
+        (global_var_table[var_id].type.primitive_type == DT_UNION  && global_var_table[var_id].type.ind_level == 0)
     ) 
       emitln("  mov d, _%s_data ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
     else
@@ -5450,42 +5456,122 @@ int find_array_initialization_size(t_size_modifier size_modifier){
 
 void emit_global_var_initialization(t_var *var){
   char temp[512 + 8];
-  int j, braces;
+  int number_initialized_bytes, braces;
+  char var_base_addr[ID_LEN];
 
   if(is_array(var->type)){
-    emit_data("_%s_data: \n", var->name);
+    emit_data("_%s_data:\n", var->name);
     emit_data_dbdw(var->type);
-    j = 0;
+    number_initialized_bytes = 0;
     braces = 0;
     for(;;){
       get();
       if(curr_token.tok == OPENING_BRACE) braces++;
       else if(curr_token.tok == CLOSING_BRACE) braces--;
-      else if(curr_token.tok_type == CHAR_CONST)
-        emit_data("$%02x,", (uint8_t)curr_token.string_const[0]);
-      else if(curr_token.tok_type == INTEGER_CONST){
-        if(var->type.primitive_type == DT_INT)
-          emit_data("$%04x,", (uint16_t)curr_token.int_const);
-        else
-          emit_data("$%02x,", (uint8_t)curr_token.int_const);
-      }
-      else if(curr_token.tok_type == STRING_CONST){
-        emit_data("_s%u, ", add_string_data(curr_token.string_const));
-      }
-      else error(ERR_FATAL, "Unknown data type");
-      if(curr_token.tok_type == CHAR_CONST || curr_token.tok_type == INTEGER_CONST || curr_token.tok_type == STRING_CONST) j++;
+      else switch(var->type.primitive_type){
+        case DT_VOID: // todo: fix cases where data is other than pointers
+        case DT_CHAR:
+          if(var->type.ind_level > 0){
+            number_initialized_bytes += 1;
+            if(curr_token.tok_type == INTEGER_CONST){
+              emit_data("$%04x,", (uint16_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == STRING_CONST){
+              emit_data("_s%u, ", add_string_data(curr_token.string_const));
+            }
+            else if(curr_token.tok_type == IDENTIFIER){
+              error(ERR_FATAL, "initializing a global var with an identifier name is not implemented yet");
+            }
+            else error(ERR_FATAL, "unknown data type in char array initialization");
+          }
+          else{
+            if(curr_token.tok_type == CHAR_CONST){
+              number_initialized_bytes += 1;
+              emit_data("$%02x,", (uint8_t)curr_token.string_const[0]);
+            }
+            else if(curr_token.tok_type == INTEGER_CONST){
+              number_initialized_bytes += 1;
+              emit_data("$%02x,", (uint8_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == STRING_CONST){
+              emit_data("%s, ", curr_token.token_str);
+              number_initialized_bytes += strlen(curr_token.string_const);
+            }
+            else error(ERR_FATAL, "unknown data type in char array initialization");
+          }
+          break;
+
+        case DT_INT:
+          number_initialized_bytes += 1;
+          if(var->type.ind_level > 0){
+            if(curr_token.tok_type == INTEGER_CONST){
+              emit_data("$%04x,", (uint16_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == STRING_CONST){
+              emit_data("_s%u, ", add_string_data(curr_token.string_const));
+            }
+            else if(curr_token.tok_type == IDENTIFIER){
+              error(ERR_FATAL, "initializing a global var with an identifier name is not implemented yet");
+            }
+            else error(ERR_FATAL, "unknown data type in char array initialization");
+          }
+          else{
+            if(curr_token.tok_type == CHAR_CONST){
+              emit_data("$%04x,", (uint16_t)curr_token.string_const[0]);
+            }
+            else if(curr_token.tok_type == INTEGER_CONST){
+              emit_data("$%04x,", (uint16_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == STRING_CONST){
+              emit_data("_s%u, ", add_string_data(curr_token.string_const));
+            }
+            else error(ERR_FATAL, "unknown data type in char array initialization");
+          }
+          break;
+
+        case DT_STRUCT:
+        case DT_UNION:
+          number_initialized_bytes++;
+          if(var->type.ind_level > 0){
+            if(curr_token.tok_type == INTEGER_CONST){
+              emit_data("$%04x,", (uint16_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == IDENTIFIER){
+              error(ERR_FATAL, "initializing a global var with an identifier name is not implemented yet");
+            }
+            else error(ERR_FATAL, "unknown data type in char array initialization");
+          }
+          else{
+            if(curr_token.tok_type == CHAR_CONST){
+              emit_data("$%02x,", (uint8_t)curr_token.string_const[0]);
+            }
+            else if(curr_token.tok_type == INTEGER_CONST){
+              emit_data("$%04x,", (uint16_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == STRING_CONST){
+              emit_data("_s%u, ", add_string_data(curr_token.string_const));
+            }
+            else error(ERR_FATAL, "unknown data type in char array initialization");
+          }
+        break;  
+
+        default:
+      } 
       if(braces == 0) break;
       get();
       if(curr_token.tok != COMMA) back();
-      if(j % 30 == 0){ // split into multiple lines due to TASM limitation of how many items per .dw directive
+      if(number_initialized_bytes + 1 % 32 == 0){ // split into multiple lines due to TASM limitation of how many items per .dw directive
         emit_data("\n");
         emit_data_dbdw(var->type);
       }
     }
     // fill in the remaining unitialized array values with 0's 
     emit_data("\n");
-    if(get_total_type_size(var->type) - j * get_primitive_type_size(var->type) > 0){
-      emit_data(".fill %u, 0\n", get_total_type_size(var->type) - j * get_primitive_type_size(var->type));
+    if(var->type.primitive_type == DT_STRUCT){ // todo: temporary solution here.  counting each struct element here is wrong but that is whats happening for now. so in the end we divide by the number of elements so we get the actual number of structs initialized
+      number_initialized_bytes = number_initialized_bytes / get_num_struct_elements(var->type.struct_enum_union_id);
+    }
+    if(get_total_type_size(var->type) - number_initialized_bytes * get_primitive_type_size(var->type) > 0){
+      emit_data(".fill %u, 0\n", get_total_type_size(var->type) - number_initialized_bytes * get_primitive_type_size(var->type));
     }
   }
   else{
@@ -5537,6 +5623,12 @@ void emit_global_var_initialization(t_var *var){
     }
   }
   get();
+}
+
+int get_num_struct_elements(int struct_id){
+  int i;
+  for(i = 0; *struct_table[struct_id].elements[i].name; i++);
+  return i;
 }
 
 void emit_static_var_initialization(t_var *var){
@@ -5619,8 +5711,9 @@ uint8_t type_is_32bit(t_type type){
 }
 
 void emit_data_dbdw(t_type type){
-  if((type.ind_level >  0 && type.primitive_type == DT_CHAR && type.dims[0] == 0)
-  || (type.ind_level == 0 && type.primitive_type == DT_CHAR)
+  if((type.ind_level == 1 && type.primitive_type == DT_CHAR && type.dims[0] == 0) || 
+     (type.ind_level == 0 && type.primitive_type == DT_CHAR) ||
+     (type.primitive_type == DT_STRUCT && type.ind_level == 0)
   ) 
     emit_data(".db ");
   else

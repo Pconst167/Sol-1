@@ -1,26 +1,19 @@
-struct sss{
-  char yy;
-  int uu;
+#include <stdio.h>
 
-};
-
-
-struct s1{
+struct t_s{
   char c;
   int i;
-  int y;
-  int x;
+  char *m;
 };
 
-struct s1 mys1;
-
-#define str "hello world"
+struct t_s my_struct[10] = {
+  {'a', 123, "hello"},
+  {'b', 456, "world"}  
+};
 
 static void main(){
-  struct s1 mys2 = mys1;
 
-    str;
-
+  printf("%c %d %s\n", 'H', 123, "hello");
 }
 
 

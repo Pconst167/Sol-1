@@ -6,8 +6,10 @@
 #define	RAND_MAX	2147483647
 #define EOF -1
 
-void exit(){
+void exit(int status){
   asm{
+    ccmovd status
+    mov b, [d] ; return value
     syscall sys_terminate_proc
   }
 }
@@ -42,7 +44,6 @@ int atoi(char *str) {
     return sign * result;
 }
 
-
 /* Return a random integer between 0 and RAND_MAX inclusive.  */
 int rand(){
   int  sec;
@@ -57,8 +58,6 @@ int rand(){
   return sec;
 }
 
-
-
 // heap and heap_top are defined internally by the compiler
 // so that 'heap' is the last variable in memory and therefore can grow upwards
 // towards the stack
@@ -71,4 +70,3 @@ char *alloc(int bytes){
 char *free(int bytes){
   return heap_top = heap_top - bytes;
 }
-

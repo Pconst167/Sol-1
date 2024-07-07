@@ -1,6 +1,5 @@
 #include <stddef.h>
 #include <string.h>
-#include <stdlib.h>
 
 #define NULL 0
 #define ARG_BUFF 0x0000
