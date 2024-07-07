@@ -48,6 +48,13 @@ _if2_cond:
   cmp b, 0
   je _if2_else
 _if2_TRUE:
+; putchar('\n'); 
+; --- START FUNCTION CALL
+  mov32 cb, $0000000a
+  push bl
+  call putchar
+  add sp, 1
+; --- END FUNCTION CALL
 ; display_map(); 
 ; --- START FUNCTION CALL
   call display_map
@@ -86,7 +93,7 @@ display_map:
 ; int rows, cols; 
   sub sp, 2
   sub sp, 2
-; for(rows = 0; rows <  30        ; rows++){ 
+; for(rows = 0; rows <  20        ; rows++){ 
 _for4_init:
   lea d, [bp + -1] ; $rows
   push d
@@ -100,7 +107,7 @@ _for4_cond:
 ; --- START RELATIONAL
   push a
   mov a, b
-  mov32 cb, $0000001e
+  mov32 cb, $00000014
   cmp a, b
   slt ; < (signed)
   pop a
@@ -108,7 +115,7 @@ _for4_cond:
   cmp b, 0
   je _for4_exit
 _for4_block:
-; for(cols = 0; cols <   40        ; cols++){ 
+; for(cols = 0; cols <   38        ; cols++){ 
 _for5_init:
   lea d, [bp + -3] ; $cols
   push d
@@ -122,7 +129,7 @@ _for5_cond:
 ; --- START RELATIONAL
   push a
   mov a, b
-  mov32 cb, $00000028
+  mov32 cb, $00000026
   cmp a, b
   slt ; < (signed)
   pop a
@@ -130,7 +137,7 @@ _for5_cond:
   cmp b, 0
   je _for5_exit
 _for5_block:
-; if(map[rows][cols].tile_type == land){ 
+; if(map[rows][cols].zone_type == unzoned){ 
 _if6_cond:
   mov d, _map_data ; $map
   push a
@@ -139,7 +146,38 @@ _if6_cond:
   mov b, [d]
   mov c, 0
   pop d
-  mma 240 ; mov a, 240; mul a, b; add d, b
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  lea d, [bp + -3] ; $cols
+  mov b, [d]
+  mov c, 0
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  mov b, [d]
+  mov c, 0
+; --- START RELATIONAL
+  push a
+  mov a, b
+  mov32 cb, $0 ; enum element: unzoned
+  cmp a, b
+  seq ; ==
+  pop a
+; --- END RELATIONAL
+  cmp b, 0
+  je _if6_else
+_if6_TRUE:
+; if(map[rows][cols].tile_type == land){ 
+_if7_cond:
+  mov d, _map_data ; $map
+  push a
+  push d
+  lea d, [bp + -1] ; $rows
+  mov b, [d]
+  mov c, 0
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
   push d
   lea d, [bp + -3] ; $cols
   mov b, [d]
@@ -159,8 +197,8 @@ _if6_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if6_else
-_if6_TRUE:
+  je _if7_else
+_if7_TRUE:
 ; putchar('.'); 
 ; --- START FUNCTION CALL
   mov32 cb, $0000002e
@@ -168,10 +206,10 @@ _if6_TRUE:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _if6_exit
-_if6_else:
+  jmp _if7_exit
+_if7_else:
 ; if(map[rows][cols].tile_type == water){ 
-_if7_cond:
+_if8_cond:
   mov d, _map_data ; $map
   push a
   push d
@@ -179,7 +217,7 @@ _if7_cond:
   mov b, [d]
   mov c, 0
   pop d
-  mma 240 ; mov a, 240; mul a, b; add d, b
+  mma 228 ; mov a, 228; mul a, b; add d, b
   push d
   lea d, [bp + -3] ; $cols
   mov b, [d]
@@ -199,8 +237,8 @@ _if7_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if7_else
-_if7_TRUE:
+  je _if8_exit
+_if8_TRUE:
 ; putchar('~'); 
 ; --- START FUNCTION CALL
   mov32 cb, $0000007e
@@ -208,10 +246,13 @@ _if7_TRUE:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _if7_exit
-_if7_else:
-; if(map[rows][cols].structure_type == road){ 
-_if8_cond:
+  jmp _if8_exit
+_if8_exit:
+_if7_exit:
+  jmp _if6_exit
+_if6_else:
+; if(map[rows][cols].zone_type == residential){ 
+_if9_cond:
   mov d, _map_data ; $map
   push a
   push d
@@ -219,7 +260,7 @@ _if8_cond:
   mov b, [d]
   mov c, 0
   pop d
-  mma 240 ; mov a, 240; mul a, b; add d, b
+  mma 228 ; mov a, 228; mul a, b; add d, b
   push d
   lea d, [bp + -3] ; $cols
   mov b, [d]
@@ -227,30 +268,111 @@ _if8_cond:
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   pop a
-  add d, 4
+  add d, 2
   mov b, [d]
   mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
-  mov32 cb, $0 ; enum element: road
+  mov32 cb, $1 ; enum element: residential
   cmp a, b
   seq ; ==
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if8_exit
-_if8_TRUE:
-; putchar('='); 
+  je _if9_else
+_if9_TRUE:
+; putchar('R'); 
 ; --- START FUNCTION CALL
-  mov32 cb, $0000003d
+  mov32 cb, $00000052
   push bl
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _if8_exit
-_if8_exit:
-_if7_exit:
+  jmp _if9_exit
+_if9_else:
+; if(map[rows][cols].zone_type == commercial){ 
+_if10_cond:
+  mov d, _map_data ; $map
+  push a
+  push d
+  lea d, [bp + -1] ; $rows
+  mov b, [d]
+  mov c, 0
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  lea d, [bp + -3] ; $cols
+  mov b, [d]
+  mov c, 0
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  mov b, [d]
+  mov c, 0
+; --- START RELATIONAL
+  push a
+  mov a, b
+  mov32 cb, $2 ; enum element: commercial
+  cmp a, b
+  seq ; ==
+  pop a
+; --- END RELATIONAL
+  cmp b, 0
+  je _if10_else
+_if10_TRUE:
+; putchar('C'); 
+; --- START FUNCTION CALL
+  mov32 cb, $00000043
+  push bl
+  call putchar
+  add sp, 1
+; --- END FUNCTION CALL
+  jmp _if10_exit
+_if10_else:
+; if(map[rows][cols].zone_type == industrial){ 
+_if11_cond:
+  mov d, _map_data ; $map
+  push a
+  push d
+  lea d, [bp + -1] ; $rows
+  mov b, [d]
+  mov c, 0
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  lea d, [bp + -3] ; $cols
+  mov b, [d]
+  mov c, 0
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  mov b, [d]
+  mov c, 0
+; --- START RELATIONAL
+  push a
+  mov a, b
+  mov32 cb, $3 ; enum element: industrial
+  cmp a, b
+  seq ; ==
+  pop a
+; --- END RELATIONAL
+  cmp b, 0
+  je _if11_exit
+_if11_TRUE:
+; putchar('I'); 
+; --- START FUNCTION CALL
+  mov32 cb, $00000049
+  push bl
+  call putchar
+  add sp, 1
+; --- END FUNCTION CALL
+  jmp _if11_exit
+_if11_exit:
+_if10_exit:
+_if9_exit:
 _if6_exit:
 _for5_update:
   lea d, [bp + -3] ; $cols
@@ -289,50 +411,50 @@ initialize_terrain:
 ; int i, j; 
   sub sp, 2
   sub sp, 2
-; for(i = 0; i <  30        ; i++){ 
-_for9_init:
+; for(i = 0; i <  20        ; i++){ 
+_for12_init:
   lea d, [bp + -1] ; $i
   push d
   mov32 cb, $00000000
   pop d
   mov [d], b
-_for9_cond:
+_for12_cond:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
-  mov32 cb, $0000001e
+  mov32 cb, $00000014
   cmp a, b
   slt ; < (signed)
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _for9_exit
-_for9_block:
-; for(j = 0; j <   40        ; j++){ 
-_for10_init:
+  je _for12_exit
+_for12_block:
+; for(j = 0; j <   38        ; j++){ 
+_for13_init:
   lea d, [bp + -3] ; $j
   push d
   mov32 cb, $00000000
   pop d
   mov [d], b
-_for10_cond:
+_for13_cond:
   lea d, [bp + -3] ; $j
   mov b, [d]
   mov c, 0
 ; --- START RELATIONAL
   push a
   mov a, b
-  mov32 cb, $00000028
+  mov32 cb, $00000026
   cmp a, b
   slt ; < (signed)
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _for10_exit
-_for10_block:
+  je _for13_exit
+_for13_block:
 ; map[i][j].structure_type = -1; 
   mov d, _map_data ; $map
   push a
@@ -341,7 +463,7 @@ _for10_block:
   mov b, [d]
   mov c, 0
   pop d
-  mma 240 ; mov a, 240; mul a, b; add d, b
+  mma 228 ; mov a, 228; mul a, b; add d, b
   push d
   lea d, [bp + -3] ; $j
   mov b, [d]
@@ -362,7 +484,7 @@ _for10_block:
   mov b, [d]
   mov c, 0
   pop d
-  mma 240 ; mov a, 240; mul a, b; add d, b
+  mma 228 ; mov a, 228; mul a, b; add d, b
   push d
   lea d, [bp + -3] ; $j
   mov b, [d]
@@ -375,69 +497,6 @@ _for10_block:
   mov32 cb, $0 ; enum element: unzoned
   pop d
   mov [d], b
-; if((i + j) % 5 == 0) 
-_if11_cond:
-  lea d, [bp + -1] ; $i
-  mov b, [d]
-  mov c, 0
-; --- START TERMS
-  push a
-  mov a, b
-  lea d, [bp + -3] ; $j
-  mov b, [d]
-  mov c, 0
-  add b, a
-  pop a
-; --- END TERMS
-; --- START FACTORS
-  push a
-  push g
-  mov a, b
-  mov g, c
-  mov32 cb, $00000005
-  push g ; save 'g' as the div instruction uses it
-  div a, b ; %, a: quotient, b: remainder
-  mov a, b
-  pop g
-  mov c, g
-  mov b, a
-  pop g
-  pop a
-; --- END FACTORS
-; --- START RELATIONAL
-  push a
-  mov a, b
-  mov32 cb, $00000000
-  cmp a, b
-  seq ; ==
-  pop a
-; --- END RELATIONAL
-  cmp b, 0
-  je _if11_else
-_if11_TRUE:
-; map[i][j].tile_type = water; 
-  mov d, _map_data ; $map
-  push a
-  push d
-  lea d, [bp + -1] ; $i
-  mov b, [d]
-  mov c, 0
-  pop d
-  mma 240 ; mov a, 240; mul a, b; add d, b
-  push d
-  lea d, [bp + -3] ; $j
-  mov b, [d]
-  mov c, 0
-  pop d
-  mma 6 ; mov a, 6; mul a, b; add d, b
-  pop a
-  add d, 0
-  push d
-  mov32 cb, $1 ; enum element: water
-  pop d
-  mov [d], b
-  jmp _if11_exit
-_if11_else:
 ; map[i][j].tile_type = land; 
   mov d, _map_data ; $map
   push a
@@ -446,7 +505,7 @@ _if11_else:
   mov b, [d]
   mov c, 0
   pop d
-  mma 240 ; mov a, 240; mul a, b; add d, b
+  mma 228 ; mov a, 228; mul a, b; add d, b
   push d
   lea d, [bp + -3] ; $j
   mov b, [d]
@@ -459,8 +518,7 @@ _if11_else:
   mov32 cb, $0 ; enum element: land
   pop d
   mov [d], b
-_if11_exit:
-_for10_update:
+_for13_update:
   lea d, [bp + -3] ; $j
   mov b, [d]
   mov c, 0
@@ -469,9 +527,9 @@ _for10_update:
   lea d, [bp + -3] ; $j
   mov [d], b
   mov b, a
-  jmp _for10_cond
-_for10_exit:
-_for9_update:
+  jmp _for13_cond
+_for13_exit:
+_for12_update:
   lea d, [bp + -1] ; $i
   mov b, [d]
   mov c, 0
@@ -480,8 +538,195 @@ _for9_update:
   lea d, [bp + -1] ; $i
   mov [d], b
   mov b, a
-  jmp _for9_cond
-_for9_exit:
+  jmp _for12_cond
+_for12_exit:
+; map[5][5].zone_type  = residential; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $00000005
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000005
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $1 ; enum element: residential
+  pop d
+  mov [d], b
+; map[5][6].zone_type  = residential; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $00000005
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000006
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $1 ; enum element: residential
+  pop d
+  mov [d], b
+; map[5][7].zone_type  = residential; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $00000005
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000007
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $1 ; enum element: residential
+  pop d
+  mov [d], b
+; map[6][5].zone_type  = commercial; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $00000006
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000005
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $2 ; enum element: commercial
+  pop d
+  mov [d], b
+; map[6][6].zone_type  = commercial; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $00000006
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000006
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $2 ; enum element: commercial
+  pop d
+  mov [d], b
+; map[6][7].zone_type  = commercial; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $00000006
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000007
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $2 ; enum element: commercial
+  pop d
+  mov [d], b
+; map[6][8].zone_type  = commercial; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $00000006
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000008
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $2 ; enum element: commercial
+  pop d
+  mov [d], b
+; map[10][5].zone_type = industrial; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $0000000a
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000005
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $3 ; enum element: industrial
+  pop d
+  mov [d], b
+; map[10][6].zone_type = industrial; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $0000000a
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000006
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $3 ; enum element: industrial
+  pop d
+  mov [d], b
+; map[11][6].zone_type = industrial; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $0000000b
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000006
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $3 ; enum element: industrial
+  pop d
+  mov [d], b
+; map[11][7].zone_type = industrial; 
+  mov d, _map_data ; $map
+  push a
+  push d
+  mov32 cb, $0000000b
+  pop d
+  mma 228 ; mov a, 228; mul a, b; add d, b
+  push d
+  mov32 cb, $00000007
+  pop d
+  mma 6 ; mov a, 6; mul a, b; add d, b
+  pop a
+  add d, 2
+  push d
+  mov32 cb, $3 ; enum element: industrial
+  pop d
+  mov [d], b
   leave
   ret
 
@@ -1953,7 +2198,7 @@ getchar:
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
-_map_data: .fill 7200, 0
+_map_data: .fill 4560, 0
 _s0: .db "\nd: display map\nq: quit\nenter choice: ", 0
 _s1: .db "Unexpected format in printf.", 0
 _s2: .db "Error: Unknown argument type.\n", 0

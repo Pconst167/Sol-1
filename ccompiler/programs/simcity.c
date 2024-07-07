@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_COLS  40
-#define NUM_ROWS 30
+#define NUM_COLS  38
+#define NUM_ROWS 20
 
 enum tile_type {land, water};
-enum zone_type {unzoned, residential, comercial, industrial};
+enum zone_type {unzoned, residential, commercial, industrial};
 enum structure_type {road, small_house0, small_house1, large_house0};
 
 typedef enum tile_type tiletype;
@@ -29,6 +29,7 @@ void main(){
     printf("\nd: display map\nq: quit\nenter choice: ");
     c = getchar();
     if(c == 'd'){
+      putchar('\n');
       display_map();
     }
     else if(c == 'q'){
@@ -42,15 +43,23 @@ void display_map(){
 
   for(rows = 0; rows < NUM_ROWS; rows++){
     for(cols = 0; cols < NUM_COLS; cols++){
-      if(map[rows][cols].tile_type == land){
-        putchar('.');
-      }
-      else if(map[rows][cols].tile_type == water){
-        putchar('~');
+      if(map[rows][cols].zone_type == unzoned){
+        if(map[rows][cols].tile_type == land){
+          putchar('.');
+        }
+        else if(map[rows][cols].tile_type == water){
+          putchar('~');
+        }
       }
       else{
-        if(map[rows][cols].structure_type == road){
-          putchar('=');
+        if(map[rows][cols].zone_type == residential){
+          putchar('R');
+        }
+        else if(map[rows][cols].zone_type == commercial){
+          putchar('C');
+        }
+        else if(map[rows][cols].zone_type == industrial){
+          putchar('I');
         }
       }
     }
@@ -65,10 +74,19 @@ void initialize_terrain(){
     for(j = 0; j < NUM_COLS; j++){
       map[i][j].structure_type = -1;
       map[i][j].zone_type = unzoned;
-      if((i + j) % 5 == 0)
-        map[i][j].tile_type = water;
-      else 
-        map[i][j].tile_type = land;
+      map[i][j].tile_type = land;
     }
   }
+
+  map[5][5].zone_type  = residential;
+  map[5][6].zone_type  = residential;
+  map[5][7].zone_type  = residential;
+  map[6][5].zone_type  = commercial;
+  map[6][6].zone_type  = commercial;
+  map[6][7].zone_type  = commercial;
+  map[6][8].zone_type  = commercial;
+  map[10][5].zone_type = industrial;
+  map[10][6].zone_type = industrial;
+  map[11][6].zone_type = industrial;
+  map[11][7].zone_type = industrial;
 }
