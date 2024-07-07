@@ -1547,6 +1547,19 @@ int declare_struct(){
         }
         new_struct.elements[element_tos].type.struct_enum_union_id = struct_enum_union_id;
       }
+      else if(new_struct.elements[element_tos].type.primitive_type == DT_ENUM){
+        get();
+        if(curr_token.tok == OPENING_BRACE){ // internal enum declaration!
+          back();
+          struct_enum_union_id = declare_enum();
+          get(); // get element name
+        }
+        else{
+          if((struct_enum_union_id = search_enum(curr_token.token_str)) == -1) error(ERR_FATAL, "undeclared enum");
+          get();
+        }
+        new_struct.elements[element_tos].type.struct_enum_union_id = struct_enum_union_id;
+      }
       else get();
 
       new_struct.elements[element_tos].type.ind_level = 0;
@@ -1607,6 +1620,17 @@ int insert_var_name(char *name, char array[32][ID_LEN]){
     }
   }
   error(ERR_FATAL, "array that contains names of local variables is too small to hold the next variable name.");
+}
+
+int undeclare_local(char *name){
+  int i;
+  for(i = 0; i < function_table[current_func_id].local_var_tos; i++){
+    if(!strcmp(function_table[current_func_id].local_vars[i].name, name)){
+      function_table[current_func_id].local_vars[i].name[0] = '\0';
+      return i; // return var index
+    }
+  }
+  return -1; // var not actually found
 }
 
 int declare_local(void){                        
@@ -3149,7 +3173,7 @@ t_type parse_assignment(){
         emitln("  mov [d + 2], b");
       }
     }
-    else if(var_type.primitive_type == DT_INT)
+    else if(var_type.primitive_type == DT_INT || var_type.primitive_type == DT_ENUM)
       emitln("  mov [d], b");
     else if(var_type.primitive_type == DT_CHAR)
       emitln("  mov [d], bl");
@@ -3214,21 +3238,21 @@ t_type parse_ternary_op(void){
   char *temp_prog, *temp_asm_p;
   t_type type1, type2, expr_out;
   t_type logical_or_result;
-  char s[256];
-  int len;
+  //char s[256];
+  //int len;
 
   temp_prog = prog;
   temp_asm_p = asm_p; // save current assembly output pointer
-  sprintf(s, "_ternary%d_cond:", highest_label_index + 1); // this is used to count the number of chars in the ternary operator label string
-  len = strlen(s);                                         // so that we can delete that label if there was no ternary operator afterall
+  //sprintf(s, "_ternary%d_cond:", highest_label_index + 1); // this is used to count the number of chars in the ternary operator label string
+  //len = strlen(s);                                         // so that we can delete that label if there was no ternary operator afterall
   emitln("_ternary%d_cond:", highest_label_index + 1); // +1 because we are emitting the label ahead
   logical_or_result = parse_logical_or(); // evaluate condition
   if(curr_token.tok != TERNARY_OP){
-    overwrite_with_spaces(temp_asm_p, len); // delete the ternary operator condition in the assembly file output
-    return logical_or_result;
-    //prog = temp_prog;
-    //asm_p = temp_asm_p; // recover asm output pointer
-    //return parse_logical_or();
+    //overwrite_with_spaces(temp_asm_p, len); // delete the ternary operator condition in the assembly file output
+    //return logical_or_result;
+    prog = temp_prog;
+    asm_p = temp_asm_p; // recover asm output pointer
+    return parse_logical_or();
   }
 
   // '?' was found
@@ -3747,6 +3771,7 @@ t_type parse_atomic(void){
   t_size_modifier size_modifier;
 
   get();
+
   if(curr_token.tok_type == STRING_CONST)
     expr_out = parse_string_const();
 
@@ -5183,7 +5208,7 @@ t_primitive_type get_primitive_type_from_tok(){
     case ENUM:
       return DT_ENUM;
     default:
-      error(ERR_FATAL, "Unknown data type (get_primitive_type_from_tok)");
+      error(ERR_FATAL, "Unknown data type: %s (get_primitive_type_from_tok)", curr_token.token_str);
   }
 }
 

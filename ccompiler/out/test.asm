@@ -1588,8 +1588,8 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
-_f: .fill 1, 0
-_i: .fill 2, 0
+_f: .db $41
+_i: .dw $001a
 _c_data: .fill 10, 0
 _m: .dw _c_data
 _ii: .dw $ef12

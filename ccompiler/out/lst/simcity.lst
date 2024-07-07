@@ -1,0 +1,3618 @@
+0001   0000             ; --- FILENAME: programs/simcity.c
+0002   0000             .include "lib/asm/kernel.exp"
+0001+  0000             text_org    .EQU  $0400
+0002+  0000             sys_bkpt         .EQU  $0000
+0003+  0000             sys_rtc          .EQU  $0001
+0004+  0000             sys_ide          .EQU  $0002
+0005+  0000             sys_io           .EQU  $0003
+0006+  0000             sys_filesystem   .EQU  $0004
+0007+  0000             sys_spawn_proc   .EQU  $0005
+0008+  0000             sys_list         .EQU  $0006
+0009+  0000             sys_datetime     .EQU  $0007
+0010+  0000             sys_reboot       .EQU  $0008
+0011+  0000             sys_pause_proc   .EQU  $0009
+0012+  0000             sys_resume_proc  .EQU  $000a
+0013+  0000             sys_terminate_proc .EQU  $000b
+0014+  0000             sys_system       .EQU  $000c
+0015+  0000             sys_boot_install .EQU  $000d
+0003   0000             .include "lib/asm/bios.exp"
+0001+  0000             BIOS_RESET_VECTOR .EQU  $01c0
+0002+  0000             IDE_buffer       .EQU  $8204
+0003+  0000             boot_origin      .EQU  $8004
+0004+  0000             bios_uart        .EQU  $0002
+0005+  0000             bios_ide         .EQU  $0003
+0004   0400             .org text_org
+0005   0400             
+0006   0400             ; --- BEGIN TEXT SEGMENT
+0007   0400             main:
+0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
+0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
+0010   0408             ; initialize_terrain(); 
+0011   0408             ; --- START FUNCTION CALL
+0012   0408 07 C8 04      call initialize_terrain
+0013   040B             ; display_map(); 
+0014   040B             ; --- START FUNCTION CALL
+0015   040B 07 10 04      call display_map
+0016   040E 05 0B         syscall sys_terminate_proc
+0017   0410             
+0018   0410             display_map:
+0019   0410 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0020   0413             ; int rows, cols; 
+0021   0413 52 02 00      sub sp, 2
+0022   0416 52 02 00      sub sp, 2
+0023   0419             ; for(rows = 0; rows <  30        ; rows++){ 
+0024   0419             _for1_init:
+0025   0419 FA FF FF      lea d, [bp + -1] ; $rows
+0026   041C DA            push d
+0027   041D FD 2E 00 00   mov32 cb, $00000000
+0027   0421 00 00 
+0028   0423 E7            pop d
+0029   0424 FD 43         mov [d], b
+0030   0426             _for1_cond:
+0031   0426 FA FF FF      lea d, [bp + -1] ; $rows
+0032   0429 2A            mov b, [d]
+0033   042A 38 00 00      mov c, 0
+0034   042D             ; --- START RELATIONAL
+0035   042D D7            push a
+0036   042E 11            mov a, b
+0037   042F FD 2E 1E 00   mov32 cb, $0000001e
+0037   0433 00 00 
+0038   0435 B0            cmp a, b
+0039   0436 FD 73         slt ; < (signed)
+0040   0438 E4            pop a
+0041   0439             ; --- END RELATIONAL
+0042   0439 C0 00 00      cmp b, 0
+0043   043C C6 C6 04      je _for1_exit
+0044   043F             _for1_block:
+0045   043F             ; for(cols = 0; cols <   40        ; cols++){ 
+0046   043F             _for2_init:
+0047   043F FA FD FF      lea d, [bp + -3] ; $cols
+0048   0442 DA            push d
+0049   0443 FD 2E 00 00   mov32 cb, $00000000
+0049   0447 00 00 
+0050   0449 E7            pop d
+0051   044A FD 43         mov [d], b
+0052   044C             _for2_cond:
+0053   044C FA FD FF      lea d, [bp + -3] ; $cols
+0054   044F 2A            mov b, [d]
+0055   0450 38 00 00      mov c, 0
+0056   0453             ; --- START RELATIONAL
+0057   0453 D7            push a
+0058   0454 11            mov a, b
+0059   0455 FD 2E 28 00   mov32 cb, $00000028
+0059   0459 00 00 
+0060   045B B0            cmp a, b
+0061   045C FD 73         slt ; < (signed)
+0062   045E E4            pop a
+0063   045F             ; --- END RELATIONAL
+0064   045F C0 00 00      cmp b, 0
+0065   0462 C6 A6 04      je _for2_exit
+0066   0465             _for2_block:
+0067   0465             ; printf("%d ", map[rows][cols].structure_type); 
+0068   0465             ; --- START FUNCTION CALL
+0069   0465 3B D6 0E      mov d, _map_data ; $map
+0070   0468 D7            push a
+0071   0469 DA            push d
+0072   046A FA FF FF      lea d, [bp + -1] ; $rows
+0073   046D 2A            mov b, [d]
+0074   046E 38 00 00      mov c, 0
+0075   0471 E7            pop d
+0076   0472 FD 13 F0 00   mma 240 ; mov a, 240; mul a, b; add d, b
+0077   0476 DA            push d
+0078   0477 FA FD FF      lea d, [bp + -3] ; $cols
+0079   047A 2A            mov b, [d]
+0080   047B 38 00 00      mov c, 0
+0081   047E E7            pop d
+0082   047F FD 13 06 00   mma 6 ; mov a, 6; mul a, b; add d, b
+0083   0483 E4            pop a
+0084   0484 58 04 00      add d, 4
+0085   0487 26 F6 2A      mov b, _s0 ; "%d "
+0086   048A FD AB         swp b
+0087   048C D8            push b
+0088   048D 07 C9 05      call printf
+0089   0490 51 04 00      add sp, 4
+0090   0493             ; --- END FUNCTION CALL
+0091   0493             _for2_update:
+0092   0493 FA FD FF      lea d, [bp + -3] ; $cols
+0093   0496 2A            mov b, [d]
+0094   0497 38 00 00      mov c, 0
+0095   049A 11            mov a, b
+0096   049B FD 77         inc b
+0097   049D FA FD FF      lea d, [bp + -3] ; $cols
+0098   04A0 FD 43         mov [d], b
+0099   04A2 27            mov b, a
+0100   04A3 0A 4C 04      jmp _for2_cond
+0101   04A6             _for2_exit:
+0102   04A6             ; putchar('\n'); 
+0103   04A6             ; --- START FUNCTION CALL
+0104   04A6 FD 2E 0A 00   mov32 cb, $0000000a
+0104   04AA 00 00 
+0105   04AC DD            push bl
+0106   04AD 07 4B 0A      call putchar
+0107   04B0 51 01 00      add sp, 1
+0108   04B3             ; --- END FUNCTION CALL
+0109   04B3             _for1_update:
+0110   04B3 FA FF FF      lea d, [bp + -1] ; $rows
+0111   04B6 2A            mov b, [d]
+0112   04B7 38 00 00      mov c, 0
+0113   04BA 11            mov a, b
+0114   04BB FD 77         inc b
+0115   04BD FA FF FF      lea d, [bp + -1] ; $rows
+0116   04C0 FD 43         mov [d], b
+0117   04C2 27            mov b, a
+0118   04C3 0A 26 04      jmp _for1_cond
+0119   04C6             _for1_exit:
+0120   04C6 F9            leave
+0121   04C7 09            ret
+0122   04C8             
+0123   04C8             initialize_terrain:
+0124   04C8 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0125   04CB             ; int i, j; 
+0126   04CB 52 02 00      sub sp, 2
+0127   04CE 52 02 00      sub sp, 2
+0128   04D1             ; for(i = 0; i <  30        ; i++){ 
+0129   04D1             _for3_init:
+0130   04D1 FA FF FF      lea d, [bp + -1] ; $i
+0131   04D4 DA            push d
+0132   04D5 FD 2E 00 00   mov32 cb, $00000000
+0132   04D9 00 00 
+0133   04DB E7            pop d
+0134   04DC FD 43         mov [d], b
+0135   04DE             _for3_cond:
+0136   04DE FA FF FF      lea d, [bp + -1] ; $i
+0137   04E1 2A            mov b, [d]
+0138   04E2 38 00 00      mov c, 0
+0139   04E5             ; --- START RELATIONAL
+0140   04E5 D7            push a
+0141   04E6 11            mov a, b
+0142   04E7 FD 2E 1E 00   mov32 cb, $0000001e
+0142   04EB 00 00 
+0143   04ED B0            cmp a, b
+0144   04EE FD 73         slt ; < (signed)
+0145   04F0 E4            pop a
+0146   04F1             ; --- END RELATIONAL
+0147   04F1 C0 00 00      cmp b, 0
+0148   04F4 C6 C7 05      je _for3_exit
+0149   04F7             _for3_block:
+0150   04F7             ; for(j = 0; j <   40        ; j++){ 
+0151   04F7             _for4_init:
+0152   04F7 FA FD FF      lea d, [bp + -3] ; $j
+0153   04FA DA            push d
+0154   04FB FD 2E 00 00   mov32 cb, $00000000
+0154   04FF 00 00 
+0155   0501 E7            pop d
+0156   0502 FD 43         mov [d], b
+0157   0504             _for4_cond:
+0158   0504 FA FD FF      lea d, [bp + -3] ; $j
+0159   0507 2A            mov b, [d]
+0160   0508 38 00 00      mov c, 0
+0161   050B             ; --- START RELATIONAL
+0162   050B D7            push a
+0163   050C 11            mov a, b
+0164   050D FD 2E 28 00   mov32 cb, $00000028
+0164   0511 00 00 
+0165   0513 B0            cmp a, b
+0166   0514 FD 73         slt ; < (signed)
+0167   0516 E4            pop a
+0168   0517             ; --- END RELATIONAL
+0169   0517 C0 00 00      cmp b, 0
+0170   051A C6 B4 05      je _for4_exit
+0171   051D             _for4_block:
+0172   051D             ; map[i][j].structure_type = -1; 
+0173   051D 3B D6 0E      mov d, _map_data ; $map
+0174   0520 D7            push a
+0175   0521 DA            push d
+0176   0522 FA FF FF      lea d, [bp + -1] ; $i
+0177   0525 2A            mov b, [d]
+0178   0526 38 00 00      mov c, 0
+0179   0529 E7            pop d
+0180   052A FD 13 F0 00   mma 240 ; mov a, 240; mul a, b; add d, b
+0181   052E DA            push d
+0182   052F FA FD FF      lea d, [bp + -3] ; $j
+0183   0532 2A            mov b, [d]
+0184   0533 38 00 00      mov c, 0
+0185   0536 E7            pop d
+0186   0537 FD 13 06 00   mma 6 ; mov a, 6; mul a, b; add d, b
+0187   053B E4            pop a
+0188   053C 58 04 00      add d, 4
+0189   053F DA            push d
+0190   0540 FD 2E FF FF   mov32 cb, $ffffffff
+0190   0544 FF FF 
+0191   0546 E7            pop d
+0192   0547 FD 43         mov [d], b
+0193   0549             ; map[i][j].zone_type = unzoned; 
+0194   0549 3B D6 0E      mov d, _map_data ; $map
+0195   054C D7            push a
+0196   054D DA            push d
+0197   054E FA FF FF      lea d, [bp + -1] ; $i
+0198   0551 2A            mov b, [d]
+0199   0552 38 00 00      mov c, 0
+0200   0555 E7            pop d
+0201   0556 FD 13 F0 00   mma 240 ; mov a, 240; mul a, b; add d, b
+0202   055A DA            push d
+0203   055B FA FD FF      lea d, [bp + -3] ; $j
+0204   055E 2A            mov b, [d]
+0205   055F 38 00 00      mov c, 0
+0206   0562 E7            pop d
+0207   0563 FD 13 06 00   mma 6 ; mov a, 6; mul a, b; add d, b
+0208   0567 E4            pop a
+0209   0568 58 02 00      add d, 2
+0210   056B DA            push d
+0211   056C FD 2E 00 00   mov32 cb, $0 ; enum element: unzoned
+0211   0570 00 00 
+0212   0572 E7            pop d
+0213   0573 FD 43         mov [d], b
+0214   0575             ; map[i][j].tile_type = land; 
+0215   0575 3B D6 0E      mov d, _map_data ; $map
+0216   0578 D7            push a
+0217   0579 DA            push d
+0218   057A FA FF FF      lea d, [bp + -1] ; $i
+0219   057D 2A            mov b, [d]
+0220   057E 38 00 00      mov c, 0
+0221   0581 E7            pop d
+0222   0582 FD 13 F0 00   mma 240 ; mov a, 240; mul a, b; add d, b
+0223   0586 DA            push d
+0224   0587 FA FD FF      lea d, [bp + -3] ; $j
+0225   058A 2A            mov b, [d]
+0226   058B 38 00 00      mov c, 0
+0227   058E E7            pop d
+0228   058F FD 13 06 00   mma 6 ; mov a, 6; mul a, b; add d, b
+0229   0593 E4            pop a
+0230   0594 58 00 00      add d, 0
+0231   0597 DA            push d
+0232   0598 FD 2E 00 00   mov32 cb, $0 ; enum element: land
+0232   059C 00 00 
+0233   059E E7            pop d
+0234   059F FD 43         mov [d], b
+0235   05A1             _for4_update:
+0236   05A1 FA FD FF      lea d, [bp + -3] ; $j
+0237   05A4 2A            mov b, [d]
+0238   05A5 38 00 00      mov c, 0
+0239   05A8 11            mov a, b
+0240   05A9 FD 77         inc b
+0241   05AB FA FD FF      lea d, [bp + -3] ; $j
+0242   05AE FD 43         mov [d], b
+0243   05B0 27            mov b, a
+0244   05B1 0A 04 05      jmp _for4_cond
+0245   05B4             _for4_exit:
+0246   05B4             _for3_update:
+0247   05B4 FA FF FF      lea d, [bp + -1] ; $i
+0248   05B7 2A            mov b, [d]
+0249   05B8 38 00 00      mov c, 0
+0250   05BB 11            mov a, b
+0251   05BC FD 77         inc b
+0252   05BE FA FF FF      lea d, [bp + -1] ; $i
+0253   05C1 FD 43         mov [d], b
+0254   05C3 27            mov b, a
+0255   05C4 0A DE 04      jmp _for3_cond
+0256   05C7             _for3_exit:
+0257   05C7 F9            leave
+0258   05C8 09            ret
+0259   05C9             
+0260   05C9             printf:
+0261   05C9 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0262   05CC             ; char *p, *format_p; 
+0263   05CC 52 02 00      sub sp, 2
+0264   05CF 52 02 00      sub sp, 2
+0265   05D2             ; format_p = format; 
+0266   05D2 FA FD FF      lea d, [bp + -3] ; $format_p
+0267   05D5 DA            push d
+0268   05D6 FA 05 00      lea d, [bp + 5] ; $format
+0269   05D9 2A            mov b, [d]
+0270   05DA 38 00 00      mov c, 0
+0271   05DD E7            pop d
+0272   05DE FD 43         mov [d], b
+0273   05E0             ; p = &format + 2; 
+0274   05E0 FA FF FF      lea d, [bp + -1] ; $p
+0275   05E3 DA            push d
+0276   05E4 FA 05 00      lea d, [bp + 5] ; $format
+0277   05E7 2D            mov b, d
+0278   05E8             ; --- START TERMS
+0279   05E8 D7            push a
+0280   05E9 11            mov a, b
+0281   05EA FD 2E 02 00   mov32 cb, $00000002
+0281   05EE 00 00 
+0282   05F0 56            add b, a
+0283   05F1 E4            pop a
+0284   05F2             ; --- END TERMS
+0285   05F2 E7            pop d
+0286   05F3 FD 43         mov [d], b
+0287   05F5             ; for(;;){ 
+0288   05F5             _for5_init:
+0289   05F5             _for5_cond:
+0290   05F5             _for5_block:
+0291   05F5             ; if(!*format_p) break; 
+0292   05F5             _if6_cond:
+0293   05F5 FA FD FF      lea d, [bp + -3] ; $format_p
+0294   05F8 2A            mov b, [d]
+0295   05F9 38 00 00      mov c, 0
+0296   05FC 74            mov d, b
+0297   05FD 32            mov bl, [d]
+0298   05FE A7 00         mov bh, 0
+0299   0600 38 00 00      mov c, 0
+0300   0603 C0 00 00      cmp b, 0
+0301   0606 FD 71         seq ; !
+0302   0608 C0 00 00      cmp b, 0
+0303   060B C6 14 06      je _if6_else
+0304   060E             _if6_TRUE:
+0305   060E             ; break; 
+0306   060E 0A C4 08      jmp _for5_exit ; for break
+0307   0611 0A C1 08      jmp _if6_exit
+0308   0614             _if6_else:
+0309   0614             ; if(*format_p == '%'){ 
+0310   0614             _if7_cond:
+0311   0614 FA FD FF      lea d, [bp + -3] ; $format_p
+0312   0617 2A            mov b, [d]
+0313   0618 38 00 00      mov c, 0
+0314   061B 74            mov d, b
+0315   061C 32            mov bl, [d]
+0316   061D A7 00         mov bh, 0
+0317   061F 38 00 00      mov c, 0
+0318   0622             ; --- START RELATIONAL
+0319   0622 D7            push a
+0320   0623 11            mov a, b
+0321   0624 FD 2E 25 00   mov32 cb, $00000025
+0321   0628 00 00 
+0322   062A B0            cmp a, b
+0323   062B FD 71         seq ; ==
+0324   062D E4            pop a
+0325   062E             ; --- END RELATIONAL
+0326   062E C0 00 00      cmp b, 0
+0327   0631 C6 9C 08      je _if7_else
+0328   0634             _if7_TRUE:
+0329   0634             ; format_p++; 
+0330   0634 FA FD FF      lea d, [bp + -3] ; $format_p
+0331   0637 2A            mov b, [d]
+0332   0638 38 00 00      mov c, 0
+0333   063B FD 77         inc b
+0334   063D FA FD FF      lea d, [bp + -3] ; $format_p
+0335   0640 FD 43         mov [d], b
+0336   0642 FD 7D         dec b
+0337   0644             ; switch(*format_p){ 
+0338   0644             _switch8_expr:
+0339   0644 FA FD FF      lea d, [bp + -3] ; $format_p
+0340   0647 2A            mov b, [d]
+0341   0648 38 00 00      mov c, 0
+0342   064B 74            mov d, b
+0343   064C 32            mov bl, [d]
+0344   064D A7 00         mov bh, 0
+0345   064F 38 00 00      mov c, 0
+0346   0652             _switch8_comparisons:
+0347   0652 C1 6C         cmp bl, $6c
+0348   0654 C6 80 06      je _switch8_case0
+0349   0657 C1 4C         cmp bl, $4c
+0350   0659 C6 80 06      je _switch8_case1
+0351   065C C1 64         cmp bl, $64
+0352   065E C6 90 07      je _switch8_case2
+0353   0661 C1 69         cmp bl, $69
+0354   0663 C6 90 07      je _switch8_case3
+0355   0666 C1 75         cmp bl, $75
+0356   0668 C6 C0 07      je _switch8_case4
+0357   066B C1 78         cmp bl, $78
+0358   066D C6 F0 07      je _switch8_case5
+0359   0670 C1 63         cmp bl, $63
+0360   0672 C6 20 08      je _switch8_case6
+0361   0675 C1 73         cmp bl, $73
+0362   0677 C6 50 08      je _switch8_case7
+0363   067A 0A 7D 08      jmp _switch8_default
+0364   067D 0A 89 08      jmp _switch8_exit
+0365   0680             _switch8_case0:
+0366   0680             _switch8_case1:
+0367   0680             ; format_p++; 
+0368   0680 FA FD FF      lea d, [bp + -3] ; $format_p
+0369   0683 2A            mov b, [d]
+0370   0684 38 00 00      mov c, 0
+0371   0687 FD 77         inc b
+0372   0689 FA FD FF      lea d, [bp + -3] ; $format_p
+0373   068C FD 43         mov [d], b
+0374   068E FD 7D         dec b
+0375   0690             ; if(*format_p == 'd' || *format_p == 'i') 
+0376   0690             _if9_cond:
+0377   0690 FA FD FF      lea d, [bp + -3] ; $format_p
+0378   0693 2A            mov b, [d]
+0379   0694 38 00 00      mov c, 0
+0380   0697 74            mov d, b
+0381   0698 32            mov bl, [d]
+0382   0699 A7 00         mov bh, 0
+0383   069B 38 00 00      mov c, 0
+0384   069E             ; --- START RELATIONAL
+0385   069E D7            push a
+0386   069F 11            mov a, b
+0387   06A0 FD 2E 64 00   mov32 cb, $00000064
+0387   06A4 00 00 
+0388   06A6 B0            cmp a, b
+0389   06A7 FD 71         seq ; ==
+0390   06A9 E4            pop a
+0391   06AA             ; --- END RELATIONAL
+0392   06AA             ; --- START LOGICAL OR
+0393   06AA D7            push a
+0394   06AB 11            mov a, b
+0395   06AC FA FD FF      lea d, [bp + -3] ; $format_p
+0396   06AF 2A            mov b, [d]
+0397   06B0 38 00 00      mov c, 0
+0398   06B3 74            mov d, b
+0399   06B4 32            mov bl, [d]
+0400   06B5 A7 00         mov bh, 0
+0401   06B7 38 00 00      mov c, 0
+0402   06BA             ; --- START RELATIONAL
+0403   06BA D7            push a
+0404   06BB 11            mov a, b
+0405   06BC FD 2E 69 00   mov32 cb, $00000069
+0405   06C0 00 00 
+0406   06C2 B0            cmp a, b
+0407   06C3 FD 71         seq ; ==
+0408   06C5 E4            pop a
+0409   06C6             ; --- END RELATIONAL
+0410   06C6 FD A8         sor a, b ; ||
+0411   06C8 E4            pop a
+0412   06C9             ; --- END LOGICAL OR
+0413   06C9 C0 00 00      cmp b, 0
+0414   06CC C6 ED 06      je _if9_else
+0415   06CF             _if9_TRUE:
+0416   06CF             ; print_signed_long(*(long *)p); 
+0417   06CF             ; --- START FUNCTION CALL
+0418   06CF FA FF FF      lea d, [bp + -1] ; $p
+0419   06D2 2A            mov b, [d]
+0420   06D3 38 00 00      mov c, 0
+0421   06D6 74            mov d, b
+0422   06D7 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+0423   06DA FD 39         mov c, b ; And place it into C
+0424   06DC 2A            mov b, [d] ; Lower Word in B
+0425   06DD 12            mov a, c
+0426   06DE FD AA         swp a
+0427   06E0 D7            push a
+0428   06E1 FD AB         swp b
+0429   06E3 D8            push b
+0430   06E4 07 C6 08      call print_signed_long
+0431   06E7 51 04 00      add sp, 4
+0432   06EA             ; --- END FUNCTION CALL
+0433   06EA 0A 75 07      jmp _if9_exit
+0434   06ED             _if9_else:
+0435   06ED             ; if(*format_p == 'u') 
+0436   06ED             _if10_cond:
+0437   06ED FA FD FF      lea d, [bp + -3] ; $format_p
+0438   06F0 2A            mov b, [d]
+0439   06F1 38 00 00      mov c, 0
+0440   06F4 74            mov d, b
+0441   06F5 32            mov bl, [d]
+0442   06F6 A7 00         mov bh, 0
+0443   06F8 38 00 00      mov c, 0
+0444   06FB             ; --- START RELATIONAL
+0445   06FB D7            push a
+0446   06FC 11            mov a, b
+0447   06FD FD 2E 75 00   mov32 cb, $00000075
+0447   0701 00 00 
+0448   0703 B0            cmp a, b
+0449   0704 FD 71         seq ; ==
+0450   0706 E4            pop a
+0451   0707             ; --- END RELATIONAL
+0452   0707 C0 00 00      cmp b, 0
+0453   070A C6 2B 07      je _if10_else
+0454   070D             _if10_TRUE:
+0455   070D             ; print_unsigned_long(*(unsigned long *)p); 
+0456   070D             ; --- START FUNCTION CALL
+0457   070D FA FF FF      lea d, [bp + -1] ; $p
+0458   0710 2A            mov b, [d]
+0459   0711 38 00 00      mov c, 0
+0460   0714 74            mov d, b
+0461   0715 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+0462   0718 FD 39         mov c, b ; And place it into C
+0463   071A 2A            mov b, [d] ; Lower Word in B
+0464   071B 12            mov a, c
+0465   071C FD AA         swp a
+0466   071E D7            push a
+0467   071F FD AB         swp b
+0468   0721 D8            push b
+0469   0722 07 59 0A      call print_unsigned_long
+0470   0725 51 04 00      add sp, 4
+0471   0728             ; --- END FUNCTION CALL
+0472   0728 0A 75 07      jmp _if10_exit
+0473   072B             _if10_else:
+0474   072B             ; if(*format_p == 'x') 
+0475   072B             _if11_cond:
+0476   072B FA FD FF      lea d, [bp + -3] ; $format_p
+0477   072E 2A            mov b, [d]
+0478   072F 38 00 00      mov c, 0
+0479   0732 74            mov d, b
+0480   0733 32            mov bl, [d]
+0481   0734 A7 00         mov bh, 0
+0482   0736 38 00 00      mov c, 0
+0483   0739             ; --- START RELATIONAL
+0484   0739 D7            push a
+0485   073A 11            mov a, b
+0486   073B FD 2E 78 00   mov32 cb, $00000078
+0486   073F 00 00 
+0487   0741 B0            cmp a, b
+0488   0742 FD 71         seq ; ==
+0489   0744 E4            pop a
+0490   0745             ; --- END RELATIONAL
+0491   0745 C0 00 00      cmp b, 0
+0492   0748 C6 69 07      je _if11_else
+0493   074B             _if11_TRUE:
+0494   074B             ; printx32(*(long int *)p); 
+0495   074B             ; --- START FUNCTION CALL
+0496   074B FA FF FF      lea d, [bp + -1] ; $p
+0497   074E 2A            mov b, [d]
+0498   074F 38 00 00      mov c, 0
+0499   0752 74            mov d, b
+0500   0753 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+0501   0756 FD 39         mov c, b ; And place it into C
+0502   0758 2A            mov b, [d] ; Lower Word in B
+0503   0759 12            mov a, c
+0504   075A FD AA         swp a
+0505   075C D7            push a
+0506   075D FD AB         swp b
+0507   075F D8            push b
+0508   0760 07 8D 0B      call printx32
+0509   0763 51 04 00      add sp, 4
+0510   0766             ; --- END FUNCTION CALL
+0511   0766 0A 75 07      jmp _if11_exit
+0512   0769             _if11_else:
+0513   0769             ; err("Unexpected format in printf."); 
+0514   0769             ; --- START FUNCTION CALL
+0515   0769 26 FA 2A      mov b, _s1 ; "Unexpected format in printf."
+0516   076C FD AB         swp b
+0517   076E D8            push b
+0518   076F 07 ED 0B      call err
+0519   0772 51 02 00      add sp, 2
+0520   0775             ; --- END FUNCTION CALL
+0521   0775             _if11_exit:
+0522   0775             _if10_exit:
+0523   0775             _if9_exit:
+0524   0775             ; p = p + 4; 
+0525   0775 FA FF FF      lea d, [bp + -1] ; $p
+0526   0778 DA            push d
+0527   0779 FA FF FF      lea d, [bp + -1] ; $p
+0528   077C 2A            mov b, [d]
+0529   077D 38 00 00      mov c, 0
+0530   0780             ; --- START TERMS
+0531   0780 D7            push a
+0532   0781 11            mov a, b
+0533   0782 FD 2E 04 00   mov32 cb, $00000004
+0533   0786 00 00 
+0534   0788 56            add b, a
+0535   0789 E4            pop a
+0536   078A             ; --- END TERMS
+0537   078A E7            pop d
+0538   078B FD 43         mov [d], b
+0539   078D             ; break; 
+0540   078D 0A 89 08      jmp _switch8_exit ; case break
+0541   0790             _switch8_case2:
+0542   0790             _switch8_case3:
+0543   0790             ; print_signed(*(int*)p); 
+0544   0790             ; --- START FUNCTION CALL
+0545   0790 FA FF FF      lea d, [bp + -1] ; $p
+0546   0793 2A            mov b, [d]
+0547   0794 38 00 00      mov c, 0
+0548   0797 74            mov d, b
+0549   0798 2A            mov b, [d]
+0550   0799 38 00 00      mov c, 0
+0551   079C FD AB         swp b
+0552   079E D8            push b
+0553   079F 07 1B 0C      call print_signed
+0554   07A2 51 02 00      add sp, 2
+0555   07A5             ; --- END FUNCTION CALL
+0556   07A5             ; p = p + 2; 
+0557   07A5 FA FF FF      lea d, [bp + -1] ; $p
+0558   07A8 DA            push d
+0559   07A9 FA FF FF      lea d, [bp + -1] ; $p
+0560   07AC 2A            mov b, [d]
+0561   07AD 38 00 00      mov c, 0
+0562   07B0             ; --- START TERMS
+0563   07B0 D7            push a
+0564   07B1 11            mov a, b
+0565   07B2 FD 2E 02 00   mov32 cb, $00000002
+0565   07B6 00 00 
+0566   07B8 56            add b, a
+0567   07B9 E4            pop a
+0568   07BA             ; --- END TERMS
+0569   07BA E7            pop d
+0570   07BB FD 43         mov [d], b
+0571   07BD             ; break; 
+0572   07BD 0A 89 08      jmp _switch8_exit ; case break
+0573   07C0             _switch8_case4:
+0574   07C0             ; print_unsigned(*(unsigned int*)p); 
+0575   07C0             ; --- START FUNCTION CALL
+0576   07C0 FA FF FF      lea d, [bp + -1] ; $p
+0577   07C3 2A            mov b, [d]
+0578   07C4 38 00 00      mov c, 0
+0579   07C7 74            mov d, b
+0580   07C8 2A            mov b, [d]
+0581   07C9 38 00 00      mov c, 0
+0582   07CC FD AB         swp b
+0583   07CE D8            push b
+0584   07CF 07 6C 0D      call print_unsigned
+0585   07D2 51 02 00      add sp, 2
+0586   07D5             ; --- END FUNCTION CALL
+0587   07D5             ; p = p + 2; 
+0588   07D5 FA FF FF      lea d, [bp + -1] ; $p
+0589   07D8 DA            push d
+0590   07D9 FA FF FF      lea d, [bp + -1] ; $p
+0591   07DC 2A            mov b, [d]
+0592   07DD 38 00 00      mov c, 0
+0593   07E0             ; --- START TERMS
+0594   07E0 D7            push a
+0595   07E1 11            mov a, b
+0596   07E2 FD 2E 02 00   mov32 cb, $00000002
+0596   07E6 00 00 
+0597   07E8 56            add b, a
+0598   07E9 E4            pop a
+0599   07EA             ; --- END TERMS
+0600   07EA E7            pop d
+0601   07EB FD 43         mov [d], b
+0602   07ED             ; break; 
+0603   07ED 0A 89 08      jmp _switch8_exit ; case break
+0604   07F0             _switch8_case5:
+0605   07F0             ; printx16(*(int*)p); 
+0606   07F0             ; --- START FUNCTION CALL
+0607   07F0 FA FF FF      lea d, [bp + -1] ; $p
+0608   07F3 2A            mov b, [d]
+0609   07F4 38 00 00      mov c, 0
+0610   07F7 74            mov d, b
+0611   07F8 2A            mov b, [d]
+0612   07F9 38 00 00      mov c, 0
+0613   07FC FD AB         swp b
+0614   07FE D8            push b
+0615   07FF 07 84 0E      call printx16
+0616   0802 51 02 00      add sp, 2
+0617   0805             ; --- END FUNCTION CALL
+0618   0805             ; p = p + 2; 
+0619   0805 FA FF FF      lea d, [bp + -1] ; $p
+0620   0808 DA            push d
+0621   0809 FA FF FF      lea d, [bp + -1] ; $p
+0622   080C 2A            mov b, [d]
+0623   080D 38 00 00      mov c, 0
+0624   0810             ; --- START TERMS
+0625   0810 D7            push a
+0626   0811 11            mov a, b
+0627   0812 FD 2E 02 00   mov32 cb, $00000002
+0627   0816 00 00 
+0628   0818 56            add b, a
+0629   0819 E4            pop a
+0630   081A             ; --- END TERMS
+0631   081A E7            pop d
+0632   081B FD 43         mov [d], b
+0633   081D             ; break; 
+0634   081D 0A 89 08      jmp _switch8_exit ; case break
+0635   0820             _switch8_case6:
+0636   0820             ; putchar(*(char*)p); 
+0637   0820             ; --- START FUNCTION CALL
+0638   0820 FA FF FF      lea d, [bp + -1] ; $p
+0639   0823 2A            mov b, [d]
+0640   0824 38 00 00      mov c, 0
+0641   0827 74            mov d, b
+0642   0828 32            mov bl, [d]
+0643   0829 A7 00         mov bh, 0
+0644   082B 38 00 00      mov c, 0
+0645   082E DD            push bl
+0646   082F 07 4B 0A      call putchar
+0647   0832 51 01 00      add sp, 1
+0648   0835             ; --- END FUNCTION CALL
+0649   0835             ; p = p + 1; 
+0650   0835 FA FF FF      lea d, [bp + -1] ; $p
+0651   0838 DA            push d
+0652   0839 FA FF FF      lea d, [bp + -1] ; $p
+0653   083C 2A            mov b, [d]
+0654   083D 38 00 00      mov c, 0
+0655   0840             ; --- START TERMS
+0656   0840 D7            push a
+0657   0841 11            mov a, b
+0658   0842 FD 2E 01 00   mov32 cb, $00000001
+0658   0846 00 00 
+0659   0848 56            add b, a
+0660   0849 E4            pop a
+0661   084A             ; --- END TERMS
+0662   084A E7            pop d
+0663   084B FD 43         mov [d], b
+0664   084D             ; break; 
+0665   084D 0A 89 08      jmp _switch8_exit ; case break
+0666   0850             _switch8_case7:
+0667   0850             ; print(*(char**)p); 
+0668   0850             ; --- START FUNCTION CALL
+0669   0850 FA FF FF      lea d, [bp + -1] ; $p
+0670   0853 2A            mov b, [d]
+0671   0854 38 00 00      mov c, 0
+0672   0857 74            mov d, b
+0673   0858 2A            mov b, [d]
+0674   0859 FD AB         swp b
+0675   085B D8            push b
+0676   085C 07 02 0C      call print
+0677   085F 51 02 00      add sp, 2
+0678   0862             ; --- END FUNCTION CALL
+0679   0862             ; p = p + 2; 
+0680   0862 FA FF FF      lea d, [bp + -1] ; $p
+0681   0865 DA            push d
+0682   0866 FA FF FF      lea d, [bp + -1] ; $p
+0683   0869 2A            mov b, [d]
+0684   086A 38 00 00      mov c, 0
+0685   086D             ; --- START TERMS
+0686   086D D7            push a
+0687   086E 11            mov a, b
+0688   086F FD 2E 02 00   mov32 cb, $00000002
+0688   0873 00 00 
+0689   0875 56            add b, a
+0690   0876 E4            pop a
+0691   0877             ; --- END TERMS
+0692   0877 E7            pop d
+0693   0878 FD 43         mov [d], b
+0694   087A             ; break; 
+0695   087A 0A 89 08      jmp _switch8_exit ; case break
+0696   087D             _switch8_default:
+0697   087D             ; print("Error: Unknown argument type.\n"); 
+0698   087D             ; --- START FUNCTION CALL
+0699   087D 26 17 2B      mov b, _s2 ; "Error: Unknown argument type.\n"
+0700   0880 FD AB         swp b
+0701   0882 D8            push b
+0702   0883 07 02 0C      call print
+0703   0886 51 02 00      add sp, 2
+0704   0889             ; --- END FUNCTION CALL
+0705   0889             _switch8_exit:
+0706   0889             ; format_p++; 
+0707   0889 FA FD FF      lea d, [bp + -3] ; $format_p
+0708   088C 2A            mov b, [d]
+0709   088D 38 00 00      mov c, 0
+0710   0890 FD 77         inc b
+0711   0892 FA FD FF      lea d, [bp + -3] ; $format_p
+0712   0895 FD 43         mov [d], b
+0713   0897 FD 7D         dec b
+0714   0899 0A C1 08      jmp _if7_exit
+0715   089C             _if7_else:
+0716   089C             ; putchar(*format_p); 
+0717   089C             ; --- START FUNCTION CALL
+0718   089C FA FD FF      lea d, [bp + -3] ; $format_p
+0719   089F 2A            mov b, [d]
+0720   08A0 38 00 00      mov c, 0
+0721   08A3 74            mov d, b
+0722   08A4 32            mov bl, [d]
+0723   08A5 A7 00         mov bh, 0
+0724   08A7 38 00 00      mov c, 0
+0725   08AA DD            push bl
+0726   08AB 07 4B 0A      call putchar
+0727   08AE 51 01 00      add sp, 1
+0728   08B1             ; --- END FUNCTION CALL
+0729   08B1             ; format_p++; 
+0730   08B1 FA FD FF      lea d, [bp + -3] ; $format_p
+0731   08B4 2A            mov b, [d]
+0732   08B5 38 00 00      mov c, 0
+0733   08B8 FD 77         inc b
+0734   08BA FA FD FF      lea d, [bp + -3] ; $format_p
+0735   08BD FD 43         mov [d], b
+0736   08BF FD 7D         dec b
+0737   08C1             _if7_exit:
+0738   08C1             _if6_exit:
+0739   08C1             _for5_update:
+0740   08C1 0A F5 05      jmp _for5_cond
+0741   08C4             _for5_exit:
+0742   08C4 F9            leave
+0743   08C5 09            ret
+0744   08C6             
+0745   08C6             print_signed_long:
+0746   08C6 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0747   08C9             ; char digits[10]; 
+0748   08C9 52 0A 00      sub sp, 10
+0749   08CC             ; int i = 0; 
+0750   08CC 52 02 00      sub sp, 2
+0751   08CF             ; --- START LOCAL VAR INITIALIZATION
+0752   08CF FA F5 FF      lea d, [bp + -11] ; $i
+0753   08D2 DA            push d
+0754   08D3 FD 2E 00 00   mov32 cb, $00000000
+0754   08D7 00 00 
+0755   08D9 E7            pop d
+0756   08DA FD 43         mov [d], b
+0757   08DC             ; --- END LOCAL VAR INITIALIZATION
+0758   08DC             ; if (num < 0) { 
+0759   08DC             _if12_cond:
+0760   08DC FA 05 00      lea d, [bp + 5] ; $num
+0761   08DF 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+0762   08E2 FD 39         mov c, b ; And place it into C
+0763   08E4 2A            mov b, [d] ; Lower Word in B
+0764   08E5             ; --- START RELATIONAL
+0765   08E5 D7            push a
+0766   08E6 FD D8         push g
+0767   08E8 11            mov a, b
+0768   08E9 FD 7A         mov g, c
+0769   08EB FD 2E 00 00   mov32 cb, $00000000
+0769   08EF 00 00 
+0770   08F1 FD AF         cmp32 ga, cb
+0771   08F3 FD 73         slt ; <
+0772   08F5 FD F1         pop g
+0773   08F7 E4            pop a
+0774   08F8             ; --- END RELATIONAL
+0775   08F8 C0 00 00      cmp b, 0
+0776   08FB C6 2D 09      je _if12_else
+0777   08FE             _if12_TRUE:
+0778   08FE             ; putchar('-'); 
+0779   08FE             ; --- START FUNCTION CALL
+0780   08FE FD 2E 2D 00   mov32 cb, $0000002d
+0780   0902 00 00 
+0781   0904 DD            push bl
+0782   0905 07 4B 0A      call putchar
+0783   0908 51 01 00      add sp, 1
+0784   090B             ; --- END FUNCTION CALL
+0785   090B             ; num = -num; 
+0786   090B FA 05 00      lea d, [bp + 5] ; $num
+0787   090E DA            push d
+0788   090F FA 05 00      lea d, [bp + 5] ; $num
+0789   0912 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+0790   0915 FD 39         mov c, b ; And place it into C
+0791   0917 2A            mov b, [d] ; Lower Word in B
+0792   0918 12            mov a, c
+0793   0919 95            not a
+0794   091A 97            not b
+0795   091B 55 01 00      add b, 1
+0796   091E 5B 00 00      adc a, 0
+0797   0921 39            mov c, a
+0798   0922 E7            pop d
+0799   0923 FD 43         mov [d], b
+0800   0925 28            mov b, c
+0801   0926 FD 44 02 00   mov [d + 2], b
+0802   092A 0A 61 09      jmp _if12_exit
+0803   092D             _if12_else:
+0804   092D             ; if (num == 0) { 
+0805   092D             _if13_cond:
+0806   092D FA 05 00      lea d, [bp + 5] ; $num
+0807   0930 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+0808   0933 FD 39         mov c, b ; And place it into C
+0809   0935 2A            mov b, [d] ; Lower Word in B
+0810   0936             ; --- START RELATIONAL
+0811   0936 D7            push a
+0812   0937 FD D8         push g
+0813   0939 11            mov a, b
+0814   093A FD 7A         mov g, c
+0815   093C FD 2E 00 00   mov32 cb, $00000000
+0815   0940 00 00 
+0816   0942 FD AF         cmp32 ga, cb
+0817   0944 FD 71         seq ; ==
+0818   0946 FD F1         pop g
+0819   0948 E4            pop a
+0820   0949             ; --- END RELATIONAL
+0821   0949 C0 00 00      cmp b, 0
+0822   094C C6 61 09      je _if13_exit
+0823   094F             _if13_TRUE:
+0824   094F             ; putchar('0'); 
+0825   094F             ; --- START FUNCTION CALL
+0826   094F FD 2E 30 00   mov32 cb, $00000030
+0826   0953 00 00 
+0827   0955 DD            push bl
+0828   0956 07 4B 0A      call putchar
+0829   0959 51 01 00      add sp, 1
+0830   095C             ; --- END FUNCTION CALL
+0831   095C             ; return; 
+0832   095C F9            leave
+0833   095D 09            ret
+0834   095E 0A 61 09      jmp _if13_exit
+0835   0961             _if13_exit:
+0836   0961             _if12_exit:
+0837   0961             ; while (num > 0) { 
+0838   0961             _while14_cond:
+0839   0961 FA 05 00      lea d, [bp + 5] ; $num
+0840   0964 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+0841   0967 FD 39         mov c, b ; And place it into C
+0842   0969 2A            mov b, [d] ; Lower Word in B
+0843   096A             ; --- START RELATIONAL
+0844   096A D7            push a
+0845   096B FD D8         push g
+0846   096D 11            mov a, b
+0847   096E FD 7A         mov g, c
+0848   0970 FD 2E 00 00   mov32 cb, $00000000
+0848   0974 00 00 
+0849   0976 FD AF         cmp32 ga, cb
+0850   0978 FD 7F         sgt
+0851   097A FD F1         pop g
+0852   097C E4            pop a
+0853   097D             ; --- END RELATIONAL
+0854   097D C0 00 00      cmp b, 0
+0855   0980 C6 01 0A      je _while14_exit
+0856   0983             _while14_block:
+0857   0983             ; digits[i] = '0' + (num % 10); 
+0858   0983 FA F7 FF      lea d, [bp + -9] ; $digits
+0859   0986 D7            push a
+0860   0987 DA            push d
+0861   0988 FA F5 FF      lea d, [bp + -11] ; $i
+0862   098B 2A            mov b, [d]
+0863   098C 38 00 00      mov c, 0
+0864   098F E7            pop d
+0865   0990 5A            add d, b
+0866   0991 E4            pop a
+0867   0992 DA            push d
+0868   0993 FD 2E 30 00   mov32 cb, $00000030
+0868   0997 00 00 
+0869   0999             ; --- START TERMS
+0870   0999 D7            push a
+0871   099A 11            mov a, b
+0872   099B FA 05 00      lea d, [bp + 5] ; $num
+0873   099E 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+0874   09A1 FD 39         mov c, b ; And place it into C
+0875   09A3 2A            mov b, [d] ; Lower Word in B
+0876   09A4             ; --- START FACTORS
+0877   09A4 D7            push a
+0878   09A5 FD D8         push g
+0879   09A7 11            mov a, b
+0880   09A8 FD 7A         mov g, c
+0881   09AA FD 2E 0A 00   mov32 cb, $0000000a
+0881   09AE 00 00 
+0882   09B0 FD D8         push g ; save 'g' as the div instruction uses it
+0883   09B2 AE            div a, b ; %, a: quotient, b: remainder
+0884   09B3 11            mov a, b
+0885   09B4 FD F1         pop g
+0886   09B6 FD 38         mov c, g
+0887   09B8 27            mov b, a
+0888   09B9 FD F1         pop g
+0889   09BB E4            pop a
+0890   09BC             ; --- END FACTORS
+0891   09BC FD 15         add32 cb, ga
+0892   09BE E4            pop a
+0893   09BF             ; --- END TERMS
+0894   09BF E7            pop d
+0895   09C0 FD 3E         mov [d], bl
+0896   09C2             ; num = num / 10; 
+0897   09C2 FA 05 00      lea d, [bp + 5] ; $num
+0898   09C5 DA            push d
+0899   09C6 FA 05 00      lea d, [bp + 5] ; $num
+0900   09C9 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+0901   09CC FD 39         mov c, b ; And place it into C
+0902   09CE 2A            mov b, [d] ; Lower Word in B
+0903   09CF             ; --- START FACTORS
+0904   09CF D7            push a
+0905   09D0 FD D8         push g
+0906   09D2 11            mov a, b
+0907   09D3 FD 7A         mov g, c
+0908   09D5 FD 2E 0A 00   mov32 cb, $0000000a
+0908   09D9 00 00 
+0909   09DB FD D8         push g ; save 'g' as the div instruction uses it
+0910   09DD AE            div a, b ; /, a: quotient, b: remainder
+0911   09DE FD F1         pop g
+0912   09E0 FD 38         mov c, g
+0913   09E2 27            mov b, a
+0914   09E3 FD F1         pop g
+0915   09E5 E4            pop a
+0916   09E6             ; --- END FACTORS
+0917   09E6 E7            pop d
+0918   09E7 FD 43         mov [d], b
+0919   09E9 28            mov b, c
+0920   09EA FD 44 02 00   mov [d + 2], b
+0921   09EE             ; i++; 
+0922   09EE FA F5 FF      lea d, [bp + -11] ; $i
+0923   09F1 2A            mov b, [d]
+0924   09F2 38 00 00      mov c, 0
+0925   09F5 11            mov a, b
+0926   09F6 FD 77         inc b
+0927   09F8 FA F5 FF      lea d, [bp + -11] ; $i
+0928   09FB FD 43         mov [d], b
+0929   09FD 27            mov b, a
+0930   09FE 0A 61 09      jmp _while14_cond
+0931   0A01             _while14_exit:
+0932   0A01             ; while (i > 0) { 
+0933   0A01             _while21_cond:
+0934   0A01 FA F5 FF      lea d, [bp + -11] ; $i
+0935   0A04 2A            mov b, [d]
+0936   0A05 38 00 00      mov c, 0
+0937   0A08             ; --- START RELATIONAL
+0938   0A08 D7            push a
+0939   0A09 11            mov a, b
+0940   0A0A FD 2E 00 00   mov32 cb, $00000000
+0940   0A0E 00 00 
+0941   0A10 B0            cmp a, b
+0942   0A11 FD 7F         sgt ; >
+0943   0A13 E4            pop a
+0944   0A14             ; --- END RELATIONAL
+0945   0A14 C0 00 00      cmp b, 0
+0946   0A17 C6 49 0A      je _while21_exit
+0947   0A1A             _while21_block:
+0948   0A1A             ; i--; 
+0949   0A1A FA F5 FF      lea d, [bp + -11] ; $i
+0950   0A1D 2A            mov b, [d]
+0951   0A1E 38 00 00      mov c, 0
+0952   0A21 11            mov a, b
+0953   0A22 FD 7D         dec b
+0954   0A24 FA F5 FF      lea d, [bp + -11] ; $i
+0955   0A27 FD 43         mov [d], b
+0956   0A29 27            mov b, a
+0957   0A2A             ; putchar(digits[i]); 
+0958   0A2A             ; --- START FUNCTION CALL
+0959   0A2A FA F7 FF      lea d, [bp + -9] ; $digits
+0960   0A2D D7            push a
+0961   0A2E DA            push d
+0962   0A2F FA F5 FF      lea d, [bp + -11] ; $i
+0963   0A32 2A            mov b, [d]
+0964   0A33 38 00 00      mov c, 0
+0965   0A36 E7            pop d
+0966   0A37 5A            add d, b
+0967   0A38 E4            pop a
+0968   0A39 32            mov bl, [d]
+0969   0A3A A7 00         mov bh, 0
+0970   0A3C 38 00 00      mov c, 0
+0971   0A3F DD            push bl
+0972   0A40 07 4B 0A      call putchar
+0973   0A43 51 01 00      add sp, 1
+0974   0A46             ; --- END FUNCTION CALL
+0975   0A46 0A 01 0A      jmp _while21_cond
+0976   0A49             _while21_exit:
+0977   0A49 F9            leave
+0978   0A4A 09            ret
+0979   0A4B             
+0980   0A4B             putchar:
+0981   0A4B F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0982   0A4E             ; --- BEGIN INLINE ASM SEGMENT
+0983   0A4E FA 05 00      lea d, [bp + 5] ; $c
+0984   0A51 1E            mov al, [d]
+0985   0A52 23            mov ah, al
+0986   0A53 19 00         mov al, 0
+0987   0A55 05 03         syscall sys_io      ; char in AH
+0988   0A57             ; --- END INLINE ASM SEGMENT
+0989   0A57 F9            leave
+0990   0A58 09            ret
+0991   0A59             
+0992   0A59             print_unsigned_long:
+0993   0A59 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+0994   0A5C             ; char digits[10]; 
+0995   0A5C 52 0A 00      sub sp, 10
+0996   0A5F             ; int i; 
+0997   0A5F 52 02 00      sub sp, 2
+0998   0A62             ; i = 0; 
+0999   0A62 FA F5 FF      lea d, [bp + -11] ; $i
+1000   0A65 DA            push d
+1001   0A66 FD 2E 00 00   mov32 cb, $00000000
+1001   0A6A 00 00 
+1002   0A6C E7            pop d
+1003   0A6D FD 43         mov [d], b
+1004   0A6F             ; if(num == 0){ 
+1005   0A6F             _if22_cond:
+1006   0A6F FA 05 00      lea d, [bp + 5] ; $num
+1007   0A72 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1008   0A75 FD 39         mov c, b ; And place it into C
+1009   0A77 2A            mov b, [d] ; Lower Word in B
+1010   0A78             ; --- START RELATIONAL
+1011   0A78 D7            push a
+1012   0A79 FD D8         push g
+1013   0A7B 11            mov a, b
+1014   0A7C FD 7A         mov g, c
+1015   0A7E FD 2E 00 00   mov32 cb, $00000000
+1015   0A82 00 00 
+1016   0A84 FD AF         cmp32 ga, cb
+1017   0A86 FD 71         seq ; ==
+1018   0A88 FD F1         pop g
+1019   0A8A E4            pop a
+1020   0A8B             ; --- END RELATIONAL
+1021   0A8B C0 00 00      cmp b, 0
+1022   0A8E C6 A3 0A      je _if22_exit
+1023   0A91             _if22_TRUE:
+1024   0A91             ; putchar('0'); 
+1025   0A91             ; --- START FUNCTION CALL
+1026   0A91 FD 2E 30 00   mov32 cb, $00000030
+1026   0A95 00 00 
+1027   0A97 DD            push bl
+1028   0A98 07 4B 0A      call putchar
+1029   0A9B 51 01 00      add sp, 1
+1030   0A9E             ; --- END FUNCTION CALL
+1031   0A9E             ; return; 
+1032   0A9E F9            leave
+1033   0A9F 09            ret
+1034   0AA0 0A A3 0A      jmp _if22_exit
+1035   0AA3             _if22_exit:
+1036   0AA3             ; while (num > 0) { 
+1037   0AA3             _while23_cond:
+1038   0AA3 FA 05 00      lea d, [bp + 5] ; $num
+1039   0AA6 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1040   0AA9 FD 39         mov c, b ; And place it into C
+1041   0AAB 2A            mov b, [d] ; Lower Word in B
+1042   0AAC             ; --- START RELATIONAL
+1043   0AAC D7            push a
+1044   0AAD FD D8         push g
+1045   0AAF 11            mov a, b
+1046   0AB0 FD 7A         mov g, c
+1047   0AB2 FD 2E 00 00   mov32 cb, $00000000
+1047   0AB6 00 00 
+1048   0AB8 FD AF         cmp32 ga, cb
+1049   0ABA FD 81         sgu
+1050   0ABC FD F1         pop g
+1051   0ABE E4            pop a
+1052   0ABF             ; --- END RELATIONAL
+1053   0ABF C0 00 00      cmp b, 0
+1054   0AC2 C6 43 0B      je _while23_exit
+1055   0AC5             _while23_block:
+1056   0AC5             ; digits[i] = '0' + (num % 10); 
+1057   0AC5 FA F7 FF      lea d, [bp + -9] ; $digits
+1058   0AC8 D7            push a
+1059   0AC9 DA            push d
+1060   0ACA FA F5 FF      lea d, [bp + -11] ; $i
+1061   0ACD 2A            mov b, [d]
+1062   0ACE 38 00 00      mov c, 0
+1063   0AD1 E7            pop d
+1064   0AD2 5A            add d, b
+1065   0AD3 E4            pop a
+1066   0AD4 DA            push d
+1067   0AD5 FD 2E 30 00   mov32 cb, $00000030
+1067   0AD9 00 00 
+1068   0ADB             ; --- START TERMS
+1069   0ADB D7            push a
+1070   0ADC 11            mov a, b
+1071   0ADD FA 05 00      lea d, [bp + 5] ; $num
+1072   0AE0 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1073   0AE3 FD 39         mov c, b ; And place it into C
+1074   0AE5 2A            mov b, [d] ; Lower Word in B
+1075   0AE6             ; --- START FACTORS
+1076   0AE6 D7            push a
+1077   0AE7 FD D8         push g
+1078   0AE9 11            mov a, b
+1079   0AEA FD 7A         mov g, c
+1080   0AEC FD 2E 0A 00   mov32 cb, $0000000a
+1080   0AF0 00 00 
+1081   0AF2 FD D8         push g ; save 'g' as the div instruction uses it
+1082   0AF4 AE            div a, b ; %, a: quotient, b: remainder
+1083   0AF5 11            mov a, b
+1084   0AF6 FD F1         pop g
+1085   0AF8 FD 38         mov c, g
+1086   0AFA 27            mov b, a
+1087   0AFB FD F1         pop g
+1088   0AFD E4            pop a
+1089   0AFE             ; --- END FACTORS
+1090   0AFE FD 15         add32 cb, ga
+1091   0B00 E4            pop a
+1092   0B01             ; --- END TERMS
+1093   0B01 E7            pop d
+1094   0B02 FD 3E         mov [d], bl
+1095   0B04             ; num = num / 10; 
+1096   0B04 FA 05 00      lea d, [bp + 5] ; $num
+1097   0B07 DA            push d
+1098   0B08 FA 05 00      lea d, [bp + 5] ; $num
+1099   0B0B 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
+1100   0B0E FD 39         mov c, b ; And place it into C
+1101   0B10 2A            mov b, [d] ; Lower Word in B
+1102   0B11             ; --- START FACTORS
+1103   0B11 D7            push a
+1104   0B12 FD D8         push g
+1105   0B14 11            mov a, b
+1106   0B15 FD 7A         mov g, c
+1107   0B17 FD 2E 0A 00   mov32 cb, $0000000a
+1107   0B1B 00 00 
+1108   0B1D FD D8         push g ; save 'g' as the div instruction uses it
+1109   0B1F AE            div a, b ; /, a: quotient, b: remainder
+1110   0B20 FD F1         pop g
+1111   0B22 FD 38         mov c, g
+1112   0B24 27            mov b, a
+1113   0B25 FD F1         pop g
+1114   0B27 E4            pop a
+1115   0B28             ; --- END FACTORS
+1116   0B28 E7            pop d
+1117   0B29 FD 43         mov [d], b
+1118   0B2B 28            mov b, c
+1119   0B2C FD 44 02 00   mov [d + 2], b
+1120   0B30             ; i++; 
+1121   0B30 FA F5 FF      lea d, [bp + -11] ; $i
+1122   0B33 2A            mov b, [d]
+1123   0B34 38 00 00      mov c, 0
+1124   0B37 11            mov a, b
+1125   0B38 FD 77         inc b
+1126   0B3A FA F5 FF      lea d, [bp + -11] ; $i
+1127   0B3D FD 43         mov [d], b
+1128   0B3F 27            mov b, a
+1129   0B40 0A A3 0A      jmp _while23_cond
+1130   0B43             _while23_exit:
+1131   0B43             ; while (i > 0) { 
+1132   0B43             _while30_cond:
+1133   0B43 FA F5 FF      lea d, [bp + -11] ; $i
+1134   0B46 2A            mov b, [d]
+1135   0B47 38 00 00      mov c, 0
+1136   0B4A             ; --- START RELATIONAL
+1137   0B4A D7            push a
+1138   0B4B 11            mov a, b
+1139   0B4C FD 2E 00 00   mov32 cb, $00000000
+1139   0B50 00 00 
+1140   0B52 B0            cmp a, b
+1141   0B53 FD 7F         sgt ; >
+1142   0B55 E4            pop a
+1143   0B56             ; --- END RELATIONAL
+1144   0B56 C0 00 00      cmp b, 0
+1145   0B59 C6 8B 0B      je _while30_exit
+1146   0B5C             _while30_block:
+1147   0B5C             ; i--; 
+1148   0B5C FA F5 FF      lea d, [bp + -11] ; $i
+1149   0B5F 2A            mov b, [d]
+1150   0B60 38 00 00      mov c, 0
+1151   0B63 11            mov a, b
+1152   0B64 FD 7D         dec b
+1153   0B66 FA F5 FF      lea d, [bp + -11] ; $i
+1154   0B69 FD 43         mov [d], b
+1155   0B6B 27            mov b, a
+1156   0B6C             ; putchar(digits[i]); 
+1157   0B6C             ; --- START FUNCTION CALL
+1158   0B6C FA F7 FF      lea d, [bp + -9] ; $digits
+1159   0B6F D7            push a
+1160   0B70 DA            push d
+1161   0B71 FA F5 FF      lea d, [bp + -11] ; $i
+1162   0B74 2A            mov b, [d]
+1163   0B75 38 00 00      mov c, 0
+1164   0B78 E7            pop d
+1165   0B79 5A            add d, b
+1166   0B7A E4            pop a
+1167   0B7B 32            mov bl, [d]
+1168   0B7C A7 00         mov bh, 0
+1169   0B7E 38 00 00      mov c, 0
+1170   0B81 DD            push bl
+1171   0B82 07 4B 0A      call putchar
+1172   0B85 51 01 00      add sp, 1
+1173   0B88             ; --- END FUNCTION CALL
+1174   0B88 0A 43 0B      jmp _while30_cond
+1175   0B8B             _while30_exit:
+1176   0B8B F9            leave
+1177   0B8C 09            ret
+1178   0B8D             
+1179   0B8D             printx32:
+1180   0B8D F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1181   0B90             ; --- BEGIN INLINE ASM SEGMENT
+1182   0B90 FA 05 00      lea d, [bp + 5] ; $hex
+1183   0B93 2B 02 00      mov b, [d+2]
+1184   0B96 07 9F 0B      call print_u16x_printx32
+1185   0B99 2A            mov b, [d]
+1186   0B9A 07 9F 0B      call print_u16x_printx32
+1187   0B9D             ; --- END INLINE ASM SEGMENT
+1188   0B9D             ; return; 
+1189   0B9D F9            leave
+1190   0B9E 09            ret
+1191   0B9F             ; --- BEGIN INLINE ASM SEGMENT
+1192   0B9F             print_u16x_printx32:
+1193   0B9F D7            push a
+1194   0BA0 D8            push b
+1195   0BA1 DD            push bl
+1196   0BA2 30            mov bl, bh
+1197   0BA3 07 C1 0B      call _itoa_printx32        ; convert bh to char in A
+1198   0BA6 2F            mov bl, al        ; save al
+1199   0BA7 19 00         mov al, 0
+1200   0BA9 05 03         syscall sys_io        ; display AH
+1201   0BAB 24            mov ah, bl        ; retrieve al
+1202   0BAC 19 00         mov al, 0
+1203   0BAE 05 03         syscall sys_io        ; display AL
+1204   0BB0 EA            pop bl
+1205   0BB1 07 C1 0B      call _itoa_printx32        ; convert bh to char in A
+1206   0BB4 2F            mov bl, al        ; save al
+1207   0BB5 19 00         mov al, 0
+1208   0BB7 05 03         syscall sys_io        ; display AH
+1209   0BB9 24            mov ah, bl        ; retrieve al
+1210   0BBA 19 00         mov al, 0
+1211   0BBC 05 03         syscall sys_io        ; display AL
+1212   0BBE E5            pop b
+1213   0BBF E4            pop a
+1214   0BC0 09            ret
+1215   0BC1             _itoa_printx32:
+1216   0BC1 DA            push d
+1217   0BC2 D8            push b
+1218   0BC3 A7 00         mov bh, 0
+1219   0BC5 FD A4 04      shr bl, 4  
+1220   0BC8 74            mov d, b
+1221   0BC9 1F DB 0B      mov al, [d + s_hex_digits_printx32]
+1222   0BCC 23            mov ah, al
+1223   0BCD E5            pop b
+1224   0BCE D8            push b
+1225   0BCF A7 00         mov bh, 0
+1226   0BD1 FD 87 0F      and bl, $0F
+1227   0BD4 74            mov d, b
+1228   0BD5 1F DB 0B      mov al, [d + s_hex_digits_printx32]
+1229   0BD8 E5            pop b
+1230   0BD9 E7            pop d
+1231   0BDA 09            ret
+1232   0BDB 30 31 32 33 s_hex_digits_printx32: .db "0123456789ABCDEF"  
+1232   0BDF 34 35 36 37 
+1232   0BE3 38 39 41 42 
+1232   0BE7 43 44 45 46 
+1233   0BEB             ; --- END INLINE ASM SEGMENT
+1234   0BEB F9            leave
+1235   0BEC 09            ret
+1236   0BED             
+1237   0BED             err:
+1238   0BED F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1239   0BF0             ; print(e); 
+1240   0BF0             ; --- START FUNCTION CALL
+1241   0BF0 FA 05 00      lea d, [bp + 5] ; $e
+1242   0BF3 2A            mov b, [d]
+1243   0BF4 38 00 00      mov c, 0
+1244   0BF7 FD AB         swp b
+1245   0BF9 D8            push b
+1246   0BFA 07 02 0C      call print
+1247   0BFD 51 02 00      add sp, 2
+1248   0C00             ; --- END FUNCTION CALL
+1249   0C00 F9            leave
+1250   0C01 09            ret
+1251   0C02             
+1252   0C02             print:
+1253   0C02 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1254   0C05             ; --- BEGIN INLINE ASM SEGMENT
+1255   0C05 FA 05 00      lea d, [bp + 5] ; $s
+1256   0C08 FD 2A         mov d, [d]
+1257   0C0A             _puts_L1_print:
+1258   0C0A 1E            mov al, [d]
+1259   0C0B B9 00         cmp al, 0
+1260   0C0D C6 19 0C      jz _puts_END_print
+1261   0C10 23            mov ah, al
+1262   0C11 19 00         mov al, 0
+1263   0C13 05 03         syscall sys_io
+1264   0C15 79            inc d
+1265   0C16 0A 0A 0C      jmp _puts_L1_print
+1266   0C19             _puts_END_print:
+1267   0C19             ; --- END INLINE ASM SEGMENT
+1268   0C19 F9            leave
+1269   0C1A 09            ret
+1270   0C1B             
+1271   0C1B             print_signed:
+1272   0C1B F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1273   0C1E             ; char digits[5]; 
+1274   0C1E 52 05 00      sub sp, 5
+1275   0C21             ; int i = 0; 
+1276   0C21 52 02 00      sub sp, 2
+1277   0C24             ; --- START LOCAL VAR INITIALIZATION
+1278   0C24 FA FA FF      lea d, [bp + -6] ; $i
+1279   0C27 DA            push d
+1280   0C28 FD 2E 00 00   mov32 cb, $00000000
+1280   0C2C 00 00 
+1281   0C2E E7            pop d
+1282   0C2F FD 43         mov [d], b
+1283   0C31             ; --- END LOCAL VAR INITIALIZATION
+1284   0C31             ; if (num < 0) { 
+1285   0C31             _if31_cond:
+1286   0C31 FA 05 00      lea d, [bp + 5] ; $num
+1287   0C34 2A            mov b, [d]
+1288   0C35 38 00 00      mov c, 0
+1289   0C38             ; --- START RELATIONAL
+1290   0C38 D7            push a
+1291   0C39 11            mov a, b
+1292   0C3A FD 2E 00 00   mov32 cb, $00000000
+1292   0C3E 00 00 
+1293   0C40 B0            cmp a, b
+1294   0C41 FD 73         slt ; < (signed)
+1295   0C43 E4            pop a
+1296   0C44             ; --- END RELATIONAL
+1297   0C44 C0 00 00      cmp b, 0
+1298   0C47 C6 6A 0C      je _if31_else
+1299   0C4A             _if31_TRUE:
+1300   0C4A             ; putchar('-'); 
+1301   0C4A             ; --- START FUNCTION CALL
+1302   0C4A FD 2E 2D 00   mov32 cb, $0000002d
+1302   0C4E 00 00 
+1303   0C50 DD            push bl
+1304   0C51 07 4B 0A      call putchar
+1305   0C54 51 01 00      add sp, 1
+1306   0C57             ; --- END FUNCTION CALL
+1307   0C57             ; num = -num; 
+1308   0C57 FA 05 00      lea d, [bp + 5] ; $num
+1309   0C5A DA            push d
+1310   0C5B FA 05 00      lea d, [bp + 5] ; $num
+1311   0C5E 2A            mov b, [d]
+1312   0C5F 38 00 00      mov c, 0
+1313   0C62 FD 97         neg b
+1314   0C64 E7            pop d
+1315   0C65 FD 43         mov [d], b
+1316   0C67 0A 95 0C      jmp _if31_exit
+1317   0C6A             _if31_else:
+1318   0C6A             ; if (num == 0) { 
+1319   0C6A             _if32_cond:
+1320   0C6A FA 05 00      lea d, [bp + 5] ; $num
+1321   0C6D 2A            mov b, [d]
+1322   0C6E 38 00 00      mov c, 0
+1323   0C71             ; --- START RELATIONAL
+1324   0C71 D7            push a
+1325   0C72 11            mov a, b
+1326   0C73 FD 2E 00 00   mov32 cb, $00000000
+1326   0C77 00 00 
+1327   0C79 B0            cmp a, b
+1328   0C7A FD 71         seq ; ==
+1329   0C7C E4            pop a
+1330   0C7D             ; --- END RELATIONAL
+1331   0C7D C0 00 00      cmp b, 0
+1332   0C80 C6 95 0C      je _if32_exit
+1333   0C83             _if32_TRUE:
+1334   0C83             ; putchar('0'); 
+1335   0C83             ; --- START FUNCTION CALL
+1336   0C83 FD 2E 30 00   mov32 cb, $00000030
+1336   0C87 00 00 
+1337   0C89 DD            push bl
+1338   0C8A 07 4B 0A      call putchar
+1339   0C8D 51 01 00      add sp, 1
+1340   0C90             ; --- END FUNCTION CALL
+1341   0C90             ; return; 
+1342   0C90 F9            leave
+1343   0C91 09            ret
+1344   0C92 0A 95 0C      jmp _if32_exit
+1345   0C95             _if32_exit:
+1346   0C95             _if31_exit:
+1347   0C95             ; while (num > 0) { 
+1348   0C95             _while33_cond:
+1349   0C95 FA 05 00      lea d, [bp + 5] ; $num
+1350   0C98 2A            mov b, [d]
+1351   0C99 38 00 00      mov c, 0
+1352   0C9C             ; --- START RELATIONAL
+1353   0C9C D7            push a
+1354   0C9D 11            mov a, b
+1355   0C9E FD 2E 00 00   mov32 cb, $00000000
+1355   0CA2 00 00 
+1356   0CA4 B0            cmp a, b
+1357   0CA5 FD 7F         sgt ; >
+1358   0CA7 E4            pop a
+1359   0CA8             ; --- END RELATIONAL
+1360   0CA8 C0 00 00      cmp b, 0
+1361   0CAB C6 22 0D      je _while33_exit
+1362   0CAE             _while33_block:
+1363   0CAE             ; digits[i] = '0' + (num % 10); 
+1364   0CAE FA FC FF      lea d, [bp + -4] ; $digits
+1365   0CB1 D7            push a
+1366   0CB2 DA            push d
+1367   0CB3 FA FA FF      lea d, [bp + -6] ; $i
+1368   0CB6 2A            mov b, [d]
+1369   0CB7 38 00 00      mov c, 0
+1370   0CBA E7            pop d
+1371   0CBB 5A            add d, b
+1372   0CBC E4            pop a
+1373   0CBD DA            push d
+1374   0CBE FD 2E 30 00   mov32 cb, $00000030
+1374   0CC2 00 00 
+1375   0CC4             ; --- START TERMS
+1376   0CC4 D7            push a
+1377   0CC5 11            mov a, b
+1378   0CC6 FA 05 00      lea d, [bp + 5] ; $num
+1379   0CC9 2A            mov b, [d]
+1380   0CCA 38 00 00      mov c, 0
+1381   0CCD             ; --- START FACTORS
+1382   0CCD D7            push a
+1383   0CCE FD D8         push g
+1384   0CD0 11            mov a, b
+1385   0CD1 FD 7A         mov g, c
+1386   0CD3 FD 2E 0A 00   mov32 cb, $0000000a
+1386   0CD7 00 00 
+1387   0CD9 FD D8         push g ; save 'g' as the div instruction uses it
+1388   0CDB AE            div a, b ; %, a: quotient, b: remainder
+1389   0CDC 11            mov a, b
+1390   0CDD FD F1         pop g
+1391   0CDF FD 38         mov c, g
+1392   0CE1 27            mov b, a
+1393   0CE2 FD F1         pop g
+1394   0CE4 E4            pop a
+1395   0CE5             ; --- END FACTORS
+1396   0CE5 56            add b, a
+1397   0CE6 E4            pop a
+1398   0CE7             ; --- END TERMS
+1399   0CE7 E7            pop d
+1400   0CE8 FD 3E         mov [d], bl
+1401   0CEA             ; num = num / 10; 
+1402   0CEA FA 05 00      lea d, [bp + 5] ; $num
+1403   0CED DA            push d
+1404   0CEE FA 05 00      lea d, [bp + 5] ; $num
+1405   0CF1 2A            mov b, [d]
+1406   0CF2 38 00 00      mov c, 0
+1407   0CF5             ; --- START FACTORS
+1408   0CF5 D7            push a
+1409   0CF6 FD D8         push g
+1410   0CF8 11            mov a, b
+1411   0CF9 FD 7A         mov g, c
+1412   0CFB FD 2E 0A 00   mov32 cb, $0000000a
+1412   0CFF 00 00 
+1413   0D01 FD D8         push g ; save 'g' as the div instruction uses it
+1414   0D03 AE            div a, b ; /, a: quotient, b: remainder
+1415   0D04 FD F1         pop g
+1416   0D06 FD 38         mov c, g
+1417   0D08 27            mov b, a
+1418   0D09 FD F1         pop g
+1419   0D0B E4            pop a
+1420   0D0C             ; --- END FACTORS
+1421   0D0C E7            pop d
+1422   0D0D FD 43         mov [d], b
+1423   0D0F             ; i++; 
+1424   0D0F FA FA FF      lea d, [bp + -6] ; $i
+1425   0D12 2A            mov b, [d]
+1426   0D13 38 00 00      mov c, 0
+1427   0D16 11            mov a, b
+1428   0D17 FD 77         inc b
+1429   0D19 FA FA FF      lea d, [bp + -6] ; $i
+1430   0D1C FD 43         mov [d], b
+1431   0D1E 27            mov b, a
+1432   0D1F 0A 95 0C      jmp _while33_cond
+1433   0D22             _while33_exit:
+1434   0D22             ; while (i > 0) { 
+1435   0D22             _while40_cond:
+1436   0D22 FA FA FF      lea d, [bp + -6] ; $i
+1437   0D25 2A            mov b, [d]
+1438   0D26 38 00 00      mov c, 0
+1439   0D29             ; --- START RELATIONAL
+1440   0D29 D7            push a
+1441   0D2A 11            mov a, b
+1442   0D2B FD 2E 00 00   mov32 cb, $00000000
+1442   0D2F 00 00 
+1443   0D31 B0            cmp a, b
+1444   0D32 FD 7F         sgt ; >
+1445   0D34 E4            pop a
+1446   0D35             ; --- END RELATIONAL
+1447   0D35 C0 00 00      cmp b, 0
+1448   0D38 C6 6A 0D      je _while40_exit
+1449   0D3B             _while40_block:
+1450   0D3B             ; i--; 
+1451   0D3B FA FA FF      lea d, [bp + -6] ; $i
+1452   0D3E 2A            mov b, [d]
+1453   0D3F 38 00 00      mov c, 0
+1454   0D42 11            mov a, b
+1455   0D43 FD 7D         dec b
+1456   0D45 FA FA FF      lea d, [bp + -6] ; $i
+1457   0D48 FD 43         mov [d], b
+1458   0D4A 27            mov b, a
+1459   0D4B             ; putchar(digits[i]); 
+1460   0D4B             ; --- START FUNCTION CALL
+1461   0D4B FA FC FF      lea d, [bp + -4] ; $digits
+1462   0D4E D7            push a
+1463   0D4F DA            push d
+1464   0D50 FA FA FF      lea d, [bp + -6] ; $i
+1465   0D53 2A            mov b, [d]
+1466   0D54 38 00 00      mov c, 0
+1467   0D57 E7            pop d
+1468   0D58 5A            add d, b
+1469   0D59 E4            pop a
+1470   0D5A 32            mov bl, [d]
+1471   0D5B A7 00         mov bh, 0
+1472   0D5D 38 00 00      mov c, 0
+1473   0D60 DD            push bl
+1474   0D61 07 4B 0A      call putchar
+1475   0D64 51 01 00      add sp, 1
+1476   0D67             ; --- END FUNCTION CALL
+1477   0D67 0A 22 0D      jmp _while40_cond
+1478   0D6A             _while40_exit:
+1479   0D6A F9            leave
+1480   0D6B 09            ret
+1481   0D6C             
+1482   0D6C             print_unsigned:
+1483   0D6C F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1484   0D6F             ; char digits[5]; 
+1485   0D6F 52 05 00      sub sp, 5
+1486   0D72             ; int i; 
+1487   0D72 52 02 00      sub sp, 2
+1488   0D75             ; i = 0; 
+1489   0D75 FA FA FF      lea d, [bp + -6] ; $i
+1490   0D78 DA            push d
+1491   0D79 FD 2E 00 00   mov32 cb, $00000000
+1491   0D7D 00 00 
+1492   0D7F E7            pop d
+1493   0D80 FD 43         mov [d], b
+1494   0D82             ; if(num == 0){ 
+1495   0D82             _if41_cond:
+1496   0D82 FA 05 00      lea d, [bp + 5] ; $num
+1497   0D85 2A            mov b, [d]
+1498   0D86 38 00 00      mov c, 0
+1499   0D89             ; --- START RELATIONAL
+1500   0D89 D7            push a
+1501   0D8A 11            mov a, b
+1502   0D8B FD 2E 00 00   mov32 cb, $00000000
+1502   0D8F 00 00 
+1503   0D91 B0            cmp a, b
+1504   0D92 FD 71         seq ; ==
+1505   0D94 E4            pop a
+1506   0D95             ; --- END RELATIONAL
+1507   0D95 C0 00 00      cmp b, 0
+1508   0D98 C6 AD 0D      je _if41_exit
+1509   0D9B             _if41_TRUE:
+1510   0D9B             ; putchar('0'); 
+1511   0D9B             ; --- START FUNCTION CALL
+1512   0D9B FD 2E 30 00   mov32 cb, $00000030
+1512   0D9F 00 00 
+1513   0DA1 DD            push bl
+1514   0DA2 07 4B 0A      call putchar
+1515   0DA5 51 01 00      add sp, 1
+1516   0DA8             ; --- END FUNCTION CALL
+1517   0DA8             ; return; 
+1518   0DA8 F9            leave
+1519   0DA9 09            ret
+1520   0DAA 0A AD 0D      jmp _if41_exit
+1521   0DAD             _if41_exit:
+1522   0DAD             ; while (num > 0) { 
+1523   0DAD             _while42_cond:
+1524   0DAD FA 05 00      lea d, [bp + 5] ; $num
+1525   0DB0 2A            mov b, [d]
+1526   0DB1 38 00 00      mov c, 0
+1527   0DB4             ; --- START RELATIONAL
+1528   0DB4 D7            push a
+1529   0DB5 11            mov a, b
+1530   0DB6 FD 2E 00 00   mov32 cb, $00000000
+1530   0DBA 00 00 
+1531   0DBC B0            cmp a, b
+1532   0DBD FD 81         sgu ; > (unsigned)
+1533   0DBF E4            pop a
+1534   0DC0             ; --- END RELATIONAL
+1535   0DC0 C0 00 00      cmp b, 0
+1536   0DC3 C6 3A 0E      je _while42_exit
+1537   0DC6             _while42_block:
+1538   0DC6             ; digits[i] = '0' + (num % 10); 
+1539   0DC6 FA FC FF      lea d, [bp + -4] ; $digits
+1540   0DC9 D7            push a
+1541   0DCA DA            push d
+1542   0DCB FA FA FF      lea d, [bp + -6] ; $i
+1543   0DCE 2A            mov b, [d]
+1544   0DCF 38 00 00      mov c, 0
+1545   0DD2 E7            pop d
+1546   0DD3 5A            add d, b
+1547   0DD4 E4            pop a
+1548   0DD5 DA            push d
+1549   0DD6 FD 2E 30 00   mov32 cb, $00000030
+1549   0DDA 00 00 
+1550   0DDC             ; --- START TERMS
+1551   0DDC D7            push a
+1552   0DDD 11            mov a, b
+1553   0DDE FA 05 00      lea d, [bp + 5] ; $num
+1554   0DE1 2A            mov b, [d]
+1555   0DE2 38 00 00      mov c, 0
+1556   0DE5             ; --- START FACTORS
+1557   0DE5 D7            push a
+1558   0DE6 FD D8         push g
+1559   0DE8 11            mov a, b
+1560   0DE9 FD 7A         mov g, c
+1561   0DEB FD 2E 0A 00   mov32 cb, $0000000a
+1561   0DEF 00 00 
+1562   0DF1 FD D8         push g ; save 'g' as the div instruction uses it
+1563   0DF3 AE            div a, b ; %, a: quotient, b: remainder
+1564   0DF4 11            mov a, b
+1565   0DF5 FD F1         pop g
+1566   0DF7 FD 38         mov c, g
+1567   0DF9 27            mov b, a
+1568   0DFA FD F1         pop g
+1569   0DFC E4            pop a
+1570   0DFD             ; --- END FACTORS
+1571   0DFD 56            add b, a
+1572   0DFE E4            pop a
+1573   0DFF             ; --- END TERMS
+1574   0DFF E7            pop d
+1575   0E00 FD 3E         mov [d], bl
+1576   0E02             ; num = num / 10; 
+1577   0E02 FA 05 00      lea d, [bp + 5] ; $num
+1578   0E05 DA            push d
+1579   0E06 FA 05 00      lea d, [bp + 5] ; $num
+1580   0E09 2A            mov b, [d]
+1581   0E0A 38 00 00      mov c, 0
+1582   0E0D             ; --- START FACTORS
+1583   0E0D D7            push a
+1584   0E0E FD D8         push g
+1585   0E10 11            mov a, b
+1586   0E11 FD 7A         mov g, c
+1587   0E13 FD 2E 0A 00   mov32 cb, $0000000a
+1587   0E17 00 00 
+1588   0E19 FD D8         push g ; save 'g' as the div instruction uses it
+1589   0E1B AE            div a, b ; /, a: quotient, b: remainder
+1590   0E1C FD F1         pop g
+1591   0E1E FD 38         mov c, g
+1592   0E20 27            mov b, a
+1593   0E21 FD F1         pop g
+1594   0E23 E4            pop a
+1595   0E24             ; --- END FACTORS
+1596   0E24 E7            pop d
+1597   0E25 FD 43         mov [d], b
+1598   0E27             ; i++; 
+1599   0E27 FA FA FF      lea d, [bp + -6] ; $i
+1600   0E2A 2A            mov b, [d]
+1601   0E2B 38 00 00      mov c, 0
+1602   0E2E 11            mov a, b
+1603   0E2F FD 77         inc b
+1604   0E31 FA FA FF      lea d, [bp + -6] ; $i
+1605   0E34 FD 43         mov [d], b
+1606   0E36 27            mov b, a
+1607   0E37 0A AD 0D      jmp _while42_cond
+1608   0E3A             _while42_exit:
+1609   0E3A             ; while (i > 0) { 
+1610   0E3A             _while49_cond:
+1611   0E3A FA FA FF      lea d, [bp + -6] ; $i
+1612   0E3D 2A            mov b, [d]
+1613   0E3E 38 00 00      mov c, 0
+1614   0E41             ; --- START RELATIONAL
+1615   0E41 D7            push a
+1616   0E42 11            mov a, b
+1617   0E43 FD 2E 00 00   mov32 cb, $00000000
+1617   0E47 00 00 
+1618   0E49 B0            cmp a, b
+1619   0E4A FD 7F         sgt ; >
+1620   0E4C E4            pop a
+1621   0E4D             ; --- END RELATIONAL
+1622   0E4D C0 00 00      cmp b, 0
+1623   0E50 C6 82 0E      je _while49_exit
+1624   0E53             _while49_block:
+1625   0E53             ; i--; 
+1626   0E53 FA FA FF      lea d, [bp + -6] ; $i
+1627   0E56 2A            mov b, [d]
+1628   0E57 38 00 00      mov c, 0
+1629   0E5A 11            mov a, b
+1630   0E5B FD 7D         dec b
+1631   0E5D FA FA FF      lea d, [bp + -6] ; $i
+1632   0E60 FD 43         mov [d], b
+1633   0E62 27            mov b, a
+1634   0E63             ; putchar(digits[i]); 
+1635   0E63             ; --- START FUNCTION CALL
+1636   0E63 FA FC FF      lea d, [bp + -4] ; $digits
+1637   0E66 D7            push a
+1638   0E67 DA            push d
+1639   0E68 FA FA FF      lea d, [bp + -6] ; $i
+1640   0E6B 2A            mov b, [d]
+1641   0E6C 38 00 00      mov c, 0
+1642   0E6F E7            pop d
+1643   0E70 5A            add d, b
+1644   0E71 E4            pop a
+1645   0E72 32            mov bl, [d]
+1646   0E73 A7 00         mov bh, 0
+1647   0E75 38 00 00      mov c, 0
+1648   0E78 DD            push bl
+1649   0E79 07 4B 0A      call putchar
+1650   0E7C 51 01 00      add sp, 1
+1651   0E7F             ; --- END FUNCTION CALL
+1652   0E7F 0A 3A 0E      jmp _while49_cond
+1653   0E82             _while49_exit:
+1654   0E82 F9            leave
+1655   0E83 09            ret
+1656   0E84             
+1657   0E84             printx16:
+1658   0E84 F8 00 00      enter 0 ; (push bp; mov bp, sp)
+1659   0E87             ; --- BEGIN INLINE ASM SEGMENT
+1660   0E87 FA 05 00      lea d, [bp + 5] ; $hex
+1661   0E8A 2A            mov b, [d]
+1662   0E8B             print_u16x_printx16:
+1663   0E8B DD            push bl
+1664   0E8C 30            mov bl, bh
+1665   0E8D 07 AA 0E      call _itoa_printx16        ; convert bh to char in A
+1666   0E90 2F            mov bl, al        ; save al
+1667   0E91 19 00         mov al, 0
+1668   0E93 05 03         syscall sys_io        ; display AH
+1669   0E95 24            mov ah, bl        ; retrieve al
+1670   0E96 19 00         mov al, 0
+1671   0E98 05 03         syscall sys_io        ; display AL
+1672   0E9A EA            pop bl
+1673   0E9B 07 AA 0E      call _itoa_printx16        ; convert bh to char in A
+1674   0E9E 2F            mov bl, al        ; save al
+1675   0E9F 19 00         mov al, 0
+1676   0EA1 05 03         syscall sys_io        ; display AH
+1677   0EA3 24            mov ah, bl        ; retrieve al
+1678   0EA4 19 00         mov al, 0
+1679   0EA6 05 03         syscall sys_io        ; display AL
+1680   0EA8             ; --- END INLINE ASM SEGMENT
+1681   0EA8             ; return; 
+1682   0EA8 F9            leave
+1683   0EA9 09            ret
+1684   0EAA             ; --- BEGIN INLINE ASM SEGMENT
+1685   0EAA             _itoa_printx16:
+1686   0EAA DA            push d
+1687   0EAB D8            push b
+1688   0EAC A7 00         mov bh, 0
+1689   0EAE FD A4 04      shr bl, 4  
+1690   0EB1 74            mov d, b
+1691   0EB2 1F C4 0E      mov al, [d + s_hex_digits_printx16]
+1692   0EB5 23            mov ah, al
+1693   0EB6 E5            pop b
+1694   0EB7 D8            push b
+1695   0EB8 A7 00         mov bh, 0
+1696   0EBA FD 87 0F      and bl, $0F
+1697   0EBD 74            mov d, b
+1698   0EBE 1F C4 0E      mov al, [d + s_hex_digits_printx16]
+1699   0EC1 E5            pop b
+1700   0EC2 E7            pop d
+1701   0EC3 09            ret
+1702   0EC4 30 31 32 33 s_hex_digits_printx16:    .db "0123456789ABCDEF"  
+1702   0EC8 34 35 36 37 
+1702   0ECC 38 39 41 42 
+1702   0ED0 43 44 45 46 
+1703   0ED4             ; --- END INLINE ASM SEGMENT
+1704   0ED4 F9            leave
+1705   0ED5 09            ret
+1706   0ED6             ; --- END TEXT SEGMENT
+1707   0ED6             
+1708   0ED6             ; --- BEGIN DATA SEGMENT
+1709   0ED6 00 00 00 00 _map_data: .fill 7200, 0
+1709   0EDA 00 00 00 00 
+1709   0EDE 00 00 00 00 
+1709   0EE2 00 00 00 00 
+1709   0EE6 00 00 00 00 
+1709   0EEA 00 00 00 00 
+1709   0EEE 00 00 00 00 
+1709   0EF2 00 00 00 00 
+1709   0EF6 00 00 00 00 
+1709   0EFA 00 00 00 00 
+1709   0EFE 00 00 00 00 
+1709   0F02 00 00 00 00 
+1709   0F06 00 00 00 00 
+1709   0F0A 00 00 00 00 
+1709   0F0E 00 00 00 00 
+1709   0F12 00 00 00 00 
+1709   0F16 00 00 00 00 
+1709   0F1A 00 00 00 00 
+1709   0F1E 00 00 00 00 
+1709   0F22 00 00 00 00 
+1709   0F26 00 00 00 00 
+1709   0F2A 00 00 00 00 
+1709   0F2E 00 00 00 00 
+1709   0F32 00 00 00 00 
+1709   0F36 00 00 00 00 
+1709   0F3A 00 00 00 00 
+1709   0F3E 00 00 00 00 
+1709   0F42 00 00 00 00 
+1709   0F46 00 00 00 00 
+1709   0F4A 00 00 00 00 
+1709   0F4E 00 00 00 00 
+1709   0F52 00 00 00 00 
+1709   0F56 00 00 00 00 
+1709   0F5A 00 00 00 00 
+1709   0F5E 00 00 00 00 
+1709   0F62 00 00 00 00 
+1709   0F66 00 00 00 00 
+1709   0F6A 00 00 00 00 
+1709   0F6E 00 00 00 00 
+1709   0F72 00 00 00 00 
+1709   0F76 00 00 00 00 
+1709   0F7A 00 00 00 00 
+1709   0F7E 00 00 00 00 
+1709   0F82 00 00 00 00 
+1709   0F86 00 00 00 00 
+1709   0F8A 00 00 00 00 
+1709   0F8E 00 00 00 00 
+1709   0F92 00 00 00 00 
+1709   0F96 00 00 00 00 
+1709   0F9A 00 00 00 00 
+1709   0F9E 00 00 00 00 
+1709   0FA2 00 00 00 00 
+1709   0FA6 00 00 00 00 
+1709   0FAA 00 00 00 00 
+1709   0FAE 00 00 00 00 
+1709   0FB2 00 00 00 00 
+1709   0FB6 00 00 00 00 
+1709   0FBA 00 00 00 00 
+1709   0FBE 00 00 00 00 
+1709   0FC2 00 00 00 00 
+1709   0FC6 00 00 00 00 
+1709   0FCA 00 00 00 00 
+1709   0FCE 00 00 00 00 
+1709   0FD2 00 00 00 00 
+1709   0FD6 00 00 00 00 
+1709   0FDA 00 00 00 00 
+1709   0FDE 00 00 00 00 
+1709   0FE2 00 00 00 00 
+1709   0FE6 00 00 00 00 
+1709   0FEA 00 00 00 00 
+1709   0FEE 00 00 00 00 
+1709   0FF2 00 00 00 00 
+1709   0FF6 00 00 00 00 
+1709   0FFA 00 00 00 00 
+1709   0FFE 00 00 00 00 
+1709   1002 00 00 00 00 
+1709   1006 00 00 00 00 
+1709   100A 00 00 00 00 
+1709   100E 00 00 00 00 
+1709   1012 00 00 00 00 
+1709   1016 00 00 00 00 
+1709   101A 00 00 00 00 
+1709   101E 00 00 00 00 
+1709   1022 00 00 00 00 
+1709   1026 00 00 00 00 
+1709   102A 00 00 00 00 
+1709   102E 00 00 00 00 
+1709   1032 00 00 00 00 
+1709   1036 00 00 00 00 
+1709   103A 00 00 00 00 
+1709   103E 00 00 00 00 
+1709   1042 00 00 00 00 
+1709   1046 00 00 00 00 
+1709   104A 00 00 00 00 
+1709   104E 00 00 00 00 
+1709   1052 00 00 00 00 
+1709   1056 00 00 00 00 
+1709   105A 00 00 00 00 
+1709   105E 00 00 00 00 
+1709   1062 00 00 00 00 
+1709   1066 00 00 00 00 
+1709   106A 00 00 00 00 
+1709   106E 00 00 00 00 
+1709   1072 00 00 00 00 
+1709   1076 00 00 00 00 
+1709   107A 00 00 00 00 
+1709   107E 00 00 00 00 
+1709   1082 00 00 00 00 
+1709   1086 00 00 00 00 
+1709   108A 00 00 00 00 
+1709   108E 00 00 00 00 
+1709   1092 00 00 00 00 
+1709   1096 00 00 00 00 
+1709   109A 00 00 00 00 
+1709   109E 00 00 00 00 
+1709   10A2 00 00 00 00 
+1709   10A6 00 00 00 00 
+1709   10AA 00 00 00 00 
+1709   10AE 00 00 00 00 
+1709   10B2 00 00 00 00 
+1709   10B6 00 00 00 00 
+1709   10BA 00 00 00 00 
+1709   10BE 00 00 00 00 
+1709   10C2 00 00 00 00 
+1709   10C6 00 00 00 00 
+1709   10CA 00 00 00 00 
+1709   10CE 00 00 00 00 
+1709   10D2 00 00 00 00 
+1709   10D6 00 00 00 00 
+1709   10DA 00 00 00 00 
+1709   10DE 00 00 00 00 
+1709   10E2 00 00 00 00 
+1709   10E6 00 00 00 00 
+1709   10EA 00 00 00 00 
+1709   10EE 00 00 00 00 
+1709   10F2 00 00 00 00 
+1709   10F6 00 00 00 00 
+1709   10FA 00 00 00 00 
+1709   10FE 00 00 00 00 
+1709   1102 00 00 00 00 
+1709   1106 00 00 00 00 
+1709   110A 00 00 00 00 
+1709   110E 00 00 00 00 
+1709   1112 00 00 00 00 
+1709   1116 00 00 00 00 
+1709   111A 00 00 00 00 
+1709   111E 00 00 00 00 
+1709   1122 00 00 00 00 
+1709   1126 00 00 00 00 
+1709   112A 00 00 00 00 
+1709   112E 00 00 00 00 
+1709   1132 00 00 00 00 
+1709   1136 00 00 00 00 
+1709   113A 00 00 00 00 
+1709   113E 00 00 00 00 
+1709   1142 00 00 00 00 
+1709   1146 00 00 00 00 
+1709   114A 00 00 00 00 
+1709   114E 00 00 00 00 
+1709   1152 00 00 00 00 
+1709   1156 00 00 00 00 
+1709   115A 00 00 00 00 
+1709   115E 00 00 00 00 
+1709   1162 00 00 00 00 
+1709   1166 00 00 00 00 
+1709   116A 00 00 00 00 
+1709   116E 00 00 00 00 
+1709   1172 00 00 00 00 
+1709   1176 00 00 00 00 
+1709   117A 00 00 00 00 
+1709   117E 00 00 00 00 
+1709   1182 00 00 00 00 
+1709   1186 00 00 00 00 
+1709   118A 00 00 00 00 
+1709   118E 00 00 00 00 
+1709   1192 00 00 00 00 
+1709   1196 00 00 00 00 
+1709   119A 00 00 00 00 
+1709   119E 00 00 00 00 
+1709   11A2 00 00 00 00 
+1709   11A6 00 00 00 00 
+1709   11AA 00 00 00 00 
+1709   11AE 00 00 00 00 
+1709   11B2 00 00 00 00 
+1709   11B6 00 00 00 00 
+1709   11BA 00 00 00 00 
+1709   11BE 00 00 00 00 
+1709   11C2 00 00 00 00 
+1709   11C6 00 00 00 00 
+1709   11CA 00 00 00 00 
+1709   11CE 00 00 00 00 
+1709   11D2 00 00 00 00 
+1709   11D6 00 00 00 00 
+1709   11DA 00 00 00 00 
+1709   11DE 00 00 00 00 
+1709   11E2 00 00 00 00 
+1709   11E6 00 00 00 00 
+1709   11EA 00 00 00 00 
+1709   11EE 00 00 00 00 
+1709   11F2 00 00 00 00 
+1709   11F6 00 00 00 00 
+1709   11FA 00 00 00 00 
+1709   11FE 00 00 00 00 
+1709   1202 00 00 00 00 
+1709   1206 00 00 00 00 
+1709   120A 00 00 00 00 
+1709   120E 00 00 00 00 
+1709   1212 00 00 00 00 
+1709   1216 00 00 00 00 
+1709   121A 00 00 00 00 
+1709   121E 00 00 00 00 
+1709   1222 00 00 00 00 
+1709   1226 00 00 00 00 
+1709   122A 00 00 00 00 
+1709   122E 00 00 00 00 
+1709   1232 00 00 00 00 
+1709   1236 00 00 00 00 
+1709   123A 00 00 00 00 
+1709   123E 00 00 00 00 
+1709   1242 00 00 00 00 
+1709   1246 00 00 00 00 
+1709   124A 00 00 00 00 
+1709   124E 00 00 00 00 
+1709   1252 00 00 00 00 
+1709   1256 00 00 00 00 
+1709   125A 00 00 00 00 
+1709   125E 00 00 00 00 
+1709   1262 00 00 00 00 
+1709   1266 00 00 00 00 
+1709   126A 00 00 00 00 
+1709   126E 00 00 00 00 
+1709   1272 00 00 00 00 
+1709   1276 00 00 00 00 
+1709   127A 00 00 00 00 
+1709   127E 00 00 00 00 
+1709   1282 00 00 00 00 
+1709   1286 00 00 00 00 
+1709   128A 00 00 00 00 
+1709   128E 00 00 00 00 
+1709   1292 00 00 00 00 
+1709   1296 00 00 00 00 
+1709   129A 00 00 00 00 
+1709   129E 00 00 00 00 
+1709   12A2 00 00 00 00 
+1709   12A6 00 00 00 00 
+1709   12AA 00 00 00 00 
+1709   12AE 00 00 00 00 
+1709   12B2 00 00 00 00 
+1709   12B6 00 00 00 00 
+1709   12BA 00 00 00 00 
+1709   12BE 00 00 00 00 
+1709   12C2 00 00 00 00 
+1709   12C6 00 00 00 00 
+1709   12CA 00 00 00 00 
+1709   12CE 00 00 00 00 
+1709   12D2 00 00 00 00 
+1709   12D6 00 00 00 00 
+1709   12DA 00 00 00 00 
+1709   12DE 00 00 00 00 
+1709   12E2 00 00 00 00 
+1709   12E6 00 00 00 00 
+1709   12EA 00 00 00 00 
+1709   12EE 00 00 00 00 
+1709   12F2 00 00 00 00 
+1709   12F6 00 00 00 00 
+1709   12FA 00 00 00 00 
+1709   12FE 00 00 00 00 
+1709   1302 00 00 00 00 
+1709   1306 00 00 00 00 
+1709   130A 00 00 00 00 
+1709   130E 00 00 00 00 
+1709   1312 00 00 00 00 
+1709   1316 00 00 00 00 
+1709   131A 00 00 00 00 
+1709   131E 00 00 00 00 
+1709   1322 00 00 00 00 
+1709   1326 00 00 00 00 
+1709   132A 00 00 00 00 
+1709   132E 00 00 00 00 
+1709   1332 00 00 00 00 
+1709   1336 00 00 00 00 
+1709   133A 00 00 00 00 
+1709   133E 00 00 00 00 
+1709   1342 00 00 00 00 
+1709   1346 00 00 00 00 
+1709   134A 00 00 00 00 
+1709   134E 00 00 00 00 
+1709   1352 00 00 00 00 
+1709   1356 00 00 00 00 
+1709   135A 00 00 00 00 
+1709   135E 00 00 00 00 
+1709   1362 00 00 00 00 
+1709   1366 00 00 00 00 
+1709   136A 00 00 00 00 
+1709   136E 00 00 00 00 
+1709   1372 00 00 00 00 
+1709   1376 00 00 00 00 
+1709   137A 00 00 00 00 
+1709   137E 00 00 00 00 
+1709   1382 00 00 00 00 
+1709   1386 00 00 00 00 
+1709   138A 00 00 00 00 
+1709   138E 00 00 00 00 
+1709   1392 00 00 00 00 
+1709   1396 00 00 00 00 
+1709   139A 00 00 00 00 
+1709   139E 00 00 00 00 
+1709   13A2 00 00 00 00 
+1709   13A6 00 00 00 00 
+1709   13AA 00 00 00 00 
+1709   13AE 00 00 00 00 
+1709   13B2 00 00 00 00 
+1709   13B6 00 00 00 00 
+1709   13BA 00 00 00 00 
+1709   13BE 00 00 00 00 
+1709   13C2 00 00 00 00 
+1709   13C6 00 00 00 00 
+1709   13CA 00 00 00 00 
+1709   13CE 00 00 00 00 
+1709   13D2 00 00 00 00 
+1709   13D6 00 00 00 00 
+1709   13DA 00 00 00 00 
+1709   13DE 00 00 00 00 
+1709   13E2 00 00 00 00 
+1709   13E6 00 00 00 00 
+1709   13EA 00 00 00 00 
+1709   13EE 00 00 00 00 
+1709   13F2 00 00 00 00 
+1709   13F6 00 00 00 00 
+1709   13FA 00 00 00 00 
+1709   13FE 00 00 00 00 
+1709   1402 00 00 00 00 
+1709   1406 00 00 00 00 
+1709   140A 00 00 00 00 
+1709   140E 00 00 00 00 
+1709   1412 00 00 00 00 
+1709   1416 00 00 00 00 
+1709   141A 00 00 00 00 
+1709   141E 00 00 00 00 
+1709   1422 00 00 00 00 
+1709   1426 00 00 00 00 
+1709   142A 00 00 00 00 
+1709   142E 00 00 00 00 
+1709   1432 00 00 00 00 
+1709   1436 00 00 00 00 
+1709   143A 00 00 00 00 
+1709   143E 00 00 00 00 
+1709   1442 00 00 00 00 
+1709   1446 00 00 00 00 
+1709   144A 00 00 00 00 
+1709   144E 00 00 00 00 
+1709   1452 00 00 00 00 
+1709   1456 00 00 00 00 
+1709   145A 00 00 00 00 
+1709   145E 00 00 00 00 
+1709   1462 00 00 00 00 
+1709   1466 00 00 00 00 
+1709   146A 00 00 00 00 
+1709   146E 00 00 00 00 
+1709   1472 00 00 00 00 
+1709   1476 00 00 00 00 
+1709   147A 00 00 00 00 
+1709   147E 00 00 00 00 
+1709   1482 00 00 00 00 
+1709   1486 00 00 00 00 
+1709   148A 00 00 00 00 
+1709   148E 00 00 00 00 
+1709   1492 00 00 00 00 
+1709   1496 00 00 00 00 
+1709   149A 00 00 00 00 
+1709   149E 00 00 00 00 
+1709   14A2 00 00 00 00 
+1709   14A6 00 00 00 00 
+1709   14AA 00 00 00 00 
+1709   14AE 00 00 00 00 
+1709   14B2 00 00 00 00 
+1709   14B6 00 00 00 00 
+1709   14BA 00 00 00 00 
+1709   14BE 00 00 00 00 
+1709   14C2 00 00 00 00 
+1709   14C6 00 00 00 00 
+1709   14CA 00 00 00 00 
+1709   14CE 00 00 00 00 
+1709   14D2 00 00 00 00 
+1709   14D6 00 00 00 00 
+1709   14DA 00 00 00 00 
+1709   14DE 00 00 00 00 
+1709   14E2 00 00 00 00 
+1709   14E6 00 00 00 00 
+1709   14EA 00 00 00 00 
+1709   14EE 00 00 00 00 
+1709   14F2 00 00 00 00 
+1709   14F6 00 00 00 00 
+1709   14FA 00 00 00 00 
+1709   14FE 00 00 00 00 
+1709   1502 00 00 00 00 
+1709   1506 00 00 00 00 
+1709   150A 00 00 00 00 
+1709   150E 00 00 00 00 
+1709   1512 00 00 00 00 
+1709   1516 00 00 00 00 
+1709   151A 00 00 00 00 
+1709   151E 00 00 00 00 
+1709   1522 00 00 00 00 
+1709   1526 00 00 00 00 
+1709   152A 00 00 00 00 
+1709   152E 00 00 00 00 
+1709   1532 00 00 00 00 
+1709   1536 00 00 00 00 
+1709   153A 00 00 00 00 
+1709   153E 00 00 00 00 
+1709   1542 00 00 00 00 
+1709   1546 00 00 00 00 
+1709   154A 00 00 00 00 
+1709   154E 00 00 00 00 
+1709   1552 00 00 00 00 
+1709   1556 00 00 00 00 
+1709   155A 00 00 00 00 
+1709   155E 00 00 00 00 
+1709   1562 00 00 00 00 
+1709   1566 00 00 00 00 
+1709   156A 00 00 00 00 
+1709   156E 00 00 00 00 
+1709   1572 00 00 00 00 
+1709   1576 00 00 00 00 
+1709   157A 00 00 00 00 
+1709   157E 00 00 00 00 
+1709   1582 00 00 00 00 
+1709   1586 00 00 00 00 
+1709   158A 00 00 00 00 
+1709   158E 00 00 00 00 
+1709   1592 00 00 00 00 
+1709   1596 00 00 00 00 
+1709   159A 00 00 00 00 
+1709   159E 00 00 00 00 
+1709   15A2 00 00 00 00 
+1709   15A6 00 00 00 00 
+1709   15AA 00 00 00 00 
+1709   15AE 00 00 00 00 
+1709   15B2 00 00 00 00 
+1709   15B6 00 00 00 00 
+1709   15BA 00 00 00 00 
+1709   15BE 00 00 00 00 
+1709   15C2 00 00 00 00 
+1709   15C6 00 00 00 00 
+1709   15CA 00 00 00 00 
+1709   15CE 00 00 00 00 
+1709   15D2 00 00 00 00 
+1709   15D6 00 00 00 00 
+1709   15DA 00 00 00 00 
+1709   15DE 00 00 00 00 
+1709   15E2 00 00 00 00 
+1709   15E6 00 00 00 00 
+1709   15EA 00 00 00 00 
+1709   15EE 00 00 00 00 
+1709   15F2 00 00 00 00 
+1709   15F6 00 00 00 00 
+1709   15FA 00 00 00 00 
+1709   15FE 00 00 00 00 
+1709   1602 00 00 00 00 
+1709   1606 00 00 00 00 
+1709   160A 00 00 00 00 
+1709   160E 00 00 00 00 
+1709   1612 00 00 00 00 
+1709   1616 00 00 00 00 
+1709   161A 00 00 00 00 
+1709   161E 00 00 00 00 
+1709   1622 00 00 00 00 
+1709   1626 00 00 00 00 
+1709   162A 00 00 00 00 
+1709   162E 00 00 00 00 
+1709   1632 00 00 00 00 
+1709   1636 00 00 00 00 
+1709   163A 00 00 00 00 
+1709   163E 00 00 00 00 
+1709   1642 00 00 00 00 
+1709   1646 00 00 00 00 
+1709   164A 00 00 00 00 
+1709   164E 00 00 00 00 
+1709   1652 00 00 00 00 
+1709   1656 00 00 00 00 
+1709   165A 00 00 00 00 
+1709   165E 00 00 00 00 
+1709   1662 00 00 00 00 
+1709   1666 00 00 00 00 
+1709   166A 00 00 00 00 
+1709   166E 00 00 00 00 
+1709   1672 00 00 00 00 
+1709   1676 00 00 00 00 
+1709   167A 00 00 00 00 
+1709   167E 00 00 00 00 
+1709   1682 00 00 00 00 
+1709   1686 00 00 00 00 
+1709   168A 00 00 00 00 
+1709   168E 00 00 00 00 
+1709   1692 00 00 00 00 
+1709   1696 00 00 00 00 
+1709   169A 00 00 00 00 
+1709   169E 00 00 00 00 
+1709   16A2 00 00 00 00 
+1709   16A6 00 00 00 00 
+1709   16AA 00 00 00 00 
+1709   16AE 00 00 00 00 
+1709   16B2 00 00 00 00 
+1709   16B6 00 00 00 00 
+1709   16BA 00 00 00 00 
+1709   16BE 00 00 00 00 
+1709   16C2 00 00 00 00 
+1709   16C6 00 00 00 00 
+1709   16CA 00 00 00 00 
+1709   16CE 00 00 00 00 
+1709   16D2 00 00 00 00 
+1709   16D6 00 00 00 00 
+1709   16DA 00 00 00 00 
+1709   16DE 00 00 00 00 
+1709   16E2 00 00 00 00 
+1709   16E6 00 00 00 00 
+1709   16EA 00 00 00 00 
+1709   16EE 00 00 00 00 
+1709   16F2 00 00 00 00 
+1709   16F6 00 00 00 00 
+1709   16FA 00 00 00 00 
+1709   16FE 00 00 00 00 
+1709   1702 00 00 00 00 
+1709   1706 00 00 00 00 
+1709   170A 00 00 00 00 
+1709   170E 00 00 00 00 
+1709   1712 00 00 00 00 
+1709   1716 00 00 00 00 
+1709   171A 00 00 00 00 
+1709   171E 00 00 00 00 
+1709   1722 00 00 00 00 
+1709   1726 00 00 00 00 
+1709   172A 00 00 00 00 
+1709   172E 00 00 00 00 
+1709   1732 00 00 00 00 
+1709   1736 00 00 00 00 
+1709   173A 00 00 00 00 
+1709   173E 00 00 00 00 
+1709   1742 00 00 00 00 
+1709   1746 00 00 00 00 
+1709   174A 00 00 00 00 
+1709   174E 00 00 00 00 
+1709   1752 00 00 00 00 
+1709   1756 00 00 00 00 
+1709   175A 00 00 00 00 
+1709   175E 00 00 00 00 
+1709   1762 00 00 00 00 
+1709   1766 00 00 00 00 
+1709   176A 00 00 00 00 
+1709   176E 00 00 00 00 
+1709   1772 00 00 00 00 
+1709   1776 00 00 00 00 
+1709   177A 00 00 00 00 
+1709   177E 00 00 00 00 
+1709   1782 00 00 00 00 
+1709   1786 00 00 00 00 
+1709   178A 00 00 00 00 
+1709   178E 00 00 00 00 
+1709   1792 00 00 00 00 
+1709   1796 00 00 00 00 
+1709   179A 00 00 00 00 
+1709   179E 00 00 00 00 
+1709   17A2 00 00 00 00 
+1709   17A6 00 00 00 00 
+1709   17AA 00 00 00 00 
+1709   17AE 00 00 00 00 
+1709   17B2 00 00 00 00 
+1709   17B6 00 00 00 00 
+1709   17BA 00 00 00 00 
+1709   17BE 00 00 00 00 
+1709   17C2 00 00 00 00 
+1709   17C6 00 00 00 00 
+1709   17CA 00 00 00 00 
+1709   17CE 00 00 00 00 
+1709   17D2 00 00 00 00 
+1709   17D6 00 00 00 00 
+1709   17DA 00 00 00 00 
+1709   17DE 00 00 00 00 
+1709   17E2 00 00 00 00 
+1709   17E6 00 00 00 00 
+1709   17EA 00 00 00 00 
+1709   17EE 00 00 00 00 
+1709   17F2 00 00 00 00 
+1709   17F6 00 00 00 00 
+1709   17FA 00 00 00 00 
+1709   17FE 00 00 00 00 
+1709   1802 00 00 00 00 
+1709   1806 00 00 00 00 
+1709   180A 00 00 00 00 
+1709   180E 00 00 00 00 
+1709   1812 00 00 00 00 
+1709   1816 00 00 00 00 
+1709   181A 00 00 00 00 
+1709   181E 00 00 00 00 
+1709   1822 00 00 00 00 
+1709   1826 00 00 00 00 
+1709   182A 00 00 00 00 
+1709   182E 00 00 00 00 
+1709   1832 00 00 00 00 
+1709   1836 00 00 00 00 
+1709   183A 00 00 00 00 
+1709   183E 00 00 00 00 
+1709   1842 00 00 00 00 
+1709   1846 00 00 00 00 
+1709   184A 00 00 00 00 
+1709   184E 00 00 00 00 
+1709   1852 00 00 00 00 
+1709   1856 00 00 00 00 
+1709   185A 00 00 00 00 
+1709   185E 00 00 00 00 
+1709   1862 00 00 00 00 
+1709   1866 00 00 00 00 
+1709   186A 00 00 00 00 
+1709   186E 00 00 00 00 
+1709   1872 00 00 00 00 
+1709   1876 00 00 00 00 
+1709   187A 00 00 00 00 
+1709   187E 00 00 00 00 
+1709   1882 00 00 00 00 
+1709   1886 00 00 00 00 
+1709   188A 00 00 00 00 
+1709   188E 00 00 00 00 
+1709   1892 00 00 00 00 
+1709   1896 00 00 00 00 
+1709   189A 00 00 00 00 
+1709   189E 00 00 00 00 
+1709   18A2 00 00 00 00 
+1709   18A6 00 00 00 00 
+1709   18AA 00 00 00 00 
+1709   18AE 00 00 00 00 
+1709   18B2 00 00 00 00 
+1709   18B6 00 00 00 00 
+1709   18BA 00 00 00 00 
+1709   18BE 00 00 00 00 
+1709   18C2 00 00 00 00 
+1709   18C6 00 00 00 00 
+1709   18CA 00 00 00 00 
+1709   18CE 00 00 00 00 
+1709   18D2 00 00 00 00 
+1709   18D6 00 00 00 00 
+1709   18DA 00 00 00 00 
+1709   18DE 00 00 00 00 
+1709   18E2 00 00 00 00 
+1709   18E6 00 00 00 00 
+1709   18EA 00 00 00 00 
+1709   18EE 00 00 00 00 
+1709   18F2 00 00 00 00 
+1709   18F6 00 00 00 00 
+1709   18FA 00 00 00 00 
+1709   18FE 00 00 00 00 
+1709   1902 00 00 00 00 
+1709   1906 00 00 00 00 
+1709   190A 00 00 00 00 
+1709   190E 00 00 00 00 
+1709   1912 00 00 00 00 
+1709   1916 00 00 00 00 
+1709   191A 00 00 00 00 
+1709   191E 00 00 00 00 
+1709   1922 00 00 00 00 
+1709   1926 00 00 00 00 
+1709   192A 00 00 00 00 
+1709   192E 00 00 00 00 
+1709   1932 00 00 00 00 
+1709   1936 00 00 00 00 
+1709   193A 00 00 00 00 
+1709   193E 00 00 00 00 
+1709   1942 00 00 00 00 
+1709   1946 00 00 00 00 
+1709   194A 00 00 00 00 
+1709   194E 00 00 00 00 
+1709   1952 00 00 00 00 
+1709   1956 00 00 00 00 
+1709   195A 00 00 00 00 
+1709   195E 00 00 00 00 
+1709   1962 00 00 00 00 
+1709   1966 00 00 00 00 
+1709   196A 00 00 00 00 
+1709   196E 00 00 00 00 
+1709   1972 00 00 00 00 
+1709   1976 00 00 00 00 
+1709   197A 00 00 00 00 
+1709   197E 00 00 00 00 
+1709   1982 00 00 00 00 
+1709   1986 00 00 00 00 
+1709   198A 00 00 00 00 
+1709   198E 00 00 00 00 
+1709   1992 00 00 00 00 
+1709   1996 00 00 00 00 
+1709   199A 00 00 00 00 
+1709   199E 00 00 00 00 
+1709   19A2 00 00 00 00 
+1709   19A6 00 00 00 00 
+1709   19AA 00 00 00 00 
+1709   19AE 00 00 00 00 
+1709   19B2 00 00 00 00 
+1709   19B6 00 00 00 00 
+1709   19BA 00 00 00 00 
+1709   19BE 00 00 00 00 
+1709   19C2 00 00 00 00 
+1709   19C6 00 00 00 00 
+1709   19CA 00 00 00 00 
+1709   19CE 00 00 00 00 
+1709   19D2 00 00 00 00 
+1709   19D6 00 00 00 00 
+1709   19DA 00 00 00 00 
+1709   19DE 00 00 00 00 
+1709   19E2 00 00 00 00 
+1709   19E6 00 00 00 00 
+1709   19EA 00 00 00 00 
+1709   19EE 00 00 00 00 
+1709   19F2 00 00 00 00 
+1709   19F6 00 00 00 00 
+1709   19FA 00 00 00 00 
+1709   19FE 00 00 00 00 
+1709   1A02 00 00 00 00 
+1709   1A06 00 00 00 00 
+1709   1A0A 00 00 00 00 
+1709   1A0E 00 00 00 00 
+1709   1A12 00 00 00 00 
+1709   1A16 00 00 00 00 
+1709   1A1A 00 00 00 00 
+1709   1A1E 00 00 00 00 
+1709   1A22 00 00 00 00 
+1709   1A26 00 00 00 00 
+1709   1A2A 00 00 00 00 
+1709   1A2E 00 00 00 00 
+1709   1A32 00 00 00 00 
+1709   1A36 00 00 00 00 
+1709   1A3A 00 00 00 00 
+1709   1A3E 00 00 00 00 
+1709   1A42 00 00 00 00 
+1709   1A46 00 00 00 00 
+1709   1A4A 00 00 00 00 
+1709   1A4E 00 00 00 00 
+1709   1A52 00 00 00 00 
+1709   1A56 00 00 00 00 
+1709   1A5A 00 00 00 00 
+1709   1A5E 00 00 00 00 
+1709   1A62 00 00 00 00 
+1709   1A66 00 00 00 00 
+1709   1A6A 00 00 00 00 
+1709   1A6E 00 00 00 00 
+1709   1A72 00 00 00 00 
+1709   1A76 00 00 00 00 
+1709   1A7A 00 00 00 00 
+1709   1A7E 00 00 00 00 
+1709   1A82 00 00 00 00 
+1709   1A86 00 00 00 00 
+1709   1A8A 00 00 00 00 
+1709   1A8E 00 00 00 00 
+1709   1A92 00 00 00 00 
+1709   1A96 00 00 00 00 
+1709   1A9A 00 00 00 00 
+1709   1A9E 00 00 00 00 
+1709   1AA2 00 00 00 00 
+1709   1AA6 00 00 00 00 
+1709   1AAA 00 00 00 00 
+1709   1AAE 00 00 00 00 
+1709   1AB2 00 00 00 00 
+1709   1AB6 00 00 00 00 
+1709   1ABA 00 00 00 00 
+1709   1ABE 00 00 00 00 
+1709   1AC2 00 00 00 00 
+1709   1AC6 00 00 00 00 
+1709   1ACA 00 00 00 00 
+1709   1ACE 00 00 00 00 
+1709   1AD2 00 00 00 00 
+1709   1AD6 00 00 00 00 
+1709   1ADA 00 00 00 00 
+1709   1ADE 00 00 00 00 
+1709   1AE2 00 00 00 00 
+1709   1AE6 00 00 00 00 
+1709   1AEA 00 00 00 00 
+1709   1AEE 00 00 00 00 
+1709   1AF2 00 00 00 00 
+1709   1AF6 00 00 00 00 
+1709   1AFA 00 00 00 00 
+1709   1AFE 00 00 00 00 
+1709   1B02 00 00 00 00 
+1709   1B06 00 00 00 00 
+1709   1B0A 00 00 00 00 
+1709   1B0E 00 00 00 00 
+1709   1B12 00 00 00 00 
+1709   1B16 00 00 00 00 
+1709   1B1A 00 00 00 00 
+1709   1B1E 00 00 00 00 
+1709   1B22 00 00 00 00 
+1709   1B26 00 00 00 00 
+1709   1B2A 00 00 00 00 
+1709   1B2E 00 00 00 00 
+1709   1B32 00 00 00 00 
+1709   1B36 00 00 00 00 
+1709   1B3A 00 00 00 00 
+1709   1B3E 00 00 00 00 
+1709   1B42 00 00 00 00 
+1709   1B46 00 00 00 00 
+1709   1B4A 00 00 00 00 
+1709   1B4E 00 00 00 00 
+1709   1B52 00 00 00 00 
+1709   1B56 00 00 00 00 
+1709   1B5A 00 00 00 00 
+1709   1B5E 00 00 00 00 
+1709   1B62 00 00 00 00 
+1709   1B66 00 00 00 00 
+1709   1B6A 00 00 00 00 
+1709   1B6E 00 00 00 00 
+1709   1B72 00 00 00 00 
+1709   1B76 00 00 00 00 
+1709   1B7A 00 00 00 00 
+1709   1B7E 00 00 00 00 
+1709   1B82 00 00 00 00 
+1709   1B86 00 00 00 00 
+1709   1B8A 00 00 00 00 
+1709   1B8E 00 00 00 00 
+1709   1B92 00 00 00 00 
+1709   1B96 00 00 00 00 
+1709   1B9A 00 00 00 00 
+1709   1B9E 00 00 00 00 
+1709   1BA2 00 00 00 00 
+1709   1BA6 00 00 00 00 
+1709   1BAA 00 00 00 00 
+1709   1BAE 00 00 00 00 
+1709   1BB2 00 00 00 00 
+1709   1BB6 00 00 00 00 
+1709   1BBA 00 00 00 00 
+1709   1BBE 00 00 00 00 
+1709   1BC2 00 00 00 00 
+1709   1BC6 00 00 00 00 
+1709   1BCA 00 00 00 00 
+1709   1BCE 00 00 00 00 
+1709   1BD2 00 00 00 00 
+1709   1BD6 00 00 00 00 
+1709   1BDA 00 00 00 00 
+1709   1BDE 00 00 00 00 
+1709   1BE2 00 00 00 00 
+1709   1BE6 00 00 00 00 
+1709   1BEA 00 00 00 00 
+1709   1BEE 00 00 00 00 
+1709   1BF2 00 00 00 00 
+1709   1BF6 00 00 00 00 
+1709   1BFA 00 00 00 00 
+1709   1BFE 00 00 00 00 
+1709   1C02 00 00 00 00 
+1709   1C06 00 00 00 00 
+1709   1C0A 00 00 00 00 
+1709   1C0E 00 00 00 00 
+1709   1C12 00 00 00 00 
+1709   1C16 00 00 00 00 
+1709   1C1A 00 00 00 00 
+1709   1C1E 00 00 00 00 
+1709   1C22 00 00 00 00 
+1709   1C26 00 00 00 00 
+1709   1C2A 00 00 00 00 
+1709   1C2E 00 00 00 00 
+1709   1C32 00 00 00 00 
+1709   1C36 00 00 00 00 
+1709   1C3A 00 00 00 00 
+1709   1C3E 00 00 00 00 
+1709   1C42 00 00 00 00 
+1709   1C46 00 00 00 00 
+1709   1C4A 00 00 00 00 
+1709   1C4E 00 00 00 00 
+1709   1C52 00 00 00 00 
+1709   1C56 00 00 00 00 
+1709   1C5A 00 00 00 00 
+1709   1C5E 00 00 00 00 
+1709   1C62 00 00 00 00 
+1709   1C66 00 00 00 00 
+1709   1C6A 00 00 00 00 
+1709   1C6E 00 00 00 00 
+1709   1C72 00 00 00 00 
+1709   1C76 00 00 00 00 
+1709   1C7A 00 00 00 00 
+1709   1C7E 00 00 00 00 
+1709   1C82 00 00 00 00 
+1709   1C86 00 00 00 00 
+1709   1C8A 00 00 00 00 
+1709   1C8E 00 00 00 00 
+1709   1C92 00 00 00 00 
+1709   1C96 00 00 00 00 
+1709   1C9A 00 00 00 00 
+1709   1C9E 00 00 00 00 
+1709   1CA2 00 00 00 00 
+1709   1CA6 00 00 00 00 
+1709   1CAA 00 00 00 00 
+1709   1CAE 00 00 00 00 
+1709   1CB2 00 00 00 00 
+1709   1CB6 00 00 00 00 
+1709   1CBA 00 00 00 00 
+1709   1CBE 00 00 00 00 
+1709   1CC2 00 00 00 00 
+1709   1CC6 00 00 00 00 
+1709   1CCA 00 00 00 00 
+1709   1CCE 00 00 00 00 
+1709   1CD2 00 00 00 00 
+1709   1CD6 00 00 00 00 
+1709   1CDA 00 00 00 00 
+1709   1CDE 00 00 00 00 
+1709   1CE2 00 00 00 00 
+1709   1CE6 00 00 00 00 
+1709   1CEA 00 00 00 00 
+1709   1CEE 00 00 00 00 
+1709   1CF2 00 00 00 00 
+1709   1CF6 00 00 00 00 
+1709   1CFA 00 00 00 00 
+1709   1CFE 00 00 00 00 
+1709   1D02 00 00 00 00 
+1709   1D06 00 00 00 00 
+1709   1D0A 00 00 00 00 
+1709   1D0E 00 00 00 00 
+1709   1D12 00 00 00 00 
+1709   1D16 00 00 00 00 
+1709   1D1A 00 00 00 00 
+1709   1D1E 00 00 00 00 
+1709   1D22 00 00 00 00 
+1709   1D26 00 00 00 00 
+1709   1D2A 00 00 00 00 
+1709   1D2E 00 00 00 00 
+1709   1D32 00 00 00 00 
+1709   1D36 00 00 00 00 
+1709   1D3A 00 00 00 00 
+1709   1D3E 00 00 00 00 
+1709   1D42 00 00 00 00 
+1709   1D46 00 00 00 00 
+1709   1D4A 00 00 00 00 
+1709   1D4E 00 00 00 00 
+1709   1D52 00 00 00 00 
+1709   1D56 00 00 00 00 
+1709   1D5A 00 00 00 00 
+1709   1D5E 00 00 00 00 
+1709   1D62 00 00 00 00 
+1709   1D66 00 00 00 00 
+1709   1D6A 00 00 00 00 
+1709   1D6E 00 00 00 00 
+1709   1D72 00 00 00 00 
+1709   1D76 00 00 00 00 
+1709   1D7A 00 00 00 00 
+1709   1D7E 00 00 00 00 
+1709   1D82 00 00 00 00 
+1709   1D86 00 00 00 00 
+1709   1D8A 00 00 00 00 
+1709   1D8E 00 00 00 00 
+1709   1D92 00 00 00 00 
+1709   1D96 00 00 00 00 
+1709   1D9A 00 00 00 00 
+1709   1D9E 00 00 00 00 
+1709   1DA2 00 00 00 00 
+1709   1DA6 00 00 00 00 
+1709   1DAA 00 00 00 00 
+1709   1DAE 00 00 00 00 
+1709   1DB2 00 00 00 00 
+1709   1DB6 00 00 00 00 
+1709   1DBA 00 00 00 00 
+1709   1DBE 00 00 00 00 
+1709   1DC2 00 00 00 00 
+1709   1DC6 00 00 00 00 
+1709   1DCA 00 00 00 00 
+1709   1DCE 00 00 00 00 
+1709   1DD2 00 00 00 00 
+1709   1DD6 00 00 00 00 
+1709   1DDA 00 00 00 00 
+1709   1DDE 00 00 00 00 
+1709   1DE2 00 00 00 00 
+1709   1DE6 00 00 00 00 
+1709   1DEA 00 00 00 00 
+1709   1DEE 00 00 00 00 
+1709   1DF2 00 00 00 00 
+1709   1DF6 00 00 00 00 
+1709   1DFA 00 00 00 00 
+1709   1DFE 00 00 00 00 
+1709   1E02 00 00 00 00 
+1709   1E06 00 00 00 00 
+1709   1E0A 00 00 00 00 
+1709   1E0E 00 00 00 00 
+1709   1E12 00 00 00 00 
+1709   1E16 00 00 00 00 
+1709   1E1A 00 00 00 00 
+1709   1E1E 00 00 00 00 
+1709   1E22 00 00 00 00 
+1709   1E26 00 00 00 00 
+1709   1E2A 00 00 00 00 
+1709   1E2E 00 00 00 00 
+1709   1E32 00 00 00 00 
+1709   1E36 00 00 00 00 
+1709   1E3A 00 00 00 00 
+1709   1E3E 00 00 00 00 
+1709   1E42 00 00 00 00 
+1709   1E46 00 00 00 00 
+1709   1E4A 00 00 00 00 
+1709   1E4E 00 00 00 00 
+1709   1E52 00 00 00 00 
+1709   1E56 00 00 00 00 
+1709   1E5A 00 00 00 00 
+1709   1E5E 00 00 00 00 
+1709   1E62 00 00 00 00 
+1709   1E66 00 00 00 00 
+1709   1E6A 00 00 00 00 
+1709   1E6E 00 00 00 00 
+1709   1E72 00 00 00 00 
+1709   1E76 00 00 00 00 
+1709   1E7A 00 00 00 00 
+1709   1E7E 00 00 00 00 
+1709   1E82 00 00 00 00 
+1709   1E86 00 00 00 00 
+1709   1E8A 00 00 00 00 
+1709   1E8E 00 00 00 00 
+1709   1E92 00 00 00 00 
+1709   1E96 00 00 00 00 
+1709   1E9A 00 00 00 00 
+1709   1E9E 00 00 00 00 
+1709   1EA2 00 00 00 00 
+1709   1EA6 00 00 00 00 
+1709   1EAA 00 00 00 00 
+1709   1EAE 00 00 00 00 
+1709   1EB2 00 00 00 00 
+1709   1EB6 00 00 00 00 
+1709   1EBA 00 00 00 00 
+1709   1EBE 00 00 00 00 
+1709   1EC2 00 00 00 00 
+1709   1EC6 00 00 00 00 
+1709   1ECA 00 00 00 00 
+1709   1ECE 00 00 00 00 
+1709   1ED2 00 00 00 00 
+1709   1ED6 00 00 00 00 
+1709   1EDA 00 00 00 00 
+1709   1EDE 00 00 00 00 
+1709   1EE2 00 00 00 00 
+1709   1EE6 00 00 00 00 
+1709   1EEA 00 00 00 00 
+1709   1EEE 00 00 00 00 
+1709   1EF2 00 00 00 00 
+1709   1EF6 00 00 00 00 
+1709   1EFA 00 00 00 00 
+1709   1EFE 00 00 00 00 
+1709   1F02 00 00 00 00 
+1709   1F06 00 00 00 00 
+1709   1F0A 00 00 00 00 
+1709   1F0E 00 00 00 00 
+1709   1F12 00 00 00 00 
+1709   1F16 00 00 00 00 
+1709   1F1A 00 00 00 00 
+1709   1F1E 00 00 00 00 
+1709   1F22 00 00 00 00 
+1709   1F26 00 00 00 00 
+1709   1F2A 00 00 00 00 
+1709   1F2E 00 00 00 00 
+1709   1F32 00 00 00 00 
+1709   1F36 00 00 00 00 
+1709   1F3A 00 00 00 00 
+1709   1F3E 00 00 00 00 
+1709   1F42 00 00 00 00 
+1709   1F46 00 00 00 00 
+1709   1F4A 00 00 00 00 
+1709   1F4E 00 00 00 00 
+1709   1F52 00 00 00 00 
+1709   1F56 00 00 00 00 
+1709   1F5A 00 00 00 00 
+1709   1F5E 00 00 00 00 
+1709   1F62 00 00 00 00 
+1709   1F66 00 00 00 00 
+1709   1F6A 00 00 00 00 
+1709   1F6E 00 00 00 00 
+1709   1F72 00 00 00 00 
+1709   1F76 00 00 00 00 
+1709   1F7A 00 00 00 00 
+1709   1F7E 00 00 00 00 
+1709   1F82 00 00 00 00 
+1709   1F86 00 00 00 00 
+1709   1F8A 00 00 00 00 
+1709   1F8E 00 00 00 00 
+1709   1F92 00 00 00 00 
+1709   1F96 00 00 00 00 
+1709   1F9A 00 00 00 00 
+1709   1F9E 00 00 00 00 
+1709   1FA2 00 00 00 00 
+1709   1FA6 00 00 00 00 
+1709   1FAA 00 00 00 00 
+1709   1FAE 00 00 00 00 
+1709   1FB2 00 00 00 00 
+1709   1FB6 00 00 00 00 
+1709   1FBA 00 00 00 00 
+1709   1FBE 00 00 00 00 
+1709   1FC2 00 00 00 00 
+1709   1FC6 00 00 00 00 
+1709   1FCA 00 00 00 00 
+1709   1FCE 00 00 00 00 
+1709   1FD2 00 00 00 00 
+1709   1FD6 00 00 00 00 
+1709   1FDA 00 00 00 00 
+1709   1FDE 00 00 00 00 
+1709   1FE2 00 00 00 00 
+1709   1FE6 00 00 00 00 
+1709   1FEA 00 00 00 00 
+1709   1FEE 00 00 00 00 
+1709   1FF2 00 00 00 00 
+1709   1FF6 00 00 00 00 
+1709   1FFA 00 00 00 00 
+1709   1FFE 00 00 00 00 
+1709   2002 00 00 00 00 
+1709   2006 00 00 00 00 
+1709   200A 00 00 00 00 
+1709   200E 00 00 00 00 
+1709   2012 00 00 00 00 
+1709   2016 00 00 00 00 
+1709   201A 00 00 00 00 
+1709   201E 00 00 00 00 
+1709   2022 00 00 00 00 
+1709   2026 00 00 00 00 
+1709   202A 00 00 00 00 
+1709   202E 00 00 00 00 
+1709   2032 00 00 00 00 
+1709   2036 00 00 00 00 
+1709   203A 00 00 00 00 
+1709   203E 00 00 00 00 
+1709   2042 00 00 00 00 
+1709   2046 00 00 00 00 
+1709   204A 00 00 00 00 
+1709   204E 00 00 00 00 
+1709   2052 00 00 00 00 
+1709   2056 00 00 00 00 
+1709   205A 00 00 00 00 
+1709   205E 00 00 00 00 
+1709   2062 00 00 00 00 
+1709   2066 00 00 00 00 
+1709   206A 00 00 00 00 
+1709   206E 00 00 00 00 
+1709   2072 00 00 00 00 
+1709   2076 00 00 00 00 
+1709   207A 00 00 00 00 
+1709   207E 00 00 00 00 
+1709   2082 00 00 00 00 
+1709   2086 00 00 00 00 
+1709   208A 00 00 00 00 
+1709   208E 00 00 00 00 
+1709   2092 00 00 00 00 
+1709   2096 00 00 00 00 
+1709   209A 00 00 00 00 
+1709   209E 00 00 00 00 
+1709   20A2 00 00 00 00 
+1709   20A6 00 00 00 00 
+1709   20AA 00 00 00 00 
+1709   20AE 00 00 00 00 
+1709   20B2 00 00 00 00 
+1709   20B6 00 00 00 00 
+1709   20BA 00 00 00 00 
+1709   20BE 00 00 00 00 
+1709   20C2 00 00 00 00 
+1709   20C6 00 00 00 00 
+1709   20CA 00 00 00 00 
+1709   20CE 00 00 00 00 
+1709   20D2 00 00 00 00 
+1709   20D6 00 00 00 00 
+1709   20DA 00 00 00 00 
+1709   20DE 00 00 00 00 
+1709   20E2 00 00 00 00 
+1709   20E6 00 00 00 00 
+1709   20EA 00 00 00 00 
+1709   20EE 00 00 00 00 
+1709   20F2 00 00 00 00 
+1709   20F6 00 00 00 00 
+1709   20FA 00 00 00 00 
+1709   20FE 00 00 00 00 
+1709   2102 00 00 00 00 
+1709   2106 00 00 00 00 
+1709   210A 00 00 00 00 
+1709   210E 00 00 00 00 
+1709   2112 00 00 00 00 
+1709   2116 00 00 00 00 
+1709   211A 00 00 00 00 
+1709   211E 00 00 00 00 
+1709   2122 00 00 00 00 
+1709   2126 00 00 00 00 
+1709   212A 00 00 00 00 
+1709   212E 00 00 00 00 
+1709   2132 00 00 00 00 
+1709   2136 00 00 00 00 
+1709   213A 00 00 00 00 
+1709   213E 00 00 00 00 
+1709   2142 00 00 00 00 
+1709   2146 00 00 00 00 
+1709   214A 00 00 00 00 
+1709   214E 00 00 00 00 
+1709   2152 00 00 00 00 
+1709   2156 00 00 00 00 
+1709   215A 00 00 00 00 
+1709   215E 00 00 00 00 
+1709   2162 00 00 00 00 
+1709   2166 00 00 00 00 
+1709   216A 00 00 00 00 
+1709   216E 00 00 00 00 
+1709   2172 00 00 00 00 
+1709   2176 00 00 00 00 
+1709   217A 00 00 00 00 
+1709   217E 00 00 00 00 
+1709   2182 00 00 00 00 
+1709   2186 00 00 00 00 
+1709   218A 00 00 00 00 
+1709   218E 00 00 00 00 
+1709   2192 00 00 00 00 
+1709   2196 00 00 00 00 
+1709   219A 00 00 00 00 
+1709   219E 00 00 00 00 
+1709   21A2 00 00 00 00 
+1709   21A6 00 00 00 00 
+1709   21AA 00 00 00 00 
+1709   21AE 00 00 00 00 
+1709   21B2 00 00 00 00 
+1709   21B6 00 00 00 00 
+1709   21BA 00 00 00 00 
+1709   21BE 00 00 00 00 
+1709   21C2 00 00 00 00 
+1709   21C6 00 00 00 00 
+1709   21CA 00 00 00 00 
+1709   21CE 00 00 00 00 
+1709   21D2 00 00 00 00 
+1709   21D6 00 00 00 00 
+1709   21DA 00 00 00 00 
+1709   21DE 00 00 00 00 
+1709   21E2 00 00 00 00 
+1709   21E6 00 00 00 00 
+1709   21EA 00 00 00 00 
+1709   21EE 00 00 00 00 
+1709   21F2 00 00 00 00 
+1709   21F6 00 00 00 00 
+1709   21FA 00 00 00 00 
+1709   21FE 00 00 00 00 
+1709   2202 00 00 00 00 
+1709   2206 00 00 00 00 
+1709   220A 00 00 00 00 
+1709   220E 00 00 00 00 
+1709   2212 00 00 00 00 
+1709   2216 00 00 00 00 
+1709   221A 00 00 00 00 
+1709   221E 00 00 00 00 
+1709   2222 00 00 00 00 
+1709   2226 00 00 00 00 
+1709   222A 00 00 00 00 
+1709   222E 00 00 00 00 
+1709   2232 00 00 00 00 
+1709   2236 00 00 00 00 
+1709   223A 00 00 00 00 
+1709   223E 00 00 00 00 
+1709   2242 00 00 00 00 
+1709   2246 00 00 00 00 
+1709   224A 00 00 00 00 
+1709   224E 00 00 00 00 
+1709   2252 00 00 00 00 
+1709   2256 00 00 00 00 
+1709   225A 00 00 00 00 
+1709   225E 00 00 00 00 
+1709   2262 00 00 00 00 
+1709   2266 00 00 00 00 
+1709   226A 00 00 00 00 
+1709   226E 00 00 00 00 
+1709   2272 00 00 00 00 
+1709   2276 00 00 00 00 
+1709   227A 00 00 00 00 
+1709   227E 00 00 00 00 
+1709   2282 00 00 00 00 
+1709   2286 00 00 00 00 
+1709   228A 00 00 00 00 
+1709   228E 00 00 00 00 
+1709   2292 00 00 00 00 
+1709   2296 00 00 00 00 
+1709   229A 00 00 00 00 
+1709   229E 00 00 00 00 
+1709   22A2 00 00 00 00 
+1709   22A6 00 00 00 00 
+1709   22AA 00 00 00 00 
+1709   22AE 00 00 00 00 
+1709   22B2 00 00 00 00 
+1709   22B6 00 00 00 00 
+1709   22BA 00 00 00 00 
+1709   22BE 00 00 00 00 
+1709   22C2 00 00 00 00 
+1709   22C6 00 00 00 00 
+1709   22CA 00 00 00 00 
+1709   22CE 00 00 00 00 
+1709   22D2 00 00 00 00 
+1709   22D6 00 00 00 00 
+1709   22DA 00 00 00 00 
+1709   22DE 00 00 00 00 
+1709   22E2 00 00 00 00 
+1709   22E6 00 00 00 00 
+1709   22EA 00 00 00 00 
+1709   22EE 00 00 00 00 
+1709   22F2 00 00 00 00 
+1709   22F6 00 00 00 00 
+1709   22FA 00 00 00 00 
+1709   22FE 00 00 00 00 
+1709   2302 00 00 00 00 
+1709   2306 00 00 00 00 
+1709   230A 00 00 00 00 
+1709   230E 00 00 00 00 
+1709   2312 00 00 00 00 
+1709   2316 00 00 00 00 
+1709   231A 00 00 00 00 
+1709   231E 00 00 00 00 
+1709   2322 00 00 00 00 
+1709   2326 00 00 00 00 
+1709   232A 00 00 00 00 
+1709   232E 00 00 00 00 
+1709   2332 00 00 00 00 
+1709   2336 00 00 00 00 
+1709   233A 00 00 00 00 
+1709   233E 00 00 00 00 
+1709   2342 00 00 00 00 
+1709   2346 00 00 00 00 
+1709   234A 00 00 00 00 
+1709   234E 00 00 00 00 
+1709   2352 00 00 00 00 
+1709   2356 00 00 00 00 
+1709   235A 00 00 00 00 
+1709   235E 00 00 00 00 
+1709   2362 00 00 00 00 
+1709   2366 00 00 00 00 
+1709   236A 00 00 00 00 
+1709   236E 00 00 00 00 
+1709   2372 00 00 00 00 
+1709   2376 00 00 00 00 
+1709   237A 00 00 00 00 
+1709   237E 00 00 00 00 
+1709   2382 00 00 00 00 
+1709   2386 00 00 00 00 
+1709   238A 00 00 00 00 
+1709   238E 00 00 00 00 
+1709   2392 00 00 00 00 
+1709   2396 00 00 00 00 
+1709   239A 00 00 00 00 
+1709   239E 00 00 00 00 
+1709   23A2 00 00 00 00 
+1709   23A6 00 00 00 00 
+1709   23AA 00 00 00 00 
+1709   23AE 00 00 00 00 
+1709   23B2 00 00 00 00 
+1709   23B6 00 00 00 00 
+1709   23BA 00 00 00 00 
+1709   23BE 00 00 00 00 
+1709   23C2 00 00 00 00 
+1709   23C6 00 00 00 00 
+1709   23CA 00 00 00 00 
+1709   23CE 00 00 00 00 
+1709   23D2 00 00 00 00 
+1709   23D6 00 00 00 00 
+1709   23DA 00 00 00 00 
+1709   23DE 00 00 00 00 
+1709   23E2 00 00 00 00 
+1709   23E6 00 00 00 00 
+1709   23EA 00 00 00 00 
+1709   23EE 00 00 00 00 
+1709   23F2 00 00 00 00 
+1709   23F6 00 00 00 00 
+1709   23FA 00 00 00 00 
+1709   23FE 00 00 00 00 
+1709   2402 00 00 00 00 
+1709   2406 00 00 00 00 
+1709   240A 00 00 00 00 
+1709   240E 00 00 00 00 
+1709   2412 00 00 00 00 
+1709   2416 00 00 00 00 
+1709   241A 00 00 00 00 
+1709   241E 00 00 00 00 
+1709   2422 00 00 00 00 
+1709   2426 00 00 00 00 
+1709   242A 00 00 00 00 
+1709   242E 00 00 00 00 
+1709   2432 00 00 00 00 
+1709   2436 00 00 00 00 
+1709   243A 00 00 00 00 
+1709   243E 00 00 00 00 
+1709   2442 00 00 00 00 
+1709   2446 00 00 00 00 
+1709   244A 00 00 00 00 
+1709   244E 00 00 00 00 
+1709   2452 00 00 00 00 
+1709   2456 00 00 00 00 
+1709   245A 00 00 00 00 
+1709   245E 00 00 00 00 
+1709   2462 00 00 00 00 
+1709   2466 00 00 00 00 
+1709   246A 00 00 00 00 
+1709   246E 00 00 00 00 
+1709   2472 00 00 00 00 
+1709   2476 00 00 00 00 
+1709   247A 00 00 00 00 
+1709   247E 00 00 00 00 
+1709   2482 00 00 00 00 
+1709   2486 00 00 00 00 
+1709   248A 00 00 00 00 
+1709   248E 00 00 00 00 
+1709   2492 00 00 00 00 
+1709   2496 00 00 00 00 
+1709   249A 00 00 00 00 
+1709   249E 00 00 00 00 
+1709   24A2 00 00 00 00 
+1709   24A6 00 00 00 00 
+1709   24AA 00 00 00 00 
+1709   24AE 00 00 00 00 
+1709   24B2 00 00 00 00 
+1709   24B6 00 00 00 00 
+1709   24BA 00 00 00 00 
+1709   24BE 00 00 00 00 
+1709   24C2 00 00 00 00 
+1709   24C6 00 00 00 00 
+1709   24CA 00 00 00 00 
+1709   24CE 00 00 00 00 
+1709   24D2 00 00 00 00 
+1709   24D6 00 00 00 00 
+1709   24DA 00 00 00 00 
+1709   24DE 00 00 00 00 
+1709   24E2 00 00 00 00 
+1709   24E6 00 00 00 00 
+1709   24EA 00 00 00 00 
+1709   24EE 00 00 00 00 
+1709   24F2 00 00 00 00 
+1709   24F6 00 00 00 00 
+1709   24FA 00 00 00 00 
+1709   24FE 00 00 00 00 
+1709   2502 00 00 00 00 
+1709   2506 00 00 00 00 
+1709   250A 00 00 00 00 
+1709   250E 00 00 00 00 
+1709   2512 00 00 00 00 
+1709   2516 00 00 00 00 
+1709   251A 00 00 00 00 
+1709   251E 00 00 00 00 
+1709   2522 00 00 00 00 
+1709   2526 00 00 00 00 
+1709   252A 00 00 00 00 
+1709   252E 00 00 00 00 
+1709   2532 00 00 00 00 
+1709   2536 00 00 00 00 
+1709   253A 00 00 00 00 
+1709   253E 00 00 00 00 
+1709   2542 00 00 00 00 
+1709   2546 00 00 00 00 
+1709   254A 00 00 00 00 
+1709   254E 00 00 00 00 
+1709   2552 00 00 00 00 
+1709   2556 00 00 00 00 
+1709   255A 00 00 00 00 
+1709   255E 00 00 00 00 
+1709   2562 00 00 00 00 
+1709   2566 00 00 00 00 
+1709   256A 00 00 00 00 
+1709   256E 00 00 00 00 
+1709   2572 00 00 00 00 
+1709   2576 00 00 00 00 
+1709   257A 00 00 00 00 
+1709   257E 00 00 00 00 
+1709   2582 00 00 00 00 
+1709   2586 00 00 00 00 
+1709   258A 00 00 00 00 
+1709   258E 00 00 00 00 
+1709   2592 00 00 00 00 
+1709   2596 00 00 00 00 
+1709   259A 00 00 00 00 
+1709   259E 00 00 00 00 
+1709   25A2 00 00 00 00 
+1709   25A6 00 00 00 00 
+1709   25AA 00 00 00 00 
+1709   25AE 00 00 00 00 
+1709   25B2 00 00 00 00 
+1709   25B6 00 00 00 00 
+1709   25BA 00 00 00 00 
+1709   25BE 00 00 00 00 
+1709   25C2 00 00 00 00 
+1709   25C6 00 00 00 00 
+1709   25CA 00 00 00 00 
+1709   25CE 00 00 00 00 
+1709   25D2 00 00 00 00 
+1709   25D6 00 00 00 00 
+1709   25DA 00 00 00 00 
+1709   25DE 00 00 00 00 
+1709   25E2 00 00 00 00 
+1709   25E6 00 00 00 00 
+1709   25EA 00 00 00 00 
+1709   25EE 00 00 00 00 
+1709   25F2 00 00 00 00 
+1709   25F6 00 00 00 00 
+1709   25FA 00 00 00 00 
+1709   25FE 00 00 00 00 
+1709   2602 00 00 00 00 
+1709   2606 00 00 00 00 
+1709   260A 00 00 00 00 
+1709   260E 00 00 00 00 
+1709   2612 00 00 00 00 
+1709   2616 00 00 00 00 
+1709   261A 00 00 00 00 
+1709   261E 00 00 00 00 
+1709   2622 00 00 00 00 
+1709   2626 00 00 00 00 
+1709   262A 00 00 00 00 
+1709   262E 00 00 00 00 
+1709   2632 00 00 00 00 
+1709   2636 00 00 00 00 
+1709   263A 00 00 00 00 
+1709   263E 00 00 00 00 
+1709   2642 00 00 00 00 
+1709   2646 00 00 00 00 
+1709   264A 00 00 00 00 
+1709   264E 00 00 00 00 
+1709   2652 00 00 00 00 
+1709   2656 00 00 00 00 
+1709   265A 00 00 00 00 
+1709   265E 00 00 00 00 
+1709   2662 00 00 00 00 
+1709   2666 00 00 00 00 
+1709   266A 00 00 00 00 
+1709   266E 00 00 00 00 
+1709   2672 00 00 00 00 
+1709   2676 00 00 00 00 
+1709   267A 00 00 00 00 
+1709   267E 00 00 00 00 
+1709   2682 00 00 00 00 
+1709   2686 00 00 00 00 
+1709   268A 00 00 00 00 
+1709   268E 00 00 00 00 
+1709   2692 00 00 00 00 
+1709   2696 00 00 00 00 
+1709   269A 00 00 00 00 
+1709   269E 00 00 00 00 
+1709   26A2 00 00 00 00 
+1709   26A6 00 00 00 00 
+1709   26AA 00 00 00 00 
+1709   26AE 00 00 00 00 
+1709   26B2 00 00 00 00 
+1709   26B6 00 00 00 00 
+1709   26BA 00 00 00 00 
+1709   26BE 00 00 00 00 
+1709   26C2 00 00 00 00 
+1709   26C6 00 00 00 00 
+1709   26CA 00 00 00 00 
+1709   26CE 00 00 00 00 
+1709   26D2 00 00 00 00 
+1709   26D6 00 00 00 00 
+1709   26DA 00 00 00 00 
+1709   26DE 00 00 00 00 
+1709   26E2 00 00 00 00 
+1709   26E6 00 00 00 00 
+1709   26EA 00 00 00 00 
+1709   26EE 00 00 00 00 
+1709   26F2 00 00 00 00 
+1709   26F6 00 00 00 00 
+1709   26FA 00 00 00 00 
+1709   26FE 00 00 00 00 
+1709   2702 00 00 00 00 
+1709   2706 00 00 00 00 
+1709   270A 00 00 00 00 
+1709   270E 00 00 00 00 
+1709   2712 00 00 00 00 
+1709   2716 00 00 00 00 
+1709   271A 00 00 00 00 
+1709   271E 00 00 00 00 
+1709   2722 00 00 00 00 
+1709   2726 00 00 00 00 
+1709   272A 00 00 00 00 
+1709   272E 00 00 00 00 
+1709   2732 00 00 00 00 
+1709   2736 00 00 00 00 
+1709   273A 00 00 00 00 
+1709   273E 00 00 00 00 
+1709   2742 00 00 00 00 
+1709   2746 00 00 00 00 
+1709   274A 00 00 00 00 
+1709   274E 00 00 00 00 
+1709   2752 00 00 00 00 
+1709   2756 00 00 00 00 
+1709   275A 00 00 00 00 
+1709   275E 00 00 00 00 
+1709   2762 00 00 00 00 
+1709   2766 00 00 00 00 
+1709   276A 00 00 00 00 
+1709   276E 00 00 00 00 
+1709   2772 00 00 00 00 
+1709   2776 00 00 00 00 
+1709   277A 00 00 00 00 
+1709   277E 00 00 00 00 
+1709   2782 00 00 00 00 
+1709   2786 00 00 00 00 
+1709   278A 00 00 00 00 
+1709   278E 00 00 00 00 
+1709   2792 00 00 00 00 
+1709   2796 00 00 00 00 
+1709   279A 00 00 00 00 
+1709   279E 00 00 00 00 
+1709   27A2 00 00 00 00 
+1709   27A6 00 00 00 00 
+1709   27AA 00 00 00 00 
+1709   27AE 00 00 00 00 
+1709   27B2 00 00 00 00 
+1709   27B6 00 00 00 00 
+1709   27BA 00 00 00 00 
+1709   27BE 00 00 00 00 
+1709   27C2 00 00 00 00 
+1709   27C6 00 00 00 00 
+1709   27CA 00 00 00 00 
+1709   27CE 00 00 00 00 
+1709   27D2 00 00 00 00 
+1709   27D6 00 00 00 00 
+1709   27DA 00 00 00 00 
+1709   27DE 00 00 00 00 
+1709   27E2 00 00 00 00 
+1709   27E6 00 00 00 00 
+1709   27EA 00 00 00 00 
+1709   27EE 00 00 00 00 
+1709   27F2 00 00 00 00 
+1709   27F6 00 00 00 00 
+1709   27FA 00 00 00 00 
+1709   27FE 00 00 00 00 
+1709   2802 00 00 00 00 
+1709   2806 00 00 00 00 
+1709   280A 00 00 00 00 
+1709   280E 00 00 00 00 
+1709   2812 00 00 00 00 
+1709   2816 00 00 00 00 
+1709   281A 00 00 00 00 
+1709   281E 00 00 00 00 
+1709   2822 00 00 00 00 
+1709   2826 00 00 00 00 
+1709   282A 00 00 00 00 
+1709   282E 00 00 00 00 
+1709   2832 00 00 00 00 
+1709   2836 00 00 00 00 
+1709   283A 00 00 00 00 
+1709   283E 00 00 00 00 
+1709   2842 00 00 00 00 
+1709   2846 00 00 00 00 
+1709   284A 00 00 00 00 
+1709   284E 00 00 00 00 
+1709   2852 00 00 00 00 
+1709   2856 00 00 00 00 
+1709   285A 00 00 00 00 
+1709   285E 00 00 00 00 
+1709   2862 00 00 00 00 
+1709   2866 00 00 00 00 
+1709   286A 00 00 00 00 
+1709   286E 00 00 00 00 
+1709   2872 00 00 00 00 
+1709   2876 00 00 00 00 
+1709   287A 00 00 00 00 
+1709   287E 00 00 00 00 
+1709   2882 00 00 00 00 
+1709   2886 00 00 00 00 
+1709   288A 00 00 00 00 
+1709   288E 00 00 00 00 
+1709   2892 00 00 00 00 
+1709   2896 00 00 00 00 
+1709   289A 00 00 00 00 
+1709   289E 00 00 00 00 
+1709   28A2 00 00 00 00 
+1709   28A6 00 00 00 00 
+1709   28AA 00 00 00 00 
+1709   28AE 00 00 00 00 
+1709   28B2 00 00 00 00 
+1709   28B6 00 00 00 00 
+1709   28BA 00 00 00 00 
+1709   28BE 00 00 00 00 
+1709   28C2 00 00 00 00 
+1709   28C6 00 00 00 00 
+1709   28CA 00 00 00 00 
+1709   28CE 00 00 00 00 
+1709   28D2 00 00 00 00 
+1709   28D6 00 00 00 00 
+1709   28DA 00 00 00 00 
+1709   28DE 00 00 00 00 
+1709   28E2 00 00 00 00 
+1709   28E6 00 00 00 00 
+1709   28EA 00 00 00 00 
+1709   28EE 00 00 00 00 
+1709   28F2 00 00 00 00 
+1709   28F6 00 00 00 00 
+1709   28FA 00 00 00 00 
+1709   28FE 00 00 00 00 
+1709   2902 00 00 00 00 
+1709   2906 00 00 00 00 
+1709   290A 00 00 00 00 
+1709   290E 00 00 00 00 
+1709   2912 00 00 00 00 
+1709   2916 00 00 00 00 
+1709   291A 00 00 00 00 
+1709   291E 00 00 00 00 
+1709   2922 00 00 00 00 
+1709   2926 00 00 00 00 
+1709   292A 00 00 00 00 
+1709   292E 00 00 00 00 
+1709   2932 00 00 00 00 
+1709   2936 00 00 00 00 
+1709   293A 00 00 00 00 
+1709   293E 00 00 00 00 
+1709   2942 00 00 00 00 
+1709   2946 00 00 00 00 
+1709   294A 00 00 00 00 
+1709   294E 00 00 00 00 
+1709   2952 00 00 00 00 
+1709   2956 00 00 00 00 
+1709   295A 00 00 00 00 
+1709   295E 00 00 00 00 
+1709   2962 00 00 00 00 
+1709   2966 00 00 00 00 
+1709   296A 00 00 00 00 
+1709   296E 00 00 00 00 
+1709   2972 00 00 00 00 
+1709   2976 00 00 00 00 
+1709   297A 00 00 00 00 
+1709   297E 00 00 00 00 
+1709   2982 00 00 00 00 
+1709   2986 00 00 00 00 
+1709   298A 00 00 00 00 
+1709   298E 00 00 00 00 
+1709   2992 00 00 00 00 
+1709   2996 00 00 00 00 
+1709   299A 00 00 00 00 
+1709   299E 00 00 00 00 
+1709   29A2 00 00 00 00 
+1709   29A6 00 00 00 00 
+1709   29AA 00 00 00 00 
+1709   29AE 00 00 00 00 
+1709   29B2 00 00 00 00 
+1709   29B6 00 00 00 00 
+1709   29BA 00 00 00 00 
+1709   29BE 00 00 00 00 
+1709   29C2 00 00 00 00 
+1709   29C6 00 00 00 00 
+1709   29CA 00 00 00 00 
+1709   29CE 00 00 00 00 
+1709   29D2 00 00 00 00 
+1709   29D6 00 00 00 00 
+1709   29DA 00 00 00 00 
+1709   29DE 00 00 00 00 
+1709   29E2 00 00 00 00 
+1709   29E6 00 00 00 00 
+1709   29EA 00 00 00 00 
+1709   29EE 00 00 00 00 
+1709   29F2 00 00 00 00 
+1709   29F6 00 00 00 00 
+1709   29FA 00 00 00 00 
+1709   29FE 00 00 00 00 
+1709   2A02 00 00 00 00 
+1709   2A06 00 00 00 00 
+1709   2A0A 00 00 00 00 
+1709   2A0E 00 00 00 00 
+1709   2A12 00 00 00 00 
+1709   2A16 00 00 00 00 
+1709   2A1A 00 00 00 00 
+1709   2A1E 00 00 00 00 
+1709   2A22 00 00 00 00 
+1709   2A26 00 00 00 00 
+1709   2A2A 00 00 00 00 
+1709   2A2E 00 00 00 00 
+1709   2A32 00 00 00 00 
+1709   2A36 00 00 00 00 
+1709   2A3A 00 00 00 00 
+1709   2A3E 00 00 00 00 
+1709   2A42 00 00 00 00 
+1709   2A46 00 00 00 00 
+1709   2A4A 00 00 00 00 
+1709   2A4E 00 00 00 00 
+1709   2A52 00 00 00 00 
+1709   2A56 00 00 00 00 
+1709   2A5A 00 00 00 00 
+1709   2A5E 00 00 00 00 
+1709   2A62 00 00 00 00 
+1709   2A66 00 00 00 00 
+1709   2A6A 00 00 00 00 
+1709   2A6E 00 00 00 00 
+1709   2A72 00 00 00 00 
+1709   2A76 00 00 00 00 
+1709   2A7A 00 00 00 00 
+1709   2A7E 00 00 00 00 
+1709   2A82 00 00 00 00 
+1709   2A86 00 00 00 00 
+1709   2A8A 00 00 00 00 
+1709   2A8E 00 00 00 00 
+1709   2A92 00 00 00 00 
+1709   2A96 00 00 00 00 
+1709   2A9A 00 00 00 00 
+1709   2A9E 00 00 00 00 
+1709   2AA2 00 00 00 00 
+1709   2AA6 00 00 00 00 
+1709   2AAA 00 00 00 00 
+1709   2AAE 00 00 00 00 
+1709   2AB2 00 00 00 00 
+1709   2AB6 00 00 00 00 
+1709   2ABA 00 00 00 00 
+1709   2ABE 00 00 00 00 
+1709   2AC2 00 00 00 00 
+1709   2AC6 00 00 00 00 
+1709   2ACA 00 00 00 00 
+1709   2ACE 00 00 00 00 
+1709   2AD2 00 00 00 00 
+1709   2AD6 00 00 00 00 
+1709   2ADA 00 00 00 00 
+1709   2ADE 00 00 00 00 
+1709   2AE2 00 00 00 00 
+1709   2AE6 00 00 00 00 
+1709   2AEA 00 00 00 00 
+1709   2AEE 00 00 00 00 
+1709   2AF2 00 00 00 00 
+1710   2AF6 25 64 20 00 _s0: .db "%d ", 0
+1711   2AFA 55 6E 65 78 _s1: .db "Unexpected format in printf.", 0
+1711   2AFE 70 65 63 74 
+1711   2B02 65 64 20 66 
+1711   2B06 6F 72 6D 61 
+1711   2B0A 74 20 69 6E 
+1711   2B0E 20 70 72 69 
+1711   2B12 6E 74 66 2E 
+1711   2B16 00 
+1712   2B17 45 72 72 6F _s2: .db "Error: Unknown argument type.\n", 0
+1712   2B1B 72 3A 20 55 
+1712   2B1F 6E 6B 6E 6F 
+1712   2B23 77 6E 20 61 
+1712   2B27 72 67 75 6D 
+1712   2B2B 65 6E 74 20 
+1712   2B2F 74 79 70 65 
+1712   2B33 2E 0A 00 
+1713   2B36             
+1714   2B36 38 2B       _heap_top: .dw _heap
+1715   2B38 00          _heap: .db 0
+1716   2B39             ; --- END DATA SEGMENT
+1717   2B39             
+1718   2B39             .end
+tasm: Number of errors = 0
