@@ -923,6 +923,10 @@ void clear(){
   print("\033[2J\033[H");
 }
 
+void move_cursor(int x, int y){
+  printf("\033[%d;%dH", y, x);
+}
+
 int abs(int i){
   return i < 0 ? -i : i;
 }

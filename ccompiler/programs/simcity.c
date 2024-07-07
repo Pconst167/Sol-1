@@ -26,13 +26,11 @@ void main(){
   initialize_terrain();
 
   for(;;){
+    display_map();
+    move_cursor(0, 39);
     printf("\nd: display map\nq: quit\nenter choice: ");
     c = getchar();
-    if(c == 'd'){
-      putchar('\n');
-      display_map();
-    }
-    else if(c == 'q'){
+    if(c == 'q'){
       return;
     }
   }
@@ -43,6 +41,7 @@ void display_map(){
 
   for(rows = 0; rows < NUM_ROWS; rows++){
     for(cols = 0; cols < NUM_COLS; cols++){
+      move_cursor(cols, rows);
       if(map[rows][cols].zone_type == unzoned){
         if(map[rows][cols].tile_type == land){
           putchar('.');
