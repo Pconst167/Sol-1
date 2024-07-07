@@ -82,6 +82,10 @@ _for2_block:
   mma 6 ; mov a, 6; mul a, b; add d, b
   pop a
   add d, 4
+  mov b, [d]
+  mov c, 0
+  swp b
+  push b
   mov b, _s0 ; "%d "
   swp b
   push b

@@ -194,7 +194,7 @@ _for4_block:
   mov32 cb, $ffffffff
   pop d
   mov [d], b
-; map[i][j].zone_type = unzoned; 
+; map[i][j].zone_type = 0; 
   mov d, _map_data ; $map
   push a
   push d
@@ -212,10 +212,10 @@ _for4_block:
   pop a
   add d, 2
   push d
-  mov32 cb, $0 ; enum element: unzoned
+  mov32 cb, $00000000
   pop d
   mov [d], b
-; map[i][j].tile_type = land; 
+; map[i][j].tile_type = 0; 
   mov d, _map_data ; $map
   push a
   push d
@@ -233,7 +233,7 @@ _for4_block:
   pop a
   add d, 0
   push d
-  mov32 cb, $0 ; enum element: land
+  mov32 cb, $00000000
   pop d
   mov [d], b
 _for4_update:

@@ -3835,26 +3835,32 @@ t_type parse_atomic(void){
         emitln("  mov b, [d]"); 
         emitln("  mov c, 0");  // for long ints
       }
-      else if(expr_out.primitive_type == DT_INT && expr_out.size_modifier == SIZEMOD_LONG){
-        emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
-        emitln("  mov c, b ; And place it into C"); 
-        emitln("  mov b, [d] ; Lower Word in B"); 
-      }
       else if(expr_out.primitive_type == DT_INT){
-        emitln("  mov b, [d]"); 
-        emitln("  mov c, 0");  // for long ints
+        if(expr_out.size_modifier == SIZEMOD_LONG){
+          emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
+          emitln("  mov c, b ; And place it into C"); 
+          emitln("  mov b, [d] ; Lower Word in B"); 
+        }
+        else{
+          emitln("  mov b, [d]"); 
+          emitln("  mov c, 0");  // for long ints
+        }
       }
       else if(expr_out.primitive_type == DT_CHAR){
         emitln("  mov bl, [d]");
         emitln("  mov bh, 0"); 
         emitln("  mov c, 0");  // for long ints
       }
-      else if(expr_out.primitive_type == DT_STRUCT){
+      else if(expr_out.primitive_type == DT_STRUCT){ // this is used by the assignment parser to obtain the base address of the struct
         emitln("  mov b, d");
         emitln("  mov c, 0");  
       }
-      else if(expr_out.primitive_type == DT_UNION){
+      else if(expr_out.primitive_type == DT_UNION){ // this is used by the assignment parser to obtain the base address of the struct
         emitln("  mov b, d");
+        emitln("  mov c, 0");  
+      }
+      else if(expr_out.primitive_type == DT_ENUM){
+        emitln("  mov b, [d]"); 
         emitln("  mov c, 0");  
       }
     }
@@ -4634,7 +4640,14 @@ void parse_function_call(int func_id){
         emitln("  push bl");
     }
     else if(arg_type.primitive_type == DT_INT){
-      if(arg_type.primitive_type == DT_CHAR && arg_type.ind_level == 0) emitln("  snex b");
+      if(arg_expr.primitive_type == DT_CHAR && arg_expr.ind_level == 0) 
+        emitln("  snex b");
+      emitln("  swp b");
+      emitln("  push b");
+    }
+    else if(arg_type.primitive_type == DT_ENUM){
+      if(arg_expr.primitive_type == DT_CHAR && arg_expr.ind_level == 0) 
+        emitln("  snex b");
       emitln("  swp b");
       emitln("  push b");
     }
