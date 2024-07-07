@@ -7,19 +7,6 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; my_struct[5].i; 
-               
-  mov d, _my_struct_data ; $my_struct
-  push a
-  push d
-               
-  mov32 cb, $00000005
-  pop d
-  mma 5 ; mov a, 5; mul a, b; add d, b
-  pop a
-  add d, 1
-  mov b, [d]
-  mov c, 0
 ; printf("%c %d %s\n", my_struct[0].c, my_struct[0].i, my_struct[0].m); 
                
 ; --- START FUNCTION CALL
@@ -72,6 +59,9 @@ main:
   call printf
   add sp, 7
 ; --- END FUNCTION CALL
+; return; 
+  leave
+  syscall sys_terminate_proc
 ; printf("%c %d %s\n", my_struct[1].c, my_struct[1].i, my_struct[1].m); 
                
 ; --- START FUNCTION CALL
@@ -1686,8 +1676,17 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 
 ; --- BEGIN DATA SEGMENT
 _my_struct_data:
-.db $61,$007b,_s0, $62,$01c8,_s1, 
+.db $61
+.dw $007b
+.dw _s0
+.db $62
+.dw $01c8
+.dw _s1
+
 .fill 40, 0
+_mm_data:
+.db $61,$62,$63,
+.fill 7, 0
 _s0: .db "hello", 0
 _s1: .db "world", 0
 _s2: .db "%c %d %s\n", 0

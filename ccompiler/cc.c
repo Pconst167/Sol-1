@@ -5461,7 +5461,7 @@ void emit_global_var_initialization(t_var *var){
 
   if(is_array(var->type)){
     emit_data("_%s_data:\n", var->name);
-    emit_data_dbdw(var->type);
+    if(var->type.primitive_type != DT_STRUCT) emit_data_dbdw(var->type);
     number_initialized_bytes = 0;
     braces = 0;
     for(;;){
@@ -5534,7 +5534,7 @@ void emit_global_var_initialization(t_var *var){
           number_initialized_bytes++;
           if(var->type.ind_level > 0){
             if(curr_token.tok_type == INTEGER_CONST){
-              emit_data("$%04x,", (uint16_t)curr_token.int_const);
+              emit_data(".dw $%04x\n", (uint16_t)curr_token.int_const);
             }
             else if(curr_token.tok_type == IDENTIFIER){
               error(ERR_FATAL, "initializing a global var with an identifier name is not implemented yet");
@@ -5543,13 +5543,13 @@ void emit_global_var_initialization(t_var *var){
           }
           else{
             if(curr_token.tok_type == CHAR_CONST){
-              emit_data("$%02x,", (uint8_t)curr_token.string_const[0]);
+              emit_data(".db $%02x\n", (uint8_t)curr_token.string_const[0]);
             }
             else if(curr_token.tok_type == INTEGER_CONST){
-              emit_data("$%04x,", (uint16_t)curr_token.int_const);
+              emit_data(".dw $%04x\n", (uint16_t)curr_token.int_const);
             }
             else if(curr_token.tok_type == STRING_CONST){
-              emit_data("_s%u, ", add_string_data(curr_token.string_const));
+              emit_data(".dw _s%u\n", add_string_data(curr_token.string_const));
             }
             else error(ERR_FATAL, "unknown data type in char array initialization");
           }
@@ -5566,12 +5566,11 @@ void emit_global_var_initialization(t_var *var){
       }
     }
     // fill in the remaining unitialized array values with 0's 
-    emit_data("\n");
     if(var->type.primitive_type == DT_STRUCT){ // todo: temporary solution here.  counting each struct element here is wrong but that is whats happening for now. so in the end we divide by the number of elements so we get the actual number of structs initialized
       number_initialized_bytes = number_initialized_bytes / get_num_struct_elements(var->type.struct_enum_union_id);
     }
     if(get_total_type_size(var->type) - number_initialized_bytes * get_primitive_type_size(var->type) > 0){
-      emit_data(".fill %u, 0\n", get_total_type_size(var->type) - number_initialized_bytes * get_primitive_type_size(var->type));
+      emit_data("\n.fill %u, 0\n", get_total_type_size(var->type) - number_initialized_bytes * get_primitive_type_size(var->type));
     }
   }
   else{
