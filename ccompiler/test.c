@@ -13,7 +13,10 @@ struct t_s my_struct[10] = {
 
 static void main(){
 
-  printf("%c %d %s\n", 'H', 123, "hello");
+  my_struct[5].i;
+
+  printf("%c %d %s\n", my_struct[0].c, my_struct[0].i, my_struct[0].m);
+  printf("%c %d %s\n", my_struct[1].c, my_struct[1].i, my_struct[1].m);
 }
 
 

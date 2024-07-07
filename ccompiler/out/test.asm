@@ -7,19 +7,115 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; printf("%c %d %s\n", 'H', 123, "hello"); 
+; my_struct[5].i; 
+               
+  mov d, _my_struct_data ; $my_struct
+  push a
+  push d
+               
+  mov32 cb, $00000005
+  pop d
+  mma 5 ; mov a, 5; mul a, b; add d, b
+  pop a
+  add d, 1
+  mov b, [d]
+  mov c, 0
+; printf("%c %d %s\n", my_struct[0].c, my_struct[0].i, my_struct[0].m); 
                
 ; --- START FUNCTION CALL
                
-  mov b, _s0 ; "hello"
+  mov d, _my_struct_data ; $my_struct
+  push a
+  push d
+               
+  mov32 cb, $00000000
+  pop d
+  mma 5 ; mov a, 5; mul a, b; add d, b
+  pop a
+  add d, 3
+  mov b, [d]
+  mov c, 0
   swp b
   push b
                
-  mov32 cb, $0000007b
+  mov d, _my_struct_data ; $my_struct
+  push a
+  push d
+               
+  mov32 cb, $00000000
+  pop d
+  mma 5 ; mov a, 5; mul a, b; add d, b
+  pop a
+  add d, 1
+  mov b, [d]
+  mov c, 0
   swp b
   push b
                
-  mov32 cb, $00000048
+  mov d, _my_struct_data ; $my_struct
+  push a
+  push d
+               
+  mov32 cb, $00000000
+  pop d
+  mma 5 ; mov a, 5; mul a, b; add d, b
+  pop a
+  add d, 0
+  mov bl, [d]
+  mov bh, 0
+  mov c, 0
+  push bl
+               
+  mov b, _s2 ; "%c %d %s\n"
+  swp b
+  push b
+  call printf
+  add sp, 7
+; --- END FUNCTION CALL
+; printf("%c %d %s\n", my_struct[1].c, my_struct[1].i, my_struct[1].m); 
+               
+; --- START FUNCTION CALL
+               
+  mov d, _my_struct_data ; $my_struct
+  push a
+  push d
+               
+  mov32 cb, $00000001
+  pop d
+  mma 5 ; mov a, 5; mul a, b; add d, b
+  pop a
+  add d, 3
+  mov b, [d]
+  mov c, 0
+  swp b
+  push b
+               
+  mov d, _my_struct_data ; $my_struct
+  push a
+  push d
+               
+  mov32 cb, $00000001
+  pop d
+  mma 5 ; mov a, 5; mul a, b; add d, b
+  pop a
+  add d, 1
+  mov b, [d]
+  mov c, 0
+  swp b
+  push b
+               
+  mov d, _my_struct_data ; $my_struct
+  push a
+  push d
+               
+  mov32 cb, $00000001
+  pop d
+  mma 5 ; mov a, 5; mul a, b; add d, b
+  pop a
+  add d, 0
+  mov bl, [d]
+  mov bh, 0
+  mov c, 0
   push bl
                
   mov b, _s2 ; "%c %d %s\n"
