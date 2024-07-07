@@ -21,13 +21,20 @@ struct tile map[NUM_ROWS][NUM_COLS];
 
 
 void main(){
+  char c;
 
   initialize_terrain();
 
-    display_map();
-
-
-
+  for(;;){
+    printf("\nd: display map\nq: quit\nenter choice: ");
+    c = getchar();
+    if(c == 'd'){
+      display_map();
+    }
+    else if(c == 'q'){
+      return;
+    }
+  }
 }
 
 void display_map(){
@@ -35,8 +42,6 @@ void display_map(){
 
   for(rows = 0; rows < NUM_ROWS; rows++){
     for(cols = 0; cols < NUM_COLS; cols++){
-      printf("%d ", map[rows][cols].structure_type);
-      /*
       if(map[rows][cols].tile_type == land){
         putchar('.');
       }
@@ -47,7 +52,7 @@ void display_map(){
         if(map[rows][cols].structure_type == road){
           putchar('=');
         }
-      }*/
+      }
     }
     putchar('\n');
   }
@@ -60,7 +65,10 @@ void initialize_terrain(){
     for(j = 0; j < NUM_COLS; j++){
       map[i][j].structure_type = -1;
       map[i][j].zone_type = unzoned;
-      map[i][j].tile_type = land;
+      if((i + j) % 5 == 0)
+        map[i][j].tile_type = water;
+      else 
+        map[i][j].tile_type = land;
     }
   }
 }
