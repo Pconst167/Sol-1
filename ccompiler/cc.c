@@ -5640,9 +5640,7 @@ void emit_global_var_initialization(t_var *var){
               error(ERR_FATAL, "idenfitier referenced in global var initialization is not an array. for non-array variables the '&' operator is needed to reference the variable's address");
           }
           else{
-            emit_data("_%s: ", var->name);
-            emit_data_dbdw(var->type);
-            emit_data("$%04x\n", (uint16_t)curr_token.int_const);
+            emit_data("_%s: .dw $%04x\n", var->name, (uint16_t)curr_token.int_const);
           }
         }
         else{
@@ -5655,8 +5653,7 @@ void emit_global_var_initialization(t_var *var){
               emit_data(".dw $%04x\n", (uint16_t)(curr_token.int_const >> 16));
             }
             else{
-              emit_data_dbdw(var->type);
-              emit_data("$%04x\n", (uint16_t)curr_token.int_const);
+              emit_data(".dw $%04x\n", (uint16_t)curr_token.int_const);
             }
           }
           else
