@@ -1098,13 +1098,13 @@ uint8_t is_function_declaration(void){
   int paren;
 
   if(
-    curr_token.tok == SIGNED   || curr_token.tok == UNSIGNED || 
-    curr_token.tok == LONG     || curr_token.tok == CONST    || 
-    curr_token.tok == VOID     || curr_token.tok == CHAR     ||
-    curr_token.tok == INT      || curr_token.tok == FLOAT    || 
-    curr_token.tok == DOUBLE   || curr_token.tok == STRUCT   ||
-    curr_token.tok == SHORT    || 
-    curr_token.tok == ENUM     || curr_token.tok == UNION    ||
+    curr_token.tok      == SIGNED   || curr_token.tok == UNSIGNED || 
+    curr_token.tok      == LONG     || curr_token.tok == CONST    || 
+    curr_token.tok      == VOID     || curr_token.tok == CHAR     ||
+    curr_token.tok      == INT      || curr_token.tok == FLOAT    || 
+    curr_token.tok      == DOUBLE   || curr_token.tok == STRUCT   ||
+    curr_token.tok      == SHORT    || 
+    curr_token.tok      == ENUM     || curr_token.tok == UNION    ||
     curr_token.tok_type == IDENTIFIER
   ){
     while(
@@ -5722,15 +5722,20 @@ int get_num_struct_elements(int struct_id){
 
 void emit_static_var_initialization(t_var *var){
   int j;
+  int braces;
 
   if(is_array(var->type)){
     get();
     expect(OPENING_BRACE, "Opening braces expected");
-    emit_data("st_%s_%s_dt: \n", function_table[current_func_id].name, var->name);
+    emit_data("\nst_%s_%s_dt: \n", function_table[current_func_id].name, var->name);
     emit_data_dbdw(var->type);
     j = 0;
-    do{
+    braces = 1;
+    for(;;){
       get();
+      if(curr_token.tok == OPENING_BRACE) braces++;
+      else if(curr_token.tok == CLOSING_BRACE) braces--;
+      if(braces == 0) break;
       if(curr_token.tok_type == CHAR_CONST)
         emit_data("$%x,", curr_token.string_const[0]);
       else if(curr_token.tok_type == INTEGER_CONST)
@@ -5740,22 +5745,25 @@ void emit_static_var_initialization(t_var *var){
         string_id = add_string_data(curr_token.string_const);
         emit_data("_s%u, ", string_id);
       }
-      else 
-        error(ERR_FATAL, "Unknown data type");
-      if(curr_token.tok_type == CHAR_CONST || curr_token.tok_type == INTEGER_CONST || curr_token.tok_type == STRING_CONST) j++;
-      get();
+      if(curr_token.tok_type == CHAR_CONST    || 
+         curr_token.tok_type == INTEGER_CONST || 
+         curr_token.tok_type == STRING_CONST
+      )
+        j++;
+      // {1, 2, {1, 2, 3}, 4, 3, {2, 3}}
+      get(); // get comma or '}'
+      if(curr_token.tok != COMMA) back();
       if(j % 30 == 0){ // split into multiple lines due to TASM limitation of how many items per .dw directive
         emit_data("\n");
         emit_data_dbdw(var->type);
       }
-    } while(curr_token.tok == COMMA);
+    }
     // fill in the remaining unitialized array values with 0's 
     if(get_total_type_size(var->type) - j * get_primitive_type_size(var->type) > 0){
       emit_data("\n");
       emit_data(".fill %u, 0\n", get_total_type_size(var->type) - j * get_primitive_type_size(var->type));
     }
-    emit_data("st_%s_%s: .dw st_%s_%s_dt\n", function_table[current_func_id].name, var->name, function_table[current_func_id].name, var->name);
-    expect(CLOSING_BRACE, "Closing braces expected");
+    //emit_data("\nst_%s_%s: .dw st_%s_%s_dt\n", function_table[current_func_id].name, var->name, function_table[current_func_id].name, var->name);
   }
   else{
     get();
