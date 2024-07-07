@@ -5578,8 +5578,7 @@ void emit_global_var_initialization(t_var *var){
     switch(var->type.primitive_type){
       case DT_VOID:
         emit_data("_%s: ", var->name);
-        emit_data_dbdw(var->type);
-        emit_data("$%04x, ", (uint16_t)atoi(curr_token.token_str));
+        emit_data(".dw $%04x, ", (uint16_t)atoi(curr_token.token_str));
         break;
       case DT_CHAR:
         if(var->type.ind_level > 0){ // if is a string
