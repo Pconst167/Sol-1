@@ -5582,9 +5582,23 @@ void emit_global_var_initialization(t_var *var){
         break;
       case DT_CHAR:
         if(var->type.ind_level > 0){ // if is a string
-          if(curr_token.tok_type == IDENTIFIER){
+          if(curr_token.tok == AMPERSAND){
+            get();
+            if(curr_token.tok_type == IDENTIFIER){
+              get_var_base_addr(temp, curr_token.token_str);
+              if(is_array(global_var_table[search_global_var(curr_token.token_str)].type))
+                emit_data("_%s: .dw _%s_data\n", var->name, temp);
+              else
+                emit_data("_%s: .dw _%s\n", var->name, temp);
+            }
+            else error(ERR_FATAL, "identifier expected after '&' operator");
+          }
+          else if(curr_token.tok_type == IDENTIFIER){
             get_var_base_addr(temp, curr_token.token_str);
-            emit_data("_%s: .dw _%s_data\n", var->name, temp);
+            if(is_array(global_var_table[search_global_var(curr_token.token_str)].type))
+              emit_data("_%s: .dw _%s_data\n", var->name, temp);
+            else 
+              error(ERR_FATAL, "idenfitier referenced in global var initialization is not an array. for non-array variables the '&' operator is needed to reference the variable's address");
           }
           else{
             if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
@@ -5601,18 +5615,60 @@ void emit_global_var_initialization(t_var *var){
             emit_data("$%02x\n", (uint8_t)curr_token.string_const[0]);
           else if(curr_token.tok_type == INTEGER_CONST)
             emit_data("$%02x\n", (uint8_t)curr_token.int_const);
+          else
+            error(ERR_FATAL, "unknown data type in global var initialization");
         }
         break;
       case DT_INT:
-        emit_data("_%s: ", var->name);
-        emit_data_dbdw(var->type);
-        emit_data("$%04x\n", (uint16_t)curr_token.int_const);
+        if(var->type.ind_level > 0){ // if is a string
+          if(curr_token.tok == AMPERSAND){
+            get();
+            if(curr_token.tok_type == IDENTIFIER){
+              get_var_base_addr(temp, curr_token.token_str);
+              if(is_array(global_var_table[search_global_var(curr_token.token_str)].type))
+                emit_data("_%s: .dw _%s_data\n", var->name, temp);
+              else
+                emit_data("_%s: .dw _%s\n", var->name, temp);
+            }
+            else error(ERR_FATAL, "identifier expected after '&' operator");
+          }
+          else if(curr_token.tok_type == IDENTIFIER){
+            get_var_base_addr(temp, curr_token.token_str);
+            if(is_array(global_var_table[search_global_var(curr_token.token_str)].type))
+              emit_data("_%s: .dw _%s_data\n", var->name, temp);
+            else 
+              error(ERR_FATAL, "idenfitier referenced in global var initialization is not an array. for non-array variables the '&' operator is needed to reference the variable's address");
+          }
+          else{
+            emit_data("_%s: ", var->name);
+            emit_data_dbdw(var->type);
+            emit_data("$%04x\n", (uint16_t)curr_token.int_const);
+          }
+        }
+        else{
+          emit_data("_%s: ", var->name);
+          if(curr_token.tok_type == CHAR_CONST)
+            emit_data("$%04x\n", (uint16_t)curr_token.string_const[0]);
+          else if(curr_token.tok_type == INTEGER_CONST){
+            if(var->type.size_modifier == SIZEMOD_LONG){
+              emit_data(".dw $%04x\n", (uint16_t)(curr_token.int_const & 0x0000FFFF));
+              emit_data(".dw $%04x\n", (uint16_t)(curr_token.int_const >> 16));
+            }
+            else{
+              emit_data_dbdw(var->type);
+              emit_data("$%04x\n", (uint16_t)curr_token.int_const);
+            }
+          }
+          else
+            error(ERR_FATAL, "unknown data type in global var initialization");
+        }
         break;
       case DT_STRUCT:
         if(curr_token.tok_type == IDENTIFIER){
           get_var_base_addr(temp, curr_token.token_str);
           emit_data("_%s: .dw _%s_data\n", var->name, temp);
         }
+        break;
       case DT_UNION:
         if(curr_token.tok_type == IDENTIFIER){
           get_var_base_addr(temp, curr_token.token_str);

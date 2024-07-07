@@ -7,112 +7,25 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; printf("%c %d %s\n", my_struct[0].c, my_struct[0].i, my_struct[0].m); 
+; printf("\n%lx\n", ii); 
                
 ; --- START FUNCTION CALL
                
-  mov d, _my_struct_data ; $my_struct
+  mov d, _ii ; $ii
+  mov b, [d + 2] ; Upper Word of the Long Int
+  mov c, b ; And place it into C
+  mov b, [d] ; Lower Word in B
+  mov a, c
+  swp a
   push a
-  push d
-               
-  mov32 cb, $00000000
-  pop d
-  mma 5 ; mov a, 5; mul a, b; add d, b
-  pop a
-  add d, 3
-  mov b, [d]
-  mov c, 0
   swp b
   push b
                
-  mov d, _my_struct_data ; $my_struct
-  push a
-  push d
-               
-  mov32 cb, $00000000
-  pop d
-  mma 5 ; mov a, 5; mul a, b; add d, b
-  pop a
-  add d, 1
-  mov b, [d]
-  mov c, 0
-  swp b
-  push b
-               
-  mov d, _my_struct_data ; $my_struct
-  push a
-  push d
-               
-  mov32 cb, $00000000
-  pop d
-  mma 5 ; mov a, 5; mul a, b; add d, b
-  pop a
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  push bl
-               
-  mov b, _s2 ; "%c %d %s\n"
+  mov b, _s0 ; "\n%lx\n"
   swp b
   push b
   call printf
-  add sp, 7
-; --- END FUNCTION CALL
-; return; 
-  leave
-  syscall sys_terminate_proc
-; printf("%c %d %s\n", my_struct[1].c, my_struct[1].i, my_struct[1].m); 
-               
-; --- START FUNCTION CALL
-               
-  mov d, _my_struct_data ; $my_struct
-  push a
-  push d
-               
-  mov32 cb, $00000001
-  pop d
-  mma 5 ; mov a, 5; mul a, b; add d, b
-  pop a
-  add d, 3
-  mov b, [d]
-  mov c, 0
-  swp b
-  push b
-               
-  mov d, _my_struct_data ; $my_struct
-  push a
-  push d
-               
-  mov32 cb, $00000001
-  pop d
-  mma 5 ; mov a, 5; mul a, b; add d, b
-  pop a
-  add d, 1
-  mov b, [d]
-  mov c, 0
-  swp b
-  push b
-               
-  mov d, _my_struct_data ; $my_struct
-  push a
-  push d
-               
-  mov32 cb, $00000001
-  pop d
-  mma 5 ; mov a, 5; mul a, b; add d, b
-  pop a
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  push bl
-               
-  mov b, _s2 ; "%c %d %s\n"
-  swp b
-  push b
-  call printf
-  add sp, 7
+  add sp, 6
 ; --- END FUNCTION CALL
   syscall sys_terminate_proc
 
@@ -389,7 +302,7 @@ _if7_else:
                
 ; --- START FUNCTION CALL
                
-  mov b, _s3 ; "Unexpected format in printf."
+  mov b, _s1 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -591,7 +504,7 @@ _switch4_default:
                
 ; --- START FUNCTION CALL
                
-  mov b, _s4 ; "Error: Unknown argument type.\n"
+  mov b, _s2 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -1675,23 +1588,15 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
-_my_struct_data:
-.db $61
-.dw $007b
-.dw _s0
-.db $62
-.dw $01c8
-.dw _s1
-
-.fill 40, 0
-_mm_data:
-.db $61,$62,$63,
-.fill 7, 0
-_s0: .db "hello", 0
-_s1: .db "world", 0
-_s2: .db "%c %d %s\n", 0
-_s3: .db "Unexpected format in printf.", 0
-_s4: .db "Error: Unknown argument type.\n", 0
+_f: .fill 1, 0
+_i: .fill 2, 0
+_c_data: .fill 10, 0
+_m: .dw _c_data
+_ii: .dw $ef12
+.dw $abcd
+_s0: .db "\n%lx\n", 0
+_s1: .db "Unexpected format in printf.", 0
+_s2: .db "Error: Unknown argument type.\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0
