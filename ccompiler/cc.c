@@ -5498,7 +5498,7 @@ void emit_global_var_initialization(t_var *var){
   char var_base_addr[ID_LEN];
 
   if(is_array(var->type)){
-    emit_data("_%s_data:\n", var->name);
+    emit_data("_%s_data: ", var->name);
     if(var->type.primitive_type != DT_STRUCT) emit_data_dbdw(var->type);
     number_initialized_bytes = 0;
     braces = 0;
@@ -5598,11 +5598,12 @@ void emit_global_var_initialization(t_var *var){
       if(braces == 0) break;
       get();
       if(curr_token.tok != COMMA) back();
-      if(number_initialized_bytes + 1 % 32 == 0){ // split into multiple lines due to TASM limitation of how many items per .dw directive
+      if((number_initialized_bytes + 1) % 16 == 0){ // split into multiple lines due to TASM limitation of how many items per .dw directive
         emit_data("\n");
         emit_data_dbdw(var->type);
       }
     }
+    emit_data("\n");
     // fill in the remaining unitialized array values with 0's 
     if(var->type.primitive_type == DT_STRUCT){ // todo: temporary solution here.  counting each struct element here is wrong but that is whats happening for now. so in the end we divide by the number of elements so we get the actual number of structs initialized
       number_initialized_bytes = number_initialized_bytes / get_num_struct_elements(var->type.struct_enum_union_id);

@@ -13,6 +13,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 int arrows;
@@ -345,7 +346,7 @@ void game_play() {
     c = getlet("NEW GAME (Y-N): ");
 
     if (c == 'N') {
-        exit();
+        exit(1);
     }
   
 }

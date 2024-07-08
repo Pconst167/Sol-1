@@ -12,9 +12,7 @@ main:
 ; c = getlet("INSTRUCTIONS (Y-N): "); 
   lea d, [bp + -1] ; $c
   push d
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s0 ; "INSTRUCTIONS (Y-N): "
   swp b
   push b
@@ -25,7 +23,6 @@ main:
   mov [d], b
 ; if (c == 'Y') { 
 _if1_cond:
-               
   lea d, [bp + -1] ; $c
   mov b, [d]
   mov c, 0
@@ -41,7 +38,6 @@ _if1_cond:
   je _if1_exit
 _if1_TRUE:
 ; print_instructions(); 
-               
 ; --- START FUNCTION CALL
   call print_instructions
   jmp _if1_exit
@@ -49,18 +45,14 @@ _if1_exit:
 ; do {  
 _do2_block:
 ; game_setup(); 
-               
 ; --- START FUNCTION CALL
   call game_setup
 ; game_play(); 
-               
 ; --- START FUNCTION CALL
   call game_play
 ; } while (getlet("NEW GAME (Y-N): ") != 'N'); 
 _do2_cond:
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s1 ; "NEW GAME (Y-N): "
   swp b
   push b
@@ -79,7 +71,6 @@ _do2_cond:
   je _do2_block
 _do2_exit:
 ; return 0; 
-               
   mov32 cb, $00000000
   leave
   syscall sys_terminate_proc
@@ -89,9 +80,7 @@ getnum:
 ; int n; 
   sub sp, 2
 ; print(prompt); 
-               
 ; --- START FUNCTION CALL
-               
   lea d, [bp + 5] ; $prompt
   mov b, [d]
   mov c, 0
@@ -103,13 +92,11 @@ getnum:
 ; n = scann(); 
   lea d, [bp + -1] ; $n
   push d
-               
 ; --- START FUNCTION CALL
   call scann
   pop d
   mov [d], b
 ; return n; 
-               
   lea d, [bp + -1] ; $n
   mov b, [d]
   mov c, 0
@@ -123,15 +110,12 @@ getlet:
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + 0] ; $c
   push d
-               
   mov32 cb, $0000000a
   pop d
   mov [d], bl
 ; --- END LOCAL VAR INITIALIZATION
 ; print(prompt); 
-               
 ; --- START FUNCTION CALL
-               
   lea d, [bp + 5] ; $prompt
   mov b, [d]
   mov c, 0
@@ -142,7 +126,6 @@ getlet:
 ; --- END FUNCTION CALL
 ; while (c == '\n') { 
 _while3_cond:
-               
   lea d, [bp + 0] ; $c
   mov bl, [d]
   mov bh, 0
@@ -161,7 +144,6 @@ _while3_block:
 ; c = getchar(); 
   lea d, [bp + 0] ; $c
   push d
-               
 ; --- START FUNCTION CALL
   call getchar
   pop d
@@ -169,9 +151,7 @@ _while3_block:
   jmp _while3_cond
 _while3_exit:
 ; return toupper(c); 
-               
 ; --- START FUNCTION CALL
-               
   lea d, [bp + 0] ; $c
   mov bl, [d]
   mov bh, 0
@@ -186,9 +166,7 @@ _while3_exit:
 print_instructions:
   enter 0 ; (push bp; mov bp, sp)
 ; print("Welcome to 'hunt the wumpus'\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s2 ; "Welcome to 'hunt the wumpus'\n"
   swp b
   push b
@@ -196,9 +174,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("The wumpus lives in a cave of 20 rooms. Each room\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s3 ; "The wumpus lives in a cave of 20 rooms. Each room\n"
   swp b
   push b
@@ -206,9 +182,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("has 3 tunnels leading to other rooms.\n");  
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s4 ; "has 3 tunnels leading to other rooms.\n"
   swp b
   push b
@@ -216,9 +190,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("Look at a dodecahedron to see how this works.\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s5 ; "Look at a dodecahedron to see how this works.\n"
   swp b
   push b
@@ -226,9 +198,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s6 ; "\n"
   swp b
   push b
@@ -236,9 +206,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" Hazards:\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s7 ; " Hazards:\n"
   swp b
   push b
@@ -246,9 +214,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" Bottomless pits: Two rooms have bottomless pits in them\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s8 ; " Bottomless pits: Two rooms have bottomless pits in them\n"
   swp b
   push b
@@ -256,9 +222,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" If you go there, you fall into the pit (& lose!)\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s9 ; " If you go there, you fall into the pit (& lose!)\n"
   swp b
   push b
@@ -266,9 +230,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s10 ; " SUPER BATS     : TWO OTHER ROOMS HAVE SUPER BATS. IF YOU\n"
   swp b
   push b
@@ -276,9 +238,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s11 ; " GO THERE, A BAT GRABS YOU AND TAKES YOU TO SOME OTHER\n"
   swp b
   push b
@@ -286,9 +246,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s12 ; " ROOM AT RANDOM. (WHICH MAY BE TROUBLESOME)\n\n"
   swp b
   push b
@@ -296,9 +254,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" WUMPUS:\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s13 ; " WUMPUS:\n"
   swp b
   push b
@@ -306,9 +262,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s14 ; " THE WUMPUS IS NOT BOTHERED BY HAZARDS (HE HAS SUCKER\n"
   swp b
   push b
@@ -316,9 +270,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s15 ; " FEET AND IS TOO BIG FOR A BAT TO LIFT).  USUALLY\n"
   swp b
   push b
@@ -326,9 +278,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s16 ; " HE IS ASLEEP.  TWO THINGS WAKE HIM UP: YOU SHOOTING AN\n"
   swp b
   push b
@@ -336,9 +286,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" ARROW OR YOU ENTERING HIS ROOM.\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s17 ; " ARROW OR YOU ENTERING HIS ROOM.\n"
   swp b
   push b
@@ -346,9 +294,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s18 ; " IF THE WUMPUS WAKES HE MOVES (P=.75) ONE ROOM\n"
   swp b
   push b
@@ -356,9 +302,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s19 ; " OR STAYS STILL (P=.25).  AFTER THAT, IF HE IS WHERE YOU\n"
   swp b
   push b
@@ -366,9 +310,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" ARE, HE EATS YOU UP AND YOU LOSE!\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s20 ; " ARE, HE EATS YOU UP AND YOU LOSE!\n"
   swp b
   push b
@@ -376,9 +318,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s6 ; "\n"
   swp b
   push b
@@ -386,9 +326,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" YOU:\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s21 ; " YOU:\n"
   swp b
   push b
@@ -396,9 +334,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s22 ; " EACH TURN YOU MAY MOVE OR SHOOT A CROOKED ARROW\n"
   swp b
   push b
@@ -406,9 +342,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s23 ; " MOVING:  YOU CAN MOVE ONE ROOM (THRU ONE TUNNEL)\n"
   swp b
   push b
@@ -416,9 +350,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s24 ; " ARROWS:  YOU HAVE 5 ARROWS.  YOU LOSE WHEN YOU RUN OUT\n"
   swp b
   push b
@@ -426,9 +358,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s25 ; " EACH ARROW CAN GO FROM 1 TO 5 ROOMS. YOU AIM BY TELLING\n"
   swp b
   push b
@@ -436,9 +366,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s26 ; "   THE COMPUTER THE ROOM#S YOU WANT THE ARROW TO GO TO.\n"
   swp b
   push b
@@ -446,9 +374,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s27 ; "   IF THE ARROW CAN'T GO THAT WAY (IF NO TUNNEL) IT MOVES\n"
   swp b
   push b
@@ -456,9 +382,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("   AT RANDOM TO THE NEXT ROOM.\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s28 ; "   AT RANDOM TO THE NEXT ROOM.\n"
   swp b
   push b
@@ -466,9 +390,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s29 ; "     IF THE ARROW HITS THE WUMPUS, YOU WIN.\n"
   swp b
   push b
@@ -476,9 +398,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("     IF THE ARROW HITS YOU, YOU LOSE.\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s30 ; "     IF THE ARROW HITS YOU, YOU LOSE.\n"
   swp b
   push b
@@ -486,9 +406,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" WARNINGS:\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s31 ; " WARNINGS:\n"
   swp b
   push b
@@ -496,9 +414,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s32 ; " WHEN YOU ARE ONE ROOM AWAY FROM A WUMPUS OR HAZARD,\n"
   swp b
   push b
@@ -506,9 +422,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" THE COMPUTER SAYS:\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s33 ; " THE COMPUTER SAYS:\n"
   swp b
   push b
@@ -516,9 +430,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" WUMPUS:  'I SMELL A WUMPUS'\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s34 ; " WUMPUS:  'I SMELL A WUMPUS'\n"
   swp b
   push b
@@ -526,9 +438,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" BAT   :  'BATS NEARBY'\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s35 ; " BAT   :  'BATS NEARBY'\n"
   swp b
   push b
@@ -536,9 +446,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" PIT   :  'I FEEL A DRAFT'\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s36 ; " PIT   :  'I FEEL A DRAFT'\n"
   swp b
   push b
@@ -546,9 +454,7 @@ print_instructions:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s6 ; "\n"
   swp b
   push b
@@ -564,9 +470,7 @@ show_room:
   sub sp, 2
   sub sp, 2
 ; print("\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s6 ; "\n"
   swp b
   push b
@@ -577,12 +481,10 @@ show_room:
 _for4_init:
   lea d, [bp + -3] ; $k
   push d
-               
   mov32 cb, $00000000
   pop d
   mov [d], b
 _for4_cond:
-               
   lea d, [bp + -3] ; $k
   mov b, [d]
   mov c, 0
@@ -600,15 +502,12 @@ _for4_block:
 ; room = cave[loc[	    0   ]][k]; 
   lea d, [bp + -1] ; $room
   push d
-               
   mov d, _cave_data ; $cave
   push a
   push d
-               
   mov d, _loc_data ; $loc
   push a
   push d
-               
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -618,7 +517,6 @@ _for4_block:
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-               
   lea d, [bp + -3] ; $k
   mov b, [d]
   mov c, 0
@@ -631,7 +529,6 @@ _for4_block:
   mov [d], b
 ; if (room == loc[	1      ]) { 
 _if5_cond:
-               
   lea d, [bp + -1] ; $room
   mov b, [d]
   mov c, 0
@@ -641,7 +538,6 @@ _if5_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-               
   mov32 cb, $00000001
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -656,9 +552,7 @@ _if5_cond:
   je _if5_else
 _if5_TRUE:
 ; print("I SMELL A WUMPUS!\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s37 ; "I SMELL A WUMPUS!\n"
   swp b
   push b
@@ -669,7 +563,6 @@ _if5_TRUE:
 _if5_else:
 ; if (room == loc[	2    ] || room == loc[	3    ]) { 
 _if6_cond:
-               
   lea d, [bp + -1] ; $room
   mov b, [d]
   mov c, 0
@@ -679,7 +572,6 @@ _if6_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-               
   mov32 cb, $00000002
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -702,7 +594,6 @@ _if6_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-               
   mov32 cb, $00000003
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -720,9 +611,7 @@ _if6_cond:
   je _if6_else
 _if6_TRUE:
 ; print("I FEEL A DRAFT\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s38 ; "I FEEL A DRAFT\n"
   swp b
   push b
@@ -733,7 +622,6 @@ _if6_TRUE:
 _if6_else:
 ; if (room == loc[	4     ] || room == loc[	5     ]) { 
 _if7_cond:
-               
   lea d, [bp + -1] ; $room
   mov b, [d]
   mov c, 0
@@ -743,7 +631,6 @@ _if7_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-               
   mov32 cb, $00000004
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -766,7 +653,6 @@ _if7_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-               
   mov32 cb, $00000005
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -784,9 +670,7 @@ _if7_cond:
   je _if7_exit
 _if7_TRUE:
 ; print("BATS NEARBY!\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s39 ; "BATS NEARBY!\n"
   swp b
   push b
@@ -798,7 +682,6 @@ _if7_exit:
 _if6_exit:
 _if5_exit:
 _for4_update:
-               
   lea d, [bp + -3] ; $k
   mov b, [d]
   mov c, 0
@@ -810,9 +693,7 @@ _for4_update:
   jmp _for4_cond
 _for4_exit:
 ; print("YOU ARE IN ROOM "); print_unsigned(loc[	    0   ]+1); print("\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s40 ; "YOU ARE IN ROOM "
   swp b
   push b
@@ -820,13 +701,10 @@ _for4_exit:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print_unsigned(loc[	    0   ]+1); print("\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov d, _loc_data ; $loc
   push a
   push d
-               
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -846,9 +724,7 @@ _for4_exit:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s6 ; "\n"
   swp b
   push b
@@ -856,9 +732,7 @@ _for4_exit:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("TUNNELS LEAD TO ");  
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s41 ; "TUNNELS LEAD TO "
   swp b
   push b
@@ -866,17 +740,13 @@ _for4_exit:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print_unsigned(cave[loc[	    0   ]][0]+1); print(", "); 
-               
 ; --- START FUNCTION CALL
-               
   mov d, _cave_data ; $cave
   push a
   push d
-               
   mov d, _loc_data ; $loc
   push a
   push d
-               
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -886,7 +756,6 @@ _for4_exit:
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-               
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -906,9 +775,7 @@ _for4_exit:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(", "); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s42 ; ", "
   swp b
   push b
@@ -916,17 +783,13 @@ _for4_exit:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print_unsigned(cave[loc[	    0   ]][1]+1); print(", "); 
-               
 ; --- START FUNCTION CALL
-               
   mov d, _cave_data ; $cave
   push a
   push d
-               
   mov d, _loc_data ; $loc
   push a
   push d
-               
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -936,7 +799,6 @@ _for4_exit:
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-               
   mov32 cb, $00000001
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -956,9 +818,7 @@ _for4_exit:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(", "); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s42 ; ", "
   swp b
   push b
@@ -966,17 +826,13 @@ _for4_exit:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print_unsigned(cave[loc[	    0   ]][2]+1); 
-               
 ; --- START FUNCTION CALL
-               
   mov d, _cave_data ; $cave
   push a
   push d
-               
   mov d, _loc_data ; $loc
   push a
   push d
-               
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -986,7 +842,6 @@ _for4_exit:
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-               
   mov32 cb, $00000002
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1006,9 +861,7 @@ _for4_exit:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print("\n\n"); 
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s43 ; "\n\n"
   swp b
   push b
@@ -1025,15 +878,12 @@ move_or_shoot:
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -1] ; $c
   push d
-               
   mov32 cb, $ffffffff
   pop d
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
 ; while ((c != 'S') && (c != 'M')) { 
 _while8_cond:
-               
-               
   lea d, [bp + -1] ; $c
   mov b, [d]
   mov c, 0
@@ -1048,7 +898,6 @@ _while8_cond:
 ; --- START LOGICAL AND
   push a
   mov a, b
-               
   lea d, [bp + -1] ; $c
   mov b, [d]
   mov c, 0
@@ -1069,9 +918,7 @@ _while8_block:
 ; c = getlet("SHOOT OR MOVE (S-M): "); 
   lea d, [bp + -1] ; $c
   push d
-               
 ; --- START FUNCTION CALL
-               
   mov b, _s44 ; "SHOOT OR MOVE (S-M): "
   swp b
   push b
@@ -1084,7 +931,6 @@ _while8_block:
 _while8_exit:
 ; return (c == 'S') ? 1 : 0; 
 _ternary9_cond:
-               
   lea d, [bp + -1] ; $c
   mov b, [d]
   mov c, 0
@@ -1099,11 +945,9 @@ _ternary9_cond:
   cmp b, 0
   je _ternary9_FALSE
 _ternary9_TRUE:
-                
   mov32 cb, $00000001
   jmp _ternary9_exit
 _ternary9_FALSE:
-                
   mov32 cb, $00000000
 _ternary9_exit:
   leave
@@ -1116,7 +960,6 @@ move_wumpus:
 ; k = rand2() % 4; 
   lea d, [bp + -1] ; $k
   push d
-                
 ; --- START FUNCTION CALL
   call rand2
 ; --- START FACTORS
@@ -1137,8 +980,7 @@ move_wumpus:
   pop d
   mov [d], b
 ; if (k < 3) { 
-_if11_cond:
-                
+_if12_cond:
   lea d, [bp + -1] ; $k
   mov b, [d]
   mov c, 0
@@ -1151,27 +993,23 @@ _if11_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if11_exit
-_if11_TRUE:
+  je _if12_exit
+_if12_TRUE:
 ; loc[	1      ] = cave[loc[	1      ]][k]; 
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000001
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
-                
   mov d, _cave_data ; $cave
   push a
   push d
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000001
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1181,7 +1019,6 @@ _if11_TRUE:
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-                
   lea d, [bp + -1] ; $k
   mov b, [d]
   mov c, 0
@@ -1192,15 +1029,13 @@ _if11_TRUE:
   mov c, 0
   pop d
   mov [d], b
-  jmp _if11_exit
-_if11_exit:
+  jmp _if12_exit
+_if12_exit:
 ; if (loc[	1      ] == loc[	    0   ]) { 
-_if12_cond:
-                
+_if13_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000001
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1213,7 +1048,6 @@ _if12_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1225,12 +1059,10 @@ _if12_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if12_exit
-_if12_TRUE:
+  je _if13_exit
+_if13_TRUE:
 ; print("TSK TSK TSK - WUMPUS GOT YOU!\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s45 ; "TSK TSK TSK - WUMPUS GOT YOU!\n"
   swp b
   push b
@@ -1240,12 +1072,11 @@ _if12_TRUE:
 ; finished = 	2    ; 
   mov d, _finished ; $finished
   push d
-                
   mov32 cb, $00000002
   pop d
   mov [d], b
-  jmp _if12_exit
-_if12_exit:
+  jmp _if13_exit
+_if13_exit:
   leave
   ret
 
@@ -1258,7 +1089,6 @@ shoot:
 ; --- START LOCAL VAR INITIALIZATION
   lea d, [bp + -11] ; $scratchloc
   push d
-                
   mov32 cb, $ffffffff
   pop d
   mov [d], b
@@ -1269,20 +1099,17 @@ shoot:
 ; finished = 	     0   ; 
   mov d, _finished ; $finished
   push d
-                
   mov32 cb, $00000000
   pop d
   mov [d], b
 ; len = -1; 
   lea d, [bp + -13] ; $len
   push d
-                
   mov32 cb, $ffffffff
   pop d
   mov [d], b
 ; while (len < 1 || len > 5) { 
-_while13_cond:
-                
+_while14_cond:
   lea d, [bp + -13] ; $len
   mov b, [d]
   mov c, 0
@@ -1312,14 +1139,12 @@ _while13_cond:
   pop a
 ; --- END LOGICAL OR
   cmp b, 0
-  je _while13_exit
-_while13_block:
+  je _while14_exit
+_while14_block:
 ; len = getnum("\nNUMBER OF ROOMS (1-5): "); 
   lea d, [bp + -13] ; $len
   push d
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s46 ; "\nNUMBER OF ROOMS (1-5): "
   swp b
   push b
@@ -1328,18 +1153,16 @@ _while13_block:
 ; --- END FUNCTION CALL
   pop d
   mov [d], b
-  jmp _while13_cond
-_while13_exit:
+  jmp _while14_cond
+_while14_exit:
 ; k = 0; 
   lea d, [bp + -15] ; $k
   push d
-                
   mov32 cb, $00000000
   pop d
   mov [d], b
 ; while (k < len) { 
-_while14_cond:
-                
+_while15_cond:
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1354,13 +1177,12 @@ _while14_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while14_exit
-_while14_block:
+  je _while15_exit
+_while15_block:
 ; path[k] = getnum("ROOM #") - 1; 
   lea d, [bp + -9] ; $path
   push a
   push d
-                
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1368,9 +1190,7 @@ _while14_block:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s47 ; "ROOM #"
   swp b
   push b
@@ -1388,9 +1208,7 @@ _while14_block:
   pop d
   mov [d], b
 ; if ((k>1) && (path[k] == path[k - 2])) { 
-_if15_cond:
-                
-                
+_if16_cond:
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1405,11 +1223,9 @@ _if15_cond:
 ; --- START LOGICAL AND
   push a
   mov a, b
-                
   lea d, [bp + -9] ; $path
   push a
   push d
-                
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1424,7 +1240,6 @@ _if15_cond:
   lea d, [bp + -9] ; $path
   push a
   push d
-                
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1449,12 +1264,10 @@ _if15_cond:
   pop a
 ; --- END LOGICAL AND
   cmp b, 0
-  je _if15_exit
-_if15_TRUE:
+  je _if16_exit
+_if16_TRUE:
 ; print("ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s48 ; "ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM\n"
   swp b
   push b
@@ -1462,11 +1275,10 @@ _if15_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; continue;  
-  jmp _while14_cond ; while continue
-  jmp _if15_exit
-_if15_exit:
+  jmp _while15_cond ; while continue
+  jmp _if16_exit
+_if16_exit:
 ; k++; 
-                
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1475,16 +1287,14 @@ _if15_exit:
   lea d, [bp + -15] ; $k
   mov [d], b
   mov b, a
-  jmp _while14_cond
-_while14_exit:
+  jmp _while15_cond
+_while15_exit:
 ; scratchloc = loc[	    0   ]; 
   lea d, [bp + -11] ; $scratchloc
   push d
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1494,15 +1304,13 @@ _while14_exit:
   pop d
   mov [d], b
 ; for (k = 0; k < len; k++) { 
-_for16_init:
+_for17_init:
   lea d, [bp + -15] ; $k
   push d
-                
   mov32 cb, $00000000
   pop d
   mov [d], b
-_for16_cond:
-                
+_for17_cond:
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1517,23 +1325,19 @@ _for16_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _for16_exit
-_for16_block:
+  je _for17_exit
+_for17_block:
 ; if ((cave[scratchloc][0] == path[k]) || 
-_if17_cond:
-                
-                
+_if18_cond:
   mov d, _cave_data ; $cave
   push a
   push d
-                
   lea d, [bp + -11] ; $scratchloc
   mov b, [d]
   mov c, 0
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1546,7 +1350,6 @@ _if17_cond:
   lea d, [bp + -9] ; $path
   push a
   push d
-                
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1562,18 +1365,15 @@ _if17_cond:
 ; --- START LOGICAL OR
   push a
   mov a, b
-                
   mov d, _cave_data ; $cave
   push a
   push d
-                
   lea d, [bp + -11] ; $scratchloc
   mov b, [d]
   mov c, 0
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-                
   mov32 cb, $00000001
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1586,7 +1386,6 @@ _if17_cond:
   lea d, [bp + -9] ; $path
   push a
   push d
-                
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1601,18 +1400,15 @@ _if17_cond:
 ; --- END RELATIONAL
   sor a, b ; ||
   mov a, b
-                
   mov d, _cave_data ; $cave
   push a
   push d
-                
   lea d, [bp + -11] ; $scratchloc
   mov b, [d]
   mov c, 0
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-                
   mov32 cb, $00000002
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1625,7 +1421,6 @@ _if17_cond:
   lea d, [bp + -9] ; $path
   push a
   push d
-                
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1642,16 +1437,14 @@ _if17_cond:
   pop a
 ; --- END LOGICAL OR
   cmp b, 0
-  je _if17_else
-_if17_TRUE:
+  je _if18_else
+_if18_TRUE:
 ; scratchloc = path[k]; 
   lea d, [bp + -11] ; $scratchloc
   push d
-                
   lea d, [bp + -9] ; $path
   push a
   push d
-                
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1662,23 +1455,20 @@ _if17_TRUE:
   mov c, 0
   pop d
   mov [d], b
-  jmp _if17_exit
-_if17_else:
+  jmp _if18_exit
+_if18_else:
 ; scratchloc = cave[scratchloc][rand2()%3]; 
   lea d, [bp + -11] ; $scratchloc
   push d
-                
   mov d, _cave_data ; $cave
   push a
   push d
-                
   lea d, [bp + -11] ; $scratchloc
   mov b, [d]
   mov c, 0
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-                
 ; --- START FUNCTION CALL
   call rand2
 ; --- START FACTORS
@@ -1703,10 +1493,9 @@ _if17_else:
   mov c, 0
   pop d
   mov [d], b
-_if17_exit:
+_if18_exit:
 ; if (scratchloc == loc[	1      ]) { 
-_if19_cond:
-                
+_if23_cond:
   lea d, [bp + -11] ; $scratchloc
   mov b, [d]
   mov c, 0
@@ -1716,7 +1505,6 @@ _if19_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000001
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1728,12 +1516,10 @@ _if19_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if19_else
-_if19_TRUE:
+  je _if23_else
+_if23_TRUE:
 ; print("AHA! YOU GOT THE WUMPUS!\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s49 ; "AHA! YOU GOT THE WUMPUS!\n"
   swp b
   push b
@@ -1743,15 +1529,13 @@ _if19_TRUE:
 ; finished = 	     1   ; 
   mov d, _finished ; $finished
   push d
-                
   mov32 cb, $00000001
   pop d
   mov [d], b
-  jmp _if19_exit
-_if19_else:
+  jmp _if23_exit
+_if23_else:
 ; if (scratchloc == loc[	    0   ]) { 
-_if20_cond:
-                
+_if24_cond:
   lea d, [bp + -11] ; $scratchloc
   mov b, [d]
   mov c, 0
@@ -1761,7 +1545,6 @@ _if20_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1773,12 +1556,10 @@ _if20_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if20_exit
-_if20_TRUE:
+  je _if24_exit
+_if24_TRUE:
 ; print("OUCH! ARROW GOT YOU!\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s50 ; "OUCH! ARROW GOT YOU!\n"
   swp b
   push b
@@ -1788,16 +1569,14 @@ _if20_TRUE:
 ; finished = 	2    ; 
   mov d, _finished ; $finished
   push d
-                
   mov32 cb, $00000002
   pop d
   mov [d], b
-  jmp _if20_exit
-_if20_exit:
-_if19_exit:
+  jmp _if24_exit
+_if24_exit:
+_if23_exit:
 ; if (finished != 	     0   ) { 
-_if21_cond:
-                
+_if25_cond:
   mov d, _finished ; $finished
   mov b, [d]
   mov c, 0
@@ -1810,15 +1589,14 @@ _if21_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if21_exit
-_if21_TRUE:
+  je _if25_exit
+_if25_TRUE:
 ; return; 
   leave
   ret
-  jmp _if21_exit
-_if21_exit:
-_for16_update:
-                
+  jmp _if25_exit
+_if25_exit:
+_for17_update:
   lea d, [bp + -15] ; $k
   mov b, [d]
   mov c, 0
@@ -1827,12 +1605,10 @@ _for16_update:
   lea d, [bp + -15] ; $k
   mov [d], b
   mov b, a
-  jmp _for16_cond
-_for16_exit:
+  jmp _for17_cond
+_for17_exit:
 ; print("MISSED\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s51 ; "MISSED\n"
   swp b
   push b
@@ -1840,12 +1616,10 @@ _for16_exit:
   add sp, 2
 ; --- END FUNCTION CALL
 ; move_wumpus(); 
-                
 ; --- START FUNCTION CALL
   call move_wumpus
 ; if (--arrows <= 0) { 
-_if22_cond:
-                
+_if26_cond:
   mov d, _arrows ; $arrows
   mov b, [d]
   dec b
@@ -1860,17 +1634,16 @@ _if22_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if22_exit
-_if22_TRUE:
+  je _if26_exit
+_if26_TRUE:
 ; finished = 	2    ; 
   mov d, _finished ; $finished
   push d
-                
   mov32 cb, $00000002
   pop d
   mov [d], b
-  jmp _if22_exit
-_if22_exit:
+  jmp _if26_exit
+_if26_exit:
   leave
   ret
 
@@ -1881,13 +1654,11 @@ move:
 ; scratchloc = -1; 
   lea d, [bp + -1] ; $scratchloc
   push d
-                
   mov32 cb, $ffffffff
   pop d
   mov [d], b
 ; while (scratchloc == -1) { 
-_while23_cond:
-                
+_while27_cond:
   lea d, [bp + -1] ; $scratchloc
   mov b, [d]
   mov c, 0
@@ -1900,14 +1671,12 @@ _while23_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while23_exit
-_while23_block:
+  je _while27_exit
+_while27_block:
 ; scratchloc = getnum("\nWHERE TO: ")- 1; 
   lea d, [bp + -1] ; $scratchloc
   push d
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s52 ; "\nWHERE TO: "
   swp b
   push b
@@ -1925,8 +1694,7 @@ _while23_block:
   pop d
   mov [d], b
 ; if (scratchloc < 0 || scratchloc > 19) { 
-_if24_cond:
-                
+_if28_cond:
   lea d, [bp + -1] ; $scratchloc
   mov b, [d]
   mov c, 0
@@ -1956,31 +1724,26 @@ _if24_cond:
   pop a
 ; --- END LOGICAL OR
   cmp b, 0
-  je _if24_exit
-_if24_TRUE:
+  je _if28_exit
+_if28_TRUE:
 ; scratchloc = -1; 
   lea d, [bp + -1] ; $scratchloc
   push d
-                
   mov32 cb, $ffffffff
   pop d
   mov [d], b
 ; continue; 
-  jmp _while23_cond ; while continue
-  jmp _if24_exit
-_if24_exit:
+  jmp _while27_cond ; while continue
+  jmp _if28_exit
+_if28_exit:
 ; if ((cave[loc[	    0   ]][0] != scratchloc) & 
-_if25_cond:
-                
-                
+_if29_cond:
   mov d, _cave_data ; $cave
   push a
   push d
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -1990,7 +1753,6 @@ _if25_cond:
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2009,15 +1771,12 @@ _if25_cond:
 ; --- END RELATIONAL
   push a
   mov a, b
-                
   mov d, _cave_data ; $cave
   push a
   push d
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2027,7 +1786,6 @@ _if25_cond:
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-                
   mov32 cb, $00000001
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2046,15 +1804,12 @@ _if25_cond:
 ; --- END RELATIONAL
   and b, a ; &
   mov a, b
-                
   mov d, _cave_data ; $cave
   push a
   push d
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2064,7 +1819,6 @@ _if25_cond:
   pop d
   mma 6 ; mov a, 6; mul a, b; add d, b
   push d
-                
   mov32 cb, $00000002
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2083,11 +1837,9 @@ _if25_cond:
 ; --- END RELATIONAL
   and b, a ; &
   mov a, b
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2107,12 +1859,10 @@ _if25_cond:
   and b, a ; &
   pop a
   cmp b, 0
-  je _if25_exit
-_if25_TRUE:
+  je _if29_exit
+_if29_TRUE:
 ; print("NOT POSSIBLE\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s53 ; "NOT POSSIBLE\n"
   swp b
   push b
@@ -2122,36 +1872,31 @@ _if25_TRUE:
 ; scratchloc = -1; 
   lea d, [bp + -1] ; $scratchloc
   push d
-                
   mov32 cb, $ffffffff
   pop d
   mov [d], b
 ; continue; 
-  jmp _while23_cond ; while continue
-  jmp _if25_exit
-_if25_exit:
-  jmp _while23_cond
-_while23_exit:
+  jmp _while27_cond ; while continue
+  jmp _if29_exit
+_if29_exit:
+  jmp _while27_cond
+_while27_exit:
 ; loc[	    0   ] = scratchloc; 
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
-                
   lea d, [bp + -1] ; $scratchloc
   mov b, [d]
   mov c, 0
   pop d
   mov [d], b
 ; while ((scratchloc == loc[	4     ]) || (scratchloc == loc[	5     ])) { 
-_while26_cond:
-                
-                
+_while30_cond:
   lea d, [bp + -1] ; $scratchloc
   mov b, [d]
   mov c, 0
@@ -2161,7 +1906,6 @@ _while26_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000004
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2175,7 +1919,6 @@ _while26_cond:
 ; --- START LOGICAL OR
   push a
   mov a, b
-                
   lea d, [bp + -1] ; $scratchloc
   mov b, [d]
   mov c, 0
@@ -2185,7 +1928,6 @@ _while26_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000005
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2200,12 +1942,10 @@ _while26_cond:
   pop a
 ; --- END LOGICAL OR
   cmp b, 0
-  je _while26_exit
-_while26_block:
+  je _while30_exit
+_while30_block:
 ; print("ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s54 ; "ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!\n"
   swp b
   push b
@@ -2218,13 +1958,11 @@ _while26_block:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000000
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
-                
 ; --- START FUNCTION CALL
   call rand2
 ; --- START FACTORS
@@ -2246,11 +1984,10 @@ _while26_block:
   mov [d], b
   pop d
   mov [d], b
-  jmp _while26_cond
-_while26_exit:
+  jmp _while30_cond
+_while30_exit:
 ; if (scratchloc == loc[	1      ]) { 
-_if28_cond:
-                
+_if33_cond:
   lea d, [bp + -1] ; $scratchloc
   mov b, [d]
   mov c, 0
@@ -2260,7 +1997,6 @@ _if28_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000001
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2272,12 +2008,10 @@ _if28_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if28_exit
-_if28_TRUE:
+  je _if33_exit
+_if33_TRUE:
 ; print("... OOPS! BUMPED A WUMPUS!\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s55 ; "... OOPS! BUMPED A WUMPUS!\n"
   swp b
   push b
@@ -2285,14 +2019,12 @@ _if28_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; move_wumpus(); 
-                
 ; --- START FUNCTION CALL
   call move_wumpus
-  jmp _if28_exit
-_if28_exit:
+  jmp _if33_exit
+_if33_exit:
 ; if (scratchloc == loc[	2    ] || scratchloc == loc[	3    ]) { 
-_if29_cond:
-                
+_if34_cond:
   lea d, [bp + -1] ; $scratchloc
   mov b, [d]
   mov c, 0
@@ -2302,7 +2034,6 @@ _if29_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000002
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2325,7 +2056,6 @@ _if29_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000003
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2340,12 +2070,10 @@ _if29_cond:
   pop a
 ; --- END LOGICAL OR
   cmp b, 0
-  je _if29_exit
-_if29_TRUE:
+  je _if34_exit
+_if34_TRUE:
 ; print("YYYYIIIIEEEE . . . FELL IN PIT\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s56 ; "YYYYIIIIEEEE . . . FELL IN PIT\n"
   swp b
   push b
@@ -2355,12 +2083,11 @@ _if29_TRUE:
 ; finished = 	2    ; 
   mov d, _finished ; $finished
   push d
-                
   mov32 cb, $00000002
   pop d
   mov [d], b
-  jmp _if29_exit
-_if29_exit:
+  jmp _if34_exit
+_if34_exit:
   leave
   ret
 
@@ -2369,7 +2096,6 @@ rand2:
 ; rand_val=rand_val+rand_inc; 
   mov d, _rand_val ; $rand_val
   push d
-                
   mov d, _rand_val ; $rand_val
   mov b, [d]
   mov c, 0
@@ -2385,7 +2111,6 @@ rand2:
   pop d
   mov [d], b
 ; rand_inc++; 
-                
   mov d, _rand_inc ; $rand_inc
   mov b, [d]
   mov c, 0
@@ -2395,7 +2120,6 @@ rand2:
   mov [d], b
   mov b, a
 ; return rand_val; 
-                
   mov d, _rand_val ; $rand_val
   mov b, [d]
   mov c, 0
@@ -2410,15 +2134,13 @@ game_setup:
 ; int v; 
   sub sp, 2
 ; for (j = 0; j < 	6    ; j++) { 
-_for30_init:
+_for35_init:
   lea d, [bp + -1] ; $j
   push d
-                
   mov32 cb, $00000000
   pop d
   mov [d], b
-_for30_cond:
-                
+_for35_cond:
   lea d, [bp + -1] ; $j
   mov b, [d]
   mov c, 0
@@ -2431,13 +2153,12 @@ _for30_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _for30_exit
-_for30_block:
+  je _for35_exit
+_for35_block:
 ; loc[j] = -1; 
   mov d, _loc_data ; $loc
   push a
   push d
-                
   lea d, [bp + -1] ; $j
   mov b, [d]
   mov c, 0
@@ -2445,17 +2166,14 @@ _for30_block:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
-                
   mov32 cb, $ffffffff
   pop d
   mov [d], b
 ; while (loc[j] < 0) { 
-_while31_cond:
-                
+_while36_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   lea d, [bp + -1] ; $j
   mov b, [d]
   mov c, 0
@@ -2473,12 +2191,11 @@ _while31_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while31_exit
-_while31_block:
+  je _while36_exit
+_while36_block:
 ; v = rand2(); 
   lea d, [bp + -5] ; $v
   push d
-                
 ; --- START FUNCTION CALL
   call rand2
   pop d
@@ -2487,7 +2204,6 @@ _while31_block:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   lea d, [bp + -1] ; $j
   mov b, [d]
   mov c, 0
@@ -2495,7 +2211,6 @@ _while31_block:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
-                
   lea d, [bp + -5] ; $v
   mov b, [d]
   mov c, 0
@@ -2517,15 +2232,13 @@ _while31_block:
   pop d
   mov [d], b
 ; for (k=0; k < j - 1; k++) { 
-_for33_init:
+_for39_init:
   lea d, [bp + -3] ; $k
   push d
-                
   mov32 cb, $00000000
   pop d
   mov [d], b
-_for33_cond:
-                
+_for39_cond:
   lea d, [bp + -3] ; $k
   mov b, [d]
   mov c, 0
@@ -2548,15 +2261,13 @@ _for33_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _for33_exit
-_for33_block:
+  je _for39_exit
+_for39_block:
 ; if (loc[j] == loc[k]) { 
-_if34_cond:
-                
+_if40_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   lea d, [bp + -1] ; $j
   mov b, [d]
   mov c, 0
@@ -2571,7 +2282,6 @@ _if34_cond:
   mov d, _loc_data ; $loc
   push a
   push d
-                
   lea d, [bp + -3] ; $k
   mov b, [d]
   mov c, 0
@@ -2585,13 +2295,12 @@ _if34_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if34_exit
-_if34_TRUE:
+  je _if40_exit
+_if40_TRUE:
 ; loc[j] = -1; 
   mov d, _loc_data ; $loc
   push a
   push d
-                
   lea d, [bp + -1] ; $j
   mov b, [d]
   mov c, 0
@@ -2599,14 +2308,12 @@ _if34_TRUE:
   mma 2 ; mov a, 2; mul a, b; add d, b
   pop a
   push d
-                
   mov32 cb, $ffffffff
   pop d
   mov [d], b
-  jmp _if34_exit
-_if34_exit:
-_for33_update:
-                
+  jmp _if40_exit
+_if40_exit:
+_for39_update:
   lea d, [bp + -3] ; $k
   mov b, [d]
   mov c, 0
@@ -2615,12 +2322,11 @@ _for33_update:
   lea d, [bp + -3] ; $k
   mov [d], b
   mov b, a
-  jmp _for33_cond
-_for33_exit:
-  jmp _while31_cond
-_while31_exit:
-_for30_update:
-                
+  jmp _for39_cond
+_for39_exit:
+  jmp _while36_cond
+_while36_exit:
+_for35_update:
   lea d, [bp + -1] ; $j
   mov b, [d]
   mov c, 0
@@ -2629,8 +2335,8 @@ _for30_update:
   lea d, [bp + -1] ; $j
   mov [d], b
   mov b, a
-  jmp _for30_cond
-_for30_exit:
+  jmp _for35_cond
+_for35_exit:
   leave
   ret
 
@@ -2639,14 +2345,11 @@ game_play:
 ; arrows = 5; 
   mov d, _arrows ; $arrows
   push d
-                
   mov32 cb, $00000005
   pop d
   mov [d], b
 ; print("HUNT THE WUMPUS\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s57 ; "HUNT THE WUMPUS\n"
   swp b
   push b
@@ -2654,18 +2357,15 @@ game_play:
   add sp, 2
 ; --- END FUNCTION CALL
 ; if (debug) { 
-_if35_cond:
-                
+_if41_cond:
   mov d, _debug ; $debug
   mov b, [d]
   mov c, 0
   cmp b, 0
-  je _if35_exit
-_if35_TRUE:
+  je _if41_exit
+_if41_TRUE:
 ; print("Wumpus is at "); print_unsigned(loc[	1      ]+1); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s58 ; "Wumpus is at "
   swp b
   push b
@@ -2673,13 +2373,10 @@ _if35_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print_unsigned(loc[	1      ]+1); 
-                
 ; --- START FUNCTION CALL
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000001
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2699,9 +2396,7 @@ _if35_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(", pits at "); print_unsigned(loc[	2    ]+1); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s59 ; ", pits at "
   swp b
   push b
@@ -2709,13 +2404,10 @@ _if35_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print_unsigned(loc[	2    ]+1); 
-                
 ; --- START FUNCTION CALL
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000002
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2735,9 +2427,7 @@ _if35_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" & "); print_unsigned(loc[	3    ]+1); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s60 ; " & "
   swp b
   push b
@@ -2745,13 +2435,10 @@ _if35_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print_unsigned(loc[	3    ]+1); 
-                
 ; --- START FUNCTION CALL
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000003
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2771,9 +2458,7 @@ _if35_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(", bats at "); print_unsigned(loc[	4     ]+1); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s61 ; ", bats at "
   swp b
   push b
@@ -2781,13 +2466,10 @@ _if35_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print_unsigned(loc[	4     ]+1); 
-                
 ; --- START FUNCTION CALL
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000004
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2807,9 +2489,7 @@ _if35_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print(" & "); print_unsigned(loc[	5     ]+1); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s60 ; " & "
   swp b
   push b
@@ -2817,13 +2497,10 @@ _if35_TRUE:
   add sp, 2
 ; --- END FUNCTION CALL
 ; print_unsigned(loc[	5     ]+1); 
-                
 ; --- START FUNCTION CALL
-                
   mov d, _loc_data ; $loc
   push a
   push d
-                
   mov32 cb, $00000005
   pop d
   mma 2 ; mov a, 2; mul a, b; add d, b
@@ -2842,18 +2519,16 @@ _if35_TRUE:
   call print_unsigned
   add sp, 2
 ; --- END FUNCTION CALL
-  jmp _if35_exit
-_if35_exit:
+  jmp _if41_exit
+_if41_exit:
 ; finished = 	     0   ; 
   mov d, _finished ; $finished
   push d
-                
   mov32 cb, $00000000
   pop d
   mov [d], b
 ; while (finished == 	     0   ) { 
-_while36_cond:
-                
+_while42_cond:
   mov d, _finished ; $finished
   mov b, [d]
   mov c, 0
@@ -2866,36 +2541,31 @@ _while36_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while36_exit
-_while36_block:
+  je _while42_exit
+_while42_block:
 ; show_room(); 
-                
 ; --- START FUNCTION CALL
   call show_room
 ; if (move_or_shoot()) { 
-_if37_cond:
-                
+_if43_cond:
 ; --- START FUNCTION CALL
   call move_or_shoot
   cmp b, 0
-  je _if37_else
-_if37_TRUE:
+  je _if43_else
+_if43_TRUE:
 ; shoot(); 
-                
 ; --- START FUNCTION CALL
   call shoot
-  jmp _if37_exit
-_if37_else:
+  jmp _if43_exit
+_if43_else:
 ; move(); 
-                
 ; --- START FUNCTION CALL
   call move
-_if37_exit:
-  jmp _while36_cond
-_while36_exit:
+_if43_exit:
+  jmp _while42_cond
+_while42_exit:
 ; if (finished == 	     1   ) { 
-_if38_cond:
-                
+_if44_cond:
   mov d, _finished ; $finished
   mov b, [d]
   mov c, 0
@@ -2908,23 +2578,20 @@ _if38_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if38_exit
-_if38_TRUE:
+  je _if44_exit
+_if44_TRUE:
 ; print("HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s62 ; "HEE HEE HEE - THE WUMPUS'LL GET YOU NEXT TIME!!\n"
   swp b
   push b
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-  jmp _if38_exit
-_if38_exit:
+  jmp _if44_exit
+_if44_exit:
 ; if (finished == 	2    ) { 
-_if39_cond:
-                
+_if45_cond:
   mov d, _finished ; $finished
   mov b, [d]
   mov c, 0
@@ -2937,28 +2604,24 @@ _if39_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if39_exit
-_if39_TRUE:
+  je _if45_exit
+_if45_TRUE:
 ; print("HA HA HA - YOU LOSE!\n"); 
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s63 ; "HA HA HA - YOU LOSE!\n"
   swp b
   push b
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-  jmp _if39_exit
-_if39_exit:
+  jmp _if45_exit
+_if45_exit:
 ; int c; 
   sub sp, 2
 ; c = getlet("NEW GAME (Y-N): "); 
   lea d, [bp + -1] ; $c
   push d
-                
 ; --- START FUNCTION CALL
-                
   mov b, _s1 ; "NEW GAME (Y-N): "
   swp b
   push b
@@ -2968,8 +2631,7 @@ _if39_exit:
   pop d
   mov [d], b
 ; if (c == 'N') { 
-_if40_cond:
-                
+_if46_cond:
   lea d, [bp + -1] ; $c
   mov b, [d]
   mov c, 0
@@ -2982,14 +2644,18 @@ _if40_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if40_exit
-_if40_TRUE:
-; exit(); 
-                
+  je _if46_exit
+_if46_TRUE:
+; exit(1); 
 ; --- START FUNCTION CALL
+  mov32 cb, $00000001
+  swp b
+  push b
   call exit
-  jmp _if40_exit
-_if40_exit:
+  add sp, 2
+; --- END FUNCTION CALL
+  jmp _if46_exit
+_if46_exit:
   leave
   ret
 
@@ -3024,7 +2690,6 @@ getchar:
   mov [d], al
 ; --- END INLINE ASM SEGMENT
 ; return c; 
-                
   lea d, [bp + 0] ; $c
   mov bl, [d]
   mov bh, 0
@@ -3035,8 +2700,7 @@ getchar:
 toupper:
   enter 0 ; (push bp; mov bp, sp)
 ; if (ch >= 'a' && ch <= 'z')  
-_if41_cond:
-                
+_if47_cond:
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
@@ -3068,10 +2732,9 @@ _if41_cond:
   pop a
 ; --- END LOGICAL AND
   cmp b, 0
-  je _if41_else
-_if41_TRUE:
+  je _if47_else
+_if47_TRUE:
 ; return ch - 'a' + 'A'; 
-                
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
@@ -3089,17 +2752,16 @@ _if41_TRUE:
 ; --- END TERMS
   leave
   ret
-  jmp _if41_exit
-_if41_else:
+  jmp _if47_exit
+_if47_else:
 ; return ch; 
-                
   lea d, [bp + 5] ; $ch
   mov bl, [d]
   mov bh, 0
   mov c, 0
   leave
   ret
-_if41_exit:
+_if47_exit:
   leave
   ret
 
@@ -3112,13 +2774,11 @@ print_unsigned:
 ; i = 0; 
   lea d, [bp + -6] ; $i
   push d
-                
   mov32 cb, $00000000
   pop d
   mov [d], b
 ; if(num == 0){ 
-_if42_cond:
-                
+_if48_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
@@ -3131,12 +2791,10 @@ _if42_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if42_exit
-_if42_TRUE:
+  je _if48_exit
+_if48_TRUE:
 ; putchar('0'); 
-                
 ; --- START FUNCTION CALL
-                
   mov32 cb, $00000030
   push bl
   call putchar
@@ -3145,11 +2803,10 @@ _if42_TRUE:
 ; return; 
   leave
   ret
-  jmp _if42_exit
-_if42_exit:
+  jmp _if48_exit
+_if48_exit:
 ; while (num > 0) { 
-_while43_cond:
-                
+_while49_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
@@ -3162,13 +2819,12 @@ _while43_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while43_exit
-_while43_block:
+  je _while49_exit
+_while49_block:
 ; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
   push d
-                
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
@@ -3176,12 +2832,10 @@ _while43_block:
   add d, b
   pop a
   push d
-                
   mov32 cb, $00000030
 ; --- START TERMS
   push a
   mov a, b
-                
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
@@ -3208,7 +2862,6 @@ _while43_block:
 ; num = num / 10; 
   lea d, [bp + 5] ; $num
   push d
-                
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
@@ -3229,7 +2882,6 @@ _while43_block:
   pop d
   mov [d], b
 ; i++; 
-                
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
@@ -3238,11 +2890,10 @@ _while43_block:
   lea d, [bp + -6] ; $i
   mov [d], b
   mov b, a
-  jmp _while43_cond
-_while43_exit:
+  jmp _while49_cond
+_while49_exit:
 ; while (i > 0) { 
-_while46_cond:
-                
+_while56_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
@@ -3255,10 +2906,9 @@ _while46_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while46_exit
-_while46_block:
+  je _while56_exit
+_while56_block:
 ; i--; 
-                
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
@@ -3268,13 +2918,10 @@ _while46_block:
   mov [d], b
   mov b, a
 ; putchar(digits[i]); 
-                
 ; --- START FUNCTION CALL
-                
   lea d, [bp + -4] ; $digits
   push a
   push d
-                
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
@@ -3288,8 +2935,8 @@ _while46_block:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _while46_cond
-_while46_exit:
+  jmp _while56_cond
+_while56_exit:
   leave
   ret
 
@@ -3350,7 +2997,6 @@ mul_exit_scann:
   mov [d], a
 ; --- END INLINE ASM SEGMENT
 ; return m; 
-                
   lea d, [bp + -1] ; $m
   mov b, [d]
   mov c, 0
@@ -3473,6 +3119,8 @@ table_power_scann:
 exit:
   enter 0 ; (push bp; mov bp, sp)
 ; --- BEGIN INLINE ASM SEGMENT
+  lea d, [bp + 5] ; $status
+  mov b, [d] ; return value
   syscall sys_terminate_proc
 ; --- END INLINE ASM SEGMENT
   leave
@@ -3486,15 +3134,12 @@ _rand_val: .dw $001d
 _rand_inc: .dw $0001
 _loc_data: .fill 12, 0
 _finished: .fill 2, 0
-_cave_data: 
+_cave_data: .dw $0001,$0004,$0007,$0000,$0002,$0009,$0001,$0003,$000b,$0002,$0004,$000d,$0000,$0003,$0005,
 .dw 
 .dw 
-.dw $0001,$0004,$0007,$0000,$0002,$0009,$0001,$0003,$000b,$0002,$0004,$000d,$0000,$0003,$0005,$0004,$0006,$000e,$0005,$0007,$0010,$0000,$0006,$0008,$0007,$0009,$0011,$0001,$0008,$000a,
-.dw 
-.dw 
-.dw $0009,$000b,$0012,$0002,$000a,$000c,$000b,$000d,$0013,$0003,$000c,$000e,$0005,$000d,$000f,$000e,$0010,$0013,$0006,$000f,$0011,$0008,$0010,$0012,$000a,$0011,$0013,$000c,$000f,$0012,
-.dw 
-.dw 
+.dw $0004,$0006,$000e,$0005,$0007,$0010,$0000,$0006,$0008,$0007,$0009,$0011,$0001,$0008,$000a,$0009,
+.dw $000b,$0012,$0002,$000a,$000c,$000b,$000d,$0013,$0003,$000c,$000e,$0005,$000d,$000f,$000e,$0010,
+.dw $0013,$0006,$000f,$0011,$0008,$0010,$0012,$000a,$0011,$0013,$000c,$000f,$0012,
 _s0: .db "INSTRUCTIONS (Y-N): ", 0
 _s1: .db "NEW GAME (Y-N): ", 0
 _s2: .db "Welcome to 'hunt the wumpus'\n", 0

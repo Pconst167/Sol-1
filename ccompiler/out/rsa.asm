@@ -350,6 +350,7 @@ _for5_block:
   mov bl, [d]
   mov bh, 0
   mov c, 0
+  snex b
   swp b
   push b
   call mod_exp
@@ -945,10 +946,13 @@ _same_signs_34:
 ; --- END FACTORS
 ; --- START RELATIONAL
   push a
+  push g
   mov a, b
+  mov g, c
   mov32 cb, $00000001
-  cmp a, b
+  cmp32 ga, cb
   seq ; ==
+  pop g
   pop a
 ; --- END RELATIONAL
   cmp b, 0
@@ -1518,7 +1522,7 @@ _if43_TRUE:
   mov c, a
   pop d
   mov [d], b
-  mov b, 0
+  mov b, c
   mov [d + 2], b
   jmp _if43_exit
 _if43_else:
@@ -1609,7 +1613,7 @@ _while45_block:
   pop g
   pop a
 ; --- END FACTORS
-  add b, a
+  add32 cb, ga
   pop a
 ; --- END TERMS
   pop d
@@ -1637,7 +1641,7 @@ _while45_block:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, 0
+  mov b, c
   mov [d + 2], b
 ; i++; 
   lea d, [bp + -11] ; $i
@@ -1808,7 +1812,7 @@ _while54_block:
   pop g
   pop a
 ; --- END FACTORS
-  add b, a
+  add32 cb, ga
   pop a
 ; --- END TERMS
   pop d
@@ -1836,7 +1840,7 @@ _while54_block:
 ; --- END FACTORS
   pop d
   mov [d], b
-  mov b, 0
+  mov b, c
   mov [d + 2], b
 ; i++; 
   lea d, [bp + -11] ; $i
