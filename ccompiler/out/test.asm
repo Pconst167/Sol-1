@@ -7,16 +7,13 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; static long int m2[2]=  {3L}; 
-  sub sp, 8
+; static struct s mys; 
+  sub sp, 3
   syscall sys_terminate_proc
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
-
-st_main_m2_dt: 
-.dw $0003, $0000, 
-.fill 4, 0
+st_main_mys_dt: .fill 3, 0
 
 _heap_top: .dw _heap
 _heap: .db 0

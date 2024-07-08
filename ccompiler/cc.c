@@ -5813,30 +5813,6 @@ void emit_static_var_initialization(t_var *var){
           }
           break;
 
-        case DT_STRUCT:
-        case DT_UNION:
-          number_initialized_bytes++;
-          if(var->type.ind_level > 0){
-            if(curr_token.tok_type == INTEGER_CONST){
-              emit_data(".dw $%04x\n", (uint16_t)curr_token.int_const);
-            }
-            else if(curr_token.tok_type == IDENTIFIER){
-              error(ERR_FATAL, "initializing a global var with an identifier name is not implemented yet");
-            }
-          }
-          else{
-            if(curr_token.tok_type == CHAR_CONST){
-              emit_data(".db $%02x\n", (uint8_t)curr_token.string_const[0]);
-            }
-            else if(curr_token.tok_type == INTEGER_CONST){
-              emit_data(".dw $%04x\n", (uint16_t)curr_token.int_const);
-            }
-            else if(curr_token.tok_type == STRING_CONST){
-              emit_data(".dw _s%u\n", add_string_data(curr_token.string_const));
-            }
-          }
-        break;  
-
         default:
       } 
 /*
@@ -5878,6 +5854,7 @@ void emit_static_var_initialization(t_var *var){
         emit_data_dbdw(var->type);
         emit_data("%u, ", atoi(curr_token.token_str));
         break;
+
       case DT_CHAR:
         if(var->type.ind_level > 0){ // if is a string
           if(curr_token.tok_type != STRING_CONST) error(ERR_FATAL, "String constant expected");
@@ -5890,18 +5867,31 @@ void emit_static_var_initialization(t_var *var){
           emit_data("st_%s_%s: ", function_table[current_func_id].name, var->name);
           emit_data_dbdw(var->type);
           if(curr_token.tok_type == CHAR_CONST)
-            emit_data("$%x\n", curr_token.string_const[0]);
+            emit_data("$%02x\n", curr_token.string_const[0]);
           else if(curr_token.tok_type == INTEGER_CONST)
-            emit_data("%u\n", (char)atoi(curr_token.token_str));
+            emit_data("$%02x\n", (uint8_t)(curr_token.int_const));
         }
         break;
+
       case DT_INT:
         emit_data("st_%s_%s: ", function_table[current_func_id].name, var->name);
         emit_data_dbdw(var->type);
         if(var->type.ind_level > 0)
-          emit_data("%u\n", atoi(curr_token.token_str));
-        else
-          emit_data("%u\n", atoi(curr_token.token_str));
+          emit_data("$%04x\n", (uint16_t)(curr_token.int_const));
+        else{
+          if(var->type.size_modifier == SIZEMOD_LONG){
+            if(curr_token.const_size_modifier == SIZEMOD_LONG){
+              emit_data("$%04x, ", (uint16_t)(curr_token.int_const & 0x0000FFFF));
+              emit_data("$%04x, ", (uint16_t)(curr_token.int_const >> 16));
+            }
+            else{
+              emit_data("$%04x\n", (uint16_t)(curr_token.int_const));
+            }
+          }
+          else{
+            emit_data("$%04x\n", (uint16_t)(curr_token.int_const));
+          }
+        }
         break;
     }
   }

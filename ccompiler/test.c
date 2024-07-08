@@ -1,8 +1,13 @@
 #include <stdio.h>
 
+struct s{
+  char c;
+  int i;
+};
 
 static void main(){
-  static long int m2[2]=  {3L};
+
+  static struct s mys;
 
 
 }
