@@ -5721,7 +5721,7 @@ int get_num_struct_elements(int struct_id){
 }
 
 void emit_static_var_initialization(t_var *var){
-  int j;
+  int number_initialized_bytes;
   int braces;
 
   if(is_array(var->type)){
@@ -5729,13 +5729,117 @@ void emit_static_var_initialization(t_var *var){
     expect(OPENING_BRACE, "Opening braces expected");
     emit_data("\nst_%s_%s_dt: \n", function_table[current_func_id].name, var->name);
     emit_data_dbdw(var->type);
-    j = 0;
+    number_initialized_bytes = 0;
     braces = 1;
     for(;;){
       get();
       if(curr_token.tok == OPENING_BRACE) braces++;
       else if(curr_token.tok == CLOSING_BRACE) braces--;
       if(braces == 0) break;
+
+      switch(var->type.primitive_type){
+        case DT_VOID: // todo: fix cases where data is other than pointers
+        case DT_CHAR:
+          if(var->type.ind_level > 0){
+            number_initialized_bytes += 1;
+            if(curr_token.tok_type == INTEGER_CONST){
+              emit_data("$%04x,", (uint16_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == STRING_CONST){
+              emit_data("_s%u, ", add_string_data(curr_token.string_const));
+            }
+            else if(curr_token.tok_type == IDENTIFIER){
+              error(ERR_FATAL, "initializing a global var with an identifier name is not implemented yet");
+            }
+          }
+          else{
+            if(curr_token.tok_type == CHAR_CONST){
+              number_initialized_bytes += 1;
+              emit_data("$%02x,", (uint8_t)curr_token.string_const[0]);
+            }
+            else if(curr_token.tok_type == INTEGER_CONST){
+              number_initialized_bytes += 1;
+              emit_data("$%02x,", (uint8_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == STRING_CONST){
+              emit_data("%s, ", curr_token.token_str);
+              number_initialized_bytes += strlen(curr_token.string_const);
+            }
+          }
+          break;
+
+        case DT_INT:
+          number_initialized_bytes += 1;
+          if(var->type.ind_level > 0){
+            if(curr_token.tok_type == INTEGER_CONST){
+              emit_data("$%04x,", (uint16_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == STRING_CONST){
+              emit_data("_s%u, ", add_string_data(curr_token.string_const));
+            }
+            else if(curr_token.tok_type == IDENTIFIER){
+              error(ERR_FATAL, "initializing a global var with an identifier name is not implemented yet");
+            }
+          }
+          else{
+            if(var->type.size_modifier == SIZEMOD_LONG){
+              if(curr_token.tok_type == CHAR_CONST){
+                emit_data("$%04x,", (uint16_t)curr_token.string_const[0]);
+                emit_data("$0000, ");
+              }
+              else if(curr_token.tok_type == INTEGER_CONST){
+                if(curr_token.const_size_modifier == SIZEMOD_LONG){
+                  emit_data("$%04x, ", (uint16_t)(curr_token.int_const & 0x0000FFFF));
+                  emit_data("$%04x, ", (uint16_t)(curr_token.int_const >> 16));
+                }
+                else
+                  emit_data("$%04x,", (uint16_t)curr_token.int_const);
+              }
+              else if(curr_token.tok_type == STRING_CONST){
+                emit_data("_s%u, ", add_string_data(curr_token.string_const));
+              }
+            }
+            else{
+              if(curr_token.tok_type == CHAR_CONST){
+                emit_data("$%04x,", (uint16_t)curr_token.string_const[0]);
+              }
+              else if(curr_token.tok_type == INTEGER_CONST){
+                emit_data("$%04x,", (uint16_t)curr_token.int_const);
+              }
+              else if(curr_token.tok_type == STRING_CONST){
+                emit_data("_s%u, ", add_string_data(curr_token.string_const));
+              }
+            }
+          }
+          break;
+
+        case DT_STRUCT:
+        case DT_UNION:
+          number_initialized_bytes++;
+          if(var->type.ind_level > 0){
+            if(curr_token.tok_type == INTEGER_CONST){
+              emit_data(".dw $%04x\n", (uint16_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == IDENTIFIER){
+              error(ERR_FATAL, "initializing a global var with an identifier name is not implemented yet");
+            }
+          }
+          else{
+            if(curr_token.tok_type == CHAR_CONST){
+              emit_data(".db $%02x\n", (uint8_t)curr_token.string_const[0]);
+            }
+            else if(curr_token.tok_type == INTEGER_CONST){
+              emit_data(".dw $%04x\n", (uint16_t)curr_token.int_const);
+            }
+            else if(curr_token.tok_type == STRING_CONST){
+              emit_data(".dw _s%u\n", add_string_data(curr_token.string_const));
+            }
+          }
+        break;  
+
+        default:
+      } 
+/*
       if(curr_token.tok_type == CHAR_CONST)
         emit_data("$%x,", curr_token.string_const[0]);
       else if(curr_token.tok_type == INTEGER_CONST)
@@ -5750,18 +5854,19 @@ void emit_static_var_initialization(t_var *var){
          curr_token.tok_type == STRING_CONST
       )
         j++;
+      */
       // {1, 2, {1, 2, 3}, 4, 3, {2, 3}}
       get(); // get comma or '}'
       if(curr_token.tok != COMMA) back();
-      if(j % 30 == 0){ // split into multiple lines due to TASM limitation of how many items per .dw directive
+      if(number_initialized_bytes % 30 == 0){ // split into multiple lines due to TASM limitation of how many items per .dw directive
         emit_data("\n");
         emit_data_dbdw(var->type);
       }
     }
     // fill in the remaining unitialized array values with 0's 
-    if(get_total_type_size(var->type) - j * get_primitive_type_size(var->type) > 0){
+    if(get_total_type_size(var->type) - number_initialized_bytes * get_primitive_type_size(var->type) > 0){
       emit_data("\n");
-      emit_data(".fill %u, 0\n", get_total_type_size(var->type) - j * get_primitive_type_size(var->type));
+      emit_data(".fill %u, 0\n", get_total_type_size(var->type) - number_initialized_bytes * get_primitive_type_size(var->type));
     }
     //emit_data("\nst_%s_%s: .dw st_%s_%s_dt\n", function_table[current_func_id].name, var->name, function_table[current_func_id].name, var->name);
   }
