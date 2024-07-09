@@ -283,7 +283,7 @@ int enum_element_exists(char *element_name);
 
 void emit_c_header_line(void);
 void emit(const char* format, ...);
-void emitln(const char* format, ...);
+void emitln(char *comment, const char* format, ...);
 void emit_datablock_asm();
 void emit_data(const char* format, ...);
 void emit_data_dbdw(t_type type);

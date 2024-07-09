@@ -6,8 +6,8 @@ struct s{
 };
 
 static void main(){
-
-  static struct s mys;
+  int j;
+  int i = j;
 
 
 }

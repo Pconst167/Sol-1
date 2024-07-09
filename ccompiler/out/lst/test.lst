@@ -27,17 +27,27 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408             ; static struct s mys; 
-0011   0408 52 03 00      sub sp, 3
-0012   040B 05 0B         syscall sys_terminate_proc
-0013   040D             ; --- END TEXT SEGMENT
-0014   040D             
-0015   040D             ; --- BEGIN DATA SEGMENT
-0016   040D 00 00 00    st_main_mys_dt: .fill 3, 0
-0017   0410             
-0018   0410 12 04       _heap_top: .dw _heap
-0019   0412 00          _heap: .db 0
-0020   0413             ; --- END DATA SEGMENT
-0021   0413             
-0022   0413             .end
+0010   0408             ; int j; 
+0011   0408 52 02 00      sub sp, 2
+0012   040B             ; int i = j; 
+0013   040B 52 02 00      sub sp, 2
+0014   040E             ; --- START LOCAL VAR INITIALIZATION
+0015   040E FA FD FF      lea d, [bp + -3] ; $i
+0016   0411 DA            push d
+0017   0412 FA FF FF      lea d, [bp + -1] ; $j
+0018   0415 2A            mov b, [d]
+0019   0416 38 00 00      mov c, 0
+0020   0419 E7            pop d
+0021   041A FD 43         mov [d], b
+0022   041C             ; --- END LOCAL VAR INITIALIZATION
+0023   041C 05 0B         syscall sys_terminate_proc
+0024   041E             ; --- END TEXT SEGMENT
+0025   041E             
+0026   041E             ; --- BEGIN DATA SEGMENT
+0027   041E             
+0028   041E 20 04       _heap_top: .dw _heap
+0029   0420 00          _heap: .db 0
+0030   0421             ; --- END DATA SEGMENT
+0031   0421             
+0032   0421             .end
 tasm: Number of errors = 0

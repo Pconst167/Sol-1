@@ -357,19 +357,19 @@ int main(int argc, char *argv[]){
     }
   }
 
-  emitln("; --- FILENAME: %s", argv[1]);
-  if(include_kernel_exp) emitln(".include \"lib/asm/kernel.exp\"");
-  emitln(".include \"lib/asm/bios.exp\"");
-  emitln(".org %s", org);
+  emitln("", "; --- FILENAME: %s", argv[1]);
+  if(include_kernel_exp) emitln("", ".include \"lib/asm/kernel.exp\"");
+  emitln("", ".include \"lib/asm/bios.exp\"");
+  emitln("", ".org %s", org);
 
   emit("\n; --- BEGIN TEXT SEGMENT");
   parse_functions();
-  emitln("; --- END TEXT SEGMENT");
+  emitln("", "; --- END TEXT SEGMENT");
 
   asm_p = asm_out;
   while(*asm_p) asm_p++; 
   
-  emitln("\n; --- BEGIN DATA SEGMENT");
+  emitln("", "\n; --- BEGIN DATA SEGMENT");
 
   emit_string_table_data();
 
@@ -379,9 +379,9 @@ int main(int argc, char *argv[]){
   
   emit_datablock_asm();
 
-  emitln("; --- END DATA SEGMENT");
+  emitln("", "; --- END DATA SEGMENT");
 
-  emitln("\n.end");
+  emitln("", "\n.end");
   *asm_p = '\0';
 
   strcpy(filename_out, "out/");
@@ -921,7 +921,7 @@ void emit(const char* format, ...){
   }
 }
 
-void emitln(const char* format, ...){
+void emitln(char * comment, const char* format, ...){
   char *bufferp = tempbuffer;
   va_list args;
   va_start(args, format);
@@ -963,15 +963,15 @@ void parse_functions(void){
       // this is used to position local variables correctly relative to BP.
       // whenever a new function is parsed, this is reset to 0.
       // then inside the function it can increase according to how any local vars there are.
-      emitln("\n%s:", function_table[i].name);
-      emitln("  mov bp, $FFE0 ;");
-      emitln("  mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)");
+      emitln("", "\n%s:", function_table[i].name);
+      emitln("", "  mov bp, $FFE0 ;");
+      emitln("", "  mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)");
       current_function_var_bp_offset = 0; 
       current_func_id = i;
       prog = function_table[i].code_location;
       parse_block(); // starts parsing the function block;
       if(return_is_last_statement == FALSE){ // generate code for a 'return'
-        emitln("  syscall sys_terminate_proc");
+        emitln("", "  syscall sys_terminate_proc");
       }
       break;
     }
@@ -984,15 +984,15 @@ void parse_functions(void){
       // this is used to position local variables correctly relative to BP.
       // whenever a new function is parsed, this is reset to 0.
       // then inside the function it can increase according to how any local vars there are.
-      emitln("\n%s:", function_table[i].name);
-      emitln("  enter 0 ; (push bp; mov bp, sp)");
+      emitln("", "\n%s:", function_table[i].name);
+      emitln("", "  enter 0 ; (push bp; mov bp, sp)");
       current_function_var_bp_offset = 0;
       current_func_id = i;
       prog = function_table[i].code_location;
       parse_block(); // starts parsing the function block;
       if(return_is_last_statement == FALSE){ // generate code for a 'return'
-        emitln("  leave");
-        emitln("  ret");
+        emitln("", "  leave");
+        emitln("", "  ret");
       }
     }
   }
@@ -1729,7 +1729,7 @@ int declare_local(void){
       total_sp += get_total_type_size(new_var.type);
     }
 
-    emitln("  sub sp, %d", get_total_type_size(new_var.type));
+    emitln("", "  sub sp, %d", get_total_type_size(new_var.type));
 
     // assigns the new variable to the local stack
     function_table[current_func_id].local_vars[function_table[current_func_id].local_var_tos] = new_var;    
@@ -1756,57 +1756,57 @@ int declare_local(void){
           } while(curr_token.tok != SEMICOLON);
         }
         else{
-          emitln("; --- START LOCAL VAR INITIALIZATION");
+          emitln("", "; --- START LOCAL VAR INITIALIZATION");
           t_type init_expr;
           emit_var_addr_into_d(new_var.name);
-          emitln("  push d");
+          emitln("", "  push d");
           init_expr = parse_expr();
 
-          emitln("  pop d");
+          emitln("", "  pop d");
           switch(new_var.type.primitive_type){
             case DT_CHAR:
               if(new_var.type.ind_level > 0){
-                emitln("  mov [d], b");
+                emitln("", "  mov [d], b");
               }
               else
-                emitln("  mov [d], bl");
+                emitln("", "  mov [d], bl");
               break;
             case DT_INT:
               if(new_var.type.ind_level == 0 && new_var.type.size_modifier == SIZEMOD_LONG){
                 if(init_expr.primitive_type == DT_INT && init_expr.ind_level == 0 && init_expr.size_modifier == SIZEMOD_LONG){
-                  emitln("  mov [d], b");
-                  emitln("  mov b, c");
-                  emitln("  mov [d + 2], b");
+                  emitln("", "  mov [d], b");
+                  emitln("", "  mov b, c");
+                  emitln("", "  mov [d + 2], b");
                 }
                 else{
                   if(init_expr.primitive_type == DT_CHAR && init_expr.ind_level == 0){
-                    emitln("  mov bh, 0");
-                    emitln("  mov [d], b");
-                    emitln("  mov b, 0");
-                    emitln("  mov [d + 2], b");
+                    emitln("", "  mov bh, 0");
+                    emitln("", "  mov [d], b");
+                    emitln("", "  mov b, 0");
+                    emitln("", "  mov [d + 2], b");
                   }
                   else{
-                    emitln("  mov [d], b");
-                    emitln("  mov b, 0");
-                    emitln("  mov [d + 2], b");
+                    emitln("", "  mov [d], b");
+                    emitln("", "  mov b, 0");
+                    emitln("", "  mov [d + 2], b");
                   }
                 } 
               }
               else{
-                emitln("  mov [d], b");
+                emitln("", "  mov [d], b");
               }
               break;
             case DT_STRUCT:
             case DT_UNION:
-              emitln("  mov si, b");
-              emitln("  mov di, d");
-              emitln("  mov c, %d", get_total_type_size(init_expr));
-              emitln("  rep movsb");
+              emitln("", "  mov si, b");
+              emitln("", "  mov di, d");
+              emitln("", "  mov c, %d", get_total_type_size(init_expr));
+              emitln("", "  rep movsb");
               break;
             default:
-              emitln("  mov [d], b");
+              emitln("", "  mov [d], b");
           }
-          emitln("; --- END LOCAL VAR INITIALIZATION");
+          emitln("", "; --- END LOCAL VAR INITIALIZATION");
         }
       }
     }
@@ -1824,7 +1824,7 @@ int declare_local(void){
       if(var_names[i + 1][0]) emit(", ");
     }
   }
-  emitln("");
+  emitln("", "");
   */
   return total_sp;
 } 
@@ -2539,7 +2539,7 @@ void parse_asm(void){
   
   get();
   if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
-  emitln("; --- BEGIN INLINE ASM SEGMENT");
+  emitln("", "; --- BEGIN INLINE ASM SEGMENT");
   for(;;){
     while(is_space(*prog)) prog++;
     temp_prog = prog;
@@ -2551,7 +2551,7 @@ void parse_asm(void){
          || strstr(curr_token.string_const, ".dw") 
          || strstr(curr_token.string_const, ".equ") 
          || strstr(curr_token.string_const, ".EQU")){
-      emitln(curr_token.string_const);
+      emitln("", curr_token.string_const);
     } 
     else if(strstr(curr_token.string_const, "ccmovd")){
       prog = temp_prog;
@@ -2561,24 +2561,24 @@ void parse_asm(void){
       emit_var_addr_into_d(curr_token.token_str);
     }
     else{
-      emitln("  %s", curr_token.string_const);
+      emitln("", "  %s", curr_token.string_const);
     }
   }
-  emitln("; --- END INLINE ASM SEGMENT");
+  emitln("", "; --- END INLINE ASM SEGMENT");
 }
 
 void parse_break(void){
-       if(current_loop_type == FOR_LOOP)         emitln("  jmp _for%d_exit ; for break", current_label_index_for);
-  else if(current_loop_type == WHILE_LOOP)       emitln("  jmp _while%d_exit ; while break", current_label_index_while);
-  else if(current_loop_type == DO_LOOP)          emitln("  jmp _do%d_exit ; do break", current_label_index_do);
-  else if(current_loop_type == SWITCH_CONSTRUCT) emitln("  jmp _switch%d_exit ; case break", current_label_index_switch);
+       if(current_loop_type == FOR_LOOP)         emitln("", "  jmp _for%d_exit ; for break", current_label_index_for);
+  else if(current_loop_type == WHILE_LOOP)       emitln("", "  jmp _while%d_exit ; while break", current_label_index_while);
+  else if(current_loop_type == DO_LOOP)          emitln("", "  jmp _do%d_exit ; do break", current_label_index_do);
+  else if(current_loop_type == SWITCH_CONSTRUCT) emitln("", "  jmp _switch%d_exit ; case break", current_label_index_switch);
   get();
 }
 
 void parse_continue(void){
-       if(current_loop_type == FOR_LOOP)   emitln("  jmp _for%d_update ; for continue", current_label_index_for);
-  else if(current_loop_type == WHILE_LOOP) emitln("  jmp _while%d_cond ; while continue", current_label_index_while);
-  else if(current_loop_type == DO_LOOP)    emitln("  jmp _do%d_cond ; do continue", current_label_index_do);
+       if(current_loop_type == FOR_LOOP)   emitln("", "  jmp _for%d_update ; for continue", current_label_index_for);
+  else if(current_loop_type == WHILE_LOOP) emitln("", "  jmp _while%d_cond ; while continue", current_label_index_while);
+  else if(current_loop_type == DO_LOOP)    emitln("", "  jmp _do%d_cond ; do continue", current_label_index_do);
   get();
 }
 
@@ -2596,7 +2596,7 @@ void parse_for(void){
 
   get();
   if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
-  emitln("_for%d_init:", current_label_index_for);
+  emitln("", "_for%d_init:", current_label_index_for);
   get();
   if(curr_token.tok != SEMICOLON){
     back();
@@ -2604,19 +2604,19 @@ void parse_for(void){
   }
   if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
 
-  emitln("_for%d_cond:", current_label_index_for);
+  emitln("", "_for%d_cond:", current_label_index_for);
   // checks for an empty condition, which means always TRUE
   get();
   if(curr_token.tok != SEMICOLON){
     back();
     parse_expr();
     if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
-    emitln("  cmp b, 0");
-    emitln("  je _for%d_exit", current_label_index_for);
+    emitln("", "  cmp b, 0");
+    emitln("", "  je _for%d_exit", current_label_index_for);
   }
 
   update_loc = prog; // holds the location of incrementation part
-  emitln("_for%d_block:", current_label_index_for);
+  emitln("", "_for%d_block:", current_label_index_for);
   // gets past the update expression
   int paren = 1;
   do{
@@ -2627,7 +2627,7 @@ void parse_for(void){
   if(!*prog) error(ERR_FATAL, "Closing parenthesis expected");
   parse_block();
   
-  emitln("_for%d_update:", current_label_index_for);
+  emitln("", "_for%d_update:", current_label_index_for);
   prog = update_loc;
   // checks for an empty update expression
   get();
@@ -2635,9 +2635,9 @@ void parse_for(void){
     back();
     parse_expr();
   }
-  emitln("  jmp _for%d_cond", current_label_index_for);
+  emitln("", "  jmp _for%d_cond", current_label_index_for);
   skip_statements();
-  emitln("_for%d_exit:", current_label_index_for);
+  emitln("", "_for%d_exit:", current_label_index_for);
 
   label_tos_for--;
   current_label_index_for = label_stack_for[label_tos_for];
@@ -2657,17 +2657,17 @@ void parse_while(void){
   label_tos_while++;
   current_label_index_while = highest_label_index;
 
-  emitln("_while%d_cond:", current_label_index_while);
+  emitln("", "_while%d_cond:", current_label_index_while);
   get();
   if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
   if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
-  emitln("  cmp b, 0");
-  emitln("  je _while%d_exit", current_label_index_while);
-  emitln("_while%d_block:", current_label_index_while);
+  emitln("", "  cmp b, 0");
+  emitln("", "  je _while%d_exit", current_label_index_while);
+  emitln("", "_while%d_block:", current_label_index_while);
   parse_block();  // parse while block
-  emitln("  jmp _while%d_cond", current_label_index_while);
-  emitln("_while%d_exit:", current_label_index_while);
+  emitln("", "  jmp _while%d_cond", current_label_index_while);
+  emitln("", "_while%d_exit:", current_label_index_while);
 
   label_tos_while--;
   current_label_index_while = label_stack_while[label_tos_while];
@@ -2686,23 +2686,23 @@ void parse_do(void){
   label_tos_do++;
   current_label_index_do = highest_label_index;
 
-  emitln("_do%d_block:", current_label_index_do);
+  emitln("", "_do%d_block:", current_label_index_do);
   get();
   if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening brace expected in 'do' statement.");
   back();
   parse_block();  // parse block
 
   emit_c_header_line();
-  emitln("_do%d_cond:", current_label_index_do);
+  emitln("", "_do%d_cond:", current_label_index_do);
   get(); // get 'while'
   get();
   if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
   if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
-  emitln("  cmp b, 1");
-  emitln("  je _do%d_block", current_label_index_do);
+  emitln("", "  cmp b, 1");
+  emitln("", "  je _do%d_block", current_label_index_do);
 
-  emitln("_do%d_exit:", current_label_index_do);
+  emitln("", "_do%d_exit:", current_label_index_do);
 
   get();
   if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
@@ -2723,7 +2723,7 @@ void parse_goto(void){
   for(i = 0; i < function_table[current_func_id].goto_labels_table_tos; i++){
     snprintf(label, sizeof(label), "%.125s_%.125s", function_table[current_func_id].name, curr_token.token_str);
     if(!strcmp(function_table[current_func_id].goto_labels_table[i], label)){
-      emitln("  jmp %s", label);
+      emitln("", "  jmp %s", label);
       get();
       if(curr_token.tok != SEMICOLON) error(ERR_FATAL, "Semicolon expected");
       return;
@@ -2741,29 +2741,29 @@ void parse_if(void){
   label_tos_if++;
   current_label_index_if = highest_label_index;
 
-  emitln("_if%d_cond:", current_label_index_if);
+  emitln("", "_if%d_cond:", current_label_index_if);
   get();
   if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
   if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
-  emitln("  cmp b, 0");
+  emitln("", "  cmp b, 0");
   
   temp_p = prog;
   skip_statements(); // skip main IF block in order to check for ELSE block.
   get();
-  if(curr_token.tok == ELSE) emitln("  je _if%d_else", current_label_index_if);
-  else emitln("  je _if%d_exit", current_label_index_if);
+  if(curr_token.tok == ELSE) emitln("", "  je _if%d_else", current_label_index_if);
+  else emitln("", "  je _if%d_exit", current_label_index_if);
   prog = temp_p;
-  emitln("_if%d_TRUE:", current_label_index_if);
+  emitln("", "_if%d_TRUE:", current_label_index_if);
   parse_block();  // parse the positive condition block
-  emitln("  jmp _if%d_exit", current_label_index_if);
+  emitln("", "  jmp _if%d_exit", current_label_index_if);
   get(); // look for 'else'
   if(curr_token.tok == ELSE){
-    emitln("_if%d_else:", current_label_index_if);
+    emitln("", "_if%d_else:", current_label_index_if);
     parse_block();  // parse the positive condition block
   }
   else back();
-  emitln("_if%d_exit:", current_label_index_if);
+  emitln("", "_if%d_exit:", current_label_index_if);
 
   label_tos_if--;
   current_label_index_if = label_stack_if[label_tos_if];
@@ -2777,10 +2777,10 @@ void parse_return(void){
     back();
     parse_expr();  // return value in register B
   }
-  emitln("  leave");
+  emitln("", "  leave");
   // check if this is "main"
-  if(!strcmp(function_table[current_func_id].name, "main")) emitln("  syscall sys_terminate_proc");
-  else emitln("  ret");
+  if(!strcmp(function_table[current_func_id].name, "main")) emitln("", "  syscall sys_terminate_proc");
+  else emitln("", "  ret");
 }
 
 void skip_case(void){
@@ -2812,12 +2812,12 @@ void parse_switch(void){
   label_tos_switch++;
   current_label_index_switch = highest_label_index;
 
-  emitln("_switch%d_expr:", current_label_index_switch);
+  emitln("", "_switch%d_expr:", current_label_index_switch);
   get();
   if(curr_token.tok != OPENING_PAREN) error(ERR_FATAL, "Opening parenthesis expected");
   parse_expr(); // evaluate condition
   if(curr_token.tok != CLOSING_PAREN) error(ERR_FATAL, "Closing parenthesis expected");
-  emitln("_switch%d_comparisons:", current_label_index_switch);
+  emitln("", "_switch%d_comparisons:", current_label_index_switch);
 
   get();
   if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
@@ -2830,23 +2830,23 @@ void parse_switch(void){
     if(curr_token.tok != CASE) error(ERR_FATAL, "Case expected");
     get();
     if(curr_token.tok_type == INTEGER_CONST){
-      emitln("  cmp b, %d", curr_token.int_const);
-      emitln("  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
+      emitln("", "  cmp b, %d", curr_token.int_const);
+      emitln("", "  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
       get();
       if(curr_token.tok != COLON) error(ERR_FATAL, "Colon expected");
       skip_case();
     }
     else if(curr_token.tok_type == CHAR_CONST){
-      emitln("  cmp bl, $%x", *curr_token.string_const);
-      emitln("  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
+      emitln("", "  cmp bl, $%x", *curr_token.string_const);
+      emitln("", "  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
       get();
       if(curr_token.tok != COLON) error(ERR_FATAL, "Colon expected");
       skip_case();
     }
     else if(curr_token.tok_type == IDENTIFIER){
       if(enum_element_exists(curr_token.token_str) != -1){
-        emitln("  cmp b, %d", get_enum_val(curr_token.token_str));
-        emitln("  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
+        emitln("", "  cmp b, %d", get_enum_val(curr_token.token_str));
+        emitln("", "  je _switch%d_case%d", current_label_index_switch, current_case_nbr);
         get();
         if(curr_token.tok != COLON) error(ERR_FATAL, "Colon expected");
         skip_case();
@@ -2858,13 +2858,13 @@ void parse_switch(void){
 
   // generate default jump if it exists
   if(curr_token.tok == DEFAULT){
-    emitln("  jmp _switch%d_default", current_label_index_switch);
+    emitln("", "  jmp _switch%d_default", current_label_index_switch);
     get(); // get default
     get(); // get ':'
     skip_case();
   }
 
-  emitln("  jmp _switch%d_exit", current_label_index_switch);
+  emitln("", "  jmp _switch%d_exit", current_label_index_switch);
 
   // emit code for each case block
   prog = temp_p;
@@ -2873,7 +2873,7 @@ void parse_switch(void){
     get(); // get 'case'
     get(); // get constant
     get(); // get ':'
-    emitln("_switch%d_case%d:", current_label_index_switch, current_case_nbr);
+    emitln("", "_switch%d_case%d:", current_label_index_switch, current_case_nbr);
     parse_case();
     current_case_nbr++;
     if(curr_token.tok == CASE){
@@ -2884,7 +2884,7 @@ void parse_switch(void){
 
   if(curr_token.tok == DEFAULT){
     get(); // get ':'
-    emitln("_switch%d_default:", current_label_index_switch);
+    emitln("", "_switch%d_default:", current_label_index_switch);
     parse_case();
     back();
   }
@@ -2892,7 +2892,7 @@ void parse_switch(void){
 
   get(); // get the final '}'
   if(curr_token.tok != CLOSING_BRACE) error(ERR_FATAL, "Closing braces expected");
-  emitln("_switch%d_exit:", current_label_index_switch);
+  emitln("", "_switch%d_exit:", current_label_index_switch);
   
   label_tos_switch--;
   current_label_index_switch = label_stack_switch[label_tos_switch];
@@ -2927,7 +2927,7 @@ void emit_c_header_line(){
     *s++ = *prog++;
   }
   *s = '\0';
-  emitln("; %s ", curr_token.string_const);
+  emitln("", "; %s ", curr_token.string_const);
   prog = temp;
 }
 
@@ -3155,33 +3155,33 @@ t_type parse_assignment(){
     var_type = emit_var_addr_into_d(var_name);
     get();
     // past '=' here
-    emitln("  push d"); // save 'd'. this is the array base address. save because expr below could use 'd' and overwrite it
+    emitln("", "  push d"); // save 'd'. this is the array base address. save because expr below could use 'd' and overwrite it
     expr_in = parse_expr(); // evaluate expression, result in 'b'
-    emitln("  pop d"); 
+    emitln("", "  pop d"); 
     if(var_type.ind_level > 0){
-      emitln("  mov [d], b");
+      emitln("", "  mov [d], b");
     }
     else if(var_type.primitive_type == DT_INT && var_type.ind_level == 0 && var_type.size_modifier == SIZEMOD_LONG){
       if(expr_in.ind_level == 0 && expr_in.size_modifier == SIZEMOD_LONG){
-        emitln("  mov [d], b");
-        emitln("  mov b, c");
-        emitln("  mov [d + 2], b");
+        emitln("", "  mov [d], b");
+        emitln("", "  mov b, c");
+        emitln("", "  mov [d + 2], b");
       }
       else{
-        emitln("  mov [d], b");
-        emitln("  mov b, 0");
-        emitln("  mov [d + 2], b");
+        emitln("", "  mov [d], b");
+        emitln("", "  mov b, 0");
+        emitln("", "  mov [d + 2], b");
       }
     }
     else if(var_type.primitive_type == DT_INT || var_type.primitive_type == DT_ENUM)
-      emitln("  mov [d], b");
+      emitln("", "  mov [d], b");
     else if(var_type.primitive_type == DT_CHAR)
-      emitln("  mov [d], bl");
+      emitln("", "  mov [d], bl");
     else if(var_type.primitive_type == DT_STRUCT){
-      emitln("  mov si, b");
-      emitln("  mov di, d");
-      emitln("  mov c, %d", get_total_type_size(var_type));
-      emitln("  rep movsb");
+      emitln("", "  mov si, b");
+      emitln("", "  mov di, d");
+      emitln("", "  mov c, %d", get_total_type_size(var_type));
+      emitln("", "  rep movsb");
     }
     expr_out = var_type;
     return expr_out;
@@ -3189,27 +3189,27 @@ t_type parse_assignment(){
   else if(curr_token.tok == STAR){ // tests if this is a pointer assignment
     t_type pointer_expr;
     pointer_expr = parse_atomic(); // parse what comes after '*' (considered a pointer)
-    emitln("  push b"); // pointer given in 'b'. push 'b' into stack to save it. we will retrieve it below into 'd' for the assignment address
+    emitln("", "  push b"); // pointer given in 'b'. push 'b' into stack to save it. we will retrieve it below into 'd' for the assignment address
     // after evaluating the address expression, the curr_token.token_str will be a "="
     if(curr_token.tok != ASSIGNMENT) 
       error(ERR_FATAL, "Syntax error: Assignment expected");
     parse_expr(); // evaluates the value to be assigned to the address, result in 'b'
-    emitln("  pop d"); // now pop 'b' from before into 'd' so that we can recover the address for the assignment
+    emitln("", "  pop d"); // now pop 'b' from before into 'd' so that we can recover the address for the assignment
     switch(pointer_expr.primitive_type){
       case DT_CHAR:
         if(pointer_expr.ind_level > 1)
-          emitln("  mov [d], b");
+          emitln("", "  mov [d], b");
         else
-          emitln("  mov [d], bl");
+          emitln("", "  mov [d], bl");
         break;
       case DT_INT:
         if(pointer_expr.ind_level == 1 && pointer_expr.size_modifier == SIZEMOD_LONG){
-          emitln("  mov [d], b");
-          emitln("  mov b, c");
-          emitln("  mov [d + 2], b");
+          emitln("", "  mov [d], b");
+          emitln("", "  mov b, c");
+          emitln("", "  mov [d + 2], b");
         }
         else
-          emitln("  mov [d], b");
+          emitln("", "  mov [d], b");
         break;
       default: error(ERR_FATAL, "Invalid pointer");
     }
@@ -3245,7 +3245,7 @@ t_type parse_ternary_op(void){
   temp_asm_p = asm_p; // save current assembly output pointer
   //sprintf(s, "_ternary%d_cond:", highest_label_index + 1); // this is used to count the number of chars in the ternary operator label string
   //len = strlen(s);                                         // so that we can delete that label if there was no ternary operator afterall
-  emitln("_ternary%d_cond:", highest_label_index + 1); // +1 because we are emitting the label ahead
+  emitln("", "_ternary%d_cond:", highest_label_index + 1); // +1 because we are emitting the label ahead
   logical_or_result = parse_logical_or(); // evaluate condition
   if(curr_token.tok != TERNARY_OP){
     //overwrite_with_spaces(temp_asm_p, len); // delete the ternary operator condition in the assembly file output
@@ -3260,15 +3260,15 @@ t_type parse_ternary_op(void){
   label_stack_ter[label_tos_ter] = current_label_index_ter;
   label_tos_ter++;
   current_label_index_ter = highest_label_index;
-  emitln("  cmp b, 0");
-  emitln("  je _ternary%d_FALSE", current_label_index_ter);
-  emitln("_ternary%d_TRUE:", current_label_index_ter);
+  emitln("", "  cmp b, 0");
+  emitln("", "  je _ternary%d_FALSE", current_label_index_ter);
+  emitln("", "_ternary%d_TRUE:", current_label_index_ter);
   type1 = parse_ternary_op(); // result in 'b'
   if(curr_token.tok != COLON) error(ERR_FATAL, "Colon expected");
-  emitln("  jmp _ternary%d_exit", current_label_index_ter);
-  emitln("_ternary%d_FALSE:", current_label_index_ter);
+  emitln("", "  jmp _ternary%d_exit", current_label_index_ter);
+  emitln("", "_ternary%d_FALSE:", current_label_index_ter);
   type2 = parse_ternary_op(); // result in 'b'
-  emitln("_ternary%d_exit:", current_label_index_ter);
+  emitln("", "_ternary%d_exit:", current_label_index_ter);
 
   label_tos_ter--;
   current_label_index_ter = label_stack_ter[label_tos_ter];
@@ -3285,29 +3285,29 @@ t_type parse_logical_or(void){
   type1 = parse_logical_and();
   expr_out = type1;
   if(curr_token.tok == LOGICAL_OR){
-    emitln("; --- START LOGICAL OR");
-    emitln("  push a");
-    if(type_is_32bit(type1)) emitln("  push g");
+    emitln("", "; --- START LOGICAL OR");
+    emitln("", "  push a");
+    if(type_is_32bit(type1)) emitln("", "  push g");
     while(curr_token.tok == LOGICAL_OR){
-      emitln("  mov a, b");
-      if(type_is_32bit(expr_out)) emitln("  mov g, c");
+      emitln("", "  mov a, b");
+      if(type_is_32bit(expr_out)) emitln("", "  mov g, c");
       type2 = parse_logical_and();
       // or between ga and cb
       if(type_is_32bit(cast(expr_out, type2))){
         if(!type_is_32bit(expr_out)) 
-          emitln("  mov g, 0");
+          emitln("", "  mov g, 0");
 
-        emitln("  sor32 ga, cb"); // result in b
+        emitln("", "  sor32 ga, cb"); // result in b
       }
       else
-        emitln("  sor a, b ; ||");
+        emitln("", "  sor a, b ; ||");
 
       expr_out = cast(expr_out, type2);
     }
     if(type_is_32bit(type1))
-      emitln("  pop g");
-    emitln("  pop a");
-    emitln("; --- END LOGICAL OR");
+      emitln("", "  pop g");
+    emitln("", "  pop a");
+    emitln("", "; --- END LOGICAL OR");
 
     expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0;
@@ -3325,29 +3325,29 @@ t_type parse_logical_and(void){
   type1 = parse_bitwise_or();
   expr_out = type1;
   if(curr_token.tok == LOGICAL_AND){
-    emitln("; --- START LOGICAL AND");
-    emitln("  push a");
-    if(type_is_32bit(type1)) emitln("  push g");
+    emitln("", "; --- START LOGICAL AND");
+    emitln("", "  push a");
+    if(type_is_32bit(type1)) emitln("", "  push g");
     while(curr_token.tok == LOGICAL_AND){
-      emitln("  mov a, b");
-      if(type_is_32bit(expr_out)) emitln("  mov g, c");
+      emitln("", "  mov a, b");
+      if(type_is_32bit(expr_out)) emitln("", "  mov g, c");
       type2 = parse_bitwise_or();
       // or between ga and cb
       // (b!=0 or c!=0) and (a!=0 or g!=0)
       if(type_is_32bit(cast(expr_out, type2))){
         if(!type_is_32bit(expr_out)) 
-          emitln("  mov g, 0");
+          emitln("", "  mov g, 0");
 
-        emitln("  sand32 ga, cb"); // result in b
+        emitln("", "  sand32 ga, cb"); // result in b
       }
       else 
-        emitln("  sand a, b");
+        emitln("", "  sand a, b");
 
       expr_out = cast(expr_out, type2);
     }
-    if(type_is_32bit(type1)) emitln("  pop g");
-    emitln("  pop a");
-    emitln("; --- END LOGICAL AND");
+    if(type_is_32bit(type1)) emitln("", "  pop g");
+    emitln("", "  pop a");
+    emitln("", "; --- END LOGICAL AND");
 
     expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0;
@@ -3365,24 +3365,24 @@ t_type parse_bitwise_or(void){
   type1 = parse_bitwise_xor();
   expr_out = type1;
   if(curr_token.tok == BITWISE_OR){
-    emitln("  push a");
-    if(type_is_32bit(type1)) emitln("  push g");
+    emitln("", "  push a");
+    if(type_is_32bit(type1)) emitln("", "  push g");
     while(curr_token.tok == BITWISE_OR){
-      emitln("  mov a, b");
-      if(type_is_32bit(expr_out)) emitln("  mov g, c");
+      emitln("", "  mov a, b");
+      if(type_is_32bit(expr_out)) emitln("", "  mov g, c");
       type2 = parse_bitwise_xor();
       if(type_is_32bit(cast(expr_out, type2))){
         if(!type_is_32bit(expr_out))
-          emitln("  mov g, 0");
-        emitln("  or32 cb, ga");
+          emitln("", "  mov g, 0");
+        emitln("", "  or32 cb, ga");
       }
       else{
-        emitln("  or b, a ; |");
+        emitln("", "  or b, a ; |");
       }
       expr_out = cast(expr_out, type2);
     }
-    if(type_is_32bit(type1)) emitln("  pop g");
-    emitln("  pop a");
+    if(type_is_32bit(type1)) emitln("", "  pop g");
+    emitln("", "  pop a");
   }
   return expr_out;
 }
@@ -3394,26 +3394,26 @@ t_type parse_bitwise_xor(void){
   type1 = parse_bitwise_and();
   expr_out = type1;
   if(curr_token.tok == BITWISE_XOR){
-    emitln("  push a");
-    if(type_is_32bit(type1)) emitln("  push g");
-    emitln("  mov a, b");
-    if(type_is_32bit(expr_out)) emitln("  mov g, c");
+    emitln("", "  push a");
+    if(type_is_32bit(type1)) emitln("", "  push g");
+    emitln("", "  mov a, b");
+    if(type_is_32bit(expr_out)) emitln("", "  mov g, c");
     while(curr_token.tok == BITWISE_XOR){
       type2 = parse_bitwise_and();
       if(type_is_32bit(cast(expr_out, type2))){
         if(!type_is_32bit(expr_out))
-          emitln("  mov g, 0");
-        emitln("  xor32 ga, cb");
+          emitln("", "  mov g, 0");
+        emitln("", "  xor32 ga, cb");
       }
       else{
-        emitln("  xor a, b ; ^");
+        emitln("", "  xor a, b ; ^");
       }
       expr_out = cast(expr_out, type2);
     }
-    emitln("  mov b, a");
-    if(type_is_32bit(expr_out)) emitln("  mov c, g");
-    if(type_is_32bit(type1)) emitln("  pop g");
-    emitln("  pop a");
+    emitln("", "  mov b, a");
+    if(type_is_32bit(expr_out)) emitln("", "  mov c, g");
+    if(type_is_32bit(type1)) emitln("", "  pop g");
+    emitln("", "  pop a");
   }
   return expr_out;
 }
@@ -3424,24 +3424,24 @@ t_type parse_bitwise_and(void){
   type1 = parse_relational();
   expr_out = type1;
   if(curr_token.tok == AMPERSAND){
-    emitln("  push a");
-    if(type_is_32bit(type1)) emitln("  push g");
+    emitln("", "  push a");
+    if(type_is_32bit(type1)) emitln("", "  push g");
     while(curr_token.tok == AMPERSAND){
-      emitln("  mov a, b");
-      if(type_is_32bit(expr_out)) emitln("  mov g, c");
+      emitln("", "  mov a, b");
+      if(type_is_32bit(expr_out)) emitln("", "  mov g, c");
       type2 = parse_relational();
       if(type_is_32bit(cast(expr_out, type2))){
         if(!type_is_32bit(expr_out))
-          emitln("  mov g, 0");
-        emitln("  and32 cb, ga");
+          emitln("", "  mov g, 0");
+        emitln("", "  and32 cb, ga");
       }
       else{
-        emitln("  and b, a ; &");
+        emitln("", "  and b, a ; &");
       }
       expr_out = cast(expr_out, type2);
     }
-    if(type_is_32bit(type1)) emitln("  pop g");
-    emitln("  pop a");
+    if(type_is_32bit(type1)) emitln("", "  pop g");
+    emitln("", "  pop a");
   }
   return expr_out;
 }
@@ -3457,38 +3457,38 @@ t_type parse_relational(void){
   
   if(curr_token.tok == EQUAL              || curr_token.tok == NOT_EQUAL    || curr_token.tok == LESS_THAN ||
      curr_token.tok == LESS_THAN_OR_EQUAL || curr_token.tok == GREATER_THAN || curr_token.tok == GREATER_THAN_OR_EQUAL){
-    emitln("; --- START RELATIONAL");
-    emitln("  push a");
-    if(type_is_32bit(type1)) emitln("  push g");
+    emitln("", "; --- START RELATIONAL");
+    emitln("", "  push a");
+    if(type_is_32bit(type1)) emitln("", "  push g");
     while(curr_token.tok == EQUAL              || curr_token.tok == NOT_EQUAL    || curr_token.tok == LESS_THAN || 
           curr_token.tok == LESS_THAN_OR_EQUAL || curr_token.tok == GREATER_THAN || curr_token.tok == GREATER_THAN_OR_EQUAL){
       temp_tok = curr_token.tok;
-      emitln("  mov a, b");
-      if(type_is_32bit(expr_out)) emitln("  mov g, c");
+      emitln("", "  mov a, b");
+      if(type_is_32bit(expr_out)) emitln("", "  mov g, c");
       type2 = parse_bitwise_shift();
       switch(temp_tok){
         case EQUAL:
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out))
-              emitln("  mov g, 0");
-            emitln("  cmp32 ga, cb");
-            emitln("  seq ; ==");
+              emitln("", "  mov g, 0");
+            emitln("", "  cmp32 ga, cb");
+            emitln("", "  seq ; ==");
           }
           else{
-            emitln("  cmp a, b");
-            emitln("  seq ; ==");
+            emitln("", "  cmp a, b");
+            emitln("", "  seq ; ==");
           }
           break;
         case NOT_EQUAL:
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out))
-              emitln("  mov g, 0");
-            emitln("  cmp32 ga, cb");
-            emitln("  sneq ; !=");
+              emitln("", "  mov g, 0");
+            emitln("", "  cmp32 ga, cb");
+            emitln("", "  sneq ; !=");
           }
           else{
-            emitln("  cmp a, b");
-            emitln("  sneq ; !=");
+            emitln("", "  cmp a, b");
+            emitln("", "  sneq ; !=");
           }
           break;
         case LESS_THAN:
@@ -3499,19 +3499,19 @@ t_type parse_relational(void){
         // check if g < c. save result. check that c==g && a < b. save result. or both results together
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out))
-              emitln("  mov g, 0");
-            emitln("  cmp32 ga, cb");
+              emitln("", "  mov g, 0");
+            emitln("", "  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
-              emitln("  slu ; <");
+              emitln("", "  slu ; <");
             else
-              emitln("  slt ; <");
+              emitln("", "  slt ; <");
           }
           else{
-            emitln("  cmp a, b");
+            emitln("", "  cmp a, b");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
-              emitln("  slu ; < (unsigned)");
+              emitln("", "  slu ; < (unsigned)");
             else
-              emitln("  slt ; < (signed)");
+              emitln("", "  slt ; < (signed)");
           }
           break;
         case LESS_THAN_OR_EQUAL:
@@ -3524,66 +3524,66 @@ t_type parse_relational(void){
         // check if g_a == c_b. save result. or both results together
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out)) 
-              emitln("  mov g, 0");
+              emitln("", "  mov g, 0");
 
-            emitln("  cmp32 ga, cb");
+            emitln("", "  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
-              emitln("  sleu"); // result in b
+              emitln("", "  sleu"); // result in b
             else
-              emitln("  sle"); // result in b
+              emitln("", "  sle"); // result in b
           }
           else{
-            emitln("  cmp a, b");
+            emitln("", "  cmp a, b");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
-              emitln("  sleu ; <= (unsigned)");
+              emitln("", "  sleu ; <= (unsigned)");
             else
-              emitln("  sle ; <= (signed)");
+              emitln("", "  sle ; <= (signed)");
           }
           break;
         case GREATER_THAN:
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out)) 
-              emitln("  mov g, 0");
+              emitln("", "  mov g, 0");
 
-            emitln("  cmp32 ga, cb");
+            emitln("", "  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
-              emitln("  sgu"); // result in b
+              emitln("", "  sgu"); // result in b
             else
-              emitln("  sgt"); // result in b
+              emitln("", "  sgt"); // result in b
           }
           else{
-            emitln("  cmp a, b");
+            emitln("", "  cmp a, b");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
-              emitln("  sgu ; > (unsigned)");
+              emitln("", "  sgu ; > (unsigned)");
             else
-              emitln("  sgt ; >");
+              emitln("", "  sgt ; >");
           }
           break;
         case GREATER_THAN_OR_EQUAL:
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out)) 
-              emitln("  mov g, 0");
+              emitln("", "  mov g, 0");
 
-            emitln("  cmp32 ga, cb");
+            emitln("", "  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
-              emitln("  sgeu"); // result in b
+              emitln("", "  sgeu"); // result in b
             else
-              emitln("  sge"); // result in b
+              emitln("", "  sge"); // result in b
           }
           else{
-            emitln("  cmp a, b");
+            emitln("", "  cmp a, b");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
-              emitln("  sgeu ; >= (unsigned)");
+              emitln("", "  sgeu ; >= (unsigned)");
             else
-              emitln("  sge ; >=");
+              emitln("", "  sge ; >=");
           }
       }
       expr_out = cast(expr_out, type2);
     }
     if(type_is_32bit(type1))
-      emitln("  pop g");
-    emitln("  pop a");
-    emitln("; --- END RELATIONAL");
+      emitln("", "  pop g");
+    emitln("", "  pop a");
+    emitln("", "; --- END RELATIONAL");
 
     expr_out.primitive_type = DT_INT;
     expr_out.ind_level = 0;
@@ -3603,30 +3603,30 @@ t_type parse_bitwise_shift(void){
   type1 = parse_terms();
   expr_out = type1;
   if(curr_token.tok == BITWISE_SHL || curr_token.tok == BITWISE_SHR){
-    emitln("; --- START SHIFT");
-    emitln("  push a");
-    emitln("  mov a, b");
+    emitln("", "; --- START SHIFT");
+    emitln("", "  push a");
+    emitln("", "  mov a, b");
     while(curr_token.tok == BITWISE_SHL || curr_token.tok == BITWISE_SHR){
       temp_tok = curr_token.tok;
       type2 = parse_terms();
       expr_out = cast(expr_out, type2);
-      emitln("  mov c, b"); // using 16bit values even though only cl is needed, because 'mov cl, bl' is not implemented as an opcode
+      emitln("", "  mov c, b"); // using 16bit values even though only cl is needed, because 'mov cl, bl' is not implemented as an opcode
       if(temp_tok == BITWISE_SHL){
         if(type1.sign_modifier == SIGNMOD_SIGNED) 
-          emitln("  shl a, cl"); // there is no ashl, since it is equal to shl
+          emitln("", "  shl a, cl"); // there is no ashl, since it is equal to shl
         else 
-          emitln("  shl a, cl");
+          emitln("", "  shl a, cl");
       }
       else if(temp_tok == BITWISE_SHR){
         if(type1.sign_modifier == SIGNMOD_SIGNED) 
-          emitln("  ashr a, cl");
+          emitln("", "  ashr a, cl");
         else 
-          emitln("  shr a, cl");
+          emitln("", "  shr a, cl");
       }
     }
-    emitln("  mov b, a");
-    emitln("  pop a");
-    emitln("; --- END SHIFT");
+    emitln("", "  mov b, a");
+    emitln("", "  pop a");
+    emitln("", "; --- END SHIFT");
   }
   return expr_out;
 }
@@ -3639,43 +3639,43 @@ t_type parse_terms(void){
   type1 = parse_factors();
   expr_out = type1;
   if(curr_token.tok == PLUS || curr_token.tok == MINUS){
-    emitln("; --- START TERMS");
-    emitln("  push a");
-    if(type_is_32bit(type1)) emitln("  push g");
+    emitln("", "; --- START TERMS");
+    emitln("", "  push a");
+    if(type_is_32bit(type1)) emitln("", "  push g");
     while(curr_token.tok == PLUS || curr_token.tok == MINUS){
       temp_tok = curr_token.tok;
-      emitln("  mov a, b");
-      if(type_is_32bit(expr_out)) emitln("  mov g, c");
+      emitln("", "  mov a, b");
+      if(type_is_32bit(expr_out)) emitln("", "  mov g, c");
       type2 = parse_factors();
       expr_out = cast(expr_out, type2);
       // ga + cb
       if(temp_tok == PLUS){
         if(type_is_32bit(expr_out)){
           if(!type_is_32bit(expr_out))
-            emitln("  mov g, 0");
+            emitln("", "  mov g, 0");
 
-          emitln("  add32 cb, ga");
+          emitln("", "  add32 cb, ga");
         }
         else
-          emitln("  add b, a");
+          emitln("", "  add b, a");
       }
       else if(temp_tok == MINUS){
         if(type_is_32bit(expr_out)){
           if(!type_is_32bit(expr_out))
-            emitln("  mov g, 0");
-          emitln("  sub32 ga, cb");
-          emitln("  mov b, a");
-          emitln("  mov c, g");
+            emitln("", "  mov g, 0");
+          emitln("", "  sub32 ga, cb");
+          emitln("", "  mov b, a");
+          emitln("", "  mov c, g");
         }
         else{
-          emitln("  sub a, b");
-          emitln("  mov b, a");
+          emitln("", "  sub a, b");
+          emitln("", "  mov b, a");
         }
       }
     }
-    if(type_is_32bit(type1)) emitln("  pop g");
-    emitln("  pop a");
-    emitln("; --- END TERMS");
+    if(type_is_32bit(type1)) emitln("", "  pop g");
+    emitln("", "  pop a");
+    emitln("", "; --- END TERMS");
   }
   return expr_out;
 }
@@ -3689,73 +3689,73 @@ t_type parse_factors(void){
   type1 = parse_atomic();
   expr_out = type1;
   if(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
-    emitln("; --- START FACTORS");
-    emitln("  push a");
-    emitln("  push g");
-    emitln("  mov a, b");
-    emitln("  mov g, c");
+    emitln("", "; --- START FACTORS");
+    emitln("", "  push a");
+    emitln("", "  push g");
+    emitln("", "  mov a, b");
+    emitln("", "  mov g, c");
     while(curr_token.tok == STAR || curr_token.tok == FSLASH || curr_token.tok == MOD){
       highest_label_index++;
       temp_tok = curr_token.tok;
       type2 = parse_atomic();
       expr_out = cast(expr_out, type2);
       if(temp_tok == STAR){
-          emitln("  push a     ; save left operand");
-          emitln("  xor a, b   ; xor sign bits");
-          emitln("  swp a      ; swap bytes");
-          emitln("  mov cl, al ; save result of xor into 'dl'");
-          emitln("  pop a      ; restore left side operator");
-          emitln("  push cl    ; save result of xor above");
+          emitln("", "  push a     ; save left operand");
+          emitln("", "  xor a, b   ; xor sign bits");
+          emitln("", "  swp a      ; swap bytes");
+          emitln("", "  mov cl, al ; save result of xor into 'dl'");
+          emitln("", "  pop a      ; restore left side operator");
+          emitln("", "  push cl    ; save result of xor above");
 
-          emitln("  swp a  ");
-          emitln("  test al, $80  ");
-          emitln("  swp a  ");
-          emitln("  jz skip_invert_a_%d  ", highest_label_index);
-          emitln("  neg a ");
-          emitln("skip_invert_a_%d:   ", highest_label_index);
-          emitln("  swp b");
-          emitln("  test bl, $80  ");
-          emitln("  swp b");
-          emitln("  jz skip_invert_b_%d  ", highest_label_index);
-          emitln("  neg b ");
-          emitln("skip_invert_b_%d:   ", highest_label_index);
+          emitln("", "  swp a  ");
+          emitln("", "  test al, $80  ");
+          emitln("", "  swp a  ");
+          emitln("", "  jz skip_invert_a_%d  ", highest_label_index);
+          emitln("", "  neg a ");
+          emitln("", "skip_invert_a_%d:   ", highest_label_index);
+          emitln("", "  swp b");
+          emitln("", "  test bl, $80  ");
+          emitln("", "  swp b");
+          emitln("", "  jz skip_invert_b_%d  ", highest_label_index);
+          emitln("", "  neg b ");
+          emitln("", "skip_invert_b_%d:   ", highest_label_index);
 
-          emitln("  mul a, b ; *");
-          emitln("  mov g, a");
-          emitln("  mov a, b");
+          emitln("", "  mul a, b ; *");
+          emitln("", "  mov g, a");
+          emitln("", "  mov a, b");
 
-          emitln("  pop bl");
-          emitln("  test bl, $80");
-          emitln("  jz _same_signs_%d", highest_label_index);
+          emitln("", "  pop bl");
+          emitln("", "  test bl, $80");
+          emitln("", "  jz _same_signs_%d", highest_label_index);
 
-          emitln("  mov bl, al");
-          emitln("  not a");
-          emitln("  neg b");
-          emitln("  adc a, 0");
-          emitln("  mov g, a");
-          emitln("  mov a, b");
+          emitln("", "  mov bl, al");
+          emitln("", "  not a");
+          emitln("", "  neg b");
+          emitln("", "  adc a, 0");
+          emitln("", "  mov g, a");
+          emitln("", "  mov a, b");
 
-          emitln("_same_signs_%d:", highest_label_index);
+          emitln("", "_same_signs_%d:", highest_label_index);
 
           expr_out.size_modifier = SIZEMOD_LONG; // set it as a 32bit int
       }
       else if(temp_tok == FSLASH){
-        emitln("  push g ; save 'g' as the div instruction uses it");
-        emitln("  div a, b ; /, a: quotient, b: remainder");
-        emitln("  pop g");
+        emitln("", "  push g ; save 'g' as the div instruction uses it");
+        emitln("", "  div a, b ; /, a: quotient, b: remainder");
+        emitln("", "  pop g");
       }
       else if(temp_tok == MOD){
-        emitln("  push g ; save 'g' as the div instruction uses it");
-        emitln("  div a, b ; %, a: quotient, b: remainder");
-        emitln("  mov a, b");
-        emitln("  pop g");
+        emitln("", "  push g ; save 'g' as the div instruction uses it");
+        emitln("", "  div a, b ; %, a: quotient, b: remainder");
+        emitln("", "  mov a, b");
+        emitln("", "  pop g");
       }
     }
-    emitln("  mov c, g");
-    emitln("  mov b, a");
-    emitln("  pop g");
-    emitln("  pop a");
-    emitln("; --- END FACTORS");
+    emitln("", "  mov c, g");
+    emitln("", "  mov b, a");
+    emitln("", "  pop g");
+    emitln("", "  pop a");
+    emitln("", "; --- END FACTORS");
   }
 
   return expr_out;
@@ -3817,7 +3817,7 @@ t_type parse_atomic(void){
     }
     else if(enum_element_exists(temp_name) != -1){
       back();
-      emitln("  mov32 cb, $%x ; enum element: %s", get_enum_val(temp_name), temp_name);
+      emitln("", "  mov32 cb, $%x ; enum element: %s", get_enum_val(temp_name), temp_name);
       expr_out.primitive_type = DT_INT;
       expr_out.ind_level = 0;
       expr_out.sign_modifier = SIGNMOD_SIGNED; // TODO: check enums can always be signed...
@@ -3828,40 +3828,40 @@ t_type parse_atomic(void){
       // emit base address for variable, whether struct or not
       back();
       if(is_array(expr_out)){
-        emitln("  mov b, d");
-        emitln("  mov c, 0");  // for long ints
+        emitln("", "  mov b, d");
+        emitln("", "  mov c, 0");  // for long ints
       }
       else if(expr_out.ind_level > 0){
-        emitln("  mov b, [d]"); 
-        emitln("  mov c, 0");  // for long ints
+        emitln("", "  mov b, [d]"); 
+        emitln("", "  mov c, 0");  // for long ints
       }
       else if(expr_out.primitive_type == DT_INT){
         if(expr_out.size_modifier == SIZEMOD_LONG){
-          emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
-          emitln("  mov c, b ; And place it into C"); 
-          emitln("  mov b, [d] ; Lower Word in B"); 
+          emitln("", "  mov b, [d + 2] ; Upper Word of the Long Int");
+          emitln("", "  mov c, b ; And place it into C"); 
+          emitln("", "  mov b, [d] ; Lower Word in B"); 
         }
         else{
-          emitln("  mov b, [d]"); 
-          emitln("  mov c, 0");  // for long ints
+          emitln("", "  mov b, [d]"); 
+          emitln("", "  mov c, 0");  // for long ints
         }
       }
       else if(expr_out.primitive_type == DT_CHAR){
-        emitln("  mov bl, [d]");
-        emitln("  mov bh, 0"); 
-        emitln("  mov c, 0");  // for long ints
+        emitln("", "  mov bl, [d]");
+        emitln("", "  mov bh, 0"); 
+        emitln("", "  mov c, 0");  // for long ints
       }
       else if(expr_out.primitive_type == DT_STRUCT){ // this is used by the assignment parser to obtain the base address of the struct
-        emitln("  mov b, d");
-        emitln("  mov c, 0");  
+        emitln("", "  mov b, d");
+        emitln("", "  mov c, 0");  
       }
       else if(expr_out.primitive_type == DT_UNION){ // this is used by the assignment parser to obtain the base address of the struct
-        emitln("  mov b, d");
-        emitln("  mov c, 0");  
+        emitln("", "  mov b, d");
+        emitln("", "  mov c, 0");  
       }
       else if(expr_out.primitive_type == DT_ENUM){
-        emitln("  mov b, [d]"); 
-        emitln("  mov c, 0");  
+        emitln("", "  mov b, [d]"); 
+        emitln("", "  mov c, 0");  
       }
     }
   }
@@ -3923,24 +3923,24 @@ t_type parse_atomic(void){
         if(size_modifier == SIZEMOD_NORMAL){
           expr_out = parse_atomic();
           if(sign_modifier == SIGNMOD_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
-            emitln("  snex b"); // sign extend b
+            emitln("", "  snex b"); // sign extend b
           else if(sign_modifier == SIGNMOD_UNSIGNED && ind_level == 0 && expr_out.primitive_type == DT_CHAR) 
-            emitln("  mov bh, 0"); // zero extend b
+            emitln("", "  mov bh, 0"); // zero extend b
           back();
         }
         else if(size_modifier == SIZEMOD_LONG){
           expr_out = parse_atomic();
           if(sign_modifier == SIGNMOD_SIGNED && ind_level == 0 && expr_out.primitive_type == DT_INT){
-            emitln("  snex b"); // sign extend b
-            emitln("  push a");
-            emitln("  mov al, bh");
-            emitln("  mov ah, al");
-            emitln("  mov c, a"); // sign extend c
-            emitln("  pop a");
+            emitln("", "  snex b"); // sign extend b
+            emitln("", "  push a");
+            emitln("", "  mov al, bh");
+            emitln("", "  mov ah, al");
+            emitln("", "  mov c, a"); // sign extend c
+            emitln("", "  pop a");
           }
           else if(sign_modifier == SIGNMOD_UNSIGNED && ind_level == 0 && expr_out.primitive_type == DT_INT){
-            emitln("  mov bh, 0"); // zero extend b
-            emitln("  mov c, 0"); // zero extend c
+            emitln("", "  mov bh, 0"); // zero extend b
+            emitln("", "  mov c, 0"); // zero extend c
           }
           back();
         }
@@ -3948,9 +3948,9 @@ t_type parse_atomic(void){
       else if(primitive_type == DT_CHAR){
         expr_out = parse_atomic();
         if(ind_level == 0){
-          emitln("  mov bh, 0"); // zero out bh to make it a char
+          emitln("", "  mov bh, 0"); // zero out bh to make it a char
           if(expr_out.size_modifier == SIZEMOD_LONG)
-            emitln("  mov c, 0"); // and if the type is longm then zero out c as well
+            emitln("", "  mov c, 0"); // and if the type is longm then zero out c as well
         }
         back();
       }
@@ -3983,11 +3983,11 @@ t_type parse_sizeof(){
   if(curr_token.tok_type == IDENTIFIER){
     if(local_var_exists(curr_token.token_str) != -1){ // is a local variable
       var_id = local_var_exists(curr_token.token_str);
-      emitln("  mov32 cb, %d", get_total_type_size(function_table[current_func_id].local_vars[var_id].type));
+      emitln("", "  mov32 cb, %d", get_total_type_size(function_table[current_func_id].local_vars[var_id].type));
     }
     else if(global_var_exists(curr_token.token_str) != -1){  // is a global variable
       var_id = global_var_exists(curr_token.token_str);
-      emitln("  mov32 cb, %d", get_total_type_size(global_var_table[var_id].type));
+      emitln("", "  mov32 cb, %d", get_total_type_size(global_var_table[var_id].type));
     }
     else{
       error(ERR_FATAL, "(Parse atomic) Undeclared identifier: %s", curr_token.token_str);
@@ -4006,13 +4006,13 @@ t_type parse_sizeof(){
   ){
     back();
     type = get_type();
-    emitln("  mov32 cb, %d", get_total_type_size(type));
+    emitln("", "  mov32 cb, %d", get_total_type_size(type));
     get();
   }
   else{
     back();
     type = parse_expr();
-    emitln("  mov32 cb, %d", get_total_type_size(type));
+    emitln("", "  mov32 cb, %d", get_total_type_size(type));
   }
   type.primitive_type = DT_INT;
   type.ind_level = 0;
@@ -4031,7 +4031,7 @@ t_type parse_string_const(){
     string_id = add_string_data(curr_token.string_const);
   }
   // now emit the reference to this string into the ASM
-  emitln("  mov b, _s%d ; \"%s\"", string_id, curr_token.string_const);
+  emitln("", "  mov b, _s%d ; \"%s\"", string_id, curr_token.string_const);
   expr_out.size_modifier = SIZEMOD_NORMAL;
   expr_out.primitive_type = DT_CHAR;
   expr_out.ind_level = 1;
@@ -4042,7 +4042,7 @@ t_type parse_string_const(){
 t_type parse_integer_const(){
   t_type expr_out;
 
-  emitln("  mov32 cb, $%08x", (uint32_t)(curr_token.int_const));
+  emitln("", "  mov32 cb, $%08x", (uint32_t)(curr_token.int_const));
 
   expr_out.sign_modifier = curr_token.const_sign_modifier;
   expr_out.size_modifier = curr_token.const_size_modifier;
@@ -4057,12 +4057,12 @@ t_type parse_unary_logical_not(){
 
   expr_out = parse_atomic(); // in 'cb'
   if(expr_out.ind_level > 0){
-    emitln("  cmp b, 0");
-    emitln("  seq ; !");
+    emitln("", "  cmp b, 0");
+    emitln("", "  seq ; !");
   }
   else if(expr_out.size_modifier == SIZEMOD_LONG){
-    emitln("  cmp32 cb, 0");
-    emitln("  seq ; !");
+    emitln("", "  cmp32 cb, 0");
+    emitln("", "  seq ; !");
   } 
   back();
   expr_out.size_modifier = SIZEMOD_NORMAL;
@@ -4077,17 +4077,17 @@ t_type parse_bitwise_not(){
 
   expr_out = parse_atomic(); // in 'cb'
   if(expr_out.ind_level > 0)  
-    emitln("  not b");
+    emitln("", "  not b");
   else if(expr_out.primitive_type == DT_INT){
     if(expr_out.size_modifier == SIZEMOD_LONG){
-      emitln("  mov a, c");
-      emitln("  not a");
-      emitln("  not b");
-      emitln("  mov c, a");
+      emitln("", "  mov a, c");
+      emitln("", "  not a");
+      emitln("", "  not b");
+      emitln("", "  mov c, a");
     } 
   }
   else 
-    emitln("  not b"); // treating as int as an experiment
+    emitln("", "  not b"); // treating as int as an experiment
   expr_out.size_modifier = SIZEMOD_NORMAL;
   expr_out.primitive_type = DT_INT;
   expr_out.ind_level = 0;
@@ -4105,18 +4105,18 @@ t_type parse_unary_minus(){
     error(ERR_FATAL, "Negation of a pointer type.");
   if(expr_out.primitive_type == DT_INT){
     if(expr_out.size_modifier == SIZEMOD_LONG){
-      emitln("  mov a, c");
-      emitln("  not a");
-      emitln("  not b");
-      emitln("  add b, 1");
-      emitln("  adc a, 0");
-      emitln("  mov c, a");
+      emitln("", "  mov a, c");
+      emitln("", "  not a");
+      emitln("", "  not b");
+      emitln("", "  add b, 1");
+      emitln("", "  adc a, 0");
+      emitln("", "  mov c, a");
     } 
     else
-      emitln("  neg b");
+      emitln("", "  neg b");
   } 
   else 
-    emitln("  neg b"); // treating as int as experiment
+    emitln("", "  neg b"); // treating as int as experiment
   back();
   expr_out.primitive_type = DT_INT; // convert to int
   expr_out.ind_level = 0;
@@ -4125,7 +4125,7 @@ t_type parse_unary_minus(){
 
 t_type parse_char_const(){
   t_type expr_out;
-  emitln("  mov32 cb, $000000%02x", curr_token.string_const[0]);
+  emitln("", "  mov32 cb, $000000%02x", curr_token.string_const[0]);
   expr_out.primitive_type = DT_CHAR; //TODO: int or char? 
   expr_out.ind_level = 0;
   expr_out.sign_modifier = SIGNMOD_UNSIGNED;
@@ -4141,67 +4141,67 @@ t_type parse_post_decrementing(t_type expr_in, char *temp_name){
 
   size = get_incdec_unit(expr_in);
   if(size == 2){
-    emitln("  mov a, b");
-    emitln("  dec b");
-    emitln("  dec b");
+    emitln("", "  mov a, b");
+    emitln("", "  dec b");
+    emitln("", "  dec b");
     emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  mov b, a");
+    emitln("", "  mov [d], b");
+    emitln("", "  mov b, a");
   }
   else if(size == 4){
-    emitln("  mov a, b");
-    emitln("  sub b, 4");
+    emitln("", "  mov a, b");
+    emitln("", "  sub b, 4");
     emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  mov b, a");
+    emitln("", "  mov [d], b");
+    emitln("", "  mov b, a");
   }
   else if(size == 1){
     if(expr_in.primitive_type == DT_INT){
       if(expr_in.size_modifier == SIZEMOD_LONG){
-        emitln("  mov g, c");
-        emitln("  mov a, b");
-        emitln("  mov32 cb, 1");
-        emitln("  sub32 ga, cb");
-        emitln("  mov c, g");
-        emitln("  mov b, a");
+        emitln("", "  mov g, c");
+        emitln("", "  mov a, b");
+        emitln("", "  mov32 cb, 1");
+        emitln("", "  sub32 ga, cb");
+        emitln("", "  mov c, g");
+        emitln("", "  mov b, a");
         emit_var_addr_into_d(temp_name);
-        emitln("  mov b, c");
-        emitln("  mov [d+2], b");
-        emitln("  mov [d], b");
-        emitln("  mov32 ga, 1");
-        emitln("  add32 cb, ga");
+        emitln("", "  mov b, c");
+        emitln("", "  mov [d+2], b");
+        emitln("", "  mov [d], b");
+        emitln("", "  mov32 ga, 1");
+        emitln("", "  add32 cb, ga");
       }
       else{
-        emitln("  mov a, b");
-        emitln("  dec b");
+        emitln("", "  mov a, b");
+        emitln("", "  dec b");
         emit_var_addr_into_d(temp_name);
-        emitln("  mov [d], b");
-        emitln("  mov b, a");
+        emitln("", "  mov [d], b");
+        emitln("", "  mov b, a");
       }
     }
     else if(expr_in.primitive_type == DT_CHAR){
       if(expr_in.ind_level > 0){
-        emitln("  dec b");
+        emitln("", "  dec b");
         emit_var_addr_into_d(temp_name);
-        emitln("  mov [d], b");
-        emitln("  inc b");
+        emitln("", "  mov [d], b");
+        emitln("", "  inc b");
 
       }
       else{
-        emitln("  dec b");
+        emitln("", "  dec b");
         emit_var_addr_into_d(temp_name);
-        emitln("  mov [d], bl");
-        emitln("  inc b");
+        emitln("", "  mov [d], bl");
+        emitln("", "  inc b");
       }
     }
   }
   else{
-    emitln("  mov a, b");
-    emitln("  dec b");
-    emitln("  dec b");
+    emitln("", "  mov a, b");
+    emitln("", "  dec b");
+    emitln("", "  dec b");
     emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  mov b, a");
+    emitln("", "  mov [d], b");
+    emitln("", "  mov b, a");
   }
   expr_out = expr_in;
   get(); // gets the next curr_token.token_str (it must be a delimiter)
@@ -4215,67 +4215,67 @@ t_type parse_post_incrementing(t_type expr_in, char *temp_name){
   // p++
   size = get_incdec_unit(expr_in);
   if(size == 2){
-    emitln("  mov a, b");
-    emitln("  inc b");
-    emitln("  inc b");
+    emitln("", "  mov a, b");
+    emitln("", "  inc b");
+    emitln("", "  inc b");
     emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  mov b, a");
+    emitln("", "  mov [d], b");
+    emitln("", "  mov b, a");
   }
   else if(size == 4){
-    emitln("  mov a, b");
-    emitln("  add b, 4");
+    emitln("", "  mov a, b");
+    emitln("", "  add b, 4");
     emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  mov b, a");
+    emitln("", "  mov [d], b");
+    emitln("", "  mov b, a");
   }
   else if(size == 1){
     if(expr_in.primitive_type == DT_INT){
       if(expr_in.size_modifier == SIZEMOD_LONG){
-        emitln("  mov32 ga, 1");
-        emitln("  add32 cb, ga");
+        emitln("", "  mov32 ga, 1");
+        emitln("", "  add32 cb, ga");
         emit_var_addr_into_d(temp_name);
-        emitln("  mov b, c");
-        emitln("  mov [d+2], b");
-        emitln("  mov [d], b");
-        emitln("  mov g, c");
-        emitln("  mov a, b");
-        emitln("  mov32 cb, 1");
-        emitln("  sub32 ga, cb");
-        emitln("  mov c, g");
-        emitln("  mov b, a");
+        emitln("", "  mov b, c");
+        emitln("", "  mov [d+2], b");
+        emitln("", "  mov [d], b");
+        emitln("", "  mov g, c");
+        emitln("", "  mov a, b");
+        emitln("", "  mov32 cb, 1");
+        emitln("", "  sub32 ga, cb");
+        emitln("", "  mov c, g");
+        emitln("", "  mov b, a");
       }
       else{
-        emitln("  mov a, b");
-        emitln("  inc b");
+        emitln("", "  mov a, b");
+        emitln("", "  inc b");
         emit_var_addr_into_d(temp_name);
-        emitln("  mov [d], b");
-        emitln("  mov b, a");
+        emitln("", "  mov [d], b");
+        emitln("", "  mov b, a");
       }
     }
     else if(expr_in.primitive_type == DT_CHAR){
       if(expr_in.ind_level > 0){
-        emitln("  inc b");
+        emitln("", "  inc b");
         emit_var_addr_into_d(temp_name);
-        emitln("  mov [d], b");
-        emitln("  dec b");
+        emitln("", "  mov [d], b");
+        emitln("", "  dec b");
 
       }
       else{
-        emitln("  inc b");
+        emitln("", "  inc b");
         emit_var_addr_into_d(temp_name);
-        emitln("  mov [d], bl");
-        emitln("  dec b");
+        emitln("", "  mov [d], bl");
+        emitln("", "  dec b");
       }
     }
   }
   else{
-    emitln("  mov a, b");
-    emitln("  inc b");
-    emitln("  inc b");
+    emitln("", "  mov a, b");
+    emitln("", "  inc b");
+    emitln("", "  inc b");
     emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  mov b, a");
+    emitln("", "  mov [d], b");
+    emitln("", "  mov b, a");
   }
   expr_out = expr_in;
   get(); // gets the next curr_token.token_str (it must be a delimiter)
@@ -4287,18 +4287,18 @@ t_type parse_post_decrementing(t_type expr_in, char *temp_name){
   t_type expr_out;
 
   if(get_incdec_unit(expr_in) > 1){
-    emitln("  dec b");
-    emitln("  dec b");
+    emitln("", "  dec b");
+    emitln("", "  dec b");
     emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  inc b");
-    emitln("  inc b");
+    emitln("", "  mov [d], b");
+    emitln("", "  inc b");
+    emitln("", "  inc b");
   }
   else{
-    emitln("  dec b");
+    emitln("", "  dec b");
     emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  inc b");
+    emitln("", "  mov [d], b");
+    emitln("", "  inc b");
   }
   expr_out = expr_in;
   get(); // gets the next curr_token.token_str (it must be a delimiter)
@@ -4310,18 +4310,18 @@ t_type parse_post_incrementing(t_type expr_in, char *temp_name){
   t_type expr_out;
 
   if(get_incdec_unit(expr_in) > 1){
-    emitln("  inc b");
-    emitln("  inc b");
+    emitln("", "  inc b");
+    emitln("", "  inc b");
     emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  dec b");
-    emitln("  dec b");
+    emitln("", "  mov [d], b");
+    emitln("", "  dec b");
+    emitln("", "  dec b");
   }
   else{
-    emitln("  inc b");
+    emitln("", "  inc b");
     emit_var_addr_into_d(temp_name);
-    emitln("  mov [d], b");
-    emitln("  dec b");
+    emitln("", "  mov [d], b");
+    emitln("", "  dec b");
   }
   expr_out = expr_in;
   get(); // gets the next curr_token.token_str (it must be a delimiter)
@@ -4342,61 +4342,61 @@ t_type parse_pre_decrementing(){
   switch(expr_out.primitive_type){
     case DT_CHAR:
       if(expr_out.ind_level > 0)
-        emitln("  mov b, [d]");
+        emitln("", "  mov b, [d]");
       else
-        emitln("  mov bl, [d]");
+        emitln("", "  mov bl, [d]");
       break;
     case DT_INT:
       if(expr_out.ind_level == 0){
         if(expr_out.size_modifier == SIZEMOD_LONG){
-          emitln("  mov b, [d+2]");
-          emitln("  mov c, b");
-          emitln("  mov b, [d]");
+          emitln("", "  mov b, [d+2]");
+          emitln("", "  mov c, b");
+          emitln("", "  mov b, [d]");
         }
         else
-          emitln("  mov b, [d]");
+          emitln("", "  mov b, [d]");
       }
       else
-        emitln("  mov b, [d]");
+        emitln("", "  mov b, [d]");
       break;
     default:
-      emitln("  mov b, [d]");
+      emitln("", "  mov b, [d]");
   }
 
   size = get_incdec_unit(expr_out);
   if(size == 4) { // for long int
-    emitln("  sub b, 4");
+    emitln("", "  sub b, 4");
   }
   else if(size > 1) {
-    emitln("  sub b, %d", size);
+    emitln("", "  sub b, %d", size);
   }
   else 
-    emitln("  dec b");
+    emitln("", "  dec b");
 
   expr_out = emit_var_addr_into_d(temp_name);
 
   switch(expr_out.primitive_type){
     case DT_CHAR:
       if(expr_out.ind_level > 0)
-        emitln("  mov [d], b");
+        emitln("", "  mov [d], b");
       else
-        emitln("  mov [d], bl");
+        emitln("", "  mov [d], bl");
       break;
     case DT_INT:
       if(expr_out.ind_level == 0){
         if(expr_out.size_modifier == SIZEMOD_LONG){
-          emitln("  mov [d], b");
-          emitln("  mov b, c");
-          emitln("  mov [d+2], b");
+          emitln("", "  mov [d], b");
+          emitln("", "  mov b, c");
+          emitln("", "  mov [d+2], b");
         }
         else
-          emitln("  mov [d], b");
+          emitln("", "  mov [d], b");
       }
       else
-        emitln("  mov [d], b");
+        emitln("", "  mov [d], b");
       break;
     default:
-      emitln("  mov [d], b");
+      emitln("", "  mov [d], b");
   }
 
   return expr_out;
@@ -4415,61 +4415,61 @@ t_type parse_pre_incrementing(){
   switch(expr_out.primitive_type){
     case DT_CHAR:
       if(expr_out.ind_level > 0)
-        emitln("  mov b, [d]");
+        emitln("", "  mov b, [d]");
       else
-        emitln("  mov bl, [d]");
+        emitln("", "  mov bl, [d]");
       break;
     case DT_INT:
       if(expr_out.ind_level == 0){
         if(expr_out.size_modifier == SIZEMOD_LONG){
-          emitln("  mov b, [d+2]");
-          emitln("  mov c, b");
-          emitln("  mov b, [d]");
+          emitln("", "  mov b, [d+2]");
+          emitln("", "  mov c, b");
+          emitln("", "  mov b, [d]");
         }
         else
-          emitln("  mov b, [d]");
+          emitln("", "  mov b, [d]");
       }
       else
-        emitln("  mov b, [d]");
+        emitln("", "  mov b, [d]");
       break;
     default:
-      emitln("  mov b, [d]");
+      emitln("", "  mov b, [d]");
   }
 
   size = get_incdec_unit(expr_out);
   if(size == 4) { // for long int
-    emitln("  add b, 4");
+    emitln("", "  add b, 4");
   }
   else if(size > 1) {
-    emitln("  add b, %d", size);
+    emitln("", "  add b, %d", size);
   }
   else 
-    emitln("  inc b");
+    emitln("", "  inc b");
 
   expr_out = emit_var_addr_into_d(temp_name);
 
   switch(expr_out.primitive_type){
     case DT_CHAR:
       if(expr_out.ind_level > 0)
-        emitln("  mov [d], b");
+        emitln("", "  mov [d], b");
       else
-        emitln("  mov [d], bl");
+        emitln("", "  mov [d], bl");
       break;
     case DT_INT:
       if(expr_out.ind_level == 0){
         if(expr_out.size_modifier == SIZEMOD_LONG){
-          emitln("  mov [d], b");
-          emitln("  mov b, c");
-          emitln("  mov [d+2], b");
+          emitln("", "  mov [d], b");
+          emitln("", "  mov b, c");
+          emitln("", "  mov [d+2], b");
         }
         else
-          emitln("  mov [d], b");
+          emitln("", "  mov [d], b");
       }
       else
-        emitln("  mov [d], b");
+        emitln("", "  mov [d], b");
       break;
     default:
-      emitln("  mov [d], b");
+      emitln("", "  mov [d], b");
   }
 
   return expr_out;
@@ -4481,7 +4481,7 @@ t_type parse_referencing(){
   get(); // get variable name
   if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected");
   expr_out = emit_var_addr_into_d(curr_token.token_str);
-  emitln("  mov b, d");
+  emitln("", "  mov b, d");
   expr_out.ind_level++;
   return expr_out;
 }
@@ -4495,27 +4495,27 @@ t_type parse_dereferencing(void){
     error(ERR_FATAL, "Dereferencing void pointer with indirection level of 1 or less.");
 
   if(expr_out.ind_level > 1){
-    emitln("  mov d, b");// now we have the pointer value.
-    emitln("  mov b, [d]"); 
+    emitln("", "  mov d, b");// now we have the pointer value.
+    emitln("", "  mov b, [d]"); 
   }
   else if(expr_out.primitive_type == DT_INT){
     if(expr_out.size_modifier == SIZEMOD_LONG){
-      emitln("  mov d, b");// now we have the pointer value.
-      emitln("  mov b, [d + 2] ; Upper Word of the Long Int");
-      emitln("  mov c, b ; And place it into C"); 
-      emitln("  mov b, [d] ; Lower Word in B"); 
+      emitln("", "  mov d, b");// now we have the pointer value.
+      emitln("", "  mov b, [d + 2] ; Upper Word of the Long Int");
+      emitln("", "  mov c, b ; And place it into C"); 
+      emitln("", "  mov b, [d] ; Lower Word in B"); 
     }
     else{
-      emitln("  mov d, b");// now we have the pointer value.
-      emitln("  mov b, [d]"); 
-      emitln("  mov c, 0"); 
+      emitln("", "  mov d, b");// now we have the pointer value.
+      emitln("", "  mov b, [d]"); 
+      emitln("", "  mov c, 0"); 
     }
   }
   else if(expr_out.primitive_type == DT_CHAR){
-    emitln("  mov d, b");// now we have the pointer value.
-    emitln("  mov bl, [d]"); 
-    emitln("  mov bh, 0");
-    emitln("  mov c, 0"); 
+    emitln("", "  mov d, b");// now we have the pointer value.
+    emitln("", "  mov bl, [d]"); 
+    emitln("", "  mov bh, 0");
+    emitln("", "  mov c, 0"); 
   }
   
   back();
@@ -4548,13 +4548,13 @@ void parse_function_call(int func_id){
   char *prog_at_end_of_header;
 
 
-  emitln("; --- START FUNCTION CALL");
+  emitln("", "; --- START FUNCTION CALL");
   get();
   if(curr_token.tok == CLOSING_PAREN){
     if(function_table[func_id].num_fixed_args != 0)
       error(ERR_FATAL, "Incorrect number of arguments for function: %s. Expecting %d, detected: 0", function_table[func_id].name, function_table[func_id].num_fixed_args);
     else{
-      emitln("  call %s", function_table[func_id].name);
+      emitln("", "  call %s", function_table[func_id].name);
       return;
     }
   }
@@ -4613,43 +4613,43 @@ void parse_function_call(int func_id){
     current_func_call_total_arg_size += get_type_size_for_func_arg_parsing(arg_type); 
 
     if(arg_type.ind_level > 0 || is_array(arg_type)){
-      emitln("  swp b");
-      emitln("  push b");
+      emitln("", "  swp b");
+      emitln("", "  push b");
     }
     else if(arg_type.primitive_type == DT_STRUCT){
-      emitln("  sub sp, %d", get_type_size_for_func_arg_parsing(arg_type));
-      emitln("  mov si, b"); 
-      emitln("  lea d, [sp + 1]");
-      emitln("  mov di, d");
-      emitln("  mov c, %d", get_type_size_for_func_arg_parsing(arg_type));
-      emitln("  rep movsb");
+      emitln("", "  sub sp, %d", get_type_size_for_func_arg_parsing(arg_type));
+      emitln("", "  mov si, b"); 
+      emitln("", "  lea d, [sp + 1]");
+      emitln("", "  mov di, d");
+      emitln("", "  mov c, %d", get_type_size_for_func_arg_parsing(arg_type));
+      emitln("", "  rep movsb");
     }
     else if(arg_type.size_modifier == SIZEMOD_LONG){
-      emitln("  mov a, c");
-      emitln("  swp a");
-      emitln("  push a");
-      emitln("  swp b");
-      emitln("  push b");
+      emitln("", "  mov a, c");
+      emitln("", "  swp a");
+      emitln("", "  push a");
+      emitln("", "  swp b");
+      emitln("", "  push b");
     }
     else if(arg_type.primitive_type == DT_CHAR){
       if(curr_arg_num > function_table[func_id].num_fixed_args) {
-        //emitln("  swp b");
-        emitln("  push bl"); 
+        //emitln("", "  swp b");
+        emitln("", "  push bl"); 
       }
       else 
-        emitln("  push bl");
+        emitln("", "  push bl");
     }
     else if(arg_type.primitive_type == DT_INT){
       if(arg_expr.primitive_type == DT_CHAR && arg_expr.ind_level == 0) 
-        emitln("  snex b");
-      emitln("  swp b");
-      emitln("  push b");
+        emitln("", "  snex b");
+      emitln("", "  swp b");
+      emitln("", "  push b");
     }
     else if(arg_type.primitive_type == DT_ENUM){
       if(arg_expr.primitive_type == DT_CHAR && arg_expr.ind_level == 0) 
-        emitln("  snex b");
-      emitln("  swp b");
-      emitln("  push b");
+        emitln("", "  snex b");
+      emitln("", "  swp b");
+      emitln("", "  push b");
     }
     curr_arg_num--;
     pop_prog(); // recover prog position, which is exactly one char to the left of the comma after which this current argument comes
@@ -4660,14 +4660,14 @@ void parse_function_call(int func_id){
   if(function_table[func_id].num_fixed_args != total_function_arguments && !function_has_variable_arguments(func_id))  
     error(ERR_FATAL, "Incorrect number of arguments for function: %s. Expecting %d, detected: %d", function_table[func_id].name, function_table[func_id].num_fixed_args, total_function_arguments);
 
-  emitln("  call %s", function_table[func_id].name);
+  emitln("", "  call %s", function_table[func_id].name);
   // the function's return value is in register B
   if(current_func_call_total_arg_size > 0)
-    emitln("  add sp, %d", current_func_call_total_arg_size); // clean stack of the arguments added to it
+    emitln("", "  add sp, %d", current_func_call_total_arg_size); // clean stack of the arguments added to it
 
   // recover prog, placing it at the end of the function header
   prog = prog_at_end_of_header;
-  emitln("; --- END FUNCTION CALL");
+  emitln("", "; --- END FUNCTION CALL");
 }
 
 int get_struct_element_offset(int struct_id, char *name){
@@ -4737,17 +4737,17 @@ t_type emit_array_arithmetic(t_type type){
 
   expr_out = type;
   dims = array_dim_count(type); // gets the number of dimensions for this array
-  emitln("  push a"); // needed because for loop below will modify 'a'. But 'a' is used by functions such as parse_terms, so keep previous results. so we cannot overwrite 'a' here.
+  emitln("", "  push a"); // needed because for loop below will modify 'a'. But 'a' is used by functions such as parse_terms, so keep previous results. so we cannot overwrite 'a' here.
   for(i = 0; i < dims; i++){
     expr_out.dims[dims - i - 1] = 0; // decrease array dimensions as they get parsed so that the final data type makes sense
-    emitln("  push d"); // save 'd' in case the expressions inside brackets use 'd' for addressing (likely)
+    emitln("", "  push d"); // save 'd' in case the expressions inside brackets use 'd' for addressing (likely)
     parse_expr(); // result in 'b'
-    emitln("  pop d");
+    emitln("", "  pop d");
     if(get_array_offset(i, type) > 1){ // optimize it so there's no multiplication if not needed
-      emitln("  mma %u ; mov a, %u; mul a, b; add d, b", get_array_offset(i, type), get_array_offset(i, type)); // mov a, uint16_t; mul a, b; add d, b
+      emitln("", "  mma %u ; mov a, %u; mul a, b; add d, b", get_array_offset(i, type), get_array_offset(i, type)); // mov a, uint16_t; mul a, b; add d, b
     }
     else 
-      emitln("  add d, b");
+      emitln("", "  add d, b");
     if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
     get();
     if(curr_token.tok != OPENING_BRACKET){
@@ -4755,7 +4755,7 @@ t_type emit_array_arithmetic(t_type type){
       break;
     }
   }
-  emitln("  pop a");
+  emitln("", "  pop a");
   
   return expr_out;
 }
@@ -4933,20 +4933,20 @@ t_type emit_var_addr_into_d(char *var_name){
           (function_table[current_func_id].local_vars[var_id].type.primitive_type == DT_UNION && 
            function_table[current_func_id].local_vars[var_id].type.ind_level == 0)
       )
-        emitln("  mov d, st_%s_%s_dt ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
+        emitln("", "  mov d, st_%s_%s_dt ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
       else
-        emitln("  mov d, st_%s_%s ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
+        emitln("", "  mov d, st_%s_%s ; static %s", function_table[current_func_id].name, function_table[current_func_id].local_vars[var_id].name, function_table[current_func_id].local_vars[var_id].name);
     }
     else{
       get_var_base_addr(temp, var_name);
       // both array and parameter means this is a parameter local variable to a function
       // that is really a pointer variable and not really an array.
       if(is_array(function_table[current_func_id].local_vars[var_id].type) && function_table[current_func_id].local_vars[var_id].is_parameter){
-        emitln("  mov b, [%s] ; $%s", temp, var_name);
-        emitln("  mov d, b");
+        emitln("", "  mov b, [%s] ; $%s", temp, var_name);
+        emitln("", "  mov d, b");
       }
       else 
-        emitln("  lea d, [%s] ; $%s", temp, var_name);
+        emitln("", "  lea d, [%s] ; $%s", temp, var_name);
     }
   }
   else if((var_id = global_var_exists(var_name)) != -1){  // is a global variable
@@ -4955,9 +4955,9 @@ t_type emit_var_addr_into_d(char *var_name){
         (global_var_table[var_id].type.primitive_type == DT_STRUCT && global_var_table[var_id].type.ind_level == 0) ||
         (global_var_table[var_id].type.primitive_type == DT_UNION  && global_var_table[var_id].type.ind_level == 0)
     ) 
-      emitln("  mov d, _%s_data ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
+      emitln("", "  mov d, _%s_data ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
     else
-      emitln("  mov d, _%s ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
+      emitln("", "  mov d, _%s ; $%s", global_var_table[var_id].name, global_var_table[var_id].name);
   }
   else error(ERR_FATAL, "(emit_var_addr_into_d) Undeclared identifier: %s", var_name);
 
@@ -4966,7 +4966,7 @@ t_type emit_var_addr_into_d(char *var_name){
   // then look for '.' or '[]' in each cycle, if found, add offsets
   if(curr_token.tok == OPENING_BRACKET || curr_token.tok == STRUCT_DOT || curr_token.tok == STRUCT_ARROW){ // array operations
     if(curr_token.tok == OPENING_BRACKET && !is_array(type) && type.ind_level > 0){
-      emitln("  mov d, [d]");
+      emitln("", "  mov d, [d]");
     }
     do{
       if(curr_token.tok == OPENING_BRACKET){
@@ -4976,13 +4976,13 @@ t_type emit_var_addr_into_d(char *var_name){
         }
         // pointer indexing
         else if(type.ind_level > 0){
-          emitln("  push a");
-          emitln("  push d"); // save 'd' in case the expressions inside brackets use 'd' for addressing (likely)
+          emitln("", "  push a");
+          emitln("", "  push d"); // save 'd' in case the expressions inside brackets use 'd' for addressing (likely)
           parse_expr(); // parse index expression, result in B
-          emitln("  pop d");
+          emitln("", "  pop d");
           if(curr_token.tok != CLOSING_BRACKET) error(ERR_FATAL, "Closing brackets expected");
-          emitln("  mma %u ; mov a, %u; mul a b; add d, b", get_data_size_for_indexing(type), get_data_size_for_indexing(type)); // mov a, uint16_t; mul a b; add d, b
-          emitln("  pop a");
+          emitln("", "  mma %u ; mov a, %u; mul a b; add d, b", get_data_size_for_indexing(type), get_data_size_for_indexing(type)); // mov a, uint16_t; mul a b; add d, b
+          emitln("", "  pop a");
           type.ind_level--; // indexing reduces ind_level by 1
         }
         else error(ERR_FATAL, "Invalid indexing");
@@ -4995,7 +4995,7 @@ t_type emit_var_addr_into_d(char *var_name){
           type = get_struct_element_type(type.struct_enum_union_id, element_name);
         else if(type.primitive_type == DT_UNION)
           type = get_union_element_type(type.struct_enum_union_id, element_name);
-        emitln("  add d, %d", offset);
+        emitln("", "  add d, %d", offset);
       }
       else if(curr_token.tok == STRUCT_ARROW){
         get(); // get element name
@@ -5006,8 +5006,8 @@ t_type emit_var_addr_into_d(char *var_name){
         else if(type.primitive_type == DT_UNION)
           type = get_union_element_type(type.struct_enum_union_id, element_name);
         //get_var_base_addr(temp, var_name);
-        emitln("  mov d, [d]");
-        emitln("  add d, %d", offset);
+        emitln("", "  mov d, [d]");
+        emitln("", "  add d, %d", offset);
       }
       get();
     } while (curr_token.tok == OPENING_BRACKET || curr_token.tok == STRUCT_DOT || curr_token.tok == STRUCT_ARROW);
