@@ -384,6 +384,8 @@ int main(int argc, char *argv[]){
   emitln("", "\n.end");
   *asm_p = '\0';
 
+  optimize_asm();
+
   strcpy(filename_out, "out/");
   strcat(filename_out, filename_no_ext);
   strcat(filename_out, ".asm");
@@ -785,17 +787,50 @@ void expand_all_included_files(void){
   prog = c_in;
 }
 
+char *find_next(char *first, char *second){
+  char *prog_orig;
+  char *result;
+
+  get_asm(); back();
+  prog_orig = prog;
+  for(;;){
+    get_asm(); back(); // skip comments
+    result = prog;
+    get_asm();
+    if(curr_token.tok_type == END){
+      prog = prog_orig;
+      return NULL;
+    }
+    if(!strcmp(curr_token.token_str, first)){
+      if(second[0] != '\0'){
+        for(;;){
+          get_asm(); back(); // skip comments
+          get_asm();
+          if(curr_token.tok_type == END){
+            prog = prog_orig;
+            return NULL;
+          }
+          if(!strcmp(curr_token.token_str, second)){
+            return result;           
+          }
+        }
+      }
+      else{
+        return result;
+      }
+    }
+  }
+}
+
 int optimize_asm(){
+  char *address;
+
   prog = asm_out;
   for(;;){
-    get();
-    if(!strcmp(curr_token.token_str, "push")){
-      get();
-      if(!strcmp(curr_token.token_str, "a")){
-        
-      }
-      else back();
-    }
+    find_next("main", ":");
+    prog = find_next("push", "d");
+    get_asm();
+    dbg(tkn);
   }
 }
 
@@ -1750,7 +1785,7 @@ int declare_local(void){
     else{
       if(curr_token.tok == ASSIGNMENT){
         if(is_array(new_var.type)){
-          error(ERR_WARNING, "Warning: Skipping initialization of local variable '%s' (not yet implemented).", new_var.name);
+          error(ERR_WARNING, "Warning: Skipping initialization of local variable array '%s' (not yet implemented).", new_var.name);
           do{
             get();
           } while(curr_token.tok != SEMICOLON);
@@ -1768,8 +1803,9 @@ int declare_local(void){
               if(new_var.type.ind_level > 0){
                 emitln("", "  mov [d], b");
               }
-              else
-                emitln("", "  mov [d], bl");
+              else{
+                  emitln("", "  mov [d], bl");
+              }
               break;
             case DT_INT:
               if(new_var.type.ind_level == 0 && new_var.type.size_modifier == SIZEMOD_LONG){
@@ -1780,7 +1816,7 @@ int declare_local(void){
                 }
                 else{
                   if(init_expr.primitive_type == DT_CHAR && init_expr.ind_level == 0){
-                    emitln("", "  mov bh, 0");
+                    emitln("", "  snex b");
                     emitln("", "  mov [d], b");
                     emitln("", "  mov b, 0");
                     emitln("", "  mov [d + 2], b");
@@ -6023,8 +6059,149 @@ void convert_constant(){
   *s = '\0';
 }
 
+void get_asm(void){
+  char *t;
+
+  // skip blank spaces
+  *curr_token.token_str = '\0';
+  curr_token.tok = TOK_UNDEF;
+  curr_token.tok_type = TYPE_UNDEF;
+  t = curr_token.token_str;
+  
+  // Save the position of prog before getting a curr_token.token_str. If an 'unexpected token' error occurs,
+  // the position of prog before lines were skipped, will be known.  
+  prog_before_error = prog;
+
+/* Skip comments and whitespaces */
+  do{
+    while(is_space(*prog)) prog++;
+    if(*prog == ';'){
+      while(*prog != '\n') prog++;
+      prog++;
+    }
+  } while(is_space(*prog) || (*prog == ';'));
+
+  if(*prog == '\0'){
+    curr_token.tok_type = END;
+    curr_token.tok = END_OF_PROG;
+    return;
+  }
+
+  if(*prog == '\''){
+    *t++ = '\'';
+    prog++;
+    if(*prog == '\\'){
+      *t++ = '\\';
+      prog++;
+      *t++ = *prog++;
+    }
+    else
+      *t++ = *prog++;
+    if(*prog != '\'')
+      error(ERR_FATAL, "Single quotes expected");
+    *t++ = '\'';
+    prog++;
+    curr_token.tok_type = CHAR_CONST;
+    *t = '\0';
+    convert_constant(); // converts this string curr_token.token_str with quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
+  }
+  else if(*prog == '\"'){
+    *t++ = *prog++;
+    while(*prog != '\"' && *prog){
+      *t++ = *prog++;
+    }
+    if(*prog != '\"') error(ERR_FATAL, "Double quotes expected");
+    *t++ = *prog++;
+    *t = '\0';
+    curr_token.tok_type = STRING_CONST;
+    convert_constant(); // converts this string curr_token.token_str qith quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
+  }
+  else if(is_digit(*prog) || *prog == '$' && is_hex_digit(*(prog+1))){
+    curr_token.tok_type = INTEGER_CONST;
+    curr_token.const_size_modifier = SIZEMOD_NORMAL;
+    curr_token.const_sign_modifier = SIGNMOD_SIGNED;
+    if(*prog == '0' && *(prog+1) == 'x'){
+      *t++ = *prog++;
+      *t++ = *prog++;
+      while(is_hex_digit(*prog)) *t++ = *prog++;
+      *t = '\0';
+      sscanf(curr_token.token_str, "%lx", &curr_token.int_const);
+    }
+    else if(*prog == '$'){
+      *t++ = *prog++;
+      while(is_hex_digit(*prog)) *t++ = *prog++;
+      *t = '\0';
+      sscanf(curr_token.token_str, "%lx", &curr_token.int_const);
+    }
+    else{
+      while(is_digit(*prog)){
+        *t++ = *prog++;
+      }
+      *t = '\0';
+      sscanf(curr_token.token_str, "%ld", &curr_token.int_const);
+    }
+    return; // return to avoid *t = '\0' line at the end of function
+  }
+  else if(isalpha(*prog) || *prog == '_'){
+    while(isalpha(*prog) || *prog == '_' || is_digit(*prog)){
+      *t++ = *prog++;
+    }
+    *t = '\0';
+
+    if((curr_token.tok = search_keyword(curr_token.token_str)) != -1) 
+      curr_token.tok_type = RESERVED;
+    else 
+      curr_token.tok_type = IDENTIFIER;
+  }
+  else if(is_delimiter(*prog)){
+    curr_token.tok_type = DELIMITER;  
+    
+    if(*prog == '['){
+      *t++ = *prog++;
+      curr_token.tok = OPENING_BRACKET;
+    }
+    else if(*prog == ']'){
+      *t++ = *prog++;
+      curr_token.tok = CLOSING_BRACKET;
+    }
+    else if(*prog == ':'){
+      *t++ = *prog++;
+      curr_token.tok = COLON;
+    }
+    else if(*prog == '+'){
+      *t++ = *prog++;
+      curr_token.tok = PLUS;
+    }
+    else if(*prog == '-'){
+      *t++ = *prog++;
+      curr_token.tok = MINUS;
+    }
+    else if(*prog == '@'){
+      *t++ = *prog++;
+      curr_token.tok = AT;
+    }
+    else if(*prog == '('){
+      *t++ = *prog++;
+      curr_token.tok = OPENING_PAREN;
+    }
+    else if(*prog == ')'){
+      *t++ = *prog++;
+      curr_token.tok = CLOSING_PAREN;
+    }
+    else if(*prog == ','){
+      *t++ = *prog++;
+      curr_token.tok = COMMA;
+    }
+    else if(*prog == '.'){
+      *t++ = *prog++;
+      curr_token.tok = STRUCT_DOT;
+    }
+  }
+
+  *t = '\0';
+}
+
 void get(void){
-  static t_tok previous_tok = TOK_UNDEF;
   char *t;
 
   // skip blank spaces
@@ -6055,7 +6232,6 @@ void get(void){
     }
   } while(is_space(*prog) || (*prog == '/' && *(prog+1) == '/') || (*prog == '/' && *(prog+1) == '*'));
   if(*prog == '\0'){
-    previous_tok = curr_token.tok;
     curr_token.tok_type = END;
     curr_token.tok = END_OF_PROG;
     return;
@@ -6135,7 +6311,6 @@ void get(void){
       else if(curr_token.int_const < -2147483648)
         error(ERR_WARNING, "constant value exceed maximum value of unsigned long int: %d", curr_token.int_const);
     }
-    previous_tok = curr_token.tok;
     return; // return to avoid *t = '\0' line at the end of function
   }
   else if(isalpha(*prog) || *prog == '_'){
@@ -6320,7 +6495,6 @@ void get(void){
   }
 
   *t = '\0';
-  previous_tok = curr_token.tok;
 }
 
 void back(void){

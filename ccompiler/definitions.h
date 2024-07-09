@@ -260,6 +260,7 @@ void pre_processor(void);
 void include_asm_lib(char *lib_name);
 unsigned int add_string_data(char *str);
 
+void get_asm(void);
 void get(void);
 void get_line(void);
 void back(void);
@@ -441,3 +442,4 @@ uint8_t is_function_declaration();
 void add_library_type_declarations();
 int get_num_struct_elements(int struct_id);
 int undeclare_local(char *name);
+char *find_next(char *first, char *second);
