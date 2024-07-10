@@ -9,10 +9,10 @@ int main() {
     struct Float16 a, b;
     struct Float16 sum;
 
-    a.mantissa = 1234;
-    a.exponent = 1;
-    b.mantissa = 1789;
-    b.exponent = 2;
+    a.mantissa = 12;
+    a.exponent = -1;
+    b.mantissa = 12;
+    b.exponent = -1;
 
     puts("Starting...\n");
 
