@@ -384,7 +384,7 @@ int main(int argc, char *argv[]){
   emitln("", "\n.end");
   *asm_p = '\0';
 
-  optimize_asm();
+  //optimize_asm();
 
   strcpy(filename_out, "out/");
   strcat(filename_out, filename_no_ext);
@@ -822,15 +822,75 @@ char *find_next(char *first, char *second){
   }
 }
 
+char *find_between(char *first, char *second, char *begin, char *end){
+  char *prog_orig;
+  char *result;
+
+  get_asm(); back();
+  prog_orig = prog;
+  prog = begin;  
+  for(;;){
+    get_asm(); back(); // skip comments
+    if(prog > end){
+      prog = prog_orig;
+      return NULL;
+    }
+    result = prog;
+    get_asm();
+    if(curr_token.tok_type == END){
+      prog = prog_orig;
+      return NULL;
+    }
+    if(!strcmp(curr_token.token_str, first)){
+      if(second[0] != '\0'){
+        for(;;){
+          get_asm(); back(); // skip comments
+          if(prog > end){
+            prog = prog_orig;
+            return NULL;
+          }
+          get_asm();
+          if(curr_token.tok_type == END){ 
+            prog = prog_orig;
+            return NULL;
+          }
+          if(!strcmp(curr_token.token_str, second)){
+            return result;           
+          }
+        }
+      }
+      else{
+        return result;
+      }
+    }
+  }
+}
+
 int optimize_asm(){
-  char *address;
+  char *start, *end;
+  char *addr1;
 
   prog = asm_out;
   for(;;){
     find_next("main", ":");
-    prog = find_next("push", "d");
-    get_asm();
-    dbg(tkn);
+    start = find_next("push", "d");
+    if(start != NULL){
+      prog = start;
+      for(;;){
+        end = find_next("pop", "d");
+        if(end != NULL){
+          for(;;){
+            addr1 = find_between("call", "", start, end);
+            if(addr1 != NULL){
+              prog = addr1;
+              get_asm();
+              dbg(tkn);
+            }
+            else dbg("not found");
+          }
+        }
+      }
+    }
   }
 }
 

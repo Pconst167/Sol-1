@@ -443,3 +443,4 @@ void add_library_type_declarations();
 int get_num_struct_elements(int struct_id);
 int undeclare_local(char *name);
 char *find_next(char *first, char *second);
+char *find_between(char *first, char *second, char *begin, char *end);
