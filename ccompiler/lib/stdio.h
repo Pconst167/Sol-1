@@ -723,10 +723,6 @@ int scann(){
 
   asm{
     enter 8
-    push si
-    push b
-    push c
-    push d
     lea d, [bp +- 7]
     call _gets_scann
     call _strlen_scann      ; get string length in C
@@ -753,10 +749,6 @@ int scann(){
     jmp mul_loop_scann
   mul_exit_scann:
     mov a, c
-    pop d
-    pop c
-    pop b
-    pop si
     leave
 
     ccmovd m
@@ -764,6 +756,13 @@ int scann(){
   }
   
   return m;
+
+  table_power_scann:
+    .dw 1
+    .dw 10
+    .dw 100
+    .dw 1000
+    .dw 10000
 
   asm{
   _strlen_scann:
@@ -780,7 +779,6 @@ int scann(){
     ret
 
   _gets_scann:
-    push a
     push d
   _gets_loop_scann:
     mov al, 1
@@ -871,15 +869,7 @@ int scann(){
     mov al, 0
     mov [d], al        ; terminate string
     pop d
-    pop a
     ret
-
-  table_power_scann:
-    .dw 1
-    .dw 10
-    .dw 100
-    .dw 1000
-    .dw 10000
   }
 }
 

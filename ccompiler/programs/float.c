@@ -1,20 +1,22 @@
 #include <stdio.h>
 
-struct Float16 {
+struct t_float16 {
     int mantissa;  // 16-bit integer for the mantissa
     char exponent; // 8-bit integer for the exponent
 };
 
 int main() {
-    struct Float16 a, b;
-    struct Float16 sum;
+    struct t_float16 a, b;
+    struct t_float16 sum;
 
-    a.mantissa = 12;
-    a.exponent = -1;
-    b.mantissa = 12;
-    b.exponent = -1;
-
-    puts("Starting...\n");
+    printf("a mantissa: ");
+    a.mantissa = scann();
+    printf("a exponent: ");
+    a.exponent = scann();
+    printf("b mantissa: ");
+    b.mantissa = scann();
+    printf("b exponent: ");
+    b.exponent = scann();
 
     sum = add(a, b);
 
@@ -24,7 +26,9 @@ int main() {
     return 0;
 }
 
-struct Float16 add(struct Float16 a, struct Float16 b) {
+struct t_float16 add(struct t_float16 a, struct t_float16 b) {
+    struct t_float16 result;
+
     // Align exponents
     if (a.exponent < b.exponent) {
         while (a.exponent < b.exponent) {
@@ -39,11 +43,11 @@ struct Float16 add(struct Float16 a, struct Float16 b) {
     }
 
     // Add mantissas
-    struct Float16 result;
     result.mantissa = a.mantissa + b.mantissa;
     result.exponent = a.exponent;
     // Normalize result
     while (result.mantissa > 32767 || result.mantissa < -32767) {
+    //while (result.mantissa > 2147483647 || result.mantissa < -2147483648) {
         result.mantissa = result.mantissa / 2;
         result.exponent = result.exponent + 1;
     }
@@ -51,7 +55,9 @@ struct Float16 add(struct Float16 a, struct Float16 b) {
     return result;
 }
 
-struct Float16 subtract(struct Float16 a, struct Float16 b) {
+struct t_float16 subtract(struct t_float16 a, struct t_float16 b) {
+    struct t_float16 result;
+
     // Align exponents
     if (a.exponent < b.exponent) {
         while (a.exponent < b.exponent) {
@@ -66,12 +72,12 @@ struct Float16 subtract(struct Float16 a, struct Float16 b) {
     }
 
     // Subtract mantissas
-    struct Float16 result;
     result.mantissa = a.mantissa - b.mantissa;
     result.exponent = a.exponent;
 
     // Normalize result
     while (result.mantissa > 32767 || result.mantissa < -32767) {
+    //while (result.mantissa > 2147483647 || result.mantissa < -2147483648) {
         result.mantissa = result.mantissa / 2;
         result.exponent = result.exponent + 1;
     }

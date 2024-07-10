@@ -7,47 +7,75 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; struct Float16 a, b; 
+; struct t_float16 a, b; 
   sub sp, 3
   sub sp, 3
-; struct Float16 sum; 
+; struct t_float16 sum; 
   sub sp, 3
-; a.mantissa = 1234; 
-  lea d, [bp + -2] ; $a
-  add d, 0
-  push d
-  mov32 cb, $000004d2
-  pop d
-  mov [d], b
-; a.exponent = 1; 
-  lea d, [bp + -2] ; $a
-  add d, 2
-  push d
-  mov32 cb, $00000001
-  pop d
-  mov [d], bl
-; b.mantissa = 1789; 
-  lea d, [bp + -5] ; $b
-  add d, 0
-  push d
-  mov32 cb, $000006fd
-  pop d
-  mov [d], b
-; b.exponent = 2; 
-  lea d, [bp + -5] ; $b
-  add d, 2
-  push d
-  mov32 cb, $00000002
-  pop d
-  mov [d], bl
-; puts("Starting...\n"); 
+; printf("a mantissa: "); 
 ; --- START FUNCTION CALL
-  mov b, _s0 ; "Starting...\n"
+  mov b, _s0 ; "a mantissa: "
   swp b
   push b
-  call puts
+  call printf
   add sp, 2
 ; --- END FUNCTION CALL
+; a.mantissa = scann(); 
+  lea d, [bp + -2] ; $a
+  add d, 0
+  push d
+; --- START FUNCTION CALL
+  call scann
+  pop d
+  mov [d], b
+; printf("a exponent: "); 
+; --- START FUNCTION CALL
+  mov b, _s1 ; "a exponent: "
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; a.exponent = scann(); 
+  lea d, [bp + -2] ; $a
+  add d, 2
+  push d
+; --- START FUNCTION CALL
+  call scann
+  pop d
+  mov [d], bl
+; printf("b mantissa: "); 
+; --- START FUNCTION CALL
+  mov b, _s2 ; "b mantissa: "
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; b.mantissa = scann(); 
+  lea d, [bp + -5] ; $b
+  add d, 0
+  push d
+; --- START FUNCTION CALL
+  call scann
+  pop d
+  mov [d], b
+; printf("b exponent: "); 
+; --- START FUNCTION CALL
+  mov b, _s3 ; "b exponent: "
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; b.exponent = scann(); 
+  lea d, [bp + -5] ; $b
+  add d, 2
+  push d
+; --- START FUNCTION CALL
+  call scann
+  pop d
+  mov [d], bl
 ; sum = add(a, b); 
   lea d, [bp + -8] ; $sum
   push d
@@ -86,7 +114,7 @@ main:
   mov c, 0
   swp b
   push b
-  mov b, _s1 ; "Sum mantissa: %d\n"
+  mov b, _s4 ; "Sum mantissa: %d\n"
   swp b
   push b
   call printf
@@ -101,7 +129,7 @@ main:
   mov c, 0
   swp b
   push b
-  mov b, _s2 ; "Sum exponent: %d\n"
+  mov b, _s5 ; "Sum exponent: %d\n"
   swp b
   push b
   call printf
@@ -114,6 +142,8 @@ main:
 
 add:
   enter 0 ; (push bp; mov bp, sp)
+; struct t_float16 result; 
+  sub sp, 3
 ; if (a.exponent < b.exponent) { 
 _if1_cond:
   lea d, [bp + 5] ; $a
@@ -295,8 +325,6 @@ _while6_exit:
   jmp _if5_exit
 _if5_exit:
 _if1_exit:
-; struct Float16 result; 
-  sub sp, 3
 ; result.mantissa = a.mantissa + b.mantissa; 
   lea d, [bp + -2] ; $result
   add d, 0
@@ -416,6 +444,8 @@ _while9_exit:
 
 subtract:
   enter 0 ; (push bp; mov bp, sp)
+; struct t_float16 result; 
+  sub sp, 3
 ; if (a.exponent < b.exponent) { 
 _if12_cond:
   lea d, [bp + 5] ; $a
@@ -597,8 +627,6 @@ _while17_exit:
   jmp _if16_exit
 _if16_exit:
 _if12_exit:
-; struct Float16 result; 
-  sub sp, 3
 ; result.mantissa = a.mantissa - b.mantissa; 
   lea d, [bp + -2] ; $result
   add d, 0
@@ -714,27 +742,6 @@ _while20_exit:
   lea d, [bp + -2] ; $result
   mov b, d
   mov c, 0
-  leave
-  ret
-
-puts:
-  enter 0 ; (push bp; mov bp, sp)
-; --- BEGIN INLINE ASM SEGMENT
-  lea d, [bp + 5] ; $s
-  mov d, [d]
-_puts_L1_puts:
-  mov al, [d]
-  cmp al, 0
-  jz _puts_END_puts
-  mov ah, al
-  mov al, 0
-  syscall sys_io
-  inc d
-  jmp _puts_L1_puts
-_puts_END_puts:
-  mov a, $0A00
-  syscall sys_io
-; --- END INLINE ASM SEGMENT
   leave
   ret
 
@@ -993,7 +1000,7 @@ _if29_TRUE:
 _if29_else:
 ; err("Unexpected format in printf."); 
 ; --- START FUNCTION CALL
-  mov b, _s3 ; "Unexpected format in printf."
+  mov b, _s6 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -1177,7 +1184,7 @@ _switch26_case7:
 _switch26_default:
 ; print("Error: Unknown argument type.\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s4 ; "Error: Unknown argument type.\n"
+  mov b, _s7 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -2184,14 +2191,171 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 ; --- END INLINE ASM SEGMENT
   leave
   ret
+
+scann:
+  enter 0 ; (push bp; mov bp, sp)
+; int m; 
+  sub sp, 2
+; --- BEGIN INLINE ASM SEGMENT
+  enter 8
+  lea d, [bp +- 7]
+  call _gets_scann
+  call _strlen_scann      ; get string length in C
+  dec c
+  mov si, d
+  mov a, c
+  shl a
+  mov d, table_power_scann
+  add d, a
+  mov c, 0
+mul_loop_scann:
+  lodsb      ; load ASCII to al
+  cmp al, 0
+  je mul_exit_scann
+  sub al, $30    ; make into integer
+  mov ah, 0
+  mov b, [d]
+  mul a, b      ; result in B since it fits in 16bits
+  mov a, b
+  mov b, c
+  add a, b
+  mov c, a
+  sub d, 2
+  jmp mul_loop_scann
+mul_exit_scann:
+  mov a, c
+  leave
+  lea d, [bp + -1] ; $m
+  mov [d], a
+; --- END INLINE ASM SEGMENT
+; return m; 
+  lea d, [bp + -1] ; $m
+  mov b, [d]
+  mov c, 0
+  leave
+  ret
+; --- BEGIN INLINE ASM SEGMENT
+_strlen_scann:
+  push d
+  mov c, 0
+_strlen_L1_scann:
+  cmp byte [d], 0
+  je _strlen_ret_scann
+  inc d
+  inc c
+  jmp _strlen_L1_scann
+_strlen_ret_scann:
+  pop d
+  ret
+_gets_scann:
+  push d
+_gets_loop_scann:
+  mov al, 1
+  syscall sys_io      ; receive in AH
+  cmp al, 0        ; check error code (AL)
+  je _gets_loop_scann      ; if no char received, retry
+  cmp ah, 27
+  je _gets_ansi_esc_scann
+  cmp ah, $0A        ; LF
+  je _gets_end_scann
+  cmp ah, $0D        ; CR
+  je _gets_end_scann
+  cmp ah, $5C        ; '\\'
+  je _gets_escape_scann
+  cmp ah, $08      ; check for backspace
+  je _gets_backspace_scann
+  mov al, ah
+  mov [d], al
+  inc d
+  jmp _gets_loop_scann
+_gets_backspace_scann:
+  dec d
+  jmp _gets_loop_scann
+_gets_ansi_esc_scann:
+  mov al, 1
+  syscall sys_io        ; receive in AH without echo
+  cmp al, 0          ; check error code (AL)
+  je _gets_ansi_esc_scann    ; if no char received, retry
+  cmp ah, '['
+  jne _gets_loop_scann
+_gets_ansi_esc_2_scann:
+  mov al, 1
+  syscall sys_io          ; receive in AH without echo
+  cmp al, 0            ; check error code (AL)
+  je _gets_ansi_esc_2_scann  ; if no char received, retry
+  cmp ah, 'D'
+  je _gets_left_arrow_scann
+  cmp ah, 'C'
+  je _gets_right_arrow_scann
+  jmp _gets_loop_scann
+_gets_left_arrow_scann:
+  dec d
+  jmp _gets_loop_scann
+_gets_right_arrow_scann:
+  inc d
+  jmp _gets_loop_scann
+_gets_escape_scann:
+  mov al, 1
+  syscall sys_io      ; receive in AH
+  cmp al, 0        ; check error code (AL)
+  je _gets_escape_scann      ; if no char received, retry
+  cmp ah, 'n'
+  je _gets_LF_scann
+  cmp ah, 'r'
+  je _gets_CR_scann
+  cmp ah, '0'
+  je _gets_NULL_scann
+  cmp ah, $5C  
+  je _gets_slash_scann
+  mov al, ah        ; if not a known escape, it is just a normal letter
+  mov [d], al
+  inc d
+  jmp _gets_loop_scann
+_gets_slash_scann:
+  mov al, $5C
+  mov [d], al
+  inc d
+  jmp _gets_loop_scann
+_gets_LF_scann:
+  mov al, $0A
+  mov [d], al
+  inc d
+  jmp _gets_loop_scann
+_gets_CR_scann:
+  mov al, $0D
+  mov [d], al
+  inc d
+  jmp _gets_loop_scann
+_gets_NULL_scann:
+  mov al, $00
+  mov [d], al
+  inc d
+  jmp _gets_loop_scann
+_gets_end_scann:
+  mov al, 0
+  mov [d], al        ; terminate string
+  pop d
+  ret
+table_power_scann:
+.dw 1
+.dw 10
+.dw 100
+.dw 1000
+.dw 10000
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
-_s0: .db "Starting...\n", 0
-_s1: .db "Sum mantissa: %d\n", 0
-_s2: .db "Sum exponent: %d\n", 0
-_s3: .db "Unexpected format in printf.", 0
-_s4: .db "Error: Unknown argument type.\n", 0
+_s0: .db "a mantissa: ", 0
+_s1: .db "a exponent: ", 0
+_s2: .db "b mantissa: ", 0
+_s3: .db "b exponent: ", 0
+_s4: .db "Sum mantissa: %d\n", 0
+_s5: .db "Sum exponent: %d\n", 0
+_s6: .db "Unexpected format in printf.", 0
+_s7: .db "Error: Unknown argument type.\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0
