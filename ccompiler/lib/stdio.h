@@ -757,13 +757,6 @@ int scann(){
   
   return m;
 
-  table_power_scann:
-    .dw 1
-    .dw 10
-    .dw 100
-    .dw 1000
-    .dw 10000
-
   asm{
   _strlen_scann:
     push d
@@ -870,6 +863,13 @@ int scann(){
     mov [d], al        ; terminate string
     pop d
     ret
+
+  table_power_scann:
+    .dw 1
+    .dw 10
+    .dw 100
+    .dw 1000
+    .dw 10000
   }
 }
 

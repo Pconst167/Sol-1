@@ -2958,10 +2958,6 @@ scann:
   sub sp, 2
 ; --- BEGIN INLINE ASM SEGMENT
   enter 8
-  push si
-  push b
-  push c
-  push d
   lea d, [bp +- 7]
   call _gets_scann
   call _strlen_scann      ; get string length in C
@@ -2988,10 +2984,6 @@ mul_loop_scann:
   jmp mul_loop_scann
 mul_exit_scann:
   mov a, c
-  pop d
-  pop c
-  pop b
-  pop si
   leave
   lea d, [bp + -1] ; $m
   mov [d], a
@@ -3016,7 +3008,6 @@ _strlen_ret_scann:
   pop d
   ret
 _gets_scann:
-  push a
   push d
 _gets_loop_scann:
   mov al, 1
@@ -3104,7 +3095,6 @@ _gets_end_scann:
   mov al, 0
   mov [d], al        ; terminate string
   pop d
-  pop a
   ret
 table_power_scann:
 .dw 1
