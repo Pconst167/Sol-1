@@ -4729,8 +4729,9 @@ void parse_function_call(int func_id){
     }
     else if(arg_type.primitive_type == DT_CHAR){
       if(curr_arg_num > function_table[func_id].num_fixed_args) {
-        //emitln("", "  swp b");
-        emitln("", "  push bl"); 
+        // if is a var arg, then it needs to be pushed as 16bit because printf cannot differentiate an 8bit integer vs a 16bit integer. printf will always print as 16bits
+        emitln("", "  swp b");
+        emitln("", "  push b"); 
       }
       else 
         emitln("", "  push bl");

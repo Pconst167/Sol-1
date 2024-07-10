@@ -109,7 +109,7 @@ void printf(const char *format, ...){
             mov ah, al
             call _putchar
           }*/
-          p = p + 1;
+          p = p + 2;
           break;
 
         case 's':

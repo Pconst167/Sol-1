@@ -6,8 +6,24 @@ struct s{
 };
 
 static void main(){
-  int j;
-  int i = j;
+  struct s mys;
+
+  mys.c = 0;
+  printf("%d\n", mys.c);
+
+  mys.c++;
+  printf("%d\n", mys.c);
+
+  mys.c = 0;
+  printf("%d\n", mys.c);
+
+  mys.c = mys.c + 1;
+  mys.c = mys.c + 1;
+  mys.c = mys.c + 1;
+  mys.c = mys.c + 1;
+
+  printf("%d\n", mys.c);
+
 
 
 }

@@ -99,7 +99,8 @@ main:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-  push bl
+  swp b
+  push b
   mov b, _s2 ; "Sum exponent: %d\n"
   swp b
   push b
@@ -199,20 +200,6 @@ _while2_block:
 ; --- END TERMS
   pop d
   mov [d], bl
-; printf("%d\n", a.exponent); 
-; --- START FUNCTION CALL
-  lea d, [bp + 5] ; $a
-  add d, 2
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  push bl
-  mov b, _s3 ; "%d\n"
-  swp b
-  push b
-  call printf
-  add sp, 3
-; --- END FUNCTION CALL
   jmp _while2_cond
 _while2_exit:
   jmp _if1_exit
@@ -1006,7 +993,7 @@ _if29_TRUE:
 _if29_else:
 ; err("Unexpected format in printf."); 
 ; --- START FUNCTION CALL
-  mov b, _s4 ; "Unexpected format in printf."
+  mov b, _s3 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -1140,7 +1127,7 @@ _switch26_case6:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-; p = p + 1; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1149,7 +1136,7 @@ _switch26_case6:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
+  mov32 cb, $00000002
   add b, a
   pop a
 ; --- END TERMS
@@ -1190,7 +1177,7 @@ _switch26_case7:
 _switch26_default:
 ; print("Error: Unknown argument type.\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s5 ; "Error: Unknown argument type.\n"
+  mov b, _s4 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -2203,9 +2190,8 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 _s0: .db "Starting...\n", 0
 _s1: .db "Sum mantissa: %d\n", 0
 _s2: .db "Sum exponent: %d\n", 0
-_s3: .db "%d\n", 0
-_s4: .db "Unexpected format in printf.", 0
-_s5: .db "Error: Unknown argument type.\n", 0
+_s3: .db "Unexpected format in printf.", 0
+_s4: .db "Error: Unknown argument type.\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0
