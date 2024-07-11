@@ -353,7 +353,6 @@ int main(int argc, char *argv[]){
   emitln("", "; --- FILENAME: %s", argv[1]);
   if(include_kernel_exp) emitln("", ".include \"lib/asm/kernel.exp\"");
   emitln("", ".include \"lib/asm/bios.exp\"");
-  emitln("", ".org %s", org);
 
   declare_heap_global_var();
   pre_processor();
@@ -1062,6 +1061,7 @@ void parse_functions(void){
       // this is used to position local variables correctly relative to BP.
       // whenever a new function is parsed, this is reset to 0.
       // then inside the function it can increase according to how any local vars there are.
+      emit("\n.org %s", org);
       emitln("", "\n%s:", function_table[i].name);
       emitln("", "  mov bp, $FFE0 ;");
       emitln("", "  mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)");

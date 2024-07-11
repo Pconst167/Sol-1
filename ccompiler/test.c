@@ -1,5 +1,12 @@
 #include <stdio.h>
 
+_system{
+    mov a, 1
+
+.db 1
+
+}
+
 int a = 2;
 
 static void main(){
