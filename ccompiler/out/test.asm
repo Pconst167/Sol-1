@@ -7,163 +7,13 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; struct s mys; 
-  sub sp, 3
-; mys.c = 0; 
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  push d
-  mov32 cb, $00000000
-  pop d
-  mov [d], bl
-; printf("%d\n", mys.c); 
+; printf( 
 ; --- START FUNCTION CALL
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  swp b
-  push b
-  mov b, _s0 ; "%d\n"
+  mov b, _s0 ; "Hello World"
   swp b
   push b
   call printf
-  add sp, 3
-; --- END FUNCTION CALL
-; mys.c++; 
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  inc b
-  lea d, [bp + -2] ; $mys
-  mov [d], bl
-  dec b
-; printf("%d\n", mys.c); 
-; --- START FUNCTION CALL
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  swp b
-  push b
-  mov b, _s0 ; "%d\n"
-  swp b
-  push b
-  call printf
-  add sp, 3
-; --- END FUNCTION CALL
-; mys.c = 0; 
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  push d
-  mov32 cb, $00000000
-  pop d
-  mov [d], bl
-; printf("%d\n", mys.c); 
-; --- START FUNCTION CALL
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  swp b
-  push b
-  mov b, _s0 ; "%d\n"
-  swp b
-  push b
-  call printf
-  add sp, 3
-; --- END FUNCTION CALL
-; mys.c = mys.c + 1; 
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  push d
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-; --- START TERMS
-  push a
-  mov a, b
-  mov32 cb, $00000001
-  add b, a
-  pop a
-; --- END TERMS
-  pop d
-  mov [d], bl
-; mys.c = mys.c + 1; 
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  push d
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-; --- START TERMS
-  push a
-  mov a, b
-  mov32 cb, $00000001
-  add b, a
-  pop a
-; --- END TERMS
-  pop d
-  mov [d], bl
-; mys.c = mys.c + 1; 
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  push d
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-; --- START TERMS
-  push a
-  mov a, b
-  mov32 cb, $00000001
-  add b, a
-  pop a
-; --- END TERMS
-  pop d
-  mov [d], bl
-; mys.c = mys.c + 1; 
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  push d
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-; --- START TERMS
-  push a
-  mov a, b
-  mov32 cb, $00000001
-  add b, a
-  pop a
-; --- END TERMS
-  pop d
-  mov [d], bl
-; printf("%d\n", mys.c); 
-; --- START FUNCTION CALL
-  lea d, [bp + -2] ; $mys
-  add d, 0
-  mov bl, [d]
-  mov bh, 0
-  mov c, 0
-  swp b
-  push b
-  mov b, _s0 ; "%d\n"
-  swp b
-  push b
-  call printf
-  add sp, 3
+  add sp, 2
 ; --- END FUNCTION CALL
   syscall sys_terminate_proc
 
@@ -1616,7 +1466,7 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
-_s0: .db "%d\n", 0
+_s0: .db "Hello World", 0
 _s1: .db "Unexpected format in printf.", 0
 _s2: .db "Error: Unknown argument type.\n", 0
 

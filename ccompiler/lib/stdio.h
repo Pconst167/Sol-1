@@ -930,5 +930,4 @@ int abs(int i){
 long int scanx32(){
   long int i;
 
-
 }
