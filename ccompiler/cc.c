@@ -56,6 +56,7 @@ struct{
 } token_to_str[] = {
   {"&",         AMPERSAND}, 
   {"asm",       ASM},
+  {"_system",   SYSTEM},
   {"=",         ASSIGNMENT},
   {"@",         AT}, 
   {"auto",      AUTO},
@@ -152,6 +153,7 @@ keyword_table_t keyword_table[] = {
   {"ifdef"   , DEF_IFDEF},
   {"endif"   , DEF_ENDIF},
   {"asm"     , ASM      },
+  {"_system" , SYSTEM   },
 
   {"register", REGISTER },
   {"auto"    , AUTO     },
@@ -347,6 +349,12 @@ int main(int argc, char *argv[]){
 
   asm_p = asm_out;  // set ASM out pointer to the ASM array beginning
   data_block_p = data_block_asm; // data block pointer
+
+  emitln("", "; --- FILENAME: %s", argv[1]);
+  if(include_kernel_exp) emitln("", ".include \"lib/asm/kernel.exp\"");
+  emitln("", ".include \"lib/asm/bios.exp\"");
+  emitln("", ".org %s", org);
+
   declare_heap_global_var();
   pre_processor();
   pre_scan();
@@ -357,10 +365,6 @@ int main(int argc, char *argv[]){
     }
   }
 
-  emitln("", "; --- FILENAME: %s", argv[1]);
-  if(include_kernel_exp) emitln("", ".include \"lib/asm/kernel.exp\"");
-  emitln("", ".include \"lib/asm/bios.exp\"");
-  emitln("", ".org %s", org);
 
   emit("\n; --- BEGIN TEXT SEGMENT");
   parse_functions();
@@ -1310,6 +1314,10 @@ void pre_scan(void){
 
     if(curr_token.tok == TYPEDEF){
       declare_typedef();
+      continue;
+    }
+    else if(curr_token.tok == SYSTEM){
+      parse_system();  
       continue;
     }
     else if(curr_token.tok == ENUM){
@@ -2627,6 +2635,39 @@ int get_total_func_fixed_param_size(void){
   } while(curr_token.tok == COMMA);
 
   return total_bytes;
+}
+
+void parse_system(void){
+  char *temp_prog;
+  
+  get();
+  if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
+  emitln("", "; --- BEGIN SYSTEM SEGMENT");
+  for(;;){
+    while(is_space(*prog)) prog++;
+    temp_prog = prog;
+    get_line();
+    if(strchr(curr_token.string_const, '}')) break;
+    else if(strchr(curr_token.string_const, ':') 
+         || strstr(curr_token.string_const, ".include") 
+         || strstr(curr_token.string_const, ".db") 
+         || strstr(curr_token.string_const, ".dw") 
+         || strstr(curr_token.string_const, ".equ") 
+         || strstr(curr_token.string_const, ".EQU")){
+      emitln("", curr_token.string_const);
+    } 
+    else if(strstr(curr_token.string_const, "ccmovd")){
+      prog = temp_prog;
+      get();  // get 'ccmovd'
+      get();  // get identifier
+      if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected.");
+      emit_var_addr_into_d(curr_token.token_str);
+    }
+    else{
+      emitln("", "  %s", curr_token.string_const);
+    }
+  }
+  emitln("", "; --- END SYSTEM SEGMENT");
 }
 
 // > asgn d, shell_path

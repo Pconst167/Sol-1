@@ -1,4 +1,8 @@
-#include <token.h>
+
+_system{
+lael1:
+  mov a, 1
+}
 
 void main(){
 

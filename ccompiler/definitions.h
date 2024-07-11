@@ -61,6 +61,7 @@ typedef enum {
 
   AMPERSAND,
   ASM,
+  SYSTEM,
   ASSIGNMENT,
   AT,
   AUTO,
@@ -249,124 +250,125 @@ typedef struct{
 } t_included_function_list_item;
 
 // functions
-char is_delimiter(char c);
-char is_identifier_char(char c);
-int local_var_exists(char *var_name);
-int global_var_exists(char *var_name);
-void load_program(char *filename);
-void pre_scan(void);
-void generate_file(char *filename);
-void pre_processor(void);
-void include_asm_lib(char *lib_name);
+char         is_delimiter(char c);
+char         is_identifier_char(char c);
+int          local_var_exists(char *var_name);
+int          global_var_exists(char *var_name);
+void         load_program(char *filename);
+void         pre_scan(void);
+void         generate_file(char *filename);
+void         pre_processor(void);
+void         include_asm_lib(char *lib_name);
 unsigned int add_string_data(char *str);
 
-void get_asm(void);
-void get(void);
-void get_line(void);
-void back(void);
-void print_info(const char* format, ...);
-void error(t_error_type error_type, const char* format, ...);
-void expect(t_tok _tok, char *message);
+void         get_asm(void);
+void         get(void);
+void         get_line(void);
+void         back(void);
+void         print_info(const char* format, ...);
+void         error(t_error_type error_type, const char* format, ...);
+void         expect(t_tok _tok, char *message);
 
-int declare_enum(void);
-void declare_typedef(void);
-int declare_struct(void);
-int declare_union(void);
-void declare_func(void);
-void declare_global(void);
-int declare_local(void);
-void declare_struct_global_vars(int struct_id);
-void parse_struct_initialization_data(int struct_id, int array_size);
-void declare_goto_label(void);
-void declare_define(void);
+int          declare_enum(void);
+void         declare_typedef(void);
+int          declare_struct(void);
+int          declare_union(void);
+void         declare_func(void);
+void         declare_global(void);
+int          declare_local(void);
+void         declare_struct_global_vars(int struct_id);
+void         parse_struct_initialization_data(int struct_id, int array_size);
+void         declare_goto_label(void);
+void         declare_define(void);
 
-int enum_element_exists(char *element_name);
+int          enum_element_exists(char *element_name);
 
-void emit_c_header_line(void);
-void emit(const char* format, ...);
-void emitln(char *comment, const char* format, ...);
-void emit_datablock_asm();
-void emit_data(const char* format, ...);
-void emit_data_dbdw(t_type type);
-void emit_string_table_data(void);
-t_type emit_array_arithmetic(t_type type);
-void emit_global_var_initialization(t_var *var);
-void emit_static_var_initialization(t_var *var);
-t_type emit_var_addr_into_d(char *var_name);
+void         emit_c_header_line(void);
+void         emit(const char* format, ...);
+void         emitln(char *comment, const char* format, ...);
+void         emit_datablock_asm();
+void         emit_data(const char* format, ...);
+void         emit_data_dbdw(t_type type);
+void         emit_string_table_data(void);
+t_type       emit_array_arithmetic(t_type type);
+void         emit_global_var_initialization(t_var *var);
+void         emit_static_var_initialization(t_var *var);
+t_type       emit_var_addr_into_d(char *var_name);
 
-void skip_statements(void);
-void skip_block(int braces);
-void skip_case(void);
+void         skip_statements(void);
+void         skip_block(int braces);
+void         skip_case(void);
 
-int count_cases(void);
+int          count_cases(void);
 
-t_type parse_expr(void);
-t_type parse_assignment(void);
-t_type parse_ternary_op(void);
-t_type parse_logical_and(void);
-t_type parse_logical_or(void);
-t_type parse_bitwise_and(void);
-t_type parse_bitwise_or(void);
-t_type parse_bitwise_xor(void);
-t_type parse_relational(void);
-t_type parse_bitwise_shift(void);
-t_type parse_terms(void);
-t_type parse_factors(void);
-t_type parse_atomic(void);
+t_type       parse_expr(void);
+t_type       parse_assignment(void);
+t_type       parse_ternary_op(void);
+t_type       parse_logical_and(void);
+t_type       parse_logical_or(void);
+t_type       parse_bitwise_and(void);
+t_type       parse_bitwise_or(void);
+t_type       parse_bitwise_xor(void);
+t_type       parse_relational(void);
+t_type       parse_bitwise_shift(void);
+t_type       parse_terms(void);
+t_type       parse_factors(void);
+t_type       parse_atomic(void);
 
-t_type parse_sizeof();
-t_type parse_string_const();
-t_type parse_integer_const();
-t_type parse_unary_logical_not();
-t_type parse_bitwise_not();
-t_type parse_unary_minus();
-t_type parse_char_const();
-t_type parse_post_decrementing(t_type expr_in, char *temp_name);
-t_type parse_post_incrementing(t_type expr_in, char *temp_name);
-t_type parse_pre_decrementing();
-t_type parse_pre_incrementing();
-t_type parse_referencing();
-t_type parse_dereferencing(void);
+t_type       parse_sizeof();
+t_type       parse_string_const();
+t_type       parse_integer_const();
+t_type       parse_unary_logical_not();
+t_type       parse_bitwise_not();
+t_type       parse_unary_minus();
+t_type       parse_char_const();
+t_type       parse_post_decrementing(t_type expr_in, char *temp_name);
+t_type       parse_post_incrementing(t_type expr_in, char *temp_name);
+t_type       parse_pre_decrementing();
+t_type       parse_pre_incrementing();
+t_type       parse_referencing();
+t_type       parse_dereferencing(void);
 
-void parse_case(void);
-void parse_block(void);
-void parse_functions(void);
-void parse_return(void);
-void parse_for(void);
-void parse_if(void);
-void parse_switch(void);
-void parse_while(void);
-void parse_do(void);
-void parse_continue(void);
-void parse_break(void);
-void parse_asm(void);
-void parse_directive(void);
-int parse_variable_args(void);
-void parse_function_call(int func_id);
-void parse_goto(void);
+void         parse_case(void);
+void         parse_block(void);
+void         parse_functions(void);
+void         parse_return(void);
+void         parse_for(void);
+void         parse_if(void);
+void         parse_switch(void);
+void         parse_while(void);
+void         parse_do(void);
+void         parse_continue(void);
+void         parse_break(void);
+void         parse_asm(void);
+void         parse_system(void);
+void         parse_directive(void);
+int          parse_variable_args(void);
+void         parse_function_call(int func_id);
+void         parse_goto(void);
 
-t_type cast(t_type t1, t_type t2);
+t_type       cast(t_type t1, t_type t2);
 
-int get_num_array_elements(t_type type);
-int get_array_offset(char dim, t_type array);
-int get_data_size_for_indexing(t_type type);
-int get_enum_val(char *element_name);
-int get_total_func_fixed_param_size(void);
-t_var get_internal_var_ptr(char *var_name);
-int get_total_type_size(t_type type);
-char *get_var_base_addr(char *dest, char *var_name);
-int get_param_size(void);
-int get_incdec_unit(t_type type);
-int get_primitive_type_size(t_type type);
-int get_type_size_for_func_arg_parsing(t_type type);
-int get_struct_size(int id);
-int get_union_size(int id);
-int get_struct_elements_count(int struct_id);
-int get_struct_element_offset(int struct_id, char *name);
-t_type get_struct_element_type(int struct_id, char *name);
+int              get_num_array_elements(t_type type);
+int              get_array_offset(char dim, t_type array);
+int              get_data_size_for_indexing(t_type type);
+int              get_enum_val(char *element_name);
+int              get_total_func_fixed_param_size(void);
+t_var            get_internal_var_ptr(char *var_name);
+int              get_total_type_size(t_type type);
+char            *get_var_base_addr(char *dest, char *var_name);
+int              get_param_size(void);
+int              get_incdec_unit(t_type type);
+int              get_primitive_type_size(t_type type);
+int              get_type_size_for_func_arg_parsing(t_type type);
+int              get_struct_size(int id);
+int              get_union_size(int id);
+int              get_struct_elements_count(int struct_id);
+int              get_struct_element_offset(int struct_id, char *name);
+t_type           get_struct_element_type(int struct_id, char *name);
 t_primitive_type get_primitive_type_from_tok(void);
-int is_struct(t_type type);
-int is_enum(t_type type);
+int              is_struct(t_type type);
+int              is_enum(t_type type);
 
 int find_array_initialization_size(t_size_modifier modifier);
 int is_array(t_type type);

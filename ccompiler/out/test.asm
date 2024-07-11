@@ -1466,6 +1466,7 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
+_a: .dw $0002
 _s0: .db "Hello WorldMy name is Sol-1And this is a multi-line string", 0
 _s1: .db "Unexpected format in printf.", 0
 _s2: .db "Error: Unknown argument type.\n", 0

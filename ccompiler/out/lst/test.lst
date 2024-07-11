@@ -29,7 +29,7 @@
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
 0010   0408             ; printf("Hello World" 
 0011   0408             ; --- START FUNCTION CALL
-0012   0408 26 23 0D      mov b, _s0 ; "Hello WorldMy name is Sol-1And this is a multi-line string"
+0012   0408 26 25 0D      mov b, _s0 ; "Hello WorldMy name is Sol-1And this is a multi-line string"
 0013   040B FD AB         swp b
 0014   040D D8            push b
 0015   040E 07 16 04      call printf
@@ -298,7 +298,7 @@
 0272   05B6             _if7_else:
 0273   05B6             ; err("Unexpected format in printf."); 
 0274   05B6             ; --- START FUNCTION CALL
-0275   05B6 26 5E 0D      mov b, _s1 ; "Unexpected format in printf."
+0275   05B6 26 60 0D      mov b, _s1 ; "Unexpected format in printf."
 0276   05B9 FD AB         swp b
 0277   05BB D8            push b
 0278   05BC 07 3A 0A      call err
@@ -488,7 +488,7 @@
 0456   06CA             _switch4_default:
 0457   06CA             ; print("Error: Unknown argument type.\n"); 
 0458   06CA             ; --- START FUNCTION CALL
-0459   06CA 26 7B 0D      mov b, _s2 ; "Error: Unknown argument type.\n"
+0459   06CA 26 7D 0D      mov b, _s2 ; "Error: Unknown argument type.\n"
 0460   06CD FD AB         swp b
 0461   06CF D8            push b
 0462   06D0 07 4F 0A      call print
@@ -1540,41 +1540,42 @@
 1466   0D23             ; --- END TEXT SEGMENT
 1467   0D23             
 1468   0D23             ; --- BEGIN DATA SEGMENT
-1469   0D23 48 65 6C 6C _s0: .db "Hello WorldMy name is Sol-1And this is a multi-line string", 0
-1469   0D27 6F 20 57 6F 
-1469   0D2B 72 6C 64 4D 
-1469   0D2F 79 20 6E 61 
-1469   0D33 6D 65 20 69 
-1469   0D37 73 20 53 6F 
-1469   0D3B 6C 2D 31 41 
-1469   0D3F 6E 64 20 74 
-1469   0D43 68 69 73 20 
-1469   0D47 69 73 20 61 
-1469   0D4B 20 6D 75 6C 
-1469   0D4F 74 69 2D 6C 
-1469   0D53 69 6E 65 20 
-1469   0D57 73 74 72 69 
-1469   0D5B 6E 67 00 
-1470   0D5E 55 6E 65 78 _s1: .db "Unexpected format in printf.", 0
-1470   0D62 70 65 63 74 
-1470   0D66 65 64 20 66 
-1470   0D6A 6F 72 6D 61 
-1470   0D6E 74 20 69 6E 
-1470   0D72 20 70 72 69 
-1470   0D76 6E 74 66 2E 
-1470   0D7A 00 
-1471   0D7B 45 72 72 6F _s2: .db "Error: Unknown argument type.\n", 0
-1471   0D7F 72 3A 20 55 
-1471   0D83 6E 6B 6E 6F 
-1471   0D87 77 6E 20 61 
-1471   0D8B 72 67 75 6D 
-1471   0D8F 65 6E 74 20 
-1471   0D93 74 79 70 65 
-1471   0D97 2E 0A 00 
-1472   0D9A             
-1473   0D9A 9C 0D       _heap_top: .dw _heap
-1474   0D9C 00          _heap: .db 0
-1475   0D9D             ; --- END DATA SEGMENT
-1476   0D9D             
-1477   0D9D             .end
+1469   0D23 02 00       _a: .dw $0002
+1470   0D25 48 65 6C 6C _s0: .db "Hello WorldMy name is Sol-1And this is a multi-line string", 0
+1470   0D29 6F 20 57 6F 
+1470   0D2D 72 6C 64 4D 
+1470   0D31 79 20 6E 61 
+1470   0D35 6D 65 20 69 
+1470   0D39 73 20 53 6F 
+1470   0D3D 6C 2D 31 41 
+1470   0D41 6E 64 20 74 
+1470   0D45 68 69 73 20 
+1470   0D49 69 73 20 61 
+1470   0D4D 20 6D 75 6C 
+1470   0D51 74 69 2D 6C 
+1470   0D55 69 6E 65 20 
+1470   0D59 73 74 72 69 
+1470   0D5D 6E 67 00 
+1471   0D60 55 6E 65 78 _s1: .db "Unexpected format in printf.", 0
+1471   0D64 70 65 63 74 
+1471   0D68 65 64 20 66 
+1471   0D6C 6F 72 6D 61 
+1471   0D70 74 20 69 6E 
+1471   0D74 20 70 72 69 
+1471   0D78 6E 74 66 2E 
+1471   0D7C 00 
+1472   0D7D 45 72 72 6F _s2: .db "Error: Unknown argument type.\n", 0
+1472   0D81 72 3A 20 55 
+1472   0D85 6E 6B 6E 6F 
+1472   0D89 77 6E 20 61 
+1472   0D8D 72 67 75 6D 
+1472   0D91 65 6E 74 20 
+1472   0D95 74 79 70 65 
+1472   0D99 2E 0A 00 
+1473   0D9C             
+1474   0D9C 9E 0D       _heap_top: .dw _heap
+1475   0D9E 00          _heap: .db 0
+1476   0D9F             ; --- END DATA SEGMENT
+1477   0D9F             
+1478   0D9F             .end
 tasm: Number of errors = 0

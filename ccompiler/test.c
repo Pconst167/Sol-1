@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+int a = 2;
+
 static void main(){
 
     printf("Hello World"

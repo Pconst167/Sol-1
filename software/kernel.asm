@@ -158,7 +158,7 @@ root_id:                .equ FST_LBA_START
 .dw syscall_ide
 .dw syscall_io
 .dw syscall_file_system
-.dw syscall_spawn_proc
+.dw syscall_create_proc
 .dw syscall_list_procs
 .dw syscall_datetime
 .dw syscall_reboot
@@ -175,8 +175,8 @@ sys_rtc              .equ 1
 sys_ide              .equ 2
 sys_io               .equ 3
 sys_filesystem       .equ 4
-sys_spawn_proc       .equ 5
-sys_list             .equ 6
+sys_create_proc      .equ 5
+sys_list_proc        .equ 6
 sys_datetime         .equ 7
 sys_reboot           .equ 8
 sys_pause_proc       .equ 9
@@ -189,12 +189,12 @@ sys_system           .equ 12
 ; ------------------------------------------------------------------------------------------------------------------;
 .export text_org
 .export sys_break
+.export sys_rtc
 .export sys_ide
 .export sys_io
 .export sys_filesystem
-.export sys_spawn_proc
-.export sys_list
-.export sys_rtc
+.export sys_create_proc
+.export sys_list_proc
 .export sys_datetime
 .export sys_reboot
 .export sys_pause_proc
@@ -2242,37 +2242,6 @@ fs_mv_found_entry:
 fs_mv_not_found:
   sysret
 
-kernel_reset_vector:  
-  mov bp, STACK_BEGIN
-  mov sp, STACK_BEGIN
-  
-  mov al, %10000000
-  stomsk                        ; mask out timer interrupt for now (only allow UART to interrupt)
-  sti  
-
-  lodstat
-  and al, %11011111             ; disable display register loading
-  stostat
-  
-; reset fifo pointers
-  mov a, fifo
-  mov d, fifo_in
-  mov [d], a
-  mov d, fifo_out
-  mov [d], a  
-  mov al, 2
-  syscall sys_io                ; enable uart in interrupt mode
-  
-  mov d, s_kernel_started
-  call _puts
-
-  mov al, 16
-  syscall sys_filesystem        ; set root dirID
-
-  mov d, s_prompt_init
-  call _puts
-  mov d, s_init_path
-  syscall sys_spawn_proc              ; launch init as a new process
 
 ;----------------------------------------------------------------------------------------------------;
 ; Process Index in A
@@ -2396,11 +2365,11 @@ syscall_pause_proc:
   sysret
 
 ;----------------------------------------------------------------------------------------------------;
-; spawn a new process
-; D = path of the process file to be spawned
+; create a new process
+; D = path of the process file to be createed
 ; B = arguments ptr
 ;----------------------------------------------------------------------------------------------------;
-syscall_spawn_proc:
+syscall_create_proc:
 ; we save the active process first  
   pusha
   mov ah, 0
@@ -2525,6 +2494,43 @@ __load_hex_ret:
 ; endfor
 f_find:
   ret
+
+
+; ---------------------------------------------------------------------
+; KERNEL RESET VECTOR
+; ---------------------------------------------------------------------
+kernel_reset_vector:  
+  mov bp, STACK_BEGIN
+  mov sp, STACK_BEGIN
+  
+  mov al, %10000000
+  stomsk                        ; mask out timer interrupt for now (only allow UART to interrupt)
+  sti  
+
+  lodstat
+  and al, %11011111             ; disable display register loading
+  stostat
+  
+; reset fifo pointers
+  mov a, fifo
+  mov d, fifo_in
+  mov [d], a
+  mov d, fifo_out
+  mov [d], a  
+  mov al, 2
+  syscall sys_io                ; enable uart in interrupt mode
+  
+  mov d, s_kernel_started
+  call _puts
+
+  mov al, 16
+  syscall sys_filesystem        ; set root dirID
+
+  mov d, s_prompt_init
+  call _puts
+  mov d, s_init_path
+  syscall sys_create_proc              ; launch init as a new process
+
 
 ; FILE INCLUDES
 .include "bios.exp"         ; to obtain the BIOS_RESET_VECTOR location (for reboots)

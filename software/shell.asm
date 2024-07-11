@@ -235,7 +235,7 @@ cmd_exec_path_exists:
   call get_arg    ; if however, $path/filename was found, then we execute it
   mov b, tokstr
   mov d, temp_data
-  syscall sys_spawn_proc
+  syscall sys_create_proc
   ret
 cmd_exec_abs:  ; execute as absolute path
   pop a
@@ -243,7 +243,7 @@ cmd_exec_abs:  ; execute as absolute path
   call get_arg
   mov b, tokstr
   mov d, temp_data1  ;original filename
-  syscall sys_spawn_proc
+  syscall sys_create_proc
 cmd_exec_ret:
   ret
 cmd_exec_unknown:

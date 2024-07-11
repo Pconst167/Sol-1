@@ -4,8 +4,8 @@
 0003+  0000             sys_ide          .EQU  $0002
 0004+  0000             sys_io           .EQU  $0003
 0005+  0000             sys_filesystem   .EQU  $0004
-0006+  0000             sys_spawn_proc   .EQU  $0005
-0007+  0000             sys_list         .EQU  $0006
+0006+  0000             sys_create_proc  .EQU  $0005
+0007+  0000             sys_list_proc    .EQU  $0006
 0008+  0000             sys_datetime     .EQU  $0007
 0009+  0000             sys_reboot       .EQU  $0008
 0010+  0000             sys_pause_proc   .EQU  $0009
@@ -249,7 +249,7 @@
 0235   05CE 07 68 11      call get_arg    ; if however, $path/filename was found, then we execute it
 0236   05D1 26 96 13      mov b, tokstr
 0237   05D4 3B 59 0B      mov d, temp_data
-0238   05D7 05 05         syscall sys_spawn_proc
+0238   05D7 05 05         syscall sys_create_proc
 0239   05D9 09            ret
 0240   05DA             cmd_exec_abs:  ; execute as absolute path
 0241   05DA E4            pop a
@@ -257,7 +257,7 @@
 0243   05DE 07 68 11      call get_arg
 0244   05E1 26 96 13      mov b, tokstr
 0245   05E4 3B 59 09      mov d, temp_data1  ;original filename
-0246   05E7 05 05         syscall sys_spawn_proc
+0246   05E7 05 05         syscall sys_create_proc
 0247   05E9             cmd_exec_ret:
 0248   05E9 09            ret
 0249   05EA             cmd_exec_unknown:

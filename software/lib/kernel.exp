@@ -3,8 +3,8 @@ sys_rtc          .EQU  $0001
 sys_ide          .EQU  $0002
 sys_io           .EQU  $0003
 sys_filesystem   .EQU  $0004
-sys_spawn_proc   .EQU  $0005
-sys_list         .EQU  $0006
+sys_create_proc  .EQU  $0005
+sys_list_proc    .EQU  $0006
 sys_datetime     .EQU  $0007
 sys_reboot       .EQU  $0008
 sys_pause_proc   .EQU  $0009
