@@ -168,7 +168,7 @@ root_id:                .equ FST_LBA_START
 .dw syscall_pause_proc
 .dw syscall_resume_proc
 .dw syscall_terminate_proc
-.dw syscall_system
+.dw syscall_system            
 
 ; ------------------------------------------------------------------------------------------------------------------;
 ; System Call Aliases
@@ -220,3 +220,42 @@ static void main(){
 }
 
 
+void syscall_break(void){
+
+}
+void syscall_rtc(void){
+
+}
+void syscall_ide(void){
+
+}
+void syscall_io(void){
+
+}
+void syscall_file_system(void){
+
+}
+void syscall_create_proc(void){
+
+}
+void syscall_list_procs(void){
+
+}
+void syscall_datetime(void){
+
+}
+void syscall_reboot(void){
+
+}
+void syscall_pause_proc(void){
+
+}
+void syscall_resume_proc(void){
+
+}
+void syscall_terminate_proc(void){
+
+}
+void syscall_system            (void){
+
+}
