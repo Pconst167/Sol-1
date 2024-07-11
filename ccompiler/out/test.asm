@@ -2,8 +2,6 @@
 .include "lib/asm/kernel.exp"
 .include "lib/asm/bios.exp"
 ; --- BEGIN SYSTEM SEGMENT
-  mov a, 1
-.db 1
 ; --- END SYSTEM SEGMENT
 
 ; --- BEGIN TEXT SEGMENT

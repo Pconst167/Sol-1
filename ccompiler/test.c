@@ -1,9 +1,7 @@
 #include <stdio.h>
 
 _system{
-    .org text_org
 
-.db 1
 
 }
 
