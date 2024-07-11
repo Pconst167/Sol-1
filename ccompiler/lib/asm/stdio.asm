@@ -445,15 +445,54 @@ print_u16x:
   ret
 
 ;-----------------------------------------------------------------------------
-; INPUT 16BIT HEX INTEGER
-; read 16bit integer into A
+; input 32bit hex integer
+; read 32bit integer into GA
+; UNFINISHED !!
 ;-----------------------------------------------------------------------------
-scan_u16x:
-  enter 16
+scan_u32x:
+  enter 9
   push b
   push d
 
-  lea d, [bp + -15]
+  lea d, [bp + -8]
+  call _gets        ; get number
+
+  mov bl, [d]
+  mov bh, bl
+  mov bl, [d + 1]
+  call _atoi        ; convert to int in AL
+  mov ah, al        ; move to AH
+
+  mov bl, [d + 2]
+  mov bh, bl
+  mov bl, [d + 3]
+  call _atoi        ; convert to int in AL
+
+  mov bl, [d + 4]
+  mov bh, bl
+  mov bl, [d + 5]
+  call _atoi        ; convert to int in AL
+
+  mov bl, [d + 6]
+  mov bh, bl
+  mov bl, [d + 7]
+  call _atoi        ; convert to int in AL
+
+  pop d
+  pop b
+  leave
+  ret
+
+;-----------------------------------------------------------------------------
+; input 16bit hex integer
+; read 16bit integer into A
+;-----------------------------------------------------------------------------
+scan_u16x:
+  enter 15
+  push b
+  push d
+
+  lea d, [bp + -4]
   call _gets        ; get number
 
   mov bl, [d]

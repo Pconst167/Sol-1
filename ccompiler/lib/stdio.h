@@ -865,11 +865,17 @@ int scann(){
     ret
 
   table_power_scann:
-    .dw 1
-    .dw 10
-    .dw 100
-    .dw 1000
-    .dw 10000
+    .dw 1              ; 1
+    .dw $A             ; 10
+    .dw $64            ; 100
+    .dw $3E8           ; 1000
+    .dw $2710          ; 10000
+
+    .dw $86A0, $1      ; 100000
+    .dw $4240, $F      ; 1000000
+    .dw $9680, $98     ; 10000000
+    .dw $E100, $5F5    ; 100000000
+    .dw $CA00, $3B9A   ; 1000000000
   }
 }
 
@@ -919,4 +925,10 @@ void move_cursor(int x, int y){
 
 int abs(int i){
   return i < 0 ? -i : i;
+}
+
+long int scanx32(){
+  long int i;
+
+
 }
