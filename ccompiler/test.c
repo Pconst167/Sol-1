@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 _system{
-    mov a, 1
+    .org text_org
 
 .db 1
 
