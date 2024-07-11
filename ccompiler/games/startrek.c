@@ -131,7 +131,7 @@ void input(char *b, uint8_t l)
 
 	while((c = getchar()) != '\n') {
 		if (c == -1)
-			exit();
+			exit(1);
 		if (l > 1) {
 			*b++ = c;
 			l--;
@@ -1381,7 +1381,7 @@ void end_of_game(void)
 
 		input(x,4);
 	}
-	exit();
+	exit(1);
 }
 
 void klingons_move(void)

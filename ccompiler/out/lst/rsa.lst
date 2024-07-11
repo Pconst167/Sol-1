@@ -1422,7 +1422,7 @@
 1371   0CAD 07 C9 0E      call putchar
 1372   0CB0 51 01 00      add sp, 1
 1373   0CB3             ; --- END FUNCTION CALL
-1374   0CB3             ; p = p + 1; 
+1374   0CB3             ; p = p + 2; 
 1375   0CB3 FA FF FF      lea d, [bp + -1] ; $p
 1376   0CB6 DA            push d
 1377   0CB7 FA FF FF      lea d, [bp + -1] ; $p
@@ -1431,7 +1431,7 @@
 1380   0CBE             ; --- START TERMS
 1381   0CBE D7            push a
 1382   0CBF 11            mov a, b
-1383   0CC0 FD 2E 01 00   mov32 cb, $00000001
+1383   0CC0 FD 2E 02 00   mov32 cb, $00000002
 1383   0CC4 00 00 
 1384   0CC6 56            add b, a
 1385   0CC7 E4            pop a

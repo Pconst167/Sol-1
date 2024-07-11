@@ -2404,7 +2404,7 @@
 2256   12AC 07 C8 14      call putchar
 2257   12AF 51 01 00      add sp, 1
 2258   12B2             ; --- END FUNCTION CALL
-2259   12B2             ; p = p + 1; 
+2259   12B2             ; p = p + 2; 
 2260   12B2 FA FF FF      lea d, [bp + -1] ; $p
 2261   12B5 DA            push d
 2262   12B6 FA FF FF      lea d, [bp + -1] ; $p
@@ -2413,7 +2413,7 @@
 2265   12BD             ; --- START TERMS
 2266   12BD D7            push a
 2267   12BE 11            mov a, b
-2268   12BF FD 2E 01 00   mov32 cb, $00000001
+2268   12BF FD 2E 02 00   mov32 cb, $00000002
 2268   12C3 00 00 
 2269   12C5 56            add b, a
 2270   12C6 E4            pop a

@@ -2256,7 +2256,7 @@ _switch24_case6:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-; p = p + 1; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -2265,7 +2265,7 @@ _switch24_case6:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
+  mov32 cb, $00000002
   add b, a
   pop a
 ; --- END TERMS
