@@ -1,4 +1,6 @@
 ; --- FILENAME: test.c
+.include "lib/asm/kernel.exp"
+.include "lib/asm/bios.exp"
 
 ; --- BEGIN TEXT SEGMENT
 .org text_org

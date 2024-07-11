@@ -351,8 +351,8 @@ int main(int argc, char *argv[]){
   data_block_p = data_block_asm; // data block pointer
 
   emitln("", "; --- FILENAME: %s", argv[1]);
-  //if(include_kernel_exp) emitln("", ".include \"lib/asm/kernel.exp\"");
-  //emitln("", ".include \"lib/asm/bios.exp\"");
+  if(include_kernel_exp) emitln("", ".include \"lib/asm/kernel.exp\"");
+  emitln("", ".include \"lib/asm/bios.exp\"");
 
   declare_heap_global_var();
   pre_processor();

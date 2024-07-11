@@ -1,39 +1,57 @@
 0001   0000             ; --- FILENAME: test.c
-0002   0000             
-0003   0000             ; --- BEGIN TEXT SEGMENT
-out/test.asm line 0004: Label not found: (text_org)
-0004   20000             .org text_org
-0005   20000             main:
-0006   20000 FD 49 E0 FF   mov bp, $FFE0 ;
-0007   20004 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0008   20008             ; "Hello World" 
-out/test.asm line 0009: Unused data in MS byte of argument. (2)
-0009   20008 26 0D 00      mov b, _s0 ; "Hello WorldMy name is Sol-1And this is a multi-line string"
-out/test.asm line 0010: Label not found: (sys_terminate_proc)
-out/test.asm line 0010: Unused data in MS byte of argument. (200)
-0010   2000B 05 00         syscall sys_terminate_proc
-0011   2000D             ; --- END TEXT SEGMENT
-0012   2000D             
-0013   2000D             ; --- BEGIN DATA SEGMENT
-0014   2000D 48 65 6C 6C _s0: .db "Hello WorldMy name is Sol-1And this is a multi-line string", 0
-0014   20011 6F 20 57 6F 
-0014   20015 72 6C 64 4D 
-0014   20019 79 20 6E 61 
-0014   2001D 6D 65 20 69 
-0014   20021 73 20 53 6F 
-0014   20025 6C 2D 31 41 
-0014   20029 6E 64 20 74 
-0014   2002D 68 69 73 20 
-0014   20031 69 73 20 61 
-0014   20035 20 6D 75 6C 
-0014   20039 74 69 2D 6C 
-0014   2003D 69 6E 65 20 
-0014   20041 73 74 72 69 
-0014   20045 6E 67 00 
-0015   20048             
-0016   20048 4A 00       _heap_top: .dw _heap
-0017   2004A 00          _heap: .db 0
-0018   2004B             ; --- END DATA SEGMENT
-0019   2004B             
-0020   2004B             .end
-tasm: Number of errors = 4
+0002   0000             .include "lib/asm/kernel.exp"
+0001+  0000             text_org    .EQU  $0400
+0002+  0000             sys_bkpt         .EQU  $0000
+0003+  0000             sys_rtc          .EQU  $0001
+0004+  0000             sys_ide          .EQU  $0002
+0005+  0000             sys_io           .EQU  $0003
+0006+  0000             sys_filesystem   .EQU  $0004
+0007+  0000             sys_spawn_proc   .EQU  $0005
+0008+  0000             sys_list         .EQU  $0006
+0009+  0000             sys_datetime     .EQU  $0007
+0010+  0000             sys_reboot       .EQU  $0008
+0011+  0000             sys_pause_proc   .EQU  $0009
+0012+  0000             sys_resume_proc  .EQU  $000a
+0013+  0000             sys_terminate_proc .EQU  $000b
+0014+  0000             sys_system       .EQU  $000c
+0015+  0000             sys_boot_install .EQU  $000d
+0003   0000             .include "lib/asm/bios.exp"
+0001+  0000             BIOS_RESET_VECTOR .EQU  $01c0
+0002+  0000             IDE_buffer       .EQU  $8204
+0003+  0000             boot_origin      .EQU  $8004
+0004+  0000             bios_uart        .EQU  $0002
+0005+  0000             bios_ide         .EQU  $0003
+0004   0000             
+0005   0000             ; --- BEGIN TEXT SEGMENT
+0006   0400             .org text_org
+0007   0400             main:
+0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
+0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
+0010   0408             ; "Hello World" 
+0011   0408 26 0D 04      mov b, _s0 ; "Hello WorldMy name is Sol-1And this is a multi-line string"
+0012   040B 05 0B         syscall sys_terminate_proc
+0013   040D             ; --- END TEXT SEGMENT
+0014   040D             
+0015   040D             ; --- BEGIN DATA SEGMENT
+0016   040D 48 65 6C 6C _s0: .db "Hello WorldMy name is Sol-1And this is a multi-line string", 0
+0016   0411 6F 20 57 6F 
+0016   0415 72 6C 64 4D 
+0016   0419 79 20 6E 61 
+0016   041D 6D 65 20 69 
+0016   0421 73 20 53 6F 
+0016   0425 6C 2D 31 41 
+0016   0429 6E 64 20 74 
+0016   042D 68 69 73 20 
+0016   0431 69 73 20 61 
+0016   0435 20 6D 75 6C 
+0016   0439 74 69 2D 6C 
+0016   043D 69 6E 65 20 
+0016   0441 73 74 72 69 
+0016   0445 6E 67 00 
+0017   0448             
+0018   0448 4A 04       _heap_top: .dw _heap
+0019   044A 00          _heap: .db 0
+0020   044B             ; --- END DATA SEGMENT
+0021   044B             
+0022   044B             .end
+tasm: Number of errors = 0
