@@ -1,6 +1,4 @@
-; --- FILENAME: test.c
-.include "lib/asm/kernel.exp"
-.include "lib/asm/bios.exp"
+; --- FILENAME: ../solarium/boot/kernel.c
 ; --- BEGIN SYSTEM SEGMENT
   ; ------------------------------------------------------------------------------------------------------------------;
   ; Solarium - Sol-1 Homebrew Minicomputer Operating System Kernel.
@@ -122,7 +120,7 @@ root_id:                .equ FST_LBA_START
   ; ------------------------------------------------------------------------------------------------------------------;
   ; Reset Vector
   ; ------------------------------------------------------------------------------------------------------------------;
-.dw kernel_reset_vector
+.dw main
   ; ------------------------------------------------------------------------------------------------------------------;
   ; Exception Vector Table
   ; Total of 7 entries, starting at address $0012
@@ -167,9 +165,9 @@ sys_pause_proc       .equ 9
 sys_resume_proc      .equ 10
 sys_terminate_proc   .equ 11
 sys_system           .equ 12
-  ; ------------------------------------------------------------------------------------------------------------------;
+  ; ------------------------------------------------------------------------------------------------------------------
   ; Alias Exports
-  ; ------------------------------------------------------------------------------------------------------------------;
+  ; ------------------------------------------------------------------------------------------------------------------
   .export text_org
   .export sys_break
   .export sys_rtc
@@ -191,6 +189,14 @@ sys_system           .equ 12
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
+; puts("");     
+; --- START FUNCTION CALL
+  mov b, _s0 ; ""
+  swp b
+  push b
+  call puts
+  add sp, 2
+; --- END FUNCTION CALL
 ; printf("Hello World" 
 ; --- START FUNCTION CALL
   mov b, _s0 ; "Hello WorldMy name is Sol-1And this is a multi-line string"
@@ -200,6 +206,133 @@ main:
   add sp, 2
 ; --- END FUNCTION CALL
   syscall sys_terminate_proc
+
+int_0:
+  enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
+
+int_1:
+  enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
+
+int_2:
+  enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
+
+int_3:
+  enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
+
+int_4:
+  enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
+
+int_5:
+  enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
+
+int_6:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  pusha ; save all registers into kernel stack
+  mov ah, 0
+  mov al, [active_proc_index]
+  shl a              ; x2
+  mov a, [proc_table_convert + a]  ; get process state start index
+  mov di, a
+  mov a, sp
+  inc a
+  mov si, a
+  mov c, 20
+  rep movsb          ; save process state!
+  ; restore kernel stack position to point before interrupt arrived
+  add sp, 20
+  ; now load next process in queue
+  mov al, [active_proc_index]
+  mov bl, [nbr_active_procs]
+  cmp al, bl
+  je int6_cycle_back
+  inc al            ; next process is next in the series
+  jmp int6_continue
+int6_cycle_back:
+  mov al, 1        ; next process = process 1
+int6_continue:
+  mov [active_proc_index], al    ; set next active proc
+  ; calculate LUT entry for next process
+  mov ah, 0
+  shl a              ; x2
+  mov a, [proc_table_convert + a]    ; get process state start index  
+  mov si, a            ; source is proc state block
+  mov a, sp
+  sub a, 19
+  mov di, a            ; destination is kernel stack
+  ; restore SP
+  dec a
+  mov sp, a
+  mov c, 20
+  rep movsb
+  ; set VM process
+  mov al, [active_proc_index]
+  setptb
+  mov byte[_TIMER_C_0], 0        ; load counter 0 low byte
+  mov byte[_TIMER_C_0], $10        ; load counter 0 high byte
+  popa
+  sysret
+proc_table_convert:
+.dw proc_state_table + 0
+.dw proc_state_table + 20
+.dw proc_state_table + 40
+.dw proc_state_table + 60
+.dw proc_state_table + 80
+.dw proc_state_table + 100
+.dw proc_state_table + 120
+.dw proc_state_table + 140
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+int_7:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  push a
+  push d
+  pushf
+  mov a, [fifo_in]
+  mov d, a
+  mov al, [_UART0_DATA]  ; get character
+  cmp al, $03        ; CTRL-C
+  je CTRLC
+  cmp al, $1A        ; CTRL-Z
+  je CTRLZ
+  mov [d], al        ; add to fifo
+  mov a, [fifo_in]
+  inc a
+  cmp a, fifo + FIFO_SIZE         ; check if pointer reached the end of the fifo
+  jne int_7_continue
+  mov a, fifo  
+int_7_continue:  
+  mov [fifo_in], a      ; update fifo pointer
+  popf
+  pop d
+  pop a  
+  sysret
+CTRLC:
+  add sp, 5
+  jmp syscall_terminate_proc
+CTRLZ:
+  popf
+  pop d
+  pop a
+  jmp syscall_pause_proc    ; pause current process and go back to the shell
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
 
 syscall_break:
   enter 0 ; (push bp; mov bp, sp)
@@ -263,6 +396,61 @@ syscall_terminate_proc:
 
 syscall_system:
   enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
+
+trap_privilege:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  jmp syscall_reboot
+  push word s_priviledge
+  call puts
+  sysret
+s_priviledge: .db "\nexception: privilege\n", 0
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+trap_div_zero:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  push a
+  push d
+  pushf
+  push word s_divzero
+  call puts
+  popf
+  pop d
+  pop a
+  sysret ; enable interrupts
+s_divzero: .db "\nexception: zero division\n", 0
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+trap_undef_opcode:
+  enter 0 ; (push bp; mov bp, sp)
+  leave
+  ret
+
+puts:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  lea d, [bp + 5] ; $s
+  mov d, [d]
+_puts_L1_puts:
+  mov al, [d]
+  cmp al, 0
+  jz _puts_END_puts
+  mov ah, al
+  mov al, 0
+  syscall sys_io
+  inc d
+  jmp _puts_L1_puts
+_puts_END_puts:
+  mov a, $0A00
+  syscall sys_io
+; --- END INLINE ASM SEGMENT
   leave
   ret
 
@@ -1715,7 +1903,6 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
-_a: .dw $0002
 _s0: .db "Hello WorldMy name is Sol-1And this is a multi-line string", 0
 _s1: .db "Unexpected format in printf.", 0
 _s2: .db "Error: Unknown argument type.\n", 0
