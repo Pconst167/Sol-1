@@ -6106,13 +6106,15 @@ void convert_constant(){
   else if(curr_token.tok_type == STRING_CONST){
     do{
       t++; // skip '"'
-      while(*t != '\"'){
+      while(*t != '"'){
         *s++ = *t++;
       }
       t++; // skip '"'
-    } while(*t == '\"');
+      while(is_space(*t)){
+        t++;
+      }
+    } while(*t == '"');
   }
-  
   *s = '\0';
 }
 
@@ -6311,16 +6313,18 @@ void get(void){
     *t = '\0';
     convert_constant(); // converts this string curr_token.token_str with quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes
   }
-  else if(*prog == '\"'){
+  else if(*prog == '"'){
     do{
       *t++ = *prog++; // start the string
-      while(*prog != '\"' && *prog){
+      while(*prog != '"' && *prog){
         *t++ = *prog++;
       }
-      if(*prog != '\"') error(ERR_FATAL, "ending double quotes expected");
+      if(*prog != '"'){
+        error(ERR_FATAL, "ending double quotes expected");
+      }
       *t++ = *prog++;
-      while(is_space(*prog)) prog++;
-    } while(*prog == '\"');
+      while(is_space(*prog)) *t++ = *prog++;
+    } while(*prog == '"');
     *t = '\0';
     curr_token.tok_type = STRING_CONST;
     convert_constant(); // converts this string curr_token.token_str qith quotation marks to a non quotation marks string, and also converts escape sequences to their real bytes

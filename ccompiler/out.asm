@@ -7,9 +7,9 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; printf( 
+; printf("Hello World" 
 ; --- START FUNCTION CALL
-  mov b, _s0 ; "Hello World"
+  mov b, _s0 ; "Hello WorldMy name is Sol-1And this is a multi-line string"
   swp b
   push b
   call printf
@@ -1466,7 +1466,7 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
-_s0: .db "Hello World", 0
+_s0: .db "Hello WorldMy name is Sol-1And this is a multi-line string", 0
 _s1: .db "Unexpected format in printf.", 0
 _s2: .db "Error: Unknown argument type.\n", 0
 
