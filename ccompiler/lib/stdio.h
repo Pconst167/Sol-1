@@ -126,12 +126,11 @@ void printf(const char *format, ...){
         default:
           print("Error: Unknown argument type.\n");
       }
-      format_p++;
     }
     else {
       putchar(*format_p);
-      format_p++;
     }
+    format_p++;
   }
 }
 

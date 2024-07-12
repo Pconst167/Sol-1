@@ -364,7 +364,6 @@ int main(int argc, char *argv[]){
     }
   }
 
-
   emit("\n; --- BEGIN TEXT SEGMENT");
   parse_functions();
   emitln("", "; --- END TEXT SEGMENT");
@@ -4175,10 +4174,7 @@ t_type parse_string_const(){
   t_type expr_out;
   int string_id;
 
-  string_id = search_string(curr_token.string_const);
-  if(string_id == -1){
-    string_id = add_string_data(curr_token.string_const);
-  }
+  string_id = add_string_data(curr_token.string_const);
   // now emit the reference to this string into the ASM
   emitln("", "  mov b, _s%d ; \"%s\"", string_id, curr_token.string_const);
   expr_out.size_modifier = SIZEMOD_NORMAL;
@@ -4808,7 +4804,7 @@ void parse_function_call(int func_id){
   // Check if the number of arguments matches the number of function parameters
   // but only if the function does not have variable arguments
   if(function_table[func_id].num_fixed_args != total_function_arguments && !function_has_variable_arguments(func_id))  
-    error(ERR_FATAL, "Incorrect number of arguments for function: %s. Expecting %d, detected: %d", function_table[func_id].name, function_table[func_id].num_fixed_args, total_function_arguments);
+    error(ERR_FATAL, "incorrect number of arguments for function: %s. Expecting %d, detected: %d", function_table[func_id].name, function_table[func_id].num_fixed_args, total_function_arguments);
 
   emitln("", "  call %s", function_table[func_id].name);
   // the function's return value is in register B
