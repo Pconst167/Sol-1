@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 #define DEFAULT_ORG 1024
@@ -910,7 +911,7 @@ void get(){
     printf("TOKEN ERROR. Prog: %x\n", (int)(prog-program)); 
     printf("ProgVal: %x", *prog); 
     printf("\n Text after prog: %s\n", prog);
-    exit();
+    exit(1);
   }
 }
 
@@ -976,12 +977,12 @@ void convert_constant(){
 
 void error(char *msg){
   printf("\nError: %s\n", msg);
-  exit();
+  exit(1);
 }
 
 void error_s(char *msg, char *param){
   printf("\nError: %s %s\n", msg, param);
-  exit();
+  exit(1);
 }
 
 void push_prog(){
