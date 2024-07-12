@@ -1,4 +1,6 @@
 ; --- FILENAME: ../solarium/boot/kernel.c
+.include "lib/asm/kernel.exp"
+.include "lib/asm/bios.exp"
 ; --- BEGIN SYSTEM SEGMENT
   ; ------------------------------------------------------------------------------------------------------------------;
   ; Solarium - Sol-1 Homebrew Minicomputer Operating System Kernel.
@@ -433,6 +435,316 @@ trap_undef_opcode:
   leave
   ret
 
+system_jmptbl:
+  enter 0 ; (push bp; mov bp, sp)
+; char code; 
+  sub sp, 1
+; --- BEGIN INLINE ASM SEGMENT
+  lea d, [bp + 0] ; $code
+  mov [d], al
+; --- END INLINE ASM SEGMENT
+; switch(code){ 
+_switch1_expr:
+  lea d, [bp + 0] ; $code
+  mov bl, [d]
+  mov bh, 0
+  mov c, 0
+_switch1_comparisons:
+  cmp b, 0
+  je _switch1_case0
+  cmp b, 1
+  je _switch1_case1
+  cmp b, 2
+  je _switch1_case2
+  cmp b, 3
+  je _switch1_case3
+  cmp b, 4
+  je _switch1_case4
+  jmp _switch1_exit
+_switch1_case0:
+; system_uname(); 
+; --- START FUNCTION CALL
+  call system_uname
+; break; 
+  jmp _switch1_exit ; case break
+_switch1_case1:
+; system_whoami(); 
+; --- START FUNCTION CALL
+  call system_whoami
+; break; 
+  jmp _switch1_exit ; case break
+_switch1_case2:
+; system_setparam(); 
+; --- START FUNCTION CALL
+  call system_setparam
+; break; 
+  jmp _switch1_exit ; case break
+_switch1_case3:
+; system_bootloader_install(); 
+; --- START FUNCTION CALL
+  call system_bootloader_install
+; break; 
+  jmp _switch1_exit ; case break
+_switch1_case4:
+; system_getparam(); 
+; --- START FUNCTION CALL
+  call system_getparam
+; break; 
+  jmp _switch1_exit ; case break
+_switch1_exit:
+  leave
+  ret
+
+system_getparam:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  mov bl, [d]
+  sysret
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+system_bootloader_install:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  push b
+  mov b, 0
+  mov c, 0
+  mov ah, $01                 ; 1 sector
+  mov d, transient_area
+  call ide_read_sect          ; read sector
+  pop b
+  mov [d + 510], b            ; update LBA address
+  mov b, 0
+  mov c, 0
+  mov ah, $01                 ; 1 sector
+  mov d, transient_area
+  call ide_write_sect         ; write sector
+  sysret
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+system_setparam:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  mov [d], bl
+  sysret
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+system_uname:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  sysret
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+system_whoami:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  sysret
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+syscall_reboot:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  push word $FFFF 
+  push byte %00000000             ; dma_ack = 0, interrupts disabled, mode = supervisor, paging = off, halt=0, display_reg_load=0, dir=0
+  push word BIOS_RESET_VECTOR    ; and then push RESET VECTOR of the shell to the stack
+  sysret
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+syscall_resume_proc:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  mov g, a                            ; save the process number
+  pusha                               ; save all registers into kernel stack
+  mov ah, 0
+  mov al, [active_proc_index]
+  shl a              ; x2
+  mov a, [proc_table_convert + a]     ; get process state start index
+  mov di, a
+  mov a, sp
+  inc a
+  mov si, a
+  mov c, 20
+  rep movsb                           ; save process state!
+  ; restore kernel stack position to point before interrupt arrived
+  add sp, 20
+  ; now load the new process number!
+  mov a, g                            ; retrieve the process number argument that was saved in the beginning
+  mov [active_proc_index], al         ; set new active proc
+  ; calculate LUT entry for next process
+  mov ah, 0
+  shl a                               ; x2
+  mov a, [proc_table_convert + a]     ; get process state start index  
+  mov si, a                           ; source is proc state block
+  mov a, sp
+  sub a, 19
+  mov di, a                           ; destination is kernel stack
+  ; restore SP
+  dec a
+  mov sp, a
+  mov c, 20
+  rep movsb
+  ; set VM process
+  mov al, [active_proc_index]
+  setptb
+  popa
+  sysret
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+syscall_list_procs:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  mov d, s_ps_header
+  call _puts
+  mov d, proc_availab_table + 1
+  mov c, 1
+list_procs_L0:  
+  cmp byte[d], 1
+  jne list_procs_next
+  mov b, d
+  sub b, proc_availab_table
+  shl b, 5
+  push d
+  push b
+  mov b, c
+  call print_u8x
+  mov ah, ' '
+  call _putchar
+  call _putchar
+  pop b
+  mov d, b
+  add d, proc_names
+  call _puts
+  call printnl
+  pop d
+list_procs_next:
+  inc d
+  inc c
+  cmp c, 9
+  jne list_procs_L0
+list_procs_end:
+  sysret
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
+syscall_break:
+  enter 0 ; (push bp; mov bp, sp)
+; --- BEGIN INLINE ASM SEGMENT
+  pusha
+syscall_break_prompt:
+  mov d, s_break1
+  call _puts
+  call printnl
+  call scan_u16d
+  cmp a, 0
+  je syscall_break_regs
+  cmp a, 1
+  je syscall_break_mem
+syscall_break_end:  
+  popa
+  sysret
+syscall_break_regs:
+  mov a, sp
+  add a, 14               ; back-track 7 registers
+  mov d, a
+  mov cl, 7
+syscall_regs_L0:
+  mov b, [d]
+  swp b
+  call print_u16x         ; print register value
+  call printnl
+  sub d, 2
+  sub cl, 1
+  cmp cl, 0
+  jne syscall_regs_L0
+  jmp syscall_break_prompt
+  call printnl
+  jmp syscall_break_prompt
+syscall_break_mem:
+  call printnl
+  call scan_u16x
+  mov si, a               ; data source from user space
+  mov di, scrap_sector    ; destination in kernel space
+  mov c, 512
+  load                    ; transfer data to kernel space!
+  mov d, scrap_sector     ; dump pointer in d
+  mov c, 0
+dump_loop:
+  mov al, cl
+  and al, $0F
+  jz print_base
+back:
+  mov al, [d]             ; read byte
+  mov bl, al
+  call print_u8x
+  mov a, $2000
+  syscall sys_io          ; space
+  mov al, cl
+  and al, $0F
+  cmp al, $0F
+  je print_ascii
+back1:
+  inc d
+  inc c
+  cmp c, 512
+  jne dump_loop
+  call printnl
+  jmp syscall_break_prompt  ; go to syscall_break return point
+print_ascii:
+  mov a, $2000
+  syscall sys_io
+  sub d, 16
+  mov b, 16
+print_ascii_L:
+  inc d
+  mov al, [d]               ; read byte
+  cmp al, $20
+  jlu dot
+  cmp al, $7E
+  jleu ascii
+dot:
+  mov a, $2E00
+  syscall sys_io
+  jmp ascii_continue
+ascii:
+  mov ah, al
+  mov al, 0
+  syscall sys_io
+ascii_continue:
+  loopb print_ascii_L
+  jmp back1
+print_base:
+  call printnl
+  mov b, d
+  sub b, scrap_sector      ; remove this later and fix address bases which display incorrectly
+  call print_u16x          ; display row
+  mov a, $3A00
+  syscall sys_io
+  mov a, $2000
+  syscall sys_io
+  jmp back
+s_break1:  
+.db "\nDebugger entry point.\n"
+.db "0. Show Registers\n"
+.db "1. Show 512B RAM block\n"
+.db "2. Continue Execution", 0
+; --- END INLINE ASM SEGMENT
+  leave
+  ret
+
 puts:
   enter 0 ; (push bp; mov bp, sp)
 ; --- BEGIN INLINE ASM SEGMENT
@@ -482,11 +794,11 @@ printf:
   pop d
   mov [d], b
 ; for(;;){ 
-_for1_init:
-_for1_cond:
-_for1_block:
+_for2_init:
+_for2_cond:
+_for2_block:
 ; if(!*format_p) break; 
-_if2_cond:
+_if3_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   mov c, 0
@@ -497,14 +809,14 @@ _if2_cond:
   cmp b, 0
   seq ; !
   cmp b, 0
-  je _if2_else
-_if2_TRUE:
+  je _if3_else
+_if3_TRUE:
 ; break; 
-  jmp _for1_exit ; for break
-  jmp _if2_exit
-_if2_else:
+  jmp _for2_exit ; for break
+  jmp _if3_exit
+_if3_else:
 ; if(*format_p == '%'){ 
-_if3_cond:
+_if4_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   mov c, 0
@@ -521,8 +833,8 @@ _if3_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if3_else
-_if3_TRUE:
+  je _if4_else
+_if4_TRUE:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -532,7 +844,7 @@ _if3_TRUE:
   mov [d], b
   dec b
 ; switch(*format_p){ 
-_switch4_expr:
+_switch5_expr:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   mov c, 0
@@ -540,27 +852,27 @@ _switch4_expr:
   mov bl, [d]
   mov bh, 0
   mov c, 0
-_switch4_comparisons:
+_switch5_comparisons:
   cmp bl, $6c
-  je _switch4_case0
+  je _switch5_case0
   cmp bl, $4c
-  je _switch4_case1
+  je _switch5_case1
   cmp bl, $64
-  je _switch4_case2
+  je _switch5_case2
   cmp bl, $69
-  je _switch4_case3
+  je _switch5_case3
   cmp bl, $75
-  je _switch4_case4
+  je _switch5_case4
   cmp bl, $78
-  je _switch4_case5
+  je _switch5_case5
   cmp bl, $63
-  je _switch4_case6
+  je _switch5_case6
   cmp bl, $73
-  je _switch4_case7
-  jmp _switch4_default
-  jmp _switch4_exit
-_switch4_case0:
-_switch4_case1:
+  je _switch5_case7
+  jmp _switch5_default
+  jmp _switch5_exit
+_switch5_case0:
+_switch5_case1:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -570,7 +882,7 @@ _switch4_case1:
   mov [d], b
   dec b
 ; if(*format_p == 'd' || *format_p == 'i') 
-_if5_cond:
+_if6_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   mov c, 0
@@ -608,8 +920,8 @@ _if5_cond:
   pop a
 ; --- END LOGICAL OR
   cmp b, 0
-  je _if5_else
-_if5_TRUE:
+  je _if6_else
+_if6_TRUE:
 ; print_signed_long(*(long *)p); 
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
@@ -627,10 +939,10 @@ _if5_TRUE:
   call print_signed_long
   add sp, 4
 ; --- END FUNCTION CALL
-  jmp _if5_exit
-_if5_else:
+  jmp _if6_exit
+_if6_else:
 ; if(*format_p == 'u') 
-_if6_cond:
+_if7_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   mov c, 0
@@ -647,8 +959,8 @@ _if6_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if6_else
-_if6_TRUE:
+  je _if7_else
+_if7_TRUE:
 ; print_unsigned_long(*(unsigned long *)p); 
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
@@ -666,10 +978,10 @@ _if6_TRUE:
   call print_unsigned_long
   add sp, 4
 ; --- END FUNCTION CALL
-  jmp _if6_exit
-_if6_else:
+  jmp _if7_exit
+_if7_else:
 ; if(*format_p == 'x') 
-_if7_cond:
+_if8_cond:
   lea d, [bp + -3] ; $format_p
   mov b, [d]
   mov c, 0
@@ -686,8 +998,8 @@ _if7_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if7_else
-_if7_TRUE:
+  je _if8_else
+_if8_TRUE:
 ; printx32(*(long int *)p); 
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
@@ -705,8 +1017,8 @@ _if7_TRUE:
   call printx32
   add sp, 4
 ; --- END FUNCTION CALL
-  jmp _if7_exit
-_if7_else:
+  jmp _if8_exit
+_if8_else:
 ; err("Unexpected format in printf."); 
 ; --- START FUNCTION CALL
   mov b, _s1 ; "Unexpected format in printf."
@@ -715,9 +1027,9 @@ _if7_else:
   call err
   add sp, 2
 ; --- END FUNCTION CALL
+_if8_exit:
 _if7_exit:
 _if6_exit:
-_if5_exit:
 ; p = p + 4; 
   lea d, [bp + -1] ; $p
   push d
@@ -734,9 +1046,9 @@ _if5_exit:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch4_exit ; case break
-_switch4_case2:
-_switch4_case3:
+  jmp _switch5_exit ; case break
+_switch5_case2:
+_switch5_case3:
 ; print_signed(*(int*)p); 
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
@@ -766,8 +1078,8 @@ _switch4_case3:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch4_exit ; case break
-_switch4_case4:
+  jmp _switch5_exit ; case break
+_switch5_case4:
 ; print_unsigned(*(unsigned int*)p); 
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
@@ -797,8 +1109,8 @@ _switch4_case4:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch4_exit ; case break
-_switch4_case5:
+  jmp _switch5_exit ; case break
+_switch5_case5:
 ; printx16(*(int*)p); 
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
@@ -828,8 +1140,8 @@ _switch4_case5:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch4_exit ; case break
-_switch4_case6:
+  jmp _switch5_exit ; case break
+_switch5_case6:
 ; putchar(*(char*)p); 
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
@@ -859,8 +1171,8 @@ _switch4_case6:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch4_exit ; case break
-_switch4_case7:
+  jmp _switch5_exit ; case break
+_switch5_case7:
 ; print(*(char**)p); 
 ; --- START FUNCTION CALL
   lea d, [bp + -1] ; $p
@@ -889,8 +1201,8 @@ _switch4_case7:
   pop d
   mov [d], b
 ; break; 
-  jmp _switch4_exit ; case break
-_switch4_default:
+  jmp _switch5_exit ; case break
+_switch5_default:
 ; print("Error: Unknown argument type.\n"); 
 ; --- START FUNCTION CALL
   mov b, _s2 ; "Error: Unknown argument type.\n"
@@ -899,7 +1211,7 @@ _switch4_default:
   call print
   add sp, 2
 ; --- END FUNCTION CALL
-_switch4_exit:
+_switch5_exit:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -908,8 +1220,8 @@ _switch4_exit:
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
-  jmp _if3_exit
-_if3_else:
+  jmp _if4_exit
+_if4_else:
 ; putchar(*format_p); 
 ; --- START FUNCTION CALL
   lea d, [bp + -3] ; $format_p
@@ -931,11 +1243,11 @@ _if3_else:
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
+_if4_exit:
 _if3_exit:
-_if2_exit:
-_for1_update:
-  jmp _for1_cond
-_for1_exit:
+_for2_update:
+  jmp _for2_cond
+_for2_exit:
   leave
   ret
 
@@ -953,7 +1265,7 @@ print_signed_long:
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
 ; if (num < 0) { 
-_if8_cond:
+_if9_cond:
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -970,8 +1282,8 @@ _if8_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if8_else
-_if8_TRUE:
+  je _if9_else
+_if9_TRUE:
 ; putchar('-'); 
 ; --- START FUNCTION CALL
   mov32 cb, $0000002d
@@ -996,10 +1308,10 @@ _if8_TRUE:
   mov [d], b
   mov b, c
   mov [d + 2], b
-  jmp _if8_exit
-_if8_else:
+  jmp _if9_exit
+_if9_else:
 ; if (num == 0) { 
-_if9_cond:
+_if10_cond:
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -1016,8 +1328,8 @@ _if9_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if9_exit
-_if9_TRUE:
+  je _if10_exit
+_if10_TRUE:
 ; putchar('0'); 
 ; --- START FUNCTION CALL
   mov32 cb, $00000030
@@ -1028,11 +1340,11 @@ _if9_TRUE:
 ; return; 
   leave
   ret
-  jmp _if9_exit
+  jmp _if10_exit
+_if10_exit:
 _if9_exit:
-_if8_exit:
 ; while (num > 0) { 
-_while10_cond:
+_while11_cond:
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -1049,8 +1361,8 @@ _while10_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while10_exit
-_while10_block:
+  je _while11_exit
+_while11_block:
 ; digits[i] = '0' + (num % 10); 
   lea d, [bp + -9] ; $digits
   push a
@@ -1124,10 +1436,10 @@ _while10_block:
   lea d, [bp + -11] ; $i
   mov [d], b
   mov b, a
-  jmp _while10_cond
-_while10_exit:
+  jmp _while11_cond
+_while11_exit:
 ; while (i > 0) { 
-_while17_cond:
+_while18_cond:
   lea d, [bp + -11] ; $i
   mov b, [d]
   mov c, 0
@@ -1140,8 +1452,8 @@ _while17_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while17_exit
-_while17_block:
+  je _while18_exit
+_while18_block:
 ; i--; 
   lea d, [bp + -11] ; $i
   mov b, [d]
@@ -1169,8 +1481,8 @@ _while17_block:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _while17_cond
-_while17_exit:
+  jmp _while18_cond
+_while18_exit:
   leave
   ret
 
@@ -1199,7 +1511,7 @@ print_unsigned_long:
   pop d
   mov [d], b
 ; if(num == 0){ 
-_if18_cond:
+_if19_cond:
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -1216,8 +1528,8 @@ _if18_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if18_exit
-_if18_TRUE:
+  je _if19_exit
+_if19_TRUE:
 ; putchar('0'); 
 ; --- START FUNCTION CALL
   mov32 cb, $00000030
@@ -1228,10 +1540,10 @@ _if18_TRUE:
 ; return; 
   leave
   ret
-  jmp _if18_exit
-_if18_exit:
+  jmp _if19_exit
+_if19_exit:
 ; while (num > 0) { 
-_while19_cond:
+_while20_cond:
   lea d, [bp + 5] ; $num
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
@@ -1248,8 +1560,8 @@ _while19_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while19_exit
-_while19_block:
+  je _while20_exit
+_while20_block:
 ; digits[i] = '0' + (num % 10); 
   lea d, [bp + -9] ; $digits
   push a
@@ -1323,10 +1635,10 @@ _while19_block:
   lea d, [bp + -11] ; $i
   mov [d], b
   mov b, a
-  jmp _while19_cond
-_while19_exit:
+  jmp _while20_cond
+_while20_exit:
 ; while (i > 0) { 
-_while26_cond:
+_while27_cond:
   lea d, [bp + -11] ; $i
   mov b, [d]
   mov c, 0
@@ -1339,8 +1651,8 @@ _while26_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while26_exit
-_while26_block:
+  je _while27_exit
+_while27_block:
 ; i--; 
   lea d, [bp + -11] ; $i
   mov b, [d]
@@ -1368,8 +1680,8 @@ _while26_block:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _while26_cond
-_while26_exit:
+  jmp _while27_cond
+_while27_exit:
   leave
   ret
 
@@ -1479,7 +1791,7 @@ print_signed:
   mov [d], b
 ; --- END LOCAL VAR INITIALIZATION
 ; if (num < 0) { 
-_if27_cond:
+_if28_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
@@ -1492,8 +1804,8 @@ _if27_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if27_else
-_if27_TRUE:
+  je _if28_else
+_if28_TRUE:
 ; putchar('-'); 
 ; --- START FUNCTION CALL
   mov32 cb, $0000002d
@@ -1510,10 +1822,10 @@ _if27_TRUE:
   neg b
   pop d
   mov [d], b
-  jmp _if27_exit
-_if27_else:
+  jmp _if28_exit
+_if28_else:
 ; if (num == 0) { 
-_if28_cond:
+_if29_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
@@ -1526,8 +1838,8 @@ _if28_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if28_exit
-_if28_TRUE:
+  je _if29_exit
+_if29_TRUE:
 ; putchar('0'); 
 ; --- START FUNCTION CALL
   mov32 cb, $00000030
@@ -1538,11 +1850,11 @@ _if28_TRUE:
 ; return; 
   leave
   ret
-  jmp _if28_exit
+  jmp _if29_exit
+_if29_exit:
 _if28_exit:
-_if27_exit:
 ; while (num > 0) { 
-_while29_cond:
+_while30_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
@@ -1555,8 +1867,8 @@ _while29_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while29_exit
-_while29_block:
+  je _while30_exit
+_while30_block:
 ; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
@@ -1626,10 +1938,10 @@ _while29_block:
   lea d, [bp + -6] ; $i
   mov [d], b
   mov b, a
-  jmp _while29_cond
-_while29_exit:
+  jmp _while30_cond
+_while30_exit:
 ; while (i > 0) { 
-_while36_cond:
+_while37_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
@@ -1642,8 +1954,8 @@ _while36_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while36_exit
-_while36_block:
+  je _while37_exit
+_while37_block:
 ; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
@@ -1671,8 +1983,8 @@ _while36_block:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _while36_cond
-_while36_exit:
+  jmp _while37_cond
+_while37_exit:
   leave
   ret
 
@@ -1689,7 +2001,7 @@ print_unsigned:
   pop d
   mov [d], b
 ; if(num == 0){ 
-_if37_cond:
+_if38_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
@@ -1702,8 +2014,8 @@ _if37_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _if37_exit
-_if37_TRUE:
+  je _if38_exit
+_if38_TRUE:
 ; putchar('0'); 
 ; --- START FUNCTION CALL
   mov32 cb, $00000030
@@ -1714,10 +2026,10 @@ _if37_TRUE:
 ; return; 
   leave
   ret
-  jmp _if37_exit
-_if37_exit:
+  jmp _if38_exit
+_if38_exit:
 ; while (num > 0) { 
-_while38_cond:
+_while39_cond:
   lea d, [bp + 5] ; $num
   mov b, [d]
   mov c, 0
@@ -1730,8 +2042,8 @@ _while38_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while38_exit
-_while38_block:
+  je _while39_exit
+_while39_block:
 ; digits[i] = '0' + (num % 10); 
   lea d, [bp + -4] ; $digits
   push a
@@ -1801,10 +2113,10 @@ _while38_block:
   lea d, [bp + -6] ; $i
   mov [d], b
   mov b, a
-  jmp _while38_cond
-_while38_exit:
+  jmp _while39_cond
+_while39_exit:
 ; while (i > 0) { 
-_while45_cond:
+_while46_cond:
   lea d, [bp + -6] ; $i
   mov b, [d]
   mov c, 0
@@ -1817,8 +2129,8 @@ _while45_cond:
   pop a
 ; --- END RELATIONAL
   cmp b, 0
-  je _while45_exit
-_while45_block:
+  je _while46_exit
+_while46_block:
 ; i--; 
   lea d, [bp + -6] ; $i
   mov b, [d]
@@ -1846,8 +2158,8 @@ _while45_block:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-  jmp _while45_cond
-_while45_exit:
+  jmp _while46_cond
+_while46_exit:
   leave
   ret
 
@@ -1903,6 +2215,7 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
+_active_proc_index: .fill 1, 0
 _s0: .db "Hello WorldMy name is Sol-1And this is a multi-line string", 0
 _s1: .db "Unexpected format in printf.", 0
 _s2: .db "Error: Unknown argument type.\n", 0

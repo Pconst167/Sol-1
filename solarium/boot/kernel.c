@@ -398,6 +398,7 @@ void trap_undef_opcode(){
 
 }
 
+unsigned char active_proc_index;
 
 static void main(){
 
@@ -409,3 +410,283 @@ static void main(){
 
 
 }
+
+// ------------------------------------------------------------------------------------------------------------------;
+// System Syscalls
+// ------------------------------------------------------------------------------------------------------------------;
+void system_jmptbl(){
+  char code;
+
+  asm{
+    ccmovd code
+    mov [d], al
+  }
+  switch(code){
+    case 0:
+      system_uname();
+      break;
+    case 1:
+    system_whoami();
+      break;
+    case 2:
+      system_setparam();
+      break;
+    case 3:
+      system_bootloader_install();
+      break;
+    case 4:
+      system_getparam();
+      break;
+  }
+}
+
+// param register address in register d
+// param value in register bl
+void system_getparam(){
+  asm{
+    mov bl, [d]
+    sysret
+  }
+}
+
+// kernel LBA address in 'b'
+void system_bootloader_install(){
+  asm{
+    push b
+    mov b, 0
+    mov c, 0
+    mov ah, $01                 ; 1 sector
+    mov d, transient_area
+    call ide_read_sect          ; read sector
+    pop b
+    mov [d + 510], b            ; update LBA address
+    mov b, 0
+    mov c, 0
+    mov ah, $01                 ; 1 sector
+    mov d, transient_area
+    call ide_write_sect         ; write sector
+    sysret
+  }
+}
+
+// param register address in register d
+// param value in register bl
+void system_setparam(){
+  asm{
+    mov [d], bl
+    sysret
+  }
+}
+
+void system_uname(){
+  asm{
+    sysret
+  }
+}
+
+void system_whoami(){
+  asm{
+    sysret
+  }
+}
+
+// REBOOT SYSTEM
+void syscall_reboot(){
+  asm{
+    push word $FFFF 
+    push byte %00000000             ; dma_ack = 0, interrupts disabled, mode = supervisor, paging = off, halt=0, display_reg_load=0, dir=0
+    push word BIOS_RESET_VECTOR    ; and then push RESET VECTOR of the shell to the stack
+    sysret
+  }
+}
+
+//------------------------------------------------------------------------------------------------------;;
+// switch to another process
+// inputs:
+// AL = new process number
+//------------------------------------------------------------------------------------------------------;;
+void syscall_resume_proc(){
+  asm{
+    mov g, a                            ; save the process number
+    pusha                               ; save all registers into kernel stack
+    mov ah, 0
+    mov al, [active_proc_index]
+    shl a              ; x2
+    mov a, [proc_table_convert + a]     ; get process state start index
+    mov di, a
+    mov a, sp
+    inc a
+    mov si, a
+    mov c, 20
+    rep movsb                           ; save process state!
+  ; restore kernel stack position to point before interrupt arrived
+    add sp, 20
+  ; now load the new process number!
+    mov a, g                            ; retrieve the process number argument that was saved in the beginning
+    mov [active_proc_index], al         ; set new active proc
+  ; calculate LUT entry for next process
+    mov ah, 0
+    shl a                               ; x2
+    mov a, [proc_table_convert + a]     ; get process state start index  
+    mov si, a                           ; source is proc state block
+    mov a, sp
+    sub a, 19
+    mov di, a                           ; destination is kernel stack
+  ; restore SP
+    dec a
+    mov sp, a
+    mov c, 20
+    rep movsb
+  ; set VM process
+    mov al, [active_proc_index]
+    setptb
+    popa
+    sysret
+  }
+}
+
+void syscall_list_procs(){
+  asm{
+    mov d, s_ps_header
+    call _puts
+    mov d, proc_availab_table + 1
+    mov c, 1
+  list_procs_L0:  
+    cmp byte[d], 1
+    jne list_procs_next
+    mov b, d
+    sub b, proc_availab_table
+    shl b, 5
+    push d
+    push b
+    mov b, c
+    call print_u8x
+    mov ah, ' '
+    call _putchar
+    call _putchar
+    pop b
+    mov d, b
+    add d, proc_names
+    call _puts
+    call printnl
+    pop d
+  list_procs_next:
+    inc d
+    inc c
+    cmp c, 9
+    jne list_procs_L0
+  list_procs_end:
+    sysret
+  }
+}
+
+
+// ------------------------------------------------------------------------------------------------------------------;
+// Breakpoint
+// IMPORTANT: values in the stack are being pushed in big endian. i.e.: MSB at low address
+// and LSB at high address. *** NEED TO CORRECT THIS IN THE MICROCODE and make it little endian again ***
+// ------------------------------------------------------------------------------------------------------------------;
+void syscall_break(){
+  asm{
+    pusha
+  syscall_break_prompt:
+    mov d, s_break1
+    call _puts
+    call printnl
+    call scan_u16d
+    cmp a, 0
+    je syscall_break_regs
+    cmp a, 1
+    je syscall_break_mem
+  syscall_break_end:  
+    popa
+    sysret
+  syscall_break_regs:
+    mov a, sp
+    add a, 14               ; back-track 7 registers
+    mov d, a
+    mov cl, 7
+  syscall_regs_L0:
+    mov b, [d]
+    swp b
+    call print_u16x         ; print register value
+    call printnl
+    sub d, 2
+    sub cl, 1
+    cmp cl, 0
+    jne syscall_regs_L0
+    jmp syscall_break_prompt
+    call printnl
+    jmp syscall_break_prompt
+  syscall_break_mem:
+    call printnl
+    call scan_u16x
+    mov si, a               ; data source from user space
+    mov di, scrap_sector    ; destination in kernel space
+    mov c, 512
+    load                    ; transfer data to kernel space!
+    mov d, scrap_sector     ; dump pointer in d
+    mov c, 0
+  dump_loop:
+    mov al, cl
+    and al, $0F
+    jz print_base
+  back:
+    mov al, [d]             ; read byte
+    mov bl, al
+    call print_u8x
+    mov a, $2000
+    syscall sys_io          ; space
+    mov al, cl
+    and al, $0F
+    cmp al, $0F
+    je print_ascii
+  back1:
+    inc d
+    inc c
+    cmp c, 512
+    jne dump_loop
+    call printnl
+    jmp syscall_break_prompt  ; go to syscall_break return point
+  print_ascii:
+    mov a, $2000
+    syscall sys_io
+    sub d, 16
+    mov b, 16
+  print_ascii_L:
+    inc d
+    mov al, [d]               ; read byte
+    cmp al, $20
+    jlu dot
+    cmp al, $7E
+    jleu ascii
+  dot:
+    mov a, $2E00
+    syscall sys_io
+    jmp ascii_continue
+  ascii:
+    mov ah, al
+    mov al, 0
+    syscall sys_io
+  ascii_continue:
+    loopb print_ascii_L
+    jmp back1
+  print_base:
+    call printnl
+    mov b, d
+    sub b, scrap_sector      ; remove this later and fix address bases which display incorrectly
+    call print_u16x          ; display row
+    mov a, $3A00
+    syscall sys_io
+    mov a, $2000
+    syscall sys_io
+    jmp back
+
+  s_break1:  
+    .db "\nDebugger entry point.\n"
+    .db "0. Show Registers\n"
+    .db "1. Show 512B RAM block\n"
+    .db "2. Continue Execution", 0
+  }
+}
+
