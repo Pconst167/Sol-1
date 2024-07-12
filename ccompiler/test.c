@@ -1,9 +1,10 @@
-#include <stdio.h>
 
-char *strings[] = {"hello", "world", "end"};
 
 static void main(){
+    puts("");
+    puts("");
+}
 
-    printf(strings[1]);
+void puts(char *s){
 
 }

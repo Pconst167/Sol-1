@@ -10,6 +10,7 @@ extern t_function function_table[MAX_USER_FUNC];
 extern char string_table[STRING_TABLE_SIZE][TOKEN_LEN];
 extern t_var global_var_table[MAX_GLOBAL_VARS];
 
+extern int string_table_tos;
 extern int global_var_tos;
 extern int function_table_tos;
 extern int defines_tos;
@@ -98,8 +99,9 @@ int search_typedef(char *name){
 int search_string(char *str){
   int i;
 
-  for(i = 0; i < STRING_TABLE_SIZE; i++) if(!strcmp(string_table[i], str)) 
-    return i;
+  for(i = 0; i < string_table_tos; i++) 
+    if(!strcmp(string_table[i], str)) 
+      return i;
 
   return -1;
 }
