@@ -1,9 +1,9 @@
 ; --- FILENAME: programs/life.c
 .include "lib/asm/kernel.exp"
 .include "lib/asm/bios.exp"
-.org text_org
 
 ; --- BEGIN TEXT SEGMENT
+.org text_org
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
@@ -1458,7 +1458,7 @@ _switch25_case6:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
-; p = p + 1; 
+; p = p + 2; 
   lea d, [bp + -1] ; $p
   push d
   lea d, [bp + -1] ; $p
@@ -1467,7 +1467,7 @@ _switch25_case6:
 ; --- START TERMS
   push a
   mov a, b
-  mov32 cb, $00000001
+  mov32 cb, $00000002
   add b, a
   pop a
 ; --- END TERMS

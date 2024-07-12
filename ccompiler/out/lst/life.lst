@@ -21,9 +21,9 @@
 0003+  0000             boot_origin      .EQU  $8004
 0004+  0000             bios_uart        .EQU  $0002
 0005+  0000             bios_ide         .EQU  $0003
-0004   0400             .org text_org
-0005   0400             
-0006   0400             ; --- BEGIN TEXT SEGMENT
+0004   0000             
+0005   0000             ; --- BEGIN TEXT SEGMENT
+0006   0400             .org text_org
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
@@ -1538,7 +1538,7 @@
 1458   0D4A 07 66 0F      call putchar
 1459   0D4D 51 01 00      add sp, 1
 1460   0D50             ; --- END FUNCTION CALL
-1461   0D50             ; p = p + 1; 
+1461   0D50             ; p = p + 2; 
 1462   0D50 FA FF FF      lea d, [bp + -1] ; $p
 1463   0D53 DA            push d
 1464   0D54 FA FF FF      lea d, [bp + -1] ; $p
@@ -1547,7 +1547,7 @@
 1467   0D5B             ; --- START TERMS
 1468   0D5B D7            push a
 1469   0D5C 11            mov a, b
-1470   0D5D FD 2E 01 00   mov32 cb, $00000001
+1470   0D5D FD 2E 02 00   mov32 cb, $00000002
 1470   0D61 00 00 
 1471   0D63 56            add b, a
 1472   0D64 E4            pop a

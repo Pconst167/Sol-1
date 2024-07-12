@@ -1109,10 +1109,22 @@ void declare_define(){
   get(); // get define's name
   strcpy(defines_table[defines_tos].name, curr_token.token_str);
   // get value
-  while(*prog != '\n' && *prog != '\0'){
+  while(*prog != '\n' && *prog != '\0'    && 
+      !(*prog == '/' && *(prog+1) == '/') &&
+      !(*prog == '/' && *(prog+1) == '*') 
+  ){
     *p++ = *prog++;
   }
   *p = '\0';
+
+  if(*prog == '/' && *(prog+1) == '/'){
+    while(*prog != '\n') prog++;
+  }
+  else if(*prog == '/' && *(prog+1) == '*'){
+    while(!(*prog == '*' && *(prog+1) == '/') && *prog) prog++;
+    if(!*prog) error(ERR_FATAL, "unterminated comment");
+    prog += 2;
+  }
 
   defines_tos++;
 

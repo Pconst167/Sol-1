@@ -21,9 +21,9 @@
 0003+  0000             boot_origin      .EQU  $8004
 0004+  0000             bios_uart        .EQU  $0002
 0005+  0000             bios_ide         .EQU  $0003
-0004   0400             .org text_org
-0005   0400             
-0006   0400             ; --- BEGIN TEXT SEGMENT
+0004   0000             
+0005   0000             ; --- BEGIN TEXT SEGMENT
+0006   0400             .org text_org
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)

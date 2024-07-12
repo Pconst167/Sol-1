@@ -1,11 +1,9 @@
 #include <stdio.h>
 
+char *strings[] = {"hello", "world", "end"};
 
 static void main(){
 
-    "Hello World"
-    "My name is Sol-1"
-    "And this is a multi-line string";
-
+    printf(strings[1]);
 
 }

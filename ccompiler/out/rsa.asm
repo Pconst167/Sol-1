@@ -1,9 +1,9 @@
 ; --- FILENAME: programs/rsa.c
 .include "lib/asm/kernel.exp"
 .include "lib/asm/bios.exp"
-.org text_org
 
 ; --- BEGIN TEXT SEGMENT
+.org text_org
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)

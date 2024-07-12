@@ -2654,72 +2654,74 @@ kernel_reset_vector:
 .include "lib/token.asm"
 
 ; kernel parameters
-sys_debug_mode:     .db 0   ; debug modes: 0=normal mode, 1=debug mode
-sys_echo_on:        .db 1
-sys_uart0_lcr:      .db $07 ; 8 data bits, 2 stop bit, no parity
-sys_uart0_inten:    .db 1
-sys_uart0_fifoen:   .db 0
-sys_uart0_div0:     .db 12  ;
-sys_uart0_div1:     .db 0   ; default baud = 9600
-; Baud  Divisor
-; 50    2304
-; 110   1047
-; 300    384
-; 600    192
-; 1200    96
-; 9600    12
-; 19200    6
-; 38400    3
+char sys_debug_mode = 0; // debug modes: 0=normal mode, 1=debug mode
+char sys_echo_on    = 1
+char sys_uart0_lcr:   = 7 // 8 data bits, 2 stop bit, no parity
+char sys_uart0_inten    = 1
+char sys_uart0_fifoen   = 0
+char sys_uart0_div0     = 12  
+char sys_uart0_div1     = 0   // default baud = 9600
+// Baud  Divisor
+// 50    2304
+// 110   1047
+// 300    384
+// 600    192
+// 1200    96
+// 9600    12
+// 19200    6
+// 38400    3
 
-nbr_active_procs:   .db 0
-active_proc_index:  .db 1
+char nbr_active_procs:   = 0
+char active_proc_index:  = 1
 
-index:              .dw 0
-buffer_addr:        .dw 0
+int index:              = 0
+int buffer_addr:        = 0
 
-fifo_in:            .dw fifo
-fifo_out:           .dw fifo
+unsigned int fifo_in:            = fifo
+unsigned int fifo_out:           = fifo
 
-; file system variables
-current_dir_id:     .dw 0     ; keep dirID of current directory
-s_init_path:        .db "/sbin/init", 0
+// file system variables
+unsigned int current_dir_id:     = 0     // keep dirID of current directory
+char *s_init_path:        = "/sbin/init";
 
-s_dataentry:        .db "> ", 0
-s_parent_dir:       .db "..", 0
-s_current_dir:      .db ".", 0
-s_fslash:           .db "/", 0
-file_attrib:        .db "-rw x"      ; chars at powers of 2
-file_type:          .db "-dc"
-s_ps_header:        .db "PID COMMAND\n", 0
-s_ls_total:         .db "Total: ", 0
+char *s_dataentry   = "> "
+char *s_parent_dir  = ".."
+char *s_current_dir = "."
+char *s_fslash      = "/"
+char *file_attrib   = "-rw x"      // chars at powers of 2
+char *file_type     = "-dc"
+char *s_ps_header   = "PID COMMAND\n"
+char *s_ls_total    = "Total: "
 
-s_int_en:           .db "IRQs enabled\n", 0
-s_kernel_started:   .db "kernel started(version 1.0)\n", 0
-s_prompt_init:      .db "starting init\n", 0
-s_priviledge:       .db "\nexception: privilege\n", 0
-s_divzero:          .db "\nexception: zero division\n", 0
+char *s_int_en:          = "IRQs enabled\n"
+char *s_kernel_started:  = "kernel started(version 1.0)\n"
+char *s_prompt_init:     = "starting init\n"
+char *s_priviledge:      = "\nexception: privilege\n"
+char *s_divzero:         = "\nexception: zero division\n"
 
-s_set_year:         .db "Year: ", 0
-s_set_month:        .db "Month: ", 0
-s_set_day:          .db "Day: ", 0
-s_set_week:         .db "Weekday: ", 0
-s_set_hours:        .db "Hours: ", 0
-s_set_minutes:      .db "Minutes: ", 0
-s_set_seconds:      .db "Seconds: ", 0
-s_months:      
-  .db "   ", 0
-  .db "Jan", 0
-  .db "Feb", 0
-  .db "Mar", 0
-  .db "Apr", 0
-  .db "May", 0
-  .db "Jun", 0
-  .db "Jul", 0
-  .db "Aug", 0
-  .db "Sep", 0
-  .db "Oct", 0
-  .db "Nov", 0
-  .db "Dec", 0
+char *s_set_year:        = "Year: ";
+char *s_set_month:       = "Month: ";
+char *s_set_day:         = "Day: ";
+char *s_set_week:        = "Weekday: ";
+char *s_set_hours:       = "Hours: ";
+char *s_set_minutes:     = "Minutes: ";
+char *s_set_seconds:     = "Seconds: ";
+
+char *s_months[] = {      
+  "   ",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+}
 
 s_week:        
   .db "Sun", 0 
