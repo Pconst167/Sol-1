@@ -1,4 +1,5 @@
 ; --- FILENAME: ../solarium/boot/kernel.c
+.include "lib/asm/kernel.exp"
 .include "lib/asm/bios.exp"
 ; --- BEGIN SYSTEM SEGMENT
   ; ------------------------------------------------------------------------------------------------------------------;
