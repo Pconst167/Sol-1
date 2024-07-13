@@ -75,7 +75,7 @@
 0051   0454             _ternary1_exit:
 0052   0454 E7            pop d
 0053   0455 FD 43         mov [d], b
-0054   0457             ; printf("\nresult: %s\n", pass ? "passed" : "failed"); 
+0054   0457             ; printf("result: %s\n", pass ? "passed" : "failed"); 
 0055   0457             ; --- START FUNCTION CALL
 0056   0457             _ternary3_cond:
 0057   0457 FA FF FF      lea d, [bp + -1] ; $pass
@@ -84,14 +84,14 @@
 0060   045E C0 00 00      cmp b, 0
 0061   0461 C6 6A 04      je _ternary3_FALSE
 0062   0464             _ternary3_TRUE:
-0063   0464 26 7B 0D      mov b, _s0 ; "passed"
+0063   0464 26 7D 0D      mov b, _s0 ; "passed"
 0064   0467 0A 6D 04      jmp _ternary3_exit
 0065   046A             _ternary3_FALSE:
-0066   046A 26 82 0D      mov b, _s1 ; "failed"
+0066   046A 26 84 0D      mov b, _s1 ; "failed"
 0067   046D             _ternary3_exit:
 0068   046D FD AB         swp b
 0069   046F D8            push b
-0070   0470 26 89 0D      mov b, _s2 ; "\nresult: %s\n"
+0070   0470 26 8B 0D      mov b, _s2 ; "result: %s\n"
 0071   0473 FD AB         swp b
 0072   0475 D8            push b
 0073   0476 07 7E 04      call printf
@@ -360,7 +360,7 @@
 0330   061E             _if10_else:
 0331   061E             ; err("Unexpected format in printf."); 
 0332   061E             ; --- START FUNCTION CALL
-0333   061E 26 96 0D      mov b, _s3 ; "Unexpected format in printf."
+0333   061E 26 97 0D      mov b, _s3 ; "Unexpected format in printf."
 0334   0621 FD AB         swp b
 0335   0623 D8            push b
 0336   0624 07 92 0A      call err
@@ -550,7 +550,7 @@
 0514   0732             _switch7_default:
 0515   0732             ; print("Error: Unknown argument type.\n"); 
 0516   0732             ; --- START FUNCTION CALL
-0517   0732 26 B3 0D      mov b, _s4 ; "Error: Unknown argument type.\n"
+0517   0732 26 B4 0D      mov b, _s4 ; "Error: Unknown argument type.\n"
 0518   0735 FD AB         swp b
 0519   0737 D8            push b
 0520   0738 07 A7 0A      call print
@@ -1594,34 +1594,34 @@
 1516   0D7B             ; --- END TEXT SEGMENT
 1517   0D7B             
 1518   0D7B             ; --- BEGIN DATA SEGMENT
-1519   0D7B 70 61 73 73 _s0: .db "passed", 0
-1519   0D7F 65 64 00 
-1520   0D82 66 61 69 6C _s1: .db "failed", 0
-1520   0D86 65 64 00 
-1521   0D89 0A 72 65 73 _s2: .db "\nresult: %s\n", 0
-1521   0D8D 75 6C 74 3A 
-1521   0D91 20 25 73 0A 
-1521   0D95 00 
-1522   0D96 55 6E 65 78 _s3: .db "Unexpected format in printf.", 0
-1522   0D9A 70 65 63 74 
-1522   0D9E 65 64 20 66 
-1522   0DA2 6F 72 6D 61 
-1522   0DA6 74 20 69 6E 
-1522   0DAA 20 70 72 69 
-1522   0DAE 6E 74 66 2E 
-1522   0DB2 00 
-1523   0DB3 45 72 72 6F _s4: .db "Error: Unknown argument type.\n", 0
-1523   0DB7 72 3A 20 55 
-1523   0DBB 6E 6B 6E 6F 
-1523   0DBF 77 6E 20 61 
-1523   0DC3 72 67 75 6D 
-1523   0DC7 65 6E 74 20 
-1523   0DCB 74 79 70 65 
-1523   0DCF 2E 0A 00 
-1524   0DD2             
-1525   0DD2 D4 0D       _heap_top: .dw _heap
-1526   0DD4 00          _heap: .db 0
-1527   0DD5             ; --- END DATA SEGMENT
-1528   0DD5             
-1529   0DD5             .end
+1519   0D7B 00 00       _string: .fill 2, 0
+1520   0D7D 70 61 73 73 _s0: .db "passed", 0
+1520   0D81 65 64 00 
+1521   0D84 66 61 69 6C _s1: .db "failed", 0
+1521   0D88 65 64 00 
+1522   0D8B 72 65 73 75 _s2: .db "result: %s\n", 0
+1522   0D8F 6C 74 3A 20 
+1522   0D93 25 73 0A 00 
+1523   0D97 55 6E 65 78 _s3: .db "Unexpected format in printf.", 0
+1523   0D9B 70 65 63 74 
+1523   0D9F 65 64 20 66 
+1523   0DA3 6F 72 6D 61 
+1523   0DA7 74 20 69 6E 
+1523   0DAB 20 70 72 69 
+1523   0DAF 6E 74 66 2E 
+1523   0DB3 00 
+1524   0DB4 45 72 72 6F _s4: .db "Error: Unknown argument type.\n", 0
+1524   0DB8 72 3A 20 55 
+1524   0DBC 6E 6B 6E 6F 
+1524   0DC0 77 6E 20 61 
+1524   0DC4 72 67 75 6D 
+1524   0DC8 65 6E 74 20 
+1524   0DCC 74 79 70 65 
+1524   0DD0 2E 0A 00 
+1525   0DD3             
+1526   0DD3 D5 0D       _heap_top: .dw _heap
+1527   0DD5 00          _heap: .db 0
+1528   0DD6             ; --- END DATA SEGMENT
+1529   0DD6             
+1530   0DD6             .end
 tasm: Number of errors = 0

@@ -51,7 +51,7 @@ _ternary1_FALSE:
 _ternary1_exit:
   pop d
   mov [d], b
-; printf("\nresult: %s\n", pass ? "passed" : "failed"); 
+; printf("result: %s\n", pass ? "passed" : "failed"); 
 ; --- START FUNCTION CALL
 _ternary3_cond:
   lea d, [bp + -1] ; $pass
@@ -67,7 +67,7 @@ _ternary3_FALSE:
 _ternary3_exit:
   swp b
   push b
-  mov b, _s2 ; "\nresult: %s\n"
+  mov b, _s2 ; "result: %s\n"
   swp b
   push b
   call printf
@@ -1516,9 +1516,10 @@ s_hex_digits_printx16:    .db "0123456789ABCDEF"
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
+_string: .fill 2, 0
 _s0: .db "passed", 0
 _s1: .db "failed", 0
-_s2: .db "\nresult: %s\n", 0
+_s2: .db "result: %s\n", 0
 _s3: .db "Unexpected format in printf.", 0
 _s4: .db "Error: Unknown argument type.\n", 0
 

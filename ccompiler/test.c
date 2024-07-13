@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+char *string;
+
 void main(){
   int pass = 1;
   int expression = 1;
