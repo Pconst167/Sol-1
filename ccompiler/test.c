@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+char *string;
+
 void main(){
   unsigned long int i = 0;
 
