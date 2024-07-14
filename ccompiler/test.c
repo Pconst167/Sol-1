@@ -1,11 +1,11 @@
 #include <stdio.h>
 
 void main(){
-  int pass = 1;
-  int expression = 1;
+  unsigned long int i = 0;
 
-  pass = pass && expression ? 1 : 0;
-
-  printf("result: %s\n", pass ? "passed" : "failed");
+  for(i=0; i < 4294967295; i++){
+    printx32(i);
+    puts("");
+  }
 }
 

@@ -4379,12 +4379,12 @@ t_type parse_post_incrementing(t_type expr_in, char *temp_name){
       if(expr_in.size_modifier == SIZEMOD_LONG){
         emitln("", "  mov32 ga, 1");
         emitln("", "  add32 cb, ga");
+        emitln("", "  mov a, b");
+        emitln("", "  mov g, c");
         emit_var_addr_into_d(temp_name);
+        emitln("", "  mov [d], b");
         emitln("", "  mov b, c");
         emitln("", "  mov [d+2], b");
-        emitln("", "  mov [d], b");
-        emitln("", "  mov g, c");
-        emitln("", "  mov a, b");
         emitln("", "  mov32 cb, 1");
         emitln("", "  sub32 ga, cb");
         emitln("", "  mov c, g");
