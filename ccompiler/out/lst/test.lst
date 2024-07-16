@@ -85,7 +85,7 @@
 0062   046B             ; --- END FUNCTION CALL
 0063   046B             ; puts(""); 
 0064   046B             ; --- START FUNCTION CALL
-0065   046B 26 23 05      mov b, _s0 ; ""
+0065   046B 26 25 05      mov b, _s0 ; ""
 0066   046E FD AB         swp b
 0067   0470 D8            push b
 0068   0471 07 05 05      call puts
@@ -99,12 +99,12 @@
 0076   0480 FD 2D 01 00   mov32 ga, 1
 0076   0484 00 00 
 0077   0486 FD 15         add32 cb, ga
-0078   0488 FA FD FF      lea d, [bp + -3] ; $i
-0079   048B 28            mov b, c
-0080   048C FD 44 02 00   mov [d+2], b
-0081   0490 FD 43         mov [d], b
-0082   0492 FD 7A         mov g, c
-0083   0494 11            mov a, b
+0078   0488 11            mov a, b
+0079   0489 FD 7A         mov g, c
+0080   048B FA FD FF      lea d, [bp + -3] ; $i
+0081   048E FD 43         mov [d], b
+0082   0490 28            mov b, c
+0083   0491 FD 44 02 00   mov [d+2], b
 0084   0495 FD 2E 01 00   mov32 cb, 1
 0084   0499 00 00 
 0085   049B FD 1C         sub32 ga, cb
@@ -198,11 +198,12 @@
 0170   0523             ; --- END TEXT SEGMENT
 0171   0523             
 0172   0523             ; --- BEGIN DATA SEGMENT
-0173   0523 00          _s0: .db "", 0
-0174   0524             
-0175   0524 26 05       _heap_top: .dw _heap
-0176   0526 00          _heap: .db 0
-0177   0527             ; --- END DATA SEGMENT
-0178   0527             
-0179   0527             .end
+0173   0523 00 00       _string: .fill 2, 0
+0174   0525 00          _s0: .db "", 0
+0175   0526             
+0176   0526 28 05       _heap_top: .dw _heap
+0177   0528 00          _heap: .db 0
+0178   0529             ; --- END DATA SEGMENT
+0179   0529             
+0180   0529             .end
 tasm: Number of errors = 0

@@ -75,12 +75,12 @@ _for1_update:
   mov b, [d] ; Lower Word in B
   mov32 ga, 1
   add32 cb, ga
+  mov a, b
+  mov g, c
   lea d, [bp + -3] ; $i
+  mov [d], b
   mov b, c
   mov [d+2], b
-  mov [d], b
-  mov g, c
-  mov a, b
   mov32 cb, 1
   sub32 ga, cb
   mov c, g
@@ -170,6 +170,7 @@ _puts_END_puts:
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
+_string: .fill 2, 0
 _s0: .db "", 0
 
 _heap_top: .dw _heap
