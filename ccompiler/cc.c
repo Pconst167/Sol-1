@@ -2686,19 +2686,45 @@ void parse_asm(void){
   char *temp_prog;
   
   get();
-  if(curr_token.tok != OPENING_BRACE) error(ERR_FATAL, "Opening braces expected");
-  emitln("", "; --- BEGIN INLINE ASM SEGMENT");
-  for(;;){
+  if(curr_token.tok == OPENING_BRACE){
+    emitln("", "; --- BEGIN INLINE ASM SEGMENT");
+    for(;;){
+      while(is_space(*prog)) prog++;
+      temp_prog = prog;
+      get_line();
+      if(strchr(curr_token.string_const, '}')) break;
+      else if(strchr(curr_token.string_const, ':') 
+          || strstr(curr_token.string_const, ".include") 
+          || strstr(curr_token.string_const, ".db") 
+          || strstr(curr_token.string_const, ".dw") 
+          || strstr(curr_token.string_const, ".equ") 
+          || strstr(curr_token.string_const, ".EQU")){
+        emitln("", curr_token.string_const);
+      } 
+      else if(strstr(curr_token.string_const, "ccmovd")){
+        prog = temp_prog;
+        get();  // get 'ccmovd'
+        get();  // get identifier
+        if(curr_token.tok_type != IDENTIFIER) error(ERR_FATAL, "Identifier expected.");
+        emit_var_addr_into_d(curr_token.token_str);
+      }
+      else{
+        emitln("", "  %s", curr_token.string_const);
+      }
+    }
+    emitln("", "; --- END INLINE ASM SEGMENT");
+  }
+  else{
+    back();
     while(is_space(*prog)) prog++;
     temp_prog = prog;
     get_line();
-    if(strchr(curr_token.string_const, '}')) break;
-    else if(strchr(curr_token.string_const, ':') 
-         || strstr(curr_token.string_const, ".include") 
-         || strstr(curr_token.string_const, ".db") 
-         || strstr(curr_token.string_const, ".dw") 
-         || strstr(curr_token.string_const, ".equ") 
-         || strstr(curr_token.string_const, ".EQU")){
+    if(strchr(curr_token.string_const, ':') 
+        || strstr(curr_token.string_const, ".include") 
+        || strstr(curr_token.string_const, ".db") 
+        || strstr(curr_token.string_const, ".dw") 
+        || strstr(curr_token.string_const, ".equ") 
+        || strstr(curr_token.string_const, ".EQU")){
       emitln("", curr_token.string_const);
     } 
     else if(strstr(curr_token.string_const, "ccmovd")){
@@ -2712,7 +2738,6 @@ void parse_asm(void){
       emitln("", "  %s", curr_token.string_const);
     }
   }
-  emitln("", "; --- END INLINE ASM SEGMENT");
 }
 
 void parse_break(void){

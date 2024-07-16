@@ -3,11 +3,13 @@
 char *string;
 
 void main(){
-  unsigned long int i = 0;
+  int i;
 
-  for(i=0; i < 4294967295; i++){
-    printx32(i);
-    puts("");
-  }
+  asm mov a, 1
+  asm mov d, 2
+  asm add c, 1
+  asm add a, 1
+
+
 }
 
