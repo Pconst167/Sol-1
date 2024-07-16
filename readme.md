@@ -38,7 +38,6 @@ It is published here for educational purposes.
 | PTB    |        | Page Table Base |
 | Status |        | CPU Status |
 | Flags  |        | Arithmetic and Logic flags register |
-| TDR    | TDRH/TDRL | Temporary Data Register (Internal CPU scratch register) |
 
 ### Software
 - Unix-like operating system (in progress and very early)
