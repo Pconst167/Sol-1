@@ -1,3 +1,4 @@
+Some guy says:
 Also, check out the National 8473, and the SMC37C65x family. A second
 source for the WD37C65 is Goldstar, who made a pin compatible version.
 
@@ -15,3 +16,14 @@ compatible with the Intel part. I think the old Intel part # was 8277?
 For new parts, I would use the National 8477, or the Intel 82077AA,
 THese parts can handle the new 2.88mb floppy drives that never quite
 got popular. They can also do perpendicular recording.
+
+Response:
+The crystals are 9.6mhz (only needed for 1.2mb floppies) not that odd
+and 16mhz a standards freq.
+
+The two silver micas? what for I have the data sheet and there is no
+requirement for them unless you talking about the oscillator
+components for the 44pin flatpack.
+
+The 48mA drie however is normal of all the floppy controllers that
+have a direct bus interface for PCs.
