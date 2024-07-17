@@ -21,9 +21,9 @@ xxd -ps out/obj/${file_name}.obj | sed -z 's/\n//g' | tr 'abcdef' 'ABCDEF' | xcl
 echo "> .obj copied to clipboard in intel-hex format"
 
 echo
-echo -n "C file size: "; 
-printf "%d lines, %d bytes\n" "$(wc -l < "$1")" "$(ls -la "$1" | awk '{print $5}')" 
+echo -n "original C file size     : "; 
+printf "%d lines, %d bytes (before adding included functions)\n" "$(wc -l < "$1")" "$(ls -la "$1" | awk '{print $5}')" 
 
-echo -n "Object file size: "; ls -la out/obj/${file_name}.obj | awk '{printf "%d(0x%X)\n", $5, $5}'
-echo -n "Hex file size : "; ls -la out/obj/${file_name}.obj | awk '{printf "%d(0x%X)\n", $5*2, $5*2}'
-echo -n "Number of Assembly lines: "; wc -l out/${file_name}.asm
+echo -n "object file size         : "; ls -la out/obj/${file_name}.obj | awk '{printf "%d(0x%X)\n", $5, $5}'
+echo -n "hex file size            : "; ls -la out/obj/${file_name}.obj | awk '{printf "%d(0x%X)\n", $5*2, $5*2}'
+echo -n "number of assembly lines : "; wc -l out/${file_name}.asm

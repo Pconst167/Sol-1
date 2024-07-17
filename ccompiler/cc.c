@@ -321,6 +321,9 @@ int main(int argc, char *argv[]){
   char filename_out[ID_LEN];
   char switch_display_function_table;
   char switch_display_typedef_table;
+  int total_c_lines;
+  int total_asm_lines;
+  float apc_ratio; // asm lines per c lines ratio
 
   switch_display_function_table = 0;
   switch_display_typedef_table  = 0;
@@ -358,6 +361,9 @@ int main(int argc, char *argv[]){
   pre_processor();
   pre_scan();
 
+  // count total number of c lines
+  total_c_lines = count_total_lines(c_in);
+
   if((main_index = search_function("main")) != -1){
     if(search_function_parameter(main_index, "argc") != -1 && search_function_parameter(main_index, "argv") != -1){
       insert_runtime();
@@ -367,6 +373,9 @@ int main(int argc, char *argv[]){
   emit("\n; --- BEGIN TEXT SEGMENT");
   parse_functions();
   emitln("", "; --- END TEXT SEGMENT");
+
+  // count total number of asm lines
+  total_asm_lines = count_total_lines(asm_out);
 
   asm_p = asm_out;
   while(*asm_p) asm_p++; 
@@ -387,6 +396,15 @@ int main(int argc, char *argv[]){
   *asm_p = '\0';
 
   //optimize_asm();
+  apc_ratio = (float)total_asm_lines / (float)total_c_lines;
+  printf("\n*** c compiler statistics ***"
+         "\ntotal c lines   : %d"
+         "\ntotal asm lines : %d"
+         "\nline ratio      : %3.3f assembly lines per c line (average)\n", 
+         total_c_lines, 
+         total_asm_lines, 
+         apc_ratio
+  );
 
   strcpy(filename_out, "out/");
   strcat(filename_out, filename_no_ext);
@@ -398,6 +416,16 @@ int main(int argc, char *argv[]){
   if(switch_display_typedef_table) print_typedef_table();
 
   return 0;
+}
+
+int count_total_lines(char *text){
+  char *p = text;
+  int lines = 0;
+  while(*p){
+    if(*p == '\n') lines++;
+    p++;
+  }
+  return lines;
 }
 
 void add_library_type_declarations(){
