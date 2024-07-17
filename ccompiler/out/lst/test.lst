@@ -27,182 +27,23 @@
 0007   0400             main:
 0008   0400 FD 49 E0 FF   mov bp, $FFE0 ;
 0009   0404 FD 47 E0 FF   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-0010   0408             ; unsigned long int i = 0; 
-0011   0408 52 04 00      sub sp, 4
-0012   040B             ; --- START LOCAL VAR INITIALIZATION
-0013   040B FA FD FF      lea d, [bp + -3] ; $i
-0014   040E DA            push d
-0015   040F FD 2E 00 00   mov32 cb, $00000000
-0015   0413 00 00 
-0016   0415 E7            pop d
-0017   0416 FD 43         mov [d], b
-0018   0418 26 00 00      mov b, 0
-0019   041B FD 44 02 00   mov [d + 2], b
-0020   041F             ; --- END LOCAL VAR INITIALIZATION
-0021   041F             ; for(i=0; i < 4294967295; i++){ 
-0022   041F             _for1_init:
-0023   041F FA FD FF      lea d, [bp + -3] ; $i
-0024   0422 DA            push d
-0025   0423 FD 2E 00 00   mov32 cb, $00000000
-0025   0427 00 00 
-0026   0429 E7            pop d
-0027   042A FD 43         mov [d], b
-0028   042C 26 00 00      mov b, 0
-0029   042F FD 44 02 00   mov [d + 2], b
-0030   0433             _for1_cond:
-0031   0433 FA FD FF      lea d, [bp + -3] ; $i
-0032   0436 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
-0033   0439 FD 39         mov c, b ; And place it into C
-0034   043B 2A            mov b, [d] ; Lower Word in B
-0035   043C             ; --- START RELATIONAL
-0036   043C D7            push a
-0037   043D FD D8         push g
-0038   043F 11            mov a, b
-0039   0440 FD 7A         mov g, c
-0040   0442 FD 2E FF FF   mov32 cb, $ffffffff
-0040   0446 FF FF 
-0041   0448 FD AF         cmp32 ga, cb
-0042   044A FD 75         slu ; <
-0043   044C FD F1         pop g
-0044   044E E4            pop a
-0045   044F             ; --- END RELATIONAL
-0046   044F C0 00 00      cmp b, 0
-0047   0452 C6 A3 04      je _for1_exit
-0048   0455             _for1_block:
-0049   0455             ; printx32(i); 
-0050   0455             ; --- START FUNCTION CALL
-0051   0455 FA FD FF      lea d, [bp + -3] ; $i
-0052   0458 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
-0053   045B FD 39         mov c, b ; And place it into C
-0054   045D 2A            mov b, [d] ; Lower Word in B
-0055   045E 12            mov a, c
-0056   045F FD AA         swp a
-0057   0461 D7            push a
-0058   0462 FD AB         swp b
-0059   0464 D8            push b
-0060   0465 07 A5 04      call printx32
-0061   0468 51 04 00      add sp, 4
-0062   046B             ; --- END FUNCTION CALL
-0063   046B             ; puts(""); 
-0064   046B             ; --- START FUNCTION CALL
-0065   046B 26 23 05      mov b, _s0 ; ""
-0066   046E FD AB         swp b
-0067   0470 D8            push b
-0068   0471 07 05 05      call puts
-0069   0474 51 02 00      add sp, 2
-0070   0477             ; --- END FUNCTION CALL
-0071   0477             _for1_update:
-0072   0477 FA FD FF      lea d, [bp + -3] ; $i
-0073   047A 2B 02 00      mov b, [d + 2] ; Upper Word of the Long Int
-0074   047D FD 39         mov c, b ; And place it into C
-0075   047F 2A            mov b, [d] ; Lower Word in B
-0076   0480 FD 2D 01 00   mov32 ga, 1
-0076   0484 00 00 
-0077   0486 FD 15         add32 cb, ga
-0078   0488 FA FD FF      lea d, [bp + -3] ; $i
-0079   048B 28            mov b, c
-0080   048C FD 44 02 00   mov [d+2], b
-0081   0490 FD 43         mov [d], b
-0082   0492 FD 7A         mov g, c
-0083   0494 11            mov a, b
-0084   0495 FD 2E 01 00   mov32 cb, 1
-0084   0499 00 00 
-0085   049B FD 1C         sub32 ga, cb
-0086   049D FD 38         mov c, g
-0087   049F 27            mov b, a
-0088   04A0 0A 33 04      jmp _for1_cond
-0089   04A3             _for1_exit:
-0090   04A3 05 0B         syscall sys_terminate_proc
-0091   04A5             
-0092   04A5             printx32:
-0093   04A5 F8 00 00      enter 0 ; (push bp; mov bp, sp)
-0094   04A8             ; --- BEGIN INLINE ASM SEGMENT
-0095   04A8 FA 05 00      lea d, [bp + 5] ; $hex
-0096   04AB 2B 02 00      mov b, [d+2]
-0097   04AE 07 B7 04      call print_u16x_printx32
-0098   04B1 2A            mov b, [d]
-0099   04B2 07 B7 04      call print_u16x_printx32
-0100   04B5             ; --- END INLINE ASM SEGMENT
-0101   04B5             ; return; 
-0102   04B5 F9            leave
-0103   04B6 09            ret
-0104   04B7             ; --- BEGIN INLINE ASM SEGMENT
-0105   04B7             print_u16x_printx32:
-0106   04B7 D7            push a
-0107   04B8 D8            push b
-0108   04B9 DD            push bl
-0109   04BA 30            mov bl, bh
-0110   04BB 07 D9 04      call _itoa_printx32        ; convert bh to char in A
-0111   04BE 2F            mov bl, al        ; save al
-0112   04BF 19 00         mov al, 0
-0113   04C1 05 03         syscall sys_io        ; display AH
-0114   04C3 24            mov ah, bl        ; retrieve al
-0115   04C4 19 00         mov al, 0
-0116   04C6 05 03         syscall sys_io        ; display AL
-0117   04C8 EA            pop bl
-0118   04C9 07 D9 04      call _itoa_printx32        ; convert bh to char in A
-0119   04CC 2F            mov bl, al        ; save al
-0120   04CD 19 00         mov al, 0
-0121   04CF 05 03         syscall sys_io        ; display AH
-0122   04D1 24            mov ah, bl        ; retrieve al
-0123   04D2 19 00         mov al, 0
-0124   04D4 05 03         syscall sys_io        ; display AL
-0125   04D6 E5            pop b
-0126   04D7 E4            pop a
-0127   04D8 09            ret
-0128   04D9             _itoa_printx32:
-0129   04D9 DA            push d
-0130   04DA D8            push b
-0131   04DB A7 00         mov bh, 0
-0132   04DD FD A4 04      shr bl, 4  
-0133   04E0 74            mov d, b
-0134   04E1 1F F3 04      mov al, [d + s_hex_digits_printx32]
-0135   04E4 23            mov ah, al
-0136   04E5 E5            pop b
-0137   04E6 D8            push b
-0138   04E7 A7 00         mov bh, 0
-0139   04E9 FD 87 0F      and bl, $0F
-0140   04EC 74            mov d, b
-0141   04ED 1F F3 04      mov al, [d + s_hex_digits_printx32]
-0142   04F0 E5            pop b
-0143   04F1 E7            pop d
-0144   04F2 09            ret
-0145   04F3 30 31 32 33 s_hex_digits_printx32: .db "0123456789ABCDEF"  
-0145   04F7 34 35 36 37 
-0145   04FB 38 39 41 42 
-0145   04FF 43 44 45 46 
-0146   0503             ; --- END INLINE ASM SEGMENT
-0147   0503 F9            leave
-0148   0504 09            ret
-0149   0505             
-0150   0505             puts:
-0151   0505 F8 00 00      enter 0 ; (push bp; mov bp, sp)
-0152   0508             ; --- BEGIN INLINE ASM SEGMENT
-0153   0508 FA 05 00      lea d, [bp + 5] ; $s
-0154   050B FD 2A         mov d, [d]
-0155   050D             _puts_L1_puts:
-0156   050D 1E            mov al, [d]
-0157   050E B9 00         cmp al, 0
-0158   0510 C6 1C 05      jz _puts_END_puts
-0159   0513 23            mov ah, al
-0160   0514 19 00         mov al, 0
-0161   0516 05 03         syscall sys_io
-0162   0518 79            inc d
-0163   0519 0A 0D 05      jmp _puts_L1_puts
-0164   051C             _puts_END_puts:
-0165   051C 10 00 0A      mov a, $0A00
-0166   051F 05 03         syscall sys_io
-0167   0521             ; --- END INLINE ASM SEGMENT
-0168   0521 F9            leave
-0169   0522 09            ret
-0170   0523             ; --- END TEXT SEGMENT
-0171   0523             
-0172   0523             ; --- BEGIN DATA SEGMENT
-0173   0523 00          _s0: .db "", 0
-0174   0524             
-0175   0524 26 05       _heap_top: .dw _heap
-0176   0526 00          _heap: .db 0
-0177   0527             ; --- END DATA SEGMENT
-0178   0527             
-0179   0527             .end
+0010   0408             ; int i; 
+0011   0408 52 02 00      sub sp, 2
+0012   040B             mylabel:
+0013   040B 01          .db 1
+0014   040C 10 01 00      mov a, 1
+0015   040F 3B 02 00      mov d, 2
+0016   0412 57 01 00      add c, 1
+0017   0415 53 01 00      add a, 1
+0018   0418 05 0B         syscall sys_terminate_proc
+0019   041A             ; --- END TEXT SEGMENT
+0020   041A             
+0021   041A             ; --- BEGIN DATA SEGMENT
+0022   041A 00 00       _string: .fill 2, 0
+0023   041C             
+0024   041C 1E 04       _heap_top: .dw _heap
+0025   041E 00          _heap: .db 0
+0026   041F             ; --- END DATA SEGMENT
+0027   041F             
+0028   041F             .end
 tasm: Number of errors = 0
