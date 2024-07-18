@@ -249,4 +249,3 @@ FDS1OF:	 DEFS	1		; FDC first sector number offset side 1
 sbscflg: DEFS	1		; Flag for SBSC operation
 
 ;=========================== End of FLOPPY ================================
-
