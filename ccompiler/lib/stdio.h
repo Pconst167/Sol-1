@@ -922,6 +922,15 @@ void move_cursor(int x, int y){
   printf("\033[%d;%dH", y, x);
 }
 
+void hide_cursor(char hide){
+  if(hide){
+    printf("\033[?25l");
+  }
+  else{
+    printf("\033[?25h");
+  }
+}
+
 int abs(int i){
   return i < 0 ? -i : i;
 }
