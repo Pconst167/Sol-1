@@ -1,11 +1,3 @@
-#include <stdio.h>
-
-
-int main(){
-
-}
-
-/*
 During the Command or Result phases, the Main
 Status Register must be read by the processor
 before each byte of information is written into or
@@ -72,4 +64,4 @@ fashion, when the last byte of data is read out in
 the Result phase, the command is automatically
 ended and the WD37C65C is ready for a new
 command.
-*/
+
