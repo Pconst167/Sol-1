@@ -8,6 +8,7 @@
 #include <errno.h>
 #include "def.h"
 
+char switch_find_opcode_len;
 
 int main(int argc, char *argv[]){
   char filename_noext[256];
@@ -19,6 +20,7 @@ int main(int argc, char *argv[]){
   int switch_showresult = 0;
   int switch_verbose = 0;
   unsigned char rom_binary[65536];
+  int arg_pos_opcode_len;
 
   if(argc > 1) load_program(argv[1]);  
   else{
@@ -30,7 +32,16 @@ int main(int argc, char *argv[]){
     if(argv[i][0] == '-'){ // Switch argument
       if(strchr(argv[i], 'v')) switch_verbose = 1;
       if(strchr(argv[i], 's')) switch_showresult = 1;
+      if(strchr(argv[i], 'l')){
+        switch_find_opcode_len = 1;
+        arg_pos_opcode_len = i + 1;
+      }
     }
+  }
+
+  if(switch_find_opcode_len){
+    printf("\nnumber of clock cycles for %s: %d\n", argv[arg_pos_opcode_len], find_opcode_len(argv[arg_pos_opcode_len]));
+    return 0;
   }
 
   strcpy(current_filename, argv[1]);
@@ -125,6 +136,54 @@ int main(int argc, char *argv[]){
   printf("Average number of micro-instructions per instruction: %.3f\n", (float)total_nbr_micro_instructions / (float)total_nbr_instructions);
 
   return 0;
+}
+
+int find_opcode_len(char *hex){
+  int opcode;
+  int total_len = 0;
+  int prev_cycle;
+
+  prog = micro_in;
+
+  // find opcode location
+  for(;;){
+    just_get();
+    if(!strcmp(token, hex)){
+      back();
+      break;
+    }
+  }
+
+  do{
+    just_get();
+    if(tok_type == END) return -1;
+    if(tok_type != INTEGER_CONST && tok != CLOSING_BRACE) error("Instruction opcode expected.");
+    back();
+
+    get_toktype(INTEGER_CONST, "Instruction opcode expected: %s", token);
+    opcode = current_instr = int_const;
+    get_tok(COMMA, "Comma expected.");
+    get_toktype(STRING_CONST, "Instruction mnemonic expected.");
+    printf("  %s, 0x%x,\n", token, opcode);
+    get_tok(OPENING_BRACE, "Opening brace expected.");
+
+    do{
+      just_get(); if(tok == CLOSING_BRACE) break;
+      back();
+      char *temp_prog;
+      get_toktype(INTEGER_CONST, "Instruction cycle expected.");
+      get_tok(OPENING_BRACE, "Opening brace expected.");
+      do{
+        just_get();
+        if(tok == CLOSING_BRACE) break;
+      }while(tok != END);
+
+      total_len++;
+    } while(tok_type != END);
+
+  } while(tok_type != END);
+
+
 }
 
 char* strip_ext(char* filename) {

@@ -536,3 +536,5 @@ int binstr_to_int(char *s);
 void skip_block(int braces);
 void get_tok(t_token token, char *format, ...);
 void get_toktype(t_token_type token_type, char *format, ...);
+
+int find_opcode_len(char *hex);

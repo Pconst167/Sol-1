@@ -2,20 +2,6 @@
   A C compiler for the Sol-1 Homebrew Minicomputer
 
   TODO:
-  ** a change is needed so that when include files are used, only the functions that are actually used in the code
-  are imported into the file, and not the whole of the included file.
-  Process:
-  read entire included files recursively.
-  add them all to a single text file.
-  scan thru main program, finding functions and then looking in the resulting include file for the function
-  add function to main program.
-  then...
-  start parsing the main c program, looking for referenced functions.when a functon is found,
-  look for the function inside the include files buffer. when found, then enter the function and
-  look for refrenced functions there as well. when one is found, then recursively enter that as well and parse.
-  this goes on recursively until a function is parsed that does not reference any others,
-  after exiting that recursion, we are back in the main program and we do the same for all functions in the main
-  program. 
 
   ** fix goto: at present we cannot jump to a label that is declared after the goto.
 
@@ -28,11 +14,9 @@
     
   ** look at cast() function for improvements.
 
-  ** implement parsing of concatenated string constants such as "strng 1" "string2" ... etc 
-
   ** implement 'register' keyworded type local variables  
 
-  ** change unary logical not operator to use cmp32 cb, i32 instead of cmo32 ga, i32, when the new instruction is burned in rom 
+  ** change unary logical not operator to use cmp32 cb, i32 instead of cmp32 ga, i32, when the new instruction is burned in rom 
 
   ** implement mov32 b, [d] to move a 32bit integer address by 'd'
 
