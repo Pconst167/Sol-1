@@ -66,8 +66,34 @@ ended and the WD37C65C is ready for a new
 command.
 
 
+--------------- READ A SECTOR
+Once the controller and drive have been reset, you can now issue commands.
+To read a sector from the drive, you need to
 
-Some notes found on github for z80 and 8080
+1. issue a seek track command (function 0x0F of controller)
+2. initialize the DMA chip. (Not covered in this tutorial. but the floppy
+   controller used channel 2.)
+3. wait (delay the driver for) head_settle_time specified in the floppy
+   parameter table described above.
+4. write read sector command (function 0x66) to the controller
+5. write the value of ((head*4)|drive) to the controller
+6. write the value of the desired cylinder to be read to the controller
+7. write the value of the desired head to be read to the controller
+8. write the value of the desired sector to be read to the controller
+9. write value of bytes_per_sector specified in the floppy parameter table to the controller
+10.write value of sectors_per_track specified in the floppy parameter table to the controller
+11.write value of gap_length specified in the floppy parameter table to the controller
+12.write value of data_length specified in the floppy parameter table to the controller
+   At this point the controller will start to read the sector,so you have to wait
+   for it to finish, which is will signal by an interrupt.
+13.wait for interrupt from controller
+14.check interrupt status
+15.read the result bytes sent by the controller
+
+
+
+
+--------------- SOME NOTES FOUND ON GITHUB FOR Z80 AND 8080
 
 
 --------------- BYTES PER SECTOR
