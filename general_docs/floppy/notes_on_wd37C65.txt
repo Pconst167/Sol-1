@@ -352,3 +352,38 @@ HDLRES1 EQU     $
         JMP     HDLRES0
 * RESERVE 8 BYTES FOR RESULTS
 CMDRES  DB      0,0,0,0,0,0,0,0
+
+
+
+
+
+
+
+
+e-mail from Wayne from romWBW:
+Hi Paulo,
+
+I am happy to help.  Your question is kind of broad, so I will answer your current questions, but you will probably have more as you progress.
+
+On Sun, Jul 21, 2024 at 4:46 PM Paulo Constantino <pconst167@gmail.com> wrote:
+I am confused about how to deal with the TC, and DMA signals from the
+chip as I won't be using DMA for using the chip.
+
+You can use the chip in polled mode and ignore the DMA signal.  In my code, I do not use it.  Since it is an input signal, you should probably attach it to a pull-up so it does not float.
+
+The TC signal can be used to terminate an FDC command.  This signal is not really necessary if you program the FDC to stop after reading a sector.  I do not use TC in my code.  I think you would ground that input to avoid leaving is floating.
+
+Did you not have problems with the z80 being too slow to read/write
+data before the head moves on?
+
+Well, yes.  In polled mode operation, you do need to make sure the Z80 code loop is optimized to avoid missing data.  In my code, the loop is fast enough to handle double-density disks with a 4 MHz Z80 and high-density disks with an 8 MHz Z80.  The loop could be made to run faster, but I opted to include a timeout mechanism to ensure my code never stalls if the FDC fails to respond.
+
+Would you let me see your assembly code for dealing with the chip?
+
+Of course.  My code is available to all.  It is hosted at the RomWBW GitHub site at https://github.com/wwarthen/RomWBW.  There are two files you can refer to.  First, there is a stand-alone program for "testing" floppy disks via several different interfaces.  This program is found in the /Source/Apps/FDU folder of the repository.  Second, there is a floppy driver that is used by RomWBW for CP/M, etc.  This is found in the repository at /Source/HBIOS/fd.asm.
+
+I hope this helps.
+
+Thanks,
+
+Wayne
