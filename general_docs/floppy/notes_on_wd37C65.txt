@@ -387,3 +387,57 @@ I hope this helps.
 Thanks,
 
 Wayne
+--------------------------------------------------------------------------------------
+On Sun, Jul 21, 2024 at 6:40 PM Paulo Constantino <pconst167@gmail.com> wrote:
+May I ask you if you used the WD37C65 in your code? or only the 8272?
+
+Yes.
+ 
+I tried to find a reference in the code
+for the WD37C65 but i don't see it.
+
+In FDU.ASM, the FDC_ZETA2, FDC_DIDE, FDC_N8, and FDC_RCWDC are all based on the WD37C65.  This corresponds to the _PCAT equate in the source code.
+
+Do you think the 8272 is easier to deal with than the WD one? I am
+looking for the chip which will have less overhead
+and will use the least amount of support logic..
+
+No, the 8272 is actually much harder because it does not have an integrated data separator.  The WD37C65 is definitely the best choice.  Sergey Kiselev's Flock FDC module for the RC2014 is a very good example of an implementation of the WD37C65.  Documentation including schematics is found at https://github.com/skiselev/flock-v2.
+
+Thanks,
+
+Wayne
+
+
+
+--------------------------------------------------------------
+
+Some guy says:
+Also, check out the National 8473, and the SMC37C65x family. A second
+source for the WD37C65 is Goldstar, who made a pin compatible version.
+
+
+I don't reccomend the 37C65 as it requires some nasty components; two
+sryctals, one of which is an odball freq., and four silver/mica caps.
+Also, you need to put 100ohm resistors in series with the TC, and IRQ
+lines that drive the bus. These pins have 48ma drivers on them, and
+they generate a LOT of ground bounce.
+
+The National part uses a single 24 mhz cyrstal, or oscillator module,
+and only a couple of simple crystals. The National part is also pin
+compatible with the Intel part. I think the old Intel part # was 8277?
+
+For new parts, I would use the National 8477, or the Intel 82077AA,
+THese parts can handle the new 2.88mb floppy drives that never quite
+got popular. They can also do perpendicular recording.
+
+Response:
+The crystals are 9.6mhz (only needed for 1.2mb floppies) not that odd
+and 16mhz a standards freq.
+
+The two silver micas? what for I have the data sheet and there is no
+requirement for them unless you talking about the oscillator
+components for the 44pin flatpack.
+
+The 48mA drie however is normal of all the floppy controllers that
+have a direct bus interface for PCs.
