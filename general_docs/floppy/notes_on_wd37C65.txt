@@ -1,3 +1,6 @@
+5.25" FLOPPY, 360KB, 2 SIDES, 40 TRKS, 9 SECTORS
+
+
 During the Command or Result phases, the Main
 Status Register must be read by the processor
 before each byte of information is written into or
