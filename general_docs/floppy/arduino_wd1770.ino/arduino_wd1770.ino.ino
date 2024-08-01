@@ -43,9 +43,8 @@ void setDataAsInput(){
   }
 }
 
-
-
-void seekTrack0() {
+void seekTrack0() {  
+  setDataAsOutput();
   digitalWrite(A0, LOW);  // 
   digitalWrite(A1, LOW);  // Select command register
   digitalWrite(RW, LOW);  // Set for write operation
@@ -59,7 +58,11 @@ void seekTrack0() {
 
   // Wait for INTRQ to go HIGH, indicating command completion
   Serial.println("Waiting for IRQ...");
-  while (digitalRead(INTRQ) != HIGH);
+  while (digitalRead(INTRQ) != HIGH){
+    Serial.println("Waiting for IRQ.");
+  }
+  Serial.println("IRQ received!");
+  delayMicroseconds(32);
 
   setDataAsInput(); // set dat  a lines as inputs
   // Check if we are on track 0 by reading the track register
@@ -73,8 +76,6 @@ void seekTrack0() {
 
   Serial.print("Value of Track register: ");
   Serial.println(trackReg);
-  
-  
 }
 
 void setDataBus(byte data) {
@@ -93,7 +94,21 @@ byte readDataBus() {
   return data;
 }
 
+void waitForEnter() {
+  Serial.println("Press Enter to move the head to track 0...");
+  while (true) {
+    if (Serial.available() > 0) {
+      char c = Serial.read();
+      if (c == '\n') {  // Check for the newline character
+        break;
+      }
+    }
+  }
+}
+
 void setup() {
+  byte statusReg;
+  
   Serial.begin(9600);
   while (!Serial) {
     ; // Wait for serial port to connect. Needed for native USB
@@ -120,12 +135,28 @@ void setup() {
   digitalWrite(RW,   HIGH); // select read mode
   digitalWrite(DDEN, HIGH); // select high density mode
 
+  setDataAsInput(); // set dat  a lines as inputs
+  
   // reset the WD1770  
   Serial.println("Resetting WD1770...");
   digitalWrite(MR, LOW);  // Assert Master Reset
   delay(10);              // Hold reset for 10ms
   digitalWrite(MR, HIGH); // Release Master Reset
   delay(10);              // Allow time for WD1770 to initialize
+
+  // read status register
+  digitalWrite(A0, LOW);  // 
+  digitalWrite(A1, LOW);  // Select status register
+  digitalWrite(RW, HIGH);  // Set for read operation
+  // Pulse the chip select line to latch the command
+  digitalWrite(CS, LOW);
+  delayMicroseconds(1);
+  statusReg = readDataBus(); // read status register
+  digitalWrite(CS, HIGH);
+  Serial.print("Status Register: ");
+  Serial.println(statusReg);
+
+  waitForEnter();
   
   // Seek to track 0
   Serial.println("Seeking to Track00...");
