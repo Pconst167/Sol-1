@@ -91,7 +91,7 @@ void seekTrack(byte track) {
     Serial.println("Waiting for IRQ.");
   }
   Serial.println("IRQ received!");
-  delayMicroseconds(32);
+  delayMicroseconds(65);
 
   setDataAsInput(); // set data lines as inputs
   // Check if we are on right track  by reading the track register
@@ -105,18 +105,6 @@ void seekTrack(byte track) {
   Serial.print("Value of Track register: ");
   Serial.println(trackReg);
 
-  // update status
-  updateStatus();
-  // read status
-  digitalWrite(ADDR0, LOW);  // Select status register
-  digitalWrite(ADDR1, LOW); // Select status register
-  digitalWrite(RW, HIGH); // Set for read operation
-  digitalWrite(CS, LOW); // Enable chip select
-  delayMicroseconds(10);
-  stat = readDataBus();
-  digitalWrite(CS, HIGH);  // Disable chip select
-  Serial.print("Value of Status register: ");
-  Serial.println(stat);
 }
 
 
@@ -227,21 +215,46 @@ void setup() {
   digitalWrite(MR, HIGH); // Release Master Reset
   delay(1000);              // Hold reset for 10ms
 
-
-  Serial.println("Press Enter to move head to track 0...");
+  Serial.println("Press Enter to restore to Track 0...");
   waitForEnter();
-  // Seek to track 0
-  Serial.println("Seeking to Track00...");
+  
+  Serial.println("Restoring to Track 0...");
+  setDataAsOutput();
+  digitalWrite(ADDR0, LOW);  // 
+  digitalWrite(ADDR1, LOW);  // Select data register
+  digitalWrite(RW, LOW);  // Set for write operation
+  // Restore command
+  setDataBus(0x03);  // restore command with lowest two bits = 11 = 30ms step delay 
+  // Pulse the chip select line to latch the command
+  digitalWrite(CS, LOW);
+  delayMicroseconds(2);
+  digitalWrite(CS, HIGH);
+
+  delay(1);
+
+  setDataAsInput(); // set data lines as inputs
+  // Check if we are on right track  by reading the track register
+  digitalWrite(ADDR0, HIGH);  // Select track register
+  digitalWrite(ADDR1, LOW); // Select track register
+  digitalWrite(RW, HIGH); // Set for read operation
+  digitalWrite(CS, LOW); // Enable chip select
+  delayMicroseconds(10);
+  byte trackReg = readDataBus();
+  digitalWrite(CS, HIGH);  // Disable chip select
+  Serial.print("Value of Track register: ");
+  Serial.println(trackReg);
+
+
+  Serial.println("Press Enter to Seek to track 10...");
+  waitForEnter();
+  seekTrack(10);
+  Serial.println("Press Enter to Seek to track 0...");
+  waitForEnter();
   seekTrack(0);
-  printDataReg();
-  printStatus();
-
-  Serial.println("Press Enter again to move head to track 5...");
+  Serial.println("Press Enter to Seek to track 20...");
   waitForEnter();
-  seekTrack(5);
-  printDataReg();
-  printStatus();
-
+  seekTrack(20);
+  
   Serial.println("Finished.");
 
   setDataAsInput();
