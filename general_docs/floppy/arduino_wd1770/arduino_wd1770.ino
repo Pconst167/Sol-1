@@ -45,6 +45,7 @@ void setDataAsInput(){
 
 void seekTrack(byte track) {  
   byte stat;
+
   setDataAsInput();
   digitalWrite(ADDR0, LOW);  // 
   digitalWrite(ADDR1, LOW);  // Select status register
@@ -54,24 +55,28 @@ void seekTrack(byte track) {
     delayMicroseconds(1);
     Serial.println("Waiting for busy bit to become 0...");
     stat = readDataBus();
-    Serial.print("status reg: "); Serial.println(stat);
+    Serial.print("status reg: "); 
+    Serial.println(stat);
     stat = stat & 0x01; // isolate busy bit
     if(!stat) break;
   }
   digitalWrite(CS, HIGH);
   Serial.println("Busy bit is now 0...");
-  Serial.println("Now setting data register with track 10...");
+  Serial.println("Now setting data register with track number...");
 
+  
+  digitalWrite(RW, LOW);  // Set for write operation
   setDataAsOutput();
   digitalWrite(ADDR0, HIGH);  // 
   digitalWrite(ADDR1, HIGH);  // Select data register
-  digitalWrite(RW, LOW);  // Set for write operation
   // Load track value into data register
   setDataBus(track);  // set track 
   // Pulse the chip select line to latch the command
   digitalWrite(CS, LOW);
-  delayMicroseconds(2);
+  delayMicroseconds(1);
   digitalWrite(CS, HIGH);
+
+  delay(500);
 
   Serial.println("Sending Seek command...");
   setDataAsOutput();
@@ -91,7 +96,7 @@ void seekTrack(byte track) {
     Serial.println("Waiting for IRQ.");
   }
   Serial.println("IRQ received!");
-  delayMicroseconds(65);
+  delay(500);
 
   setDataAsInput(); // set data lines as inputs
   // Check if we are on right track  by reading the track register
@@ -99,12 +104,11 @@ void seekTrack(byte track) {
   digitalWrite(ADDR1, LOW); // Select track register
   digitalWrite(RW, HIGH); // Set for read operation
   digitalWrite(CS, LOW); // Enable chip select
-  delayMicroseconds(10);
+  delayMicroseconds(2);
   byte trackReg = readDataBus();
   digitalWrite(CS, HIGH);  // Disable chip select
   Serial.print("Value of Track register: ");
   Serial.println(trackReg);
-
 }
 
 
@@ -212,49 +216,22 @@ void setup() {
   setDataAsInput(); // set dat  a lines as inputs
   
   // reset the WD1770  
+  delay(400);              // Hold reset for 10ms
   digitalWrite(MR, HIGH); // Release Master Reset
-  delay(1000);              // Hold reset for 10ms
 
-  Serial.println("Press Enter to restore to Track 0...");
+  printStatus();
+  Serial.println("Press Enter to move head to track 0...");
   waitForEnter();
-  
-  Serial.println("Restoring to Track 0...");
-  setDataAsOutput();
-  digitalWrite(ADDR0, LOW);  // 
-  digitalWrite(ADDR1, LOW);  // Select data register
-  digitalWrite(RW, LOW);  // Set for write operation
-  // Restore command
-  setDataBus(0x03);  // restore command with lowest two bits = 11 = 30ms step delay 
-  // Pulse the chip select line to latch the command
-  digitalWrite(CS, LOW);
-  delayMicroseconds(2);
-  digitalWrite(CS, HIGH);
-
-  delay(1);
-
-  setDataAsInput(); // set data lines as inputs
-  // Check if we are on right track  by reading the track register
-  digitalWrite(ADDR0, HIGH);  // Select track register
-  digitalWrite(ADDR1, LOW); // Select track register
-  digitalWrite(RW, HIGH); // Set for read operation
-  digitalWrite(CS, LOW); // Enable chip select
-  delayMicroseconds(10);
-  byte trackReg = readDataBus();
-  digitalWrite(CS, HIGH);  // Disable chip select
-  Serial.print("Value of Track register: ");
-  Serial.println(trackReg);
-
-
-  Serial.println("Press Enter to Seek to track 10...");
+  // Seek to track 0
+  Serial.println("Seeking to Track00...");
+  printStatus();
+/*
+  Serial.println("Press Enter again to move head to track 5...");
   waitForEnter();
-  seekTrack(10);
-  Serial.println("Press Enter to Seek to track 0...");
-  waitForEnter();
-  seekTrack(0);
-  Serial.println("Press Enter to Seek to track 20...");
-  waitForEnter();
-  seekTrack(20);
-  
+  seekTrack(5);
+  printDataReg();
+  printStatus();
+*/
   Serial.println("Finished.");
 
   setDataAsInput();
