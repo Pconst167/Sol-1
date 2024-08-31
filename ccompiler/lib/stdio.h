@@ -939,3 +939,15 @@ long int scanx32(){
   long int i;
 
 }
+
+int loadfile(char *filename, char *destination){
+  asm{
+    ccmovd destination
+    mov a, [d]
+    mov di, a
+    ccmovd filename
+    mov d, [d]
+    mov al, 20
+    syscall sys_filesystem
+  }
+}

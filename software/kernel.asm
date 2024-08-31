@@ -13,13 +13,17 @@
 ; ------------------------------------------------------------------------------------------------------------------;
 ; I/O MAP
 ; ------------------------------------------------------------------------------------------------------------------;
-; FF80    UART 0    (16550)
-; FF90    UART 1    (16550)
-; FFA0    RTC       (M48T02)
-; FFB0    PIO 0     (8255)
-; FFC0    PIO 1     (8255)
-; FFD0    IDE       (Compact Flash / PATA)
-; FFE0    Timer     (8253)
+; FF80    UART 0              (16550)
+; FF90    UART 1              (16550)
+; FFA0    RTC                 (M48T02)
+; FFB0    PIO 0               (8255)
+; FFC0    5.25" Floppy Drive Block
+;   - FFC0      Output Port (377 Flip-Flop)                  
+;   - FFC1      Input Port  (244 Buffer)                     
+;   - FFC2      FDC         (WD1770 Floppy Drive Controller) 
+;      
+; FFD0    IDE                 (Compact Flash / PATA)
+; FFE0    Timer               (8253)
 ; FFF0    BIOS CONFIGURATION NV-RAM STORE AREA
 ; ------------------------------------------------------------------------------------------------------------------;
 
@@ -304,6 +308,7 @@ CTRLZ:
   pop d
   pop a
   jmp syscall_pause_proc    ; pause current process and go back to the shell
+
 
 ; ------------------------------------------------------------------------------------------------------------------;
 ; System Syscalls

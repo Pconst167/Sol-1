@@ -4,8 +4,8 @@
 0003+  0000             sys_ide          .EQU  $0002
 0004+  0000             sys_io           .EQU  $0003
 0005+  0000             sys_filesystem   .EQU  $0004
-0006+  0000             sys_spawn_proc   .EQU  $0005
-0007+  0000             sys_list         .EQU  $0006
+0006+  0000             sys_create_proc  .EQU  $0005
+0007+  0000             sys_list_proc    .EQU  $0006
 0008+  0000             sys_datetime     .EQU  $0007
 0009+  0000             sys_reboot       .EQU  $0008
 0010+  0000             sys_pause_proc   .EQU  $0009
@@ -20,7 +20,7 @@
 0006   0400             
 0007   0400             menu:
 0008   0400 F8 00 02    	enter 512	
-0009   0403             __get_math_choice:
+0009   0403             __get_menu_choice:
 0010   0403 3B 17 0A    	mov d, s_menu
 0011   0406 07 E3 06    	call _puts
 0012   0409 FA 01 FE    	lea d, [bp +- 511]
@@ -28,22 +28,22 @@
 0014   040F 1E          	mov al, [d]
 0015   0410 6F 30       	sub al, 30h
 0016   0412 B9 02       	cmp al, 2
-0017   0414 C6 29 04    	je _math_quit
-0018   0417 D1 03 04    	jgu __get_math_choice				; check bounds
+0017   0414 C6 29 04    	je _menu_quit
+0018   0417 D1 03 04    	jgu __get_menu_choice				; check bounds
 0019   041A FD 9E 01    	shl al, 1
 0020   041D 22 00       	mov ah, 0
-0021   041F FD 07 2C 04 	call [a + __math_menu_jump_table]
+0021   041F FD 07 2C 04 	call [a + __menu_menu_jump_table]
 0022   0423             
 0023   0423 07 90 06    	call printnl
-0024   0426 0A 03 04    	jmp __get_math_choice
-0025   0429             _math_quit:
+0024   0426 0A 03 04    	jmp __get_menu_choice
+0025   0429             _menu_quit:
 0026   0429 F9          	leave
 0027   042A 05 0B       	syscall sys_terminate_proc
 0028   042C             
 0029   042C             ; ***********************************************************************************
 0030   042C             ; MATHS JUMP TABLE
 0031   042C             ; ***********************************************************************************
-0032   042C             __math_menu_jump_table:
+0032   042C             __menu_menu_jump_table:
 0033   042C 30 04       	.dw automaton
 0034   042E B6 04       	.dw chg_rules
 0035   0430             	

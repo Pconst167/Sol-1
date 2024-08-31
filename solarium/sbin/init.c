@@ -8,7 +8,7 @@ void main(){
 
 
   asm{
-    meta mov d, shell_path
+    ccmovd shell_path
     mov d, [d]
     syscall sys_spawn_proc
   }

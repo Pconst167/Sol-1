@@ -10199,14 +10199,6 @@ _switch223_default:
   add sp, 2
 ; --- END FUNCTION CALL
 _switch223_exit:
-; format_p++; 
-  lea d, [bp + -3] ; $format_p
-  mov b, [d]
-  mov c, 0
-  inc b
-  lea d, [bp + -3] ; $format_p
-  mov [d], b
-  dec b
   jmp _if222_exit
 _if222_else:
 ; putchar(*format_p); 
@@ -10222,6 +10214,8 @@ _if222_else:
   call putchar
   add sp, 1
 ; --- END FUNCTION CALL
+_if222_exit:
+_if221_exit:
 ; format_p++; 
   lea d, [bp + -3] ; $format_p
   mov b, [d]
@@ -10230,8 +10224,6 @@ _if222_else:
   lea d, [bp + -3] ; $format_p
   mov [d], b
   dec b
-_if222_exit:
-_if221_exit:
 _for220_update:
   jmp _for220_cond
 _for220_exit:

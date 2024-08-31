@@ -14,7 +14,7 @@ shell_main:
 	mov d, s_prompt_shell
 	call _puts
 	mov d, s_shell_path
-	syscall sys_spawn_proc
+	syscall sys_create_proc
 
 s_prompt_init:	.db "init started\n", 0
 s_prompt_shell:	.db "Launching a shell session...\n", 0

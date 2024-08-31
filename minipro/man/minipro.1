@@ -1,14 +1,19 @@
-.TH MINIPRO 1 "17 September 2022 (v0.6)"
+.TH MINIPRO 1 "11 April 2024 (v0.7)"
 .SH NAME
-minipro \- A gree and open TL866XX programmer.
+minipro \- A free and open command-line program for controlling chip
+programmers by Autoelectric / Xgecu.
 
 .SH DESCRIPTION
 .I minipro
 is an Open Source tool intended to become a complete cross-platform
-replacement for the proprietary utility from Autoelectric. Currently it
+replacement for the proprietary utility from Xgecu.  Currently it
 supports more than 13000 of target devices - including AVRs, PICs as
 well as a huge number of other microcontrollers and various memory
 chips.
+
+.I minipro
+currently supports the TL866A/CS, TL866II+, and T48.  Support for the
+T56 is very experimental.
 
 .SH GENERAL OPTIONS
 .TP
@@ -23,7 +28,7 @@ List devices like this.
 .B \-q, --programmer <version>
 Force a programmer version when listing devices.
 .br
-Possible values: TL866A TL866II.
+Possible values (case insensitive): TL866A TL866II T48.
 
 .TP
 .B \-Q, \--query_supported
@@ -39,7 +44,6 @@ Show device information.
 
 .TP
 .B \-D, \--get_id
-FIXME
 Just read the chip ID and do nothing else (like reading the whole chip
 contents).  This is for use in scripts where you have for example
 several similar chips with different IDs and want to check if the
@@ -48,7 +52,8 @@ to detect if a chip is inserted at all when using the -y option.
 
 .TP
 .B \-r, \--read <filename>
-Read from the device and write the contents to this file.
+Read from the device and write the contents to this file.  See NOTES ON
+MEMORY TYPES below.
 
 .TP
 .B \-w, \--write <filename>
@@ -71,11 +76,12 @@ or
 .B encryption table
 on some devices like Atmel AT89S8253.  Use
 .B -c user
-to read or write this page.
+to read or write this page.  See NOTES ON MEMORY TYPES below.
 
 .TP
 .B \-f, --format <format>
-Specify file format.  Possible values: ihex, srec.
+Specify file format.  Possible values: ihex, srec.  See NOTES ON FILE
+FORMATS below.
 
 .TP
 .B \-b, --blank_check
@@ -149,8 +155,8 @@ Enable protection after programming.
 Do NOT verify after write.
 
 .TP
-.B \-p, --device
-Specify device (use quotes).
+.B \-p, --device <device>
+Specify device (use quotes to avoid mangling by the shell).
 
 .TP
 .B \-T, --logic_test
@@ -163,7 +169,7 @@ Use ICSP.  Not useful for TL866CS.
 
 .TP
 .B \-I, \--icsp_no_vcc
-Use ICSP (without enabling Vcc).  Not usefule for TL866CS.
+Use ICSP (without enabling Vcc).  Not useful for TL866CS.
 
 .TP
 .B \-s, \--no_size_error
@@ -261,6 +267,32 @@ Use
 to view if those options are supported.
 
 
+.SH NOTES ON FILE FORMATS
+
+If the
+.B \-f
+or
+.B \--format
+options are not used when reading, the resulting file will be saved as a
+raw binary file.
+
+If the ihex format is chosen and the data size is 64 kilobytes or
+smaller, the file will be saved in ihex8 format.  Just plain hex records
+are used -- no segment/linear address records are inserted.
+
+If the data size exceeds 64 kilobytes, then the ihex32 format is used.
+The ihex16 format is not used when reading chips.  The same strategy is
+used for the Motorola srecord format.
+
+When writing chips, the format is automatically detected.  It is
+therefore not necessary to use the
+.B \-f
+or
+.B \--format
+options.  The exact Intel hex format (ihex8, ihex16, or ihex32) are also
+automatically detected.
+
+
 .SH UPDATING FIRMWARE
 Firmware update files can be obtained from the manufacturer's website:
 http://www.autoelectric.cn.
@@ -272,32 +304,15 @@ For the TL866A/CS, use the "update.dat" file.
 .br
 For the TL866IOI+, use the "updateII.dat" file.
 
-==== EDIT LINE ====
-
-
-When writing chips, this is not necessary because the file format is
-automatically detected.  There is no need to specify the exact Intex hex
-format (ihex8, ihex16, or ihex32) as the format is automatically
-detected.  If this option is not used, then the file will be saved as a
-raw binary file.
-
-When reading chips and the ihex format is chosen, if the data size is up
-to 64Kb the file will be saved in ihex8 format. Just plain hex records
-are used -- no segment/linear address records are inserted.  If the data
-size exceeds 64Kb then the ihex32 format is used. The ihex16 format is
-not used when reading chips.  The same strategy is used for the Motorola
-srecord format.
-
 .TP
 .B \-F <filename>
-Update firmware (should be update.dat).
+Update firmware.
+.B minipro
+will verify the firmware file and ask if you wish to proceed with
+writing the file to the programmer.
 
-.TP
-.B \-h
-Show help and quit.
 
-.SH NOTES
-
+.SH NOTES ON MEMORY TYPES
 If
 .B -c
 is omitted and
@@ -338,7 +353,7 @@ from ihex to binary).
 
 You can also read a chip and write the data to the stdout like this:
 
-minipro -p w49f002u -r- -f ihex.
+.B minipro -p w49f002u -r- -f ihex.
 
 You can then pass the output to another command line tool with | for
 other processing, etc.
@@ -358,8 +373,24 @@ format looks like.
 
 .SH EXAMPLES
 
-.IP "\fBminipro -p 7404 -T\fR" 4
+.B minipro -p 7404 -T
+.br
 Check whether a 74(LS/HC/...)04 hex NOT gate chip.
+
+.B minipro -p \fB"AT29C256@DIP28\fR" -w foobar.bin
+.br
+Write the contents of
+.B foobar.bin
+to an AT29C256 256 kilobit (32-kilobytes) electrically-erasable Flash
+EPROM.  Remember to put single or double quotes around the device name
+to prevent the shell from interpreting the \fB"@\fR" (at sign).
+
+.SH CAVEATS
+The TL866A and TL866CS programmers appear to have a firmware bug such
+that if not quite enough current is provided to them from a USB port,
+then the programmer will fail to initialize itself or reset itself after
+an operation.  This problem seems to go hand-in-hand with newer USB 3.0
+/ xHCI ports.  This problem can be avoided by using a powered hub.
 
 .SH AUTHOR
 .I minipro
@@ -368,9 +399,10 @@ have contributed code and bug reports.  Development is currently coordinated
 by David Griffith.
 
 .SH HARDWARE
-The Minipro TL866xx series of chip programmers is distributed by
-Autoelectric.  Their website is
-.BR http://www.autoelectric.cn.
+
+The TL866A/CS, TL866II+, T48, and T56 chip programmers are distributed by
+Xgecu, formerly Autoelectric.  Its website is
+.BR http://www.xgecu.com/en/.
 
 .SH DISTRIBUTION
 The canonical repository for

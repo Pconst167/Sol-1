@@ -4,8 +4,8 @@
 0003+  0000             sys_ide          .EQU  $0002
 0004+  0000             sys_io           .EQU  $0003
 0005+  0000             sys_filesystem   .EQU  $0004
-0006+  0000             sys_spawn_proc   .EQU  $0005
-0007+  0000             sys_list         .EQU  $0006
+0006+  0000             sys_create_proc  .EQU  $0005
+0007+  0000             sys_list_proc    .EQU  $0006
 0008+  0000             sys_datetime     .EQU  $0007
 0009+  0000             sys_reboot       .EQU  $0008
 0010+  0000             sys_pause_proc   .EQU  $0009
@@ -28,7 +28,7 @@
 0014   040E 3B 27 04    	mov d, s_prompt_shell
 0015   0411 07 69 06    	call _puts
 0016   0414 3B 45 04    	mov d, s_shell_path
-0017   0417 05 05       	syscall sys_spawn_proc
+0017   0417 05 05       	syscall sys_create_proc
 0018   0419             
 0019   0419 69 6E 69 74 s_prompt_init:	.db "init started\n", 0
 0019   041D 20 73 74 61 

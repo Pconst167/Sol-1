@@ -25,7 +25,12 @@
 
 /*
  * These are the known firmware versions along with the versions of the
- * official software from whence they came.
+ * official software from whence they came displayed in reverse
+ * chronological order.  Firmware versions generally progress
+ * sequentially and are not always updated with each release of the
+ * official program.  Some firmware versions may have appeared first in
+ * program versions earlier than listed here because they are yet
+ * unknown, missing, or lost.
  *
  * Firmware	Official	Release		Firmware
  * Version	Program		Date		Version
@@ -49,6 +54,7 @@
  * 3.2.57	5.70		Aug 27, 2012	0x0239
  * 3.2.56	5.60		Jun 12, 2012	0x0238
  * 3.2.51	4.95		Mar 31, 2012	0x0233
+ * 3.2.47	4.85		Mar  1, 2012	0x022f
  *		1.00		Jun 18, 2010
  *
  */
@@ -56,7 +62,7 @@
 #define TL866A_FIRMWARE_VERSION 0x0256
 #define TL866A_FIRMWARE_STRING	"03.2.86"
 
-// TL866A/CS low level functions.
+/* TL866A/CS low level functions. */
 int tl866a_begin_transaction(minipro_handle_t *handle);
 int tl866a_end_transaction(minipro_handle_t *handle);
 int tl866a_protect_off(minipro_handle_t *handle);

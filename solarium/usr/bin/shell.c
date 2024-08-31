@@ -1,5 +1,7 @@
 // Solarium Shell Environment
 
+#include <stdio.h>
+#include <stdlib.h>
 #include "lib/token.h"
 
 #define MAX_SHELL_VARIABLES 10

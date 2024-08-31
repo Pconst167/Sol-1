@@ -22,7 +22,7 @@ void main(){
   // Create binary file
   
   asm{
-    addr mov d, arg
+    ccmovd arg
     mov al, 6
     syscall sys_filesystem
   }

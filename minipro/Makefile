@@ -5,9 +5,9 @@ CC=gcc
 #CC=clang
 
 # Compiler options
-CFLAGS = -g -O0 -Wall -Wextra -W -Wno-sign-compare -Wno-unused-parameter
-CPPFLAGS = -DSHARE_INSTDIR="\"$(SHARE_INSTDIR)\""
-LDFLAGS =
+CFLAGS ?= -g -O0 -Wall -Wextra -W -Wno-sign-compare -Wno-unused-parameter
+CPPFLAGS += -DSHARE_INSTDIR="\"$(SHARE_INSTDIR)\""
+LDFLAGS ?=
 
 # Normally minipro is installed to /usr/local.  If you want to put it
 # somewhere else, define that location here.
@@ -24,7 +24,7 @@ MANDIR ?= $(PREFIX)/share/man
 ##########################################################################
 
 NAME = minipro
-VERSION = 0.6
+VERSION = 0.7
 
 # If we're working from git, we have access to proper variables. If
 # not, make it clear that we're working from a release.
@@ -58,7 +58,7 @@ else
 endif
 
 COMMON_OBJECTS=xml.o jedec.o ihex.o srec.o database.o bitbang.o prom.o \
-               minipro.o tl866a.o tl866iiplus.o version.o $(USB)
+               minipro.o tl866a.o tl866iiplus.o t48.o t56.o version.o $(USB)
 OBJECTS=$(COMMON_OBJECTS) main.o
 PROGS=minipro
 STATIC_LIB=libminipro.a
@@ -66,7 +66,7 @@ MINIPRO=minipro
 INFOIC=infoic.xml
 LOGICIC=logicic.xml
 TESTS=$(wildcard tests/test_*.c);
-OBJCOPY=objcopy
+OBJCOPY?=objcopy
 
 DIST_DIR = $(MINIPRO)-$(VERSION)
 BIN_INSTDIR=$(DESTDIR)$(PREFIX)/bin

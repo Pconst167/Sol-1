@@ -4,8 +4,8 @@
 0003+  0000             sys_ide          .EQU  $0002
 0004+  0000             sys_io           .EQU  $0003
 0005+  0000             sys_filesystem   .EQU  $0004
-0006+  0000             sys_spawn_proc   .EQU  $0005
-0007+  0000             sys_list         .EQU  $0006
+0006+  0000             sys_create_proc  .EQU  $0005
+0007+  0000             sys_list_proc    .EQU  $0006
 0008+  0000             sys_datetime     .EQU  $0007
 0009+  0000             sys_reboot       .EQU  $0008
 0010+  0000             sys_pause_proc   .EQU  $0009
@@ -17,7 +17,7 @@
 0003   0400             .org text_org			; origin at 1024
 0004   0400             
 0005   0400             cmd_ps:
-0006   0400 05 06       	syscall sys_list
+0006   0400 05 06       	syscall sys_list_proc
 0007   0402             
 0008   0402 05 0B       	syscall sys_terminate_proc
 0009   0404             
