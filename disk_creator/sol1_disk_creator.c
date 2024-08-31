@@ -131,7 +131,7 @@ uint16_t main(void){
   create_file("sieve", bin_id, temp_buffer, file_size, 0x07);
 
   // /bin0
-  file_size = loadfile("../ccompiler/out/obj/shell.obj", temp_buffer);
+  file_size = loadfile("../software/obj/shell.obj", temp_buffer);
   create_file("shell", bin0_id, temp_buffer, file_size, 0x07);
   file_size = loadfile("../ccompiler/out/obj/getparam.obj", temp_buffer);
   create_file("getparam", bin0_id, temp_buffer, file_size, 0x07);

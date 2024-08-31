@@ -14,7 +14,7 @@ main:
   mov d, str0
   call _puts
   ; First, select drive 1 and de-select drive 0
-  mov d, $FFC0
+  mov d, $FFC0    ; floppy configuration output port
   mov al, 2       ; setparam call
   mov bl, $09     ; %00001001 : turn LED on, disable double density, select side 0, select drive 1, do not select drive 0
   syscall sys_system
@@ -24,10 +24,6 @@ main:
 ; wait a little
   mov c, $FF
 loop1:
-  push c
-  mov b, c
-  call print_u16x
-  pop c
   dec c
   cmp c, 0
   jnz loop1
@@ -40,11 +36,31 @@ loop1:
   mov bl, $03     ; restore command, 30ms rate
   syscall sys_system
 
+
+  mov d, str1
+  call _puts
+; wait a little
+  mov c, $FF
+loop2:
+  dec c
+  cmp c, 0
+  jnz loop2
+
+  mov d, $FFC1    ; floppy input port
+  mov al, 4       ; getparam
+  syscall sys_system
+  mov d, str3
+  call _puts
+  call print_u8x  ; print vlue in 'bl'
+  call printnl
+
+
   syscall sys_terminate_proc
 
 str0: .db $a, $d, "selecting drive 1...", $a, $d, 0
 str1: .db $a, $d, "waiting...", $a, $d, 0
 str2: .db $a, $d, "sending restore command...", $a, $d, 0
+str3: .db $a, $d, "floppy status register: ", 0
 
 .include "lib/stdio.asm"
 .end

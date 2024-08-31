@@ -4,9 +4,9 @@
 printf "Assembling kernel.asm\n"
 wine tasm -1 -b kernel.asm obj/kernel.obj lst/kernel.lst
 printf "Done\n"
-printf "\nAssembling shell.asm\n"
-wine tasm -1 -b shell.asm lst/shell.lst obj/shell.obj
-printf "Done\n"
+#printf "\nAssembling shell.asm\n"
+#wine tasm -1 -b shell.asm lst/shell.lst obj/shell.obj
+#printf "Done\n"
 
 filename=$(basename "${1%.*}")
 

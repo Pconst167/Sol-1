@@ -11,7 +11,7 @@ shell_main:
 ; open config file
 ; example: path=/usr/bin;
 ; read path config entry
-  mov d, s_etc_config   ; '/etc/sh.conf'
+  mov d, s_etc_config   ; '/etc/shell.cfg'
   mov si, s_path        ; config entry name is "path"
   mov di, path          ; config value destination is the var that holds the path variable
   call read_config
@@ -20,7 +20,7 @@ shell_main:
 
 ; open config file
 ; read home directory config entry
-  mov d, s_etc_config     ; '/etc/sh.conf'
+  mov d, s_etc_config     ; '/etc/shell.cfg'
   mov si, s_home          ; config entry name is "home"
   mov di, homedir         ; config value destination is the var that holds the home directory path
   call read_config  
