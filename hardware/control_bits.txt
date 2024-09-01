@@ -75,6 +75,7 @@ data_0-data_7       43 start
 mem_io              at 44 
 addr_0-addr_21      66 start
 int_0-int_7         74 start - INT0 is at 74 ... INT7 is at 67
+3.3V                79
 
 SPECIAL MICROCODE ADDRESSES
 fetch             - 00000001000000 = 0x0040 = 64d
