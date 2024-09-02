@@ -6,6 +6,13 @@ void main(){
   char byte;
   printf("Test of 5.25 inch Floppy Drive Interface.\n");
 
+  asm{
+    mov d, $FFC0    ; wd1770 data register
+    mov al, 2       ; setparam call
+    mov bl, $09     ; track 16
+    syscall sys_system
+  }
+
 
   for(;;){
     printf("\nOption: ");

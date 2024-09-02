@@ -1,4 +1,4 @@
-; --- FILENAME: test.c
+; --- FILENAME: programs/floppy.c
 .include "lib/asm/kernel.exp"
 .include "lib/asm/bios.exp"
 
@@ -19,13 +19,83 @@ main:
   call printf
   add sp, 2
 ; --- END FUNCTION CALL
+; --- BEGIN INLINE ASM SEGMENT
+  mov d, $FFC0    ; wd1770 data register
+  mov al, 2       ; setparam call
+  mov bl, $09     ; track 16
+  syscall sys_system
+; --- END INLINE ASM SEGMENT
 ; for(;;){ 
 _for1_init:
 _for1_cond:
 _for1_block:
+; printf("w. write 16 to data register\n"); 
+; --- START FUNCTION CALL
+  mov b, _s1 ; "w. write 16 to data register\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; printf("d. read data register\n"); 
+; --- START FUNCTION CALL
+  mov b, _s2 ; "d. read data register\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; printf("t. read track register\n"); 
+; --- START FUNCTION CALL
+  mov b, _s3 ; "t. read track register\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; printf("s. step\n"); 
+; --- START FUNCTION CALL
+  mov b, _s4 ; "s. step\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; printf("r. restore\n"); 
+; --- START FUNCTION CALL
+  mov b, _s5 ; "r. restore\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; printf("i. step in\n"); 
+; --- START FUNCTION CALL
+  mov b, _s6 ; "i. step in\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; printf("o. step out\n"); 
+; --- START FUNCTION CALL
+  mov b, _s7 ; "o. step out\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; printf("e. exit\n"); 
+; --- START FUNCTION CALL
+  mov b, _s8 ; "e. exit\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
 ; printf("\nOption: "); 
 ; --- START FUNCTION CALL
-  mov b, _s1 ; "\nOption: "
+  mov b, _s9 ; "\nOption: "
   swp b
   push b
   call printf
@@ -87,7 +157,7 @@ _switch2_case1:
   mov c, 0
   swp b
   push b
-  mov b, _s2 ; "\nData register value: %d\n"
+  mov b, _s10 ; "\nData register value: %d\n"
   swp b
   push b
   call printf
@@ -111,7 +181,7 @@ _switch2_case2:
   mov c, 0
   swp b
   push b
-  mov b, _s3 ; "\nTrack register value: %d\n"
+  mov b, _s11 ; "\nTrack register value: %d\n"
   swp b
   push b
   call printf
@@ -423,7 +493,7 @@ _if9_TRUE:
 _if9_else:
 ; err("Unexpected format in printf."); 
 ; --- START FUNCTION CALL
-  mov b, _s4 ; "Unexpected format in printf."
+  mov b, _s12 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -607,7 +677,7 @@ _switch6_case7:
 _switch6_default:
 ; print("Error: Unknown argument type.\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s5 ; "Error: Unknown argument type.\n"
+  mov b, _s13 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -1629,11 +1699,19 @@ getchar:
 
 ; --- BEGIN DATA SEGMENT
 _s0: .db "Test of 5.25 inch Floppy Drive Interface.\n", 0
-_s1: .db "\nOption: ", 0
-_s2: .db "\nData register value: %d\n", 0
-_s3: .db "\nTrack register value: %d\n", 0
-_s4: .db "Unexpected format in printf.", 0
-_s5: .db "Error: Unknown argument type.\n", 0
+_s1: .db "w. write 16 to data register\n", 0
+_s2: .db "d. read data register\n", 0
+_s3: .db "t. read track register\n", 0
+_s4: .db "s. step\n", 0
+_s5: .db "r. restore\n", 0
+_s6: .db "i. step in\n", 0
+_s7: .db "o. step out\n", 0
+_s8: .db "e. exit\n", 0
+_s9: .db "\nOption: ", 0
+_s10: .db "\nData register value: %d\n", 0
+_s11: .db "\nTrack register value: %d\n", 0
+_s12: .db "Unexpected format in printf.", 0
+_s13: .db "Error: Unknown argument type.\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

@@ -19,6 +19,12 @@ main:
   call printf
   add sp, 2
 ; --- END FUNCTION CALL
+; --- BEGIN INLINE ASM SEGMENT
+  mov d, $FFC0    ; wd1770 data register
+  mov al, 2       ; setparam call
+  mov bl, $09     ; track 16
+  syscall sys_system
+; --- END INLINE ASM SEGMENT
 ; for(;;){ 
 _for1_init:
 _for1_cond:
