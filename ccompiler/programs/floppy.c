@@ -4,12 +4,14 @@
 void main(){
   char option;
   char byte;
+  unsigned int word;
+
   printf("Test of 5.25 inch Floppy Drive Interface.\n");
 
   asm{
     mov d, $FFC0    ; wd1770 data register
     mov al, 2       ; setparam call
-    mov bl, $09     ; track 16
+    mov bl, $09     
     syscall sys_system
   }
 
@@ -19,10 +21,12 @@ void main(){
     printf("d. read data register\n");
     printf("t. read track register\n");
     printf("s. step\n");
+    printf("k. seek\n");
     printf("r. restore\n");
     printf("i. step in\n");
     printf("o. step out\n");
     printf("e. exit\n");
+    printf("q. read pending irq status register\n");
     printf("\nOption: ");
     option = getchar();
     switch(option){
@@ -62,6 +66,14 @@ void main(){
           syscall sys_system
         }
         break;
+      case 'k':
+        asm{
+          mov d, $FFC8    ; wd1770 command register
+          mov al, 2       ; setparam call
+          mov bl, $13     ; seek command
+          syscall sys_system
+        }
+        break;
       case 'r':
         asm{
         ; send restore command
@@ -88,6 +100,14 @@ void main(){
           mov bl, $63     ; step out command, 30ms rate
           syscall sys_system
         }
+        break;
+      case 'q':
+        asm{
+          lodmsk          ; load masks register/irq status register
+          ccmovd word     ; load address of word into d
+          mov [d], a      ; al = masks, ah = irq status
+        }
+          printf("\nMasks: %x\n", word);
         break;
     case 'e':
       return;

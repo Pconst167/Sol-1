@@ -211,6 +211,8 @@ sys_system           .equ 12
 ; ------------------------------------------------------------------------------------------------------------------;
 ; 5.25" Floppy Drive Controller IRQ
 int_0_fdc:
+  mov d, s_fdc_irq
+  call _puts
   sysret
 int_1:
   sysret
@@ -222,6 +224,8 @@ int_4:
   sysret
 int_5:
   sysret
+
+s_fdc_irq: .db "\nIRQ0 Executed.\n", 0
 
 ; ------------------------------------------------------------------------------------------------------------------;
 ; Process Swapping
@@ -2510,7 +2514,7 @@ kernel_reset_vector:
   mov bp, STACK_BEGIN
   mov sp, STACK_BEGIN
   
-  mov al, %10000000
+  mov al, %10000001
   stomsk                        ; mask out timer interrupt for now (only allow UART to interrupt)
   sti  
 
