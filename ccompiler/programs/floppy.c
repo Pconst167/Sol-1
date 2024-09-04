@@ -17,6 +17,11 @@ void main(){
 
 
   for(;;){
+    printf("0. select drive 0\n");
+    printf("1. select drive 1\n");
+    printf("f. format\n");
+    printf("a. set reset bit and select drive 0\n");
+    printf("b. clear reset bit, and select drive 0\n");
     printf("w. write 16 to data register\n");
     printf("d. read data register\n");
     printf("t. read track register\n");
@@ -30,6 +35,42 @@ void main(){
     printf("\nOption: ");
     option = getchar();
     switch(option){
+      case 'f':
+        asm{
+        }
+        break;
+      case 'a':
+        asm{
+          mov d, $FFC0    ; fdc output register
+          mov al, 2       ; setparam call
+          mov bl, $2A     ; set reset bit, select drive 0
+          syscall sys_system
+        }
+        break;
+      case 'b':
+        asm{
+          mov d, $FFC0    ; fdc output register
+          mov al, 2       ; setparam call
+          mov bl, $0A     ; clear reset bit, select drive 0
+          syscall sys_system
+        }
+        break;
+      case '0':
+        asm{
+          mov d, $FFC0    ; fdc output register
+          mov al, 2       ; setparam call
+          mov bl, $0A     ; select drive 0
+          syscall sys_system
+        }
+        break;
+      case '1':
+        asm{
+          mov d, $FFC0    ; fdc output register
+          mov al, 2       ; setparam call
+          mov bl, $09     ; select drive 1
+          syscall sys_system
+        }
+        break;
       case 'w':
         asm{
           mov d, $FFCB    ; wd1770 data register

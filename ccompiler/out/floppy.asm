@@ -31,9 +31,41 @@ main:
 _for1_init:
 _for1_cond:
 _for1_block:
+; printf("a. set reset bit and select drive 0\n"); 
+; --- START FUNCTION CALL
+  mov b, _s1 ; "a. set reset bit and select drive 0\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; printf("b. clear reset bit, and select drive 0\n"); 
+; --- START FUNCTION CALL
+  mov b, _s2 ; "b. clear reset bit, and select drive 0\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; printf("0. select drive 0\n"); 
+; --- START FUNCTION CALL
+  mov b, _s3 ; "0. select drive 0\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
+; printf("1. select drive 1\n"); 
+; --- START FUNCTION CALL
+  mov b, _s4 ; "1. select drive 1\n"
+  swp b
+  push b
+  call printf
+  add sp, 2
+; --- END FUNCTION CALL
 ; printf("w. write 16 to data register\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s1 ; "w. write 16 to data register\n"
+  mov b, _s5 ; "w. write 16 to data register\n"
   swp b
   push b
   call printf
@@ -41,7 +73,7 @@ _for1_block:
 ; --- END FUNCTION CALL
 ; printf("d. read data register\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s2 ; "d. read data register\n"
+  mov b, _s6 ; "d. read data register\n"
   swp b
   push b
   call printf
@@ -49,7 +81,7 @@ _for1_block:
 ; --- END FUNCTION CALL
 ; printf("t. read track register\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s3 ; "t. read track register\n"
+  mov b, _s7 ; "t. read track register\n"
   swp b
   push b
   call printf
@@ -57,7 +89,7 @@ _for1_block:
 ; --- END FUNCTION CALL
 ; printf("s. step\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s4 ; "s. step\n"
+  mov b, _s8 ; "s. step\n"
   swp b
   push b
   call printf
@@ -65,7 +97,7 @@ _for1_block:
 ; --- END FUNCTION CALL
 ; printf("k. seek\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s5 ; "k. seek\n"
+  mov b, _s9 ; "k. seek\n"
   swp b
   push b
   call printf
@@ -73,7 +105,7 @@ _for1_block:
 ; --- END FUNCTION CALL
 ; printf("r. restore\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s6 ; "r. restore\n"
+  mov b, _s10 ; "r. restore\n"
   swp b
   push b
   call printf
@@ -81,7 +113,7 @@ _for1_block:
 ; --- END FUNCTION CALL
 ; printf("i. step in\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s7 ; "i. step in\n"
+  mov b, _s11 ; "i. step in\n"
   swp b
   push b
   call printf
@@ -89,7 +121,7 @@ _for1_block:
 ; --- END FUNCTION CALL
 ; printf("o. step out\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s8 ; "o. step out\n"
+  mov b, _s12 ; "o. step out\n"
   swp b
   push b
   call printf
@@ -97,7 +129,7 @@ _for1_block:
 ; --- END FUNCTION CALL
 ; printf("e. exit\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s9 ; "e. exit\n"
+  mov b, _s13 ; "e. exit\n"
   swp b
   push b
   call printf
@@ -105,7 +137,7 @@ _for1_block:
 ; --- END FUNCTION CALL
 ; printf("q. read pending irq status register\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s10 ; "q. read pending irq status register\n"
+  mov b, _s14 ; "q. read pending irq status register\n"
   swp b
   push b
   call printf
@@ -113,7 +145,7 @@ _for1_block:
 ; --- END FUNCTION CALL
 ; printf("\nOption: "); 
 ; --- START FUNCTION CALL
-  mov b, _s11 ; "\nOption: "
+  mov b, _s15 ; "\nOption: "
   swp b
   push b
   call printf
@@ -133,28 +165,72 @@ _switch2_expr:
   mov bh, 0
   mov c, 0
 _switch2_comparisons:
-  cmp bl, $77
+  cmp bl, $61
   je _switch2_case0
-  cmp bl, $64
+  cmp bl, $62
   je _switch2_case1
-  cmp bl, $74
+  cmp bl, $30
   je _switch2_case2
-  cmp bl, $73
+  cmp bl, $31
   je _switch2_case3
-  cmp bl, $6b
+  cmp bl, $77
   je _switch2_case4
-  cmp bl, $72
+  cmp bl, $64
   je _switch2_case5
-  cmp bl, $69
+  cmp bl, $74
   je _switch2_case6
-  cmp bl, $6f
+  cmp bl, $73
   je _switch2_case7
-  cmp bl, $71
+  cmp bl, $6b
   je _switch2_case8
-  cmp bl, $65
+  cmp bl, $72
   je _switch2_case9
+  cmp bl, $69
+  je _switch2_case10
+  cmp bl, $6f
+  je _switch2_case11
+  cmp bl, $71
+  je _switch2_case12
+  cmp bl, $65
+  je _switch2_case13
   jmp _switch2_exit
 _switch2_case0:
+; --- BEGIN INLINE ASM SEGMENT
+  mov d, $FFC0    ; fdc output register
+  mov al, 2       ; setparam call
+  mov bl, $2A     ; set reset bit, select drive 0
+  syscall sys_system
+; --- END INLINE ASM SEGMENT
+; break; 
+  jmp _switch2_exit ; case break
+_switch2_case1:
+; --- BEGIN INLINE ASM SEGMENT
+  mov d, $FFC0    ; fdc output register
+  mov al, 2       ; setparam call
+  mov bl, $0A     ; clear reset bit, select drive 0
+  syscall sys_system
+; --- END INLINE ASM SEGMENT
+; break; 
+  jmp _switch2_exit ; case break
+_switch2_case2:
+; --- BEGIN INLINE ASM SEGMENT
+  mov d, $FFC0    ; fdc output register
+  mov al, 2       ; setparam call
+  mov bl, $0A     ; select drive 0
+  syscall sys_system
+; --- END INLINE ASM SEGMENT
+; break; 
+  jmp _switch2_exit ; case break
+_switch2_case3:
+; --- BEGIN INLINE ASM SEGMENT
+  mov d, $FFC0    ; fdc output register
+  mov al, 2       ; setparam call
+  mov bl, $09     ; select drive 1
+  syscall sys_system
+; --- END INLINE ASM SEGMENT
+; break; 
+  jmp _switch2_exit ; case break
+_switch2_case4:
 ; --- BEGIN INLINE ASM SEGMENT
   mov d, $FFCB    ; wd1770 data register
   mov al, 2       ; setparam call
@@ -163,7 +239,7 @@ _switch2_case0:
 ; --- END INLINE ASM SEGMENT
 ; break; 
   jmp _switch2_exit ; case break
-_switch2_case1:
+_switch2_case5:
 ; --- BEGIN INLINE ASM SEGMENT
   mov d, $FFCB    ; wd1770 data register
   mov al, 4       ; getparam call
@@ -179,7 +255,7 @@ _switch2_case1:
   mov c, 0
   swp b
   push b
-  mov b, _s12 ; "\nData register value: %d\n"
+  mov b, _s16 ; "\nData register value: %d\n"
   swp b
   push b
   call printf
@@ -187,7 +263,7 @@ _switch2_case1:
 ; --- END FUNCTION CALL
 ; break; 
   jmp _switch2_exit ; case break
-_switch2_case2:
+_switch2_case6:
 ; --- BEGIN INLINE ASM SEGMENT
   mov d, $FFC9    ; wd1770 track register
   mov al, 4       ; getparam call
@@ -203,7 +279,7 @@ _switch2_case2:
   mov c, 0
   swp b
   push b
-  mov b, _s13 ; "\nTrack register value: %d\n"
+  mov b, _s17 ; "\nTrack register value: %d\n"
   swp b
   push b
   call printf
@@ -211,7 +287,7 @@ _switch2_case2:
 ; --- END FUNCTION CALL
 ; break; 
   jmp _switch2_exit ; case break
-_switch2_case3:
+_switch2_case7:
 ; --- BEGIN INLINE ASM SEGMENT
   mov d, $FFC8    ; wd1770 command register
   mov al, 2       ; setparam call
@@ -220,7 +296,7 @@ _switch2_case3:
 ; --- END INLINE ASM SEGMENT
 ; break; 
   jmp _switch2_exit ; case break
-_switch2_case4:
+_switch2_case8:
 ; --- BEGIN INLINE ASM SEGMENT
   mov d, $FFC8    ; wd1770 command register
   mov al, 2       ; setparam call
@@ -229,7 +305,7 @@ _switch2_case4:
 ; --- END INLINE ASM SEGMENT
 ; break; 
   jmp _switch2_exit ; case break
-_switch2_case5:
+_switch2_case9:
 ; --- BEGIN INLINE ASM SEGMENT
   ; send restore command
   mov d, $FFC8    ; wd1770
@@ -239,7 +315,7 @@ _switch2_case5:
 ; --- END INLINE ASM SEGMENT
 ; break; 
   jmp _switch2_exit ; case break
-_switch2_case6:
+_switch2_case10:
 ; --- BEGIN INLINE ASM SEGMENT
   ; send step in command
   mov d, $FFC8    ; wd1770
@@ -249,7 +325,7 @@ _switch2_case6:
 ; --- END INLINE ASM SEGMENT
 ; break; 
   jmp _switch2_exit ; case break
-_switch2_case7:
+_switch2_case11:
 ; --- BEGIN INLINE ASM SEGMENT
   ; send step out command
   mov d, $FFC8    ; wd1770
@@ -259,7 +335,7 @@ _switch2_case7:
 ; --- END INLINE ASM SEGMENT
 ; break; 
   jmp _switch2_exit ; case break
-_switch2_case8:
+_switch2_case12:
 ; --- BEGIN INLINE ASM SEGMENT
   lodmsk          ; load masks register/irq status register
   lea d, [bp + -3] ; $word
@@ -273,7 +349,7 @@ _switch2_case8:
   mov c, 0
   swp b
   push b
-  mov b, _s14 ; "\nMasks: %x\n"
+  mov b, _s18 ; "\nMasks: %x\n"
   swp b
   push b
   call printf
@@ -281,7 +357,7 @@ _switch2_case8:
 ; --- END FUNCTION CALL
 ; break; 
   jmp _switch2_exit ; case break
-_switch2_case9:
+_switch2_case13:
 ; return; 
   leave
   syscall sys_terminate_proc
@@ -546,7 +622,7 @@ _if9_TRUE:
 _if9_else:
 ; err("Unexpected format in printf."); 
 ; --- START FUNCTION CALL
-  mov b, _s15 ; "Unexpected format in printf."
+  mov b, _s19 ; "Unexpected format in printf."
   swp b
   push b
   call err
@@ -730,7 +806,7 @@ _switch6_case7:
 _switch6_default:
 ; print("Error: Unknown argument type.\n"); 
 ; --- START FUNCTION CALL
-  mov b, _s16 ; "Error: Unknown argument type.\n"
+  mov b, _s20 ; "Error: Unknown argument type.\n"
   swp b
   push b
   call print
@@ -1752,22 +1828,26 @@ getchar:
 
 ; --- BEGIN DATA SEGMENT
 _s0: .db "Test of 5.25 inch Floppy Drive Interface.\n", 0
-_s1: .db "w. write 16 to data register\n", 0
-_s2: .db "d. read data register\n", 0
-_s3: .db "t. read track register\n", 0
-_s4: .db "s. step\n", 0
-_s5: .db "k. seek\n", 0
-_s6: .db "r. restore\n", 0
-_s7: .db "i. step in\n", 0
-_s8: .db "o. step out\n", 0
-_s9: .db "e. exit\n", 0
-_s10: .db "q. read pending irq status register\n", 0
-_s11: .db "\nOption: ", 0
-_s12: .db "\nData register value: %d\n", 0
-_s13: .db "\nTrack register value: %d\n", 0
-_s14: .db "\nMasks: %x\n", 0
-_s15: .db "Unexpected format in printf.", 0
-_s16: .db "Error: Unknown argument type.\n", 0
+_s1: .db "a. set reset bit and select drive 0\n", 0
+_s2: .db "b. clear reset bit, and select drive 0\n", 0
+_s3: .db "0. select drive 0\n", 0
+_s4: .db "1. select drive 1\n", 0
+_s5: .db "w. write 16 to data register\n", 0
+_s6: .db "d. read data register\n", 0
+_s7: .db "t. read track register\n", 0
+_s8: .db "s. step\n", 0
+_s9: .db "k. seek\n", 0
+_s10: .db "r. restore\n", 0
+_s11: .db "i. step in\n", 0
+_s12: .db "o. step out\n", 0
+_s13: .db "e. exit\n", 0
+_s14: .db "q. read pending irq status register\n", 0
+_s15: .db "\nOption: ", 0
+_s16: .db "\nData register value: %d\n", 0
+_s17: .db "\nTrack register value: %d\n", 0
+_s18: .db "\nMasks: %x\n", 0
+_s19: .db "Unexpected format in printf.", 0
+_s20: .db "Error: Unknown argument type.\n", 0
 
 _heap_top: .dw _heap
 _heap: .db 0

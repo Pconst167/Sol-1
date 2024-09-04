@@ -170,6 +170,7 @@ root_id:                .equ FST_LBA_START
 .dw syscall_resume_proc
 .dw syscall_terminate_proc
 .dw syscall_system
+.dw syscall_fdc
 
 ; ------------------------------------------------------------------------------------------------------------------;
 ; System Call Aliases
@@ -187,6 +188,7 @@ sys_pause_proc       .equ 9
 sys_resume_proc      .equ 10
 sys_terminate_proc   .equ 11
 sys_system           .equ 12
+syscall_fdc          .equ 13
 
 ; ------------------------------------------------------------------------------------------------------------------;
 ; Alias Exports
@@ -205,6 +207,7 @@ sys_system           .equ 12
 .export sys_resume_proc
 .export sys_terminate_proc
 .export sys_system
+.export syscall_fdc
 
 ; ------------------------------------------------------------------------------------------------------------------;
 ; IRQs' Code Block
@@ -361,6 +364,9 @@ system_uname:
 
 system_whoami:
   sysret
+
+syscall_fdc:
+
 
 ; REBOOT SYSTEM
 syscall_reboot:
@@ -2625,6 +2631,31 @@ s_week:
   .db "Thu", 0 
   .db "Fri", 0 
   .db "Sat", 0
+
+; This is the format of a sector for the 128 byte per sector format.
+; Write the bracketed data 16 times per track.
+; The recommended single-density format with 128
+; bytes/sector is shown. In order to format a diskette,
+; the user issues the Write Track Command, and loads
+; the Data Register with the following values. For every
+; byte to be written, there is one Data Request.
+fdc_128_bytes_per_sect:                                                                       
+  .fill 40,  $FF  ; or 00                                                                                
+  .fill 6,   $00  ;                                                                            <--|        
+  .fill 1,   $FE  ; ID Address Mark                                                               |        
+  .fill 1,   $00  ; Track Number                                                                  |                    
+  .fill 1,   $00  ; Side Number 00 or 01                                                          |                
+  .fill 1,   $00  ; Sector Number  1 through 10                                                   |                              
+  .fill 1,   $00  ; Sector Length                                                                 |                        
+  .fill 1,   $F7  ; 2 CRC's Written                                                               | Write 16 times                 
+  .fill 11,  $FF  ; or 00                                                                         |                      
+  .fill 6,   $00  ;                                                                               |                        
+  .fill 1,   $FB  ; Data Address Mark                                                             |                                  
+  .fill 128, $E5  ; Data (IBM uses E5)                                                            |                                      
+  .fill 1,   $F7  ; 2 CRC's Written                                                               |                                                        
+  .fill 10,  $FF  ; or 00                                                                      <--|                                                  
+  .fill 369, $FF  ; or 00. Continue writing until wd1770 interrupts out. approx 369 bytes.                                                                
+
 
 proc_state_table:   .fill 16 * 20, 0  ; for 15 processes max
 proc_availab_table: .fill 16, 0       ; space for 15 processes. 0 = process empty, 1 = process taken
