@@ -407,8 +407,11 @@ fdc_wait_busy:
   mov al, [_FDC_WD_STAT_CMD] ; read wd1770 status register
   and al, $01                ; busy bit
   jnz fdc_wait_busy
+fdc_wait_drq:
+  mov al, [_FDC_STATUS_1]
+  and al, $1                 ; drq
+  jnz 
 
-  
 
   sysret
 
