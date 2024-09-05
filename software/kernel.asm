@@ -20,7 +20,10 @@
 ; FFC0    5.25" Floppy Drive Block
 ;   - FFC0      Output Port (377 Flip-Flop)                  
 ;   - FFC1      Input Port  (244 Buffer)                     
-;   - FFC2      FDC         (WD1770 Floppy Drive Controller) 
+;   - FFC8      WD1770 Status/Command    
+;   - FFC9      WD1770 Track Register
+;   - FFCA      WD1770 Sector Register
+;   - FFCB      WD1770 Data Register
 ;      
 ; FFD0    IDE                 (Compact Flash / PATA)
 ; FFE0    Timer               (8253)
@@ -65,6 +68,13 @@ _PIO_A            .equ $FFB0
 _PIO_B            .equ $FFB1
 _PIO_C            .equ $FFB2
 _PIO_CONTROL      .equ $FFB3            ; PIO CONTROL PORT
+
+_FDC_CONFIG       .equ $FFC0 
+_FDC_STATUS_1     .equ $FFC1
+_FDC_WD_STAT_CMD  .equ $FFC8
+_FDC_WD_TRACK     .equ $FFC9
+_FDC_WD_SECTOR    .equ $FFCA
+_FDC_WD_DATA      .equ $FFCB
 
 _TIMER_C_0        .equ $FFE0            ; TIMER COUNTER 0
 _TIMER_C_1        .equ $FFE1            ; TIMER COUNTER 1
@@ -188,7 +198,7 @@ sys_pause_proc       .equ 9
 sys_resume_proc      .equ 10
 sys_terminate_proc   .equ 11
 sys_system           .equ 12
-syscall_fdc          .equ 13
+sys_fdc              .equ 13
 
 ; ------------------------------------------------------------------------------------------------------------------;
 ; Alias Exports
@@ -207,7 +217,7 @@ syscall_fdc          .equ 13
 .export sys_resume_proc
 .export sys_terminate_proc
 .export sys_system
-.export syscall_fdc
+.export sys_fdc
 
 ; ------------------------------------------------------------------------------------------------------------------;
 ; IRQs' Code Block
@@ -365,7 +375,42 @@ system_uname:
 system_whoami:
   sysret
 
+; fdc_40_FF:     .fill 40,  $FF  ; or 00                                                                                
+; fdc_6_00_0:    .fill 6,   $00  ;                                                                            <--|        
+; fdc_id_fe:     .fill 1,   $FE  ; ID Address Mark                                                               |        
+; fdc_track:     .fill 1,   $00  ; Track Number                                                                  |                    
+; fdc_side:      .fill 1,   $00  ; Side Number 00 or 01                                                          |                
+; fdc_sector:    .fill 1,   $00  ; Sector Number  1 through 10                                                   |                              
+; fdc_length:    .fill 1,   $00  ; Sector Length                                                                 |                        
+; fdc_2_crc_0:   .fill 1,   $F7  ; 2 CRC's Written                                                               | Write 16 times                 
+; fdc_11_ff:     .fill 11,  $FF  ; or 00                                                                         |                      
+; fdc_6_00_1:    .fill 6,   $00  ;                                                                               |                        
+; fdc_data_addr: .fill 1,   $FB  ; Data Address Mark                                                             |                                  
+; fdc_data:      .fill 128, $E5  ; Data (IBM uses E5)                                                            |                                      
+; fdc_2_crc_1:   .fill 1,   $F7  ; 2 CRC's Written                                                               |                                                        
+; fdc_10_ff:     .fill 10,  $FF  ; or 00                                                                      <--|                                                  
+; fdc_369_ff:    .fill 369, $FF  ; or 00. Continue writing until wd1770 interrupts out. approx 369 bytes.                                                                
+; ***************************************************************************************************************
+; _FDC_CONFIG       .equ $FFC0 
+; _FDC_STATUS_1     .equ $FFC1
+; _FDC_WD_STAT_CMD  .equ $FFC8
+; _FDC_WD_TRACK     .equ $FFC9
+; _FDC_WD_SECTOR    .equ $FFCA
+; _FDC_WD_DATA      .equ $FFCB
+fdc_jmptbl:
+  .dw syscall_fdc_format
 syscall_fdc:
+  jmp [fdc_jmptbl + al]
+
+syscall_fdc_format:
+fdc_wait_busy:
+  mov al, [_FDC_WD_STAT_CMD] ; read wd1770 status register
+  and al, $01                ; busy bit
+  jnz fdc_wait_busy
+
+  
+
+  sysret
 
 
 ; REBOOT SYSTEM
@@ -2640,21 +2685,21 @@ s_week:
 ; the Data Register with the following values. For every
 ; byte to be written, there is one Data Request.
 fdc_128_bytes_per_sect:                                                                       
-  .fill 40,  $FF  ; or 00                                                                                
-  .fill 6,   $00  ;                                                                            <--|        
-  .fill 1,   $FE  ; ID Address Mark                                                               |        
-  .fill 1,   $00  ; Track Number                                                                  |                    
-  .fill 1,   $00  ; Side Number 00 or 01                                                          |                
-  .fill 1,   $00  ; Sector Number  1 through 10                                                   |                              
-  .fill 1,   $00  ; Sector Length                                                                 |                        
-  .fill 1,   $F7  ; 2 CRC's Written                                                               | Write 16 times                 
-  .fill 11,  $FF  ; or 00                                                                         |                      
-  .fill 6,   $00  ;                                                                               |                        
-  .fill 1,   $FB  ; Data Address Mark                                                             |                                  
-  .fill 128, $E5  ; Data (IBM uses E5)                                                            |                                      
-  .fill 1,   $F7  ; 2 CRC's Written                                                               |                                                        
-  .fill 10,  $FF  ; or 00                                                                      <--|                                                  
-  .fill 369, $FF  ; or 00. Continue writing until wd1770 interrupts out. approx 369 bytes.                                                                
+fdc_40_FF:     .fill 40,  $FF  ; or 00                                                                                
+fdc_6_00_0:    .fill 6,   $00  ;                                                                            <--|        
+fdc_id_fe:     .fill 1,   $FE  ; ID Address Mark                                                               |        
+fdc_track:     .fill 1,   $00  ; Track Number                                                                  |                    
+fdc_side:      .fill 1,   $00  ; Side Number 00 or 01                                                          |                
+fdc_sector:    .fill 1,   $00  ; Sector Number  1 through 10                                                   |                              
+fdc_length:    .fill 1,   $00  ; Sector Length                                                                 |                        
+fdc_2_crc_0:   .fill 1,   $F7  ; 2 CRC's Written                                                               | Write 16 times                 
+fdc_11_ff:     .fill 11,  $FF  ; or 00                                                                         |                      
+fdc_6_00_1:    .fill 6,   $00  ;                                                                               |                        
+fdc_data_addr: .fill 1,   $FB  ; Data Address Mark                                                             |                                  
+fdc_data:      .fill 128, $E5  ; Data (IBM uses E5)                                                            |                                      
+fdc_2_crc_1:   .fill 1,   $F7  ; 2 CRC's Written                                                               |                                                        
+fdc_10_ff:     .fill 10,  $FF  ; or 00                                                                      <--|                                                  
+fdc_369_ff:    .fill 369, $FF  ; or 00. Continue writing until wd1770 interrupts out. approx 369 bytes.                                                                
 
 
 proc_state_table:   .fill 16 * 20, 0  ; for 15 processes max
