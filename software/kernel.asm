@@ -380,7 +380,7 @@ system_whoami:
 ; fdc_id_fe:     .fill 1,   $FE  ; ID Address Mark                                                               |        
 ; fdc_track:     .fill 1,   $00  ; Track Number                                                                  |                    
 ; fdc_side:      .fill 1,   $00  ; Side Number 00 or 01                                                          |                
-; fdc_sector:    .fill 1,   $00  ; Sector Number  1 through 10                                                   |                              
+; fdc_sector:    .fill 1,   $01  ; Sector Number  1 through 10                                                   |                              
 ; fdc_length:    .fill 1,   $00  ; Sector Length                                                                 |                        
 ; fdc_2_crc_0:   .fill 1,   $F7  ; 2 CRC's Written                                                               | Write 16 times                 
 ; fdc_11_ff:     .fill 11,  $FF  ; or 00                                                                         |                      
@@ -407,10 +407,24 @@ fdc_wait_busy:
   mov al, [_FDC_WD_STAT_CMD] ; read wd1770 status register
   and al, $01                ; busy bit
   jnz fdc_wait_busy
-fdc_wait_drq:
-  mov al, [_FDC_STATUS_1]
-  and al, $1                 ; drq
-  jnz 
+
+  mov si, fdc_40_FF
+  mov c, 209
+fdc_format_loop:
+fdc_drq_loop:
+  mov d, _FDC_STATUS_1
+  mov al, [d]
+  and al, $01               ; check drq bit
+  jz fdc_drq_loop
+  lodsb                     ; load format byte
+  mov d, _FDC_WD_DATA       ; data register
+  mov [d], al               ; send data byte to wd1770
+  dec c
+  mov d, fdc_sector
+  mov al, [d]
+  inc al
+  mov [d], al
+  jnz fdc_format_loop       ; continue formatting
 
 
   sysret
@@ -2693,7 +2707,7 @@ fdc_6_00_0:    .fill 6,   $00  ;                                                
 fdc_id_fe:     .fill 1,   $FE  ; ID Address Mark                                                               |        
 fdc_track:     .fill 1,   $00  ; Track Number                                                                  |                    
 fdc_side:      .fill 1,   $00  ; Side Number 00 or 01                                                          |                
-fdc_sector:    .fill 1,   $00  ; Sector Number  1 through 10                                                   |                              
+fdc_sector:    .fill 1,   $01  ; Sector Number  1 through 10                                                   |                              
 fdc_length:    .fill 1,   $00  ; Sector Length                                                                 |                        
 fdc_2_crc_0:   .fill 1,   $F7  ; 2 CRC's Written                                                               | Write 16 times                 
 fdc_11_ff:     .fill 11,  $FF  ; or 00                                                                         |                      
@@ -2703,7 +2717,6 @@ fdc_data:      .fill 128, $E5  ; Data (IBM uses E5)                             
 fdc_2_crc_1:   .fill 1,   $F7  ; 2 CRC's Written                                                               |                                                        
 fdc_10_ff:     .fill 10,  $FF  ; or 00                                                                      <--|                                                  
 fdc_369_ff:    .fill 369, $FF  ; or 00. Continue writing until wd1770 interrupts out. approx 369 bytes.                                                                
-
 
 proc_state_table:   .fill 16 * 20, 0  ; for 15 processes max
 proc_availab_table: .fill 16, 0       ; space for 15 processes. 0 = process empty, 1 = process taken
