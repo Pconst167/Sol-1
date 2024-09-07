@@ -375,6 +375,8 @@ system_uname:
 system_whoami:
   sysret
 
+
+; the floppy control below is not yet tested. it needs to be tested.
 ; fdc_40_FF:     .fill 40,  $FF  ; or 00                                                                                
 ; fdc_6_00_0:    .fill 6,   $00  ;                                                                            <--|        
 ; fdc_id_fe:     .fill 1,   $FE  ; ID Address Mark                                                               |        
@@ -403,6 +405,7 @@ syscall_fdc:
   jmp [fdc_jmptbl + al]
 
 syscall_fdc_format:
+  mov g, $FF
 fdc_wait_busy:
   mov al, [_FDC_WD_STAT_CMD] ; read wd1770 status register
   and al, $01                ; busy bit
@@ -410,7 +413,7 @@ fdc_wait_busy:
 
   mov si, fdc_40_FF
   mov c, 209
-fdc_format_loop:
+fdc_sector_loop:
 fdc_drq_loop:
   mov d, _FDC_STATUS_1
   mov al, [d]
@@ -420,12 +423,27 @@ fdc_drq_loop:
   mov d, _FDC_WD_DATA       ; data register
   mov [d], al               ; send data byte to wd1770
   dec c
+  jnz fdc_sector_loop
   mov d, fdc_sector
-  mov al, [d]
-  inc al
-  mov [d], al
-  jnz fdc_format_loop       ; continue formatting
+  mov bl, [d]
+  inc b
+  mov [d], bl
+  cmp bl, 11
+  jne fdc_sector_loop       ; continue formatting
 
+; here all the sectors have been written. now fill in remaining od the sonze until wd1770 interrupts out
+fdc_drq_loop_fill:
+  mov d, _FDC_STATUS_1
+  mov al, [d]
+  and al, $01               ; check drq bit
+  jz fdc_drq_loop_fill
+  mov d, _FDC_WD_DATA       ; data register
+  mov a, g
+  mov [d], al               ; send data byte to wd1770
+  lodstat
+  mov al, ah
+  and al, $01
+  jz fdc_drq_loop_fill
 
   sysret
 
