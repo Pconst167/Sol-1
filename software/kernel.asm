@@ -445,7 +445,8 @@ fdc_drq_loop_fill:
   and al, $01
   jz fdc_drq_loop_fill
 
-
+  mov d, s_format_done
+  call _puts
 
   sysret
 
