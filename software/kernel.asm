@@ -431,22 +431,25 @@ fdc_drq_loop:
   cmp bl, 11
   jne fdc_sector_loop       ; continue formatting
 
-; here all the sectors have been written. now fill in remaining od the sonze until wd1770 interrupts out
+; here all the sectors have been written. now fill in remaining of the track until wd1770 interrupts out
 fdc_drq_loop_fill:
   mov d, _FDC_STATUS_1
   mov al, [d]
   and al, $01               ; check drq bit
   jz fdc_drq_loop_fill
   mov d, _FDC_WD_DATA       ; data register
-  mov a, g
+  mov al, gl
   mov [d], al               ; send data byte to wd1770
   lodstat
   mov al, ah
   and al, $01
   jz fdc_drq_loop_fill
 
+
+
   sysret
 
+s_format_done: .db "\nFormatting done.\n", 0
 
 ; REBOOT SYSTEM
 syscall_reboot:
