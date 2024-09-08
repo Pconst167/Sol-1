@@ -37,6 +37,8 @@ void main(){
     switch(option){
       case 'f':
         asm{
+          mov al, 0       ; format track
+          syscall sys_fdc
         }
         break;
       case 'a':
