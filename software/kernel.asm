@@ -405,6 +405,8 @@ syscall_fdc:
   jmp [fdc_jmptbl + al]
 
 syscall_fdc_format:
+  mov d, s_format_begin
+  call _puts
   mov g, $FF
 fdc_wait_busy:
   mov al, [_FDC_WD_STAT_CMD] ; read wd1770 status register
@@ -413,6 +415,11 @@ fdc_wait_busy:
 
   mov si, fdc_40_FF
   mov c, 209
+  mov d, s_send_write_cmd
+  call _puts
+  mov d, _FDC_WD_STAT_CMD
+  mov al, %11110010          ; Write Track Command: {1111, 0: Enable Spin-up Seq, 0: No Settling Delay, 1: No Write Precompensation, 0}
+  mov [d], al
 fdc_sector_loop:
 fdc_drq_loop:
   mov d, _FDC_STATUS_1
@@ -450,6 +457,8 @@ fdc_drq_loop_fill:
 
   sysret
 
+s_send_write_cmd: .db "\nSending Write Command...\n", 0
+s_format_begin: .db "\nFormatting starting...\n", 0
 s_format_done: .db "\nFormatting done.\n", 0
 
 ; REBOOT SYSTEM
