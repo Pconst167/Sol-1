@@ -15,8 +15,15 @@ module fpu(
 );
 
   logic [31:0] operand_a;
+  logic [22:0] a_mantissa;
+  logic [ 7:0] a_exp;
+  logic        a_sign;
   logic [31:0] operand_b;
+  logic [23:0] b_mantissa;
+  logic        b_sign;
   logic [31:0] result;
+  logic [23:0] result_mantissa;
+  logic        result_sign;
 
   logic [7:0] status;
   logic [3:0] operation; // arithmetic operation to be performed
@@ -25,6 +32,16 @@ module fpu(
 
   pa_fpu::e_fpu_state curr_state_fpu_fsm;
   pa_fpu::e_fpu_state next_state_fpu_fsm;
+
+  assign a_mantissa      = operand_a[22:0];
+  assign a_exp           = operand_a[30:23];
+  assign a_sign          = operand_a[31];
+  assign b_mantissa      = operand_b[22:0];
+  assign b_exp           = operand_b[30:23];
+  assign b_sign          = operand_b[31];
+  assign result_mantissa = result[22:0];
+  assign result_exp      = result[30:23];
+  assign result_sign     = result[31];
 
   always_comb begin
     if(cs == 1'b0 && rd == 1'b0) begin
@@ -80,6 +97,10 @@ module fpu(
     ) 
       op_written = 1'b0;
   end
+
+
+
+
 
   always_comb begin
     next_state_fpu_fsm = curr_state_fpu_fsm;
