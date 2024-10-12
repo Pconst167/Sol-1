@@ -1,8 +1,8 @@
 package pa_fpu;
 
   typedef enum logic[3:0]{
-    op_add,
-    op_sub,
+    op_add = 4'h0,
+    op_sub = 4'h1,
     op_mul,
     op_div,
     op_sqrt,

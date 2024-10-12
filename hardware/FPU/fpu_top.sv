@@ -37,7 +37,7 @@ module fpu(
   logic [ 7:0] ba_exp_diff;
 
   logic [ 7:0] status;
-  logic [ 3:0] operation; // arithmetic operation to be performed
+  e_fpu_operation operation; // arithmetic operation to be performed
 
   logic op_written;
 
@@ -92,10 +92,18 @@ module fpu(
       b_mantissa_after_adjust = b_mantissa;
     end
 
-    result[22:0]  = a_mantissa_after_adjust + b_mantissa_after_adjust;
-    result[30:23] = aexp_after_adjust + 8'd127;
-    // result is negative if: a is negative and a > b, or b is negative and b > a, or both are negative
-    result[31]    = a_sign && a_mantissa > b_mantissa || b_sign && b_mantissa > a_mantissa || a_sign && b_sign;
+    if(operation == op_sub) begin
+      result[22:0]  = a_mantissa_after_adjust - b_mantissa_after_adjust;
+      result[30:23] = aexp_after_adjust + 8'd127;
+      // result is negative if: 
+      result[31]    = !a_sign && !b_sign && b_mantissa > a_mantissa || a_sign && !b_sign || a_sign && b_sign && a_mantissa > b_mantissa;
+    end
+    else if(operation == op_add) begin
+      result[22:0]  = a_mantissa_after_adjust + b_mantissa_after_adjust;
+      result[30:23] = aexp_after_adjust + 8'd127;
+      // result is negative if: a is negative and a > b, or b is negative and b > a, or both are negative
+      result[31]    = a_sign && a_mantissa > b_mantissa || b_sign && b_mantissa > a_mantissa || a_sign && b_sign;
+    end
 
   end
 
@@ -124,8 +132,8 @@ module fpu(
     if(arst) begin
       operand_a  = '0;
       operand_b  = '0;
-      operation  = 4'h0;  
-      op_written  = 1'b0;
+      operation  = op_add;  
+      op_written = 1'b0;
     end
     else if(cs == 1'b0 && wr == 1'b0) begin
       case(addr)
@@ -140,7 +148,7 @@ module fpu(
         6'h7: operand_b[31:24] = databus_in;
 
         6'h8: begin
-          operation            = databus_in[3:0];
+          operation            = e_fpu_operation'(databus_in[3:0]);
           op_written           = 1'b1;
         end
       endcase      

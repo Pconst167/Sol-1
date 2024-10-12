@@ -105,7 +105,7 @@ module fpu_tb;
     // write operation
     #500ns;
     cs = 1'b0;
-    databus_in = pa_fpu::op_add;
+    databus_in = pa_fpu::op_sub;
     addr = 6'h8;
     wr = 1'b0;
     #500ns;
