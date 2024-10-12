@@ -41,8 +41,10 @@ module fpu(
 
   logic op_written;
 
-  logic [23:0] aexp_after_shift;
-  logic [23:0] bexp_after_shift;
+  logic [7:0] aexp_after_adjust;
+  logic [7:0] bexp_after_adjust;
+  logic [23:0] a_mantissa_after_adjust;
+  logic [23:0] b_mantissa_after_adjust;
 
   pa_fpu::e_fpu_state curr_state_fpu_fsm;
   pa_fpu::e_fpu_state next_state_fpu_fsm;
@@ -72,16 +74,22 @@ module fpu(
     aexp_eq_bexp = aexp_no_bias == bexp_no_bias;
     
     if(aexp_lt_bexp) begin
-      aexp_after_shift = aexp_no_bias >> ba_exp_diff;
-      bexp_after_shift = bexp_no_bias;
+      aexp_after_adjust = aexp_no_bias + ba_exp_diff;
+      a_mantissa_after_adjust = a_mantissa >> ba_exp_diff;
+      bexp_after_adjust = bexp_no_bias;
+      b_mantissa_after_adjust = b_mantissa;
     end   
     else if(aexp_gt_bexp) begin
-      bexp_after_shift = bexp_no_bias >> ab_exp_diff;
-      aexp_after_shift = aexp_no_bias;
+      aexp_after_adjust = aexp_no_bias;
+      a_mantissa_after_adjust = a_mantissa;
+      bexp_after_adjust = bexp_no_bias + ab_exp_diff;
+      b_mantissa_after_adjust = b_mantissa >> ab_exp_diff;
     end   
     else begin
-      aexp_after_shift = aexp_no_bias;
-      bexp_after_shift = bexp_no_bias;
+      aexp_after_adjust = aexp_no_bias;
+      a_mantissa_after_adjust = a_mantissa;
+      bexp_after_adjust = bexp_no_bias;
+      b_mantissa_after_adjust = b_mantissa;
     end
     
 
