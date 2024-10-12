@@ -24,8 +24,8 @@ module fpu(
   logic        b_sign;
   logic [31:0] result;
   logic [23:0] result_mantissa;
-  logic        result_sign;
   logic [ 7:0] result_exp;
+  logic        result_sign;
   logic [ 7:0] aexp_no_bias;
   logic [ 7:0] bexp_no_bias;
 
@@ -55,9 +55,10 @@ module fpu(
   assign b_mantissa      = {1'b1, operand_b[22:0]};
   assign b_exp           = operand_b[30:23];
   assign b_sign          = operand_b[31];
-  assign result_mantissa = result[22:0];
-  assign result_exp      = result[30:23];
-  assign result_sign     = result[31];
+
+  assign result[22:0]    = result_mantissa[22:0];
+  assign result[30:23]   = result_exp;
+  assign result[31]      = result_sign;
 
   assign aexp_no_bias    = a_exp - 127;
   assign bexp_no_bias    = b_exp - 127;
@@ -93,16 +94,16 @@ module fpu(
     end
 
     if(operation == op_sub) begin
-      result[22:0]  = a_mantissa_after_adjust - b_mantissa_after_adjust;
-      result[30:23] = aexp_after_adjust + 8'd127;
+      result_mantissa = 24'h200000 - 24'h800000;// a_mantissa_after_adjust - b_mantissa_after_adjust;
+      result_exp      = aexp_after_adjust + 8'd127;
       // result is negative if: 
-      result[31]    = !a_sign && !b_sign && b_mantissa > a_mantissa || a_sign && !b_sign || a_sign && b_sign && a_mantissa > b_mantissa;
+      result_sign     = !a_sign && !b_sign && b_mantissa > a_mantissa || a_sign && !b_sign || a_sign && b_sign && a_mantissa > b_mantissa;
     end
     else if(operation == op_add) begin
-      result[22:0]  = a_mantissa_after_adjust + b_mantissa_after_adjust;
-      result[30:23] = aexp_after_adjust + 8'd127;
+      result_mantissa = a_mantissa_after_adjust + b_mantissa_after_adjust;
+      result_exp      = aexp_after_adjust + 8'd127;
       // result is negative if: a is negative and a > b, or b is negative and b > a, or both are negative
-      result[31]    = a_sign && a_mantissa > b_mantissa || b_sign && b_mantissa > a_mantissa || a_sign && b_sign;
+      result_sign     = a_sign && a_mantissa > b_mantissa || b_sign && b_mantissa > a_mantissa || a_sign && b_sign;
     end
 
   end
