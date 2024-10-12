@@ -34,24 +34,75 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
+    // write a
     #500ns;
     cs = 1'b0;
-    databus_in = 8'h55;
+    databus_in = 8'hFF;
     addr = 6'h0;
     wr = 1'b0;
     #500ns;
     wr = 1'b1;
     cs = 1'b1;
-
     #500ns;
     cs = 1'b0;
-    databus_in = 8'hAA;
+    databus_in = 8'hFF;
     addr = 6'h1;
     wr = 1'b0;
     #500ns;
     wr = 1'b1;
     cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = 8'hFF;
+    addr = 6'h2;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = 8'hFF;
+    addr = 6'h3;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
 
+    // write b
+    #500ns;
+    cs = 1'b0;
+    databus_in = 8'hFF;
+    addr = 6'h4;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = 8'hFF;
+    addr = 6'h5;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = 8'hFF;
+    addr = 6'h6;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = 8'hFF;
+    addr = 6'h7;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+
+    // write operation
     #500ns;
     cs = 1'b0;
     databus_in = pa_fpu::op_add;

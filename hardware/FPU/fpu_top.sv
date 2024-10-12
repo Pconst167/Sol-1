@@ -15,33 +15,77 @@ module fpu(
 );
 
   logic [31:0] operand_a;
-  logic [22:0] a_mantissa;
+  logic [23:0] a_mantissa;
   logic [ 7:0] a_exp;
   logic        a_sign;
   logic [31:0] operand_b;
   logic [23:0] b_mantissa;
+  logic [ 7:0] b_exp;
   logic        b_sign;
   logic [31:0] result;
   logic [23:0] result_mantissa;
   logic        result_sign;
+  logic [7:0]  aexp_no_bias;
+  logic [7:0]  bexp_no_bias;
 
-  logic [7:0] status;
-  logic [3:0] operation; // arithmetic operation to be performed
+
+  logic        aexp_lt_bexp;
+  logic        aexp_gt_bexp;
+  logic        aexp_eq_bexp;
+
+  logic [7:0]  ab_exp_diff;
+  logic [7:0]  ba_exp_diff;
+
+  logic [ 7:0] status;
+  logic [ 3:0] operation; // arithmetic operation to be performed
 
   logic op_written;
+
+  logic [23:0] aexp_after_shift;
+  logic [23:0] bexp_after_shift;
 
   pa_fpu::e_fpu_state curr_state_fpu_fsm;
   pa_fpu::e_fpu_state next_state_fpu_fsm;
 
-  assign a_mantissa      = operand_a[22:0];
+  assign a_mantissa      = {1'b1, operand_a[22:0]};
   assign a_exp           = operand_a[30:23];
   assign a_sign          = operand_a[31];
-  assign b_mantissa      = operand_b[22:0];
+  assign b_mantissa      = {1'b1, operand_b[22:0]};
   assign b_exp           = operand_b[30:23];
   assign b_sign          = operand_b[31];
   assign result_mantissa = result[22:0];
   assign result_exp      = result[30:23];
   assign result_sign     = result[31];
+
+  assign aexp_no_bias    = a_exp - 127;
+  assign bexp_no_bias    = b_exp - 127;
+
+  assign ab_exp_diff     = aexp_no_bias - bexp_no_bias;
+  assign ba_exp_diff     = bexp_no_bias - aexp_no_bias;
+
+  // if aexp < bexp, then increase aexp and right-shift a_mantissa by same number
+  // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
+  // else, exponents are the same and we are ok
+  always_comb begin
+    aexp_lt_bexp = aexp_no_bias  < bexp_no_bias;
+    aexp_gt_bexp = aexp_no_bias  > bexp_no_bias;
+    aexp_eq_bexp = aexp_no_bias == bexp_no_bias;
+    
+    if(aexp_lt_bexp) begin
+      aexp_after_shift = aexp_no_bias >> ba_exp_diff;
+      bexp_after_shift = bexp_no_bias;
+    end   
+    else if(aexp_gt_bexp) begin
+      bexp_after_shift = bexp_no_bias >> ab_exp_diff;
+      aexp_after_shift = aexp_no_bias;
+    end   
+    else begin
+      aexp_after_shift = aexp_no_bias;
+      bexp_after_shift = bexp_no_bias;
+    end
+    
+
+  end
 
   always_comb begin
     if(cs == 1'b0 && rd == 1'b0) begin
@@ -98,10 +142,6 @@ module fpu(
       op_written = 1'b0;
   end
 
-
-
-
-
   always_comb begin
     next_state_fpu_fsm = curr_state_fpu_fsm;
 
@@ -149,6 +189,5 @@ module fpu(
     else 
       curr_state_fpu_fsm <= next_state_fpu_fsm;
   end
-
 
 endmodule
