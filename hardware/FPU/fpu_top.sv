@@ -25,16 +25,16 @@ module fpu(
   logic [31:0] result;
   logic [23:0] result_mantissa;
   logic        result_sign;
-  logic [7:0]  aexp_no_bias;
-  logic [7:0]  bexp_no_bias;
-
+  logic [ 7:0] result_exp;
+  logic [ 7:0] aexp_no_bias;
+  logic [ 7:0] bexp_no_bias;
 
   logic        aexp_lt_bexp;
   logic        aexp_gt_bexp;
   logic        aexp_eq_bexp;
 
-  logic [7:0]  ab_exp_diff;
-  logic [7:0]  ba_exp_diff;
+  logic [ 7:0] ab_exp_diff;
+  logic [ 7:0] ba_exp_diff;
 
   logic [ 7:0] status;
   logic [ 3:0] operation; // arithmetic operation to be performed
@@ -91,7 +91,11 @@ module fpu(
       bexp_after_adjust = bexp_no_bias;
       b_mantissa_after_adjust = b_mantissa;
     end
-    
+
+    result[22:0]  = a_mantissa_after_adjust + b_mantissa_after_adjust;
+    result[30:23] = aexp_after_adjust + 8'd127;
+    // result is negative if: a is negative and a > b, or b is negative and b > a, or both are negative
+    result[31]    = a_sign && a_mantissa > b_mantissa || b_sign && b_mantissa > a_mantissa || a_sign && b_sign;
 
   end
 
@@ -175,7 +179,6 @@ module fpu(
   always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       cmd_end <= 1'b0;
-      result <= '0;
       status <= '0;
     end
     else begin
