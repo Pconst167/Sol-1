@@ -15,23 +15,19 @@ module fpu(
 );
 
   logic [31:0] operand_a;
-  logic [23:0] a_mantissa;
+  logic unsigned [23:0] a_mantissa;
   logic [ 7:0] a_exp;
   logic        a_sign;
   logic [31:0] operand_b;
-  logic [23:0] b_mantissa;
+  logic unsigned [23:0] b_mantissa;
   logic [ 7:0] b_exp;
   logic        b_sign;
   logic [31:0] result;
-  logic [23:0] result_mantissa;
+  logic unsigned [23:0] result_mantissa;
   logic [ 7:0] result_exp;
   logic        result_sign;
   logic [ 7:0] aexp_no_bias;
   logic [ 7:0] bexp_no_bias;
-
-  logic        aexp_lt_bexp;
-  logic        aexp_gt_bexp;
-  logic        aexp_eq_bexp;
 
   logic [ 7:0] ab_exp_diff;
   logic [ 7:0] ba_exp_diff;
@@ -70,17 +66,13 @@ module fpu(
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
   // else, exponents are the same and we are ok
   always_comb begin
-    aexp_lt_bexp = aexp_no_bias  < bexp_no_bias;
-    aexp_gt_bexp = aexp_no_bias  > bexp_no_bias;
-    aexp_eq_bexp = aexp_no_bias == bexp_no_bias;
-    
-    if(aexp_lt_bexp) begin
+    if(aexp_no_bias  < bexp_no_bias) begin
       aexp_after_adjust = aexp_no_bias + ba_exp_diff;
       a_mantissa_after_adjust = a_mantissa >> ba_exp_diff;
       bexp_after_adjust = bexp_no_bias;
       b_mantissa_after_adjust = b_mantissa;
     end   
-    else if(aexp_gt_bexp) begin
+    else if(aexp_no_bias  > bexp_no_bias) begin
       aexp_after_adjust = aexp_no_bias;
       a_mantissa_after_adjust = a_mantissa;
       bexp_after_adjust = bexp_no_bias + ab_exp_diff;
@@ -93,14 +85,42 @@ module fpu(
       b_mantissa_after_adjust = b_mantissa;
     end
 
+    // 0.71875: 0  0111 1110  0111000 00000000 00000000
+    // 1.9375:  0  0111 1111  1111000 00000000 00000000
+    //                          
+    //                               
+    // 0.71875: 0  0000 0011  0011100 00000000 00000000       equalize exponent and update mantissa
+    // 
+    // 0.71875: 0  0000 0011  1100100 00000000 00000000       2's complement
+    //
+    //
+    //   1.9375:  0  0000 0011  1111000 00000000 00000000       add
+    // -0.71875:  0  0000 0011  1100100 00000000 00000000       
+    //                         11011100 00000000 00000000     result has a carry out
+    // 
+    //              0 0000 0100  1101110 00000000 00000000     shift right  and increase exponent
+    //              0000 0010   0110 1110 00000000 00000000     
+    //                     02 6E 0000
+
     if(operation == op_sub) begin
-      result_mantissa = 24'h200000 - 24'h800000;// a_mantissa_after_adjust - b_mantissa_after_adjust;
-      result_exp      = aexp_after_adjust + 8'd127;
+      result_mantissa = a_mantissa_after_adjust + (~b_mantissa_after_adjust + 24'h1); // a_mantissa_after_adjust - b_mantissa_after_adjust;
+      result_exp      = aexp_after_adjust;
+      if(result_mantissa[22]) begin
+        result_mantissa = -result_mantissa;
+        result_sign = 1'b1;
+      end
+      else result_sign = 1'b0;
+      while(!result_mantissa[22]) begin
+        result_mantissa= result_mantissa<< 1;
+        result_exp = result_exp - 1;
+      end
+
+      result_exp = result_exp + 8'd127;
       // result is negative if: 
-      result_sign     = !a_sign && !b_sign && b_mantissa > a_mantissa || a_sign && !b_sign || a_sign && b_sign && a_mantissa > b_mantissa;
     end
     else if(operation == op_add) begin
       result_mantissa = a_mantissa_after_adjust + b_mantissa_after_adjust;
+      if(result_mantissa[23]) result_mantissa = result_mantissa>> 1;
       result_exp      = aexp_after_adjust + 8'd127;
       // result is negative if: a is negative and a > b, or b is negative and b > a, or both are negative
       result_sign     = a_sign && a_mantissa > b_mantissa || b_sign && b_mantissa > a_mantissa || a_sign && b_sign;
