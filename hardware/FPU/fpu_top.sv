@@ -105,12 +105,12 @@ module fpu(
     if(operation == op_sub) begin
       result_mantissa = a_mantissa_after_adjust + (~b_mantissa_after_adjust + 24'h1); // a_mantissa_after_adjust - b_mantissa_after_adjust;
       result_exp      = aexp_after_adjust;
-      if(result_mantissa[22]) begin
+      if(result_mantissa[23]) begin
         result_mantissa = -result_mantissa;
         result_sign = 1'b1;
       end
       else result_sign = 1'b0;
-      while(!result_mantissa[22]) begin
+      while(!result_mantissa[23]) begin
         result_mantissa= result_mantissa<< 1;
         result_exp = result_exp - 1;
       end

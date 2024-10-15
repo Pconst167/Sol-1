@@ -91,6 +91,26 @@ R0
 R1
 R0
 R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
 Z2 !s12c _opt
 R1
 R2
@@ -230,10 +250,10 @@ n@_opt
 Z10 OL;O;2024.1;79
 R3
 T_opt1
-!s110 1728945575
-V<TFkT67<:;HhNlR5007o70
+!s110 1728961954
+VdoC3EThH0?AOhY?CcXHzj0
 R4
-=47-000ae431a4f1-670d9da7-8f525-3a5f
+=59-000ae431a4f1-670ddda2-47ca6-3a5f
 R1
 R5
 R6
@@ -246,25 +266,25 @@ vfpu
 Z11 2/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z12 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
 Z13 DXx4 work 6 pa_fpu 0 22 PT9T@[M1;5IMmcN<4llTO2
-DXx4 work 15 fpu_top_sv_unit 0 22 35o6NWz@_=GG^Ino61B@Q0
-Z14 !s110 1728945555
+DXx4 work 15 fpu_top_sv_unit 0 22 23jBJXMbHS9DOclOi97F:2
+Z14 !s110 1728961922
 Z15 VDg1SIo80bB@j0V0VzS_@n1
 r1
 !s85 0
 !i10b 1
-!s100 =BF9n6L3U^dQMdTKcDNYF2
-IQ9PZoa790^?9bdh[P[V0Z2
+!s100 ][7<jWEB3@@k@Ef9eWQ7h3
+I>>cN]HVIRDO:Y10gG^6620
 !s105 fpu_top_sv_unit
 S1
 Z16 d/home/pconst/Desktop/sol-1/hardware/FPU
-Z17 w1728945550
+Z17 w1728961872
 Z18 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z19 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
-!i122 359
-L0 3 233
+!i122 397
+L0 3 231
 Z20 OL;L;2024.1;79
 31
-Z21 !s108 1728945555.000000
+Z21 !s108 1728961922.000000
 Z22 !s107 /home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 Z23 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 !i113 0
@@ -280,15 +300,15 @@ R15
 r1
 !s85 0
 !i10b 1
-!s100 [0gg3F0Fl>=Q0cIKAhg3<0
-IeMBFlz<Zi_D@4VS=S8=;P2
+!s100 U4zKaDebM9zh9`Q9=`a:72
+I?InR]K]maPbBNBIBX@;GH1
 !s105 fpu_tb_sv_unit
 S1
 R16
-Z26 w1728945319
+Z26 w1728961917
 Z27 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
 Z28 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
-!i122 360
+!i122 398
 L0 3 134
 R20
 31
@@ -315,7 +335,7 @@ R16
 R26
 R27
 R28
-!i122 360
+!i122 398
 Z31 L0 1 0
 R20
 31
@@ -330,19 +350,19 @@ R11
 R12
 R13
 R14
-V35o6NWz@_=GG^Ino61B@Q0
+V23jBJXMbHS9DOclOi97F:2
 r1
 !s85 0
 !i10b 1
-!s100 DPc=M04VmSLlimXUGHOE73
-I35o6NWz@_=GG^Ino61B@Q0
+!s100 g8Rj7Z88XdQBJk5UgSCGk2
+I23jBJXMbHS9DOclOi97F:2
 !i103 1
 S1
 R16
 R17
 R18
 R19
-!i122 359
+!i122 397
 R31
 R20
 31
@@ -364,7 +384,7 @@ R16
 w1728760417
 8/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
 F/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
-!i122 358
+!i122 396
 R31
 VPT9T@[M1;5IMmcN<4llTO2
 R20
