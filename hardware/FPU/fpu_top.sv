@@ -14,16 +14,21 @@ module fpu(
   output logic busy   // active high when an operation is in progress
 );
 
+  logic agtb;
+  logic bgta;
+
   logic [31:0] operand_a;
-  logic unsigned [23:0] a_mantissa;
+  logic unsigned [24:0] a_mantissa;
   logic [ 7:0] a_exp;
   logic        a_sign;
   logic [31:0] operand_b;
-  logic unsigned [23:0] b_mantissa;
+  logic unsigned [24:0] b_mantissa;
   logic [ 7:0] b_exp;
   logic        b_sign;
   logic [31:0] result;
-  logic unsigned [23:0] result_mantissa;
+  logic unsigned [24:0] result_mantissa;
+  logic unsigned [24:0] result_mantissa_before_shift;
+  logic unsigned [24:0] result_mantissa_before_inv;
   logic [ 7:0] result_exp;
   logic        result_sign;
   logic [ 7:0] aexp_no_bias;
@@ -39,8 +44,12 @@ module fpu(
 
   logic [7:0] aexp_after_adjust;
   logic [7:0] bexp_after_adjust;
-  logic [23:0] a_mantissa_after_adjust;
-  logic [23:0] b_mantissa_after_adjust;
+  logic [24:0] a_mantissa_after_adjust;
+  logic [24:0] b_mantissa_after_adjust;
+  logic [24:0] a_mantissa_after_adjust_abs;
+  logic [24:0] b_mantissa_after_adjust_abs;
+
+  logic overflow;
 
   pa_fpu::e_fpu_state curr_state_fpu_fsm;
   pa_fpu::e_fpu_state next_state_fpu_fsm;
@@ -61,6 +70,9 @@ module fpu(
 
   assign ab_exp_diff     = aexp_no_bias - bexp_no_bias;
   assign ba_exp_diff     = bexp_no_bias - aexp_no_bias;
+
+  assign agtb = a_mantissa > b_mantissa;
+  assign bgta = b_mantissa > a_mantissa;
 
   // if aexp < bexp, then increase aexp and right-shift a_mantissa by same number
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
@@ -85,23 +97,6 @@ module fpu(
       b_mantissa_after_adjust = b_mantissa;
     end
 
-    // 0.71875: 0  0111 1110  0111000 00000000 00000000
-    // 1.9375:  0  0111 1111  1111000 00000000 00000000
-    //                          
-    //                               
-    // 0.71875: 0  0000 0011  0011100 00000000 00000000       equalize exponent and update mantissa
-    // 
-    // 0.71875: 0  0000 0011  1100100 00000000 00000000       2's complement
-    //
-    //
-    //   1.9375:  0  0000 0011  1111000 00000000 00000000       add
-    // -0.71875:  0  0000 0011  1100100 00000000 00000000       
-    //                         11011100 00000000 00000000     result has a carry out
-    // 
-    //              0 0000 0100  1101110 00000000 00000000     shift right  and increase exponent
-    //              0000 0010   0110 1110 00000000 00000000     
-    //                     02 6E 0000
-
     if(operation == op_sub) begin
       result_mantissa = a_mantissa_after_adjust + (~b_mantissa_after_adjust + 24'h1); // a_mantissa_after_adjust - b_mantissa_after_adjust;
       result_exp      = aexp_after_adjust;
@@ -116,18 +111,39 @@ module fpu(
       end
 
       result_exp = result_exp + 8'd127;
-      // result is negative if: 
     end
+    // if a or b are negative, then 
     else if(operation == op_add) begin
+      a_mantissa_after_adjust_abs = a_mantissa_after_adjust;
+      b_mantissa_after_adjust_abs = b_mantissa_after_adjust;
+      if(a_sign == 1'b1) begin
+        a_mantissa_after_adjust = ~a_mantissa_after_adjust + 1;
+      end
+      if(b_sign == 1'b1) begin
+        b_mantissa_after_adjust = ~b_mantissa_after_adjust + 1;
+      end
       result_mantissa = a_mantissa_after_adjust + b_mantissa_after_adjust;
-      if(result_mantissa[23]) result_mantissa = result_mantissa>> 1;
-      result_exp      = aexp_after_adjust + 8'd127;
-      // result is negative if: a is negative and a > b, or b is negative and b > a, or both are negative
-      result_sign     = a_sign && a_mantissa > b_mantissa || b_sign && b_mantissa > a_mantissa || a_sign && b_sign;
+      result_exp = aexp_after_adjust;
+      result_sign = a_sign == 1'b1 && a_mantissa_after_adjust_abs > b_mantissa_after_adjust_abs || b_sign == 1'b1 && b_mantissa_after_adjust_abs > a_mantissa_after_adjust_abs || a_sign == 1'b1 && b_sign == 1'b1;
+      result_mantissa_before_inv = result_mantissa;
+      overflow = (a_sign || b_sign) && (a_mantissa_after_adjust[24] && b_mantissa_after_adjust[24] && !result_mantissa[24] || !a_mantissa_after_adjust[24] && !b_mantissa_after_adjust[24] && result_mantissa[24]);
+      if(result_sign) result_mantissa = ~result_mantissa + 1;
+      result_mantissa_before_shift = result_mantissa;
+      if(result_mantissa[24]) begin 
+        result_mantissa = result_mantissa >> 1;
+        result_exp = result_exp + 1;
+      end
+      if(op_written) begin
+        while(!result_mantissa[23]) begin
+          result_mantissa= result_mantissa<< 1;
+          result_exp = result_exp - 1;
+        end
+      end
+      result_exp = result_exp + 8'd127;
     end
 
   end
-
+           
   always_comb begin
     if(cs == 1'b0 && rd == 1'b0) begin
       case(addr)
@@ -142,6 +158,11 @@ module fpu(
         6'h7: databus_out = operand_b[31:24];
 
         6'h8: databus_out = operation;
+
+        6'h9: databus_out = result[7:0];
+        6'hA: databus_out = result[15:8];
+        6'hB: databus_out = result[23:16];
+        6'hC: databus_out = result[31:24];
 
         default: databus_out = '0;
       endcase      

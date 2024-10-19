@@ -34,78 +34,13 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
-    // write a
-    #500ns;
-    cs = 1'b0;
-    databus_in = 8'h00;
-    addr = 6'h0;
-    wr = 1'b0;
-    #500ns;
-    wr = 1'b1;
-    cs = 1'b1;
-    #500ns;
-    cs = 1'b0;
-    databus_in = 8'h00;
-    addr = 6'h1;
-    wr = 1'b0;
-    #500ns;
-    wr = 1'b1;
-    cs = 1'b1;
-    #500ns;
-    cs = 1'b0;
-    databus_in = 8'h00;
-    addr = 6'h2;
-    wr = 1'b0;
-    #500ns;
-    wr = 1'b1;
-    cs = 1'b1;
-    #500ns;
-    cs = 1'b0;
-    databus_in = 8'h41;
-    addr = 6'h3;
-    wr = 1'b0;
-    #500ns;
-    wr = 1'b1;
-    cs = 1'b1;
-
-    // write b
-    #500ns;
-    cs = 1'b0;
-    databus_in = 8'h00;
-    addr = 6'h4;
-    wr = 1'b0;
-    #500ns;
-    wr = 1'b1;
-    cs = 1'b1;
-    #500ns;
-    cs = 1'b0;
-    databus_in = 8'h00;
-    addr = 6'h5;
-    wr = 1'b0;
-    #500ns;
-    wr = 1'b1;
-    cs = 1'b1;
-    #500ns;
-    cs = 1'b0;
-    databus_in = 8'h00;
-    addr = 6'h6;
-    wr = 1'b0;
-    #500ns;
-    wr = 1'b1;
-    cs = 1'b1;
-    #500ns;
-    cs = 1'b0;
-    databus_in = 8'h40;
-    addr = 6'h7;
-    wr = 1'b0;
-    #500ns;
-    wr = 1'b1;
-    cs = 1'b1;
+    write_operand_a(32'hc0800000); //  -4
+    write_operand_b(32'hc0c00000); // -4    result: -8    c1000000
 
     // write operation
     #500ns;
     cs = 1'b0;
-    databus_in = pa_fpu::op_sub;
+    databus_in = pa_fpu::op_add;
     addr = 6'h8;
     wr = 1'b0;
     #500ns;
@@ -128,7 +63,79 @@ module fpu_tb;
   );
 
 
+  task write_operand_a(
+    input logic [31:0] op_a
+  );
+    #500ns;
+    cs = 1'b0;
+    databus_in = op_a[7:0];
+    addr = 6'h0;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = op_a[15:8];
+    addr = 6'h1;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = op_a[23:16];
+    addr = 6'h2;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = op_a[31:24];
+    addr = 6'h3;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+  endtask
 
+  task write_operand_b(
+    input logic [31:0] op_b
+  );
+    #500ns;
+    cs = 1'b0;
+    databus_in = op_b[7:0];
+    addr = 6'h4;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = op_b[15:8];
+    addr = 6'h5;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = op_b[23:16];
+    addr = 6'h6;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+    #500ns;
+    cs = 1'b0;
+    databus_in = op_b[31:24];
+    addr = 6'h7;
+    wr = 1'b0;
+    #500ns;
+    wr = 1'b1;
+    cs = 1'b1;
+  endtask
 
 
 

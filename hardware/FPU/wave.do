@@ -17,33 +17,37 @@ add wave -noupdate /fpu_tb/fpu_top/status
 add wave -noupdate /fpu_tb/fpu_top/op_written
 add wave -noupdate /fpu_tb/fpu_top/operation
 add wave -noupdate /fpu_tb/fpu_top/operand_a
-add wave -noupdate /fpu_tb/fpu_top/a_mantissa
+add wave -noupdate -radix binary /fpu_tb/fpu_top/a_mantissa
 add wave -noupdate -radix unsigned /fpu_tb/fpu_top/a_exp
 add wave -noupdate /fpu_tb/fpu_top/a_sign
-add wave -noupdate /fpu_tb/fpu_top/operand_b
-add wave -noupdate /fpu_tb/fpu_top/b_mantissa
+add wave -noupdate -radix hexadecimal /fpu_tb/fpu_top/operand_b
+add wave -noupdate -radix binary /fpu_tb/fpu_top/b_mantissa
 add wave -noupdate -radix unsigned /fpu_tb/fpu_top/b_exp
 add wave -noupdate /fpu_tb/fpu_top/b_sign
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/aexp_no_bias
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/bexp_no_bias
-add wave -noupdate /fpu_tb/fpu_top/aexp_lt_bexp
-add wave -noupdate /fpu_tb/fpu_top/aexp_gt_bexp
-add wave -noupdate /fpu_tb/fpu_top/aexp_eq_bexp
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/ab_exp_diff
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/ba_exp_diff
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/aexp_after_adjust
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/bexp_after_adjust
-add wave -noupdate /fpu_tb/fpu_top/a_mantissa_after_adjust
-add wave -noupdate /fpu_tb/fpu_top/b_mantissa_after_adjust
-add wave -noupdate /fpu_tb/fpu_top/result
-add wave -noupdate /fpu_tb/fpu_top/result_mantissa
+add wave -noupdate -radix binary /fpu_tb/fpu_top/a_mantissa_after_adjust_abs
+add wave -noupdate -radix binary /fpu_tb/fpu_top/b_mantissa_after_adjust_abs
+add wave -noupdate -radix binary /fpu_tb/fpu_top/a_mantissa_after_adjust
+add wave -noupdate -radix binary /fpu_tb/fpu_top/b_mantissa_after_adjust
+add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_inv
+add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_shift
+add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa
+add wave -noupdate -radix hexadecimal /fpu_tb/fpu_top/result
+add wave -noupdate /fpu_tb/fpu_top/overflow
 add wave -noupdate /fpu_tb/fpu_top/result_sign
-add wave -noupdate /fpu_tb/fpu_top/result_exp
+add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp
+add wave -noupdate /fpu_tb/fpu_top/agtb
+add wave -noupdate /fpu_tb/fpu_top/bgta
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {6831 ns} 0}
+WaveRestoreCursors {{Cursor 1} {10052 ns} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 150
-configure wave -valuecolwidth 100
+configure wave -namecolwidth 234
+configure wave -valuecolwidth 237
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10
@@ -56,4 +60,4 @@ configure wave -griddelta 45
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {0 ns} {25468 ns}
+WaveRestoreZoom {0 ns} {15750 ns}
