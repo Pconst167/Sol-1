@@ -1,8 +1,9 @@
 m255
 K4
 z2
-Z0 !s12c _opt1
-Z1 !s99 nomlopt
+!s12c _opt2
+Z0 !s99 nomlopt
+Z1 !s12c _opt1
 R0
 R1
 R0
@@ -249,122 +250,179 @@ R0
 R1
 R0
 R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
 Z2 !s12c _opt
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 R2
-R1
+R0
 !s11f vlog 2024.1 2024.04, Apr 19 2024
 13
 !s112 1.1
@@ -378,7 +436,7 @@ T_opt
 VI3gSeY^3UL3gjUaY^YUj<3
 Z4 04 6 4 work fpu_tb fast 0
 =17-000ae431a4f1-670ae9e4-d088b-f8f3
-R1
+R0
 Z5 !s12f OEM100
 Z6 !s12b OEM100
 Z7 !s124 OEM10U2 
@@ -388,11 +446,11 @@ n@_opt
 Z10 OL;O;2024.1;79
 R3
 T_opt1
-!s110 1729376523
-VR:W83Uhn5:hTLEXQO[:0D1
+!s110 1729781542
+Vlda<9LcfN@4A4ULN3flla2
 R4
-=2-000ae431a4f1-6714310b-d8af1-f8ca
-R1
+=17-000ae431a4f1-671a5f26-9b3d3-244cc
+R0
 R5
 R6
 R7
@@ -400,29 +458,43 @@ R8
 R9
 n@_opt1
 R10
+R3
+T_opt2
+!s110 1729782698
+VbLdXPlU1B;5]CfO:XQBQF0
+R4
+=1-000ae431a4f1-671a63aa-35da4-14f3
+R0
+R5
+R6
+R7
+R8
+R9
+n@_opt2
+R10
 vfpu
 Z11 2/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z12 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
 Z13 DXx4 work 6 pa_fpu 0 22 PT9T@[M1;5IMmcN<4llTO2
-DXx4 work 15 fpu_top_sv_unit 0 22 k]NcCzfH0TEiT@UADonP01
-Z14 !s110 1729376481
+DXx4 work 15 fpu_top_sv_unit 0 22 ioDz`hj=QMLMJIgPlU6lL1
+Z14 !s110 1729782590
 Z15 VDg1SIo80bB@j0V0VzS_@n1
 r1
 !s85 0
 !i10b 1
-!s100 Bk?eJg[:Se=>F>5i^neBM1
-Ih3R1E31LH^mW[CTFIFoKL1
+!s100 lME^oVAN`QVMcGzZ7EIgk1
+IXX<=<`go9DDa`RWi0DBG63
 !s105 fpu_top_sv_unit
 S1
 Z16 d/home/pconst/Desktop/sol-1/hardware/FPU
-Z17 w1729376205
+Z17 w1729782130
 Z18 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z19 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
-!i122 649
-L0 3 252
+!i122 766
+L0 3 281
 Z20 OL;L;2024.1;79
 31
-Z21 !s108 1729376481.000000
+Z21 !s108 1729782590.000000
 Z22 !s107 /home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 Z23 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 !i113 0
@@ -438,15 +510,15 @@ R15
 r1
 !s85 0
 !i10b 1
-!s100 b`70]n7<=FhA7BW1YlGHY0
-I1_78GZ`VWcLR1@Z8am;V11
+!s100 [S[_G<7O6da2^:g;oNSSa0
+ICeJd=ZB7ogdj8igRbhaSm1
 !s105 fpu_tb_sv_unit
 S1
 R16
-Z26 w1729376448
+Z26 w1729695325
 Z27 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
 Z28 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
-!i122 650
+!i122 767
 L0 3 141
 R20
 31
@@ -473,7 +545,7 @@ R16
 R26
 R27
 R28
-!i122 650
+!i122 767
 Z31 L0 1 0
 R20
 31
@@ -488,19 +560,19 @@ R11
 R12
 R13
 R14
-Vk]NcCzfH0TEiT@UADonP01
+VioDz`hj=QMLMJIgPlU6lL1
 r1
 !s85 0
 !i10b 1
-!s100 AdTB=CYNMJC91cK4zV4L_3
-Ik]NcCzfH0TEiT@UADonP01
+!s100 QmTm90^HOkJYGmI<81ABR1
+IioDz`hj=QMLMJIgPlU6lL1
 !i103 1
 S1
 R16
 R17
 R18
 R19
-!i122 649
+!i122 766
 R31
 R20
 31
@@ -513,7 +585,7 @@ R9
 Xpa_fpu
 2/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
 R12
-!s110 1729376480
+R14
 !i10b 1
 !s100 QQ?zaNc<<Rh[RN12Wm4Z@1
 IPT9T@[M1;5IMmcN<4llTO2
@@ -522,14 +594,14 @@ R16
 w1728760417
 8/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
 F/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
-!i122 648
+!i122 765
 R31
 VPT9T@[M1;5IMmcN<4llTO2
 R20
 r1
 !s85 0
 31
-!s108 1729376480.000000
+R21
 !s107 /home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv|
 !i113 0

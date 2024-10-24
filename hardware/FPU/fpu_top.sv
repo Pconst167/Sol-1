@@ -26,9 +26,9 @@ module fpu(
   logic [ 7:0] b_exp;
   logic        b_sign;
   logic [31:0] result;
-  logic unsigned [24:0] result_mantissa;
-  logic unsigned [24:0] result_mantissa_before_shift;
-  logic unsigned [24:0] result_mantissa_before_inv;
+  logic unsigned [47:0] result_mantissa;
+  logic unsigned [47:0] result_mantissa_before_shift;
+  logic unsigned [47:0] result_mantissa_before_inv;
   logic [ 7:0] result_exp;
   logic        result_sign;
   logic [ 7:0] aexp_no_bias;
@@ -54,10 +54,10 @@ module fpu(
   pa_fpu::e_fpu_state curr_state_fpu_fsm;
   pa_fpu::e_fpu_state next_state_fpu_fsm;
 
-  assign a_mantissa      = {1'b1, operand_a[22:0]};
+  assign a_mantissa      = {!(a_exp == 8'd0), operand_a[22:0]};
   assign a_exp           = operand_a[30:23];
   assign a_sign          = operand_a[31];
-  assign b_mantissa      = {1'b1, operand_b[22:0]};
+  assign b_mantissa      = {!(b_exp == 8'd0), operand_b[22:0]};
   assign b_exp           = operand_b[30:23];
   assign b_sign          = operand_b[31];
 
@@ -71,77 +71,106 @@ module fpu(
   assign ab_exp_diff     = aexp_no_bias - bexp_no_bias;
   assign ba_exp_diff     = bexp_no_bias - aexp_no_bias;
 
-  assign agtb = a_mantissa > b_mantissa;
-  assign bgta = b_mantissa > a_mantissa;
+  assign agtb            = a_mantissa > b_mantissa;
+  assign bgta            = b_mantissa > a_mantissa;
 
   // if aexp < bexp, then increase aexp and right-shift a_mantissa by same number
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
   // else, exponents are the same and we are ok
   always_comb begin
-    if(aexp_no_bias  < bexp_no_bias) begin
-      aexp_after_adjust = aexp_no_bias + ba_exp_diff;
-      a_mantissa_after_adjust = a_mantissa >> ba_exp_diff;
-      bexp_after_adjust = bexp_no_bias;
-      b_mantissa_after_adjust = b_mantissa;
-    end   
-    else if(aexp_no_bias  > bexp_no_bias) begin
-      aexp_after_adjust = aexp_no_bias;
-      a_mantissa_after_adjust = a_mantissa;
-      bexp_after_adjust = bexp_no_bias + ab_exp_diff;
-      b_mantissa_after_adjust = b_mantissa >> ab_exp_diff;
-    end   
-    else begin
-      aexp_after_adjust = aexp_no_bias;
-      a_mantissa_after_adjust = a_mantissa;
-      bexp_after_adjust = bexp_no_bias;
-      b_mantissa_after_adjust = b_mantissa;
+    if(operation == op_add || operation == op_sub) begin
+      if(aexp_no_bias  < bexp_no_bias) begin
+        a_mantissa_after_adjust = a_mantissa >> ba_exp_diff;
+        b_mantissa_after_adjust = b_mantissa;
+        aexp_after_adjust       = aexp_no_bias + ba_exp_diff;
+        bexp_after_adjust       = bexp_no_bias;
+      end   
+      else if(aexp_no_bias  > bexp_no_bias) begin
+        a_mantissa_after_adjust = a_mantissa;
+        b_mantissa_after_adjust = b_mantissa >> ab_exp_diff;
+        aexp_after_adjust       = aexp_no_bias;
+        bexp_after_adjust       = bexp_no_bias + ab_exp_diff;
+      end   
+      else begin
+        a_mantissa_after_adjust = a_mantissa;
+        b_mantissa_after_adjust = b_mantissa;
+        aexp_after_adjust       = aexp_no_bias;
+        bexp_after_adjust       = bexp_no_bias;
+      end
+
+      a_mantissa_after_adjust_abs = a_mantissa_after_adjust;
+      b_mantissa_after_adjust_abs = b_mantissa_after_adjust;
+
+      if(a_sign == 1'b1) 
+        a_mantissa_after_adjust = ~a_mantissa_after_adjust + 1;
+      if(b_sign == 1'b1) 
+        b_mantissa_after_adjust = ~b_mantissa_after_adjust + 1;
     end
 
-    if(operation == op_sub) begin
-      result_mantissa = a_mantissa_after_adjust + (~b_mantissa_after_adjust + 24'h1); // a_mantissa_after_adjust - b_mantissa_after_adjust;
+    if(operation == op_add) begin
+      result_mantissa            = a_mantissa_after_adjust + b_mantissa_after_adjust;
+      if(result_mantissa[23:0] == 23'd0) begin
+        result_exp = 8'd0; 
+        result_mantissa_before_inv   = result_mantissa;
+        result_mantissa_before_shift = result_mantissa;
+        result_sign                  = 1'b0;
+      end
+      else begin
+        result_mantissa_before_inv = result_mantissa;
+        result_exp                 = aexp_after_adjust;
+        result_sign                = result_mantissa[24];
+        if(result_sign) result_mantissa = -result_mantissa;
+        result_mantissa_before_shift = result_mantissa;
+        if(result_mantissa[24]) begin 
+          result_mantissa = result_mantissa >> 1;
+          result_exp = result_exp + 1;
+        end
+        if(op_written) 
+          while(!result_mantissa[23]) begin
+            result_mantissa = result_mantissa << 1;
+            result_exp = result_exp - 1;
+          end
+        result_exp = result_exp + 8'd127;
+      end
+    end
+    else if(operation == op_sub) begin
+      result_mantissa = a_mantissa_after_adjust - b_mantissa_after_adjust; 
       result_exp      = aexp_after_adjust;
-      if(result_mantissa[23]) begin
+      result_mantissa_before_inv = result_mantissa;
+      /*
+      a    b     a-b  negative
+      +    +     if b>a  
+      +    -     
+      -    +     always
+      -    -     if a > b
+      */
+      result_sign     = a_sign == 0 && b_sign == 0 && b_mantissa_after_adjust > a_mantissa_after_adjust ||
+                        a_sign == 1 && b_sign == 0 ||
+                        a_sign == 1 && b_sign == 1 && a_mantissa_after_adjust > b_mantissa_after_adjust;
+      if(result_mantissa[24]) begin
         result_mantissa = -result_mantissa;
         result_sign = 1'b1;
       end
       else result_sign = 1'b0;
+      result_mantissa_before_shift = result_mantissa;
       while(!result_mantissa[23]) begin
-        result_mantissa= result_mantissa<< 1;
+        result_mantissa = result_mantissa << 1;
         result_exp = result_exp - 1;
       end
-
       result_exp = result_exp + 8'd127;
     end
-    // if a or b are negative, then 
-    else if(operation == op_add) begin
-      a_mantissa_after_adjust_abs = a_mantissa_after_adjust;
-      b_mantissa_after_adjust_abs = b_mantissa_after_adjust;
-      if(a_sign == 1'b1) begin
-        a_mantissa_after_adjust = ~a_mantissa_after_adjust + 1;
+    else if(operation == op_mul) begin
+      result_exp  = aexp_no_bias + bexp_no_bias;
+      result_sign = a_sign ^ b_sign;
+      result_mantissa = a_mantissa_after_adjust * b_mantissa_after_adjust;
+      while(!result_mantissa[47]) begin
+        result_mantissa = result_mantissa << 1;
+        result_exp = result_exp - 1;
       end
-      if(b_sign == 1'b1) begin
-        b_mantissa_after_adjust = ~b_mantissa_after_adjust + 1;
-      end
-      result_mantissa = a_mantissa_after_adjust + b_mantissa_after_adjust;
-      result_exp = aexp_after_adjust;
-      result_sign = a_sign == 1'b1 && a_mantissa_after_adjust_abs > b_mantissa_after_adjust_abs || b_sign == 1'b1 && b_mantissa_after_adjust_abs > a_mantissa_after_adjust_abs || a_sign == 1'b1 && b_sign == 1'b1;
-      result_mantissa_before_inv = result_mantissa;
-      overflow = (a_sign || b_sign) && (a_mantissa_after_adjust[24] && b_mantissa_after_adjust[24] && !result_mantissa[24] || !a_mantissa_after_adjust[24] && !b_mantissa_after_adjust[24] && result_mantissa[24]);
-      if(result_sign) result_mantissa = ~result_mantissa + 1;
-      result_mantissa_before_shift = result_mantissa;
-      if(result_mantissa[24]) begin 
-        result_mantissa = result_mantissa >> 1;
-        result_exp = result_exp + 1;
-      end
-      if(op_written) begin
-        while(!result_mantissa[23]) begin
-          result_mantissa= result_mantissa<< 1;
-          result_exp = result_exp - 1;
-        end
-      end
+      result_mantissa = result_mantissa >> 24;
+      result_exp = result_exp + 8'd24;
       result_exp = result_exp + 8'd127;
     end
-
   end
            
   always_comb begin

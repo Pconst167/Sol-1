@@ -34,13 +34,13 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
-    write_operand_a(32'hc0800000); //  -4
-    write_operand_b(32'hc0c00000); // -4    result: -8    c1000000
+    write_operand_a(32'h401ccccd); //  2.45
+    write_operand_b(32'h406a3d71); //  3.66          410f78d5
 
     // write operation
     #500ns;
     cs = 1'b0;
-    databus_in = pa_fpu::op_add;
+    databus_in = pa_fpu::op_mul;
     addr = 6'h8;
     wr = 1'b0;
     #500ns;
