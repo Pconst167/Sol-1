@@ -17,12 +17,12 @@ add wave -noupdate /fpu_tb/fpu_top/status
 add wave -noupdate /fpu_tb/fpu_top/op_written
 add wave -noupdate /fpu_tb/fpu_top/operation
 add wave -noupdate /fpu_tb/fpu_top/operand_a
-add wave -noupdate -radix binary /fpu_tb/fpu_top/a_mantissa
-add wave -noupdate -radix unsigned /fpu_tb/fpu_top/a_exp
-add wave -noupdate /fpu_tb/fpu_top/a_sign
 add wave -noupdate -radix hexadecimal /fpu_tb/fpu_top/operand_b
+add wave -noupdate -radix binary /fpu_tb/fpu_top/a_mantissa
 add wave -noupdate -radix binary /fpu_tb/fpu_top/b_mantissa
+add wave -noupdate -radix unsigned /fpu_tb/fpu_top/a_exp
 add wave -noupdate -radix unsigned /fpu_tb/fpu_top/b_exp
+add wave -noupdate /fpu_tb/fpu_top/a_sign
 add wave -noupdate /fpu_tb/fpu_top/b_sign
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/aexp_no_bias
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/bexp_no_bias
@@ -38,16 +38,17 @@ add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_inv
 add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_shift
 add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa
 add wave -noupdate -radix hexadecimal /fpu_tb/fpu_top/result
+add wave -noupdate -radix binary /fpu_tb/fpu_top/result
 add wave -noupdate /fpu_tb/fpu_top/overflow
 add wave -noupdate /fpu_tb/fpu_top/result_sign
 add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp
 add wave -noupdate /fpu_tb/fpu_top/agtb
 add wave -noupdate /fpu_tb/fpu_top/bgta
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {10052 ns} 0}
+WaveRestoreCursors {{Cursor 1} {11072 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 234
-configure wave -valuecolwidth 237
+configure wave -valuecolwidth 426
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10
