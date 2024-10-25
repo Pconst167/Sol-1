@@ -34,8 +34,8 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
-    write_operand_a(32'h43e0d666); //  1234.56789
-    write_operand_b(32'h43a6ffdf); //  9876.54321       4812abc0
+    write_operand_a(32'h42c7fae1); //  99.99
+    write_operand_b(32'h4331e148); //  177.88       468af471
 
     // write operation
     #500ns;

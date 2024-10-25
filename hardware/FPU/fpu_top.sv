@@ -1,3 +1,9 @@
+// FPU Prototype
+// This is an FPU unit that will perform addition, subtraction, multiplication, division, square root, and transcendental functions
+// It is written in SystemVerilog here for prototyping purposes, and after that will be built in hardware for the Sol-1 system
+//
+// Created Paulo Constantino 2024
+
 import pa_fpu::*;
 
 module fpu(
@@ -61,7 +67,7 @@ module fpu(
   assign b_exp           = operand_b[30:23];
   assign b_sign          = operand_b[31];
 
-  assign result[22:0]    = operation == op_mul ? result_mantissa[46:24] : result_mantissa[22:0];
+  assign result[22:0]    = result_mantissa[22:0];
   assign result[30:23]   = result_exp;
   assign result[31]      = result_sign;
 
@@ -144,9 +150,9 @@ module fpu(
       -    +     always
       -    -     if a > b
       */
-      result_sign     = a_sign == 0 && b_sign == 0 && b_mantissa_after_adjust > a_mantissa_after_adjust ||
-                        a_sign == 1 && b_sign == 0 ||
-                        a_sign == 1 && b_sign == 1 && a_mantissa_after_adjust > b_mantissa_after_adjust;
+      result_sign = a_sign == 0 && b_sign == 0 && b_mantissa_after_adjust > a_mantissa_after_adjust ||
+                    a_sign == 1 && b_sign == 0 ||
+                    a_sign == 1 && b_sign == 1 && a_mantissa_after_adjust > b_mantissa_after_adjust;
       if(result_mantissa[24]) begin
         result_mantissa = -result_mantissa;
         result_sign = 1'b1;
@@ -165,12 +171,12 @@ module fpu(
       result_exp  = aexp_no_bias + bexp_no_bias;
       result_sign = a_sign ^ b_sign;
       result_mantissa = a_mantissa_after_adjust * b_mantissa_after_adjust;
+      if(result_mantissa[47] == 1'b0) result_mantissa = result_mantissa << 1;
+      if(result_mantissa[47] == 1'b1) result_exp = result_exp + 8'd1;
+      result_mantissa[22:0] = result_mantissa[47:24];      
+      result_mantissa[47:24] = '0;      
       result_mantissa_before_inv = result_mantissa;
       result_mantissa_before_shift = result_mantissa;
-      if(result_mantissa[47] == 1'b0) begin
-        result_mantissa = result_mantissa << 1;
-      end
-      else result_exp = result_exp + 1;
       result_exp = result_exp + 8'd127;
     end
   end
