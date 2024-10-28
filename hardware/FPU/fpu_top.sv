@@ -50,10 +50,10 @@ module fpu(
 
   logic [7:0] aexp_after_adjust;
   logic [7:0] bexp_after_adjust;
-  logic [24:0] a_mantissa_after_adjust;
-  logic [24:0] b_mantissa_after_adjust;
-  logic [24:0] a_mantissa_after_adjust_abs;
-  logic [24:0] b_mantissa_after_adjust_abs;
+  logic [47:0] a_mantissa_after_adjust;
+  logic [47:0] b_mantissa_after_adjust;
+  logic [47:0] a_mantissa_after_adjust_abs;
+  logic [47:0] b_mantissa_after_adjust_abs;
 
   logic overflow;
 
@@ -171,13 +171,26 @@ module fpu(
       result_exp  = aexp_no_bias + bexp_no_bias;
       result_sign = a_sign ^ b_sign;
       result_mantissa = a_mantissa_after_adjust * b_mantissa_after_adjust;
-      if(result_mantissa[47] == 1'b0) result_mantissa = result_mantissa << 1;
-      if(result_mantissa[47] == 1'b1) result_exp = result_exp + 8'd1;
-      result_mantissa[22:0] = result_mantissa[47:24];      
-      result_mantissa[47:24] = '0;      
+      if(result_mantissa[47] == 1'b0) result_mantissa = result_mantissa << 1; // if the MSB of result is a 0, then shift left the result to normalize
+      if(result_mantissa[47] == 1'b1) result_exp = result_exp + 8'd1; // if MSB is 1, then increment exp by one to normalize
+      result_mantissa[22:0] = result_mantissa[47:24]; // transfer contents of register just to make it standard     
+      result_mantissa[47:24] = '0;  // and zero out MSBs
       result_mantissa_before_inv = result_mantissa;
       result_mantissa_before_shift = result_mantissa;
-      result_exp = result_exp + 8'd127;
+      result_exp = result_exp + 8'd127; // normalize exponent
+    end
+    else if(operation == op_div) begin
+      a_mantissa_after_adjust = a_mantissa[23:0] << 24;
+      b_mantissa_after_adjust = b_mantissa;
+      result_exp  = aexp_no_bias - bexp_no_bias;
+      result_sign = a_sign ^ b_sign;
+      result_mantissa = a_mantissa_after_adjust / b_mantissa_after_adjust;
+      result_mantissa_before_shift = result_mantissa;
+      if(result_mantissa[24] == 1'b1) begin
+        result_mantissa = result_mantissa >> 1;
+        result_exp = result_exp + 1;
+      end
+      result_exp = result_exp + 8'd126; // normalize exponent
     end
   end
 
