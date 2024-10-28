@@ -180,17 +180,17 @@ module fpu(
       result_exp = result_exp + 8'd127; // normalize exponent
     end
     else if(operation == op_div) begin
-      a_mantissa_after_adjust = a_mantissa[23:0] << 24;
+      a_mantissa_after_adjust = a_mantissa[23:0] << 23;
       b_mantissa_after_adjust = b_mantissa;
       result_exp  = aexp_no_bias - bexp_no_bias;
       result_sign = a_sign ^ b_sign;
       result_mantissa = a_mantissa_after_adjust / b_mantissa_after_adjust;
       result_mantissa_before_shift = result_mantissa;
-      if(result_mantissa[24] == 1'b1) begin
-        result_mantissa = result_mantissa >> 1;
-        result_exp = result_exp + 1;
+      if(result_mantissa[23] == 1'b0) begin
+        result_mantissa = result_mantissa << 1;
+        result_exp = result_exp - 1;
       end
-      result_exp = result_exp + 8'd126; // normalize exponent
+      result_exp = result_exp + 8'd127; // normalize exponent
     end
   end
 
