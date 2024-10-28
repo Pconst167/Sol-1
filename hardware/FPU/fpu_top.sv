@@ -254,6 +254,7 @@ module fpu(
       op_written = 1'b0;
   end
 
+  // Next state assignments
   always_comb begin
     next_state_fpu_fsm = curr_state_fpu_fsm;
 
@@ -276,6 +277,7 @@ module fpu(
     endcase
   end
 
+  // Output assignments
   always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       cmd_end <= 1'b0;
@@ -294,6 +296,7 @@ module fpu(
     end
   end
 
+  // Next state clocking
   always_ff @(posedge clk, posedge arst) begin
     if(arst) 
       curr_state_fpu_fsm <= idle_st;
