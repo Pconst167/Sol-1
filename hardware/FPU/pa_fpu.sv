@@ -15,8 +15,8 @@ package pa_fpu;
 
   typedef enum logic[3:0]{
     idle_st,
-    start_add_st,
-    start_sub_st,
+    add_st,
+    sub_st,
     start_mul_st,
     start_div_st,
     end_st

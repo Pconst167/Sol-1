@@ -11,7 +11,7 @@ module fpu(
   input  logic clk,
   input  logic [7:0] databus_in,
   output logic [7:0] databus_out,
-  input  logic [5:0] addr, 
+  input  logic [3:0] addr, 
   input  logic cs,
   input  logic rd,
   input  logic wr,
@@ -84,34 +84,33 @@ module fpu(
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
   // else, exponents are the same and we are ok
   always_comb begin
-    if(operation == op_add || operation == op_sub) begin
-      if(aexp_no_bias  < bexp_no_bias) begin
-        a_mantissa_after_adjust = a_mantissa >> ba_exp_diff;
-        b_mantissa_after_adjust = b_mantissa;
-        aexp_after_adjust       = aexp_no_bias + ba_exp_diff;
-        bexp_after_adjust       = bexp_no_bias;
-      end   
-      else if(aexp_no_bias  > bexp_no_bias) begin
-        a_mantissa_after_adjust = a_mantissa;
-        b_mantissa_after_adjust = b_mantissa >> ab_exp_diff;
-        aexp_after_adjust       = aexp_no_bias;
-        bexp_after_adjust       = bexp_no_bias + ab_exp_diff;
-      end   
-      else begin
-        a_mantissa_after_adjust = a_mantissa;
-        b_mantissa_after_adjust = b_mantissa;
-        aexp_after_adjust       = aexp_no_bias;
-        bexp_after_adjust       = bexp_no_bias;
-      end
-
-      a_mantissa_after_adjust_abs = a_mantissa_after_adjust;
-      b_mantissa_after_adjust_abs = b_mantissa_after_adjust;
-
-      if(a_sign == 1'b1) 
-        a_mantissa_after_adjust = ~a_mantissa_after_adjust + 1;
-      if(b_sign == 1'b1) 
-        b_mantissa_after_adjust = ~b_mantissa_after_adjust + 1;
+    if(aexp_no_bias  < bexp_no_bias) begin
+      a_mantissa_after_adjust = a_mantissa >> ba_exp_diff;
+      b_mantissa_after_adjust = b_mantissa;
+      aexp_after_adjust       = aexp_no_bias + ba_exp_diff;
+      bexp_after_adjust       = bexp_no_bias;
+    end   
+    else if(aexp_no_bias  > bexp_no_bias) begin
+      a_mantissa_after_adjust = a_mantissa;
+      b_mantissa_after_adjust = b_mantissa >> ab_exp_diff;
+      aexp_after_adjust       = aexp_no_bias;
+      bexp_after_adjust       = bexp_no_bias + ab_exp_diff;
+    end   
+    else begin
+      a_mantissa_after_adjust = a_mantissa;
+      b_mantissa_after_adjust = b_mantissa;
+      aexp_after_adjust       = aexp_no_bias;
+      bexp_after_adjust       = bexp_no_bias;
     end
+
+    a_mantissa_after_adjust_abs = a_mantissa_after_adjust;
+    b_mantissa_after_adjust_abs = b_mantissa_after_adjust;
+
+    // the _after_adjust variables are used for add and sub operations only
+    if(a_sign == 1'b1) 
+      a_mantissa_after_adjust = ~a_mantissa_after_adjust + 1;
+    if(b_sign == 1'b1) 
+      b_mantissa_after_adjust = ~b_mantissa_after_adjust + 1;
 
     if(operation == op_add) begin
       result_mantissa            = a_mantissa_after_adjust + b_mantissa_after_adjust;
@@ -143,13 +142,6 @@ module fpu(
       result_mantissa = a_mantissa_after_adjust - b_mantissa_after_adjust; 
       result_exp      = aexp_after_adjust;
       result_mantissa_before_inv = result_mantissa;
-      /*
-      a    b     a-b  negative
-      +    +     if b>a  
-      +    -     
-      -    +     always
-      -    -     if a > b
-      */
       result_sign = a_sign == 0 && b_sign == 0 && b_mantissa_after_adjust > a_mantissa_after_adjust ||
                     a_sign == 1 && b_sign == 0 ||
                     a_sign == 1 && b_sign == 1 && a_mantissa_after_adjust > b_mantissa_after_adjust;
@@ -166,11 +158,9 @@ module fpu(
       result_exp = result_exp + 8'd127;
     end
     else if(operation == op_mul) begin
-      a_mantissa_after_adjust = a_mantissa;
-      b_mantissa_after_adjust = b_mantissa;
       result_exp  = aexp_no_bias + bexp_no_bias;
       result_sign = a_sign ^ b_sign;
-      result_mantissa = a_mantissa_after_adjust * b_mantissa_after_adjust;
+      result_mantissa = a_mantissa * b_mantissa;
       if(result_mantissa[47] == 1'b0) result_mantissa = result_mantissa << 1; // if the MSB of result is a 0, then shift left the result to normalize
       if(result_mantissa[47] == 1'b1) result_exp = result_exp + 8'd1; // if MSB is 1, then increment exp by one to normalize
       result_mantissa[22:0] = result_mantissa[47:24]; // transfer contents of register just to make it standard     
@@ -180,11 +170,9 @@ module fpu(
       result_exp = result_exp + 8'd127; // normalize exponent
     end
     else if(operation == op_div) begin
-      a_mantissa_after_adjust = a_mantissa[23:0] << 23;
-      b_mantissa_after_adjust = b_mantissa;
       result_exp  = aexp_no_bias - bexp_no_bias;
       result_sign = a_sign ^ b_sign;
-      result_mantissa = a_mantissa_after_adjust / b_mantissa_after_adjust;
+      result_mantissa = (a_mantissa[23:0] << 23) / b_mantissa;
       result_mantissa_before_shift = result_mantissa;
       if(result_mantissa[23] == 1'b0) begin
         result_mantissa = result_mantissa << 1;
@@ -197,22 +185,22 @@ module fpu(
   always_comb begin
     if(cs == 1'b0 && rd == 1'b0) begin
       case(addr)
-        6'h0: databus_out = operand_a[7:0];
-        6'h1: databus_out = operand_a[15:8];
-        6'h2: databus_out = operand_a[23:16];
-        6'h3: databus_out = operand_a[31:24];
+        4'h0: databus_out = operand_a[7:0];
+        4'h1: databus_out = operand_a[15:8];
+        4'h2: databus_out = operand_a[23:16];
+        4'h3: databus_out = operand_a[31:24];
 
-        6'h4: databus_out = operand_b[7:0];
-        6'h5: databus_out = operand_b[15:8];
-        6'h6: databus_out = operand_b[23:16];
-        6'h7: databus_out = operand_b[31:24];
+        4'h4: databus_out = operand_b[7:0];
+        4'h5: databus_out = operand_b[15:8];
+        4'h6: databus_out = operand_b[23:16];
+        4'h7: databus_out = operand_b[31:24];
 
-        6'h8: databus_out = operation;
+        4'h8: databus_out = operation;
 
-        6'h9: databus_out = result[7:0];
-        6'hA: databus_out = result[15:8];
-        6'hB: databus_out = result[23:16];
-        6'hC: databus_out = result[31:24];
+        4'h9: databus_out = result[7:0];
+        4'hA: databus_out = result[15:8];
+        4'hB: databus_out = result[23:16];
+        4'hC: databus_out = result[31:24];
 
         default: databus_out = '0;
       endcase      
@@ -229,25 +217,25 @@ module fpu(
     end
     else if(cs == 1'b0 && wr == 1'b0) begin
       case(addr)
-        6'h0: operand_a[7:0]   = databus_in;
-        6'h1: operand_a[15:8]  = databus_in;
-        6'h2: operand_a[23:16] = databus_in;
-        6'h3: operand_a[31:24] = databus_in;
+        4'h0: operand_a[7:0]   = databus_in;
+        4'h1: operand_a[15:8]  = databus_in;
+        4'h2: operand_a[23:16] = databus_in;
+        4'h3: operand_a[31:24] = databus_in;
 
-        6'h4: operand_b[7:0]   = databus_in;
-        6'h5: operand_b[15:8]  = databus_in;
-        6'h6: operand_b[23:16] = databus_in;
-        6'h7: operand_b[31:24] = databus_in;
+        4'h4: operand_b[7:0]   = databus_in;
+        4'h5: operand_b[15:8]  = databus_in;
+        4'h6: operand_b[23:16] = databus_in;
+        4'h7: operand_b[31:24] = databus_in;
 
-        6'h8: begin
+        4'h8: begin
           operation            = e_fpu_operation'(databus_in[3:0]);
           op_written           = 1'b1;
         end
       endcase      
     end
     else if(
-      curr_state_fpu_fsm == pa_fpu::start_add_st ||
-      curr_state_fpu_fsm == pa_fpu::start_sub_st ||
+      curr_state_fpu_fsm == pa_fpu::add_st ||
+      curr_state_fpu_fsm == pa_fpu::sub_st ||
       curr_state_fpu_fsm == pa_fpu::start_mul_st ||
       curr_state_fpu_fsm == pa_fpu::start_div_st
     ) 
@@ -260,17 +248,23 @@ module fpu(
 
     case(curr_state_fpu_fsm)
       pa_fpu::idle_st: 
-        if(op_written && wr)
+        if(op_written)
           case(operation)
             pa_fpu::op_add:
-              next_state_fpu_fsm = pa_fpu::start_add_st;
+              next_state_fpu_fsm = pa_fpu::add_st;
             pa_fpu::op_sub:
-              next_state_fpu_fsm = pa_fpu::start_sub_st;
+              next_state_fpu_fsm = pa_fpu::sub_st;
             pa_fpu::op_mul:
               next_state_fpu_fsm = pa_fpu::start_mul_st;
             pa_fpu::op_div:
               next_state_fpu_fsm = pa_fpu::start_div_st;
           endcase
+
+      pa_fpu::add_st:
+        next_state_fpu_fsm = idle_st;
+
+      pa_fpu::sub_st:
+        next_state_fpu_fsm = idle_st;
 
       default:
         next_state_fpu_fsm = pa_fpu::idle_st;
@@ -281,18 +275,28 @@ module fpu(
   always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       cmd_end <= 1'b0;
-      status <= '0;
+      busy    <= 1'b0;
+      status  <= '0;
     end
     else begin
       case(next_state_fpu_fsm)
-        pa_fpu::start_add_st: begin
-          
+        pa_fpu::add_st: begin
+          cmd_end <= 1'b1;
+          busy    <= 1'b0;         
         end
-        default: begin
-          
+        pa_fpu::sub_st: begin
+          cmd_end <= 1'b1;
+          busy    <= 1'b0;         
+        end
+        pa_fpu::start_mul_st: begin
+          cmd_end <= 1'b0;
+          busy    <= 1'b1;         
+        end
+        pa_fpu::start_div_st: begin
+          cmd_end <= 1'b0;
+          busy    <= 1'b1;         
         end
       endcase  
-
     end
   end
 
