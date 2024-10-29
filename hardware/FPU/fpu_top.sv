@@ -234,10 +234,10 @@ module fpu(
       endcase      
     end
     else if(
-      curr_state_fpu_fsm == pa_fpu::add_st ||
-      curr_state_fpu_fsm == pa_fpu::sub_st ||
-      curr_state_fpu_fsm == pa_fpu::start_mul_st ||
-      curr_state_fpu_fsm == pa_fpu::start_div_st
+      curr_state_fpu_fsm == pa_fpu::add_start_st ||
+      curr_state_fpu_fsm == pa_fpu::sub_start_st ||
+      curr_state_fpu_fsm == pa_fpu::mul_start_st ||
+      curr_state_fpu_fsm == pa_fpu::div_start_st
     ) 
       op_written = 1'b0;
   end
@@ -251,20 +251,35 @@ module fpu(
         if(op_written)
           case(operation)
             pa_fpu::op_add:
-              next_state_fpu_fsm = pa_fpu::add_st;
+              next_state_fpu_fsm = pa_fpu::add_start_st;
             pa_fpu::op_sub:
-              next_state_fpu_fsm = pa_fpu::sub_st;
+              next_state_fpu_fsm = pa_fpu::sub_start_st;
             pa_fpu::op_mul:
-              next_state_fpu_fsm = pa_fpu::start_mul_st;
+              next_state_fpu_fsm = pa_fpu::mul_start_st;
             pa_fpu::op_div:
-              next_state_fpu_fsm = pa_fpu::start_div_st;
+              next_state_fpu_fsm = pa_fpu::div_start_st;
           endcase
 
-      pa_fpu::add_st:
-        next_state_fpu_fsm = idle_st;
+      pa_fpu::add_start_st:
+        next_state_fpu_fsm = result_valid_st;
 
-      pa_fpu::sub_st:
-        next_state_fpu_fsm = idle_st;
+      pa_fpu::sub_start_st:
+        next_state_fpu_fsm = result_valid_st;
+
+      pa_fpu::mul_start_st:
+        next_state_fpu_fsm = pa_fpu::mul_end_st;
+
+      pa_fpu::mul_end_st:
+        next_state_fpu_fsm = pa_fpu::result_valid_st;
+
+      pa_fpu::div_start_st:
+        next_state_fpu_fsm = pa_fpu::div_end_st;
+
+      pa_fpu::div_end_st:
+        next_state_fpu_fsm = pa_fpu::result_valid_st;
+
+      pa_fpu::result_valid_st:
+        if(end_ack == 1'b1) next_state_fpu_fsm = pa_fpu::idle_st;
 
       default:
         next_state_fpu_fsm = pa_fpu::idle_st;
@@ -280,21 +295,45 @@ module fpu(
     end
     else begin
       case(next_state_fpu_fsm)
-        pa_fpu::add_st: begin
+        pa_fpu::idle_st: begin
+          cmd_end <= 1'b0;
+          busy    <= 1'b0;         
+          status  <= '0;
+        end
+        pa_fpu::add_start_st: begin
           cmd_end <= 1'b1;
           busy    <= 1'b0;         
+          status  <= '0;
         end
-        pa_fpu::sub_st: begin
+        pa_fpu::sub_start_st: begin
           cmd_end <= 1'b1;
           busy    <= 1'b0;         
+          status  <= '0;
         end
-        pa_fpu::start_mul_st: begin
+        pa_fpu::mul_start_st: begin
           cmd_end <= 1'b0;
           busy    <= 1'b1;         
+          status  <= '0;
         end
-        pa_fpu::start_div_st: begin
+        pa_fpu::mul_end_st: begin
           cmd_end <= 1'b0;
           busy    <= 1'b1;         
+          status  <= '0;
+        end
+        pa_fpu::div_start_st: begin
+          cmd_end <= 1'b0;
+          busy    <= 1'b1;         
+          status  <= '0;
+        end
+        pa_fpu::div_end_st: begin
+          cmd_end <= 1'b0;
+          busy    <= 1'b1;         
+          status  <= '0;
+        end
+        pa_fpu::result_valid_st: begin
+          cmd_end <= 1'b1;
+          busy    <= 1'b1;         
+          status  <= '0;
         end
       endcase  
     end

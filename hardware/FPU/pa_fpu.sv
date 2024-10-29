@@ -15,10 +15,13 @@ package pa_fpu;
 
   typedef enum logic[3:0]{
     idle_st,
-    add_st,
-    sub_st,
-    start_mul_st,
-    start_div_st,
+    add_start_st,
+    sub_start_st,
+    mul_start_st,
+    mul_end_st,
+    div_start_st,
+    div_end_st,
+    result_valid_st,
     end_st
   } e_fpu_state;
 

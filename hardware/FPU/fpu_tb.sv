@@ -14,6 +14,8 @@ module fpu_tb;
   logic cmd_end;      // end of command / irq
   logic busy;   // active high when an operation is in progress
 
+  logic [31:0] result;
+
   initial begin
     clk = 0;
     forever #250ns clk = ~clk;
@@ -25,6 +27,7 @@ module fpu_tb;
 
   initial begin
     arst = 1;
+    end_ack = 1'b0;
     databus_in = '0;
     addr = '0;
     cs = 1'b1;
@@ -54,6 +57,40 @@ module fpu_tb;
     wr = 1'b1;
     #250ns;
     cs = 1'b1;
+
+    // Wait for the command to execute and end before reading result
+    @(posedge cmd_end);
+
+    // Read result
+    #250ns;
+    cs = 1'b0;
+    addr = 6'h9;
+    #250ns;
+    rd = 1'b0;
+    #250ns;
+    result[7:0] = databus_out;
+    #250ns;
+    addr = 6'hA;
+    #250ns;
+    result[15:8] = databus_out;
+    #250ns;
+    addr = 6'hB;
+    #250ns;
+    result[23:16] = databus_out;
+    #250ns;
+    addr = 6'hC;
+    #250ns;
+    result[31:24] = databus_out;
+    #250ns;
+    rd = 1'b1;
+    #250ns;
+    cs = 1'b1;
+    $display("Result: %x\n", result);
+
+    // send acknowledge signal
+    end_ack = 1'b1;
+    @(negedge cmd_end);
+    end_ack = 1'b0;
   end
 
   fpu fpu_top(
