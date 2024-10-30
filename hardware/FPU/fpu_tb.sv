@@ -37,8 +37,8 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
-    write_operand_b(32'h4331e148); //  177.88 
-    write_operand_a(32'h42c7fae1); //  99.99      3fe3b58c    inverse: 3f0fe722  
+    write_operand_a(32'h41b80000); //  23
+    write_operand_b(32'h423c0000); //  47      44872000
 
 //    write_operand_a(32'h449a522c); //  1234.56789
 //    write_operand_b(32'h458ebf1f); //  4567.8901        3e8a60f3          0.270270927
@@ -49,7 +49,7 @@ module fpu_tb;
     // write operation
     #250ns;
     cs = 1'b0;
-    databus_in = pa_fpu::op_div;
+    databus_in = pa_fpu::op_mul;
     addr = 6'h8;
     #250ns;
     wr = 1'b0;

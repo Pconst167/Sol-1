@@ -160,13 +160,17 @@ module fpu(
     else if(operation == op_mul) begin
       result_exp  = aexp_no_bias + bexp_no_bias;
       result_sign = a_sign ^ b_sign;
-      result_mantissa = a_mantissa * b_mantissa;
-      if(result_mantissa[47] == 1'b0) result_mantissa = result_mantissa << 1; // if the MSB of result is a 0, then shift left the result to normalize
-      if(result_mantissa[47] == 1'b1) result_exp = result_exp + 8'd1; // if MSB is 1, then increment exp by one to normalize
-      result_mantissa[22:0] = result_mantissa[47:24]; // transfer contents of register just to make it standard     
-      result_mantissa[47:24] = '0;  // and zero out MSBs
+      result_mantissa = a_mantissa[23:0] * b_mantissa[23:0];
       result_mantissa_before_inv = result_mantissa;
       result_mantissa_before_shift = result_mantissa;
+      if(result_mantissa[47] == 1'b1) begin
+        result_exp = result_exp + 8'd1; // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, and so really the result we had was 10.xxx or 11.xxx for example, and so the final result needs to be multiplied by 2
+      end
+      else if(result_mantissa[47] == 1'b0) begin
+        result_mantissa = result_mantissa << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
+      end
+      result_mantissa[23:0] = result_mantissa[47:24]; // transfer contents of register just to make it standard     
+      result_mantissa[47:24] = '0;  // and zero out MSBs
       result_exp = result_exp + 8'd127; // normalize exponent
     end
     else if(operation == op_div) begin
@@ -348,3 +352,180 @@ module fpu(
   end
 
 endmodule
+
+
+/*
+*** a = multiplicand,  tdr = product register left,  b = multiplier
+*** output: ab = result
+
+mdrl = 0 (reset counter)
+tdr = 0 (reset product register left byte)
+
+
+0xAC, "mul a, b"{       a,b 16 bits each, result is 
+mdrl = 0 (reset counter)
+tdr = 0 (reset product register left byte)
+  0{
+    next = next_offset
+    offset = 1
+    alu_op = y
+    alu_mode = logic
+    mdrl_wrt = true
+    tdrl_wrt = true
+    tdrh_wrt = true
+  }
+
+mdrl = mdrl + 1
+  1{
+    next = next_offset
+    offset = 1
+    alu_x = mdrl
+    alu_op = plus
+    mdrl_wrt = true
+    immediate = 1
+  }
+
+bl AND 0x01   ( test product[0] )
+save u_zf
+  2{
+    next = next_offset
+    offset = 1
+    uzf_in_src = alu_zf  
+    alu_x = bl
+    alu_op = and
+    alu_mode = logic
+    immediate = 1
+  }
+
+if u_zf == 1 jump +3 (means product[0] is 0)
+else +1
+also clear u-cf, so that if we are jumping the addition, the carry will
+be clear and wont interfere with the shift.
+  3{
+    next = next_branch
+    offset = 3  
+    cond_flags_src = micro_flags
+    ucf_in_src = alu_final_cf
+    alu_op = plus
+    alu_cf_out_inv = true
+  }
+
+tdrl = al + tdrl
+  4{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_op = plus
+    alu_cf_out_inv = true
+    alu_y = tdrl  
+    tdrl_wrt = true
+  }
+
+tdrh = ah + tdrh
+  5{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_final_cf
+    alu_x = ah
+    alu_op = plus
+    alu_cf_in = ucf
+    alu_cf_in_inv = true
+    alu_cf_out_inv = true
+    alu_y = tdrh  tdrh_wrt = true
+  }
+
+shr tdrh by one position
+save u_cf (ALU_0)
+  6{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_out_0
+    shift_src = ucf
+    zbus_out_src = shifted_right
+    alu_x = tdrh
+    alu_op = x
+    alu_mode = logic
+    tdrh_wrt = true
+  }
+
+shr tdrl by one position
+save u_cf (ALU_0)
+  7{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_out_0
+    shift_src = ucf
+    zbus_out_src = shifted_right
+    alu_x = tdrl
+    alu_op = x
+    alu_mode = logic
+    tdrl_wrt = true
+  }
+
+shr bh by one position
+u_cf enters MSB of bh (fromTDRL LSB drop)
+save u_cf (ALU_0)
+  8{
+    next = next_offset
+    offset = 1
+    ucf_in_src = alu_out_0
+    shift_src = ucf
+    zbus_out_src = shifted_right
+    alu_x = bh
+    alu_op = x
+    alu_mode = logic
+    bh_wrt = true
+  }
+
+shr bl by one position
+u_cf enters MSB of bl (from BH LSB drop)
+  9{
+    next = next_offset
+    offset = 1
+    shift_src = ucf
+    zbus_out_src = shifted_right
+    alu_x = bl
+    alu_op = x
+    alu_mode = logic
+    bl_wrt = true
+  }
+
+mdrl - 16 (compare)
+save u_zf
+  10{
+    next = next_offset
+    offset = 1
+    uzf_in_src = alu_zf  
+    alu_x = mdrl
+    alu_op = minus
+    alu_cf_in_inv = true
+    immediate = 16
+  }
+
+if not zero, jump -10
+else +1
+  11{
+    next = next_branch
+    offset = -10
+    condition_inv = true
+    cond_flags_src = micro_flags
+  }
+
+al = tdrl 
+  12{
+    next = next_offset
+    offset = 1
+    alu_op = y
+    alu_mode = logic
+    alu_y = tdrl  
+    al_wrt = true
+  }
+
+ah = tdrh
+  13{
+    next = next_fetch
+    alu_op = y
+    alu_mode = logic
+    alu_y = tdrh  ah_wrt = true
+  }
+*/
