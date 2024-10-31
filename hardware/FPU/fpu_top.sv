@@ -58,13 +58,15 @@ module fpu(
   logic overflow;
 
   logic [23:0] dividend;
-  logic [48:0] product_divisor; // keeps the product and divisor. shifted right till product occupies entire space and divisor disappears
-  logic [4:0] divisor_counter; // this keeps a count of how many times we have performed the product addition cycle. total = 24.
+  logic [48:0] product_divisor;  // keeps the product and divisor. shifted right till product occupies entire space and divisor disappears
+  logic [ 4:0] divisor_counter;   // this keeps a count of how many times we have performed the product addition cycle. total = 24.
+  logic [47:0] mul_mantissa;
+  logic [ 7:0]  mul_exp;
+  logic        mul_sign;
 
   // multiplication datapath control signals
   logic product_add;
   logic product_shift;
-
 
   pa_fpu::e_fpu_state curr_state_fpu_fsm;
   pa_fpu::e_fpu_state next_state_fpu_fsm;
@@ -259,9 +261,12 @@ module fpu(
 
   always @(posedge clk, posedge arst) begin
     if(arst) begin
-      dividend        <= '0;
-      product_divisor <= '0;
-      divisor_counter <= '0;
+      dividend         <= '0;
+      product_divisor  <= '0;
+      divisor_counter  <= '0;
+      mul_mantissa     <= '0;
+      mul_exp          <= '0;
+      mul_sign         <= 1'b0;
     end
     else begin
       if(product_add) begin
@@ -274,6 +279,25 @@ module fpu(
         dividend        <= a_mantissa[23:0];
         product_divisor <= {25'b0, b_mantissa[23:0]};  // initiate register, copy b_mantissa, as the divisor
       end
+      if(next_state_fpu_fsm == pa_fpu::mul_result_set_st) begin
+        logic [7:0] exp; logic sign;
+        logic [47:0] product_mantissa; // this keeps the final product
+        product_mantissa = product_divisor[47:0];
+        exp  = aexp_no_bias + bexp_no_bias;
+        sign = a_sign ^ b_sign;
+        if(product_mantissa[47] == 1'b1) begin
+          exp = exp + 8'd1; // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, and so really the result we had was 10.xxx or 11.xxx for example, and so the final result needs to be multiplied by 2
+        end
+        else if(product_mantissa[47] == 1'b0) begin
+          product_mantissa = product_mantissa << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
+        end
+        product_mantissa[23:0] = product_mantissa[47:24]; // transfer contents of register just to make it standard     
+        product_mantissa[47:24] = '0;  // and zero out MSBs
+        exp = exp + 8'd127; // normalize exponent
+        mul_mantissa <= product_mantissa;
+        mul_exp <= exp;
+        mul_sign <= sign;
+        end
     end
   end
 

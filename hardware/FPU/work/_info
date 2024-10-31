@@ -17,6 +17,14 @@ R0
 R1
 R0
 R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
 Z2 !s12c _opt2
 R1
 R2
@@ -756,10 +764,10 @@ n@_opt2
 R12
 R5
 T_opt3
-!s110 1730338833
-VNT<fBB`JmbFU37M;kn_6S3
+!s110 1730364942
+VY9ZUUR6U:z:]`Q[<M`k4f2
 R6
-=9-000ae431a4f1-6722e011-354b9-2010
+=13-000ae431a4f1-6723460e-dbe7d-2010
 R1
 R7
 R8
@@ -772,25 +780,25 @@ vfpu
 Z13 2/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z14 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
 Z15 DXx4 work 6 pa_fpu 0 22 mRHHo>OzS4<VRU]K`Gb?U1
-DXx4 work 15 fpu_top_sv_unit 0 22 =n@;bY9g3Fe[1I;712VWF2
-Z16 !s110 1730338456
+DXx4 work 15 fpu_top_sv_unit 0 22 nnccb@Jef3z1G:0L:`Y;S1
+Z16 !s110 1730364912
 Z17 VDg1SIo80bB@j0V0VzS_@n1
 r1
 !s85 0
 !i10b 1
-!s100 oS6Z?HW6@K<10OHfEaJeo3
-ILN_0UM@oT[<bR=Q3nQkIK1
+!s100 3WS0GEMSCSZFSVo[DR5g;2
+IR7=Fm:]<`ND2hHlYWdkmI1
 !s105 fpu_top_sv_unit
 S1
 Z18 d/home/pconst/Desktop/sol-1/hardware/FPU
-Z19 w1730338446
+Z19 w1730364896
 Z20 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z21 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
-!i122 1260
-L0 9 429
+!i122 1274
+L0 9 453
 Z22 OL;L;2024.1;79
 31
-Z23 !s108 1730338456.000000
+Z23 !s108 1730364912.000000
 Z24 !s107 /home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 Z25 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 !i113 0
@@ -814,7 +822,7 @@ R18
 Z28 w1730333619
 Z29 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
 Z30 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
-!i122 1261
+!i122 1275
 L0 3 182
 R22
 31
@@ -841,7 +849,7 @@ R18
 R28
 R29
 R30
-!i122 1261
+!i122 1275
 Z33 L0 1 0
 R22
 31
@@ -856,19 +864,19 @@ R13
 R14
 R15
 R16
-V=n@;bY9g3Fe[1I;712VWF2
+Vnnccb@Jef3z1G:0L:`Y;S1
 r1
 !s85 0
 !i10b 1
-!s100 7jnS?O1zI?6<]:T<MEG9W0
-I=n@;bY9g3Fe[1I;712VWF2
+!s100 98ggoO<`ekNE;9>EUD:VF2
+Innccb@Jef3z1G:0L:`Y;S1
 !i103 1
 S1
 R18
 R19
 R20
 R21
-!i122 1260
+!i122 1274
 L0 7 0
 R22
 31
@@ -890,7 +898,7 @@ R18
 w1730320701
 8/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
 F/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
-!i122 1259
+!i122 1273
 R33
 VmRHHo>OzS4<VRU]K`Gb?U1
 R22
