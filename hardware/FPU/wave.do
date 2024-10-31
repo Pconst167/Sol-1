@@ -44,8 +44,14 @@ add wave -noupdate /fpu_tb/fpu_top/result_sign
 add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp
 add wave -noupdate /fpu_tb/fpu_top/agtb
 add wave -noupdate /fpu_tb/fpu_top/bgta
+add wave -noupdate /fpu_tb/fpu_top/clk
+add wave -noupdate /fpu_tb/fpu_top/dividend
+add wave -noupdate /fpu_tb/fpu_top/product_divisor
+add wave -noupdate /fpu_tb/fpu_top/divisor_counter
+add wave -noupdate /fpu_tb/fpu_top/product_add
+add wave -noupdate /fpu_tb/fpu_top/product_shift
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {11072 ns} 0}
+WaveRestoreCursors {{Cursor 1} {9744 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 234
 configure wave -valuecolwidth 426
@@ -61,4 +67,4 @@ configure wave -griddelta 45
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {0 ns} {15750 ns}
+WaveRestoreZoom {6984 ns} {15750 ns}

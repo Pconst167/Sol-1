@@ -57,6 +57,15 @@ module fpu(
 
   logic overflow;
 
+  logic [23:0] dividend;
+  logic [48:0] product_divisor; // keeps the product and divisor. shifted right till product occupies entire space and divisor disappears
+  logic [4:0] divisor_counter; // this keeps a count of how many times we have performed the product addition cycle. total = 24.
+
+  // multiplication datapath control signals
+  logic product_add;
+  logic product_shift;
+
+
   pa_fpu::e_fpu_state curr_state_fpu_fsm;
   pa_fpu::e_fpu_state next_state_fpu_fsm;
 
@@ -79,6 +88,68 @@ module fpu(
 
   assign agtb            = a_mantissa > b_mantissa;
   assign bgta            = b_mantissa > a_mantissa;
+
+  // latch for writing operation registers
+  always_latch begin
+    if(arst) begin
+      operand_a  = '0;
+      operand_b  = '0;
+      operation  = op_add;  
+      op_written = 1'b0;
+    end
+    else if(cs == 1'b0 && wr == 1'b0) begin
+      case(addr)
+        4'h0: operand_a[7:0]   = databus_in;
+        4'h1: operand_a[15:8]  = databus_in;
+        4'h2: operand_a[23:16] = databus_in;
+        4'h3: operand_a[31:24] = databus_in;
+
+        4'h4: operand_b[7:0]   = databus_in;
+        4'h5: operand_b[15:8]  = databus_in;
+        4'h6: operand_b[23:16] = databus_in;
+        4'h7: operand_b[31:24] = databus_in;
+
+        4'h8: begin
+          operation            = e_fpu_operation'(databus_in[3:0]);
+          op_written           = 1'b1;
+        end
+      endcase      
+    end
+    else if(
+      curr_state_fpu_fsm == pa_fpu::add_start_st ||
+      curr_state_fpu_fsm == pa_fpu::sub_start_st ||
+      curr_state_fpu_fsm == pa_fpu::mul_start_st ||
+      curr_state_fpu_fsm == pa_fpu::div_start_st
+    ) 
+      op_written = 1'b0;
+  end
+
+  // output bus assignments
+  always_comb begin
+    if(cs == 1'b0 && rd == 1'b0) begin
+      case(addr)
+        4'h0: databus_out = operand_a[7:0];
+        4'h1: databus_out = operand_a[15:8];
+        4'h2: databus_out = operand_a[23:16];
+        4'h3: databus_out = operand_a[31:24];
+
+        4'h4: databus_out = operand_b[7:0];
+        4'h5: databus_out = operand_b[15:8];
+        4'h6: databus_out = operand_b[23:16];
+        4'h7: databus_out = operand_b[31:24];
+
+        4'h8: databus_out = operation;
+
+        4'h9: databus_out = result[7:0];
+        4'hA: databus_out = result[15:8];
+        4'hB: databus_out = result[23:16];
+        4'hC: databus_out = result[31:24];
+
+        default: databus_out = '0;
+      endcase      
+    end
+    else databus_out = 'z;
+  end
 
   // if aexp < bexp, then increase aexp and right-shift a_mantissa by same number
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
@@ -186,64 +257,24 @@ module fpu(
     end
   end
 
-  always_comb begin
-    if(cs == 1'b0 && rd == 1'b0) begin
-      case(addr)
-        4'h0: databus_out = operand_a[7:0];
-        4'h1: databus_out = operand_a[15:8];
-        4'h2: databus_out = operand_a[23:16];
-        4'h3: databus_out = operand_a[31:24];
-
-        4'h4: databus_out = operand_b[7:0];
-        4'h5: databus_out = operand_b[15:8];
-        4'h6: databus_out = operand_b[23:16];
-        4'h7: databus_out = operand_b[31:24];
-
-        4'h8: databus_out = operation;
-
-        4'h9: databus_out = result[7:0];
-        4'hA: databus_out = result[15:8];
-        4'hB: databus_out = result[23:16];
-        4'hC: databus_out = result[31:24];
-
-        default: databus_out = '0;
-      endcase      
-    end
-    else databus_out = 'z;
-  end
-
-  always_latch begin
+  always @(posedge clk, posedge arst) begin
     if(arst) begin
-      operand_a  = '0;
-      operand_b  = '0;
-      operation  = op_add;  
-      op_written = 1'b0;
+      dividend        <= '0;
+      product_divisor <= '0;
+      divisor_counter <= '0;
     end
-    else if(cs == 1'b0 && wr == 1'b0) begin
-      case(addr)
-        4'h0: operand_a[7:0]   = databus_in;
-        4'h1: operand_a[15:8]  = databus_in;
-        4'h2: operand_a[23:16] = databus_in;
-        4'h3: operand_a[31:24] = databus_in;
-
-        4'h4: operand_b[7:0]   = databus_in;
-        4'h5: operand_b[15:8]  = databus_in;
-        4'h6: operand_b[23:16] = databus_in;
-        4'h7: operand_b[31:24] = databus_in;
-
-        4'h8: begin
-          operation            = e_fpu_operation'(databus_in[3:0]);
-          op_written           = 1'b1;
-        end
-      endcase      
+    else begin
+      if(product_add) begin
+        if(product_divisor[0]) product_divisor[48:24] <= product_divisor[48:24] + dividend; // product_divisor is 49 bits rather than 48 so it can also keep the carry out
+        divisor_counter <= divisor_counter + 5'd1; // increment counter here so that we can check the counter value in the next state. otherwise would need an extra state after shift_st to check counter == 16.
+      end
+      if(product_shift) product_divisor <= product_divisor >> 1;
+      if(next_state_fpu_fsm == pa_fpu::mul_start_st) begin
+        divisor_counter <= '0;
+        dividend        <= a_mantissa[23:0];
+        product_divisor <= {25'b0, b_mantissa[23:0]};  // initiate register, copy b_mantissa, as the divisor
+      end
     end
-    else if(
-      curr_state_fpu_fsm == pa_fpu::add_start_st ||
-      curr_state_fpu_fsm == pa_fpu::sub_start_st ||
-      curr_state_fpu_fsm == pa_fpu::mul_start_st ||
-      curr_state_fpu_fsm == pa_fpu::div_start_st
-    ) 
-      op_written = 1'b0;
   end
 
   // Next state assignments
@@ -264,21 +295,34 @@ module fpu(
               next_state_fpu_fsm = pa_fpu::div_start_st;
           endcase
 
+      // addition states **********************************
       pa_fpu::add_start_st:
         next_state_fpu_fsm = result_valid_st;
 
+      // subtraction states **********************************
       pa_fpu::sub_start_st:
         next_state_fpu_fsm = result_valid_st;
 
+      // multiplication states **********************************
       pa_fpu::mul_start_st:
+        next_state_fpu_fsm = pa_fpu::mul_product_add_st;
+
+      pa_fpu::mul_product_add_st:
+        next_state_fpu_fsm = pa_fpu::mul_product_shift_st;
+
+      pa_fpu::mul_product_shift_st:
+        if(divisor_counter == 5'd24) next_state_fpu_fsm = mul_result_set_st;
+        else next_state_fpu_fsm = mul_product_add_st;
+
+      pa_fpu::mul_result_set_st:
         next_state_fpu_fsm = pa_fpu::mul_end_st;
 
       pa_fpu::mul_end_st:
         next_state_fpu_fsm = pa_fpu::result_valid_st;
 
+      // division states **********************************
       pa_fpu::div_start_st:
         next_state_fpu_fsm = pa_fpu::div_end_st;
-
       pa_fpu::div_end_st:
         next_state_fpu_fsm = pa_fpu::result_valid_st;
 
@@ -296,6 +340,8 @@ module fpu(
       cmd_end <= 1'b0;
       busy    <= 1'b0;
       status  <= '0;
+      product_add <= 1'b0;
+      product_shift <= 1'b0;
     end
     else begin
       case(next_state_fpu_fsm)
@@ -303,41 +349,78 @@ module fpu(
           cmd_end <= 1'b0;
           busy    <= 1'b0;         
           status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
         end
         pa_fpu::add_start_st: begin
           cmd_end <= 1'b1;
           busy    <= 1'b0;         
           status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
         end
         pa_fpu::sub_start_st: begin
           cmd_end <= 1'b1;
           busy    <= 1'b0;         
           status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
         end
         pa_fpu::mul_start_st: begin
           cmd_end <= 1'b0;
           busy    <= 1'b1;         
           status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
+        end
+        pa_fpu::mul_product_add_st: begin
+          cmd_end <= 1'b0;
+          busy    <= 1'b1;         
+          status  <= '0;
+          product_add <= 1'b1;
+          product_shift <= 1'b0;
+        end
+        pa_fpu::mul_product_shift_st: begin
+          cmd_end <= 1'b0;
+          busy    <= 1'b1;         
+          status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b1;
+        end
+        pa_fpu::mul_result_set_st: begin
+          cmd_end <= 1'b0;
+          busy    <= 1'b1;         
+          status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
         end
         pa_fpu::mul_end_st: begin
           cmd_end <= 1'b0;
           busy    <= 1'b1;         
           status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
         end
         pa_fpu::div_start_st: begin
           cmd_end <= 1'b0;
           busy    <= 1'b1;         
           status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
         end
         pa_fpu::div_end_st: begin
           cmd_end <= 1'b0;
           busy    <= 1'b1;         
           status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
         end
         pa_fpu::result_valid_st: begin
           cmd_end <= 1'b1;
           busy    <= 1'b1;         
           status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
         end
       endcase  
     end
@@ -353,6 +436,14 @@ module fpu(
 
 endmodule
 
+/*
+test divisor[0]
+if 1, then add dividend to product
+shift product and divisor register right
+add 1 to counter
+if counrer == 16 exit
+else cycle
+*/
 
 /*
 *** a = multiplicand,  tdr = product register left,  b = multiplier
@@ -362,7 +453,6 @@ mdrl = 0 (reset counter)
 tdr = 0 (reset product register left byte)
 
 
-0xAC, "mul a, b"{       a,b 16 bits each, result is 
 mdrl = 0 (reset counter)
 tdr = 0 (reset product register left byte)
   0{
