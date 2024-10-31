@@ -30,20 +30,9 @@ add wave -noupdate -radix decimal /fpu_tb/fpu_top/ab_exp_diff
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/ba_exp_diff
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/aexp_after_adjust
 add wave -noupdate -radix decimal /fpu_tb/fpu_top/bexp_after_adjust
-add wave -noupdate -radix binary /fpu_tb/fpu_top/a_mantissa_after_adjust_abs
-add wave -noupdate -radix binary /fpu_tb/fpu_top/b_mantissa_after_adjust_abs
 add wave -noupdate -radix binary /fpu_tb/fpu_top/a_mantissa_after_adjust
 add wave -noupdate -radix binary /fpu_tb/fpu_top/b_mantissa_after_adjust
-add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_inv
-add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_shift
-add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa
-add wave -noupdate -radix hexadecimal /fpu_tb/fpu_top/result
-add wave -noupdate -radix binary /fpu_tb/fpu_top/result
 add wave -noupdate /fpu_tb/fpu_top/overflow
-add wave -noupdate /fpu_tb/fpu_top/result_sign
-add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp
-add wave -noupdate /fpu_tb/fpu_top/agtb
-add wave -noupdate /fpu_tb/fpu_top/bgta
 add wave -noupdate /fpu_tb/fpu_top/clk
 add wave -noupdate /fpu_tb/fpu_top/curr_state_fpu_fsm
 add wave -noupdate /fpu_tb/fpu_top/dividend
@@ -52,9 +41,21 @@ add wave -noupdate -radix binary /fpu_tb/fpu_top/product_divisor
 add wave -noupdate -radix unsigned /fpu_tb/fpu_top/divisor_counter
 add wave -noupdate /fpu_tb/fpu_top/product_add
 add wave -noupdate /fpu_tb/fpu_top/product_shift
-add wave -noupdate /fpu_tb/fpu_top/mul_packet
+add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_addition
+add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_addition
+add wave -noupdate /fpu_tb/fpu_top/result_sign_addition
+add wave -noupdate /fpu_tb/fpu_top/result_mantissa_subtraction
+add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_subtraction
+add wave -noupdate /fpu_tb/fpu_top/result_sign_subtraction
+add wave -noupdate /fpu_tb/fpu_top/result_mantissa_multiplication
+add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_multiplication
+add wave -noupdate /fpu_tb/fpu_top/result_sign_multiplication
+add wave -noupdate /fpu_tb/fpu_top/result_mantissa_division
+add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_division
+add wave -noupdate /fpu_tb/fpu_top/result_sign_division
+add wave -noupdate /fpu_tb/fpu_top/result_ieee_packet
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {34490 ns} 0}
+WaveRestoreCursors {{Cursor 1} {37993 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 234
 configure wave -valuecolwidth 426

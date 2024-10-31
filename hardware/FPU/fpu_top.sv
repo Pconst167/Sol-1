@@ -20,54 +20,54 @@ module fpu(
   output logic busy   // active high when an operation is in progress
 );
 
-  logic agtb;
-  logic bgta;
-
-  logic [31:0] operand_a;
+  logic          [31:0] operand_a;
   logic unsigned [24:0] a_mantissa;
-  logic [ 7:0] a_exp;
-  logic        a_sign;
-  logic [31:0] operand_b;
+  logic          [ 7:0] a_exp;
+  logic                 a_sign;
+  logic          [31:0] operand_b;
   logic unsigned [24:0] b_mantissa;
-  logic [ 7:0] b_exp;
-  logic        b_sign;
-  logic [31:0] result;
-  logic unsigned [47:0] result_mantissa;
-  logic unsigned [47:0] result_mantissa_before_shift;
-  logic unsigned [47:0] result_mantissa_before_inv;
-  logic [ 7:0] result_exp;
-  logic        result_sign;
-  logic [ 7:0] aexp_no_bias;
-  logic [ 7:0] bexp_no_bias;
+  logic          [ 7:0] b_exp;
+  logic                 b_sign;
+  logic          [ 7:0] aexp_no_bias;
+  logic          [ 7:0] bexp_no_bias;
+  logic          [ 7:0] ab_exp_diff;
+  logic          [ 7:0] ba_exp_diff;
 
-  logic [ 7:0] ab_exp_diff;
-  logic [ 7:0] ba_exp_diff;
+  logic          [31:0] result_ieee_packet;
 
-  logic [ 7:0] status;
-  e_fpu_operation operation; // arithmetic operation to be performed
+  logic unsigned [24:0] result_mantissa_addition; // 24 bits plus carry
+  logic          [ 7:0] result_exp_addition;
+  logic                 result_sign_addition;
+  logic unsigned [24:0] result_mantissa_subtraction; // 24 bits plus carry
+  logic          [ 7:0] result_exp_subtraction;
+  logic                 result_sign_subtraction;
+  logic unsigned [23:0] result_mantissa_multiplication;
+  logic          [ 7:0] result_exp_multiplication;
+  logic                 result_sign_multiplication;
+  logic unsigned [47:0] result_mantissa_division;
+  logic          [ 7:0] result_exp_division;
+  logic                 result_sign_division;
 
-  logic op_written;
+  logic          [ 7:0] aexp_after_adjust;
+  logic          [ 7:0] bexp_after_adjust;
+  logic          [24:0] a_mantissa_after_adjust;
+  logic          [24:0] b_mantissa_after_adjust;
 
-  logic [7:0] aexp_after_adjust;
-  logic [7:0] bexp_after_adjust;
-  logic [47:0] a_mantissa_after_adjust;
-  logic [47:0] b_mantissa_after_adjust;
-  logic [47:0] a_mantissa_after_adjust_abs;
-  logic [47:0] b_mantissa_after_adjust_abs;
+  logic          [23:0] dividend;
+  logic          [48:0] product_divisor;  // keeps the product and divisor. shifted right till product occupies entire space and divisor disappears
+  logic          [ 4:0] divisor_counter;   // this keeps a count of how many times we have performed the product addition cycle. total = 24.
 
-  logic overflow;
-
-  logic [23:0] dividend;
-  logic [48:0] product_divisor;  // keeps the product and divisor. shifted right till product occupies entire space and divisor disappears
-  logic [ 4:0] divisor_counter;   // this keeps a count of how many times we have performed the product addition cycle. total = 24.
-  logic [31:0] mul_packet;
+  logic          [ 7:0] status;
+  e_fpu_operation       operation; // arithmetic operation to be performed
+  logic                 op_written;
+  logic                 overflow;
 
   // multiplication datapath control signals
-  logic product_add;
-  logic product_shift;
+  logic                 product_add;
+  logic                 product_shift;
 
-  pa_fpu::e_fpu_state curr_state_fpu_fsm;
-  pa_fpu::e_fpu_state next_state_fpu_fsm;
+  pa_fpu::e_fpu_state   curr_state_fpu_fsm;
+  pa_fpu::e_fpu_state   next_state_fpu_fsm;
 
   assign a_mantissa      = {!(a_exp == 8'd0), operand_a[22:0]};
   assign a_exp           = operand_a[30:23];
@@ -76,18 +76,11 @@ module fpu(
   assign b_exp           = operand_b[30:23];
   assign b_sign          = operand_b[31];
 
-  assign result[22:0]    = result_mantissa[22:0];
-  assign result[30:23]   = result_exp;
-  assign result[31]      = result_sign;
-
   assign aexp_no_bias    = a_exp - 127;
   assign bexp_no_bias    = b_exp - 127;
 
   assign ab_exp_diff     = aexp_no_bias - bexp_no_bias;
   assign ba_exp_diff     = bexp_no_bias - aexp_no_bias;
-
-  assign agtb            = a_mantissa > b_mantissa;
-  assign bgta            = b_mantissa > a_mantissa;
 
   // latch for writing operation registers
   always_latch begin
@@ -140,10 +133,10 @@ module fpu(
 
         4'h8: databus_out = operation;
 
-        4'h9: databus_out = result[7:0];
-        4'hA: databus_out = result[15:8];
-        4'hB: databus_out = result[23:16];
-        4'hC: databus_out = result[31:24];
+        4'h9: databus_out = result_ieee_packet[7:0];
+        4'hA: databus_out = result_ieee_packet[15:8];
+        4'hB: databus_out = result_ieee_packet[23:16];
+        4'hC: databus_out = result_ieee_packet[31:24];
 
         default: databus_out = '0;
       endcase      
@@ -155,13 +148,13 @@ module fpu(
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
   // else, exponents are the same and we are ok
   always_comb begin
-    if(aexp_no_bias  < bexp_no_bias) begin
+    if(aexp_no_bias < bexp_no_bias) begin
       a_mantissa_after_adjust = a_mantissa >> ba_exp_diff;
       b_mantissa_after_adjust = b_mantissa;
       aexp_after_adjust       = aexp_no_bias + ba_exp_diff;
       bexp_after_adjust       = bexp_no_bias;
     end   
-    else if(aexp_no_bias  > bexp_no_bias) begin
+    else if(aexp_no_bias > bexp_no_bias) begin
       a_mantissa_after_adjust = a_mantissa;
       b_mantissa_after_adjust = b_mantissa >> ab_exp_diff;
       aexp_after_adjust       = aexp_no_bias;
@@ -174,78 +167,68 @@ module fpu(
       bexp_after_adjust       = bexp_no_bias;
     end
 
-    a_mantissa_after_adjust_abs = a_mantissa_after_adjust;
-    b_mantissa_after_adjust_abs = b_mantissa_after_adjust;
-
     // the _after_adjust variables are used for add and sub operations only
-    if(a_sign == 1'b1) 
-      a_mantissa_after_adjust = ~a_mantissa_after_adjust + 1;
-    if(b_sign == 1'b1) 
-      b_mantissa_after_adjust = ~b_mantissa_after_adjust + 1;
+    if(a_sign == 1'b1) a_mantissa_after_adjust = ~a_mantissa_after_adjust + 1;
+    if(b_sign == 1'b1) b_mantissa_after_adjust = ~b_mantissa_after_adjust + 1;
 
-    if(operation == op_add) begin
-      result_mantissa            = a_mantissa_after_adjust + b_mantissa_after_adjust;
-      if(result_mantissa[23:0] == 23'd0) begin
-        result_exp = 8'd0; 
-        result_mantissa_before_inv   = result_mantissa;
-        result_mantissa_before_shift = result_mantissa;
-        result_sign                  = 1'b0;
+    // addition
+    result_mantissa_addition = a_mantissa_after_adjust + b_mantissa_after_adjust;
+    if(result_mantissa_addition[23:0] == 23'd0) begin
+      result_exp_addition = 8'd0; 
+      result_sign_addition = 1'b0;
+    end
+    else begin
+      result_exp_addition = aexp_after_adjust;
+      result_sign_addition = result_mantissa_addition[24];
+      if(result_sign_addition) result_mantissa_addition = -result_mantissa_addition;
+      if(result_mantissa_addition[24]) begin 
+        result_mantissa_addition = result_mantissa_addition >> 1;
+        result_exp_addition = result_exp_addition + 1;
       end
-      else begin
-        result_mantissa_before_inv = result_mantissa;
-        result_exp                 = aexp_after_adjust;
-        result_sign                = result_mantissa[24];
-        if(result_sign) result_mantissa = -result_mantissa;
-        result_mantissa_before_shift = result_mantissa;
-        if(result_mantissa[24]) begin 
-          result_mantissa = result_mantissa >> 1;
-          result_exp = result_exp + 1;
+      for(int i = 0; i < 24; i++) begin
+        if(result_mantissa_addition[23 - i]) begin
+          result_mantissa_addition = result_mantissa_addition << i;
+          break;
         end
-        if(op_written) 
-          while(!result_mantissa[23]) begin
-            result_mantissa = result_mantissa << 1;
-            result_exp = result_exp - 1;
-          end
-        result_exp = result_exp + 8'd127;
       end
+      result_exp_addition = result_exp_addition + 8'd127;
     end
-    else if(operation == op_sub) begin
-      result_mantissa = a_mantissa_after_adjust - b_mantissa_after_adjust; 
-      result_exp      = aexp_after_adjust;
-      result_mantissa_before_inv = result_mantissa;
-      result_sign = a_sign == 0 && b_sign == 0 && b_mantissa_after_adjust > a_mantissa_after_adjust ||
-                    a_sign == 1 && b_sign == 0 ||
-                    a_sign == 1 && b_sign == 1 && a_mantissa_after_adjust > b_mantissa_after_adjust;
-      if(result_mantissa[24]) begin
-        result_mantissa = -result_mantissa;
-        result_sign = 1'b1;
-      end
-      else result_sign = 1'b0;
-      result_mantissa_before_shift = result_mantissa;
-      while(!result_mantissa[23]) begin
-        result_mantissa = result_mantissa << 1;
-        result_exp = result_exp - 1;
-      end
-      result_exp = result_exp + 8'd127;
+
+    // subtraction
+    result_mantissa_subtraction = a_mantissa_after_adjust - b_mantissa_after_adjust; 
+    result_exp_subtraction = aexp_after_adjust;
+    result_sign_subtraction = a_sign == 0 && b_sign == 0 && b_mantissa_after_adjust > a_mantissa_after_adjust ||
+                              a_sign == 1 && b_sign == 0 ||
+                              a_sign == 1 && b_sign == 1 && a_mantissa_after_adjust > b_mantissa_after_adjust;
+    if(result_mantissa_subtraction[24]) begin
+      result_mantissa_subtraction = -result_mantissa_subtraction;
+      result_sign_subtraction = 1'b1;
     end
+    else result_sign_subtraction = 1'b0;
+    /*
+    while(!result_mantissa_subtraction[23]) begin
+      result_mantissa_subtraction = result_mantissa_subtraction << 1;
+      result_exp_subtraction = result_exp_subtraction - 1;
+    end
+    */
+    result_exp_subtraction = result_exp_subtraction + 8'd127;
+
+/*
     else if(operation == op_div) begin
       result_exp  = aexp_no_bias - bexp_no_bias;
       result_sign = a_sign ^ b_sign;
       result_mantissa = (a_mantissa[23:0] << 23) / b_mantissa;
-      result_mantissa_before_shift = result_mantissa;
       if(result_mantissa[23] == 1'b0) begin
         result_mantissa = result_mantissa << 1;
         result_exp = result_exp - 1;
       end
       result_exp = result_exp + 8'd127; // normalize exponent
     end
-    /*
+
     else if(operation == op_mul) begin
       result_exp  = aexp_no_bias + bexp_no_bias;
       result_sign = a_sign ^ b_sign;
       result_mantissa = a_mantissa[23:0] * b_mantissa[23:0];
-      result_mantissa_before_inv = result_mantissa;
-      result_mantissa_before_shift = result_mantissa;
       if(result_mantissa[47] == 1'b1) begin
         result_exp = result_exp + 8'd1; // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, and so really the result we had was 10.xxx or 11.xxx for example, and so the final result needs to be multiplied by 2
       end
@@ -257,6 +240,17 @@ module fpu(
       result_exp = result_exp + 8'd127; // normalize exponent
     end
     */
+
+    case(operation)
+      op_add: 
+        result_ieee_packet = {result_sign_addition, result_exp_addition, result_mantissa_addition[22:0]};
+      op_sub: 
+        result_ieee_packet = {result_sign_subtraction, result_exp_subtraction, result_mantissa_subtraction[22:0]};
+      op_mul: 
+        result_ieee_packet = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
+      op_div: 
+        result_ieee_packet = {result_sign_division, result_exp_division, result_mantissa_division[22:0]};
+    endcase
   end
 
   always @(posedge clk, posedge arst) begin
@@ -278,21 +272,16 @@ module fpu(
       end
       // this is tested on current state rather than next state because when the fsm reaches mul_result_set_st, the shfit operation is clocked in 
       if(curr_state_fpu_fsm == pa_fpu::mul_result_set_st) begin
-        logic [7:0] exp; logic sign;
-        logic [47:0] product_mantissa; // this keeps the final product
-        product_mantissa = product_divisor[47:0];
-        exp  = aexp_no_bias + bexp_no_bias;
-        sign = a_sign ^ b_sign;
-        if(product_mantissa[47] == 1'b1) begin
-          exp = exp + 8'd1; // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, and so really the result we had was 10.xxx or 11.xxx for example, and so the final result needs to be multiplied by 2
+        result_mantissa_multiplication = product_divisor[47:24];
+        result_exp_multiplication  = aexp_no_bias + bexp_no_bias;
+        result_sign_multiplication = a_sign ^ b_sign;
+        if(result_mantissa_multiplication[23] == 1'b1) begin
+          result_exp_multiplication = result_exp_multiplication + 8'd1; // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, and so really the result we had was 10.xxx or 11.xxx for example, and so the final result needs to be multiplied by 2
         end
-        else if(product_mantissa[47] == 1'b0) begin
-          product_mantissa = product_mantissa << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
+        else if(result_mantissa_multiplication[23] == 1'b0) begin
+          result_mantissa_multiplication = result_mantissa_multiplication << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
         end
-        product_mantissa[23:0] = product_mantissa[47:24]; // transfer contents of register just to make it standard     
-        product_mantissa[47:24] = '0;  // and zero out MSBs
-        exp = exp + 8'd127; // normalize exponent
-        mul_packet <= {sign, exp[7:0], product_mantissa[22:0]};
+        result_exp_multiplication = result_exp_multiplication + 8'd127; // normalize exponent
         end
     end
   end
