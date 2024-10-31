@@ -60,9 +60,7 @@ module fpu(
   logic [23:0] dividend;
   logic [48:0] product_divisor;  // keeps the product and divisor. shifted right till product occupies entire space and divisor disappears
   logic [ 4:0] divisor_counter;   // this keeps a count of how many times we have performed the product addition cycle. total = 24.
-  logic [47:0] mul_mantissa;
-  logic [ 7:0]  mul_exp;
-  logic        mul_sign;
+  logic [31:0] mul_packet;
 
   // multiplication datapath control signals
   logic product_add;
@@ -230,6 +228,18 @@ module fpu(
       end
       result_exp = result_exp + 8'd127;
     end
+    else if(operation == op_div) begin
+      result_exp  = aexp_no_bias - bexp_no_bias;
+      result_sign = a_sign ^ b_sign;
+      result_mantissa = (a_mantissa[23:0] << 23) / b_mantissa;
+      result_mantissa_before_shift = result_mantissa;
+      if(result_mantissa[23] == 1'b0) begin
+        result_mantissa = result_mantissa << 1;
+        result_exp = result_exp - 1;
+      end
+      result_exp = result_exp + 8'd127; // normalize exponent
+    end
+    /*
     else if(operation == op_mul) begin
       result_exp  = aexp_no_bias + bexp_no_bias;
       result_sign = a_sign ^ b_sign;
@@ -246,17 +256,7 @@ module fpu(
       result_mantissa[47:24] = '0;  // and zero out MSBs
       result_exp = result_exp + 8'd127; // normalize exponent
     end
-    else if(operation == op_div) begin
-      result_exp  = aexp_no_bias - bexp_no_bias;
-      result_sign = a_sign ^ b_sign;
-      result_mantissa = (a_mantissa[23:0] << 23) / b_mantissa;
-      result_mantissa_before_shift = result_mantissa;
-      if(result_mantissa[23] == 1'b0) begin
-        result_mantissa = result_mantissa << 1;
-        result_exp = result_exp - 1;
-      end
-      result_exp = result_exp + 8'd127; // normalize exponent
-    end
+    */
   end
 
   always @(posedge clk, posedge arst) begin
@@ -264,9 +264,6 @@ module fpu(
       dividend         <= '0;
       product_divisor  <= '0;
       divisor_counter  <= '0;
-      mul_mantissa     <= '0;
-      mul_exp          <= '0;
-      mul_sign         <= 1'b0;
     end
     else begin
       if(product_add) begin
@@ -279,7 +276,8 @@ module fpu(
         dividend        <= a_mantissa[23:0];
         product_divisor <= {25'b0, b_mantissa[23:0]};  // initiate register, copy b_mantissa, as the divisor
       end
-      if(next_state_fpu_fsm == pa_fpu::mul_result_set_st) begin
+      // this is tested on current state rather than next state because when the fsm reaches mul_result_set_st, the shfit operation is clocked in 
+      if(curr_state_fpu_fsm == pa_fpu::mul_result_set_st) begin
         logic [7:0] exp; logic sign;
         logic [47:0] product_mantissa; // this keeps the final product
         product_mantissa = product_divisor[47:0];
@@ -294,9 +292,7 @@ module fpu(
         product_mantissa[23:0] = product_mantissa[47:24]; // transfer contents of register just to make it standard     
         product_mantissa[47:24] = '0;  // and zero out MSBs
         exp = exp + 8'd127; // normalize exponent
-        mul_mantissa <= product_mantissa;
-        mul_exp <= exp;
-        mul_sign <= sign;
+        mul_packet <= {sign, exp[7:0], product_mantissa[22:0]};
         end
     end
   end
