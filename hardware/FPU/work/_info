@@ -67,6 +67,62 @@ R0
 R1
 R0
 R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
 Z2 !s12c _opt2
 R1
 R2
@@ -806,10 +862,10 @@ n@_opt2
 R12
 R5
 T_opt3
-!s110 1730397038
-VJTF=8l7nYJdROf^WNm7J63
+!s110 1730480178
+VaAGmFEC7_FGIB`c]d>2GR1
 R6
-=7-000ae431a4f1-6723c36e-a6e73-eb73
+=10-000ae431a4f1-67250832-848bb-17f6f
 R1
 R7
 R8
@@ -822,25 +878,25 @@ vfpu
 Z13 2/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z14 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
 Z15 DXx4 work 6 pa_fpu 0 22 1;6?jb_eTMffd9`CT[FIU2
-DXx4 work 15 fpu_top_sv_unit 0 22 JGliSmMPLWzFO[K41PU6O3
-Z16 !s110 1730397022
+DXx4 work 15 fpu_top_sv_unit 0 22 4o^eS7Ula^9>QB4B^>@j73
+Z16 !s110 1730480115
 Z17 VDg1SIo80bB@j0V0VzS_@n1
 r1
 !s85 0
 !i10b 1
-!s100 R?>hdMVG[Hg=En9hAV[R01
-IX3hCLJJ@nTMLK7;:>PKej1
+!s100 Y63@<X?iMRTaX2;23eb[B2
+IA62Wm]b`Qz0AA]Cae]EN`3
 !s105 fpu_top_sv_unit
 S1
 Z18 d/home/pconst/Desktop/sol-1/hardware/FPU
-Z19 w1730397018
+Z19 w1730478486
 Z20 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z21 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
-!i122 1341
-L0 9 438
+!i122 1428
+L0 9 433
 Z22 OL;L;2024.1;79
 31
-Z23 !s108 1730397022.000000
+Z23 !s108 1730480115.000000
 Z24 !s107 /home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 Z25 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 !i113 0
@@ -856,15 +912,15 @@ R17
 r1
 !s85 0
 !i10b 1
-!s100 S9^WN8RLZ:?b^:19jX_4X3
-I<@MHeBdX0ES:G@DKWOAIE2
+!s100 N7Q;iDaBL7TiS7HD385We0
+I;hZ:=iG`a>nnGT=Ne=[a33
 !s105 fpu_tb_sv_unit
 S1
 R18
-Z28 w1730333619
+Z28 w1730480111
 Z29 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
 Z30 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
-!i122 1342
+!i122 1429
 L0 3 182
 R22
 31
@@ -891,7 +947,7 @@ R18
 R28
 R29
 R30
-!i122 1342
+!i122 1429
 Z33 L0 1 0
 R22
 31
@@ -906,19 +962,19 @@ R13
 R14
 R15
 R16
-VJGliSmMPLWzFO[K41PU6O3
+V4o^eS7Ula^9>QB4B^>@j73
 r1
 !s85 0
 !i10b 1
-!s100 H=Z5MRck?g?NHZl1LgUjh2
-IJGliSmMPLWzFO[K41PU6O3
+!s100 OL?9o@PI9C2T_XFf8gma_3
+I4o^eS7Ula^9>QB4B^>@j73
 !i103 1
 S1
 R18
 R19
 R20
 R21
-!i122 1341
+!i122 1428
 L0 7 0
 R22
 31
@@ -931,7 +987,7 @@ R11
 Xpa_fpu
 2/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
 R14
-!s110 1730397021
+R16
 !i10b 1
 !s100 SnLLFH=:o:jRDkSiV2hdW1
 I1;6?jb_eTMffd9`CT[FIU2
@@ -940,14 +996,14 @@ R18
 w1730394453
 8/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
 F/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
-!i122 1340
+!i122 1427
 R33
 V1;6?jb_eTMffd9`CT[FIU2
 R22
 r1
 !s85 0
 31
-!s108 1730397021.000000
+R23
 !s107 /home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv|
 !i113 0

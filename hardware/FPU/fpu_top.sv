@@ -35,10 +35,11 @@ module fpu(
 
   logic          [31:0] result_ieee_packet;
 
-  logic unsigned [24:0] result_mantissa_addition; // 24 bits plus carry
+  logic          [25:0] result_mantissa_before_inv;
+  logic unsigned [25:0] result_mantissa_addition; // 24 bits plus carry
   logic          [ 7:0] result_exp_addition;
   logic                 result_sign_addition;
-  logic unsigned [24:0] result_mantissa_subtraction; // 24 bits plus carry
+  logic unsigned [25:0] result_mantissa_subtraction; // 24 bits plus carry
   logic          [ 7:0] result_exp_subtraction;
   logic                 result_sign_subtraction;
   logic unsigned [23:0] result_mantissa_multiplication;
@@ -179,18 +180,12 @@ module fpu(
     end
     else begin
       result_exp_addition = aexp_after_adjust;
-      result_sign_addition = result_mantissa_addition[24];
-      if(result_sign_addition) result_mantissa_addition = -result_mantissa_addition;
       if(result_mantissa_addition[24]) begin 
         result_mantissa_addition = result_mantissa_addition >> 1;
         result_exp_addition = result_exp_addition + 1;
       end
-      for(int i = 0; i < 24; i++) begin
-        if(result_mantissa_addition[23 - i]) begin
-          result_mantissa_addition = result_mantissa_addition << i;
-          break;
-        end
-      end
+      result_sign_addition = result_mantissa_addition[24];
+      if(result_sign_addition) result_mantissa_addition = -result_mantissa_addition;
       result_exp_addition = result_exp_addition + 8'd127;
     end
 
