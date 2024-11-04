@@ -182,7 +182,7 @@ module fpu(
     end
     else begin
       result_exp_add_sub = aexp_after_adjust;
-      result_mantissa_before_shift1=result_mantissa_add_sub;
+      result_mantissa_before_shift1 = result_mantissa_add_sub;
       result_sign_add_sub = result_mantissa_add_sub[25];
       if(result_mantissa_add_sub[25]) begin
         result_mantissa_add_sub = result_mantissa_add_sub >> 2;
@@ -192,15 +192,16 @@ module fpu(
         result_mantissa_add_sub = result_mantissa_add_sub >> 1;
         result_exp_add_sub = result_exp_add_sub + 1;
       end
-      result_mantissa_before_inv=result_mantissa_add_sub;
+      result_mantissa_before_inv = result_mantissa_add_sub;
       if(result_sign_add_sub) result_mantissa_add_sub = -result_mantissa_add_sub;
-      result_mantissa_before_shift2=result_mantissa_add_sub;
+      result_mantissa_before_shift2 = result_mantissa_add_sub;
       if(|result_mantissa_add_sub[23:0]) begin // if there is at least one non zero bit, then perform while loop. this needs to be tested otherwise the loop is infinite.
          while(!result_mantissa_add_sub[23]) begin
            result_mantissa_add_sub = result_mantissa_add_sub << 1;
            result_exp_add_sub = result_exp_add_sub - 1;
          end
       end
+      //result_mantissa_add_sub[26] = 1'b0;
       result_exp_add_sub = result_exp_add_sub + 8'd127;
     end
   end

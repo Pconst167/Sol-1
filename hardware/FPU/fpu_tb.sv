@@ -45,8 +45,8 @@ module fpu_tb;
 
 
 
-    write_operand_a(32'h4479fff0); //  
-    write_operand_b(32'h4479fff0); //  
+    write_operand_b(32'h60c0bf3f); //  
+    write_operand_a(32'h60c0bf3f); //  
 
     ta_set_operation(pa_fpu::op_add);
     ta_read_result(result);
