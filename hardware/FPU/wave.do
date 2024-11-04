@@ -41,24 +41,21 @@ add wave -noupdate -radix binary /fpu_tb/fpu_top/product_divisor
 add wave -noupdate -radix unsigned /fpu_tb/fpu_top/divisor_counter
 add wave -noupdate /fpu_tb/fpu_top/product_add
 add wave -noupdate /fpu_tb/fpu_top/product_shift
-add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_addition
-add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_addition
-add wave -noupdate /fpu_tb/fpu_top/result_sign_addition
-add wave -noupdate /fpu_tb/fpu_top/result_mantissa_subtraction
-add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_subtraction
-add wave -noupdate /fpu_tb/fpu_top/result_sign_subtraction
-add wave -noupdate /fpu_tb/fpu_top/result_mantissa_multiplication
-add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_multiplication
-add wave -noupdate /fpu_tb/fpu_top/result_sign_multiplication
-add wave -noupdate /fpu_tb/fpu_top/result_mantissa_division
-add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_division
-add wave -noupdate /fpu_tb/fpu_top/result_sign_division
+add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_shift1
+add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_inv
+add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_shift2
+add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_add_sub
+add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_add_sub
+add wave -noupdate /fpu_tb/fpu_top/result_sign_add_sub
 add wave -noupdate /fpu_tb/fpu_top/result_ieee_packet
+add wave -noupdate /fpu_tb/fpu_top/result_mantissa_multiplication
+add wave -noupdate /fpu_tb/fpu_top/result_exp_multiplication
+add wave -noupdate /fpu_tb/fpu_top/result_sign_multiplication
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {37993 ns} 0}
+WaveRestoreCursors {{Cursor 1} {17081 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 234
-configure wave -valuecolwidth 426
+configure wave -valuecolwidth 283
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10

@@ -37,27 +37,52 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
-    write_operand_a(32'hc0551eb8); //  -3.33
-    write_operand_b(32'h423c0000); //  47      422eae14
-
 //    write_operand_a(32'h449a522c); //  1234.56789
 //    write_operand_b(32'h458ebf1f); //  4567.8901        3e8a60f3          0.270270927
 
 //    write_operand_b(32'h449a522c); //  1234.56789
 //    write_operand_a(32'h458ebf1f); //  4567.8901        406ccca7          3.699991009
 
-    // write operation
-    #250ns;
-    cs = 1'b0;
-    databus_in = pa_fpu::op_add;
-    addr = 4'h8;
-    #250ns;
-    wr = 1'b0;
-    #250ns;
-    wr = 1'b1;
-    #250ns;
-    cs = 1'b1;
 
+
+    write_operand_a(32'hc4897c85); //  1099.8912
+    write_operand_b(32'hc4897c85); //  1099.8912            c4c118ef
+
+    ta_set_operation(pa_fpu::op_add);
+    ta_read_result(result);
+    $display("Addition Result: %x\n", result);
+
+  end
+
+  fpu fpu_top(
+    .arst              (arst),
+    .clk               (clk),
+    .databus_in  (databus_in),
+    .databus_out (databus_out),
+    .addr        (addr),
+    .cs                (cs),
+    .rd                (rd),
+    .wr                (wr),
+    .end_ack           (end_ack),
+    .cmd_end           (cmd_end),
+    .busy        (busy)
+  );
+
+task ta_set_operation(pa_fpu::e_fpu_operation operation);
+  // write operation
+  #250ns;
+  cs = 1'b0;
+  databus_in = operation;
+  addr = 4'h8;
+  #250ns;
+  wr = 1'b0;
+  #250ns;
+  wr = 1'b1;
+  #250ns;
+  cs = 1'b1;
+endtask
+
+task ta_read_result(output logic [31:0] result);
     // Wait for the command to execute and end before reading result
     @(posedge cmd_end);
 
@@ -85,28 +110,12 @@ module fpu_tb;
     rd = 1'b1;
     #250ns;
     cs = 1'b1;
-    $display("Result: %x\n", result);
 
     // send acknowledge signal
     end_ack = 1'b1;
     @(negedge cmd_end);
     end_ack = 1'b0;
-  end
-
-  fpu fpu_top(
-    .arst              (arst),
-    .clk               (clk),
-    .databus_in  (databus_in),
-    .databus_out (databus_out),
-    .addr        (addr),
-    .cs                (cs),
-    .rd                (rd),
-    .wr                (wr),
-    .end_ack           (end_ack),
-    .cmd_end           (cmd_end),
-    .busy        (busy)
-  );
-
+endtask
 
   task write_operand_a(
     input logic [31:0] op_a
