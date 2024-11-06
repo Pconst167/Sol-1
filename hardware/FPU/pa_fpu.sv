@@ -26,8 +26,14 @@ package pa_fpu;
     div_end_st,
     result_valid_st,
     end_st
-  } e_fpu_state;
+  } e_arith_state;
 
+  typedef enum logic[3:0]{
+    main_idle_st,
+    main_wait_st,
+    main_finish_st,
+    main_wait_ack_st
+  } e_main_state;
 
 
 endpackage
