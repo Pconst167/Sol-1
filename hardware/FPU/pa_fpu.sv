@@ -10,7 +10,9 @@ package pa_fpu;
     op_cos,
     op_tan,
     op_ln,
-    op_exp
+    op_exp,
+    op_k_pi,
+    op_k_piby2
   } e_fpu_operation;
 
   typedef enum logic[3:0]{
@@ -25,7 +27,8 @@ package pa_fpu;
     div_start_st,
     div_end_st,
     result_valid_st,
-    end_st
+
+    k_start_st
   } e_arith_state;
 
   typedef enum logic[3:0]{

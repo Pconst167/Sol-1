@@ -37,29 +37,13 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
-//    write_operand_a(32'h449a522c); //  1234.56789
-//    write_operand_b(32'h458ebf1f); //  4567.8901        3e8a60f3          0.270270927
-
-//    write_operand_b(32'h449a522c); //  1234.56789
-//    write_operand_a(32'h458ebf1f); //  4567.8901        406ccca7          3.699991009
-
-// 339.339 - 999.999 = 
-
-
     write_operand_a(32'h43a9ab64); //  339.339
     write_operand_b(32'hc479fff0); //  -999.999       c4252a3d
 
-    ta_set_operation(pa_fpu::op_add);
+    ta_set_operation(pa_fpu::op_k_piby2);
     ta_read_result(result);
     $display("Addition Result: %x\n", result);
 
-    ta_set_operation(pa_fpu::op_sub);
-    ta_read_result(result);
-    $display("Addition Result: %x\n", result);
-
-    ta_set_operation(pa_fpu::op_mul);
-    ta_read_result(result);
-    $display("Addition Result: %x\n", result);
   end
 
   fpu fpu_top(

@@ -74,6 +74,7 @@ module fpu(
   logic                 start_operation_ar_fsm;  // ...
   logic                 operation_done_ar_fsm;   // for handshake between main fsm and operation fsm
   
+
   pa_fpu::e_arith_state  curr_state_arith_fsm;
   pa_fpu::e_arith_state  next_state_arith_fsm;
   pa_fpu::e_main_state   curr_state_main_fsm;
@@ -103,54 +104,50 @@ module fpu(
       operation  = op_add;  
       op_written = 1'b0;
     end
-    else if(cs == 1'b0) begin
-      if(wr == 1'b0) begin
-        case(addr)
-          4'h0: operand_a[7:0]   = databus_in;
-          4'h1: operand_a[15:8]  = databus_in;
-          4'h2: operand_a[23:16] = databus_in;
-          4'h3: operand_a[31:24] = databus_in;
+    else if(cs == 1'b0 && wr == 1'b0) begin
+      case(addr)
+        4'h0: operand_a[7:0]   = databus_in;
+        4'h1: operand_a[15:8]  = databus_in;
+        4'h2: operand_a[23:16] = databus_in;
+        4'h3: operand_a[31:24] = databus_in;
 
-          4'h4: operand_b[7:0]   = databus_in;
-          4'h5: operand_b[15:8]  = databus_in;
-          4'h6: operand_b[23:16] = databus_in;
-          4'h7: operand_b[31:24] = databus_in;
+        4'h4: operand_b[7:0]   = databus_in;
+        4'h5: operand_b[15:8]  = databus_in;
+        4'h6: operand_b[23:16] = databus_in;
+        4'h7: operand_b[31:24] = databus_in;
 
-          4'h8: begin
-            operation            = e_fpu_operation'(databus_in[3:0]);
-            op_written           = 1'b1;
-          end
-        endcase      
-      end
+        4'h8: begin
+          operation            = e_fpu_operation'(databus_in[3:0]);
+          op_written           = 1'b1;
+        end
+      endcase      
     end
     else if(curr_state_main_fsm == pa_fpu::main_wait_st) op_written = 1'b0;
   end
 
   // output bus assignments
   always_comb begin
-    if(cs == 1'b0) begin
-      if(rd == 1'b0) begin
-        case(addr)
-          4'h0: databus_out = operand_a[7:0];
-          4'h1: databus_out = operand_a[15:8];
-          4'h2: databus_out = operand_a[23:16];
-          4'h3: databus_out = operand_a[31:24];
+    if(cs == 1'b0 && rd == 1'b0) begin
+      case(addr)
+        4'h0: databus_out = operand_a[7:0];
+        4'h1: databus_out = operand_a[15:8];
+        4'h2: databus_out = operand_a[23:16];
+        4'h3: databus_out = operand_a[31:24];
 
-          4'h4: databus_out = operand_b[7:0];
-          4'h5: databus_out = operand_b[15:8];
-          4'h6: databus_out = operand_b[23:16];
-          4'h7: databus_out = operand_b[31:24];
+        4'h4: databus_out = operand_b[7:0];
+        4'h5: databus_out = operand_b[15:8];
+        4'h6: databus_out = operand_b[23:16];
+        4'h7: databus_out = operand_b[31:24];
 
-          4'h8: databus_out = operation;
+        4'h8: databus_out = operation;
 
-          4'h9: databus_out = result_ieee_packet[7:0];
-          4'hA: databus_out = result_ieee_packet[15:8];
-          4'hB: databus_out = result_ieee_packet[23:16];
-          4'hC: databus_out = result_ieee_packet[31:24];
+        4'h9: databus_out = result_ieee_packet[7:0];
+        4'hA: databus_out = result_ieee_packet[15:8];
+        4'hB: databus_out = result_ieee_packet[23:16];
+        4'hC: databus_out = result_ieee_packet[31:24];
 
-          default: databus_out = '0;
-        endcase      
-      end
+        default: databus_out = '0;
+      endcase      
     end
     else databus_out = 'z;
   end
@@ -234,23 +231,21 @@ module fpu(
   end
 
   always @(posedge clk, posedge arst) begin
-    if(arst) begin
-      result_ieee_packet <= '0;
-    end
+    if(arst) result_ieee_packet <= '0;
     else if(curr_state_arith_fsm == pa_fpu::result_valid_st) begin
       case(operation)
-        op_add: begin
+        op_add: 
           result_ieee_packet = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
-        end
-        op_sub:  begin
+        op_sub: 
           result_ieee_packet = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
-        end
-        op_mul:  begin
+        op_mul: 
           result_ieee_packet = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
-        end
-        op_div:  begin
+        op_div: 
           result_ieee_packet = {result_sign_division, result_exp_division, result_mantissa_division[22:0]};
-        end
+        op_k_pi: 
+          result_ieee_packet = 32'h40490fda;
+        op_k_piby2: 
+          result_ieee_packet = 32'h3fc90fda;
       endcase
     end
   end
@@ -370,6 +365,10 @@ module fpu(
               next_state_arith_fsm = pa_fpu::mul_start_st;
             pa_fpu::op_div:
               next_state_arith_fsm = pa_fpu::div_start_st;
+            pa_fpu::op_k_pi:
+              next_state_arith_fsm = pa_fpu::k_start_st;
+            pa_fpu::op_k_piby2:
+              next_state_arith_fsm = pa_fpu::k_start_st;
           endcase
 
       // addition states **********************************
@@ -394,6 +393,10 @@ module fpu(
       // division states **********************************
       pa_fpu::div_start_st:
         next_state_arith_fsm = pa_fpu::result_valid_st;
+
+      // k states
+      pa_fpu::k_start_st:
+        next_state_arith_fsm = result_valid_st;
 
       pa_fpu::result_valid_st:
         if(start_operation_ar_fsm == 1'b0) next_state_arith_fsm = pa_fpu::idle_st;
@@ -468,6 +471,12 @@ module fpu(
           product_add <= 1'b0;
           product_shift <= 1'b0;
         end
+        pa_fpu::k_start_st: begin
+          operation_done_ar_fsm <= 1'b0;
+          status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
+        end
         pa_fpu::result_valid_st: begin
           operation_done_ar_fsm <= 1'b1;
           status  <= '0;
@@ -486,11 +495,3 @@ module fpu(
   end
 
 endmodule
-
-/*
-main fsm:
-  accepts an operation 
-  starts computation upon op_written
-
-
-*/
