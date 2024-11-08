@@ -75,7 +75,7 @@ module fpu(
   logic                 operation_done_ar_fsm;   // for handshake between main fsm and operation fsm
 
   logic                 main_write_to_b;
-  logic                 k_select;
+  logic           [3:0] k_select;
   
 
   pa_fpu::e_arith_state  curr_state_arith_fsm;
@@ -143,53 +143,6 @@ module fpu(
         endcase
     end
   end
-
-  // latch for writing operation registers
-  /*
-  always_latch begin
-    if(arst) begin
-      operand_a  = {1'b0, 8'd127, 23'h0};
-      operand_b  = {1'b0, 8'd127, 23'h0};
-      operation  = op_add;  
-      op_written = 1'b0;
-    end
-    else if(cs == 1'b0 && wr == 1'b0) begin
-      case(addr)
-        4'h0: operand_a[7:0]   = databus_in;
-        4'h1: operand_a[15:8]  = databus_in;
-        4'h2: operand_a[23:16] = databus_in;
-        4'h3: operand_a[31:24] = databus_in;
-
-        4'h4: operand_b[7:0]   = databus_in;
-        4'h5: operand_b[15:8]  = databus_in;
-        4'h6: operand_b[23:16] = databus_in;
-        4'h7: operand_b[31:24] = databus_in;
-
-        4'h8: begin
-          operation  = e_fpu_operation'(databus_in[3:0]);
-          op_written = 1'b1;
-        end
-      endcase      
-    end
-    else if(curr_state_main_fsm == pa_fpu::main_wait_st) op_written = 1'b0;
-    else if(next_state_main_fsm == pa_fpu::main_wait_ack_st) begin
-      case(operation)
-        op_add: 
-          operand_a = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
-        op_sub: 
-          operand_a = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
-        op_mul: 
-          operand_a = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
-        op_div: 
-          operand_a = {result_sign_division, result_exp_division, result_mantissa_division[22:0]};
-        op_k_pi: 
-          operand_a = 32'h40490fda;
-        op_k_piby2: 
-          operand_a = 32'h3fc90fda;
-      endcase
-    end
-  end
-  */
 
   // output bus assignments
   always_comb begin
@@ -305,6 +258,8 @@ module fpu(
         op_sub: 
           result_ieee_packet = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
         op_mul: 
+          result_ieee_packet = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
+        op_square: 
           result_ieee_packet = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
         op_div: 
           result_ieee_packet = {result_sign_division, result_exp_division, result_mantissa_division[22:0]};
@@ -429,6 +384,8 @@ module fpu(
               next_state_arith_fsm = pa_fpu::sub_start_st;
             pa_fpu::op_mul:
               next_state_arith_fsm = pa_fpu::mul_start_st;
+            pa_fpu::op_square:
+              next_state_arith_fsm = pa_fpu::square_set_b_st;
             pa_fpu::op_div:
               next_state_arith_fsm = pa_fpu::div_start_st;
             pa_fpu::op_k_pi:
@@ -444,6 +401,10 @@ module fpu(
       // subtraction states **********************************
       pa_fpu::sub_start_st:
         next_state_arith_fsm = result_valid_st;
+
+      // square states
+      pa_fpu::square_set_b_st:
+        next_state_arith_fsm = pa_fpu::mul_start_st;
 
       // multiplication states **********************************
       pa_fpu::mul_start_st:
@@ -480,74 +441,106 @@ module fpu(
       status                <= '0;
       product_add           <= 1'b0;
       product_shift         <= 1'b0;
+      main_write_to_b       <= 1'b0;
+      k_select              <= 4'd0;
     end
     else begin
       case(next_state_arith_fsm)
         pa_fpu::idle_st: begin
           operation_done_ar_fsm <= 1'b0;
-          status  <= '0;
-          product_add <= 1'b0;
-          product_shift <= 1'b0;
+          status                <= '0;
+          product_add           <= 1'b0;
+          product_shift         <= 1'b0;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
         end
         pa_fpu::add_start_st: begin
           operation_done_ar_fsm <= 1'b0;
-          status  <= '0;
-          product_add <= 1'b0;
-          product_shift <= 1'b0;
+          status                <= '0;
+          product_add           <= 1'b0;
+          product_shift         <= 1'b0;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
         end
         pa_fpu::sub_start_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
           product_add <= 1'b0;
           product_shift <= 1'b0;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
+        end
+        pa_fpu::square_set_b_st: begin
+          operation_done_ar_fsm <= 1'b0;
+          status  <= '0;
+          product_add <= 1'b0;
+          product_shift <= 1'b0;
+          main_write_to_b       <= 1'b1;
+          k_select              <= 4'd8;  // copy operand_a to operand_b
         end
         pa_fpu::mul_start_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
           product_add <= 1'b0;
           product_shift <= 1'b0;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
         end
         pa_fpu::mul_product_add_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
           product_add <= 1'b1;
           product_shift <= 1'b0;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
         end
         pa_fpu::mul_product_shift_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
           product_add <= 1'b0;
           product_shift <= 1'b1;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
         end
         pa_fpu::mul_result_set_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
           product_add <= 1'b0;
           product_shift <= 1'b0;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
         end
         pa_fpu::div_start_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
           product_add <= 1'b0;
           product_shift <= 1'b0;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
         end
         pa_fpu::div_end_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
           product_add <= 1'b0;
           product_shift <= 1'b0;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
         end
         pa_fpu::k_start_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
           product_add <= 1'b0;
           product_shift <= 1'b0;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
         end
         pa_fpu::result_valid_st: begin
           operation_done_ar_fsm <= 1'b1;
           status  <= '0;
           product_add <= 1'b0;
           product_shift <= 1'b0;
+          main_write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
         end
       endcase  
     end
@@ -562,3 +555,50 @@ module fpu(
 
 endmodule
 
+
+  // latch for writing operation registers
+  /*
+  always_latch begin
+    if(arst) begin
+      operand_a  = {1'b0, 8'd127, 23'h0};
+      operand_b  = {1'b0, 8'd127, 23'h0};
+      operation  = op_add;  
+      op_written = 1'b0;
+    end
+    else if(cs == 1'b0 && wr == 1'b0) begin
+      case(addr)
+        4'h0: operand_a[7:0]   = databus_in;
+        4'h1: operand_a[15:8]  = databus_in;
+        4'h2: operand_a[23:16] = databus_in;
+        4'h3: operand_a[31:24] = databus_in;
+
+        4'h4: operand_b[7:0]   = databus_in;
+        4'h5: operand_b[15:8]  = databus_in;
+        4'h6: operand_b[23:16] = databus_in;
+        4'h7: operand_b[31:24] = databus_in;
+
+        4'h8: begin
+          operation  = e_fpu_operation'(databus_in[3:0]);
+          op_written = 1'b1;
+        end
+      endcase      
+    end
+    else if(curr_state_main_fsm == pa_fpu::main_wait_st) op_written = 1'b0;
+    else if(next_state_main_fsm == pa_fpu::main_wait_ack_st) begin
+      case(operation)
+        op_add: 
+          operand_a = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
+        op_sub: 
+          operand_a = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
+        op_mul: 
+          operand_a = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
+        op_div: 
+          operand_a = {result_sign_division, result_exp_division, result_mantissa_division[22:0]};
+        op_k_pi: 
+          operand_a = 32'h40490fda;
+        op_k_piby2: 
+          operand_a = 32'h3fc90fda;
+      endcase
+    end
+  end
+  */
