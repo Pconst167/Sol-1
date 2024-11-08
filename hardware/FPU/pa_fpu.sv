@@ -12,7 +12,8 @@ package pa_fpu;
     op_ln,
     op_exp,
     op_k_pi,
-    op_k_piby2
+    op_k_piby2,
+    op_2pi
   } e_fpu_operation;
 
   typedef enum logic[3:0]{
@@ -35,7 +36,9 @@ package pa_fpu;
     main_idle_st,
     main_wait_st,
     main_finish_st,
-    main_wait_ack_st
+    main_wait_ack_st,
+
+    main_
   } e_main_state;
 
 
