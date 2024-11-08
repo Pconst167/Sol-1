@@ -45,8 +45,9 @@ add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_add_sub
 add wave -noupdate /fpu_tb/fpu_top/result_sign_add_sub
 add wave -noupdate /fpu_tb/fpu_top/result_ieee_packet
 add wave -noupdate /fpu_tb/fpu_top/product_multiplier
+add wave -noupdate /fpu_tb/fpu_top/k_select
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 3} {16408 ns} 0}
+WaveRestoreCursors {{Cursor 3} {9578 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 268
 configure wave -valuecolwidth 283
@@ -62,4 +63,4 @@ configure wave -griddelta 45
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {10538 ns} {25064 ns}
+WaveRestoreZoom {0 ns} {52500 ns}
