@@ -72,9 +72,12 @@ module fpu(
   logic                 product_shift;
 
   logic                 start_operation_ar_fsm;  // ...
-  logic                 operation_done_ar_fsm;   // for handshake between main fsm and operation fsm
+  logic                 operation_done_ar_fsm;   // for handshake between main fsm and arithmetic fsm
 
-  logic                 main_write_to_b;
+  logic                 start_operation_mul_fsm;  // ...
+  logic                 operation_done_mul_fsm;   // for handshake between main fsm and multiply fsm
+
+  logic                 write_to_b;
   logic           [3:0] k_select;
   
 
@@ -129,7 +132,7 @@ module fpu(
       if(next_state_main_fsm == pa_fpu::main_wait_ack_st) operand_a <= result_ieee_packet;
       // coefficients for sine and cosine functions.
       // factorial inverses.
-      if(main_write_to_b) 
+      if(write_to_b) 
         case(k_select)
           4'd0: operand_b <= 32'h3f800000; // 1/0! = 1/1
           4'd1: operand_b <= 32'h3f800000; // 1/1! = 1/1
@@ -375,48 +378,32 @@ module fpu(
     next_state_arith_fsm = curr_state_arith_fsm;
 
     case(curr_state_arith_fsm)
-      pa_fpu::idle_st: 
+      pa_fpu::arith_idle_st: 
         if(start_operation_ar_fsm)
           case(operation)
             pa_fpu::op_add:
-              next_state_arith_fsm = pa_fpu::add_start_st;
+              next_state_arith_fsm = pa_fpu::add_st;
             pa_fpu::op_sub:
-              next_state_arith_fsm = pa_fpu::sub_start_st;
+              next_state_arith_fsm = pa_fpu::sub_st;
             pa_fpu::op_mul:
-              next_state_arith_fsm = pa_fpu::mul_start_st;
-            pa_fpu::op_square:
-              next_state_arith_fsm = pa_fpu::square_set_b_1_st;
+              next_state_arith_fsm = pa_fpu::mul_st;
             pa_fpu::op_div:
-              next_state_arith_fsm = pa_fpu::div_start_st;
-            pa_fpu::op_k_pi:
-              next_state_arith_fsm = pa_fpu::k_start_st;
-            pa_fpu::op_k_piby2:
-              next_state_arith_fsm = pa_fpu::k_start_st;
+              next_state_arith_fsm = pa_fpu::div_st;
           endcase
 
       // addition states **********************************
-      pa_fpu::add_start_st:
+      pa_fpu::arith_add_st:
         next_state_arith_fsm = result_valid_st;
 
       // subtraction states **********************************
-      pa_fpu::sub_start_st:
+      pa_fpu::arith_sub_st:
         next_state_arith_fsm = result_valid_st;
-
-      // square states
-      pa_fpu::square_set_b_1_st:
-        next_state_arith_fsm = pa_fpu::square_set_b_2_st;
-      pa_fpu::square_set_b_2_st:
-        next_state_arith_fsm = pa_fpu::mul_start_st;
 
       // division states **********************************
-      pa_fpu::div_start_st:
+      pa_fpu::arith_div_st:
         next_state_arith_fsm = pa_fpu::result_valid_st;
 
-      // k states
-      pa_fpu::k_start_st:
-        next_state_arith_fsm = result_valid_st;
-
-      pa_fpu::result_valid_st:
+      pa_fpu::arith_result_valid_st:
         if(start_operation_ar_fsm == 1'b0) next_state_arith_fsm = pa_fpu::idle_st;
 
       default:
@@ -430,87 +417,45 @@ module fpu(
     if(arst) begin
       operation_done_ar_fsm <= 1'b0;
       status                <= '0;
-      main_write_to_b       <= 1'b0;
+      write_to_b       <= 1'b0;
       k_select              <= 4'd0;
     end
     else begin
       case(next_state_arith_fsm)
-        pa_fpu::idle_st: begin
+        pa_fpu::arith_idle_st: begin
           operation_done_ar_fsm <= 1'b0;
           status                <= '0;
-          main_write_to_b       <= 1'b0;
+          write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
-        pa_fpu::add_start_st: begin
+        pa_fpu::arith_add_st: begin
           operation_done_ar_fsm <= 1'b0;
           status                <= '0;
-          main_write_to_b       <= 1'b0;
+          write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
-        pa_fpu::sub_start_st: begin
+        pa_fpu::arith_sub_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
-          main_write_to_b       <= 1'b0;
+          write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
-        pa_fpu::square_set_b_1_st: begin
+        pa_fpu::arith_mul_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
-          main_write_to_b       <= 1'b1;
-          k_select              <= 4'd8;  // copy operand_a to operand_b
-        end
-        pa_fpu::square_set_b_2_st: begin
-          operation_done_ar_fsm <= 1'b0;
-          status  <= '0;
-          main_write_to_b       <= 1'b0;
-          k_select              <= 4'd0; // second state needed to give time for operand_b to be copied before it is acted on 
-        end
-        pa_fpu::mul_start_st: begin
-          operation_done_ar_fsm <= 1'b0;
-          status  <= '0;
-          main_write_to_b       <= 1'b0;
+          write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
-        pa_fpu::mul_product_add_st: begin
+        pa_fpu::arith_div_st: begin
           operation_done_ar_fsm <= 1'b0;
           status  <= '0;
-          main_write_to_b       <= 1'b0;
-          k_select              <= 4'd0;
-        end
-        pa_fpu::mul_product_shift_st: begin
-          operation_done_ar_fsm <= 1'b0;
-          status  <= '0;
-          main_write_to_b       <= 1'b0;
-          k_select              <= 4'd0;
-        end
-        pa_fpu::mul_result_set_st: begin
-          operation_done_ar_fsm <= 1'b0;
-          status  <= '0;
-          main_write_to_b       <= 1'b0;
-          k_select              <= 4'd0;
-        end
-        pa_fpu::div_start_st: begin
-          operation_done_ar_fsm <= 1'b0;
-          status  <= '0;
-          main_write_to_b       <= 1'b0;
-          k_select              <= 4'd0;
-        end
-        pa_fpu::div_end_st: begin
-          operation_done_ar_fsm <= 1'b0;
-          status  <= '0;
-          main_write_to_b       <= 1'b0;
-          k_select              <= 4'd0;
-        end
-        pa_fpu::k_start_st: begin
-          operation_done_ar_fsm <= 1'b0;
-          status  <= '0;
-          main_write_to_b       <= 1'b0;
+          write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
         pa_fpu::result_valid_st: begin
           operation_done_ar_fsm <= 1'b1;
           status  <= '0;
-          main_write_to_b       <= 1'b0;
+          write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
       endcase  
@@ -524,10 +469,6 @@ module fpu(
     else curr_state_arith_fsm <= next_state_arith_fsm;
   end
 
-
-
-
-
   // multiply fsm
   // next state assignments
   always_comb begin
@@ -536,8 +477,6 @@ module fpu(
     case(curr_state_mul_fsm)
       pa_fpu::idle_st: 
         if(start_operation_mul_fsm) next_state_mul_fsm = pa_fpu::mul_start_st;
-
-      // multiplication states **********************************
       pa_fpu::mul_start_st:
         next_state_mul_fsm = pa_fpu::mul_product_add_st;
       pa_fpu::mul_product_add_st:
@@ -546,13 +485,12 @@ module fpu(
         if(mul_cycle_counter == 5'd24) next_state_mul_fsm = mul_result_set_st;
         else next_state_mul_fsm = mul_product_add_st;
       pa_fpu::mul_result_set_st:
-        next_state_mul_fsm = pa_fpu::result_valid_st;
-
-      pa_fpu::result_valid_st:
-        if(start_operation_mul_fsm == 1'b0) next_state_mul_fsm = pa_fpu::idle_st;
+        next_state_mul_fsm = pa_fpu::mul_result_valid_st;
+      pa_fpu::mul_result_valid_st:
+        if(start_operation_mul_fsm == 1'b0) next_state_mul_fsm = pa_fpu::mul_idle_st;
 
       default:
-        next_state_mul_fsm = pa_fpu::idle_st;
+        next_state_mul_fsm = pa_fpu::mul_idle_st;
     endcase
   end
 
@@ -561,8 +499,8 @@ module fpu(
   always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       operation_done_mul_fsm <= 1'b0;
-      product_add           <= 1'b0;
-      product_shift         <= 1'b0;
+      product_add            <= 1'b0;
+      product_shift          <= 1'b0;
     end
     else begin
       case(next_state_mul_fsm)
