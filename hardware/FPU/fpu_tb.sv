@@ -41,10 +41,14 @@ module fpu_tb;
     write_operand_b(32'h43a9ab64); //  339.339
     //write_operand_b(32'hc479fff0); //  -999.999       c4252a3d
 
-    ta_set_operation(pa_fpu::op_mul);
+
+    ta_set_operation(pa_fpu::op_add);
     ta_read_result(result);
     $display("Addition Result: %x\n", result);
 
+    ta_set_operation(pa_fpu::op_sub);
+    ta_read_result(result);
+    $display("Addition Result: %x\n", result);
   end
 
   fpu fpu_top(

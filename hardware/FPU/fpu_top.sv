@@ -491,15 +491,20 @@ module fpu(
     case(curr_state_mul_fsm)
       pa_fpu::mul_idle_st: 
         if(start_operation_mul_fsm) next_state_mul_fsm = pa_fpu::mul_start_st;
+
       pa_fpu::mul_start_st:
         next_state_mul_fsm = pa_fpu::mul_product_add_st;
+      
       pa_fpu::mul_product_add_st:
         next_state_mul_fsm = pa_fpu::mul_product_shift_st;
+      
       pa_fpu::mul_product_shift_st:
         if(mul_cycle_counter == 5'd24) next_state_mul_fsm = mul_result_set_st;
         else next_state_mul_fsm = mul_product_add_st;
+      
       pa_fpu::mul_result_set_st:
         next_state_mul_fsm = pa_fpu::mul_result_valid_st;
+      
       pa_fpu::mul_result_valid_st:
         if(start_operation_mul_fsm == 1'b0) next_state_mul_fsm = pa_fpu::mul_idle_st;
 
