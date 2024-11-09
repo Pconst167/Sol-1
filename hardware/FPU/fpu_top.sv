@@ -81,10 +81,12 @@ module fpu(
   logic           [3:0] k_select;
   
 
-  pa_fpu::e_arith_state  curr_state_arith_fsm;
-  pa_fpu::e_arith_state  next_state_arith_fsm;
   pa_fpu::e_main_state   curr_state_main_fsm;
   pa_fpu::e_main_state   next_state_main_fsm;
+  pa_fpu::e_arith_state  curr_state_arith_fsm;
+  pa_fpu::e_arith_state  next_state_arith_fsm;
+  pa_fpu::e_mul_state  curr_state_mul_fsm;
+  pa_fpu::e_mul_state  next_state_mul_fsm;
 
   assign a_mantissa      = {!(a_exp == 8'd0), operand_a[22:0]};
   assign a_exp           = operand_a[30:23];
@@ -240,7 +242,7 @@ module fpu(
         result_mantissa_add_sub = result_mantissa_add_sub >> 1;
         result_exp_add_sub = result_exp_add_sub + 1;
       end
-      else if(curr_state_arith_fsm == pa_fpu::result_valid_st) begin
+      else if(curr_state_arith_fsm == pa_fpu::arith_result_valid_st) begin
       //else if(|result_mantissa_add_sub[23:0]) begin // if there is at least one non zero bit, then perform while loop. this needs to be tested otherwise the loop is infinite.
          while(!result_mantissa_add_sub[23]) begin
            result_mantissa_add_sub = result_mantissa_add_sub << 1;
@@ -254,7 +256,7 @@ module fpu(
 
   always @(posedge clk, posedge arst) begin
     if(arst) result_ieee_packet <= '0;
-    else if(curr_state_arith_fsm == pa_fpu::result_valid_st) begin
+    else if(curr_state_arith_fsm == pa_fpu::arith_result_valid_st) begin
       case(operation)
         op_add: 
           result_ieee_packet = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
@@ -266,10 +268,6 @@ module fpu(
           result_ieee_packet = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
         op_div: 
           result_ieee_packet = {result_sign_division, result_exp_division, result_mantissa_division[22:0]};
-        op_k_pi: 
-          result_ieee_packet = 32'h40490fda;
-        op_k_piby2: 
-          result_ieee_packet = 32'h3fc90fda;
       endcase
     end
   end
@@ -287,13 +285,13 @@ module fpu(
         mul_cycle_counter <= mul_cycle_counter + 5'd1; // increment counter here so that we can check the counter value in the next state. otherwise would need an extra state after shift_st to check counter == 16.
       end
       if(product_shift) product_multiplier <= product_multiplier >> 1;
-      if(next_state_arith_fsm == pa_fpu::mul_start_st) begin
+      if(next_state_mul_fsm == pa_fpu::mul_start_st) begin
         mul_cycle_counter  <= '0;
         multiplicand       <= a_mantissa[23:0];
         product_multiplier <= {25'b0, b_mantissa[23:0]};  // initiate register, copy b_mantissa, as the multiplier
       end
       // this is tested on current state rather than next state because when the fsm reaches mul_result_set_st, the shift operation is clocked in 
-      if(curr_state_arith_fsm == pa_fpu::mul_result_set_st) begin
+      if(curr_state_mul_fsm == pa_fpu::mul_result_set_st) begin
         result_mantissa_multiplication = product_multiplier[47:24];
         result_exp_multiplication  = aexp_no_bias + bexp_no_bias;
         result_sign_multiplication = a_sign ^ b_sign;
@@ -398,7 +396,7 @@ module fpu(
         next_state_arith_fsm = arith_result_valid_st;
 
       pa_fpu::arith_mul_st:
-        if(operation_done_mul_fsm == 1'b1) next_state_arith_fsm = pa_fpu::arith_result_valid_st;
+        if(operation_done_mul_fsm == 1'b1) next_state_arith_fsm = pa_fpu::arith_mul_done_st;
       pa_fpu::arith_mul_done_st:
         if(operation_done_mul_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_result_valid_st;
 
@@ -467,7 +465,7 @@ module fpu(
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
-        pa_fpu::result_valid_st: begin
+        pa_fpu::arith_result_valid_st: begin
           operation_done_ar_fsm <= 1'b1;
           start_operation_mul_fsm <= 1'b0;
           status  <= '0;
@@ -481,7 +479,7 @@ module fpu(
   // arithmetic fsm
   // next state clocking
   always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_arith_fsm <= idle_st;
+    if(arst) curr_state_arith_fsm <= arith_idle_st;
     else curr_state_arith_fsm <= next_state_arith_fsm;
   end
 
@@ -491,7 +489,7 @@ module fpu(
     next_state_mul_fsm = curr_state_mul_fsm;
 
     case(curr_state_mul_fsm)
-      pa_fpu::idle_st: 
+      pa_fpu::mul_idle_st: 
         if(start_operation_mul_fsm) next_state_mul_fsm = pa_fpu::mul_start_st;
       pa_fpu::mul_start_st:
         next_state_mul_fsm = pa_fpu::mul_product_add_st;
@@ -557,7 +555,7 @@ module fpu(
   // multiply fsm
   // next state clocking
   always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_mul_fsm <= idle_st;
+    if(arst) curr_state_mul_fsm <= mul_idle_st;
     else curr_state_mul_fsm <= next_state_mul_fsm;
   end
 

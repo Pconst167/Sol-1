@@ -33,8 +33,11 @@ add wave -noupdate /fpu_tb/fpu_top/busy
 add wave -noupdate /fpu_tb/fpu_top/op_written
 add wave -noupdate /fpu_tb/fpu_top/curr_state_main_fsm
 add wave -noupdate /fpu_tb/fpu_top/start_operation_ar_fsm
-add wave -noupdate /fpu_tb/fpu_top/curr_state_arith_fsm
 add wave -noupdate /fpu_tb/fpu_top/operation_done_ar_fsm
+add wave -noupdate /fpu_tb/fpu_top/curr_state_arith_fsm
+add wave -noupdate /fpu_tb/fpu_top/operation_done_mul_fsm
+add wave -noupdate /fpu_tb/fpu_top/curr_state_mul_fsm
+add wave -noupdate /fpu_tb/fpu_top/start_operation_mul_fsm
 add wave -noupdate /fpu_tb/fpu_top/mul_cycle_counter
 add wave -noupdate /fpu_tb/fpu_top/product_add
 add wave -noupdate /fpu_tb/fpu_top/product_shift
@@ -63,4 +66,4 @@ configure wave -griddelta 45
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {0 ns} {52500 ns}
+WaveRestoreZoom {0 ns} {42653 ns}
