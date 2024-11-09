@@ -42,13 +42,10 @@ module fpu_tb;
     //write_operand_b(32'hc479fff0); //  -999.999       c4252a3d
 
 
-    ta_set_operation(pa_fpu::op_add);
+    ta_set_operation(pa_fpu::op_sin);
     ta_read_result(result);
     $display("Addition Result: %x\n", result);
 
-    ta_set_operation(pa_fpu::op_sub);
-    ta_read_result(result);
-    $display("Addition Result: %x\n", result);
   end
 
   fpu fpu_top(
@@ -65,7 +62,7 @@ module fpu_tb;
     .busy        (busy)
   );
 
-task ta_set_operation(pa_fpu::e_fpu_operation operation);
+task ta_set_operation(pa_fpu::e_fpu_operations operation);
   // write operation
   @(posedge clk);
   cs = 1'b0;

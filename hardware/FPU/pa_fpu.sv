@@ -12,15 +12,14 @@ package pa_fpu;
     op_tan,
     op_ln,
     op_exp
-  } e_fpu_operation;
+  } e_fpu_operations;
 
   typedef enum logic[3:0]{
     main_idle_st,
     main_wait_st,
-    main_mul_wait_st,
     main_finish_st,
     main_wait_ack_st
-  } e_main_state;
+  } e_main_states;
 
   typedef enum logic[3:0]{
     arith_idle_st,
@@ -29,8 +28,10 @@ package pa_fpu;
     arith_mul_st,
     arith_mul_done_st,
     arith_div_st,
+    arith_sine_st,
+    arith_sine_done_st,
     arith_result_valid_st
-  } e_arith_state;
+  } e_arith_states;
 
   typedef enum logic [2:0]{
     mul_idle_st,
@@ -39,8 +40,14 @@ package pa_fpu;
     mul_product_shift_st,
     mul_result_set_st,
     mul_result_valid_st
-  } e_mul_state;
+  } e_mul_states;
 
+  typedef enum logic [2:0]{
+    sine_idle_st,
+    sine_start_st,
+    sine_result_set_st,
+    sine_result_valid_st
+  } e_sine_states;
 
 
 endpackage

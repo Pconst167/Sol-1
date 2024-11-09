@@ -63,7 +63,7 @@ module fpu(
   logic          [ 4:0] mul_cycle_counter;   // this keeps a count of how many times we have performed the product addition cycle. total = 24.
 
   logic          [ 7:0] status;
-  e_fpu_operation       operation; // arithmetic operation to be performed
+  pa_fpu::e_fpu_operations operation; // arithmetic operation to be performed
   logic                 op_written;
   logic                 overflow;
 
@@ -77,16 +77,24 @@ module fpu(
   logic                 start_operation_mul_fsm;  // ...
   logic                 operation_done_mul_fsm;   // for handshake between main fsm and multiply fsm
 
+  logic                 start_operation_sine_fsm;  // ...
+  logic                 operation_done_sine_fsm;   // for handshake between main fsm and sine fsm
+
   logic                 write_to_b;
   logic           [3:0] k_select;
   
+  pa_fpu::e_main_states  curr_state_main_fsm;
+  pa_fpu::e_main_states  next_state_main_fsm;
+  pa_fpu::e_arith_states curr_state_arith_fsm;
+  pa_fpu::e_arith_states next_state_arith_fsm;
+  pa_fpu::e_mul_states   curr_state_mul_fsm;
+  pa_fpu::e_mul_states   next_state_mul_fsm;
+  pa_fpu::e_sine_states  curr_state_sine_fsm;
+  pa_fpu::e_sine_states  next_state_sine_fsm;
 
-  pa_fpu::e_main_state   curr_state_main_fsm;
-  pa_fpu::e_main_state   next_state_main_fsm;
-  pa_fpu::e_arith_state  curr_state_arith_fsm;
-  pa_fpu::e_arith_state  next_state_arith_fsm;
-  pa_fpu::e_mul_state  curr_state_mul_fsm;
-  pa_fpu::e_mul_state  next_state_mul_fsm;
+
+  // ---------------------------------------------------------------------------------------
+  // assignments
 
   assign a_mantissa      = {!(a_exp == 8'd0), operand_a[22:0]};
   assign a_exp           = operand_a[30:23];
@@ -103,6 +111,8 @@ module fpu(
 
   assign a_is_zero       = a_exp == 8'h00 && a_mantissa == 23'h0;
   assign b_is_zero       = b_exp == 8'h00 && b_mantissa == 23'h0;
+
+  // ---------------------------------------------------------------------------------------
 
   always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
@@ -125,7 +135,7 @@ module fpu(
           4'h7: operand_b[31:24] <= databus_in;
 
           4'h8: begin
-            operation  <= e_fpu_operation'(databus_in[3:0]);
+            operation  <= e_fpu_operations'(databus_in[3:0]);
             op_written <= 1'b1;
           end
         endcase      
@@ -272,6 +282,8 @@ module fpu(
     end
   end
 
+  // ---------------------------------------------------------------------------------------
+
   // multiplication datapath
   always @(posedge clk, posedge arst) begin
     if(arst) begin
@@ -305,6 +317,8 @@ module fpu(
         end
     end
   end
+
+  // ---------------------------------------------------------------------------------------
 
   // main fsm
   // next state assignments
@@ -370,6 +384,8 @@ module fpu(
     else curr_state_main_fsm <= next_state_main_fsm;
   end
 
+  // ---------------------------------------------------------------------------------------
+
   // arithmetic fsm
   // next state assignments
   always_comb begin
@@ -387,6 +403,8 @@ module fpu(
               next_state_arith_fsm = pa_fpu::arith_mul_st;
             pa_fpu::op_div:
               next_state_arith_fsm = pa_fpu::arith_div_st;
+            pa_fpu::op_sin:
+              next_state_arith_fsm = pa_fpu::arith_sine_st;
           endcase
 
       pa_fpu::arith_add_st:
@@ -403,6 +421,11 @@ module fpu(
       pa_fpu::arith_div_st:
         next_state_arith_fsm = pa_fpu::arith_result_valid_st;
 
+      pa_fpu::arith_sine_st:
+        if(operation_done_sine_fsm == 1'b1) next_state_arith_fsm = pa_fpu::arith_sine_done_st;
+      pa_fpu::arith_sine_done_st:
+        if(operation_done_sine_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_result_valid_st;
+
       pa_fpu::arith_result_valid_st:
         if(start_operation_ar_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_idle_st;
 
@@ -417,6 +440,7 @@ module fpu(
     if(arst) begin
       operation_done_ar_fsm <= 1'b0;
       start_operation_mul_fsm <= 1'b0;
+      start_operation_sine_fsm <= 1'b0;
       status                <= '0;
       write_to_b       <= 1'b0;
       k_select              <= 4'd0;
@@ -426,6 +450,7 @@ module fpu(
         pa_fpu::arith_idle_st: begin
           operation_done_ar_fsm <= 1'b0;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_sine_fsm <= 1'b0;
           status                <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
@@ -433,6 +458,7 @@ module fpu(
         pa_fpu::arith_add_st: begin
           operation_done_ar_fsm <= 1'b0;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_sine_fsm <= 1'b0;
           status                <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
@@ -440,6 +466,7 @@ module fpu(
         pa_fpu::arith_sub_st: begin
           operation_done_ar_fsm <= 1'b0;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_sine_fsm <= 1'b0;
           status  <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
@@ -447,6 +474,7 @@ module fpu(
         pa_fpu::arith_mul_st: begin
           operation_done_ar_fsm   <= 1'b0;
           start_operation_mul_fsm <= 1'b1;
+          start_operation_sine_fsm <= 1'b0;
           status                  <= '0;
           write_to_b              <= 1'b0;
           k_select                <= 4'd0;
@@ -454,6 +482,7 @@ module fpu(
         pa_fpu::arith_mul_done_st: begin
           operation_done_ar_fsm <= 1'b0;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_sine_fsm <= 1'b0;
           status  <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
@@ -461,6 +490,23 @@ module fpu(
         pa_fpu::arith_div_st: begin
           operation_done_ar_fsm <= 1'b0;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_sine_fsm <= 1'b0;
+          status  <= '0;
+          write_to_b       <= 1'b0;
+          k_select              <= 4'd0;
+        end
+        pa_fpu::arith_sine_st: begin
+          operation_done_ar_fsm   <= 1'b0;
+          start_operation_mul_fsm <= 1'b0;
+          start_operation_sine_fsm <= 1'b1;
+          status                  <= '0;
+          write_to_b              <= 1'b0;
+          k_select                <= 4'd0;
+        end
+        pa_fpu::arith_sine_done_st: begin
+          operation_done_ar_fsm <= 1'b0;
+          start_operation_mul_fsm <= 1'b0;
+          start_operation_sine_fsm <= 1'b0;
           status  <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
@@ -468,6 +514,7 @@ module fpu(
         pa_fpu::arith_result_valid_st: begin
           operation_done_ar_fsm <= 1'b1;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_sine_fsm <= 1'b0;
           status  <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
@@ -482,6 +529,8 @@ module fpu(
     if(arst) curr_state_arith_fsm <= arith_idle_st;
     else curr_state_arith_fsm <= next_state_arith_fsm;
   end
+
+  // ---------------------------------------------------------------------------------------
 
   // multiply fsm
   // next state assignments
@@ -564,6 +613,73 @@ module fpu(
     else curr_state_mul_fsm <= next_state_mul_fsm;
   end
 
+  // ---------------------------------------------------------------------------------------
+  // x - x^3/6 + x^5/120 - x^7/5040
+  //  enter sine_st
+  //  accum <= a
+  //  b <= a
+  //  mul a * b, result in a: a^2
+  //  mul a * b, result in a: a^3
+  //  b <= 1/6
+  //  mul a * b,  result in a: a^3 * 1/6
+  //  b <= a
+  //  a <= accum
+  //  sub a - b, result in a: a - a^3 / 6
+
+  // sine fsm
+  // next state assignments
+  always_comb begin
+    next_state_sine_fsm = curr_state_sine_fsm;
+
+    case(curr_state_sine_fsm)
+      pa_fpu::sine_idle_st: 
+        if(start_operation_sine_fsm) next_state_sine_fsm = pa_fpu::sine_start_st;
+
+      pa_fpu::sine_start_st:
+        next_state_sine_fsm = pa_fpu::sine_result_set_st;
+      
+      pa_fpu::sine_result_set_st:
+        next_state_sine_fsm = pa_fpu::sine_result_valid_st;
+      
+      pa_fpu::sine_result_valid_st:
+        if(start_operation_sine_fsm == 1'b0) next_state_sine_fsm = pa_fpu::sine_idle_st;
+
+      default:
+        next_state_sine_fsm = pa_fpu::sine_idle_st;
+    endcase
+  end
+
+  // sine fsm
+  // output assignments
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) begin
+      operation_done_sine_fsm <= 1'b0;
+    end
+    else begin
+      case(next_state_sine_fsm)
+        pa_fpu::sine_idle_st: begin
+          operation_done_sine_fsm <= 1'b0;
+        end
+        pa_fpu::sine_start_st: begin
+          operation_done_sine_fsm <= 1'b0;
+        end
+        pa_fpu::sine_result_set_st: begin
+          operation_done_sine_fsm <= 1'b0;
+        end
+        pa_fpu::sine_result_valid_st: begin
+          operation_done_sine_fsm <= 1'b1;
+        end
+      endcase  
+    end
+  end
+
+  // sine fsm
+  // next state clocking
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) curr_state_sine_fsm <= sine_idle_st;
+    else curr_state_sine_fsm <= next_state_sine_fsm;
+  end
+
 endmodule
 
 
@@ -612,4 +728,24 @@ endmodule
       endcase
     end
   end
+
+
+
+
+to calculate sine:
+  sine fsm:
+
+    enter sine_st
+    accum <= a
+    b <= a
+    mul a * b, result in a: a^2
+    mul a * b, result in a: a^3
+    b <= 1/6
+    mul a * b,  result in a: a^3 * 1/6
+    b <= a
+    a <= accum
+    sub a - b, result in a: a - a^3 / 6
+
+
+
   */

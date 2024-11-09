@@ -33,24 +33,25 @@ add wave -noupdate /fpu_tb/fpu_top/busy
 add wave -noupdate /fpu_tb/fpu_top/op_written
 add wave -noupdate /fpu_tb/fpu_top/curr_state_main_fsm
 add wave -noupdate /fpu_tb/fpu_top/start_operation_ar_fsm
-add wave -noupdate /fpu_tb/fpu_top/operation_done_ar_fsm
-add wave -noupdate /fpu_tb/fpu_top/curr_state_arith_fsm
-add wave -noupdate /fpu_tb/fpu_top/operation_done_mul_fsm
-add wave -noupdate /fpu_tb/fpu_top/curr_state_mul_fsm
 add wave -noupdate /fpu_tb/fpu_top/start_operation_mul_fsm
+add wave -noupdate /fpu_tb/fpu_top/start_operation_sine_fsm
+add wave -noupdate /fpu_tb/fpu_top/curr_state_arith_fsm
+add wave -noupdate /fpu_tb/fpu_top/operation_done_ar_fsm
+add wave -noupdate /fpu_tb/fpu_top/curr_state_mul_fsm
+add wave -noupdate /fpu_tb/fpu_top/operation_done_mul_fsm
+add wave -noupdate /fpu_tb/fpu_top/curr_state_sine_fsm
+add wave -noupdate /fpu_tb/fpu_top/operation_done_sine_fsm
 add wave -noupdate /fpu_tb/fpu_top/mul_cycle_counter
 add wave -noupdate /fpu_tb/fpu_top/product_add
 add wave -noupdate /fpu_tb/fpu_top/product_shift
-add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_inv
-add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_before_shift1
-add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_add_sub
 add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_add_sub
 add wave -noupdate /fpu_tb/fpu_top/result_sign_add_sub
 add wave -noupdate /fpu_tb/fpu_top/result_ieee_packet
+add wave -noupdate /fpu_tb/fpu_top/multiplicand
 add wave -noupdate /fpu_tb/fpu_top/product_multiplier
 add wave -noupdate /fpu_tb/fpu_top/k_select
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 3} {9578 ns} 0}
+WaveRestoreCursors {{Cursor 3} {15750 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 268
 configure wave -valuecolwidth 283
@@ -66,4 +67,4 @@ configure wave -griddelta 45
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {0 ns} {42653 ns}
+WaveRestoreZoom {12062 ns} {25377 ns}
