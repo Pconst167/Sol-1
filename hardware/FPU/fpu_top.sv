@@ -382,32 +382,34 @@ module fpu(
         if(start_operation_ar_fsm)
           case(operation)
             pa_fpu::op_add:
-              next_state_arith_fsm = pa_fpu::add_st;
+              next_state_arith_fsm = pa_fpu::arith_add_st;
             pa_fpu::op_sub:
-              next_state_arith_fsm = pa_fpu::sub_st;
+              next_state_arith_fsm = pa_fpu::arith_sub_st;
             pa_fpu::op_mul:
-              next_state_arith_fsm = pa_fpu::mul_st;
+              next_state_arith_fsm = pa_fpu::arith_mul_st;
             pa_fpu::op_div:
-              next_state_arith_fsm = pa_fpu::div_st;
+              next_state_arith_fsm = pa_fpu::arith_div_st;
           endcase
 
-      // addition states **********************************
       pa_fpu::arith_add_st:
-        next_state_arith_fsm = result_valid_st;
+        next_state_arith_fsm = arith_result_valid_st;
 
-      // subtraction states **********************************
       pa_fpu::arith_sub_st:
-        next_state_arith_fsm = result_valid_st;
+        next_state_arith_fsm = arith_result_valid_st;
 
-      // division states **********************************
+      pa_fpu::arith_mul_st:
+        if(operation_done_mul_fsm == 1'b1) next_state_arith_fsm = pa_fpu::arith_result_valid_st;
+      pa_fpu::arith_mul_done_st:
+        if(operation_done_mul_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_result_valid_st;
+
       pa_fpu::arith_div_st:
-        next_state_arith_fsm = pa_fpu::result_valid_st;
+        next_state_arith_fsm = pa_fpu::arith_result_valid_st;
 
       pa_fpu::arith_result_valid_st:
-        if(start_operation_ar_fsm == 1'b0) next_state_arith_fsm = pa_fpu::idle_st;
+        if(start_operation_ar_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_idle_st;
 
       default:
-        next_state_arith_fsm = pa_fpu::idle_st;
+        next_state_arith_fsm = pa_fpu::arith_idle_st;
     endcase
   end
 
@@ -416,6 +418,7 @@ module fpu(
   always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       operation_done_ar_fsm <= 1'b0;
+      start_operation_mul_fsm <= 1'b0;
       status                <= '0;
       write_to_b       <= 1'b0;
       k_select              <= 4'd0;
@@ -424,36 +427,49 @@ module fpu(
       case(next_state_arith_fsm)
         pa_fpu::arith_idle_st: begin
           operation_done_ar_fsm <= 1'b0;
+          start_operation_mul_fsm <= 1'b0;
           status                <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
         pa_fpu::arith_add_st: begin
           operation_done_ar_fsm <= 1'b0;
+          start_operation_mul_fsm <= 1'b0;
           status                <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
         pa_fpu::arith_sub_st: begin
           operation_done_ar_fsm <= 1'b0;
+          start_operation_mul_fsm <= 1'b0;
           status  <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
         pa_fpu::arith_mul_st: begin
+          operation_done_ar_fsm   <= 1'b0;
+          start_operation_mul_fsm <= 1'b1;
+          status                  <= '0;
+          write_to_b              <= 1'b0;
+          k_select                <= 4'd0;
+        end
+        pa_fpu::arith_mul_done_st: begin
           operation_done_ar_fsm <= 1'b0;
+          start_operation_mul_fsm <= 1'b0;
           status  <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
         pa_fpu::arith_div_st: begin
           operation_done_ar_fsm <= 1'b0;
+          start_operation_mul_fsm <= 1'b0;
           status  <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
         end
         pa_fpu::result_valid_st: begin
           operation_done_ar_fsm <= 1'b1;
+          start_operation_mul_fsm <= 1'b0;
           status  <= '0;
           write_to_b       <= 1'b0;
           k_select              <= 4'd0;
