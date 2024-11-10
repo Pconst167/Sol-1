@@ -648,12 +648,22 @@ module fpu(
       pa_fpu::sine_a_to_b_st:
         next_state_sine_fsm = pa_fpu::sine_a_squared_st;
       pa_fpu::sine_a_squared_st:       // request mul, wait for done signal.
-        next_state_sine_fsm = pa_fpu::;
-
+        next_state_sine_fsm = pa_fpu::sine_a_cubed_st;
+      pa_fpu::sine_a_cubed_st:
+        next_state_sine_fsm = pa_fpu::sine_1_6_to_b_st;
+      pa_fpu::sine_1_6_to_b_st:
+        next_state_sine_fsm = pa_fpu::sine_a_cubed_times_1_6_st;
+      pa_fpu::sine_a_cubed_times_1_6_st:
+        next_state_sine_fsm = pa_fpu::sine_a_to_b_st;
+      pa_fpu::sine_a_to_b_st:
+        next_state_sine_fsm = pa_fpu::sine_acc_to_a_st;
+      pa_fpu::sine_acc_to_a_st:
+        next_state_sine_fsm = pa_fpu::sine_a_minus_b_st;
+      pa_fpu::sine_a_minus_b_st:
+        next_state_sine_fsm = pa_fpu::sine_result_set_st;
 
       pa_fpu::sine_result_set_st:
         next_state_sine_fsm = pa_fpu::sine_result_valid_st;
-      
       pa_fpu::sine_result_valid_st:
         if(start_operation_sine_fsm == 1'b0) next_state_sine_fsm = pa_fpu::sine_idle_st;
 
@@ -671,16 +681,29 @@ module fpu(
     else begin
       case(next_state_sine_fsm)
         pa_fpu::sine_idle_st: begin
-          operation_done_sine_fsm <= 1'b0;
         end
-        pa_fpu::sine_start_st: begin
-          operation_done_sine_fsm <= 1'b0;
+        pa_fpu::sine_a_to_acc_st: begin
         end
+        pa_fpu::sine_a_to_b_st: begin
+        end
+        pa_fpu::sine_a_squared_st: begin
+        end
+        pa_fpu::sine_a_cubed_st: begin
+        end
+        pa_fpu::sine_1_6_to_b_st: begin
+        end
+        pa_fpu::sine_a_cubed_times_1_6_st: begin
+        end
+        pa_fpu::sine_a_to_b_st: begin
+        end
+        pa_fpu::sine_acc_to_a_st: begin
+        end
+        pa_fpu::sine_a_minus_b_st: begin
+        end
+
         pa_fpu::sine_result_set_st: begin
-          operation_done_sine_fsm <= 1'b0;
         end
         pa_fpu::sine_result_valid_st: begin
-          operation_done_sine_fsm <= 1'b1;
         end
       endcase  
     end
