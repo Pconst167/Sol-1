@@ -77,6 +77,8 @@ module fpu(
   logic                 start_operation_mul_fsm;  // ...
   logic                 operation_done_mul_fsm;   // for handshake between main fsm and multiply fsm
 
+  logic                 sine_start_operation_mul_fsm;  // ...
+
   logic                 start_operation_sine_fsm;  // ...
   logic                 operation_done_sine_fsm;   // for handshake between main fsm and sine fsm
 
@@ -676,34 +678,110 @@ module fpu(
   // output assignments
   always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
-      operation_done_sine_fsm <= 1'b0;
+      sine_b_wrt <= 1'b0;
+      sine_a_wrt <= 1'b0;
+      sine_acc_wrt <= 1'b0;
+      sine_b_in_src <= 1'b0;
+      sine_a_in_src <= 1'b0;
+      sine_start_operation_mul_fsm <= 1'b0;
     end
     else begin
       case(next_state_sine_fsm)
         pa_fpu::sine_idle_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
         pa_fpu::sine_a_to_acc_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b1;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
         pa_fpu::sine_a_to_b_st: begin
+          sine_b_wrt <= 1'b1;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
         pa_fpu::sine_a_squared_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
         pa_fpu::sine_a_cubed_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
         pa_fpu::sine_1_6_to_b_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
         pa_fpu::sine_a_cubed_times_1_6_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
         pa_fpu::sine_a_to_b_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
         pa_fpu::sine_acc_to_a_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
         pa_fpu::sine_a_minus_b_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
-
         pa_fpu::sine_result_set_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
         pa_fpu::sine_result_valid_st: begin
+          sine_b_wrt <= 1'b0;
+          sine_a_wrt <= 1'b0;
+          sine_acc_wrt <= 1'b0;
+          sine_b_in_src <= 1'b0;
+          sine_a_in_src <= 1'b0;
+          sine_start_operation_mul_fsm <= 1'b0;
         end
       endcase  
     end
