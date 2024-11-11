@@ -46,20 +46,10 @@ module fpu_tb;
 
 
     ta_set_operation(pa_fpu::op_add);
+    ta_start_operation();
     ta_read_result(result);
     $display("Addition Result: %x\n", result);
 
-    write_operand_a(32'h44a23225); //  1297.56703
-    write_operand_b(32'h44a23225); //  1297.56703
-    ta_set_operation(pa_fpu::op_sub);
-    ta_read_result(result);
-    $display("Addition Result: %x\n", result);
-
-    write_operand_a(32'h44a23225); //  1297.56703
-    write_operand_b(32'h44a23225); //  1297.56703
-    ta_set_operation(pa_fpu::op_mul);
-    ta_read_result(result);
-    $display("Addition Result: %x\n", result);
   end
 
   fpu fpu_top(
@@ -75,6 +65,18 @@ module fpu_tb;
     .cmd_end     (cmd_end),
     .busy        (busy)
   );
+
+task ta_start_operation;
+  @(posedge clk);
+  cs = 1'b0;
+  addr = 4'h9;
+  @(negedge clk);
+  wr = 1'b0;
+  @(negedge clk);
+  wr = 1'b1;
+  @(posedge clk);
+  cs = 1'b1;
+endtask
 
 task ta_set_operation(pa_fpu::e_fpu_operations operation);
   // write operation

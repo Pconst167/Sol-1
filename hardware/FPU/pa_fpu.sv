@@ -28,8 +28,6 @@ package pa_fpu;
     arith_mul_st,
     arith_mul_done_st,
     arith_div_st,
-    arith_sine_st,
-    arith_sine_done_st,
     arith_result_valid_st
   } e_arith_states;
 
@@ -41,20 +39,6 @@ package pa_fpu;
     mul_result_set_st,
     mul_result_valid_st
   } e_mul_states;
-
-  typedef enum logic [3:0]{
-    sine_idle_st,
-        sine_a_to_acc_st,
-        sine_a_squared_st,
-        sine_a_cubed_st,
-        sine_1_6_to_b_st,
-        sine_a_cubed_times_1_6_st,
-        sine_a_to_b_st,
-        sine_acc_to_a_st,
-        sine_a_minus_b_st,
-        sine_result_set_st,
-        sine_result_valid_st
-  } e_sine_states;
 
 
 endpackage
