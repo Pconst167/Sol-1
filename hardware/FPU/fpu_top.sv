@@ -537,7 +537,6 @@ module fpu(
     else curr_state_mul_fsm <= next_state_mul_fsm;
   end
 
-  // ---------------------------------------------------------------------------------------
 // to calculate sine:
 // x - x^3 * 1/6  + x^5 * 1/120   - x^7 * 1/5040
 // 
@@ -552,72 +551,3 @@ module fpu(
 //   a <= a - b
 
 endmodule
-
-
-  // latch for writing operation registers
-  /*
-  always_latch begin
-    if(arst) begin
-      operand_a  = {1'b0, 8'd127, 23'h0};
-      operand_b  = {1'b0, 8'd127, 23'h0};
-      operation  = op_add;  
-      op_written = 1'b0;
-    end
-    else if(cs == 1'b0 && wr == 1'b0) begin
-      case(addr)
-        4'h0: operand_a[7:0]   = databus_in;
-        4'h1: operand_a[15:8]  = databus_in;
-        4'h2: operand_a[23:16] = databus_in;
-        4'h3: operand_a[31:24] = databus_in;
-
-        4'h4: operand_b[7:0]   = databus_in;
-        4'h5: operand_b[15:8]  = databus_in;
-        4'h6: operand_b[23:16] = databus_in;
-        4'h7: operand_b[31:24] = databus_in;
-
-        4'h8: begin
-          operation  = e_fpu_operation'(databus_in[3:0]);
-          op_written = 1'b1;
-        end
-      endcase      
-    end
-    else if(curr_state_main_fsm == pa_fpu::main_wait_st) op_written = 1'b0;
-    else if(next_state_main_fsm == pa_fpu::main_wait_ack_st) begin
-      case(operation)
-        op_add: 
-          operand_a = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
-        op_sub: 
-          operand_a = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
-        op_mul: 
-          operand_a = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
-        op_div: 
-          operand_a = {result_sign_division, result_exp_division, result_mantissa_division[22:0]};
-        op_k_pi: 
-          operand_a = 32'h40490fda;
-        op_k_piby2: 
-          operand_a = 32'h3fc90fda;
-      endcase
-    end
-  end
-
-
-
-
-to calculate sine:
-x - x^3 * 1/6  + x^5 * 1/120   - x^7 * 1/5040
-
-  acc <= x
-  a <= acc
-  b <= acc
-  a <= a*b
-  a <= a*b  (x^3)
-  b <= 1/6
-  a <= a*b  (x^3 * 1/6)
-  b <= a
-  a <= acc
-  a <= a - b
-
-
-
-
-*/
