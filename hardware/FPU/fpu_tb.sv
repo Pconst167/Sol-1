@@ -37,15 +37,11 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
-    write_operand_a(32'h44a23225); //  1297.56703
-    write_operand_b(32'h44a23225); //  1297.56703
-
-    //write_operand_a(32'h43a9ab64); //  339.339
-    //write_operand_b(32'h43a9ab64); //  339.339
-    //write_operand_b(32'hc479fff0); //  -999.999       c4252a3d
+    write_operand_a(32'h4a96890d); //  4932742.423432
+    write_operand_b(32'h4a447fad); //  3219435.21354353
 
 
-    ta_set_operation(pa_fpu::op_add);
+    ta_set_operation(pa_fpu::op_sub);
     ta_start_operation();
     ta_read_result(result);
     $display("Addition Result: %x\n", result);
