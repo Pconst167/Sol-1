@@ -13,6 +13,7 @@ It is published here for educational purposes.
 - The sequencer is microcoded, with 15 ROMS operating horizontally
 - 8/16-Bit MUL and DIV instructions
 - Fast indexed string instructions in the spirit of x86's REP MOVSB, CMPSB, LODSB, STOSB, etc
+- 32bit IEEE 754 Floating Point Unit (Under Development)
 
 ### Register Table
 #### General Purpose Registers
