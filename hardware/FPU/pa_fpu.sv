@@ -11,7 +11,9 @@ package pa_fpu;
     op_cos,
     op_tan,
     op_ln,
-    op_exp
+    op_exp,
+    op_int_to_float,
+    op_float_to_int
   } e_fpu_operations;
 
   typedef enum logic[3:0]{
