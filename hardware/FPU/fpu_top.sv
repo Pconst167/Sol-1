@@ -24,11 +24,11 @@ module fpu(
 
   logic          [31:0] operand_a;
   logic unsigned [25:0] a_mantissa;
-  logic signed   [ 7:0] a_exp;
+  logic          [ 7:0] a_exp;
   logic                 a_sign;
   logic          [31:0] operand_b;
   logic unsigned [25:0] b_mantissa;
-  logic signed   [ 7:0] b_exp;
+  logic          [ 7:0] b_exp;
   logic                 b_sign;
   logic signed   [ 7:0] aexp_no_bias;
   logic signed   [ 7:0] bexp_no_bias;
@@ -57,6 +57,9 @@ module fpu(
 
   logic                 a_is_zero;
   logic                 b_is_zero;
+
+  logic                 a_subnormal;
+  logic                 b_subnormal;
 
   logic          [23:0] multiplicand;
   logic          [48:0] product_multiplier;  // keeps the product and multiplier. shifted right till product occupies entire space and multiplier disappears
@@ -105,6 +108,9 @@ module fpu(
 
   assign a_is_zero       = a_exp == 8'h00 && a_mantissa == 23'h0;
   assign b_is_zero       = b_exp == 8'h00 && b_mantissa == 23'h0;
+
+  assign a_subnormal     = a_exp == 8'h00 && a_mantissa != 23'h0;
+  assign b_subnormal     = b_exp == 8'h00 && b_mantissa != 23'h0;
 
   // ---------------------------------------------------------------------------------------
 
@@ -169,31 +175,19 @@ module fpu(
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
   // else, exponents are the same and we are ok
   always_comb begin
-    logic [1:0] guard_bits;
+    if(a_exp < b_exp) begin
+      a_mantissa_after_adjust = a_is_zero ? a_mantissa   : a_mantissa >> ba_exp_diff;
+      aexp_after_adjust       = a_is_zero ? aexp_no_bias : aexp_no_bias + ba_exp_diff;
 
-    if(aexp_no_bias < bexp_no_bias) begin
-      if(!a_is_zero) begin
-        a_mantissa_after_adjust = a_mantissa >> ba_exp_diff;
-        aexp_after_adjust       = aexp_no_bias + ba_exp_diff;
-      end
-      else begin
-        a_mantissa_after_adjust = a_mantissa;
-        aexp_after_adjust       = aexp_no_bias;
-      end
       b_mantissa_after_adjust = b_mantissa;
       bexp_after_adjust       = bexp_no_bias;
     end   
-    else if(bexp_no_bias < aexp_no_bias) begin
+    else if(b_exp < a_exp) begin
       a_mantissa_after_adjust = a_mantissa;
       aexp_after_adjust       = aexp_no_bias;
-      if(!b_is_zero) begin
-        b_mantissa_after_adjust = b_mantissa >> ab_exp_diff;
-        bexp_after_adjust       = bexp_no_bias + ab_exp_diff;
-      end
-      else begin
-        b_mantissa_after_adjust = b_mantissa;
-        bexp_after_adjust       = bexp_no_bias;
-      end
+
+      b_mantissa_after_adjust = b_is_zero ? b_mantissa   : b_mantissa >> ab_exp_diff;
+      bexp_after_adjust       = b_is_zero ? bexp_no_bias : bexp_no_bias + ab_exp_diff;
     end   
     else begin
       a_mantissa_after_adjust = a_mantissa;
@@ -238,7 +232,6 @@ module fpu(
            result_exp_add_sub = result_exp_add_sub - 1;
          end
       end
-      //result_mantissa_add_sub[26] = 1'b0;
       result_exp_add_sub = result_exp_add_sub + 8'd127;
     end
   end
