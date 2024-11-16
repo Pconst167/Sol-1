@@ -37,9 +37,6 @@ module fpu(
 
   logic          [31:0] result_ieee_packet;
 
-  logic          [25:0] result_mantissa_before_inv;
-  logic          [25:0] result_mantissa_before_shift1;
-  logic          [25:0] result_mantissa_before_shift2;
   logic unsigned [25:0] result_mantissa_add_sub; // 24 bits plus carry
   logic          [ 7:0] result_exp_add_sub;
   logic                 result_sign_add_sub;
@@ -204,19 +201,14 @@ module fpu(
     if(operation == op_add) result_mantissa_add_sub = a_mantissa_after_adjust + b_mantissa_after_adjust;
     else if(operation == op_sub) result_mantissa_add_sub = a_mantissa_after_adjust - b_mantissa_after_adjust;
     if(result_mantissa_add_sub[25:0] == 25'd0) begin
-      result_mantissa_before_inv = result_mantissa_add_sub;
-      result_mantissa_before_shift1 = result_mantissa_add_sub;
-      result_mantissa_before_shift2 = result_mantissa_add_sub;
       result_exp_add_sub = 8'd0; 
       result_sign_add_sub = 1'b0;
     end
     else begin
       if(!a_is_zero) result_exp_add_sub = aexp_after_adjust;
       else result_exp_add_sub = bexp_after_adjust;
-      result_mantissa_before_inv = result_mantissa_add_sub;
       result_sign_add_sub = result_mantissa_add_sub[25];
       if(result_sign_add_sub) result_mantissa_add_sub = -result_mantissa_add_sub;
-      result_mantissa_before_shift1 = result_mantissa_add_sub;
       if(result_mantissa_add_sub[25]) begin
         result_mantissa_add_sub = result_mantissa_add_sub >> 2;
         result_exp_add_sub = result_exp_add_sub + 2;
