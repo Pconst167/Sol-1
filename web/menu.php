@@ -13,12 +13,11 @@
 	<div>
 		<a href="index.php">home</a> |
 		<a href="terminal.php">sol-1 terminal</a> |
-		<a href="sol-1">files</a> |
 		<a href="photos.php">photos</a> |
 		<a href="videos.php">videos</a> |
 		<a href="links.php">links</a> |
 		<a href="contact.php">contact</a> |
-		<a href="https://github.com/Pconst167" target="_blank">github</a> |
+		<a href="https://github.com/Pconst167/sol-1" target="_blank">github</a> |
 		<a href="https://www.youtube.com/channel/UC7jyKIy-dAMaD2uQP4a4U0w" target="_blank">youtube</a> |
 	</div>
 	</nav>

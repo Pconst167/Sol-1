@@ -1,4 +1,5 @@
 import pa_fpu::*;
+`default_nettype none
 
 module fpu_tb;
 
@@ -37,8 +38,8 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
-//    write_operand_a(32'h00000001); //  smallest sub-normal
-//    write_operand_b(32'h00000001); //  1e-45
+//  write_operand_a(32'h00000001); //  smallest sub-normal
+//  write_operand_b(32'h00000001); //  1e-45
 
     write_operand_a(32'h4a96890d); //  4932742.423432
     write_operand_b(32'h4a447fad); //  3219435.21354353       result: 4af8c8e3

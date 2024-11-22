@@ -38,7 +38,7 @@
 
 
 <p>
-You can contact me through: <a href="mailto:pconstantino@sol-1.org">pconstantino@sol-1.org</a>
+You can contact me through: <a href="mailto:pconstantino@sol-1.org">pconst167@gmail.com</a>
 </p>
 
 
