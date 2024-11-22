@@ -3,7 +3,6 @@
 // It is written in SystemVerilog here for prototyping purposes, and after that will be built in hardware for the Sol-1 system
 //
 // Created P Const 2024
-// x - x^3/3! + x^5/5! - x^7/7! + x^9/9!
 
 
 import pa_fpu::*;
@@ -23,11 +22,11 @@ module fpu(
 );
 
   logic          [31:0] operand_a;
-  logic unsigned [25:0] a_mantissa;
+  logic unsigned [25:-3] a_mantissa; // 24 bits plus 2 upper guard bits for dealing with signed arithmetic plus 3 lower standard guard bits
   logic          [ 7:0] a_exp;
   logic                 a_sign;
   logic          [31:0] operand_b;
-  logic unsigned [25:0] b_mantissa;
+  logic unsigned [25:-3] b_mantissa;  // 24 bits plus 2 upper guard bits for dealing with signed arithmetic plus 3 lower standard guard bits
   logic          [ 7:0] b_exp;
   logic                 b_sign;
   logic signed   [ 7:0] aexp_no_bias;
@@ -37,7 +36,7 @@ module fpu(
 
   logic          [31:0] result_ieee_packet;
 
-  logic unsigned [25:0] result_mantissa_add_sub; // 24 bits plus carry
+  logic unsigned [25:-3] result_mantissa_add_sub; // 24 bits plus carry
   logic          [ 7:0] result_exp_add_sub;
   logic                 result_sign_add_sub;
   logic unsigned [23:0] result_mantissa_multiplication;
@@ -49,14 +48,20 @@ module fpu(
 
   logic          [ 7:0] aexp_after_adjust;
   logic          [ 7:0] bexp_after_adjust;
-  logic          [25:0] a_mantissa_after_adjust;
-  logic          [25:0] b_mantissa_after_adjust;
+  logic          [25:-3] a_mantissa_after_adjust;
+  logic          [25:-3] b_mantissa_after_adjust;
 
   logic                 a_is_zero;
   logic                 b_is_zero;
 
   logic                 a_subnormal;
   logic                 b_subnormal;
+
+  logic                 overflow;
+  logic                 underflow;
+  logic                 NaN;
+  logic                 pos_infinity;
+  logic                 neg_infinity;
 
   logic          [23:0] multiplicand;
   logic          [48:0] product_multiplier;  // keeps the product and multiplier. shifted right till product occupies entire space and multiplier disappears
@@ -78,6 +83,8 @@ module fpu(
   logic                 start_operation_ar_fsm;  // ...
   logic                 operation_done_ar_fsm;   // for handshake between main fsm and arithmetic fsm
 
+  logic [25:-3] temp_mantissa;
+  logic [25:-3] temp_mantissa_plus_epsilon;
 
   pa_fpu::e_main_states  curr_state_main_fsm;
   pa_fpu::e_main_states  next_state_main_fsm;
@@ -90,10 +97,10 @@ module fpu(
   // ---------------------------------------------------------------------------------------
   // assignments
 
-  assign a_mantissa      = {!(a_exp == 8'd0), operand_a[22:0]};
+  assign a_mantissa      = {!(a_exp == 8'd0), operand_a[22:0], 3'b000};
   assign a_exp           = operand_a[30:23];
   assign a_sign          = operand_a[31];
-  assign b_mantissa      = {!(b_exp == 8'd0), operand_b[22:0]};
+  assign b_mantissa      = {!(b_exp == 8'd0), operand_b[22:0], 3'b000};
   assign b_exp           = operand_b[30:23];
   assign b_sign          = operand_b[31];
 
@@ -172,8 +179,15 @@ module fpu(
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
   // else, exponents are the same and we are ok
   always_comb begin
+    automatic logic sticky = 0;
     if(a_exp < b_exp) begin
-      a_mantissa_after_adjust = a_is_zero ? a_mantissa   : a_mantissa >> ba_exp_diff;
+      a_mantissa_after_adjust = a_mantissa;
+      repeat(ba_exp_diff) begin
+        a_mantissa_after_adjust = a_mantissa_after_adjust >> 1;
+        if(a_mantissa_after_adjust[-3]) sticky = 1'b1;
+      end
+      a_mantissa_after_adjust[-3] = sticky;
+      //a_mantissa_after_adjust = a_is_zero ? a_mantissa   : a_mantissa >> ba_exp_diff;
       aexp_after_adjust       = a_is_zero ? aexp_no_bias : aexp_no_bias + ba_exp_diff;
 
       b_mantissa_after_adjust = b_mantissa;
@@ -183,7 +197,13 @@ module fpu(
       a_mantissa_after_adjust = a_mantissa;
       aexp_after_adjust       = aexp_no_bias;
 
-      b_mantissa_after_adjust = b_is_zero ? b_mantissa   : b_mantissa >> ab_exp_diff;
+      b_mantissa_after_adjust = b_mantissa;
+      repeat(ab_exp_diff) begin
+        b_mantissa_after_adjust = b_mantissa_after_adjust >> 1;
+        if(b_mantissa_after_adjust[-3]) sticky = 1'b1;
+      end
+      b_mantissa_after_adjust[-3] = sticky;
+      //b_mantissa_after_adjust = b_is_zero ? b_mantissa   : b_mantissa >> ab_exp_diff;
       bexp_after_adjust       = b_is_zero ? bexp_no_bias : bexp_no_bias + ab_exp_diff;
     end   
     else begin
@@ -218,11 +238,20 @@ module fpu(
         result_exp_add_sub = result_exp_add_sub + 1;
       end
       else if(curr_state_arith_fsm == pa_fpu::arith_result_valid_st) begin
-      //else if(|result_mantissa_add_sub[23:0]) begin // if there is at least one non zero bit, then perform while loop. this needs to be tested otherwise the loop is infinite.
-         while(!result_mantissa_add_sub[23]) begin
-           result_mantissa_add_sub = result_mantissa_add_sub << 1;
-           result_exp_add_sub = result_exp_add_sub - 1;
-         end
+        while(!result_mantissa_add_sub[23]) begin
+          result_mantissa_add_sub = result_mantissa_add_sub << 1;
+          result_exp_add_sub = result_exp_add_sub - 1;
+        end
+        // rounding: round to nearest
+        temp_mantissa = result_mantissa_add_sub;
+        temp_mantissa_plus_epsilon = result_mantissa_add_sub + 29'b1000;  // round up by adding 2^-(p-1)
+        if(result_mantissa_add_sub[-1] == 1'b1)
+          if(|result_mantissa_add_sub[-2:-3])
+            result_mantissa_add_sub = temp_mantissa_plus_epsilon; // round up by adding 2^-(p-1)
+          else begin // there is a tie
+            if(temp_mantissa_plus_epsilon[0] == 1'b0)
+              result_mantissa_add_sub = temp_mantissa_plus_epsilon; // round up by adding 2^-(p-1)
+          end
       end
       result_exp_add_sub = result_exp_add_sub + 8'd127;
     end
