@@ -42,13 +42,14 @@ add wave -noupdate /fpu_tb/fpu_top/product_shift
 add wave -noupdate -radix binary /fpu_tb/fpu_top/temp_mantissa
 add wave -noupdate -radix binary /fpu_tb/fpu_top/temp_mantissa_plus_epsilon
 add wave -noupdate -radix binary /fpu_tb/fpu_top/result_mantissa_add_sub
+add wave -noupdate /fpu_tb/fpu_top/sticky
 add wave -noupdate -radix unsigned /fpu_tb/fpu_top/result_exp_add_sub
 add wave -noupdate /fpu_tb/fpu_top/result_sign_add_sub
 add wave -noupdate /fpu_tb/fpu_top/result_ieee_packet
 add wave -noupdate /fpu_tb/fpu_top/multiplicand
 add wave -noupdate /fpu_tb/fpu_top/product_multiplier
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 3} {16703 ns} 0}
+WaveRestoreCursors {{Cursor 3} {17225 ns} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 268
 configure wave -valuecolwidth 320

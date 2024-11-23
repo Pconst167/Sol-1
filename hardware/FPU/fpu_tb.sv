@@ -37,14 +37,14 @@ module fpu_tb;
 //  write_operand_a(32'h00000001); //  smallest sub-normal
 //  write_operand_b(32'h00000001); //  1e-45
 
-//    write_operand_a(32'h4d96890d); //  39461940
-  //  write_operand_b(32'h4a447fad); //  3219435.21354353       result: 4d98120c
+    //write_operand_a(32'h4d96890d); //  315695520
+    //write_operand_b(32'h4a447fad); //  3219435.3       result: 4d98120c
 
-    //write_operand_a(32'h42f63efa); //  123.123
-    //write_operand_b(32'h43a6aaa0); //  333.333     43e43a5e
+    write_operand_a(32'h42f63efa); //  123.123
+    write_operand_b(32'h43a6aaa0); //  333.333     43e43a5e
 
-    write_operand_a(32'h43a98fbe); //  339.123
-    write_operand_b(32'h4426ffdf); //  667.998       result: 447bc7be
+ //   write_operand_a(32'h43a98fbe); //  339.123
+   // write_operand_b(32'h4426ffdf); //  667.998       result: 447bc7be
 
     ta_set_operation(pa_fpu::op_add);
     ta_start_operation();

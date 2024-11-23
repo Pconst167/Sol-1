@@ -85,6 +85,7 @@ module fpu(
 
   logic [25:-3] temp_mantissa;
   logic [25:-3] temp_mantissa_plus_epsilon;
+  logic sticky;
 
   pa_fpu::e_main_states  curr_state_main_fsm;
   pa_fpu::e_main_states  next_state_main_fsm;
@@ -179,7 +180,7 @@ module fpu(
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
   // else, exponents are the same and we are ok
   always_comb begin
-    automatic logic sticky = 0;
+    sticky = 0;
     if(a_exp < b_exp) begin
       a_mantissa_after_adjust = a_mantissa;
       repeat(ba_exp_diff) begin
