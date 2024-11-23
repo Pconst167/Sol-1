@@ -137,6 +137,8 @@ R0
 R1
 R0
 R1
+R0
+R1
 Z2 !s12c _opt3
 R1
 R2
@@ -1224,10 +1226,10 @@ n@_opt3
 R13
 R6
 T_opt4
-!s110 1732310237
-V`NRFz4h>oV1OM[ke<9[4J2
+!s110 1732323792
+V;EeF=Sb2b`>;]<83VlRiK0
 R7
-=16-000ae431a4f1-6740f4dd-7b038-c292
+=17-000ae431a4f1-674129d0-77535-c292
 R1
 R8
 R9
@@ -1241,7 +1243,7 @@ Z14 2/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z15 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
 Z16 DXx4 work 6 pa_fpu 0 22 TC9@ijJ<n4:FnHCKRiHHU1
 DXx4 work 15 fpu_top_sv_unit 0 22 ?h8oB_Sd1hY9DC<Yl>hiX2
-Z17 !s110 1732310215
+Z17 !s110 1732323716
 Z18 VDg1SIo80bB@j0V0VzS_@n1
 r1
 !s85 0
@@ -1254,11 +1256,11 @@ Z19 d/home/pconst/Desktop/sol-1/hardware/FPU
 Z20 w1732309768
 Z21 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z22 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
-!i122 2149
+!i122 2152
 L0 10 558
 Z23 OL;L;2024.1;79
 31
-Z24 !s108 1732310215.000000
+Z24 !s108 1732323716.000000
 Z25 !s107 /home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 Z26 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 !i113 0
@@ -1268,22 +1270,22 @@ vfpu_tb
 Z28 2/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
 R15
 R16
-DXx4 work 14 fpu_tb_sv_unit 0 22 lk38kQB;cB0k]5Y]gaJ9Y2
+DXx4 work 14 fpu_tb_sv_unit 0 22 >bZH6FWnP3PeFWGH;YRRl2
 R17
 R18
 r1
 !s85 0
 !i10b 1
-!s100 R?56B67f=Df>Xac1YAA]U3
-IkQab38gUd8;^lgKUzWimb2
+!s100 cP<aBHA>2<8BhlgK6NP]N1
+I35?=dChH<UjjXOTK3UNbX2
 !s105 fpu_tb_sv_unit
 S1
 R19
-Z29 w1732310194
+Z29 w1732323712
 Z30 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
 Z31 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
-!i122 2150
-L0 4 203
+!i122 2153
+L0 4 206
 R23
 31
 R24
@@ -1297,19 +1299,19 @@ R28
 R15
 R16
 R17
-Vlk38kQB;cB0k]5Y]gaJ9Y2
+V>bZH6FWnP3PeFWGH;YRRl2
 r1
 !s85 0
 !i10b 1
-!s100 mTao@_RoZ@1S?F4K<cKJM1
-Ilk38kQB;cB0k]5Y]gaJ9Y2
+!s100 >SH2o>QF287Xz@0]A6E0A0
+I>bZH6FWnP3PeFWGH;YRRl2
 !i103 1
 S1
 R19
 R29
 R30
 R31
-!i122 2150
+!i122 2153
 Z34 L0 1 0
 R23
 31
@@ -1336,7 +1338,7 @@ R19
 R20
 R21
 R22
-!i122 2149
+!i122 2152
 L0 8 0
 R23
 31
@@ -1358,7 +1360,7 @@ R19
 w1731527356
 8/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
 F/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
-!i122 2148
+!i122 2151
 R34
 VTC9@ijJ<n4:FnHCKRiHHU1
 R23
