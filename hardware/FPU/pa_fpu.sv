@@ -42,5 +42,15 @@ package pa_fpu;
     mul_result_valid_st
   } e_mul_states;
 
+  typedef enum logic [2:0]{
+    div_idle_st,
+    div_start_st,
+    div_shift_st,
+    div_sub_divisor_test_st,
+    div_set_a0_0_st,
+    div_set_a0_1_st,
+    div_check_counter_st,
+    div_result_valid_st
+  } e_div_states;
 
 endpackage

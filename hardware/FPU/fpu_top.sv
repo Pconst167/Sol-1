@@ -3,7 +3,16 @@
 // It is written in SystemVerilog here for prototyping purposes, and after that will be built in hardware for the Sol-1 system
 //
 // Created P Const 2024
-
+//
+// division algorithm
+// 1 - mdr = 0, counter = 32
+// 2 - a = dividend, b = divisor
+// 3 - shl mdr|a
+// 4 - mdr = mdr - b
+// 5 - mdr[31] = 1 ? a[0] = 0, restore mdr : a[0] = 1
+// 6 - counter = counter - 1
+// 7 - counter == 0 ? quotient in a, remainder in mdr : goto 3
+//
 
 import pa_fpu::*;
 
@@ -63,18 +72,27 @@ module fpu(
   logic                 pos_infinity;
   logic                 neg_infinity;
 
+  // multiplication datapath signals
   logic          [23:0] multiplicand;
   logic          [48:0] product_multiplier;  // keeps the product and multiplier. shifted right till product occupies entire space and multiplier disappears
   logic          [ 4:0] mul_cycle_counter;   // this keeps a count of how many times we have performed the product addition cycle. total = 24.
 
-  pa_fpu::e_fpu_operations operation; // arithmetic operation to be performed
-  logic                 start_operation;
-
-  // multiplication datapath control signals
   logic                 product_add;
   logic                 product_shift;
   logic                 start_operation_mul_fsm;  // ...
   logic                 operation_done_mul_fsm;   // for handshake between main fsm and multiply fsm
+
+  // division datapath signals
+  logic          [63:0] remainder_dividend;
+  logic          [31:0] divisor;
+  logic           [5:0] div_counter;
+  logic                 div_shift              ;
+  logic                 div_sub_divisor        ;
+  logic                 start_operation_div_fsm;  
+  logic                 operation_done_div_fsm;   
+
+  pa_fpu::e_fpu_operations operation; // arithmetic operation to be performed
+  logic                    start_operation;
 
   // other datapath control signals
   logic                    operation_wrt; // when needing to internally change the operator
@@ -93,6 +111,8 @@ module fpu(
   pa_fpu::e_arith_states next_state_arith_fsm;
   pa_fpu::e_mul_states   curr_state_mul_fsm;
   pa_fpu::e_mul_states   next_state_mul_fsm;
+  pa_fpu::e_div_states   curr_state_div_fsm;
+  pa_fpu::e_div_states   next_state_div_fsm;
 
 
   // ---------------------------------------------------------------------------------------
@@ -301,12 +321,12 @@ module fpu(
         result_mantissa_multiplication = product_multiplier[47:24];
         result_exp_multiplication  = aexp_no_bias + bexp_no_bias;
         result_sign_multiplication = a_sign ^ b_sign;
-        if(result_mantissa_multiplication[23] == 1'b1) begin
-          result_exp_multiplication = result_exp_multiplication + 8'd1; // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, and so really the result we had was 10.xxx or 11.xxx for example, and so the final result needs to be multiplied by 2
-        end
-        else if(result_mantissa_multiplication[23] == 1'b0) begin
-          result_mantissa_multiplication = result_mantissa_multiplication << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
-        end
+        if(result_mantissa_multiplication[23] == 1'b1)
+          result_exp_multiplication = result_exp_multiplication + 8'd1; // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, 
+                                                                        // and so really the result we had was 10.xxx or 11.xxx for example, and so the final result needs to be multiplied by 2
+        else if(result_mantissa_multiplication[23] == 1'b0)
+          result_mantissa_multiplication = result_mantissa_multiplication << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa 
+                                                                                // or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
         result_exp_multiplication = result_exp_multiplication + 8'd127; // normalize exponent
         end
     end
@@ -551,6 +571,134 @@ module fpu(
     if(arst) curr_state_mul_fsm <= mul_idle_st;
     else curr_state_mul_fsm <= next_state_mul_fsm;
   end
+
+  // ------------------------------------------------------------------------------------------------
+
+  // division datapath
+  always @(posedge clk, posedge arst) begin
+    if(arst) begin
+      remainder_dividend <= '0;
+      div_counter        <= '0;
+      divisor            <= '0;
+    end
+    else begin
+      if(next_state_div_fsm == pa_fpu::div_start_st) begin
+        div_counter <= 32;
+        divisor <= b_mantissa;
+        remainder_dividend <= {32'd0, a_mantissa};
+      end
+      if(div_shift) begin
+        remainder_dividend = remainder_dividend << 1;
+      end
+      if(next_state_div_fsm == pa_fpu::div_set_a0_0_st) begin
+        remainder_dividend[0] <= 1'b0;
+        div_counter <= div_counter - 1;
+      end
+      if(next_state_div_fsm == pa_fpu::div_set_a0_1_st) begin
+        remainder_dividend[0] <= 1'b1;
+        div_counter <= div_counter - 1;
+      end
+
+      if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
+        result_mantissa_division <= remainder_dividend[31:0];
+        result_exp_division = aexp_no_bias - bexp_no_bias;
+        result_sign_division = a_sign ^ b_sign;
+        result_exp_division = result_exp_division + 8'd127; // normalize exponent
+        end
+    end
+  end
+
+  // divide fsm
+  // next state assignments
+  always_comb begin
+    next_state_div_fsm = curr_state_div_fsm;
+
+    case(curr_state_div_fsm)
+      pa_fpu::div_idle_st: 
+        if(start_operation_div_fsm) next_state_div_fsm = pa_fpu::div_start_st;
+
+      pa_fpu::div_start_st:
+        next_state_div_fsm = pa_fpu::div_shift_st;
+      
+      pa_fpu::div_shift_st:
+        next_state_div_fsm = pa_fpu::div_sub_divisor_test_st;
+      
+      pa_fpu::div_sub_divisor_test_st:
+        if(remainder_dividend[63:32] - divisor > 0) next_state_div_fsm = pa_fpu::div_set_a0_1_st;
+        else next_state_div_fsm = pa_fpu::div_set_a0_0_st;
+      
+      pa_fpu::div_set_a0_0_st:
+        if(div_counter == 6'h0) next_state_div_fsm = pa_fpu::div_result_valid_st;
+        else next_state_div_fsm = pa_fpu::div_shift_st;
+
+      pa_fpu::div_set_a0_1_st:
+        if(div_counter == 6'h0) next_state_div_fsm = pa_fpu::div_result_valid_st;
+        else next_state_div_fsm = pa_fpu::div_shift_st;
+      
+      pa_fpu::div_result_valid_st:
+        if(start_operation_div_fsm == 1'b0) next_state_div_fsm = pa_fpu::div_idle_st;
+
+      default:
+        next_state_div_fsm = pa_fpu::div_idle_st;
+    endcase
+  end
+
+  // divide fsm
+  // output assignments
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) begin
+      operation_done_div_fsm <= 1'b0;
+      div_shift              <= 1'b0;
+      div_sub_divisor        <= 1'b0;
+    end
+    else begin
+      case(next_state_div_fsm)
+        pa_fpu::div_idle_st: begin
+          operation_done_div_fsm <= 1'b0;
+          div_shift              <= 1'b0;
+          div_sub_divisor        <= 1'b0;
+        end
+        pa_fpu::div_start_st: begin
+          operation_done_div_fsm <= 1'b0;
+          div_shift              <= 1'b0;
+          div_sub_divisor        <= 1'b0;
+        end
+        pa_fpu::div_shift_st: begin
+          operation_done_div_fsm <= 1'b0;
+          div_shift              <= 1'b1;
+          div_sub_divisor        <= 1'b0;
+        end
+        pa_fpu::div_sub_divisor_test_st: begin
+          operation_done_div_fsm <= 1'b0;
+          div_shift              <= 1'b0;
+          div_sub_divisor        <= 1'b0;
+        end
+        pa_fpu::div_set_a0_0_st: begin
+          operation_done_div_fsm <= 1'b0;
+          div_shift              <= 1'b0;
+          div_sub_divisor        <= 1'b0;
+        end
+        pa_fpu::div_set_a0_1_st: begin
+          operation_done_div_fsm <= 1'b0;
+          div_shift              <= 1'b0;
+          div_sub_divisor        <= 1'b0;
+        end
+        pa_fpu::div_result_valid_st: begin
+          operation_done_div_fsm <= 1'b1;
+          div_shift              <= 1'b0;
+          div_sub_divisor        <= 1'b0;
+        end
+      endcase  
+    end
+  end
+
+  // divide fsm
+  // next state clocking
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) curr_state_div_fsm <= div_idle_st;
+    else curr_state_div_fsm <= next_state_div_fsm;
+  end
+
 
 // to calculate sine:
 // x - x^3 * 1/6  + x^5 * 1/120   - x^7 * 1/5040
