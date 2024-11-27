@@ -30,6 +30,7 @@ package pa_fpu;
     arith_mul_st,
     arith_mul_done_st,
     arith_div_st,
+    arith_div_done_st,
     arith_result_valid_st
   } e_arith_states;
 

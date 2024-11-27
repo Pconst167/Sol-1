@@ -83,11 +83,12 @@ module fpu(
   logic                 operation_done_mul_fsm;   // for handshake between main fsm and multiply fsm
 
   // division datapath signals
-  logic          [63:0] remainder_dividend;
-  logic          [31:0] divisor;
+  logic          [47:0] remainder_dividend;
+  logic          [24:0] divisor;
   logic           [5:0] div_counter;
-  logic                 div_shift              ;
-  logic                 div_sub_divisor        ;
+  logic                 div_carry;
+  logic                 div_shift;
+  logic                 div_sub_divisor;
   logic                 start_operation_div_fsm;  
   logic                 operation_done_div_fsm;   
 
@@ -431,7 +432,9 @@ module fpu(
         if(operation_done_mul_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_result_valid_st;
 
       pa_fpu::arith_div_st:
-        next_state_arith_fsm = pa_fpu::arith_result_valid_st;
+        if(operation_done_div_fsm == 1'b1) next_state_arith_fsm = pa_fpu::arith_div_done_st;
+      pa_fpu::arith_div_done_st:
+        if(operation_done_div_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_result_valid_st;
 
       pa_fpu::arith_result_valid_st:
         if(start_operation_ar_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_idle_st;
@@ -472,7 +475,11 @@ module fpu(
         end
         pa_fpu::arith_div_st: begin
           operation_done_ar_fsm <= 1'b0;
-          start_operation_mul_fsm <= 1'b0;
+          start_operation_div_fsm <= 1'b1;
+        end
+        pa_fpu::arith_div_done_st: begin
+          operation_done_ar_fsm <= 1'b0;
+          start_operation_div_fsm <= 1'b0;
         end
         pa_fpu::arith_result_valid_st: begin
           operation_done_ar_fsm <= 1'b1;
@@ -584,8 +591,8 @@ module fpu(
     else begin
       if(next_state_div_fsm == pa_fpu::div_start_st) begin
         div_counter <= 32;
-        divisor <= b_mantissa;
-        remainder_dividend <= {32'd0, a_mantissa};
+        divisor <= b_mantissa[23:0]; // from bit 0 up to MSB which is always 1
+        remainder_dividend <= {24'd0, a_mantissa[23:0]};
       end
       if(div_shift) begin
         remainder_dividend = remainder_dividend << 1;
@@ -597,13 +604,17 @@ module fpu(
       if(next_state_div_fsm == pa_fpu::div_set_a0_1_st) begin
         remainder_dividend[0] <= 1'b1;
         div_counter <= div_counter - 1;
+        remainder_dividend[47:24] = remainder_dividend[47:24] + (~divisor + 1'b1);
       end
-
       if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
-        result_mantissa_division <= remainder_dividend[31:0];
+        result_mantissa_division <= remainder_dividend[23:0];
         result_exp_division = aexp_no_bias - bexp_no_bias;
         result_sign_division = a_sign ^ b_sign;
         result_exp_division = result_exp_division + 8'd127; // normalize exponent
+        while(result_mantissa_division[23] == 1'b0) begin
+          result_mantissa_division = result_mantissa_division << 1;
+          result_exp_division = result_exp_division - 1;
+        end
         end
     end
   end
@@ -611,6 +622,7 @@ module fpu(
   // divide fsm
   // next state assignments
   always_comb begin
+    logic [24:0] intermediary;
     next_state_div_fsm = curr_state_div_fsm;
 
     case(curr_state_div_fsm)
@@ -623,9 +635,11 @@ module fpu(
       pa_fpu::div_shift_st:
         next_state_div_fsm = pa_fpu::div_sub_divisor_test_st;
       
-      pa_fpu::div_sub_divisor_test_st:
-        if(remainder_dividend[63:32] - divisor > 0) next_state_div_fsm = pa_fpu::div_set_a0_1_st;
-        else next_state_div_fsm = pa_fpu::div_set_a0_0_st;
+      pa_fpu::div_sub_divisor_test_st: begin
+        intermediary = remainder_dividend[47:24] + (~divisor + 1'b1);
+        if(intermediary[24] == 1'b0) next_state_div_fsm = pa_fpu::div_set_a0_1_st; // result is positive
+        else next_state_div_fsm = pa_fpu::div_set_a0_0_st; // result is negative
+      end
       
       pa_fpu::div_set_a0_0_st:
         if(div_counter == 6'h0) next_state_div_fsm = pa_fpu::div_result_valid_st;
