@@ -83,12 +83,14 @@ module fpu(
   logic                 operation_done_mul_fsm;   // for handshake between main fsm and multiply fsm
 
   // division datapath signals
-  logic          [48:0] remainder_dividend;
+  logic          [48:0] remainder_dividend; // 24 bits for quotient, 25 bits for the subtraction register (one more bit needed at MSB position for when dividend < divisor)
+                                            // in such a case, the dividend is shifted left until it becomes larger than divisor and subtraction can happen (for fractional divisions)
   logic          [23:0] divisor;
   logic           [5:0] div_counter;
   logic                 div_carry;
   logic                 div_shift;
   logic                 div_sub_divisor;
+  logic                 div_set_a0_1;
   logic                 start_operation_div_fsm;  
   logic                 operation_done_div_fsm;   
 
@@ -592,20 +594,14 @@ module fpu(
       if(next_state_div_fsm == pa_fpu::div_start_st) begin
         div_counter <= 47;
         divisor <= b_mantissa[23:0]; // from bit 0 up to MSB which is always 1
-        remainder_dividend <= {25'd0, a_mantissa[23:0]};
+        remainder_dividend <= {25'd0, a_mantissa[23:0]}; // dividend in lower half
       end
-      if(div_shift) begin
-        remainder_dividend = remainder_dividend << 1;
-      end
-      if(next_state_div_fsm == pa_fpu::div_set_a0_0_st) begin
-        remainder_dividend[0] <= 1'b0;
-        div_counter <= div_counter - 1;
-      end
-      if(next_state_div_fsm == pa_fpu::div_set_a0_1_st) begin
+      if(div_shift) remainder_dividend = remainder_dividend << 1;
+      if(div_set_a0_1) begin
         remainder_dividend[0] <= 1'b1;
-        div_counter <= div_counter - 1;
-        remainder_dividend[48:24] = remainder_dividend[48:24] + (~divisor + 1'b1);
+        remainder_dividend[48:24] = remainder_dividend[48:24] + ~{1'b0, divisor} + 1'b1;
       end
+      if(next_state_div_fsm == pa_fpu::div_sub_divisor_test_st)  div_counter <= div_counter - 1;
       if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
         logic [23:0] m;
         m = remainder_dividend[23:0];
@@ -639,15 +635,14 @@ module fpu(
       
       pa_fpu::div_sub_divisor_test_st: begin
         intermediary = remainder_dividend[48:24] + (~divisor + 1'b1);
-        if(intermediary[24] == 1'b1) next_state_div_fsm = pa_fpu::div_set_a0_0_st; // result is negative
+        if(intermediary[24] == 1'b1) next_state_div_fsm = pa_fpu::div_check_counter_st; // result is negative
         else next_state_div_fsm = pa_fpu::div_set_a0_1_st; // result is positive
       end
       
-      pa_fpu::div_set_a0_0_st:
-        if(div_counter == 6'h0) next_state_div_fsm = pa_fpu::div_result_valid_st;
-        else next_state_div_fsm = pa_fpu::div_shift_st;
-
       pa_fpu::div_set_a0_1_st:
+        next_state_div_fsm = pa_fpu::div_check_counter_st;
+
+      pa_fpu::div_check_counter_st:
         if(div_counter == 6'h0) next_state_div_fsm = pa_fpu::div_result_valid_st;
         else next_state_div_fsm = pa_fpu::div_shift_st;
       
@@ -666,6 +661,7 @@ module fpu(
       operation_done_div_fsm <= 1'b0;
       div_shift              <= 1'b0;
       div_sub_divisor        <= 1'b0;
+      div_set_a0_1           <= 1'b0;
     end
     else begin
       case(next_state_div_fsm)
@@ -673,36 +669,43 @@ module fpu(
           operation_done_div_fsm <= 1'b0;
           div_shift              <= 1'b0;
           div_sub_divisor        <= 1'b0;
+          div_set_a0_1           <= 1'b0;
         end
         pa_fpu::div_start_st: begin
           operation_done_div_fsm <= 1'b0;
           div_shift              <= 1'b0;
           div_sub_divisor        <= 1'b0;
+          div_set_a0_1           <= 1'b0;
         end
         pa_fpu::div_shift_st: begin
           operation_done_div_fsm <= 1'b0;
           div_shift              <= 1'b1;
           div_sub_divisor        <= 1'b0;
+          div_set_a0_1           <= 1'b0;
         end
         pa_fpu::div_sub_divisor_test_st: begin
           operation_done_div_fsm <= 1'b0;
           div_shift              <= 1'b0;
           div_sub_divisor        <= 1'b0;
-        end
-        pa_fpu::div_set_a0_0_st: begin
-          operation_done_div_fsm <= 1'b0;
-          div_shift              <= 1'b0;
-          div_sub_divisor        <= 1'b0;
+          div_set_a0_1           <= 1'b0;
         end
         pa_fpu::div_set_a0_1_st: begin
           operation_done_div_fsm <= 1'b0;
           div_shift              <= 1'b0;
           div_sub_divisor        <= 1'b0;
+          div_set_a0_1           <= 1'b1;
+        end
+        pa_fpu::div_check_counter_st: begin
+          operation_done_div_fsm <= 1'b0;
+          div_shift              <= 1'b0;
+          div_sub_divisor        <= 1'b0;
+          div_set_a0_1           <= 1'b0;
         end
         pa_fpu::div_result_valid_st: begin
           operation_done_div_fsm <= 1'b1;
           div_shift              <= 1'b0;
           div_sub_divisor        <= 1'b0;
+          div_set_a0_1           <= 1'b0;
         end
       endcase  
     end
