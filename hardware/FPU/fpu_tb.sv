@@ -43,6 +43,9 @@ module fpu_tb;
     write_operand_a(32'h42f63efa); //  123.123
     write_operand_b(32'h43a6aaa0); //  333.333     43e43a5e
 
+    //write_operand_a(32'h4426bff0); //  666.999
+    //write_operand_b(32'h444271ba); //  777.777    3f5b89c6      0.857571000428
+
     //write_operand_a(32'h4426ffdf); //  667.998       result: 447bc7be
     //write_operand_b(32'h43a98fbe); //  339.123
 

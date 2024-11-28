@@ -607,13 +607,14 @@ module fpu(
         remainder_dividend[48:24] = remainder_dividend[48:24] + (~divisor + 1'b1);
       end
       if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
-        logic [24:0] m;
+        logic [23:0] m;
         m = remainder_dividend[23:0];
         result_exp_division = aexp_no_bias - bexp_no_bias;
         result_sign_division = a_sign ^ b_sign;
         result_exp_division = result_exp_division + 8'd127; // normalize exponent
         while(m[23] == 1'b0) begin
           m = m << 1;
+          result_exp_division = result_exp_division - 1;
         end
         result_mantissa_division <= m;
       end
