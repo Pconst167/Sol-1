@@ -37,11 +37,11 @@ module fpu_tb;
 //  write_operand_a(32'h00000001); //  smallest sub-normal
 //  write_operand_b(32'h00000001); //  1e-45
 
-    //write_operand_a(32'h4d96890d); //  315695520
-    //write_operand_b(32'h4a447fad); //  3219435.3       result: 4d98120c
+    write_operand_a(32'h4d96890d); //  315695520
+    write_operand_b(32'h4a447fad); //  3219435.3       
 
-    write_operand_b(32'h440de44a); //  567.567
-    write_operand_a(32'h4640e47e); //  12345.12345        3d3c5047
+    //write_operand_b(32'h440de44a); //  567.567
+    //write_operand_a(32'h4640e47e); //  12345.12345        3d3c5047
 
     //write_operand_a(32'h4426bff0); //  666.999
     //write_operand_b(32'h444271ba); //  777.777    3f5b89c6      0.857571000428
