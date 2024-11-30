@@ -2,16 +2,7 @@
 // This is an FPU unit that will perform addition, subtraction, multiplication, division, square root, and transcendental functions
 // It is written in SystemVerilog here for prototyping purposes, and after that will be built in hardware for the Sol-1 system
 //
-// Created P Const 2024
-//
-// division algorithm
-// 1 - mdr = 0, counter = 32
-// 2 - a = dividend, b = divisor
-// 3 - shl mdr|a
-// 4 - mdr = mdr - b
-// 5 - mdr[31] = 1 ? a[0] = 0, restore mdr : a[0] = 1
-// 6 - counter = counter - 1
-// 7 - counter == 0 ? quotient in a, remainder in mdr : goto 3
+// Created P. Constantino 2024
 //
 
 import pa_fpu::*;
