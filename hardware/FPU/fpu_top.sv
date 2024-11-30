@@ -592,9 +592,9 @@ module fpu(
     end
     else begin
       if(next_state_div_fsm == pa_fpu::div_start_st) begin
-        div_counter <= 23;
+        div_counter <= 24;
         divisor <= b_mantissa[23:0]; // from bit 0 up to MSB which is always 1
-        remainder_dividend <= {1'b0, a_mantissa[23:0], 24'd0}; // dividend in lower half
+        remainder_dividend <= {2'b00, a_mantissa[23:0], 23'd0}; // dividend in lower half
       end
       if(div_shift) remainder_dividend = remainder_dividend << 1;
       if(div_set_a0_1) begin

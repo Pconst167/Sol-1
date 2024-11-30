@@ -1,0 +1,164 @@
+m255
+K4
+z2
+Z0 !s12c _opt
+Z1 !s99 nomlopt
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+R0
+R1
+!s11f vlog 2024.1 2024.04, Apr 19 2024
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z2 d/home/pconst/Desktop/IMG
+T_opt
+!s110 1732708995
+V:Bof:<eB;Zn;^JIQB<mi]3
+04 15 4 work comb_divider_tb fast 0
+=35-000ae431a4f1-67470a83-a8d1b-11d51
+R1
+!s12f OEM100
+!s12b OEM100
+!s124 OEM10U2 
+o-quiet -auto_acc_if_foreign -work work +acc
+Z3 tCvgOpt 0
+n@_opt
+OL;O;2024.1;79
+R2
+vcomb_divider
+2/home/pconst/Desktop/IMG/comb_divider/comb_divider.sv
+Z4 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+Z5 !s110 1732709008
+!i10b 1
+!s100 9WL^5IZi=X^E4b44bYQbE0
+IXEdA:V_k>6hT@4kcb7iXa3
+S1
+Z6 d/home/pconst/Desktop/IMG/comb_divider
+w1732709005
+8/home/pconst/Desktop/IMG/comb_divider/comb_divider.sv
+F/home/pconst/Desktop/IMG/comb_divider/comb_divider.sv
+!i122 72
+L0 1 42
+Z7 VDg1SIo80bB@j0V0VzS_@n1
+Z8 OL;L;2024.1;79
+r1
+!s85 0
+31
+Z9 !s108 1732709008.000000
+!s107 /home/pconst/Desktop/IMG/comb_divider/comb_divider.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/IMG/comb_divider/comb_divider.sv|
+!i113 0
+Z10 o-work work -sv -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R3
+vcomb_divider_tb
+2/home/pconst/Desktop/IMG/comb_divider/comb_divider_tb.sv
+R4
+R5
+!i10b 1
+!s100 hf?H3j^_:a5kGf2R5dZ]A1
+IW1VC[;Q3H<MmDCnK6I@9n0
+S1
+R6
+w1732697003
+8/home/pconst/Desktop/IMG/comb_divider/comb_divider_tb.sv
+F/home/pconst/Desktop/IMG/comb_divider/comb_divider_tb.sv
+!i122 73
+Z11 L0 3 24
+R7
+R8
+r1
+!s85 0
+31
+R9
+!s107 /home/pconst/Desktop/IMG/comb_divider/comb_divider_tb.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/IMG/comb_divider/comb_divider_tb.sv|
+!i113 0
+R10
+R3
+vfpu_tb
+2/home/pconst/Desktop/IMG/comb_divider/fpu_tb.sv
+R4
+!s110 1732637712
+!i10b 1
+!s100 j<4TQMI_oCKRf_=[`;<7Z1
+Ikc1]f@USTO>l`]U=PFdA92
+S1
+R6
+w1732637709
+8/home/pconst/Desktop/IMG/comb_divider/fpu_tb.sv
+F/home/pconst/Desktop/IMG/comb_divider/fpu_tb.sv
+!i122 1
+R11
+R7
+R8
+r1
+!s85 0
+31
+!s108 1732637712.000000
+!s107 /home/pconst/Desktop/IMG/comb_divider/fpu_tb.sv|
+!s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/IMG/comb_divider/fpu_tb.sv|
+!i113 0
+R10
+R3
