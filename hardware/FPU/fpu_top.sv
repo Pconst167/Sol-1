@@ -147,6 +147,28 @@ module fpu(
 
   // ---------------------------------------------------------------------------------------
 
+  always @(posedge clk, posedge arst) begin
+    if(arst) result_ieee_packet <= '0;
+    else if(curr_state_arith_fsm == pa_fpu::arith_result_valid_st) begin
+      case(operation)
+        op_add: 
+          result_ieee_packet = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
+        op_sub: 
+          result_ieee_packet = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
+        op_mul: 
+          result_ieee_packet = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
+        op_square: 
+          result_ieee_packet = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
+        op_div: 
+          result_ieee_packet = {result_sign_division, result_exp_division, result_mantissa_division[22:0]};
+        op_sqrt: 
+          result_ieee_packet = {1'b0, result_exp_sqrt, result_mantissa_sqrt[22:0]};
+      endcase
+    end
+  end
+
+  // ---------------------------------------------------------------------------------------
+
   always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       operand_a  <= {1'b0, 8'd127, 23'h0};
@@ -203,6 +225,9 @@ module fpu(
     end
     else databus_out = 'z;
   end
+
+  // ---------------------------------------------------------------------------------------
+  // addition & subtraction combinational datapath
 
   // if aexp < bexp, then increase aexp and right-shift a_mantissa by same number
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
@@ -283,26 +308,6 @@ module fpu(
           end
       end
       result_exp_add_sub = result_exp_add_sub + 8'd127;
-    end
-  end
-
-  always @(posedge clk, posedge arst) begin
-    if(arst) result_ieee_packet <= '0;
-    else if(curr_state_arith_fsm == pa_fpu::arith_result_valid_st) begin
-      case(operation)
-        op_add: 
-          result_ieee_packet = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
-        op_sub: 
-          result_ieee_packet = {result_sign_add_sub, result_exp_add_sub, result_mantissa_add_sub[22:0]};
-        op_mul: 
-          result_ieee_packet = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
-        op_square: 
-          result_ieee_packet = {result_sign_multiplication, result_exp_multiplication, result_mantissa_multiplication[22:0]};
-        op_div: 
-          result_ieee_packet = {result_sign_division, result_exp_division, result_mantissa_division[22:0]};
-        op_sqrt: 
-          result_ieee_packet = {1'b0, result_exp_sqrt, result_mantissa_sqrt[22:0]};
-      endcase
     end
   end
 
