@@ -110,6 +110,7 @@ module fpu(
   logic [25:-3] temp_mantissa;
   logic [25:-3] temp_mantissa_plus_epsilon;
   logic sticky;
+  logic [25:0] intermediary;
 
   pa_fpu::e_main_states  curr_state_main_fsm;
   pa_fpu::e_main_states  next_state_main_fsm;
@@ -121,7 +122,6 @@ module fpu(
   pa_fpu::e_div_states   next_state_div_fsm;
   pa_fpu::e_div_states   curr_state_sqrt_fsm;
   pa_fpu::e_div_states   next_state_sqrt_fsm;
-
 
   // ---------------------------------------------------------------------------------------
   // assignments
@@ -606,7 +606,7 @@ module fpu(
       if(div_shift) remainder_dividend = remainder_dividend << 1;
       if(div_set_a0_1) begin
         remainder_dividend[0] <= 1'b1;
-        remainder_dividend[48:24] = remainder_dividend[48:24] + ~{1'b0, divisor} + 1'b1;
+        remainder_dividend[48:24] = {1'b0, remainder_dividend[48:24]} + ~{2'b00, divisor} + 26'b1;
       end
       if(next_state_div_fsm == pa_fpu::div_sub_divisor_test_st)  div_counter <= div_counter - 1;
       if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
@@ -625,7 +625,6 @@ module fpu(
   // divide fsm
   // next state assignments
   always_comb begin
-    logic [24:0] intermediary;
     next_state_div_fsm = curr_state_div_fsm;
 
     case(curr_state_div_fsm)
@@ -639,8 +638,8 @@ module fpu(
         next_state_div_fsm = pa_fpu::div_sub_divisor_test_st;
       
       pa_fpu::div_sub_divisor_test_st: begin
-        intermediary = remainder_dividend[48:24] + (~divisor + 1'b1);
-        if(intermediary[24] == 1'b1) next_state_div_fsm = pa_fpu::div_check_counter_st; // result is negative
+        intermediary = {1'b0, remainder_dividend[48:24]} + (~{2'b00, divisor} + 26'b1);
+        if(intermediary[25] == 1'b1) next_state_div_fsm = pa_fpu::div_check_counter_st; // result is negative
         else next_state_div_fsm = pa_fpu::div_set_a0_1_st; // result is positive
       end
       
