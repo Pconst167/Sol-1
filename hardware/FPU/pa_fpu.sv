@@ -58,7 +58,7 @@ package pa_fpu;
     sqrt_start_st,
     sqrt_div_setup_st,
     sqrt_wait_div_done_st,
-    sqrt_addition_setup_st,
+    sqrt_addition_st,
     sqrt_shift_st,
     sqrt_check_counter_st,
     sqrt_result_valid_st

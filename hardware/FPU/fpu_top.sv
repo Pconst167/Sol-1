@@ -798,10 +798,10 @@ module fpu(
         next_state_sqrt_fsm = pa_fpu::sqrt_wait_div_done_st;
       end
       pa_fpu::sqrt_wait_div_done_st: begin
-        if(operation_done_div_fsm) next_state_sqrt_fsm = pa_fpu::sqrt_addition_setup_st;
+        if(operation_done_div_fsm) next_state_sqrt_fsm = pa_fpu::sqrt_addition_st;
         else next_state_sqrt_fsm = pa_fpu::sqrt_wait_div_done_st;
       end
-      pa_fpu::sqrt_addition_setup_st: begin
+      pa_fpu::sqrt_addition_st: begin
         
       end
       
@@ -811,7 +811,7 @@ module fpu(
       
       pa_fpu::sqrt_check_counter_st:
         if(sqrt_counter == 6'h0) next_state_sqrt_fsm = pa_fpu::sqrt_result_valid_st;
-        else next_state_sqrt_fsm = pa_fpu::sqrt_shift_st;
+        else next_state_sqrt_fsm = pa_fpu::sqrt_div_setup_st;
       
       pa_fpu::sqrt_result_valid_st:
         if(start_operation_sqrt_fsm == 1'b0) next_state_sqrt_fsm = pa_fpu::sqrt_idle_st;
