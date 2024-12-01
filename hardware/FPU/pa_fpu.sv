@@ -53,4 +53,14 @@ package pa_fpu;
     div_result_valid_st
   } e_div_states;
 
+  typedef enum logic [2:0]{
+    sqrt_idle_st,
+    sqrt_start_st,
+    sqrt_div_st,
+    sqrt_add_st,
+    sqrt_shift_st,
+    sqrt_check_counter_st,
+    sqrt_result_valid_st
+  } e_sqrt_states;
+
 endpackage

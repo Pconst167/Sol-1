@@ -75,67 +75,67 @@ module fpu_tb;
     .busy        (busy)
   );
 
-task ta_start_operation;
-  @(posedge clk);
-  cs = 1'b0;
-  addr = 4'h9;
-  @(negedge clk);
-  wr = 1'b0;
-  @(negedge clk);
-  wr = 1'b1;
-  @(posedge clk);
-  cs = 1'b1;
-endtask
+  task ta_start_operation;
+    @(posedge clk);
+    cs = 1'b0;
+    addr = 4'h9;
+    @(negedge clk);
+    wr = 1'b0;
+    @(negedge clk);
+    wr = 1'b1;
+    @(posedge clk);
+    cs = 1'b1;
+  endtask
 
-task ta_set_operation(pa_fpu::e_fpu_operations operation);
-  // write operation
-  @(posedge clk);
-  cs = 1'b0;
-  databus_in = operation;
-  addr = 4'h8;
-  @(negedge clk);
-  wr = 1'b0;
-  @(negedge clk);
-  wr = 1'b1;
-  @(posedge clk);
-  cs = 1'b1;
-endtask
+  task ta_set_operation(pa_fpu::e_fpu_operations operation);
+    // write operation
+    @(posedge clk);
+    cs = 1'b0;
+    databus_in = operation;
+    addr = 4'h8;
+    @(negedge clk);
+    wr = 1'b0;
+    @(negedge clk);
+    wr = 1'b1;
+    @(posedge clk);
+    cs = 1'b1;
+  endtask
 
-task ta_read_result(output logic [31:0] result);
-  // Wait for the command to execute and end before reading result
-  @(posedge cmd_end);
+  task ta_read_result(output logic [31:0] result);
+    // Wait for the command to execute and end before reading result
+    @(posedge cmd_end);
 
-  // Read result
-  @(posedge clk);
-  cs = 1'b0;
-  addr = 4'h9;
-  @(negedge clk);
-  rd = 1'b0;
-  @(negedge clk);
-  result[7:0] = databus_out;
-  @(negedge clk);
-  addr = 4'hA;
-  @(negedge clk);
-  result[15:8] = databus_out;
-  @(negedge clk);
-  addr = 4'hB;
-  @(negedge clk);
-  result[23:16] = databus_out;
-  @(negedge clk);
-  addr = 4'hC;
-  @(negedge clk);
-  result[31:24] = databus_out;
-  @(negedge clk);
-  rd = 1'b1;
-  @(negedge clk);
-  cs = 1'b1;
+    // Read result
+    @(posedge clk);
+    cs = 1'b0;
+    addr = 4'h9;
+    @(negedge clk);
+    rd = 1'b0;
+    @(negedge clk);
+    result[7:0] = databus_out;
+    @(negedge clk);
+    addr = 4'hA;
+    @(negedge clk);
+    result[15:8] = databus_out;
+    @(negedge clk);
+    addr = 4'hB;
+    @(negedge clk);
+    result[23:16] = databus_out;
+    @(negedge clk);
+    addr = 4'hC;
+    @(negedge clk);
+    result[31:24] = databus_out;
+    @(negedge clk);
+    rd = 1'b1;
+    @(negedge clk);
+    cs = 1'b1;
 
-  // send acknowledge signal
-  end_ack = 1'b1;
-  @(negedge cmd_end);
-  @(negedge clk);
-  end_ack = 1'b0;
-endtask
+    // send acknowledge signal
+    end_ack = 1'b1;
+    @(negedge cmd_end);
+    @(negedge clk);
+    end_ack = 1'b0;
+  endtask
 
   task write_operand_a(
     input logic [31:0] op_a
@@ -208,8 +208,5 @@ endtask
     @(negedge clk);
     cs = 1'b1;
   endtask
-
-
-
 
 endmodule
