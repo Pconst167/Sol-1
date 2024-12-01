@@ -120,8 +120,8 @@ module fpu(
   pa_fpu::e_mul_states   next_state_mul_fsm;
   pa_fpu::e_div_states   curr_state_div_fsm;
   pa_fpu::e_div_states   next_state_div_fsm;
-  pa_fpu::e_div_states   curr_state_sqrt_fsm;
-  pa_fpu::e_div_states   next_state_sqrt_fsm;
+  pa_fpu::e_sqrt_states  curr_state_sqrt_fsm;
+  pa_fpu::e_sqrt_states  next_state_sqrt_fsm;
 
   // ---------------------------------------------------------------------------------------
   // assignments
@@ -328,16 +328,17 @@ module fpu(
       end
       // this is tested on current state rather than next state because when the fsm reaches mul_result_set_st, the shift operation is clocked in 
       if(curr_state_mul_fsm == pa_fpu::mul_result_set_st) begin
-        result_mantissa_multiplication = product_multiplier[47:24];
-        result_exp_multiplication  = aexp_no_bias + bexp_no_bias;
-        result_sign_multiplication = a_sign ^ b_sign;
-        if(result_mantissa_multiplication[23] == 1'b1)
-          result_exp_multiplication = result_exp_multiplication + 8'd1; // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, 
-                                                                        // and so really the result we had was 10.xxx or 11.xxx for example, and so the final result needs to be multiplied by 2
-        else if(result_mantissa_multiplication[23] == 1'b0)
-          result_mantissa_multiplication = result_mantissa_multiplication << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa 
-                                                                                // or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
-        result_exp_multiplication = result_exp_multiplication + 8'd127; // normalize exponent
+        automatic logic [23:0] m = product_multiplier[47:24];
+        automatic logic [7:0] e = aexp_no_bias + bexp_no_bias + 8'd127;
+        result_sign_multiplication <= a_sign ^ b_sign;
+        if(m[23] == 1'b1)
+          e = e + 8'd1; // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, 
+                        // and so really the result we had was 10.xxx or 11.xxx for example, and so the final result needs to be multiplied by 2
+        else if(m[23] == 1'b0)
+          m = m << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa 
+                      // or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
+        result_exp_multiplication <= e;
+        result_mantissa_multiplication <= m;
         end
     end
   end
@@ -603,21 +604,22 @@ module fpu(
         divisor <= b_mantissa[23:0]; // from bit 0 up to MSB which is always 1
         remainder_dividend <= {2'b00, a_mantissa[23:0], 23'd0}; // dividend in lower half
       end
-      if(div_shift) remainder_dividend = remainder_dividend << 1;
+      if(div_shift) remainder_dividend <= remainder_dividend << 1;
       if(div_set_a0_1) begin
         remainder_dividend[0] <= 1'b1;
-        remainder_dividend[48:24] = {1'b0, remainder_dividend[48:24]} + ~{2'b00, divisor} + 26'b1;
+        remainder_dividend[48:24] <= {1'b0, remainder_dividend[48:24]} + ~{2'b00, divisor} + 26'b1;
       end
       if(next_state_div_fsm == pa_fpu::div_sub_divisor_test_st)  div_counter <= div_counter - 1;
       if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
-        result_mantissa_division = remainder_dividend[23:0];
-        result_exp_division = aexp_no_bias - bexp_no_bias;
-        result_sign_division = a_sign ^ b_sign;
-        result_exp_division = result_exp_division + 8'd127; // normalize exponent
-        while(result_mantissa_division[23] == 1'b0) begin
-          result_mantissa_division = result_mantissa_division << 1;
-          result_exp_division = result_exp_division - 1;
+        automatic logic [7:0] e = aexp_no_bias - bexp_no_bias + 8'd127;
+        automatic logic [23:0] m = remainder_dividend[23:0];
+        result_sign_division <= a_sign ^ b_sign;
+        while(m[23] == 1'b0) begin
+          m = m << 1;
+          e = e - 1;
         end
+        result_exp_division <= e;
+        result_mantissa_division <= m;
       end
     end
   end
@@ -744,7 +746,6 @@ module fpu(
   // if count > 0 then goto division step
 
   // sqrt datapath
-  /*
   always @(posedge clk, posedge arst) begin
     if(arst) begin
       sqrt_xn <= '0;
@@ -754,10 +755,10 @@ module fpu(
     else begin
       if(next_state_sqrt_fsm == pa_fpu::sqrt_start_st) begin
         sqrt_xn <= a_mantissa[23:0];
-        sqrt_counter <= 24;
+        sqrt_counter <= 10;
       end
       if(sqrt_shift) begin
-        sqrt_xn = sqrt_xn << 1;
+        sqrt_xn <= sqrt_xn >> 1;
         sqrt_counter <= sqrt_counter - 1;
       end
       if(curr_state_sqrt_fsm == pa_fpu::sqrt_result_valid_st) begin
@@ -768,6 +769,16 @@ module fpu(
 
   // sqrt fsm
   // next state assignments
+  // xnp1 = 0.5 * (xn + a/xn)
+  // set initial xn guess to a itself
+  // activate division fsm of a/xn
+  // set b_mantissa = division result
+  // set a_mantissa = xn
+  // perform addition via add fsm
+  // set xn = addition result
+  // shift xn right by one
+  // decrease counter
+  // if count > 0 then goto division step
   always_comb begin
     next_state_sqrt_fsm = curr_state_sqrt_fsm;
 
@@ -777,8 +788,21 @@ module fpu(
 
       pa_fpu::sqrt_start_st:
         next_state_sqrt_fsm = pa_fpu::sqrt_shift_st;
+
+      pa_fpu::sqrt_div_setup_st: begin
+        next_state_sqrt_fsm = pa_fpu::sqrt_wait_div_done_st;
+      end
+      pa_fpu::sqrt_wait_div_done_st: begin
+        if(operation_done_div_fsm) next_state_sqrt_fsm = pa_fpu::sqrt_addition_setup_st;
+        else next_state_sqrt_fsm = pa_fpu::sqrt_wait_div_done_st;
+      end
+      pa_fpu::sqrt_addition_setup_st: begin
+        
+      end
       
-      pa_fpu::sqrt_shift_st:
+      pa_fpu::sqrt_shift_st: begin
+        
+      end
       
       pa_fpu::sqrt_check_counter_st:
         if(sqrt_counter == 6'h0) next_state_sqrt_fsm = pa_fpu::sqrt_result_valid_st;
@@ -798,40 +822,28 @@ module fpu(
     if(arst) begin
       operation_done_sqrt_fsm <= 1'b0;
       sqrt_shift              <= 1'b0;
-      sqrt_sub_sqrtisor        <= 1'b0;
-      sqrt_set_a0_1           <= 1'b0;
     end
     else begin
       case(next_state_sqrt_fsm)
         pa_fpu::sqrt_idle_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_shift              <= 1'b0;
-          sqrt_sub_sqrtisor        <= 1'b0;
-          sqrt_set_a0_1           <= 1'b0;
         end
         pa_fpu::sqrt_start_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_shift              <= 1'b0;
-          sqrt_sub_sqrtisor        <= 1'b0;
-          sqrt_set_a0_1           <= 1'b0;
         end
         pa_fpu::sqrt_shift_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_shift              <= 1'b1;
-          sqrt_sub_sqrtisor        <= 1'b0;
-          sqrt_set_a0_1           <= 1'b0;
         end
         pa_fpu::sqrt_check_counter_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_shift              <= 1'b0;
-          sqrt_sub_sqrtisor        <= 1'b0;
-          sqrt_set_a0_1           <= 1'b0;
         end
         pa_fpu::sqrt_result_valid_st: begin
           operation_done_sqrt_fsm <= 1'b1;
           sqrt_shift              <= 1'b0;
-          sqrt_sub_sqrtisor        <= 1'b0;
-          sqrt_set_a0_1           <= 1'b0;
         end
       endcase  
     end
@@ -844,7 +856,6 @@ module fpu(
     else curr_state_sqrt_fsm <= next_state_sqrt_fsm;
   end
 
-*/
 
 // to calculate sine:
 // x - x^3 * 1/6  + x^5 * 1/120   - x^7 * 1/5040

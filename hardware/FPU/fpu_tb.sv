@@ -40,8 +40,11 @@ module fpu_tb;
    // write_operand_a(32'h4d96890d); //  315695520
  //   write_operand_b(32'h4a447fad); //  3219435.3       
 
-    write_operand_a(32'h40490fda); //  3.1415196
-    write_operand_b(32'h402df854); //  2.7182818       
+    write_operand_a(32'h3f800000); //  1.0
+    write_operand_b(32'h3f8ccccd); //  1.1       div: 3f68ba2f
+
+    //write_operand_a(32'h40490fda); //  3.1415196
+    //write_operand_b(32'h402df854); //  2.7182818       
 
     //write_operand_b(32'h440de44a); //  567.567
     //write_operand_a(32'h4640e47e); //  12345.12345        3d3c5047
