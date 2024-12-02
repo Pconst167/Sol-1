@@ -57,9 +57,6 @@ module fpu_tb;
 
     ta_set_operation(pa_fpu::op_sub);
     ta_start_operation();
-    ta_read_result(result);
-    $display("Addition Result: %x\n", result);
-
 
     $stop;
   end
