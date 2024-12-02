@@ -4,6 +4,25 @@
 //
 // Created P. Constantino 2024
 //
+/*
+
+  dot product:
+    a dot b 
+    = a0b0 + a1b1 + ... + anbn 
+    = |a||b|cos(arg(a,b))
+
+  cross product:
+    a cross b 
+    = (a2b3 - a3b2)i + (a3b1 - a1b3)j + (a1b2 - a2b1)k
+    = |a||b|sin(arg(a,b))n where n is the unit vector normal to both a & b
+
+  sin(x)    = x - x^3/3! + x^5/5! - x^7/7! + ...
+  cos(x)    = 1 - x^2/2 + x^4/4! - x^6/6! + ...
+  exp(x)    = 1 + x + x^2/2 + x^3/3! + x^4/4! + x^5/5! + ...
+  ln(1+x)   = x - x^2/2 + x^3/3 - x^4/4 + x^5/5 - ...
+  arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ... (slow convergence)
+
+*/
 
 import pa_fpu::*;
 
