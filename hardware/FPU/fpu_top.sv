@@ -267,7 +267,7 @@ module fpu(
   // addition datapath
   always_comb begin
     result_mantissa_add = a_mantissa_adjusted + b_mantissa_adjusted;
-    if(result_mantissa_add[25:0] == 25'd0) begin
+    if(result_mantissa_add[25:0] == 26'd0) begin
       result_exp_add  = 8'd0; 
       result_sign_add = 1'b0;
     end
@@ -296,7 +296,7 @@ module fpu(
   // subtraction datapath
   always_comb begin
     result_mantissa_sub = a_mantissa_adjusted - b_mantissa_adjusted;
-    if(result_mantissa_sub[25:0] == 25'd0) begin
+    if(result_mantissa_sub[25:0] == 26'd0) begin
       result_exp_sub = 8'd0; 
       result_sign_sub = 1'b0;
     end
@@ -343,14 +343,12 @@ module fpu(
       // this is tested on current state rather than next state because when the fsm reaches mul_result_set_st, the shift operation is clocked in 
       if(curr_state_mul_fsm == pa_fpu::mul_result_set_st) begin
         automatic logic [23:0] m = product_multiplier[47:24];
-        automatic logic [7:0] e = a_exp_no_bias + b_exp_no_bias + 8'd127;
+        automatic logic [7:0]  e = a_exp_no_bias + b_exp_no_bias + 8'd127;
         result_sign_mul <= a_sign ^ b_sign;
-        if(m[23] == 1'b1)
-          e = e + 8'd1; // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, 
-                        // and so really the result we had was 10.xxx or 11.xxx for example, and so the final result needs to be multiplied by 2
-        else if(m[23] == 1'b0)
-          m = m << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa 
-                      // or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
+        if(m[23] == 1'b1) e = e + 8'd1;    // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, 
+                                           // and so really the result we had was 10.xxx or 11.xxx for example, and so the final exponent needs to be incremented
+        else if(m[23] == 1'b0) m = m << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa 
+                                           // or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
         result_exp_mul <= e;
         result_mantissa_mul <= m;
         end
@@ -388,7 +386,7 @@ module fpu(
     if(arst) begin
       start_operation_ar_fsm <= 1'b0;
       cmd_end                <= 1'b0;             
-      busy    <= 1'b0;         
+      busy                   <= 1'b0;         
     end
     else begin
       case(next_state_main_fsm)
@@ -414,13 +412,6 @@ module fpu(
         end
       endcase  
     end
-  end
-
-  // main fsm
-  // next state clocking
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_main_fsm <= main_idle_st;
-    else curr_state_main_fsm <= next_state_main_fsm;
   end
 
   // ---------------------------------------------------------------------------------------
@@ -513,13 +504,6 @@ module fpu(
     end
   end
 
-  // arithmetic fsm
-  // next state clocking
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_arith_fsm <= arith_idle_st;
-    else curr_state_arith_fsm <= next_state_arith_fsm;
-  end
-
   // ---------------------------------------------------------------------------------------
 
   // multiply fsm
@@ -594,13 +578,6 @@ module fpu(
         end
       endcase  
     end
-  end
-
-  // multiply fsm
-  // next state clocking
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_mul_fsm <= mul_idle_st;
-    else curr_state_mul_fsm <= next_state_mul_fsm;
   end
 
   // ------------------------------------------------------------------------------------------------
@@ -721,13 +698,6 @@ module fpu(
         end
       endcase  
     end
-  end
-
-  // divide fsm
-  // next state clocking
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_div_fsm <= div_idle_st;
-    else curr_state_div_fsm <= next_state_div_fsm;
   end
 
   // ------------------------------------------------------------------------------------------------
@@ -864,25 +834,39 @@ module fpu(
     end
   end
 
+  // main fsm
+  // next state clocking
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) curr_state_main_fsm <= main_idle_st;
+    else curr_state_main_fsm <= next_state_main_fsm;
+  end
+
+  // arithmetic fsm
+  // next state clocking
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) curr_state_arith_fsm <= arith_idle_st;
+    else curr_state_arith_fsm <= next_state_arith_fsm;
+  end
+
+  // multiply fsm
+  // next state clocking
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) curr_state_mul_fsm <= mul_idle_st;
+    else curr_state_mul_fsm <= next_state_mul_fsm;
+  end
+
+  // divide fsm
+  // next state clocking
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) curr_state_div_fsm <= div_idle_st;
+    else curr_state_div_fsm <= next_state_div_fsm;
+  end
+
   // sqrt fsm
   // next state clocking
   always_ff @(posedge clk, posedge arst) begin
     if(arst) curr_state_sqrt_fsm <= sqrt_idle_st;
     else curr_state_sqrt_fsm <= next_state_sqrt_fsm;
   end
-
-
-// to calculate sine:
-// x - x^3 * 1/6  + x^5 * 1/120   - x^7 * 1/5040
-// 
-//   acc <= a
-//   b <= a
-//   a <= a*b
-//   a <= a*b  (x^3)
-//   b <= 1/6
-//   a <= a*b  (x^3 * 1/6)
-//   b <= a
-//   a <= acc
-//   a <= a - b
 
 endmodule
