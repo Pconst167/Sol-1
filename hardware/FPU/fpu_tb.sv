@@ -1,5 +1,4 @@
 import pa_fpu::*;
-`default_nettype none
 
 module fpu_tb;
 

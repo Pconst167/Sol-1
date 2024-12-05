@@ -25,6 +25,7 @@ package pa_fpu;
 
   typedef enum logic[3:0]{
     arith_idle_st,
+    arith_load_operands_st,
     arith_add_st,
     arith_sub_st,
     arith_mul_st,
@@ -53,13 +54,13 @@ package pa_fpu;
     div_result_valid_st
   } e_div_states;
 
-  typedef enum logic [2:0]{
+  typedef enum logic [3:0]{
     sqrt_idle_st,
     sqrt_start_st,
     sqrt_div_setup_st,
     sqrt_wait_div_done_st,
     sqrt_addition_st,
-    sqrt_shift_st,
+    sqrt_mov_xn_a_dec_exp_st,
     sqrt_check_counter_st,
     sqrt_result_valid_st
   } e_sqrt_states;
