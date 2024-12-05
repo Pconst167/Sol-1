@@ -98,19 +98,21 @@ module fpu(
   // sqrt datapath
   logic             [23:0] sqrt_xn_mantissa;
   logic              [7:0] sqrt_xn_exp;
+  logic                    sqrt_xn_sign;
   logic             [23:0] sqrt_A_mantissa;
   logic              [7:0] sqrt_A_exp;
+  logic                    sqrt_A_sign;
   logic              [3:0] sqrt_counter;
 
   // fsm control
-  logic                    sqrt_div_A_by_xn;
-  logic                    sqrt_xn_dec_exp;
-  logic                    sqrt_add;
   logic                    start_operation_sqrt_fsm;  
   logic                    operation_done_sqrt_fsm;   
+  logic                    sqrt_div_A_by_xn_start;
+  logic                    sqrt_counter_dec;
+  logic                    sqrt_add;
   logic                    sqrt_A_wrt;
   logic                    sqrt_xn_wrt;
-  logic                    sqrt_dounter_dec;
+  logic              [1:0] sqrt_xn_src;
   logic                    sqrt_a_wrt;
   logic                    sqrt_a_src;
   logic                    sqrt_b_wrt;
@@ -170,6 +172,30 @@ module fpu(
         b_exp      <= operand_b[30:23];
         b_sign     <= operand_b[31];
       end
+      if(sqrt_a_wrt) begin
+        if(sqrt_a_src) begin
+          a_mantissa <= sqrt_xn_mantissa;
+          a_exp      <= sqrt_xn_exp;
+          a_sign     <= sqrt_xn_sign;
+        end
+        else begin
+          a_mantissa <= sqrt_A_mantissa;
+          a_exp      <= sqrt_A_exp;
+          a_sign     <= sqrt_A_sign;
+        end
+      end
+      if(sqrt_b_wrt) begin
+        if(sqrt_b_src) begin
+          b_mantissa <= sqrt_xn_mantissa;
+          b_exp      <= sqrt_xn_exp;
+          b_sign     <= sqrt_xn_sign;
+        end
+        else begin
+          b_mantissa <= result_mantissa_div;
+          b_exp      <= result_exp_div;
+          b_sign     <= result_sign_div;
+        end
+      end
     end
   end
 
@@ -187,22 +213,22 @@ module fpu(
 
   // ---------------------------------------------------------------------------------------
 
-  always @(posedge clk, posedge arst) begin
+  always_ff @(posedge clk, posedge arst) begin
     if(arst) ieee_packet <= '0;
     else if(curr_state_arith_fsm == pa_fpu::arith_result_valid_st) begin
       case(operation)
         op_add: 
-          ieee_packet = {result_sign_add, result_exp_add, result_mantissa_add[22:0]};
+          ieee_packet <= {result_sign_add, result_exp_add, result_mantissa_add[22:0]};
         op_sub: 
-          ieee_packet = {result_sign_sub, result_exp_sub, result_mantissa_sub[22:0]};
+          ieee_packet <= {result_sign_sub, result_exp_sub, result_mantissa_sub[22:0]};
         op_mul: 
-          ieee_packet = {result_sign_mul, result_exp_mul, result_mantissa_mul[22:0]};
+          ieee_packet <= {result_sign_mul, result_exp_mul, result_mantissa_mul[22:0]};
         op_square: 
-          ieee_packet = {result_sign_mul, result_exp_mul, result_mantissa_mul[22:0]};
+          ieee_packet <= {result_sign_mul, result_exp_mul, result_mantissa_mul[22:0]};
         op_div: 
-          ieee_packet = {result_sign_div, result_exp_div, result_mantissa_div[22:0]};
+          ieee_packet <= {result_sign_div, result_exp_div, result_mantissa_div[22:0]};
         op_sqrt: 
-          ieee_packet = {1'b0, sqrt_xn_exp, sqrt_xn_mantissa[22:0]};
+          ieee_packet <= {1'b0, sqrt_xn_exp, sqrt_xn_mantissa[22:0]};
       endcase
     end
   end
@@ -367,7 +393,7 @@ module fpu(
   // ---------------------------------------------------------------------------------------
 
   // multiplication datapath
-  always @(posedge clk, posedge arst) begin
+  always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       product_multiplier <= '0;
       mul_counter  <= '0;
@@ -632,7 +658,7 @@ module fpu(
   // ------------------------------------------------------------------------------------------------
 
   // division datapath
-  always @(posedge clk, posedge arst) begin
+  always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       remainder_dividend <= '0;
       div_counter        <= '0;
@@ -753,7 +779,7 @@ module fpu(
   // xnp1 = 0.5 * (xn + a/xn)
 
   // sqrt datapath
-  always @(posedge clk, posedge arst) begin
+  always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       sqrt_xn_mantissa <= '0;
       sqrt_xn_exp      <= '0;
@@ -762,13 +788,32 @@ module fpu(
     end
     else begin
       if(next_state_sqrt_fsm == pa_fpu::sqrt_start_st) begin
-        sqrt_xn_mantissa <= a_mantissa[23:0];
         sqrt_counter <= 10;
       end
-      if(sqrt_xn_dec_exp) begin
-        sqrt_xn_mantissa <= sqrt_xn_mantissa >> 1;
-        sqrt_counter <= sqrt_counter - 1;
+      if(sqrt_xn_wrt) begin
+        if(sqrt_xn_src == 2'b00) begin
+          sqrt_xn_mantissa <= sqrt_A_mantissa;
+          sqrt_xn_exp      <= sqrt_A_exp;
+          sqrt_xn_sign     <= 1'b0;
+        end
+        else if(sqrt_xn_src == 2'b01) begin
+          sqrt_xn_mantissa <= a_mantissa;
+          sqrt_xn_exp      <= a_exp;
+          sqrt_xn_sign     <= a_sign;
+        end
+        else if(sqrt_xn_src == 2'b10) begin
+          sqrt_xn_mantissa <= result_mantissa_add;
+          sqrt_xn_exp      <= result_exp_add - 8'd1;
+          sqrt_xn_sign     <= result_sign_add;
+        end
       end
+      if(sqrt_A_wrt) begin
+        sqrt_A_mantissa <= a_mantissa;
+        sqrt_A_exp      <= a_exp;
+        sqrt_A_sign     <= a_sign;
+      end
+      if(sqrt_counter_dec)
+        sqrt_counter <= sqrt_counter - 6'd1;
     end
   end
 
@@ -801,11 +846,11 @@ module fpu(
       pa_fpu::sqrt_addition_st: begin
         next_state_sqrt_fsm = pa_fpu::sqrt_mov_xn_a_dec_exp_st;
       end
-      // transfer addition result to xn, while decreasing xn_exp by 1
-      // dec sqrt_counter
+      // set xn = result_mantissa_add, while decreasing xn_exp by 1
       pa_fpu::sqrt_mov_xn_a_dec_exp_st: begin
         next_state_sqrt_fsm = pa_fpu::sqrt_check_counter_st;
       end
+      // dec sqrt_counter and check
       pa_fpu::sqrt_check_counter_st:
         if(sqrt_counter == 6'h0) next_state_sqrt_fsm = pa_fpu::sqrt_result_valid_st;
         else next_state_sqrt_fsm = pa_fpu::sqrt_div_setup_st;
@@ -821,25 +866,133 @@ module fpu(
   always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       operation_done_sqrt_fsm <= 1'b0;
-      sqrt_xn_dec_exp            <= 1'b0;
+      sqrt_div_A_by_xn_start  <= 1'b0;
+      sqrt_add                <= 1'b0;
+      sqrt_A_wrt              <= 1'b0;
+      sqrt_xn_wrt             <= 1'b0;
+      sqrt_xn_src             <= 2'b00;
+      sqrt_counter_dec        <= 1'b0;
+      sqrt_a_wrt              <= 1'b0;
+      sqrt_a_src              <= 1'b0;
+      sqrt_b_wrt              <= 1'b0;
+      sqrt_b_src              <= 1'b0;
     end
     else begin
       case(next_state_sqrt_fsm)
         pa_fpu::sqrt_idle_st: begin
           operation_done_sqrt_fsm <= 1'b0;
-          sqrt_xn_dec_exp            <= 1'b0;
+          sqrt_div_A_by_xn_start  <= 1'b0;
+          sqrt_add                <= 1'b0;
+          sqrt_A_wrt              <= 1'b0;
+          sqrt_xn_wrt             <= 1'b0;
+          sqrt_xn_src             <= 2'b00;
+          sqrt_counter_dec        <= 1'b0;
+          sqrt_a_wrt              <= 1'b0;
+          sqrt_a_src              <= 1'b0;
+          sqrt_b_wrt              <= 1'b0;
+          sqrt_b_src              <= 1'b0;
         end
+        // set A = a_mantissa (A = number whose sqrt is requested)
+        // set xn to initial guess = A itself
+        // set counter for number of steps = 10
         pa_fpu::sqrt_start_st: begin
           operation_done_sqrt_fsm <= 1'b0;
-          sqrt_xn_dec_exp            <= 1'b0;
+          sqrt_div_A_by_xn_start  <= 1'b0;
+          sqrt_add                <= 1'b0;
+          sqrt_A_wrt              <= 1'b1; // A = a_mantissa
+          sqrt_xn_wrt             <= 1'b1; // write xn
+          sqrt_xn_src             <= 2'b00; // xn = A
+          sqrt_counter_dec        <= 1'b0;
+          sqrt_a_wrt              <= 1'b0;
+          sqrt_a_src              <= 1'b0;
+          sqrt_b_wrt              <= 1'b0;
+          sqrt_b_src              <= 1'b0;
+        end
+        // set a_mantissa = A, a_exp = A_exp
+        // set b_mantissa = xn, b_exp = xn_exp
+        pa_fpu::sqrt_div_setup_st: begin
+          operation_done_sqrt_fsm <= 1'b0;
+          sqrt_div_A_by_xn_start  <= 1'b0;
+          sqrt_add                <= 1'b0;
+          sqrt_A_wrt              <= 1'b0;
+          sqrt_xn_wrt             <= 1'b0;
+          sqrt_xn_src             <= 2'b00; 
+          sqrt_counter_dec        <= 1'b0;
+          sqrt_a_wrt              <= 1'b1; // write a
+          sqrt_a_src              <= 1'b1; // a = A
+          sqrt_b_wrt              <= 1'b1; // write b
+          sqrt_b_src              <= 1'b0; // b = xn
+        end
+        // wait for division to complete.
+        pa_fpu::sqrt_wait_div_done_st: begin
+          operation_done_sqrt_fsm <= 1'b0;
+          sqrt_div_A_by_xn_start  <= 1'b1; // request division operation
+          sqrt_add                <= 1'b0;
+          sqrt_A_wrt              <= 1'b0;
+          sqrt_xn_wrt             <= 1'b0;
+          sqrt_xn_src             <= 2'b00; 
+          sqrt_counter_dec        <= 1'b0;
+          sqrt_a_wrt              <= 1'b0;
+          sqrt_a_src              <= 1'b0;
+          sqrt_b_wrt              <= 1'b0;
+          sqrt_b_src              <= 1'b0;
+        end
+        // set a_mantissa <= xn, a_exp = xn_exp
+        // set b_mantissa <= result_mantissa_div, b_exp = result_exp_div
+        // perform addition during this clock cycle
+        pa_fpu::sqrt_addition_st: begin
+          operation_done_sqrt_fsm <= 1'b0;
+          sqrt_div_A_by_xn_start  <= 1'b0;
+          sqrt_add                <= 1'b0;
+          sqrt_A_wrt              <= 1'b0;
+          sqrt_xn_wrt             <= 1'b0;
+          sqrt_xn_src             <= 2'b00; 
+          sqrt_counter_dec        <= 1'b0;
+          sqrt_a_wrt              <= 1'b1; // write a
+          sqrt_a_src              <= 1'b0; // a = xn
+          sqrt_b_wrt              <= 1'b1; // write b
+          sqrt_b_src              <= 1'b1; // b = result_mantissa_div
+        end
+        // transfer addition result to xn, while decreasing xn_exp by 1
+        // dec sqrt_counter
+        pa_fpu::sqrt_mov_xn_a_dec_exp_st: begin
+          operation_done_sqrt_fsm <= 1'b0;
+          sqrt_div_A_by_xn_start  <= 1'b0;
+          sqrt_add                <= 1'b0;
+          sqrt_A_wrt              <= 1'b0;
+          sqrt_xn_wrt             <= 1'b1;  // write xn
+          sqrt_xn_src             <= 2'b10; // xn = result_mantissa_add
+          sqrt_counter_dec        <= 1'b1;
+          sqrt_a_wrt              <= 1'b0;
+          sqrt_a_src              <= 1'b0;
+          sqrt_b_wrt              <= 1'b0;
+          sqrt_b_src              <= 1'b0;
         end
         pa_fpu::sqrt_check_counter_st: begin
           operation_done_sqrt_fsm <= 1'b0;
-          sqrt_xn_dec_exp            <= 1'b0;
+          sqrt_div_A_by_xn_start  <= 1'b0;
+          sqrt_add                <= 1'b0;
+          sqrt_A_wrt              <= 1'b0;
+          sqrt_xn_wrt             <= 1'b0;
+          sqrt_xn_src             <= 2'b00; 
+          sqrt_counter_dec        <= 1'b0;
+          sqrt_a_wrt              <= 1'b0;
+          sqrt_a_src              <= 1'b0;
+          sqrt_b_wrt              <= 1'b0;
+          sqrt_b_src              <= 1'b0;
         end
         pa_fpu::sqrt_result_valid_st: begin
           operation_done_sqrt_fsm <= 1'b1;
-          sqrt_xn_dec_exp            <= 1'b0;
+          sqrt_div_A_by_xn_start  <= 1'b0;
+          sqrt_add                <= 1'b0;
+          sqrt_A_wrt              <= 1'b0;
+          sqrt_xn_wrt             <= 1'b0;
+          sqrt_xn_src             <= 2'b00; 
+          sqrt_counter_dec        <= 1'b0;
+          sqrt_a_wrt              <= 1'b0;
+          sqrt_a_src              <= 1'b0;
+          sqrt_b_wrt              <= 1'b0;
+          sqrt_b_src              <= 1'b0;
         end
       endcase  
     end
