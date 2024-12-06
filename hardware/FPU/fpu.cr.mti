@@ -1,4 +1,8 @@
-/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv {1 {vlog -work work -vopt -sv -stats=none /home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
+/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv {0 {vlog -work work -vopt -sv -stats=none /home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
+Questa Intel Starter FPGA Edition-64 vlog 2024.1 Compiler 2024.04 Apr 19 2024
+** Error: /home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv(841): Illegal declaration after the statement near line '837'.  Declarations must precede statements.  Look for stray semicolons.
+
+} {3.0 4.0} {}} /home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv {1 {vlog -work work -vopt -sv -stats=none /home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
 Questa Intel Starter FPGA Edition-64 vlog 2024.1 Compiler 2024.04 Apr 19 2024
 -- Compiling package pa_fpu
 
