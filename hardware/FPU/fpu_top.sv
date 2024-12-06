@@ -5,6 +5,9 @@
 // Created P. Constantino 2024
 //
 /*
+  sqrt: newton-raphson
+    xn = 0.5(xn + A/xn)
+
 
   dot product:
     a dot b 
@@ -54,8 +57,6 @@ module fpu(
   logic             [25:0] b_mantissa_adjusted;
   logic             [ 7:0] b_exp;
   logic                    b_sign;
-  logic             [ 7:0] a_exp_no_bias;
-  logic             [ 7:0] b_exp_no_bias;
   logic             [ 7:0] ab_exp_diff;
   logic             [ 7:0] ba_exp_diff;
 
@@ -111,6 +112,7 @@ module fpu(
   logic                    operation_done_sqrt_fsm;   
   logic                    sqrt_div_A_by_xn_start;
   logic                    sqrt_xn_A_wrt;
+  logic                    sqrt_xn_a_over_2_wrt;
   logic                    sqrt_xn_a_wrt;
   logic                    sqrt_xn_add_wrt;
   logic                    sqrt_A_a_wrt;
@@ -196,11 +198,8 @@ module fpu(
     end
   end
 
-  assign a_exp_no_bias   = a_exp - 8'd127;
-  assign b_exp_no_bias   = b_exp - 8'd127;
-
-  assign ab_exp_diff     = a_exp_no_bias - b_exp_no_bias;
-  assign ba_exp_diff     = b_exp_no_bias - a_exp_no_bias;
+  assign ab_exp_diff     = a_exp - b_exp;
+  assign ba_exp_diff     = b_exp - a_exp;
 
   assign a_is_zero       = a_exp == 8'h00 && a_mantissa[22:0] == 23'h0;
   assign b_is_zero       = b_exp == 8'h00 && b_mantissa[22:0] == 23'h0;
@@ -307,23 +306,23 @@ module fpu(
   always_comb begin
     if(a_exp < b_exp) begin
       a_mantissa_adjusted = a_mantissa >> ba_exp_diff;
-      a_exp_adjusted      = a_is_zero ? a_exp_no_bias : a_exp_no_bias + ba_exp_diff;
+      a_exp_adjusted      = a_is_zero ? a_exp : a_exp + ba_exp_diff;
 
       b_mantissa_adjusted = b_mantissa;
-      b_exp_adjusted      = b_exp_no_bias;
+      b_exp_adjusted      = b_exp;
     end   
     else if(b_exp < a_exp) begin
       a_mantissa_adjusted = a_mantissa;
-      a_exp_adjusted      = a_exp_no_bias;
+      a_exp_adjusted      = a_exp;
 
       b_mantissa_adjusted = b_mantissa >> ab_exp_diff;
-      b_exp_adjusted      = b_is_zero ? b_exp_no_bias : b_exp_no_bias + ab_exp_diff;
+      b_exp_adjusted      = b_is_zero ? b_exp : b_exp + ab_exp_diff;
     end   
     else begin
       a_mantissa_adjusted = a_mantissa;
-      a_exp_adjusted      = a_exp_no_bias;
+      a_exp_adjusted      = a_exp;
       b_mantissa_adjusted = b_mantissa;
-      b_exp_adjusted      = b_exp_no_bias;
+      b_exp_adjusted      = b_exp;
     end
     // the _adjusted variables are used for add and sub operations only
     // negate mantissas if signs are negative
@@ -356,7 +355,6 @@ module fpu(
           result_mantissa_add = result_mantissa_add << 1;
           result_exp_add = result_exp_add - 1;
         end
-      result_exp_add = result_exp_add + 8'd127;
     end
   end
 
@@ -385,7 +383,6 @@ module fpu(
           result_mantissa_sub = result_mantissa_sub << 1;
           result_exp_sub = result_exp_sub - 1;
         end
-      result_exp_sub = result_exp_sub + 8'd127;
     end
   end
 
@@ -410,7 +407,7 @@ module fpu(
       // this is tested on current state rather than next state because when the fsm reaches mul_result_set_st, the shift operation is clocked in 
       if(curr_state_mul_fsm == pa_fpu::mul_result_set_st) begin
         automatic logic [23:0] m = product_multiplier[47:24];
-        automatic logic [7:0]  e = a_exp_no_bias + b_exp_no_bias + 8'd127;
+        automatic logic [7:0]  e = (a_exp - 8'd127) + b_exp;
         result_sign_mul <= a_sign ^ b_sign;
         if(m[23] == 1'b1) e = e + 8'd1;    // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, 
                                            // and so really the result we had was 10.xxx or 11.xxx for example, and so the final exponent needs to be incremented
@@ -442,7 +439,7 @@ module fpu(
       if(next_state_div_fsm == pa_fpu::div_sub_divisor_test_st)  
         div_counter <= div_counter - 1;
       if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
-        automatic logic [7:0] e = a_exp_no_bias - b_exp_no_bias + 8'd127;
+        automatic logic [7:0] e = (a_exp - b_exp) + 8'd127;
         automatic logic [23:0] m = remainder_dividend[23:0];
         result_sign_div <= a_sign ^ b_sign;
         while(m[23] == 1'b0) begin
@@ -826,7 +823,7 @@ module fpu(
     end
     else begin
       if(next_state_sqrt_fsm == pa_fpu::sqrt_start_st) begin
-        sqrt_counter <= 2;
+        sqrt_counter <= 4;
       end
       else if(next_state_sqrt_fsm == pa_fpu::sqrt_check_counter_st) begin
         sqrt_counter <= sqrt_counter - 6'd1;
@@ -835,6 +832,13 @@ module fpu(
         sqrt_xn_mantissa <= sqrt_A_mantissa;
         sqrt_xn_exp      <= sqrt_A_exp;
         sqrt_xn_sign     <= 1'b0;
+      end
+      else if(sqrt_xn_a_over_2_wrt) begin
+        sqrt_xn_mantissa <= a_mantissa; 
+        //sqrt_xn_exp      <= a_exp - 8'd1;
+        // 9'b110000001 = -127 with 1 bit extended for signed arithmetic
+        sqrt_xn_exp      <= (({1'b0, a_exp} + 9'b110000001) >> 1) + 9'd127 ; // divide a_exp by 2. hence initial approx to A = m*2^E  is  m*e^(E/2) which is very close to its square root.
+        sqrt_xn_sign     <= a_sign;
       end
       else if(sqrt_xn_a_wrt) begin
         sqrt_xn_mantissa <= a_mantissa;
@@ -864,7 +868,7 @@ module fpu(
       pa_fpu::sqrt_idle_st: 
         if(start_operation_sqrt_fsm) next_state_sqrt_fsm = pa_fpu::sqrt_start_st;
       // set A = a_mantissa (A = number whose sqrt is requested)
-      // set xn to initial guess = A itself
+      // set xn to initial guess = A/2. choose A/2 as a simple approximation to its square root
       // set counter for number of steps = 10
       pa_fpu::sqrt_start_st: 
         next_state_sqrt_fsm = pa_fpu::sqrt_div_setup_st;
@@ -907,6 +911,7 @@ module fpu(
       operation_done_sqrt_fsm <= 1'b0;
       sqrt_div_A_by_xn_start  <= 1'b0;
       sqrt_xn_A_wrt           <= 1'b0;
+      sqrt_xn_a_over_2_wrt    <= 1'b0;
       sqrt_xn_a_wrt           <= 1'b0;
       sqrt_xn_add_wrt         <= 1'b0;
       sqrt_A_a_wrt            <= 1'b0;
@@ -921,6 +926,7 @@ module fpu(
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
+          sqrt_xn_a_over_2_wrt    <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
@@ -930,13 +936,14 @@ module fpu(
           sqrt_b_div_wrt          <= 1'b0;
         end
         // set A = a_mantissa (A = number whose sqrt is requested)
-        // set xn to initial guess = A = a
+        // set xn to initial guess = A/2 = a/2
         // set counter for number of steps
         pa_fpu::sqrt_start_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
-          sqrt_xn_a_wrt           <= 1'b1;
+          sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_a_over_2_wrt    <= 1'b1;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b1;
           sqrt_a_xn_wrt           <= 1'b0;
@@ -951,6 +958,7 @@ module fpu(
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_a_over_2_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b0;
@@ -964,6 +972,7 @@ module fpu(
           sqrt_div_A_by_xn_start  <= 1'b1; // request division operation
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_a_over_2_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b0;
@@ -979,6 +988,7 @@ module fpu(
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_a_over_2_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b1;
@@ -993,6 +1003,7 @@ module fpu(
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_a_over_2_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b1;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b0;
@@ -1005,6 +1016,7 @@ module fpu(
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_a_over_2_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b0;
@@ -1017,6 +1029,7 @@ module fpu(
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_a_over_2_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b0;
