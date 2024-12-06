@@ -42,8 +42,16 @@ module fpu_tb;
     //write_operand_a(32'h3f800000); //  1.0
     //write_operand_b(32'h3f8ccccd); //  1.1       div: 3f68ba2f
 
-    write_operand_a(32'h40490fda); //  3.1415196
-    write_operand_b(32'h402df854); //  2.7182818       
+  // 0.5*(10 + 10/10)   = 5.5
+  // 0.5*(5.5 + 10/5.5) = 3.65909090
+
+    //write_operand_a(32'h3f800000); //  1.0
+    //write_operand_b(32'h3f800000); //  1.0       
+
+    write_operand_a(32'h41200000); //  10
+
+    //write_operand_a(32'h40490fda); //  3.1415196
+   // write_operand_b(32'h402df854); //  2.7182818       
 
     //write_operand_b(32'h440de44a); //  567.567
     //write_operand_a(32'h4640e47e); //  12345.12345        3d3c5047
@@ -54,7 +62,7 @@ module fpu_tb;
     //write_operand_a(32'h4426ffdf); //  667.998       result: 447bc7be
     //write_operand_b(32'h43a98fbe); //  339.123
 
-    ta_set_operation(pa_fpu::op_sub);
+    ta_set_operation(pa_fpu::op_sqrt);
     ta_start_operation();
     ta_read_result(result);
 

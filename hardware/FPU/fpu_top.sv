@@ -22,6 +22,8 @@
   ln(1+x)   = x - x^2/2 + x^3/3 - x^4/4 + x^5/5 - ...  (|x| <= 1)
   arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ... (slow convergence)
 
+  notes: look into generating fsm outputs based on next state combinationally as well(as opposed to on next rising edge) so that assignments can be made 
+         when a state is entered rather than left.
 */
 
 import pa_fpu::*;
@@ -102,22 +104,20 @@ module fpu(
   logic             [23:0] sqrt_A_mantissa;
   logic              [7:0] sqrt_A_exp;
   logic                    sqrt_A_sign;
-  logic              [3:0] sqrt_counter;
+  logic              [4:0] sqrt_counter;
 
   // fsm control
   logic                    start_operation_sqrt_fsm;  
   logic                    operation_done_sqrt_fsm;   
   logic                    sqrt_div_A_by_xn_start;
-  logic                    sqrt_counter_dec;
-  logic                    sqrt_add;
-  logic                    sqrt_A_wrt;
-  logic                    sqrt_xn_wrt;
-  logic              [1:0] sqrt_xn_src;
-  logic                    sqrt_a_wrt;
-  logic                    sqrt_a_src;
-  logic                    sqrt_b_wrt;
-  logic                    sqrt_b_src;
-
+  logic                    sqrt_xn_A_wrt;
+  logic                    sqrt_xn_a_wrt;
+  logic                    sqrt_xn_add_wrt;
+  logic                    sqrt_A_a_wrt;
+  logic                    sqrt_a_xn_wrt;
+  logic                    sqrt_a_A_wrt;
+  logic                    sqrt_b_xn_wrt;
+  logic                    sqrt_b_div_wrt;
 
   pa_fpu::e_fpu_operations operation; // arithmetic operation to be performed
   logic                    start_operation;
@@ -128,6 +128,7 @@ module fpu(
 
   logic                    start_operation_ar_fsm;  // ...
   logic                    operation_done_ar_fsm;   // for handshake between main fsm and arithmetic fsm
+  logic                    start_operation_div_ar_fsm;  
 
   // status
   logic                    a_is_zero;
@@ -172,44 +173,42 @@ module fpu(
         b_exp      <= operand_b[30:23];
         b_sign     <= operand_b[31];
       end
-      if(sqrt_a_wrt) begin
-        if(sqrt_a_src) begin
-          a_mantissa <= sqrt_xn_mantissa;
-          a_exp      <= sqrt_xn_exp;
-          a_sign     <= sqrt_xn_sign;
-        end
-        else begin
-          a_mantissa <= sqrt_A_mantissa;
-          a_exp      <= sqrt_A_exp;
-          a_sign     <= sqrt_A_sign;
-        end
+      if(sqrt_a_xn_wrt) begin
+        a_mantissa <= sqrt_xn_mantissa;
+        a_exp      <= sqrt_xn_exp;
+        a_sign     <= sqrt_xn_sign;
       end
-      if(sqrt_b_wrt) begin
-        if(sqrt_b_src) begin
-          b_mantissa <= sqrt_xn_mantissa;
-          b_exp      <= sqrt_xn_exp;
-          b_sign     <= sqrt_xn_sign;
-        end
-        else begin
-          b_mantissa <= result_mantissa_div;
-          b_exp      <= result_exp_div;
-          b_sign     <= result_sign_div;
-        end
+      else if(sqrt_a_A_wrt) begin
+        a_mantissa <= sqrt_A_mantissa;
+        a_exp      <= sqrt_A_exp;
+        a_sign     <= sqrt_A_sign;
+      end
+      if(sqrt_b_xn_wrt) begin
+        b_mantissa <= sqrt_xn_mantissa;
+        b_exp      <= sqrt_xn_exp;
+        b_sign     <= sqrt_xn_sign;
+      end
+      else if(sqrt_b_div_wrt) begin
+        b_mantissa <= result_mantissa_div;
+        b_exp      <= result_exp_div;
+        b_sign     <= result_sign_div;
       end
     end
   end
 
-  assign a_exp_no_bias   = operand_a[30:23] - 127;
-  assign b_exp_no_bias   = operand_b[30:23] - 127;
+  assign a_exp_no_bias   = a_exp - 8'd127;
+  assign b_exp_no_bias   = b_exp - 8'd127;
 
   assign ab_exp_diff     = a_exp_no_bias - b_exp_no_bias;
   assign ba_exp_diff     = b_exp_no_bias - a_exp_no_bias;
 
-  assign a_is_zero       = operand_a[30:23] == 8'h00 && operand_a[22:0] == 23'h0;
-  assign b_is_zero       = operand_b[30:23] == 8'h00 && operand_b[22:0] == 23'h0;
+  assign a_is_zero       = a_exp == 8'h00 && a_mantissa[22:0] == 23'h0;
+  assign b_is_zero       = b_exp == 8'h00 && b_mantissa[22:0] == 23'h0;
 
-  assign a_subnormal     = operand_a[30:23] == 8'h00 && operand_a[22:0] != 23'h0;
-  assign b_subnormal     = operand_b[30:23] == 8'h00 && operand_b[22:0] != 23'h0;
+  assign a_subnormal     = a_exp == 8'h00 && a_mantissa[22:0] != 23'h0;
+  assign b_subnormal     = b_exp == 8'h00 && b_mantissa[22:0] != 23'h0;
+
+  assign start_operation_div_fsm = start_operation_div_ar_fsm || sqrt_div_A_by_xn_start;
 
   // ---------------------------------------------------------------------------------------
 
@@ -423,6 +422,39 @@ module fpu(
     end
   end
 
+  // division datapath
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) begin
+      remainder_dividend <= '0;
+      div_counter        <= '0;
+    end
+    else begin
+      if(next_state_div_fsm == pa_fpu::div_start_st) begin
+        div_counter <= 24;
+        remainder_dividend <= {2'b00, a_mantissa[23:0], 23'd0}; // dividend in lower half
+      end
+      if(div_shift) 
+        remainder_dividend <= remainder_dividend << 1;
+      if(div_set_a0_1) begin
+        remainder_dividend[0] <= 1'b1;
+        remainder_dividend[48:24] <= {1'b0, remainder_dividend[48:24]} + ~{2'b00, b_mantissa[23:0]} + 26'b1;
+      end
+      if(next_state_div_fsm == pa_fpu::div_sub_divisor_test_st)  
+        div_counter <= div_counter - 1;
+      if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
+        automatic logic [7:0] e = a_exp_no_bias - b_exp_no_bias + 8'd127;
+        automatic logic [23:0] m = remainder_dividend[23:0];
+        result_sign_div <= a_sign ^ b_sign;
+        while(m[23] == 1'b0) begin
+          m = m << 1;
+          e = e - 1;
+        end
+        result_exp_div <= e;
+        result_mantissa_div <= m;
+      end
+    end
+  end
+
   // ---------------------------------------------------------------------------------------
 
   // main fsm
@@ -504,6 +536,8 @@ module fpu(
             next_state_arith_fsm = pa_fpu::arith_mul_st;
           pa_fpu::op_div:
             next_state_arith_fsm = pa_fpu::arith_div_st;
+          pa_fpu::op_sqrt:
+            next_state_arith_fsm = pa_fpu::arith_sqrt_st;
         endcase
 
       pa_fpu::arith_add_st:
@@ -522,6 +556,11 @@ module fpu(
       pa_fpu::arith_div_done_st:
         if(operation_done_div_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_result_valid_st;
 
+      pa_fpu::arith_sqrt_st:
+        if(operation_done_sqrt_fsm == 1'b1) next_state_arith_fsm = pa_fpu::arith_sqrt_done_st;
+      pa_fpu::arith_sqrt_done_st:
+        if(operation_done_sqrt_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_result_valid_st;
+
       pa_fpu::arith_result_valid_st:
         if(start_operation_ar_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_idle_st;
 
@@ -536,44 +575,74 @@ module fpu(
     if(arst) begin
       operation_done_ar_fsm <= 1'b0;
       start_operation_mul_fsm <= 1'b0;
+      start_operation_div_ar_fsm <= 1'b0;
+      start_operation_sqrt_fsm <= 1'b0;
     end
     else begin
       case(next_state_arith_fsm)
         pa_fpu::arith_idle_st: begin
           operation_done_ar_fsm <= 1'b0;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b0;
         end
         pa_fpu::arith_load_operands_st: begin
           operation_done_ar_fsm <= 1'b0;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b0;
         end
         pa_fpu::arith_add_st: begin
           operation_done_ar_fsm <= 1'b0;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b0;
         end
         pa_fpu::arith_sub_st: begin
           operation_done_ar_fsm <= 1'b0;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b0;
         end
         pa_fpu::arith_mul_st: begin
           operation_done_ar_fsm   <= 1'b0;
           start_operation_mul_fsm <= 1'b1;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b0;
         end
         pa_fpu::arith_mul_done_st: begin
           operation_done_ar_fsm <= 1'b0;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b0;
         end
         pa_fpu::arith_div_st: begin
           operation_done_ar_fsm <= 1'b0;
-          start_operation_div_fsm <= 1'b1;
+          start_operation_mul_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b1;
+          start_operation_sqrt_fsm <= 1'b0;
         end
         pa_fpu::arith_div_done_st: begin
           operation_done_ar_fsm <= 1'b0;
-          start_operation_div_fsm <= 1'b0;
+          start_operation_mul_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b0;
+        end
+        pa_fpu::arith_sqrt_st: begin
+          operation_done_ar_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b1;
+        end
+        pa_fpu::arith_sqrt_done_st: begin
+          operation_done_ar_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b0;
         end
         pa_fpu::arith_result_valid_st: begin
           operation_done_ar_fsm <= 1'b1;
           start_operation_mul_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b0;
         end
       endcase  
     end
@@ -656,39 +725,6 @@ module fpu(
   end
 
   // ------------------------------------------------------------------------------------------------
-
-  // division datapath
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) begin
-      remainder_dividend <= '0;
-      div_counter        <= '0;
-    end
-    else begin
-      if(next_state_div_fsm == pa_fpu::div_start_st) begin
-        div_counter <= 24;
-        remainder_dividend <= {2'b00, a_mantissa[23:0], 23'd0}; // dividend in lower half
-      end
-      if(div_shift) 
-        remainder_dividend <= remainder_dividend << 1;
-      if(div_set_a0_1) begin
-        remainder_dividend[0] <= 1'b1;
-        remainder_dividend[48:24] <= {1'b0, remainder_dividend[48:24]} + ~{2'b00, b_mantissa[23:0]} + 26'b1;
-      end
-      if(next_state_div_fsm == pa_fpu::div_sub_divisor_test_st)  
-        div_counter <= div_counter - 1;
-      if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
-        automatic logic [7:0] e = a_exp_no_bias - b_exp_no_bias + 8'd127;
-        automatic logic [23:0] m = remainder_dividend[23:0];
-        result_sign_div <= a_sign ^ b_sign;
-        while(m[23] == 1'b0) begin
-          m = m << 1;
-          e = e - 1;
-        end
-        result_exp_div <= e;
-        result_mantissa_div <= m;
-      end
-    end
-  end
 
   // divide fsm
   // next state assignments
@@ -776,49 +812,51 @@ module fpu(
   end
 
   // ------------------------------------------------------------------------------------------------
-  // xnp1 = 0.5 * (xn + a/xn)
 
   // sqrt datapath
   always_ff @(posedge clk, posedge arst) begin
     if(arst) begin
       sqrt_xn_mantissa <= '0;
       sqrt_xn_exp      <= '0;
-      sqrt_counter     <= '0;
+      sqrt_xn_sign     <= '0;
       sqrt_A_mantissa  <= '0;
+      sqrt_A_exp       <= '0;
+      sqrt_A_sign      <= '0;
+      sqrt_counter     <= '0;
     end
     else begin
       if(next_state_sqrt_fsm == pa_fpu::sqrt_start_st) begin
-        sqrt_counter <= 10;
+        sqrt_counter <= 2;
       end
-      if(sqrt_xn_wrt) begin
-        if(sqrt_xn_src == 2'b00) begin
-          sqrt_xn_mantissa <= sqrt_A_mantissa;
-          sqrt_xn_exp      <= sqrt_A_exp;
-          sqrt_xn_sign     <= 1'b0;
-        end
-        else if(sqrt_xn_src == 2'b01) begin
-          sqrt_xn_mantissa <= a_mantissa;
-          sqrt_xn_exp      <= a_exp;
-          sqrt_xn_sign     <= a_sign;
-        end
-        else if(sqrt_xn_src == 2'b10) begin
-          sqrt_xn_mantissa <= result_mantissa_add;
-          sqrt_xn_exp      <= result_exp_add - 8'd1;
-          sqrt_xn_sign     <= result_sign_add;
-        end
+      else if(next_state_sqrt_fsm == pa_fpu::sqrt_check_counter_st) begin
+        sqrt_counter <= sqrt_counter - 6'd1;
       end
-      if(sqrt_A_wrt) begin
+      if(sqrt_xn_A_wrt) begin
+        sqrt_xn_mantissa <= sqrt_A_mantissa;
+        sqrt_xn_exp      <= sqrt_A_exp;
+        sqrt_xn_sign     <= 1'b0;
+      end
+      else if(sqrt_xn_a_wrt) begin
+        sqrt_xn_mantissa <= a_mantissa;
+        sqrt_xn_exp      <= a_exp;
+        sqrt_xn_sign     <= a_sign;
+      end
+      else if(sqrt_xn_add_wrt) begin
+        sqrt_xn_mantissa <= result_mantissa_add;
+        sqrt_xn_exp      <= result_exp_add - 8'd1;
+        sqrt_xn_sign     <= result_sign_add;
+      end
+      if(sqrt_A_a_wrt) begin
         sqrt_A_mantissa <= a_mantissa;
         sqrt_A_exp      <= a_exp;
         sqrt_A_sign     <= a_sign;
       end
-      if(sqrt_counter_dec)
-        sqrt_counter <= sqrt_counter - 6'd1;
     end
   end
 
   // sqrt fsm
   // next state assignments
+  // xn = 0.5(xn + A/xn)
   always_comb begin
     next_state_sqrt_fsm = curr_state_sqrt_fsm;
 
@@ -842,15 +880,16 @@ module fpu(
       end
       // set a_mantissa <= xn, a_exp = xn_exp
       // set b_mantissa <= result_mantissa_div, b_exp = result_exp_div
-      // perform addition during this clock cycle
       pa_fpu::sqrt_addition_st: begin
         next_state_sqrt_fsm = pa_fpu::sqrt_mov_xn_a_dec_exp_st;
       end
+      // perform addition during this clock cycle
       // set xn = result_mantissa_add, while decreasing xn_exp by 1
       pa_fpu::sqrt_mov_xn_a_dec_exp_st: begin
         next_state_sqrt_fsm = pa_fpu::sqrt_check_counter_st;
       end
-      // dec sqrt_counter and check
+      // dec sqrt_counter when entering this state
+      // check sqrt_counter == 0
       pa_fpu::sqrt_check_counter_st:
         if(sqrt_counter == 6'h0) next_state_sqrt_fsm = pa_fpu::sqrt_result_valid_st;
         else next_state_sqrt_fsm = pa_fpu::sqrt_div_setup_st;
@@ -867,75 +906,70 @@ module fpu(
     if(arst) begin
       operation_done_sqrt_fsm <= 1'b0;
       sqrt_div_A_by_xn_start  <= 1'b0;
-      sqrt_add                <= 1'b0;
-      sqrt_A_wrt              <= 1'b0;
-      sqrt_xn_wrt             <= 1'b0;
-      sqrt_xn_src             <= 2'b00;
-      sqrt_counter_dec        <= 1'b0;
-      sqrt_a_wrt              <= 1'b0;
-      sqrt_a_src              <= 1'b0;
-      sqrt_b_wrt              <= 1'b0;
-      sqrt_b_src              <= 1'b0;
+      sqrt_xn_A_wrt           <= 1'b0;
+      sqrt_xn_a_wrt           <= 1'b0;
+      sqrt_xn_add_wrt         <= 1'b0;
+      sqrt_A_a_wrt            <= 1'b0;
+      sqrt_a_xn_wrt           <= 1'b0;
+      sqrt_a_A_wrt            <= 1'b0;
+      sqrt_b_xn_wrt           <= 1'b0;
+      sqrt_b_div_wrt          <= 1'b0;
     end
     else begin
       case(next_state_sqrt_fsm)
         pa_fpu::sqrt_idle_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
-          sqrt_add                <= 1'b0;
-          sqrt_A_wrt              <= 1'b0;
-          sqrt_xn_wrt             <= 1'b0;
-          sqrt_xn_src             <= 2'b00;
-          sqrt_counter_dec        <= 1'b0;
-          sqrt_a_wrt              <= 1'b0;
-          sqrt_a_src              <= 1'b0;
-          sqrt_b_wrt              <= 1'b0;
-          sqrt_b_src              <= 1'b0;
+          sqrt_xn_A_wrt           <= 1'b0;
+          sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_add_wrt         <= 1'b0;
+          sqrt_A_a_wrt            <= 1'b0;
+          sqrt_a_xn_wrt           <= 1'b0;
+          sqrt_a_A_wrt            <= 1'b0;
+          sqrt_b_xn_wrt           <= 1'b0;
+          sqrt_b_div_wrt          <= 1'b0;
         end
         // set A = a_mantissa (A = number whose sqrt is requested)
-        // set xn to initial guess = A itself
-        // set counter for number of steps = 10
+        // set xn to initial guess = A = a
+        // set counter for number of steps
         pa_fpu::sqrt_start_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
-          sqrt_add                <= 1'b0;
-          sqrt_A_wrt              <= 1'b1; // A = a_mantissa
-          sqrt_xn_wrt             <= 1'b1; // write xn
-          sqrt_xn_src             <= 2'b00; // xn = A
-          sqrt_counter_dec        <= 1'b0;
-          sqrt_a_wrt              <= 1'b0;
-          sqrt_a_src              <= 1'b0;
-          sqrt_b_wrt              <= 1'b0;
-          sqrt_b_src              <= 1'b0;
+          sqrt_xn_A_wrt           <= 1'b0;
+          sqrt_xn_a_wrt           <= 1'b1;
+          sqrt_xn_add_wrt         <= 1'b0;
+          sqrt_A_a_wrt            <= 1'b1;
+          sqrt_a_xn_wrt           <= 1'b0;
+          sqrt_a_A_wrt            <= 1'b0;
+          sqrt_b_xn_wrt           <= 1'b0;
+          sqrt_b_div_wrt          <= 1'b0;
         end
         // set a_mantissa = A, a_exp = A_exp
         // set b_mantissa = xn, b_exp = xn_exp
         pa_fpu::sqrt_div_setup_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
-          sqrt_add                <= 1'b0;
-          sqrt_A_wrt              <= 1'b0;
-          sqrt_xn_wrt             <= 1'b0;
-          sqrt_xn_src             <= 2'b00; 
-          sqrt_counter_dec        <= 1'b0;
-          sqrt_a_wrt              <= 1'b1; // write a
-          sqrt_a_src              <= 1'b1; // a = A
-          sqrt_b_wrt              <= 1'b1; // write b
-          sqrt_b_src              <= 1'b0; // b = xn
+          sqrt_xn_A_wrt           <= 1'b0;
+          sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_add_wrt         <= 1'b0;
+          sqrt_A_a_wrt            <= 1'b0;
+          sqrt_a_xn_wrt           <= 1'b0;
+          sqrt_a_A_wrt            <= 1'b1;
+          sqrt_b_xn_wrt           <= 1'b1;
+          sqrt_b_div_wrt          <= 1'b0;
         end
         // wait for division to complete.
         pa_fpu::sqrt_wait_div_done_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b1; // request division operation
-          sqrt_add                <= 1'b0;
-          sqrt_A_wrt              <= 1'b0;
-          sqrt_xn_wrt             <= 1'b0;
-          sqrt_xn_src             <= 2'b00; 
-          sqrt_counter_dec        <= 1'b0;
-          sqrt_a_wrt              <= 1'b0;
-          sqrt_a_src              <= 1'b0;
-          sqrt_b_wrt              <= 1'b0;
-          sqrt_b_src              <= 1'b0;
+          sqrt_xn_A_wrt           <= 1'b0;
+          sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_add_wrt         <= 1'b0;
+          sqrt_A_a_wrt            <= 1'b0;
+          sqrt_a_xn_wrt           <= 1'b0;
+          sqrt_a_A_wrt            <= 1'b0;
+          sqrt_b_xn_wrt           <= 1'b0;
+          sqrt_b_div_wrt          <= 1'b0;
         end
         // set a_mantissa <= xn, a_exp = xn_exp
         // set b_mantissa <= result_mantissa_div, b_exp = result_exp_div
@@ -943,56 +977,52 @@ module fpu(
         pa_fpu::sqrt_addition_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
-          sqrt_add                <= 1'b0;
-          sqrt_A_wrt              <= 1'b0;
-          sqrt_xn_wrt             <= 1'b0;
-          sqrt_xn_src             <= 2'b00; 
-          sqrt_counter_dec        <= 1'b0;
-          sqrt_a_wrt              <= 1'b1; // write a
-          sqrt_a_src              <= 1'b0; // a = xn
-          sqrt_b_wrt              <= 1'b1; // write b
-          sqrt_b_src              <= 1'b1; // b = result_mantissa_div
+          sqrt_xn_A_wrt           <= 1'b0;
+          sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_add_wrt         <= 1'b0;
+          sqrt_A_a_wrt            <= 1'b0;
+          sqrt_a_xn_wrt           <= 1'b1;
+          sqrt_a_A_wrt            <= 1'b0;
+          sqrt_b_xn_wrt           <= 1'b0;
+          sqrt_b_div_wrt          <= 1'b1;
         end
         // transfer addition result to xn, while decreasing xn_exp by 1
         // dec sqrt_counter
         pa_fpu::sqrt_mov_xn_a_dec_exp_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
-          sqrt_add                <= 1'b0;
-          sqrt_A_wrt              <= 1'b0;
-          sqrt_xn_wrt             <= 1'b1;  // write xn
-          sqrt_xn_src             <= 2'b10; // xn = result_mantissa_add
-          sqrt_counter_dec        <= 1'b1;
-          sqrt_a_wrt              <= 1'b0;
-          sqrt_a_src              <= 1'b0;
-          sqrt_b_wrt              <= 1'b0;
-          sqrt_b_src              <= 1'b0;
+          sqrt_xn_A_wrt           <= 1'b0;
+          sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_add_wrt         <= 1'b1;
+          sqrt_A_a_wrt            <= 1'b0;
+          sqrt_a_xn_wrt           <= 1'b0;
+          sqrt_a_A_wrt            <= 1'b0;
+          sqrt_b_xn_wrt           <= 1'b0;
+          sqrt_b_div_wrt          <= 1'b0;
         end
         pa_fpu::sqrt_check_counter_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
-          sqrt_add                <= 1'b0;
-          sqrt_A_wrt              <= 1'b0;
-          sqrt_xn_wrt             <= 1'b0;
-          sqrt_xn_src             <= 2'b00; 
-          sqrt_counter_dec        <= 1'b0;
-          sqrt_a_wrt              <= 1'b0;
-          sqrt_a_src              <= 1'b0;
-          sqrt_b_wrt              <= 1'b0;
-          sqrt_b_src              <= 1'b0;
+          sqrt_xn_A_wrt           <= 1'b0;
+          sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_add_wrt         <= 1'b0;
+          sqrt_A_a_wrt            <= 1'b0;
+          sqrt_a_xn_wrt           <= 1'b0;
+          sqrt_a_A_wrt            <= 1'b0;
+          sqrt_b_xn_wrt           <= 1'b0;
+          sqrt_b_div_wrt          <= 1'b0;
         end
         pa_fpu::sqrt_result_valid_st: begin
           operation_done_sqrt_fsm <= 1'b1;
           sqrt_div_A_by_xn_start  <= 1'b0;
-          sqrt_add                <= 1'b0;
-          sqrt_A_wrt              <= 1'b0;
-          sqrt_xn_wrt             <= 1'b0;
-          sqrt_xn_src             <= 2'b00; 
-          sqrt_counter_dec        <= 1'b0;
-          sqrt_a_wrt              <= 1'b0;
-          sqrt_a_src              <= 1'b0;
-          sqrt_b_wrt              <= 1'b0;
-          sqrt_b_src              <= 1'b0;
+          sqrt_xn_A_wrt           <= 1'b0;
+          sqrt_xn_a_wrt           <= 1'b0;
+          sqrt_xn_add_wrt         <= 1'b0;
+          sqrt_A_a_wrt            <= 1'b0;
+          sqrt_a_xn_wrt           <= 1'b0;
+          sqrt_a_A_wrt            <= 1'b0;
+          sqrt_b_xn_wrt           <= 1'b0;
+          sqrt_b_div_wrt          <= 1'b0;
         end
       endcase  
     end
