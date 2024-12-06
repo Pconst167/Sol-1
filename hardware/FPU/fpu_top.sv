@@ -838,6 +838,7 @@ module fpu(
         //sqrt_xn_exp      <= a_exp - 8'd1;
         // 9'b110000001 = -127 with 1 bit extended for signed arithmetic
         //sqrt_xn_exp      <= (({1'b0, a_exp} + 9'b110000001) >> 1) + 9'd127 ; // divide a_exp by 2. hence initial approx to A = m*2^E  is  m*e^(E/2) which is very close to its square root.
+        // a_exp is biased. shifting it by 1 divides the bias 127 by 2 as well, hence add back 127/2 = 63
         sqrt_xn_exp      <= (a_exp >> 1) + 9'd63 ; // divide a_exp by 2. hence initial approx to A = m*2^E  is  m*e^(E/2) which is very close to its square root.
         sqrt_xn_sign     <= a_sign;
       end
