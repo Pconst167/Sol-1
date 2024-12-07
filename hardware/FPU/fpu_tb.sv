@@ -37,7 +37,7 @@ module fpu_tb;
 //  write_operand_b(32'h00000001); //  1e-45
 
     //write_operand_a(32'h4d96890d); //  315695520
- //   write_operand_b(32'h4a447fad); //  3219435.3       
+    //write_operand_a(32'h4a447fad); //  3219435.3       
 
     //write_operand_a(32'h3f800000); //  1.0
     //write_operand_b(32'h3f8ccccd); //  1.1       div: 3f68ba2f
@@ -45,12 +45,14 @@ module fpu_tb;
   // 0.5*(10 + 10/10)   = 5.5
   // 0.5*(5.5 + 10/5.5) = 3.65909090
 
+    write_operand_a(32'h7f7fffff); //  3.4028234664e38
+
     //write_operand_a(32'h3f800000); //  1.0
     //write_operand_b(32'h3f800000); //  1.0       
 
     //write_operand_a(32'h4cbebc20); //  sqrt(100000000) = 10000
 
-    write_operand_a(32'h3ee839f1); //  sqrt(0.4535670493) = 0.67347386
+    //write_operand_a(32'h3ee839f1); //  sqrt(0.4535670493) = 0.67347386
 
     //write_operand_a(32'h40000000); //  sqrt(2)
 
@@ -63,7 +65,7 @@ module fpu_tb;
     //write_operand_a(32'h4640e47e); //  12345.12345        3d3c5047
 
     //write_operand_a(32'h4426bff0); //  666.999
-    //write_operand_b(32'h444271ba); //  777.777    3f5b89c6      0.857571000428
+    //write_operand_a(32'h444271ba); //  777.777    3f5b89c6      0.857571000428
 
     //write_operand_a(32'h4426ffdf); //  667.998       result: 447bc7be
     //write_operand_b(32'h43a98fbe); //  339.123

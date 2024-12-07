@@ -92,9 +92,9 @@ module fpu(
   logic             [48:0] remainder_dividend; // 24 bits for quotient, 25 bits for the subtraction register (one more bit needed at MSB position for when dividend < divisor)
                                             // in such a case, the dividend is shifted left until it becomes larger than divisor and subtraction can happen (for fractional divisions)
   // fsm control
-  logic              [5:0] div_counter;
+  logic              [4:0] div_counter;
   logic                    div_shift;
-  logic                    div_set_a0_1;
+  logic                    div_set_q0;
   logic                    start_operation_div_fsm;  
   logic                    operation_done_div_fsm;   
 
@@ -105,14 +105,14 @@ module fpu(
   logic             [23:0] sqrt_A_mantissa;
   logic              [7:0] sqrt_A_exp;
   logic                    sqrt_A_sign;
-  logic              [4:0] sqrt_counter;
+  logic              [3:0] sqrt_counter;
 
   // fsm control
   logic                    start_operation_sqrt_fsm;  
   logic                    operation_done_sqrt_fsm;   
   logic                    sqrt_div_A_by_xn_start;
   logic                    sqrt_xn_A_wrt;
-  logic                    sqrt_xn_a_over_2_wrt;
+  logic                    sqrt_xn_a_approx_wrt;
   logic                    sqrt_xn_a_wrt;
   logic                    sqrt_xn_add_wrt;
   logic                    sqrt_A_a_wrt;
@@ -427,17 +427,17 @@ module fpu(
     end
     else begin
       if(next_state_div_fsm == pa_fpu::div_start_st) begin
-        div_counter <= 24;
+        div_counter <= '0;
         remainder_dividend <= {2'b00, a_mantissa[23:0], 23'd0}; // dividend in lower half
       end
       if(div_shift) 
         remainder_dividend <= remainder_dividend << 1;
-      if(div_set_a0_1) begin
+      if(div_set_q0) begin
         remainder_dividend[0] <= 1'b1;
         remainder_dividend[48:24] <= {1'b0, remainder_dividend[48:24]} + ~{2'b00, b_mantissa[23:0]} + 26'b1;
       end
       if(next_state_div_fsm == pa_fpu::div_sub_divisor_test_st)  
-        div_counter <= div_counter - 1;
+        div_counter <= div_counter + 1;
       if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
         automatic logic [7:0] e = (a_exp - b_exp) + 8'd127;
         automatic logic [23:0] m = remainder_dividend[23:0];
@@ -740,17 +740,17 @@ module fpu(
       
       pa_fpu::div_sub_divisor_test_st: begin
         automatic logic [25:0] intermediary = {1'b0, remainder_dividend[48:24]} + (~{2'b00, b_mantissa[23:0]} + 26'b1);
-        if(intermediary[25] == 1'b1) next_state_div_fsm = pa_fpu::div_check_counter_st; // result is negative
-        else next_state_div_fsm = pa_fpu::div_set_a0_1_st; // result is positive
+        if(intermediary[25] == 1'b1) begin
+          if(div_counter == 5'd24) next_state_div_fsm = pa_fpu::div_result_valid_st;
+          else next_state_div_fsm = pa_fpu::div_shift_st;
+        end
+        else next_state_div_fsm = pa_fpu::div_set_q0_st; // result is positive
       end
       
-      pa_fpu::div_set_a0_1_st:
-        next_state_div_fsm = pa_fpu::div_check_counter_st;
-
-      pa_fpu::div_check_counter_st:
-        if(div_counter == 6'h0) next_state_div_fsm = pa_fpu::div_result_valid_st;
+      pa_fpu::div_set_q0_st:
+        if(div_counter == 5'd24) next_state_div_fsm = pa_fpu::div_result_valid_st;
         else next_state_div_fsm = pa_fpu::div_shift_st;
-      
+
       pa_fpu::div_result_valid_st:
         if(start_operation_div_fsm == 1'b0) next_state_div_fsm = pa_fpu::div_idle_st;
 
@@ -765,44 +765,39 @@ module fpu(
     if(arst) begin
       operation_done_div_fsm <= 1'b0;
       div_shift              <= 1'b0;
-      div_set_a0_1           <= 1'b0;
+      div_set_q0           <= 1'b0;
     end
     else begin
       case(next_state_div_fsm)
         pa_fpu::div_idle_st: begin
           operation_done_div_fsm <= 1'b0;
           div_shift              <= 1'b0;
-          div_set_a0_1           <= 1'b0;
+          div_set_q0           <= 1'b0;
         end
         pa_fpu::div_start_st: begin
           operation_done_div_fsm <= 1'b0;
           div_shift              <= 1'b0;
-          div_set_a0_1           <= 1'b0;
+          div_set_q0           <= 1'b0;
         end
         pa_fpu::div_shift_st: begin
           operation_done_div_fsm <= 1'b0;
           div_shift              <= 1'b1;
-          div_set_a0_1           <= 1'b0;
+          div_set_q0           <= 1'b0;
         end
         pa_fpu::div_sub_divisor_test_st: begin
           operation_done_div_fsm <= 1'b0;
           div_shift              <= 1'b0;
-          div_set_a0_1           <= 1'b0;
+          div_set_q0           <= 1'b0;
         end
-        pa_fpu::div_set_a0_1_st: begin
+        pa_fpu::div_set_q0_st: begin
           operation_done_div_fsm <= 1'b0;
           div_shift              <= 1'b0;
-          div_set_a0_1           <= 1'b1;
-        end
-        pa_fpu::div_check_counter_st: begin
-          operation_done_div_fsm <= 1'b0;
-          div_shift              <= 1'b0;
-          div_set_a0_1           <= 1'b0;
+          div_set_q0           <= 1'b1;
         end
         pa_fpu::div_result_valid_st: begin
           operation_done_div_fsm <= 1'b1;
           div_shift              <= 1'b0;
-          div_set_a0_1           <= 1'b0;
+          div_set_q0           <= 1'b0;
         end
       endcase  
     end
@@ -823,17 +818,17 @@ module fpu(
     end
     else begin
       if(next_state_sqrt_fsm == pa_fpu::sqrt_start_st) begin
-        sqrt_counter <= 4;
+        sqrt_counter <= 0;
       end
-      else if(next_state_sqrt_fsm == pa_fpu::sqrt_check_counter_st) begin
-        sqrt_counter <= sqrt_counter - 6'd1;
+      else if(next_state_sqrt_fsm == pa_fpu::sqrt_mov_xn_a_dec_exp_st) begin
+        sqrt_counter <= sqrt_counter + 4'd1;
       end
       if(sqrt_xn_A_wrt) begin
         sqrt_xn_mantissa <= sqrt_A_mantissa;
         sqrt_xn_exp      <= sqrt_A_exp;
         sqrt_xn_sign     <= 1'b0;
       end
-      else if(sqrt_xn_a_over_2_wrt) begin
+      else if(sqrt_xn_a_approx_wrt) begin
         sqrt_xn_mantissa <= a_mantissa; 
         //sqrt_xn_exp      <= a_exp - 8'd1;
         // 9'b110000001 = -127 with 1 bit extended for signed arithmetic
@@ -870,7 +865,7 @@ module fpu(
       pa_fpu::sqrt_idle_st: 
         if(start_operation_sqrt_fsm) next_state_sqrt_fsm = pa_fpu::sqrt_start_st;
       // set A = a_mantissa (A = number whose sqrt is requested)
-      // set xn to initial guess = A/2. choose A/2 as a simple approximation to its square root
+      // set xn to initial guess 
       // set counter for number of steps = 10
       pa_fpu::sqrt_start_st: 
         next_state_sqrt_fsm = pa_fpu::sqrt_div_setup_st;
@@ -891,14 +886,12 @@ module fpu(
       end
       // perform addition during this clock cycle
       // set xn = result_mantissa_add, while decreasing xn_exp by 1
-      pa_fpu::sqrt_mov_xn_a_dec_exp_st: begin
-        next_state_sqrt_fsm = pa_fpu::sqrt_check_counter_st;
-      end
       // dec sqrt_counter when entering this state
-      // check sqrt_counter == 0
-      pa_fpu::sqrt_check_counter_st:
-        if(sqrt_counter == 6'h0) next_state_sqrt_fsm = pa_fpu::sqrt_result_valid_st;
+      // check sqrt_counter == 4
+      pa_fpu::sqrt_mov_xn_a_dec_exp_st: begin
+        if(sqrt_counter == 4'd4) next_state_sqrt_fsm = pa_fpu::sqrt_result_valid_st;
         else next_state_sqrt_fsm = pa_fpu::sqrt_div_setup_st;
+      end
       pa_fpu::sqrt_result_valid_st:
         if(start_operation_sqrt_fsm == 1'b0) next_state_sqrt_fsm = pa_fpu::sqrt_idle_st;
       default:
@@ -913,7 +906,7 @@ module fpu(
       operation_done_sqrt_fsm <= 1'b0;
       sqrt_div_A_by_xn_start  <= 1'b0;
       sqrt_xn_A_wrt           <= 1'b0;
-      sqrt_xn_a_over_2_wrt    <= 1'b0;
+      sqrt_xn_a_approx_wrt    <= 1'b0;
       sqrt_xn_a_wrt           <= 1'b0;
       sqrt_xn_add_wrt         <= 1'b0;
       sqrt_A_a_wrt            <= 1'b0;
@@ -928,7 +921,7 @@ module fpu(
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
-          sqrt_xn_a_over_2_wrt    <= 1'b0;
+          sqrt_xn_a_approx_wrt    <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
@@ -938,14 +931,14 @@ module fpu(
           sqrt_b_div_wrt          <= 1'b0;
         end
         // set A = a_mantissa (A = number whose sqrt is requested)
-        // set xn to initial guess = A/2 = a/2
+        // set xn to initial guess
         // set counter for number of steps
         pa_fpu::sqrt_start_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
-          sqrt_xn_a_over_2_wrt    <= 1'b1;
+          sqrt_xn_a_approx_wrt    <= 1'b1;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b1;
           sqrt_a_xn_wrt           <= 1'b0;
@@ -960,7 +953,7 @@ module fpu(
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
-          sqrt_xn_a_over_2_wrt    <= 1'b0;
+          sqrt_xn_a_approx_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b0;
@@ -974,7 +967,7 @@ module fpu(
           sqrt_div_A_by_xn_start  <= 1'b1; // request division operation
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
-          sqrt_xn_a_over_2_wrt    <= 1'b0;
+          sqrt_xn_a_approx_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b0;
@@ -990,7 +983,7 @@ module fpu(
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
-          sqrt_xn_a_over_2_wrt    <= 1'b0;
+          sqrt_xn_a_approx_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b1;
@@ -999,27 +992,14 @@ module fpu(
           sqrt_b_div_wrt          <= 1'b1;
         end
         // transfer addition result to xn, while decreasing xn_exp by 1
-        // dec sqrt_counter
+        // inc sqrt_counter
         pa_fpu::sqrt_mov_xn_a_dec_exp_st: begin
           operation_done_sqrt_fsm <= 1'b0;
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
-          sqrt_xn_a_over_2_wrt    <= 1'b0;
+          sqrt_xn_a_approx_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b1;
-          sqrt_A_a_wrt            <= 1'b0;
-          sqrt_a_xn_wrt           <= 1'b0;
-          sqrt_a_A_wrt            <= 1'b0;
-          sqrt_b_xn_wrt           <= 1'b0;
-          sqrt_b_div_wrt          <= 1'b0;
-        end
-        pa_fpu::sqrt_check_counter_st: begin
-          operation_done_sqrt_fsm <= 1'b0;
-          sqrt_div_A_by_xn_start  <= 1'b0;
-          sqrt_xn_A_wrt           <= 1'b0;
-          sqrt_xn_a_wrt           <= 1'b0;
-          sqrt_xn_a_over_2_wrt    <= 1'b0;
-          sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b0;
           sqrt_a_A_wrt            <= 1'b0;
@@ -1031,7 +1011,7 @@ module fpu(
           sqrt_div_A_by_xn_start  <= 1'b0;
           sqrt_xn_A_wrt           <= 1'b0;
           sqrt_xn_a_wrt           <= 1'b0;
-          sqrt_xn_a_over_2_wrt    <= 1'b0;
+          sqrt_xn_a_approx_wrt    <= 1'b0;
           sqrt_xn_add_wrt         <= 1'b0;
           sqrt_A_a_wrt            <= 1'b0;
           sqrt_a_xn_wrt           <= 1'b0;

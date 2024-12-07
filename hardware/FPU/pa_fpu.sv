@@ -51,7 +51,7 @@ package pa_fpu;
     div_start_st,
     div_shift_st,
     div_sub_divisor_test_st,
-    div_set_a0_1_st,
+    div_set_q0_st,
     div_check_counter_st,
     div_result_valid_st
   } e_div_states;
@@ -63,7 +63,6 @@ package pa_fpu;
     sqrt_wait_div_done_st,
     sqrt_addition_st,
     sqrt_mov_xn_a_dec_exp_st,
-    sqrt_check_counter_st,
     sqrt_result_valid_st
   } e_sqrt_states;
 
