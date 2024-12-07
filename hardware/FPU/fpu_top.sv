@@ -8,7 +8,6 @@
   sqrt: newton-raphson
     xn = 0.5(xn + A/xn)
 
-
   dot product:
     a dot b 
     = a0b0 + a1b1 + ... + anbn 
@@ -22,11 +21,20 @@
   sin(x)    = x - x^3/3! + x^5/5! - x^7/7! + ...
   cos(x)    = 1 - x^2/2 + x^4/4! - x^6/6! + ...
   exp(x)    = 1 + x + x^2/2 + x^3/3! + x^4/4! + x^5/5! + ...
-  ln(1+x)   = x - x^2/2 + x^3/3 - x^4/4 + x^5/5 - ...  (|x| <= 1)
+  ln(1+x)   = x - x^2/2 + x^3/3 - x^4/4 + x^5/5 - ...  (|x| < 1)
   arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ... (slow convergence)
 
   notes: look into generating fsm outputs based on next state combinationally as well(as opposed to on next rising edge) so that assignments can be made 
          when a state is entered rather than left.
+
+  operations:
+    add
+    sub
+    mul
+    div
+    sqrt
+    int2float
+    float2int
 */
 
 import pa_fpu::*;
@@ -1057,5 +1065,39 @@ module fpu(
     if(arst) curr_state_sqrt_fsm <= sqrt_idle_st;
     else curr_state_sqrt_fsm <= next_state_sqrt_fsm;
   end
+
+/*
+  always_comb begin
+    logic [2:0] sum;
+    logic [3:0] op;
+
+    sum = 0;
+    sum = sum + op[3];
+    sum = sum + op[3] && op[2];
+    sum = sum + op[3] && op[2] && op[1];
+    sum = sum + op[3] && op[2] && op[1] && op[0];
+
+    if(op[3] && op[2] && op[1] && op[0]) sum = 4;
+    else if(op[3] && op[2] && op[1]) sum = 3;
+    else if(op[3] && op[2]) sum = 2;
+    else if(op[3]) sum = 1;
+    else sum = 0;
+
+    casex(op)
+      4'b0000: sum = 4;
+      4'b000x: sum = 3;
+      4'b00xx: sum = 2;
+      4'b0xxx: sum = 1;
+      4'bxxxx: sum = 0;
+    endcase
+
+    sum = 0;
+    if(op == 4'b0) sum = 4;
+    else while(op[3] == 1'b0) begin
+      sum = sum + 1;
+      op = op << 1;
+    end
+  end
+*/
 
 endmodule
