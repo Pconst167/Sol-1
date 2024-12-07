@@ -14,14 +14,14 @@ package pa_fpu;
     op_exp,
     op_int_to_float,
     op_float_to_int
-  } e_fpu_operations;
+  } e_fpu_op;
 
   typedef enum logic[3:0]{
     main_idle_st,
     main_wait_st,
     main_finish_st,
     main_wait_ack_st
-  } e_main_states;
+  } e_main_st;
 
   typedef enum logic[3:0]{
     arith_idle_st,
@@ -35,7 +35,7 @@ package pa_fpu;
     arith_sqrt_st,
     arith_sqrt_done_st,
     arith_result_valid_st
-  } e_arith_states;
+  } e_arith_st;
 
   typedef enum logic [2:0]{
     mul_idle_st,
@@ -44,7 +44,7 @@ package pa_fpu;
     mul_product_shift_st,
     mul_result_set_st,
     mul_result_valid_st
-  } e_mul_states;
+  } e_mul_st;
 
   typedef enum logic [2:0]{
     div_idle_st,
@@ -54,7 +54,7 @@ package pa_fpu;
     div_set_q0_st,
     div_check_counter_st,
     div_result_valid_st
-  } e_div_states;
+  } e_div_st;
 
   typedef enum logic [3:0]{
     sqrt_idle_st,
@@ -64,6 +64,6 @@ package pa_fpu;
     sqrt_addition_st,
     sqrt_mov_xn_a_dec_exp_st,
     sqrt_result_valid_st
-  } e_sqrt_states;
+  } e_sqrt_st;
 
 endpackage

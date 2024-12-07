@@ -33,8 +33,10 @@
     mul
     div
     sqrt
+    1/a
     int2float
     float2int
+
 */
 
 import pa_fpu::*;
@@ -129,12 +131,12 @@ module fpu(
   logic                    sqrt_b_xn_wrt;
   logic                    sqrt_b_div_wrt;
 
-  pa_fpu::e_fpu_operations operation; // arithmetic operation to be performed
+  pa_fpu::e_fpu_op         operation; // arithmetic operation to be performed
   logic                    start_operation;
 
   // other datapath control signals
   logic                    operation_wrt; // when needing to internally change the operator
-  pa_fpu::e_fpu_operations new_operation; // arithmetic operation to be performed
+  pa_fpu::e_fpu_op         new_operation; // arithmetic operation to be performed
 
   logic                    start_operation_ar_fsm;  // ...
   logic                    operation_done_ar_fsm;   // for handshake between main fsm and arithmetic fsm
@@ -152,16 +154,16 @@ module fpu(
   logic                    neg_infinity;
 
   // fsm states
-  pa_fpu::e_main_states    curr_state_main_fsm;
-  pa_fpu::e_main_states    next_state_main_fsm;
-  pa_fpu::e_arith_states   curr_state_arith_fsm;
-  pa_fpu::e_arith_states   next_state_arith_fsm;
-  pa_fpu::e_mul_states     curr_state_mul_fsm;
-  pa_fpu::e_mul_states     next_state_mul_fsm;
-  pa_fpu::e_div_states     curr_state_div_fsm;
-  pa_fpu::e_div_states     next_state_div_fsm;
-  pa_fpu::e_sqrt_states    curr_state_sqrt_fsm;
-  pa_fpu::e_sqrt_states    next_state_sqrt_fsm;
+  pa_fpu::e_main_st        curr_state_main_fsm;
+  pa_fpu::e_main_st        next_state_main_fsm;
+  pa_fpu::e_arith_st       curr_state_arith_fsm;
+  pa_fpu::e_arith_st       next_state_arith_fsm;
+  pa_fpu::e_mul_st         curr_state_mul_fsm;
+  pa_fpu::e_mul_st         next_state_mul_fsm;
+  pa_fpu::e_div_st         curr_state_div_fsm;
+  pa_fpu::e_div_st         next_state_div_fsm;
+  pa_fpu::e_sqrt_st        curr_state_sqrt_fsm;
+  pa_fpu::e_sqrt_st        next_state_sqrt_fsm;
 
   // ---------------------------------------------------------------------------------------
 
@@ -261,7 +263,7 @@ module fpu(
           4'h6: operand_b[23:16] <= databus_in;
           4'h7: operand_b[31:24] <= databus_in;
 
-          4'h8: operation  <= e_fpu_operations'(databus_in[3:0]);
+          4'h8: operation  <= e_fpu_op'(databus_in[3:0]);
           4'h9: start_operation <= 1'b1;
         endcase      
       end

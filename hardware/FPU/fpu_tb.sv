@@ -16,6 +16,23 @@ module fpu_tb;
 
   logic [31:0] result;
 
+  typedef struct{
+    logic [31:0] a;
+    logic [31:0] b;
+    real af;
+    real bf;
+  } st_fpu_computation;
+
+  st_fpu_computation computation_list[] = {
+    st_fpu_computation'{32'h4d96890d, 32'h4a447fad, 315695520.0,  3219435.3},
+    st_fpu_computation'{32'h3f800000, 32'h3f8ccccd, 1.0,          1.1},
+    st_fpu_computation'{32'h4cbebc20, 32'h0,        100000000,    0},
+    st_fpu_computation'{32'h3ee839f1, 32'h0,        0.4535670493, 0},
+    st_fpu_computation'{32'h40000000, 32'h0,        2,            0},
+    st_fpu_computation'{32'h41200000, 32'h0,        10,           0},
+    st_fpu_computation'{32'h40490fda, 32'h402df854, 3.1415926,    2.7182818}
+  };
+
   initial begin
     clk = 0;
     forever #250ns clk = ~clk;
@@ -33,42 +50,7 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
-//  write_operand_a(32'h00000001); //  smallest sub-normal
-//  write_operand_b(32'h00000001); //  1e-45
-
-    //write_operand_a(32'h4d96890d); //  315695520
-    //write_operand_a(32'h4a447fad); //  3219435.3       
-
-    //write_operand_a(32'h3f800000); //  1.0
-    //write_operand_b(32'h3f8ccccd); //  1.1       div: 3f68ba2f
-
-  // 0.5*(10 + 10/10)   = 5.5
-  // 0.5*(5.5 + 10/5.5) = 3.65909090
-
     write_operand_a(32'h7f7fffff); //  3.4028234664e38
-
-    //write_operand_a(32'h3f800000); //  1.0
-    //write_operand_b(32'h3f800000); //  1.0       
-
-    //write_operand_a(32'h4cbebc20); //  sqrt(100000000) = 10000
-
-    //write_operand_a(32'h3ee839f1); //  sqrt(0.4535670493) = 0.67347386
-
-    //write_operand_a(32'h40000000); //  sqrt(2)
-
-    //write_operand_b(32'h41200000); //  10  
-
-    //write_operand_a(32'h40490fda); //  3.1415196
-    //write_operand_b(32'h402df854); //  2.7182818       
-
-    //write_operand_b(32'h440de44a); //  567.567
-    //write_operand_a(32'h4640e47e); //  12345.12345        3d3c5047
-
-    //write_operand_a(32'h4426bff0); //  666.999
-    //write_operand_a(32'h444271ba); //  777.777    3f5b89c6      0.857571000428
-
-    //write_operand_a(32'h4426ffdf); //  667.998       result: 447bc7be
-    //write_operand_b(32'h43a98fbe); //  339.123
 
     ta_set_operation(pa_fpu::op_sqrt);
     ta_start_operation();
@@ -103,7 +85,7 @@ module fpu_tb;
     cs = 1'b1;
   endtask
 
-  task ta_set_operation(pa_fpu::e_fpu_operations operation);
+  task ta_set_operation(pa_fpu::e_fpu_op operation);
     // write operation
     @(posedge clk);
     cs = 1'b0;

@@ -1,17 +1,17 @@
-/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv {1 {vlog -work work -vopt -sv -stats=none /home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
+/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv {1 {vlog -work work -vopt -sv -stats=none /home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
+Questa Intel Starter FPGA Edition-64 vlog 2024.1 Compiler 2024.04 Apr 19 2024
+-- Compiling package fpu_top_sv_unit
+-- Importing package pa_fpu
+-- Compiling module fpu
+
+Top level modules:
+	fpu
+
+} {} {}} /home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv {1 {vlog -work work -vopt -sv -stats=none /home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
 Questa Intel Starter FPGA Edition-64 vlog 2024.1 Compiler 2024.04 Apr 19 2024
 -- Compiling package pa_fpu
 
 Top level modules:
 	--none--
-
-} {} {}} /home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv {1 {vlog -work work -vopt -sv -stats=none /home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
-Questa Intel Starter FPGA Edition-64 vlog 2024.1 Compiler 2024.04 Apr 19 2024
--- Compiling package fpu_tb_sv_unit
--- Importing package pa_fpu
--- Compiling module fpu_tb
-
-Top level modules:
-	fpu_tb
 
 } {} {}}
