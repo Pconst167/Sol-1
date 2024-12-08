@@ -7,6 +7,7 @@ package pa_fpu;
     op_square,
     op_div,
     op_sqrt,
+    op_a_inv,
     op_sin,
     op_cos,
     op_tan,
