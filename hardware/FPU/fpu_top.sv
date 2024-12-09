@@ -411,72 +411,6 @@ module fpu(
 
   // ---------------------------------------------------------------------------------------
 
-  // multiplication datapath
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) begin
-      product_multiplier <= '0;
-      mul_counter  <= '0;
-    end
-    else begin
-      if(product_add) begin
-        if(product_multiplier[0]) product_multiplier[48:24] <= product_multiplier[48:24] + a_mantissa[23:0]; // product_multiplier is 49 bits rather than 48 so it can also keep the carry out
-        mul_counter <= mul_counter + 5'd1; // increment counter here so that we can check the counter value in the next state. otherwise would need an extra state after shift_st to check counter == 16.
-      end
-      if(product_shift) product_multiplier <= product_multiplier >> 1;
-      if(next_state_mul_fsm == pa_fpu::mul_start_st) begin
-        mul_counter  <= '0;
-        product_multiplier <= {25'b0, b_mantissa[23:0]};  // initiate register, copy b_mantissa, as the multiplier
-      end
-      // this is tested on current state rather than next state because when the fsm reaches mul_result_set_st, the shift operation is clocked in 
-      if(curr_state_mul_fsm == pa_fpu::mul_result_set_st) begin
-        automatic logic [23:0] m = product_multiplier[47:24];
-        automatic logic [7:0]  e = (a_exp - 8'd127) + b_exp;
-        result_sign_mul <= a_sign ^ b_sign;
-        if(m[23] == 1'b1) e = e + 8'd1;    // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, 
-                                           // and so really the result we had was 10.xxx or 11.xxx for example, and so the final exponent needs to be incremented
-        else if(m[23] == 1'b0) m = m << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa 
-                                           // or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
-        result_exp_mul <= e;
-        result_mantissa_mul <= m;
-        end
-    end
-  end
-
-  // division datapath
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) begin
-      remainder_dividend <= '0;
-      div_counter        <= '0;
-    end
-    else begin
-      if(next_state_div_fsm == pa_fpu::div_start_st) begin
-        div_counter <= '0;
-        remainder_dividend <= {2'b00, a_mantissa[23:0], 23'd0}; // dividend in lower half
-      end
-      if(div_shift) 
-        remainder_dividend <= remainder_dividend << 1;
-      if(div_set_q0) begin
-        remainder_dividend[0] <= 1'b1;
-        remainder_dividend[48:24] <= {1'b0, remainder_dividend[48:24]} + ~{2'b00, b_mantissa[23:0]} + 26'b1;
-      end
-      if(next_state_div_fsm == pa_fpu::div_sub_divisor_test_st)  
-        div_counter <= div_counter + 1;
-      if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
-        automatic logic [7:0] e = (a_exp - b_exp) + 8'd127;
-        automatic logic [23:0] m = remainder_dividend[23:0];
-        result_sign_div <= a_sign ^ b_sign;
-        while(m[23] == 1'b0) begin
-          m = m << 1;
-          e = e - 1;
-        end
-        result_exp_div <= e;
-        result_mantissa_div <= m;
-      end
-    end
-  end
-
-  // ---------------------------------------------------------------------------------------
-
   // main fsm
   // next state assignments
   always_comb begin
@@ -670,6 +604,37 @@ module fpu(
 
   // ---------------------------------------------------------------------------------------
 
+  // multiplication datapath
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) begin
+      product_multiplier <= '0;
+      mul_counter  <= '0;
+    end
+    else begin
+      if(product_add) begin
+        if(product_multiplier[0]) product_multiplier[48:24] <= product_multiplier[48:24] + a_mantissa[23:0]; // product_multiplier is 49 bits rather than 48 so it can also keep the carry out
+        mul_counter <= mul_counter + 5'd1; // increment counter here so that we can check the counter value in the next state. otherwise would need an extra state after shift_st to check counter == 16.
+      end
+      if(product_shift) product_multiplier <= product_multiplier >> 1;
+      if(next_state_mul_fsm == pa_fpu::mul_start_st) begin
+        mul_counter  <= '0;
+        product_multiplier <= {25'b0, b_mantissa[23:0]};  // initiate register, copy b_mantissa, as the multiplier
+      end
+      // this is tested on current state rather than next state because when the fsm reaches mul_result_set_st, the shift operation is clocked in 
+      if(curr_state_mul_fsm == pa_fpu::mul_result_set_st) begin
+        automatic logic [23:0] m = product_multiplier[47:24];
+        automatic logic [7:0]  e = (a_exp - 8'd127) + b_exp;
+        result_sign_mul <= a_sign ^ b_sign;
+        if(m[23] == 1'b1) e = e + 8'd1;    // if MSB is 1, then increment exp by one to normalize because in this case, we have two digits before the decimal point, 
+                                           // and so really the result we had was 10.xxx or 11.xxx for example, and so the final exponent needs to be incremented
+        else if(m[23] == 1'b0) m = m << 1; // if the MSB of result is a 0, then shift left the result to normalize. in this case, nothing is changed in the mantissa 
+                                           // or exponent. we only shift here because of the way we are copying the mantissa from the result variable to the final packet.
+        result_exp_mul <= e;
+        result_mantissa_mul <= m;
+        end
+    end
+  end
+
   // multiply fsm
   // next state assignments
   always_comb begin
@@ -745,6 +710,39 @@ module fpu(
   end
 
   // ------------------------------------------------------------------------------------------------
+
+  // division datapath
+  always_ff @(posedge clk, posedge arst) begin
+    if(arst) begin
+      remainder_dividend <= '0;
+      div_counter        <= '0;
+    end
+    else begin
+      if(next_state_div_fsm == pa_fpu::div_start_st) begin
+        div_counter <= '0;
+        remainder_dividend <= {2'b00, a_mantissa[23:0], 23'd0}; // dividend in lower half
+      end
+      if(div_shift) 
+        remainder_dividend <= remainder_dividend << 1;
+      if(div_set_q0) begin
+        remainder_dividend[0] <= 1'b1;
+        remainder_dividend[48:24] <= {1'b0, remainder_dividend[48:24]} + ~{2'b00, b_mantissa[23:0]} + 26'b1;
+      end
+      if(next_state_div_fsm == pa_fpu::div_sub_divisor_test_st)  
+        div_counter <= div_counter + 1;
+      if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
+        automatic logic [7:0] e = (a_exp - b_exp) + 8'd127;
+        automatic logic [23:0] m = remainder_dividend[23:0];
+        result_sign_div <= a_sign ^ b_sign;
+        while(m[23] == 1'b0) begin
+          m = m << 1;
+          e = e - 1;
+        end
+        result_exp_div <= e;
+        result_mantissa_div <= m;
+      end
+    end
+  end
 
   // divide fsm
   // next state assignments
