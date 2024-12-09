@@ -25,6 +25,18 @@
     ln(1+x)   = x - x^2/2 + x^3/3 - x^4/4 + x^5/5 - ...  (|x| < 1)
     arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ... (slow convergence)
 
+  chebyshev polynomials:
+    Tn   = cos(nx)
+    Tn+1 = 2xTn - Tn-1
+    T0 = 1, T1 = x, T2 = 2x^2-1, T3 = 4x^3 - 3x, T4 = 8x^4 - 8x^2 + 1
+
+  approximating log2:
+    take exponent - 127 as starting point. exponent is the approximate log2
+    because mantissa is < 1, log of mantissa is approximately equal to the mantissa itself plus a constant sigma = 0.0430357.
+    hence an aproximation is (exponent - 127) + mantissa + sigma.
+    log(x) = log((1+m)2^e) = e + 1 + m = e + m + sigma
+
+
   notes: look into generating fsm outputs based on next state combinationally as well(as opposed to on next rising edge) so that assignments can be made 
          when a state is entered rather than left.
 

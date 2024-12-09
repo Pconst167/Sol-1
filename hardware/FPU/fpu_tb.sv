@@ -50,9 +50,10 @@ module fpu_tb;
     #500ns;
     arst = 0;
 
-    write_operand_a(32'h7f7fffff); //  3.4028234664e38
+    write_operand_a(32'h3f800000); //  1
+    write_operand_b(32'h4cbebc20); //  100000000
 
-    ta_set_operation(pa_fpu::op_sqrt);
+    ta_set_operation(pa_fpu::op_div);
     ta_start_operation();
     ta_read_result(result);
 
