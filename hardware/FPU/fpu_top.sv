@@ -342,7 +342,7 @@ module fpu(
 
   // logarithm to base 2
   always_comb begin
-    log2_a_exp = {operand_a[30:23] - 8'd127, 23'b0};
+    log2_a_exp = {operand_a[30:23], 23'b0} - {8'd127, 23'b0};
     log2_m     = {8'b0,  operand_a[22:0]};
     log2_sigma = {8'b0, 23'b00001011000001000110011};
     log2       = log2_a_exp + log2_m + log2_sigma;
