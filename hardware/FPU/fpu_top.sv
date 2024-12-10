@@ -174,11 +174,12 @@ module fpu(
   logic                    start_operation_div_ar_fsm;  
 
   // logarithm
-  logic             [31:0] log2_a_exp; 
-  logic             [31:0] log2_m;     
-  logic             [31:0] log2_sigma;
-  logic             [31:0] log2;       
+  logic             [30:0] log2_a_exp; 
+  logic             [30:0] log2_m;     
+  logic             [30:0] log2_sigma;
+  logic             [30:0] log2;       
   logic              [7:0] log2_exp;       
+  logic                    log2_sign;
 
   // status
   logic                    overflow;
@@ -269,7 +270,7 @@ module fpu(
         op_sqrt: 
           ieee_packet <= {1'b0, sqrt_xn_exp, sqrt_xn_mantissa[22:0]};
         op_log2: 
-          ieee_packet <= {1'b0, log2_exp + 8'd127, log2[29:7]};
+          ieee_packet <= {log2_sign, log2_exp, log2[29:7]};
       endcase
     end
   end
@@ -342,15 +343,22 @@ module fpu(
 
   // logarithm to base 2
   always_comb begin
-    log2_a_exp = {operand_a[30:23], 23'b0} - {8'd127, 23'b0};
+    log2_a_exp = {operand_a[30:23], 23'b0};
     log2_m     = {8'b0,  operand_a[22:0]};
     log2_sigma = {8'b0, 23'b00001011000001000110011};
     log2       = log2_a_exp + log2_m + log2_sigma;
+    log2       = log2 - {8'd127, 23'b0};
     log2_exp   = 7;
+    log2_sign  = 1'b0;
+    if(log2[30]) begin
+      log2 = -log2;
+      log2_sign = 1'b1;
+    end
     while(log2[30] == 1'b0) begin
       log2_exp = log2_exp - 1;
       log2 = log2 << 1;
     end
+    log2_exp = log2_exp + 8'd127;
   end
 
   // ---------------------------------------------------------------------------------------
