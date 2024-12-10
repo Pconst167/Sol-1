@@ -10,7 +10,7 @@ module comb_divider_tb;
 
   initial begin
     a = 4'b1111;
-    b = 4'b1111; 
+    b = 4'b0011; 
     #10us;
 
     $stop;

@@ -37,8 +37,14 @@
     log(x) = log((1+m)2^e) = e + 1 + m = e + m + sigma
 
 
-  notes: look into generating fsm outputs based on next state combinationally as well(as opposed to on next rising edge) so that assignments can be made 
-         when a state is entered rather than left.
+  integer to float:
+    exponent = 31 - #leading zeroes.
+    mantissa placed on msb side with leading 1 removed
+
+  float to integer:
+    if exponent < 0, return 0
+    else truncate the number 1.mantissa after #exponent places and that is the integer
+    example: 1.1101010 * 2^3 = 1110. 
 
   operations:
     add
@@ -46,9 +52,19 @@
     mul
     div
     sqrt
+
     1/a
     int2float
     float2int
+
+Chebyshev approximations
+f        range      c0      c1          c2          c3           c4             c5
+sinπx   [-0.5,0.5]	0	      1.1336	    0           -0.13807	   0	            0.0045584
+cosπx   [-0.5,0.5]	0.472	  0	          -0.4994	    0	           0.027985	      0
+sqrt    [1,4]	      1.542	  0.49296     -0.040488	  0.0066968	  -0.0013836	    0.00030211
+log2    [1,2]	      0.54311	0.49505	    -0.042469	  0.0048576	  -0.00062481	    8.3994e-05
+exp     [0,1]	      1.7534	0.85039	     0.10521	  0.0087221	   0.00054344	    2.7075e-05
+2/πatan [-1,1]	    0	      0.5274	     0	        -0.030213	   0	            0.0034855
 
 */
 
@@ -81,7 +97,6 @@ module fpu(
   logic             [ 7:0] b_exp;
   logic                    b_sign;
   logic             [ 7:0] ab_exp_diff;
-  logic             [ 7:0] ba_exp_diff;
 
   logic             [ 7:0] a_exp_adjusted;
   logic             [ 7:0] b_exp_adjusted;
@@ -144,6 +159,9 @@ module fpu(
   logic                    sqrt_b_xn_wrt;
   logic                    sqrt_b_div_wrt;
 
+  // float2int
+  logic             [31:0] result_float2int;
+
   pa_fpu::e_fpu_op         operation; // arithmetic operation to be performed
   logic                    start_operation;
 
@@ -155,11 +173,14 @@ module fpu(
   logic                    operation_done_ar_fsm;   // for handshake between main fsm and arithmetic fsm
   logic                    start_operation_div_ar_fsm;  
 
+  // logarithm
+  logic             [31:0] log2_a_exp; 
+  logic             [31:0] log2_m;     
+  logic             [31:0] log2_sigma;
+  logic             [31:0] log2;       
+  logic              [7:0] log2_exp;       
+
   // status
-  logic                    a_is_zero;
-  logic                    b_is_zero;
-  logic                    a_subnormal;
-  logic                    b_subnormal;
   logic                    overflow;
   logic                    underflow;
   logic                    NaN;
@@ -177,6 +198,10 @@ module fpu(
   pa_fpu::e_div_st         next_state_div_fsm;
   pa_fpu::e_sqrt_st        curr_state_sqrt_fsm;
   pa_fpu::e_sqrt_st        next_state_sqrt_fsm;
+
+
+  // microcode sequencer
+
 
   // ---------------------------------------------------------------------------------------
 
@@ -221,14 +246,7 @@ module fpu(
     end
   end
 
-  assign ab_exp_diff     = a_exp - b_exp;
-  assign ba_exp_diff     = b_exp - a_exp;
-
-  assign a_is_zero       = a_exp == 8'h00 && a_mantissa[22:0] == 23'h0;
-  assign b_is_zero       = b_exp == 8'h00 && b_mantissa[22:0] == 23'h0;
-
-  assign a_subnormal     = a_exp == 8'h00 && a_mantissa[22:0] != 23'h0;
-  assign b_subnormal     = b_exp == 8'h00 && b_mantissa[22:0] != 23'h0;
+  assign ab_exp_diff = a_exp - b_exp;
 
   assign start_operation_div_fsm = start_operation_div_ar_fsm || sqrt_div_A_by_xn_start;
 
@@ -250,6 +268,8 @@ module fpu(
           ieee_packet <= {result_sign_div, result_exp_div, result_mantissa_div[22:0]};
         op_sqrt: 
           ieee_packet <= {1'b0, sqrt_xn_exp, sqrt_xn_mantissa[22:0]};
+        op_log2: 
+          ieee_packet <= {1'b0, log2_exp + 8'd127, log2[29:7]};
       endcase
     end
   end
@@ -320,16 +340,29 @@ module fpu(
     else databus_out = 'z;
   end
 
+  // logarithm to base 2
+  always_comb begin
+    log2_a_exp = {operand_a[30:23] - 8'd127, 23'b0};
+    log2_m     = {8'b0,  operand_a[22:0]};
+    log2_sigma = {8'b0, 23'b00001011000001000110011};
+    log2       = log2_a_exp + log2_m + log2_sigma;
+    log2_exp   = 7;
+    while(log2[30] == 1'b0) begin
+      log2_exp = log2_exp - 1;
+      log2 = log2 << 1;
+    end
+  end
+
   // ---------------------------------------------------------------------------------------
   // addition & subtraction combinational datapath
 
   // if aexp < bexp, then increase aexp and right-shift a_mantissa by same number
   // else if aexp > bexp, then increase bexp and right-shift b_mantissa by same number
-  // else, exponents are the same and we are ok
+  // else, exponents are the same
   always_comb begin
     if(a_exp < b_exp) begin
-      a_mantissa_adjusted = a_mantissa >> ba_exp_diff;
-      a_exp_adjusted      = a_is_zero ? a_exp : a_exp + ba_exp_diff;
+      a_mantissa_adjusted = a_mantissa >> -ab_exp_diff;
+      a_exp_adjusted      = b_exp;
 
       b_mantissa_adjusted = b_mantissa;
       b_exp_adjusted      = b_exp;
@@ -339,7 +372,7 @@ module fpu(
       a_exp_adjusted      = a_exp;
 
       b_mantissa_adjusted = b_mantissa >> ab_exp_diff;
-      b_exp_adjusted      = b_is_zero ? b_exp : b_exp + ab_exp_diff;
+      b_exp_adjusted      = a_exp;
     end   
     else begin
       a_mantissa_adjusted = a_mantissa;
@@ -361,8 +394,7 @@ module fpu(
       result_sign_add = 1'b0;
     end
     else begin
-      if(!a_is_zero) result_exp_add = a_exp_adjusted;
-      else result_exp_add = b_exp_adjusted;
+      result_exp_add = b_exp_adjusted;
       result_sign_add = result_mantissa_add[25];
       if(result_sign_add) result_mantissa_add = -result_mantissa_add;
       if(result_mantissa_add[25]) begin
@@ -389,8 +421,7 @@ module fpu(
       result_sign_sub = 1'b0;
     end
     else begin
-      if(!a_is_zero) result_exp_sub = a_exp_adjusted;
-      else result_exp_sub = b_exp_adjusted;
+      result_exp_sub = b_exp_adjusted;
       result_sign_sub = result_mantissa_sub[25];
       if(result_sign_sub) result_mantissa_sub = -result_mantissa_sub;
       if(result_mantissa_sub[25]) begin
@@ -492,6 +523,8 @@ module fpu(
             next_state_arith_fsm = pa_fpu::arith_div_st;
           pa_fpu::op_sqrt:
             next_state_arith_fsm = pa_fpu::arith_sqrt_st;
+          pa_fpu::op_log2:
+            next_state_arith_fsm = pa_fpu::arith_log2_st;
         endcase
 
       pa_fpu::arith_add_st:
@@ -514,6 +547,9 @@ module fpu(
         if(operation_done_sqrt_fsm == 1'b1) next_state_arith_fsm = pa_fpu::arith_sqrt_done_st;
       pa_fpu::arith_sqrt_done_st:
         if(operation_done_sqrt_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_result_valid_st;
+
+      pa_fpu::arith_log2_st:
+        next_state_arith_fsm = arith_result_valid_st;
 
       pa_fpu::arith_result_valid_st:
         if(start_operation_ar_fsm == 1'b0) next_state_arith_fsm = pa_fpu::arith_idle_st;
@@ -589,6 +625,12 @@ module fpu(
         end
         pa_fpu::arith_sqrt_done_st: begin
           operation_done_ar_fsm <= 1'b0;
+          start_operation_div_ar_fsm <= 1'b0;
+          start_operation_sqrt_fsm <= 1'b0;
+        end
+        pa_fpu::arith_log2_st: begin
+          operation_done_ar_fsm <= 1'b0;
+          start_operation_mul_fsm <= 1'b0;
           start_operation_div_ar_fsm <= 1'b0;
           start_operation_sqrt_fsm <= 1'b0;
         end
@@ -1044,39 +1086,35 @@ module fpu(
     end
   end
 
-  // main fsm
-  // next state clocking
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_main_fsm <= main_idle_st;
-    else curr_state_main_fsm <= next_state_main_fsm;
+  // float2int
+  // if exponent < 0, return 0
+  // else truncate the number 1.mantissa after #exponent places and that is the integer
+  // example: 1.1101010 * 2^3 = 1110. 
+  always_comb begin
+    logic [7:0] shift;
+    if(a_exp - 8'd127 < 0) result_float2int = 32'b0;
+    else begin
+      shift = a_exp - 8'd127;
+      result_float2int = {1'b1, a_mantissa};
+    end
   end
 
-  // arithmetic fsm
   // next state clocking
   always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_arith_fsm <= arith_idle_st;
-    else curr_state_arith_fsm <= next_state_arith_fsm;
-  end
-
-  // multiply fsm
-  // next state clocking
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_mul_fsm <= mul_idle_st;
-    else curr_state_mul_fsm <= next_state_mul_fsm;
-  end
-
-  // divide fsm
-  // next state clocking
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_div_fsm <= div_idle_st;
-    else curr_state_div_fsm <= next_state_div_fsm;
-  end
-
-  // sqrt fsm
-  // next state clocking
-  always_ff @(posedge clk, posedge arst) begin
-    if(arst) curr_state_sqrt_fsm <= sqrt_idle_st;
-    else curr_state_sqrt_fsm <= next_state_sqrt_fsm;
+    if(arst) begin
+      curr_state_main_fsm  <= main_idle_st;
+      curr_state_arith_fsm <= arith_idle_st;
+      curr_state_mul_fsm   <= mul_idle_st;
+      curr_state_div_fsm   <= div_idle_st;
+      curr_state_sqrt_fsm  <= sqrt_idle_st;
+    end
+    else begin
+      curr_state_main_fsm  <= next_state_main_fsm;
+      curr_state_arith_fsm <= next_state_arith_fsm;
+      curr_state_mul_fsm   <= next_state_mul_fsm;
+      curr_state_div_fsm   <= next_state_div_fsm;
+      curr_state_sqrt_fsm  <= next_state_sqrt_fsm;
+    end
   end
 
 /*

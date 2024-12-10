@@ -7,6 +7,7 @@ package pa_fpu;
     op_square,
     op_div,
     op_sqrt,
+    op_log2,
     op_a_inv,
     op_sin,
     op_cos,
@@ -35,6 +36,7 @@ package pa_fpu;
     arith_div_done_st,
     arith_sqrt_st,
     arith_sqrt_done_st,
+    arith_log2_st,
     arith_result_valid_st
   } e_arith_st;
 
