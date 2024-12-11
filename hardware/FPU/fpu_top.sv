@@ -1,6 +1,7 @@
 // FPU Prototype
 // This is an FPU unit that will perform addition, subtraction, multiplication, division, square root, and transcendental functions
 // It is written in SystemVerilog here for prototyping purposes.
+// Totally non-optimized and for prototyping and studying purposes only!
 //
 // Created P. Constantino 2024
 //

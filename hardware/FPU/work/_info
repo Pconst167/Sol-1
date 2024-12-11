@@ -765,6 +765,10 @@ R0
 R1
 R0
 R1
+R0
+R1
+R0
+R1
 Z2 !s12c _opt3
 R1
 R2
@@ -1852,10 +1856,10 @@ n@_opt3
 R13
 R6
 T_opt4
-!s110 1733900716
-VF[H7VG7ZJd@4ZDGNUb:^W1
+!s110 1733906678
+V:0YkIHIAjgJgFgIOh1_DH1
 R7
-=19-000ae431a4f1-675939ac-d62d9-206c9
+=21-000ae431a4f1-675950f5-e8d4c-206c9
 R1
 R8
 R9
@@ -1869,24 +1873,24 @@ Z14 2/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z15 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
 Z16 DXx4 work 6 pa_fpu 0 22 G5ZEc_7DoY9F_2[1VQkQo3
 DXx4 work 15 fpu_top_sv_unit 0 22 I6;Neab0]MU]YkV[_Z4b33
-Z17 !s110 1733900694
+Z17 !s110 1733906660
 Z18 VDg1SIo80bB@j0V0VzS_@n1
 r1
 !s85 0
 !i10b 1
-!s100 Y?4LUh6B:0Z4me^bNHboX1
-IBMnW_0BXdEzh9ZkS5;<=Y1
+!s100 =kW`PO@7eA1EMIoOkP<:E1
+Ie74nB86YWaK>8]Fmn^?KC0
 !s105 fpu_top_sv_unit
 S1
 Z19 d/home/pconst/Desktop/sol-1/hardware/FPU
-Z20 w1733900505
+Z20 w1733906657
 Z21 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
 Z22 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv
-!i122 3381
+!i122 3387
 L0 74 1091
 Z23 OL;L;2024.1;79
 31
-Z24 !s108 1733900694.000000
+Z24 !s108 1733906660.000000
 Z25 !s107 /home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 Z26 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/sol-1/hardware/FPU/fpu_top.sv|
 !i113 0
@@ -1907,10 +1911,10 @@ ISa_^zY9@4oF8I2_PeZBe82
 !s105 fpu_tb_sv_unit
 S1
 R19
-Z29 w1733900339
+Z29 w1733900792
 Z30 8/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
 Z31 F/home/pconst/Desktop/sol-1/hardware/FPU/fpu_tb.sv
-!i122 3382
+!i122 3388
 L0 3 209
 R23
 31
@@ -1937,7 +1941,7 @@ R19
 R29
 R30
 R31
-!i122 3382
+!i122 3388
 Z34 L0 1 0
 R23
 31
@@ -1964,7 +1968,7 @@ R19
 R20
 R21
 R22
-!i122 3381
+!i122 3387
 L0 72 0
 R23
 31
@@ -1986,14 +1990,14 @@ R19
 w1733793762
 8/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
 F/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv
-!i122 3380
+!i122 3386
 R34
 VG5ZEc_7DoY9F_2[1VQkQo3
 R23
 r1
 !s85 0
 31
-R24
+!s108 1733906659.000000
 !s107 /home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv|
 !s90 -reportprogress|300|-work|work|-vopt|-sv|-stats=none|/home/pconst/Desktop/sol-1/hardware/FPU/pa_fpu.sv|
 !i113 0
