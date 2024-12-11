@@ -1,6 +1,6 @@
 // FPU Prototype
 // This is an FPU unit that will perform addition, subtraction, multiplication, division, square root, and transcendental functions
-// It is written in SystemVerilog here for prototyping purposes, and after that will be built in hardware for the Sol-1 system
+// It is written in SystemVerilog here for prototyping purposes.
 //
 // Created P. Constantino 2024
 //
@@ -52,6 +52,7 @@
     mul
     div
     sqrt
+    log2
 
     1/a
     int2float
@@ -201,6 +202,7 @@ module fpu(
   pa_fpu::e_sqrt_st        next_state_sqrt_fsm;
 
 
+  // todo
   // microcode sequencer
 
 
