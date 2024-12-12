@@ -5,6 +5,7 @@
 //
 // Created P. Constantino 2024
 //
+
 /*
   sqrt: newton-raphson
     xn = 0.5(xn + A/xn)
@@ -37,7 +38,6 @@
     hence an aproximation is (exponent - 127) + mantissa + sigma.
     log(x) = log((1+m)2^e) = e + 1 + m = e + m + sigma
 
-
   integer to float:
     exponent = 31 - #leading zeroes.
     mantissa placed on msb side with leading 1 removed
@@ -59,14 +59,14 @@
     int2float
     float2int
 
-Chebyshev approximations
-f        range      c0      c1          c2          c3           c4             c5
-sinπx   [-0.5,0.5]	0	      1.1336	    0           -0.13807	   0	            0.0045584
-cosπx   [-0.5,0.5]	0.472	  0	          -0.4994	    0	           0.027985	      0
-sqrt    [1,4]	      1.542	  0.49296     -0.040488	  0.0066968	  -0.0013836	    0.00030211
-log2    [1,2]	      0.54311	0.49505	    -0.042469	  0.0048576	  -0.00062481	    8.3994e-05
-exp     [0,1]	      1.7534	0.85039	     0.10521	  0.0087221	   0.00054344	    2.7075e-05
-2/πatan [-1,1]	    0	      0.5274	     0	        -0.030213	   0	            0.0034855
+  Chebyshev approximations
+    f        range       c0       c1          c2          c3           c4             c5
+    sinπx    [-0.5,0.5]  0	      1.1336	    0           -0.13807	   0	            0.0045584
+    cosπx    [-0.5,0.5]  0.472	  0	         -0.4994	    0	           0.027985	      0
+    sqrt     [1,4]	     1.542	  0.49296    -0.040488	  0.0066968	  -0.0013836	    0.00030211
+    log2     [1,2]	     0.54311	0.49505	   -0.042469	  0.0048576	  -0.00062481	    8.3994e-05
+    exp      [0,1]	     1.7534	  0.85039	    0.10521	    0.0087221	   0.00054344	    2.7075e-05
+    2/πatan  [-1,1]	     0	      0.5274	    0	          -0.030213	   0	            0.0034855
 
 */
 
@@ -206,6 +206,9 @@ module fpu(
   // todo
   // microcode sequencer
 
+  assign ab_exp_diff = a_exp - b_exp;
+
+  assign start_operation_div_fsm = start_operation_div_ar_fsm || sqrt_div_A_by_xn_start;
 
   // ---------------------------------------------------------------------------------------
 
@@ -249,10 +252,6 @@ module fpu(
       end
     end
   end
-
-  assign ab_exp_diff = a_exp - b_exp;
-
-  assign start_operation_div_fsm = start_operation_div_ar_fsm || sqrt_div_A_by_xn_start;
 
   // ---------------------------------------------------------------------------------------
 
