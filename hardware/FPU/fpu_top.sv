@@ -60,13 +60,13 @@
     float2int
 
   Chebyshev approximations
-    f        range       c0       c1          c2          c3           c4             c5
-    sinπx    [-0.5,0.5]  0	      1.1336	    0           -0.13807	   0	            0.0045584
-    cosπx    [-0.5,0.5]  0.472	  0	         -0.4994	    0	           0.027985	      0
-    sqrt     [1,4]	     1.542	  0.49296    -0.040488	  0.0066968	  -0.0013836	    0.00030211
-    log2     [1,2]	     0.54311	0.49505	   -0.042469	  0.0048576	  -0.00062481	    8.3994e-05
-    exp      [0,1]	     1.7534	  0.85039	    0.10521	    0.0087221	   0.00054344	    2.7075e-05
-    2/πatan  [-1,1]	     0	      0.5274	    0	          -0.030213	   0	            0.0034855
+    f           range       c0       c1          c2          c3           c4             c5
+    sinπx       [-0.5,0.5]  0	      1.1336	    0           -0.13807	   0	            0.0045584
+    cosπx       [-0.5,0.5]  0.472	  0	         -0.4994	    0	           0.027985	      0
+    sqrt        [1,4]	     1.542	  0.49296    -0.040488	  0.0066968	  -0.0013836	    0.00030211
+    log2        [1,2]	     0.54311	0.49505	   -0.042469	  0.0048576	  -0.00062481	    8.3994e-05
+    exp         [0,1]	     1.7534	  0.85039	    0.10521	    0.0087221	   0.00054344	    2.7075e-05
+    (2/π)*atan  [-1,1]	     0	      0.5274	    0	          -0.030213	   0	            0.0034855
 
 */
 
@@ -939,7 +939,7 @@ module fpu(
         if(start_operation_sqrt_fsm) next_state_sqrt_fsm = pa_fpu::sqrt_start_st;
       // set A = a_mantissa (A = number whose sqrt is requested)
       // set xn to initial guess 
-      // set counter for number of steps = 10
+      // set counter for number of steps
       pa_fpu::sqrt_start_st: 
         next_state_sqrt_fsm = pa_fpu::sqrt_div_setup_st;
       // set a_mantissa = A, a_exp = A_exp
@@ -1108,6 +1108,11 @@ module fpu(
       result_float2int = {1'b1, a_mantissa};
     end
   end
+
+
+  // sin x
+  // x - x^3/6 + x^5/120 - x^7/5040
+  // 
 
   // next state clocking
   always_ff @(posedge clk, posedge arst) begin
