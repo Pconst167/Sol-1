@@ -1,18 +1,19 @@
 package pa_fpu;
 
-  typedef enum logic[3:0]{
-    op_add = 4'h0,
-    op_sub = 4'h1,
+  typedef enum logic[4:0]{
+    op_add,
+    op_sub,
     op_mul,
     op_square,
     op_div,
     op_sqrt,
     op_log2,
+    op_log,
+    op_ln,
     op_a_inv,
     op_sin,
     op_cos,
     op_tan,
-    op_ln,
     op_exp,
     op_int_to_float,
     op_float_to_int

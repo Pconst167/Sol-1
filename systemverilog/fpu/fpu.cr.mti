@@ -1,0 +1,16 @@
+/home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_tb.sv {0 {vlog -work work -vopt -sv -stats=none /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_tb.sv
+Questa Intel Starter FPGA Edition-64 vlog 2024.1 Compiler 2024.04 Apr 19 2024
+** Error: /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_tb.sv(1): (vlog-13006) Could not find the package (pa_fpu).  Design read will continue, but expect a cascade of errors after this failure.  Furthermore if you experience a vopt-7 error immediately before this error then please check the package names or the library search paths on the command line.
+** Error: /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_tb.sv(56): (vlog-2164) Class or package 'pa_fpu' not found.
+** Error: (vlog-13069) /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_tb.sv(56): near "::": syntax error, unexpected ::, expecting ')'.
+** Error: /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_tb.sv(91): (vlog-2164) Class or package 'pa_fpu' not found.
+** Error: (vlog-13069) /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_tb.sv(91): near "::": syntax error, unexpected ::, expecting ')'.
+
+} {3.0 8.0} {}} /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_top.sv {0 {vlog -work work -vopt -sv -stats=none /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_top.sv
+Questa Intel Starter FPGA Edition-64 vlog 2024.1 Compiler 2024.04 Apr 19 2024
+** Error: /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_top.sv(73): (vlog-13006) Could not find the package (pa_fpu).  Design read will continue, but expect a cascade of errors after this failure.  Furthermore if you experience a vopt-7 error immediately before this error then please check the package names or the library search paths on the command line.
+** Error: /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_top.sv(162): (vlog-2164) Class or package 'pa_fpu' not found.
+** Error: (vlog-13069) /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_top.sv(162): near "::": syntax error, unexpected ::.
+** Error: /home/pconst/Desktop/sol-1/systemverilog/fpu/fpu_top.sv(162): (vlog-13205) Syntax error found in the scope following 'pa_fpu'. Is there a missing '::'?
+
+} {3.0 7.0} {}}
