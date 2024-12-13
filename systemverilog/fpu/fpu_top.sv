@@ -402,11 +402,11 @@ module fpu(
       result_m_add_sub = result_m_add_sub >> 1;
       result_e_add_sub = result_e_add_sub + 1;
     end
-    else if(result_m_add_sub[23:0] != 24'h0)
-      while(!result_m_add_sub[23]) begin
-        result_m_add_sub = result_m_add_sub << 1;
-        result_e_add_sub = result_e_add_sub - 1;
-      end
+    else while(!result_m_add_sub[23]) begin
+      if(result_m_add_sub == '0) break;
+      result_m_add_sub = result_m_add_sub << 1;
+      result_e_add_sub = result_e_add_sub - 1;
+    end
   end
 
   // ---------------------------------------------------------------------------------------
@@ -742,10 +742,11 @@ module fpu(
       if(next_state_div_fsm == pa_fpu::div_sub_divisor_test_st)  
         div_counter <= div_counter + 1;
       if(curr_state_div_fsm == pa_fpu::div_result_valid_st) begin
-        automatic logic [7:0] e = (a_exp - b_exp) + 8'd127;
+        automatic logic  [7:0] e = (a_exp - b_exp) + 8'd127;
         automatic logic [23:0] m = remainder_dividend[23:0];
         result_sign_div <= a_sign ^ b_sign;
         while(m[23] == 1'b0) begin
+          if(m == '0) break;
           m = m << 1;
           e = e - 1;
         end
