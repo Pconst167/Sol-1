@@ -335,7 +335,7 @@ module fpu(
 
   // logarithm to base 2
   always_comb begin
-    // aliasing the floating point number as an integer such that (exponent-127) is the integral part, and mantissa is the fractional part
+    // aliasing the floating point number as a new number such that (exponent-127) is the integral part, and mantissa is the fractional part
     // then adding a fractional error term gives the approximate log2 of the floating point.
     log2      = {operand_a[30:23] - 8'd127, operand_a[22:0]} + {8'b0, 23'b00001011000001000110011};
     log2_exp  = 7;
