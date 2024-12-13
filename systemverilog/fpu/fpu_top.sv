@@ -171,9 +171,6 @@ module fpu(
   logic                    start_operation_div_ar_fsm;  
 
   // logarithm
-  logic             [30:0] log2_a_exp; 
-  logic             [30:0] log2_m;     
-  logic             [30:0] log2_sigma;
   logic             [30:0] log2;       
   logic              [7:0] log2_exp;       
   logic                    log2_sign;
@@ -338,18 +335,17 @@ module fpu(
 
   // logarithm to base 2
   always_comb begin
-    log2_a_exp = {operand_a[30:23], 23'b0};
-    log2_m     = {8'b0,  operand_a[22:0]};
-    log2_sigma = {8'b0, 23'b00001011000001000110011};
-    log2       = log2_a_exp + log2_m + log2_sigma;
-    log2       = log2 - {8'd127, 23'b0};
-    log2_exp   = 7;
-    log2_sign  = 1'b0;
+    // aliasing the floating point number as an integer such that (exponent-127) is the integral part, and mantissa is the fractional part
+    // then adding a fractional error term gives the approximate log2 of the floating point.
+    log2      = {operand_a[30:23] - 8'd127, operand_a[22:0]} + {8'b0, 23'b00001011000001000110011};
+    log2_exp  = 7;
+    log2_sign = 1'b0;
     if(log2[30]) begin
       log2 = -log2;
       log2_sign = 1'b1;
     end
     while(log2[30] == 1'b0) begin
+      if(log2 == '0) break;
       log2_exp = log2_exp - 1;
       log2 = log2 << 1;
     end
@@ -1075,6 +1071,7 @@ module fpu(
 
   // sin x
   // x - x^3/6 + x^5/120 - x^7/5040
+  // 
   // 
 
   // next state clocking
