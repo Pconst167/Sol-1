@@ -198,13 +198,9 @@ module fpu(
   pa_fpu::e_sqrt_st        next_state_sqrt_fsm;
 
 
-  // todo
-  // microcode sequencer
-  logic [10:0] u_addr; // current micro-address, indexed by instruction(5bit):cycle(6bit)
-  logic [7:0] control_word[3:0];
+  // ---------------------------------------------------------------------------------------
 
   assign ab_exp_diff = a_exp - b_exp;
-
   assign start_operation_div_fsm = start_operation_div_ar_fsm || sqrt_div_A_by_xn_start;
 
   // ---------------------------------------------------------------------------------------
