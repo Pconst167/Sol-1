@@ -31,7 +31,8 @@ module fpu_tb;
     st_fpu_computation'{32'h40000000, 32'h0,        2,            0},
     st_fpu_computation'{32'h41200000, 32'h0,        10,           0},
     st_fpu_computation'{32'h40490fda, 32'h402df854, 3.1415926,    2.7182818},
-    st_fpu_computation'{32'h3a83126f, 32'h0,        0.001,        0}
+    st_fpu_computation'{32'h40490fda, 32'h402df854, 3.1415926,    2.7182818},
+    st_fpu_computation'{32'h42168f5c, 32'h0,        37.64,        0}
   };
 
   initial begin
@@ -54,7 +55,7 @@ module fpu_tb;
     write_operand_a(32'h42168f5c); //  37.64
     write_operand_b(32'h41200000); //  10
 
-    ta_set_operation(pa_fpu::op_sqrt);
+    ta_set_operation(pa_fpu::op_div);
     ta_start_operation();
     ta_read_result(result);
 
@@ -106,28 +107,19 @@ module fpu_tb;
   task ta_read_result(output logic [31:0] result);
     // Wait for the command to execute and end before reading result
     @(posedge cmd_end);
-
     // Read result
     @(posedge clk);
     cs = 1'b0;
-    addr = 4'h9;
     @(negedge clk);
     rd = 1'b0;
-    @(negedge clk);
-    result[7:0] = databus_out;
-    @(negedge clk);
-    addr = 4'hA;
-    @(negedge clk);
-    result[15:8] = databus_out;
-    @(negedge clk);
-    addr = 4'hB;
-    @(negedge clk);
-    result[23:16] = databus_out;
-    @(negedge clk);
-    addr = 4'hC;
-    @(negedge clk);
-    result[31:24] = databus_out;
-    @(negedge clk);
+
+    for(bit [3:0] i = 0; i < 4; i++) begin
+      addr = 4'd9 + i;
+      @(negedge clk);
+      result[i*8+:8] = databus_out;
+      @(negedge clk);
+    end
+
     rd = 1'b1;
     @(negedge clk);
     cs = 1'b1;
@@ -144,34 +136,15 @@ module fpu_tb;
   );
     @(posedge clk);
     cs = 1'b0;
-    databus_in = op_a[7:0];
-    addr = 4'h0;
-    @(negedge clk);
-    wr = 1'b0;
-    @(negedge clk);
-    wr = 1'b1;
-    @(negedge clk);
-    databus_in = op_a[15:8];
-    addr = 4'h1;
-    @(negedge clk);
-    wr = 1'b0;
-    @(negedge clk);
-    wr = 1'b1;
-    @(negedge clk);
-    databus_in = op_a[23:16];
-    addr = 4'h2;
-    @(negedge clk);
-    wr = 1'b0;
-    @(negedge clk);
-    wr = 1'b1;
-    @(negedge clk);
-    databus_in = op_a[31:24];
-    addr = 4'h3;
-    @(negedge clk);
-    wr = 1'b0;
-    @(negedge clk);
-    wr = 1'b1;
-    @(negedge clk);
+    for(bit [3:0] i = 0; i < 4; i++) begin
+      databus_in = op_a[i*8+:8];
+      addr = i;
+      @(negedge clk);
+      wr = 1'b0;
+      @(negedge clk);
+      wr = 1'b1;
+      @(negedge clk);
+    end
     cs = 1'b1;
   endtask
 
@@ -180,34 +153,15 @@ module fpu_tb;
   );
     @(posedge clk);
     cs = 1'b0;
-    databus_in = op_b[7:0];
-    addr = 4'h4;
-    @(negedge clk);
-    wr = 1'b0;
-    @(negedge clk);
-    wr = 1'b1;
-    @(negedge clk);
-    databus_in = op_b[15:8];
-    addr = 4'h5;
-    @(negedge clk);
-    wr = 1'b0;
-    @(negedge clk);
-    wr = 1'b1;
-    @(negedge clk);
-    databus_in = op_b[23:16];
-    addr = 4'h6;
-    @(negedge clk);
-    wr = 1'b0;
-    @(negedge clk);
-    wr = 1'b1;
-    @(negedge clk);
-    databus_in = op_b[31:24];
-    addr = 4'h7;
-    @(negedge clk);
-    wr = 1'b0;
-    @(negedge clk);
-    wr = 1'b1;
-    @(negedge clk);
+    for(bit [3:0] i = 0; i < 4; i++) begin
+      databus_in = op_b[i*8+:8];
+      addr = 4'd4 + i;
+      @(negedge clk);
+      wr = 1'b0;
+      @(negedge clk);
+      wr = 1'b1;
+      @(negedge clk);
+    end
     cs = 1'b1;
   endtask
 
