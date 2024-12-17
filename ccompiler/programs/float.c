@@ -31,15 +31,11 @@ struct t_float16 add(struct t_float16 a, struct t_float16 b) {
 
     // Align exponents
     if (a.exponent < b.exponent) {
-        while (a.exponent < b.exponent) {
-            a.mantissa = a.mantissa / 2;
-            a.exponent = a.exponent + 1;
-        }
+        a.mantissa = a.mantissa >> (b.exponent - a.exponent);
+        a.exponent = b.exponent;
     } else if (b.exponent < a.exponent) {
-        while (b.exponent < a.exponent) {
-            b.mantissa = b.mantissa / 2;
-            b.exponent = b.exponent + 1;
-        }
+        b.mantissa = b.mantissa >> (a.exponent - b.exponent);
+        b.exponent = a.exponent;
     }
 
     // Add mantissas
@@ -60,15 +56,11 @@ struct t_float16 subtract(struct t_float16 a, struct t_float16 b) {
 
     // Align exponents
     if (a.exponent < b.exponent) {
-        while (a.exponent < b.exponent) {
-            a.mantissa = a.mantissa / 2;
-            a.exponent = a.exponent + 1;
-        }
+        a.mantissa = a.mantissa >> (b.exponent - a.exponent);
+        a.exponent = b.exponent;
     } else if (b.exponent < a.exponent) {
-        while (b.exponent < a.exponent) {
-            b.mantissa = b.mantissa / 2;
-            b.exponent = b.exponent + 1;
-        }
+        b.mantissa = b.mantissa >> (a.exponent - b.exponent);
+        b.exponent = a.exponent;
     }
 
     // Subtract mantissas
