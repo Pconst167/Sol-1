@@ -27,10 +27,6 @@
     ln(1+x)   = x - x^2/2 + x^3/3 - x^4/4 + x^5/5 - ...  (|x| < 1)
     arctan(x) = x - x^3/3 + x^5/5 - x^7/7 + ... (slow convergence)
 
-  chebyshev polynomials:
-    Tn   = cos(nx)
-    Tn+1 = 2xTn - Tn-1
-    T0 = 1, T1 = x, T2 = 2x^2-1, T3 = 4x^3 - 3x, T4 = 8x^4 - 8x^2 + 1
 
   approximating log2:
     take exponent - 127 as starting point. exponent is the approximate log2
@@ -58,6 +54,11 @@
     1/a
     int2float
     float2int
+
+  chebyshev polynomials:
+    Tn   = cos(nx)
+    Tn+1 = 2xTn - Tn-1
+    T0 = 1, T1 = x, T2 = 2x^2-1, T3 = 4x^3 - 3x, T4 = 8x^4 - 8x^2 + 1
 
   Chebyshev approximations
     f           range       c0       c1          c2          c3           c4             c5
