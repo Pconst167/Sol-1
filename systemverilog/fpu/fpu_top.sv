@@ -1096,6 +1096,7 @@ module fpu(
     end
   end
 
+  // todo
   // float2int
   // if exponent < 0, return 0
   // else truncate the number 1.mantissa after #exponent places and that is the integer
