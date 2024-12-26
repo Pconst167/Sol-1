@@ -2,27 +2,21 @@
   A C compiler for the Sol-1 Homebrew Minicomputer
 
   TODO:
-
   ** fix goto: at present we cannot jump to a label that is declared after the goto.
+  ** look at cast() function for improvements.
+  ** implement 'register' keyworded type local variables  
+  ** change unary logical not operator to use cmp32 cb, i32 instead of cmp32 ga, i32, when the new instruction is burned in rom 
+  ** implement mov32 b, [d] to move a 32bit integer address by 'd'
+  ** implement add32 ga, cb and sub32 cb, ga
+  ** implement mov d, [addr16]   (for UART IRQ to finish faster )
 
+  low priority:
   ** write a syntax parser/checker so that EITHER:
     * at beginning of program entire syntax is checked for errors 
     * after syntax is cleared OK, simply parse semantics which will be a simple matter of issuing a bunch of get()'s as the semantic parses parses.
   OR:
     * run syntax checker on a construct basis such that when executing a construct, say IF, check entire syntax for that construct and clear syntax
     * and thenparse semantics for that construct
-    
-  ** look at cast() function for improvements.
-
-  ** implement 'register' keyworded type local variables  
-
-  ** change unary logical not operator to use cmp32 cb, i32 instead of cmp32 ga, i32, when the new instruction is burned in rom 
-
-  ** implement mov32 b, [d] to move a 32bit integer address by 'd'
-
-  ** implement add32 ga, cb and sub32 cb, ga
-
-  ** implement mov d, [addr16]   (for UART IRQ to finish faster )
 */
 
 #include <stdio.h>
