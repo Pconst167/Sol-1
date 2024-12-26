@@ -185,11 +185,7 @@ module fpu(
   logic                    log2_sign;
 
   // status
-  logic                    overflow;
-  logic                    underflow;
-  logic                    NaN;
-  logic                    pos_infinity;
-  logic                    neg_infinity;
+  logic              [4:0] status; // invalid operation, div by zero, overflow, underflow, inexact 
 
   // fsm states
   pa_fpu::e_main_st        curr_state_main_fsm;
