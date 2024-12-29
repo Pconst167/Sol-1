@@ -3475,8 +3475,10 @@ t_type parse_logical_or(void){
       type2 = parse_logical_and();
       // or between ga and cb
       if(type_is_32bit(cast(expr_out, type2))){
-        if(!type_is_32bit(expr_out)) 
+        if(!type_is_32bit(expr_out))
           emitln("", "  mov g, 0");
+        else if(!type_is_32bit(type2))
+          emitln("", "  mov c, 0");
 
         emitln("", "  sor32 ga, cb"); // result in b
       }
@@ -3516,8 +3518,10 @@ t_type parse_logical_and(void){
       // or between ga and cb
       // (b!=0 or c!=0) and (a!=0 or g!=0)
       if(type_is_32bit(cast(expr_out, type2))){
-        if(!type_is_32bit(expr_out)) 
+        if(!type_is_32bit(expr_out))
           emitln("", "  mov g, 0");
+        else if(!type_is_32bit(type2))
+          emitln("", "  mov c, 0");
 
         emitln("", "  sand32 ga, cb"); // result in b
       }
@@ -3555,6 +3559,9 @@ t_type parse_bitwise_or(void){
       if(type_is_32bit(cast(expr_out, type2))){
         if(!type_is_32bit(expr_out))
           emitln("", "  mov g, 0");
+        else if(!type_is_32bit(type2))
+          emitln("", "  mov c, 0");
+
         emitln("", "  or32 cb, ga");
       }
       else{
@@ -3584,6 +3591,9 @@ t_type parse_bitwise_xor(void){
       if(type_is_32bit(cast(expr_out, type2))){
         if(!type_is_32bit(expr_out))
           emitln("", "  mov g, 0");
+        else if(!type_is_32bit(type2))
+          emitln("", "  mov c, 0");
+
         emitln("", "  xor32 ga, cb");
       }
       else{
@@ -3614,6 +3624,9 @@ t_type parse_bitwise_and(void){
       if(type_is_32bit(cast(expr_out, type2))){
         if(!type_is_32bit(expr_out))
           emitln("", "  mov g, 0");
+        else if(!type_is_32bit(type2))
+          emitln("", "  mov c, 0");
+
         emitln("", "  and32 cb, ga");
       }
       else{
@@ -3652,6 +3665,9 @@ t_type parse_relational(void){
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out))
               emitln("", "  mov g, 0");
+            else if(!type_is_32bit(type2))
+              emitln("", "  mov c, 0");
+
             emitln("", "  cmp32 ga, cb");
             emitln("", "  seq ; ==");
           }
@@ -3664,6 +3680,9 @@ t_type parse_relational(void){
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out))
               emitln("", "  mov g, 0");
+            else if(!type_is_32bit(type2))
+              emitln("", "  mov c, 0");
+
             emitln("", "  cmp32 ga, cb");
             emitln("", "  sneq ; !=");
           }
@@ -3681,6 +3700,9 @@ t_type parse_relational(void){
           if(type_is_32bit(cast(expr_out, type2))){
             if(!type_is_32bit(expr_out))
               emitln("", "  mov g, 0");
+            else if(!type_is_32bit(type2))
+              emitln("", "  mov c, 0");
+
             emitln("", "  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
               emitln("", "  slu ; <");
@@ -3704,8 +3726,10 @@ t_type parse_relational(void){
         // check if g < c. save result. check that c==g && a < b. save result. or both results together save result
         // check if g_a == c_b. save result. or both results together
           if(type_is_32bit(cast(expr_out, type2))){
-            if(!type_is_32bit(expr_out)) 
+            if(!type_is_32bit(expr_out))
               emitln("", "  mov g, 0");
+            else if(!type_is_32bit(type2))
+              emitln("", "  mov c, 0");
 
             emitln("", "  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
@@ -3723,8 +3747,10 @@ t_type parse_relational(void){
           break;
         case GREATER_THAN:
           if(type_is_32bit(cast(expr_out, type2))){
-            if(!type_is_32bit(expr_out)) 
+            if(!type_is_32bit(expr_out))
               emitln("", "  mov g, 0");
+            else if(!type_is_32bit(type2))
+              emitln("", "  mov c, 0");
 
             emitln("", "  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
@@ -3742,8 +3768,10 @@ t_type parse_relational(void){
           break;
         case GREATER_THAN_OR_EQUAL:
           if(type_is_32bit(cast(expr_out, type2))){
-            if(!type_is_32bit(expr_out)) 
+            if(!type_is_32bit(expr_out))
               emitln("", "  mov g, 0");
+            else if(!type_is_32bit(type2))
+              emitln("", "  mov c, 0");
 
             emitln("", "  cmp32 ga, cb");
             if(expr_out.ind_level > 0 || expr_out.sign_modifier == SIGNMOD_UNSIGNED)
@@ -3828,12 +3856,14 @@ t_type parse_terms(void){
       emitln("", "  mov a, b");
       if(type_is_32bit(expr_out)) emitln("", "  mov g, c");
       type2 = parse_factors();
-      expr_out = cast(expr_out, type2);
       // ga + cb
       if(temp_tok == PLUS){
-        if(type_is_32bit(expr_out)){
+        if(type_is_32bit(cast(expr_out, type2))){
           if(!type_is_32bit(expr_out))
+          //TODO: do we need to push g into the stack to save before using? could overwrite?
             emitln("", "  mov g, 0");
+          else if(!type_is_32bit(type2))
+            emitln("", "  mov c, 0");
 
           emitln("", "  add32 cb, ga");
         }
@@ -3841,9 +3871,12 @@ t_type parse_terms(void){
           emitln("", "  add b, a");
       }
       else if(temp_tok == MINUS){
-        if(type_is_32bit(expr_out)){
+        if(type_is_32bit(cast(expr_out, type2))){
           if(!type_is_32bit(expr_out))
             emitln("", "  mov g, 0");
+          else if(!type_is_32bit(type2))
+            emitln("", "  mov c, 0");
+
           emitln("", "  sub32 ga, cb");
           emitln("", "  mov b, a");
           emitln("", "  mov c, g");
@@ -3853,6 +3886,7 @@ t_type parse_terms(void){
           emitln("", "  mov b, a");
         }
       }
+      expr_out = cast(expr_out, type2);
     }
     if(type_is_32bit(type1)) emitln("", "  pop g");
     emitln("", "  pop a");

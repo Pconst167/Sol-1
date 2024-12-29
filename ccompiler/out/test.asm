@@ -7,23 +7,22 @@
 main:
   mov bp, $FFE0 ;
   mov sp, $FFE0 ; Make space for argc(2 bytes) and for 10 pointers in argv (local variables)
-; long int a = 65536; 
-  sub sp, 4
-; --- START LOCAL VAR INITIALIZATION
-  lea d, [bp + -3] ; $a
-  push d
-  mov32 cb, $00010000
-  pop d
-  mov [d], b
-  mov b, c
-  mov [d + 2], b
-; --- END LOCAL VAR INITIALIZATION
-; print_unsigned_long(a); 
+; print_unsigned_long(a+b); 
 ; --- START FUNCTION CALL
-  lea d, [bp + -3] ; $a
+  mov d, _a ; $a
+  mov b, [d]
+  mov c, 0
+; --- START TERMS
+  push a
+  mov a, b
+  mov d, _b ; $b
   mov b, [d + 2] ; Upper Word of the Long Int
   mov c, b ; And place it into C
   mov b, [d] ; Lower Word in B
+  mov g, 0
+  add32 cb, ga
+  pop a
+; --- END TERMS
   mov a, c
   swp a
   push a
@@ -58,6 +57,7 @@ _if1_cond:
   mov a, b
   mov g, c
   mov32 cb, $00000000
+  mov c, 0
   cmp32 ga, cb
   seq ; ==
   pop g
@@ -90,6 +90,7 @@ _while2_cond:
   mov a, b
   mov g, c
   mov32 cb, $00000000
+  mov c, 0
   cmp32 ga, cb
   sgu
   pop g
@@ -132,6 +133,7 @@ _while2_block:
   pop g
   pop a
 ; --- END FACTORS
+  mov g, 0
   add32 cb, ga
   pop a
 ; --- END TERMS
@@ -235,6 +237,9 @@ putchar:
 ; --- END TEXT SEGMENT
 
 ; --- BEGIN DATA SEGMENT
+_a: .dw $0100
+_b: .dw $0100
+.dw $0000
 
 _heap_top: .dw _heap
 _heap: .db 0
