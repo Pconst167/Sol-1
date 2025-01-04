@@ -8,11 +8,12 @@
 void dft(float x_real[N], float X_real[N], float X_img[N]);
 void idft(float x_real[N], float x_img[N], float X_real[N], float X_img[N]);
 
-float x_real[N] = {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-float x_img[N];
+//float x_real[N] = {4, -3.5549, 2.4142, -1.0583, 0, 0.4725, -0.4142, 0.1407, 0, 0.1407, -0.4142, 0.4725, 0, -1.0583, 2.4142, -3.5549};
+//float x_img[N] = {0.0000, -0.7071, 1.0000, -0.7071, 0.0000, 0.7071, -1.0000, 0.7071, -0.0000, -0.7071, 1.0000, -0.7071, 0.0000, 0.7071, -1.0000, 0.7071};
+float x_real[N] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0};
+float x_img[N] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 float X_real[N];
 float X_img[N];
-
 
 
 int main(){
@@ -38,8 +39,8 @@ void dft(float x_real[N], float X_real[N], float X_img[N]){
     X_real[k] = 0;
     X_img[k] = 0;
     for(int n = 0; n < N; n++){
-      X_real[k] = X_real[k] + x_real[n] *  cos(2*M_PI*n*k/N);
-      X_img[k]  = X_img[k]  + x_real[n] * -sin(2*M_PI*n*k/N);
+      X_real[k] = X_real[k] + x_real[n] * cos(2*M_PI*n*k/N) - x_img[n] *  sin(2*M_PI*n*k/N);
+      X_img[k] = X_img[k] + x_real[n] *  sin(2*M_PI*n*k/N) + x_img[n] * cos(2*M_PI*n*k/N);
     }
   }
 }
