@@ -8,7 +8,7 @@
 void dft(float x_real[N], float X_real[N], float X_img[N]);
 void idft(float x_real[N], float x_img[N], float X_real[N], float X_img[N]);
 
-float x_real[N] = {0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+float x_real[N] = {0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 float x_img[N];
 float X_real[N];
 float X_img[N];
