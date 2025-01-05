@@ -49,7 +49,7 @@ void dft(float x_real[N], float X_real[N], float X_img[N]){
     X_img[k] = 0;
     for(int n = 0; n < N; n++){
       X_real[k] = X_real[k] + x_real[n] * cos(2*M_PI*n*k/N) - x_img[n] *  sin(2*M_PI*n*k/N);
-      X_img[k] = X_img[k] + x_real[n] *  sin(2*M_PI*n*k/N) + x_img[n] * cos(2*M_PI*n*k/N);
+      X_img[k] = X_img[k] - x_real[n] *  sin(2*M_PI*n*k/N) + x_img[n] * cos(2*M_PI*n*k/N);
     }
   }
 }
