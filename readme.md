@@ -49,6 +49,8 @@ It is published here for educational purposes.
 
 
 ![Wirewrap Board](https://github.com/Pconst167/sol-1/blob/main/images/20180728_193513.jpg)
+![Register Board](https://github.com/Pconst167/sol-1/blob/main/images/20180727_015916.jpg)
+![Front](https://github.com/Pconst167/sol-1/blob/main/images/front-1.jpg)
 
 ### Licensing Terms
 
