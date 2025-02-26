@@ -48,6 +48,8 @@ It is published here for educational purposes.
 [Video demonstrations here](https://www.youtube.com/@PauloConstantino167/videos)
 
 
+![Wirewrap Board](https://github.com/Pconst167/sol-1/blob/main/images/20180728_193513.jpg)
+
 ### Licensing Terms
 
 CC BY-NC-SA 4.0 DEED
