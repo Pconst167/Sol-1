@@ -1,51 +1,10 @@
 m255
 K4
 z2
-!s12c _opt
-Z0 !s99 nomlopt
-!s11f vlog 2024.1 2024.04, Apr 19 2024
 13
 !s112 1.1
 !i10d 8192
 !i10e 25
 !i10f 100
 cModel Technology
-Z1 d/home/pconst/Desktop/sol-1/systemverilog/experiments/experiment
-T_opt
-!s110 1740404945
-VVGnn<WiGbnb`zEF5n`4Dg1
-04 6 4 work exp_tb fast 0
-=1-000ae431a4f1-67bc78d1-5815-828d
-R0
-!s12f OEM100
-!s12b OEM100
-!s124 OEM10U1 
-o-quiet -auto_acc_if_foreign -work work +acc=rtl
-Z2 tCvgOpt 0
-n@_opt
-OL;O;2024.1;79
-vexp_tb
-2exp_tb.sv
-DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
-!s110 1740404940
-!i10b 1
-!s100 fUDFnKB^MW=;fgoGF:WJW2
-ImcN^4O6GUI6Q:UIY14Ia30
-S1
-R1
-w1740404921
-8exp_tb.sv
-Fexp_tb.sv
-!i122 0
-L0 1 21
-VDg1SIo80bB@j0V0VzS_@n1
-OL;L;2024.1;79
-r1
-!s85 0
-31
-!s108 1740404940.000000
-!s107 exp_tb.sv|
-!s90 -work|work|+acc|exp_tb.sv|
-!i113 0
-o-work work +acc -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
-R2
+d/home/pconst/Desktop/sol-1/systemverilog/experiments/experiment
